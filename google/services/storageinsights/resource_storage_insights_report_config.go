@@ -56,6 +56,25 @@ func ResourceStorageInsightsReportConfig() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:     schema.TypeString,
@@ -393,6 +412,28 @@ func resourceStorageInsightsReportConfigRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading ReportConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -581,7 +622,7 @@ func flattenStorageInsightsReportConfigName(v interface{}, d *schema.ResourceDat
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenStorageInsightsReportConfigFrequencyOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

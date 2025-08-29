@@ -1,0 +1,24 @@
+resource: 'google_oracle_database_odb_network'
+generation_type: 'mmv1'
+source_file: 'products/oracledatabase/OdbNetwork.yaml'
+api_service_name: 'oracledatabase.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'OdbNetwork'
+autogen_status: true
+fields:
+  - field: 'create_time'
+  - field: 'deletion_protection'
+    provider_only: true
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'entitlement_id'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'network'
+  - field: 'odb_network_id'
+    provider_only: true
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true

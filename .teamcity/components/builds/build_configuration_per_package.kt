@@ -20,7 +20,7 @@ import replaceCharsId
 
 // BuildConfigurationsForPackages accepts a map containing details of multiple packages in a provider and returns a list of build configurations for them all.
 // Intended to be used in projects where we're testing all packages, e.g. the nightly test projects
-fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, testPrefix: String = "TestAcc"): List<BuildType> {
+fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, testPrefix: String = "TestAcc", releaseDiffTest: String = "false"): List<BuildType> {
     val list = ArrayList<BuildType>()
 
     // Create build configurations for all packages, except sweeper
@@ -28,8 +28,8 @@ fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, p
         val path: String = info.getValue("path").toString()
         val displayName: String = info.getValue("displayName").toString()
 
-        val pkg = PackageDetails(packageName, displayName, providerName, parentProjectName)
-        val buildConfig = pkg.buildConfiguration(path, vcsRoot, sharedResources, environmentVariables, testPrefix = testPrefix)
+        val pkg = PackageDetails(packageName, displayName, providerName, parentProjectName, releaseDiffTest)
+        val buildConfig = pkg.buildConfiguration(path, vcsRoot, sharedResources, environmentVariables, testPrefix = testPrefix, releaseDiffTest = releaseDiffTest)
         list.add(buildConfig)
     }
 
@@ -38,17 +38,17 @@ fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, p
 
 // BuildConfigurationForSinglePackage accepts details of a single package in a provider and returns a build configuration for it
 // Intended to be used in short-lived projects where we're testing specific packages, e.g. feature branch testing
-fun BuildConfigurationForSinglePackage(packageName: String, packagePath: String, packageDisplayName: String, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, testPrefix: String = "TestAcc"): BuildType{
-    val pkg = PackageDetails(packageName, packageDisplayName, providerName, parentProjectName)
-    return pkg.buildConfiguration(packagePath, vcsRoot, sharedResources, environmentVariables, testPrefix = testPrefix)
+fun BuildConfigurationForSinglePackage(packageName: String, packagePath: String, packageDisplayName: String, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, testPrefix: String = "TestAcc", releaseDiffTest: String = "false"): BuildType{
+    val pkg = PackageDetails(packageName, packageDisplayName, providerName, parentProjectName, releaseDiffTest = releaseDiffTest)
+    return pkg.buildConfiguration(packagePath, vcsRoot, sharedResources, environmentVariables, testPrefix = testPrefix, releaseDiffTest = releaseDiffTest)
 }
 
-class PackageDetails(private val packageName: String, private val displayName: String, private val providerName: String, private val parentProjectName: String) {
+class PackageDetails(private val packageName: String, private val displayName: String, private val providerName: String, private val parentProjectName: String, private val releaseDiffTest: String) {
 
     // buildConfiguration returns a BuildType for a service package
     // For BuildType docs, see https://teamcity.jetbrains.com/app/dsl-documentation/root/build-type/index.html
-    fun buildConfiguration(path: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, buildTimeout: Int = DefaultBuildTimeoutDuration, testPrefix: String): BuildType {
-
+    fun buildConfiguration(path: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration, buildTimeout: Int = DefaultBuildTimeoutDuration, testPrefix: String, releaseDiffTest: String): BuildType {
+        val testPrefix = "TestAcc"
         val testTimeout = "12"
 
         var parallelism = DefaultParallelism
@@ -72,7 +72,11 @@ class PackageDetails(private val packageName: String, private val displayName: S
                 tagBuildToIndicateTriggerMethod()
                 configureGoEnv()
                 downloadTerraformBinary()
-                runAcceptanceTests()
+                if (releaseDiffTest.toBoolean()) {
+                    runDiffTests()
+                } else {
+                    runAcceptanceTests()
+                }
                 saveArtifactsToGCS()
                 archiveArtifactsIfOverLimit() // Must be after push to GCS step, as this step impacts debug log files
             }
@@ -91,7 +95,7 @@ class PackageDetails(private val packageName: String, private val displayName: S
 
             params {
                 configureGoogleSpecificTestParameters(environmentVariables)
-                acceptanceTestBuildParams(parallelism, testPrefix, testTimeout)
+                acceptanceTestBuildParams(parallelism, testPrefix, testTimeout, releaseDiffTest)
                 terraformLoggingParameters(environmentVariables, providerName)
                 terraformCoreBinaryTesting()
                 terraformShouldPanicForSchemaErrors()

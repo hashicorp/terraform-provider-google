@@ -33,8 +33,18 @@ import (
 func TestAccComputeResizeRequest_computeMigResizeRequestExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +60,12 @@ func TestAccComputeResizeRequest_computeMigResizeRequestExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance_group_manager", "zone"},
+			},
+			{
+				ResourceName:       "google_compute_resize_request.a3_resize_request",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -71,7 +87,7 @@ resource "google_compute_region_instance_template" "a3_dws" {
   }
 
   disk {
-    source_image = "cos-cloud/cos-105-lts"
+    source_image = "cos-cloud/cos-121-lts"
     auto_delete  = true
     boot         = true
     disk_type    = "pd-ssd"

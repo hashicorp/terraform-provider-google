@@ -37,6 +37,40 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func setEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) error {
+	name := d.Get("name").(string)
+	if name == "" {
+		return nil
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerRegionalBasePath}}{{name}}")
+	if err != nil {
+		return err
+	}
+	if v == true {
+		url = fmt.Sprintf("%s:enable", url)
+	} else {
+		url = fmt.Sprintf("%s:disable", url)
+	}
+
+	parts := strings.Split(name, "/")
+	project := parts[1]
+
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	return err
+}
+
 func ResourceSecretManagerRegionalRegionalSecretVersion() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSecretManagerRegionalRegionalSecretVersionCreate,
@@ -54,6 +88,25 @@ func ResourceSecretManagerRegionalRegionalSecretVersion() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"version": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"secret_data": {
 				Type:        schema.TypeString,
@@ -147,11 +200,11 @@ func resourceSecretManagerRegionalRegionalSecretVersionCreate(d *schema.Resource
 	}
 
 	obj := make(map[string]interface{})
-	stateProp, err := expandSecretManagerRegionalRegionalSecretVersionEnabled(d.Get("enabled"), d, config)
+	enabledProp, err := expandSecretManagerRegionalRegionalSecretVersionEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(stateProp)) && (ok || !reflect.DeepEqual(v, stateProp)) {
-		obj["state"] = stateProp
+	} else if v, ok := d.GetOkExists("enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(enabledProp)) && (ok || !reflect.DeepEqual(v, enabledProp)) {
+		obj["state"] = enabledProp
 	}
 	payloadProp, err := expandSecretManagerRegionalRegionalSecretVersionPayload(nil, d, config)
 	if err != nil {
@@ -228,7 +281,7 @@ func resourceSecretManagerRegionalRegionalSecretVersionCreate(d *schema.Resource
 	}
 	d.SetId(name.(string))
 
-	_, err = expandSecretManagerRegionalRegionalSecretVersionEnabled(d.Get("enabled"), d, config)
+	err = setEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
 	}
@@ -347,12 +400,34 @@ func resourceSecretManagerRegionalRegionalSecretVersionRead(d *schema.ResourceDa
 		}
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("version"); ok && v != "" {
+		err = identity.Set("version", d.Get("version").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting version: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
 func resourceSecretManagerRegionalRegionalSecretVersionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	_, err := expandSecretManagerRegionalRegionalSecretVersionEnabled(d.Get("enabled"), d, config)
+	err := setEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
 	}
@@ -544,42 +619,7 @@ func flattenSecretManagerRegionalRegionalSecretVersionPayload(v interface{}, d *
 	return []interface{}{transformed}
 }
 
-func expandSecretManagerRegionalRegionalSecretVersionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	name := d.Get("name").(string)
-	if name == "" {
-		return "", nil
-	}
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerRegionalBasePath}}{{name}}")
-	if err != nil {
-		return nil, err
-	}
-
-	if v == true {
-		url = fmt.Sprintf("%s:enable", url)
-	} else {
-		url = fmt.Sprintf("%s:disable", url)
-	}
-
-	parts := strings.Split(name, "/")
-	project := parts[1]
-
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   project,
-		RawURL:    url,
-		UserAgent: userAgent,
-	})
-	if err != nil {
-		return nil, err
-	}
-
+func expandSecretManagerRegionalRegionalSecretVersionEnabled(_ interface{}, _ tpgresource.TerraformResourceData, _ *transport_tpg.Config) (interface{}, error) {
 	return nil, nil
 }
 

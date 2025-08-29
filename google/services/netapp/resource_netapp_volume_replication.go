@@ -109,6 +109,29 @@ func ResourceNetappVolumeReplication() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"volume_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -230,6 +253,56 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `Condition of the relationship. Can be one of the following:
   - true: The replication relationship is healthy. It has not missed the most recent scheduled transfer.
   - false: The replication relationship is not healthy. It has missed the most recent scheduled transfer.`,
+			},
+			"hybrid_peering_details": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `HybridPeeringDetails contains details about the hybrid peering.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"command": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Copy-paste-able commands to be used on user's ONTAP to accept peering requests.`,
+						},
+						"command_expiry_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Optional. Expiration time for the peering command to be executed on user's ONTAP.
+Uses RFC 3339, where generated output will always be Z-normalized and uses 0, 3, 6 or 9 fractional digits. Offsets other than "Z" are also accepted.`,
+						},
+						"passphrase": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Temporary passphrase generated to accept cluster peering command.`,
+						},
+						"peer_cluster_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Name of the user's local source cluster to be peered with the destination cluster.`,
+						},
+						"peer_svm_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Name of the user's local source vserver svm to be peered with the destination vserver svm.`,
+						},
+						"peer_volume_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. Name of the user's local source volume to be peered with the destination volume.`,
+						},
+						"subnet_ip": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Optional. IP address of the subnet.`,
+						},
+					},
+				},
+			},
+			"hybrid_replication_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Hybrid replication type.`,
 			},
 			"mirror_state": {
 				Type:     schema.TypeString,
@@ -394,11 +467,11 @@ func resourceNetappVolumeReplicationCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandNetappVolumeReplicationEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetappVolumeReplicationEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/replications?replicationId={{name}}")
@@ -564,6 +637,12 @@ func resourceNetappVolumeReplicationRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("description", flattenNetappVolumeReplicationDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VolumeReplication: %s", err)
 	}
+	if err := d.Set("hybrid_replication_type", flattenNetappVolumeReplicationHybridReplicationType(res["hybridReplicationType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
+	if err := d.Set("hybrid_peering_details", flattenNetappVolumeReplicationHybridPeeringDetails(res["hybridPeeringDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VolumeReplication: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappVolumeReplicationTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VolumeReplication: %s", err)
 	}
@@ -571,6 +650,34 @@ func resourceNetappVolumeReplicationRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading VolumeReplication: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("volume_name"); ok && v != "" {
+		err = identity.Set("volume_name", d.Get("volume_name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting volume_name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -608,11 +715,11 @@ func resourceNetappVolumeReplicationUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandNetappVolumeReplicationEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetappVolumeReplicationEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/replications/{{name}}")
@@ -1056,6 +1163,63 @@ func flattenNetappVolumeReplicationHealthy(v interface{}, d *schema.ResourceData
 }
 
 func flattenNetappVolumeReplicationDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridReplicationType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["subnet_ip"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsSubnetIp(original["subnetIp"], d, config)
+	transformed["command"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsCommand(original["command"], d, config)
+	transformed["command_expiry_time"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsCommandExpiryTime(original["commandExpiryTime"], d, config)
+	transformed["passphrase"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsPassphrase(original["passphrase"], d, config)
+	transformed["peer_volume_name"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsPeerVolumeName(original["peerVolumeName"], d, config)
+	transformed["peer_cluster_name"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsPeerClusterName(original["peerClusterName"], d, config)
+	transformed["peer_svm_name"] =
+		flattenNetappVolumeReplicationHybridPeeringDetailsPeerSvmName(original["peerSvmName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetappVolumeReplicationHybridPeeringDetailsSubnetIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsCommand(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsCommandExpiryTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsPassphrase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsPeerVolumeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsPeerClusterName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeReplicationHybridPeeringDetailsPeerSvmName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

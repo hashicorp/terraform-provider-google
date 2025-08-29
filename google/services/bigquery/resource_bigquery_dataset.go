@@ -38,6 +38,12 @@ import (
 
 const datasetIdRegexp = `^[0-9A-Za-z_]+$`
 
+var bigqueryDatasetAccessPrimitiveToRoleMap = map[string]string{
+	"OWNER":  "roles/bigquery.dataOwner",
+	"WRITER": "roles/bigquery.dataEditor",
+	"READER": "roles/bigquery.dataViewer",
+}
+
 func validateDatasetId(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if !regexp.MustCompile(datasetIdRegexp).MatchString(value) {
@@ -62,6 +68,31 @@ func validateDefaultTableExpirationMs(v interface{}, k string) (ws []string, err
 	return
 }
 
+// bigqueryDatasetAccessHash is a custom hash function for the access block.
+// It normalizes the 'role' field before hashing, treating legacy roles
+// and their modern IAM equivalents as the same.
+func resourceBigqueryDatasetAccessHash(v interface{}) int {
+	m, ok := v.(map[string]interface{})
+	if !ok {
+		return 0
+	}
+	// Make a copy of the map to avoid modifying the underlying data.
+	copy := make(map[string]interface{}, len(m))
+	for k, val := range m {
+		copy[k] = val
+	}
+
+	// Normalize the role if it exists and matches a legacy role.
+	if role, ok := copy["role"].(string); ok {
+		if newRole, ok := bigqueryDatasetAccessPrimitiveToRoleMap[role]; ok {
+			copy["role"] = newRole
+		}
+	}
+
+	// Use the default HashResource function on the (potentially modified) copy.
+	return schema.HashResource(bigqueryDatasetAccessSchema())(copy)
+}
+
 func ResourceBigQueryDataset() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigQueryDatasetCreate,
@@ -84,6 +115,17 @@ func ResourceBigQueryDataset() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"dataset_id": {
 				Type:         schema.TypeString,
@@ -101,7 +143,7 @@ underscores (_). The maximum length is 1,024 characters.`,
 				Optional:    true,
 				Description: `An array of objects that define dataset access for one or more entities.`,
 				Elem:        bigqueryDatasetAccessSchema(),
-				// Default schema.HashSchema is used.
+				Set:         resourceBigqueryDatasetAccessHash,
 			},
 			"default_collation": {
 				Type:     schema.TypeString,
@@ -622,11 +664,11 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("external_catalog_dataset_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(externalCatalogDatasetOptionsProp)) && (ok || !reflect.DeepEqual(v, externalCatalogDatasetOptionsProp)) {
 		obj["externalCatalogDatasetOptions"] = externalCatalogDatasetOptionsProp
 	}
-	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets?accessPolicyVersion=3")
@@ -802,7 +844,16 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -912,11 +963,11 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("external_catalog_dataset_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalCatalogDatasetOptionsProp)) {
 		obj["externalCatalogDatasetOptions"] = externalCatalogDatasetOptionsProp
 	}
-	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}?accessPolicyVersion=3")
@@ -1034,7 +1085,7 @@ func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData, config 
 		return v
 	}
 	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(bigqueryDatasetAccessSchema()), []interface{}{})
+	transformed := schema.NewSet(resourceBigqueryDatasetAccessHash, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {

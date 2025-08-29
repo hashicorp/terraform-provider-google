@@ -33,8 +33,18 @@ import (
 func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingSubscriptionBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -51,6 +61,12 @@ func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingS
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_exchange_id", "destination_dataset", "listing_id", "location"},
 			},
+			{
+				ResourceName:       "google_bigquery_analytics_hub_listing_subscription.subscription",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -61,7 +77,7 @@ resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
   display_name     = "tf_test_my_data_exchange%{random_suffix}"
-  description      = ""
+  description      = "Test Description"
 }
 
 resource "google_bigquery_analytics_hub_listing" "subscription" {
@@ -69,7 +85,7 @@ resource "google_bigquery_analytics_hub_listing" "subscription" {
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
   listing_id       = "tf_test_my_listing%{random_suffix}"
   display_name     = "tf_test_my_listing%{random_suffix}"
-  description      = ""
+  description      = "Test Description"
 
   bigquery_dataset {
     dataset = google_bigquery_dataset.subscription.id
@@ -79,7 +95,7 @@ resource "google_bigquery_analytics_hub_listing" "subscription" {
 resource "google_bigquery_dataset" "subscription" {
   dataset_id                  = "tf_test_my_listing%{random_suffix}"
   friendly_name               = "tf_test_my_listing%{random_suffix}"
-  description                 = ""
+  description                 = "Test Description"
   location                    = "US"
 }
 

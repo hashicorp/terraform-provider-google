@@ -51,6 +51,25 @@ func ResourceSecurityCenterV2FolderNotificationConfig() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"folder": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"config_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"config_id": {
 				Type:        schema.TypeString,
@@ -254,6 +273,28 @@ func resourceSecurityCenterV2FolderNotificationConfigRead(d *schema.ResourceData
 		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("folder"); ok && v != "" {
+		err = identity.Set("folder", d.Get("folder").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting folder: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("config_id"); ok && v != "" {
+		err = identity.Set("config_id", d.Get("config_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting config_id: %s", err)
+		}
+	}
 	return nil
 }
 

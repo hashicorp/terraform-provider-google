@@ -48,10 +48,21 @@ func TestAccOSConfigV2PolicyOrchestrator_osconfigv2PolicyOrchestratorBasicExampl
 		},
 	})
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
 		"project":        envvar.GetTestProjectFromEnv(),
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -67,6 +78,12 @@ func TestAccOSConfigV2PolicyOrchestrator_osconfigv2PolicyOrchestratorBasicExampl
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "policy_orchestrator_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_os_config_v2_policy_orchestrator.policy_orchestrator",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

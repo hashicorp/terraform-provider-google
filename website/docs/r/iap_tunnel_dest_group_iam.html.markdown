@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Identity-Aware Proxy TunnelDestGroup
+
 Three different resources help you manage your IAM policy for Identity-Aware Proxy TunnelDestGroup. Each of these resources serves a different use case:
 
 * `google_iap_tunnel_dest_group_iam_policy`: Authoritative. Sets the IAM policy for the tunneldestgroup and replaces any existing policy already attached.
@@ -153,7 +154,7 @@ The following arguments are supported:
  Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no region is provided in the parent identifier and no
   region is specified, it is taken from the provider configuration.
-* `group_name` - (Required) Unique tunnel destination group name. Used to find the parent resource to bind the IAM policy to
+* `dest_group` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

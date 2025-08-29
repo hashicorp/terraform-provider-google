@@ -48,6 +48,33 @@ func ResourcePublicCAExternalAccountKey() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"key_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"b64_mac_key": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -163,6 +190,7 @@ func resourcePublicCAExternalAccountKeyCreate(d *schema.ResourceData, meta inter
 func resourcePublicCAExternalAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
 	return nil
+	return nil
 }
 
 func resourcePublicCAExternalAccountKeyDelete(d *schema.ResourceData, meta interface{}) error {
@@ -203,6 +231,9 @@ func resourcePublicCAExternalAccountKeyPostCreateSetComputedFields(d *schema.Res
 	config := meta.(*transport_tpg.Config)
 	if err := d.Set("name", flattenPublicCAExternalAccountKeyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
+	if err := d.Set("key_id", flattenPublicCAExternalAccountKeyKeyId(res["keyId"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "key_id": %s`, err)
 	}
 	return nil
 }

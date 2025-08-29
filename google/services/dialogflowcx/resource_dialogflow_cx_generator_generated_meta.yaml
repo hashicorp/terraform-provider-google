@@ -1,0 +1,22 @@
+resource: 'google_dialogflow_cx_generator'
+generation_type: 'mmv1'
+source_file: 'products/dialogflowcx/Generator.yaml'
+api_service_name: 'dialogflow.googleapis.com'
+api_version: 'v3'
+api_resource_type_kind: 'Generator'
+fields:
+  - field: 'display_name'
+  - field: 'language_code'
+    provider_only: true
+  - field: 'llm_model_settings.model'
+  - field: 'llm_model_settings.prompt_text'
+  - field: 'model_parameter.max_decode_steps'
+  - field: 'model_parameter.temperature'
+  - field: 'model_parameter.top_k'
+  - field: 'model_parameter.top_p'
+  - field: 'name'
+  - field: 'parent'
+    provider_only: true
+  - field: 'placeholders.id'
+  - field: 'placeholders.name'
+  - field: 'prompt_text.text'

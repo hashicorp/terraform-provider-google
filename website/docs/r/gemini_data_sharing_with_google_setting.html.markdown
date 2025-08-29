@@ -34,6 +34,7 @@ resource "google_gemini_data_sharing_with_google_setting" "example" {
     location = "global"
     labels = {"my_key": "my_value"}
     enable_preview_data_sharing = true
+    enable_data_sharing = true
 }
 ```
 
@@ -47,9 +48,6 @@ The following arguments are supported:
   Id of the Data Sharing With Google Setting.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Labels as key value pairs.
@@ -58,7 +56,11 @@ The following arguments are supported:
 
 * `enable_preview_data_sharing` -
   (Optional)
-  Whether preview data sharing should be enabled.
+  Whether data sharing should be enabled in Preview products.
+
+* `enable_data_sharing` -
+  (Optional)
+  Whether data sharing should be enabled in GA products.
 
 * `location` -
   (Optional)
@@ -66,6 +68,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

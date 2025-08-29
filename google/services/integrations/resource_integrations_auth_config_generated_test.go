@@ -33,8 +33,18 @@ import (
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigAdvanceExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +60,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigAdvanceExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
+			},
+			{
+				ResourceName:       "google_integrations_auth_config.advance_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -83,9 +99,20 @@ resource "google_integrations_auth_config" "advance_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"client": acctest.BootstrapIntegrationsClient(t, "us-east4"),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,9 +153,20 @@ resource "google_integrations_auth_config" "username_and_password_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCodeExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"client": acctest.BootstrapIntegrationsClient(t, "us-east4"),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -172,9 +210,20 @@ resource "google_integrations_auth_config" "oauth2_authotization_code_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentialsExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"client": acctest.BootstrapIntegrationsClient(t, "us-east4"),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -232,9 +281,20 @@ resource "google_integrations_auth_config" "oauth2_client_credentials_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"client": acctest.BootstrapIntegrationsClient(t, "us-east4"),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -276,9 +336,20 @@ resource "google_integrations_auth_config" "jwt_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"client": acctest.BootstrapIntegrationsClient(t, "us-east4"),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -319,9 +390,20 @@ resource "google_integrations_auth_config" "auth_token_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"client": acctest.BootstrapIntegrationsClient(t, "us-east4"),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -367,9 +449,20 @@ resource "google_integrations_auth_config" "service_account_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"client": acctest.BootstrapIntegrationsClient(t, "us-east4"),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -415,9 +508,20 @@ resource "google_integrations_auth_config" "oidc_token_example" {
 func TestAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"client":        acctest.BootstrapIntegrationsClient(t, "us-east4"),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"client": acctest.BootstrapIntegrationsClient(t, "us-east4"),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

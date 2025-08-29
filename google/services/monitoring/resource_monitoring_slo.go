@@ -74,6 +74,21 @@ func ResourceMonitoringSlo() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"goal": {
 				Type:         schema.TypeFloat,
@@ -773,11 +788,11 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("goal"); !tpgresource.IsEmptyValue(reflect.ValueOf(goalProp)) && (ok || !reflect.DeepEqual(v, goalProp)) {
 		obj["goal"] = goalProp
 	}
-	rollingPeriodProp, err := expandMonitoringSloRollingPeriodDays(d.Get("rolling_period_days"), d, config)
+	rollingPeriodDaysProp, err := expandMonitoringSloRollingPeriodDays(d.Get("rolling_period_days"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("rolling_period_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(rollingPeriodProp)) && (ok || !reflect.DeepEqual(v, rollingPeriodProp)) {
-		obj["rollingPeriod"] = rollingPeriodProp
+	} else if v, ok := d.GetOkExists("rolling_period_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(rollingPeriodDaysProp)) && (ok || !reflect.DeepEqual(v, rollingPeriodDaysProp)) {
+		obj["rollingPeriod"] = rollingPeriodDaysProp
 	}
 	calendarPeriodProp, err := expandMonitoringSloCalendarPeriod(d.Get("calendar_period"), d, config)
 	if err != nil {
@@ -797,11 +812,11 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 	} else if !tpgresource.IsEmptyValue(reflect.ValueOf(serviceLevelIndicatorProp)) {
 		obj["serviceLevelIndicator"] = serviceLevelIndicatorProp
 	}
-	nameProp, err := expandMonitoringSloSloId(d.Get("slo_id"), d, config)
+	sloIdProp, err := expandMonitoringSloSloId(d.Get("slo_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("slo_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
+	} else if v, ok := d.GetOkExists("slo_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(sloIdProp)) && (ok || !reflect.DeepEqual(v, sloIdProp)) {
+		obj["name"] = sloIdProp
 	}
 
 	obj, err = resourceMonitoringSloEncoder(d, meta, obj)
@@ -947,6 +962,22 @@ func resourceMonitoringSloRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Slo: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -978,11 +1009,11 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("goal"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, goalProp)) {
 		obj["goal"] = goalProp
 	}
-	rollingPeriodProp, err := expandMonitoringSloRollingPeriodDays(d.Get("rolling_period_days"), d, config)
+	rollingPeriodDaysProp, err := expandMonitoringSloRollingPeriodDays(d.Get("rolling_period_days"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("rolling_period_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rollingPeriodProp)) {
-		obj["rollingPeriod"] = rollingPeriodProp
+	} else if v, ok := d.GetOkExists("rolling_period_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rollingPeriodDaysProp)) {
+		obj["rollingPeriod"] = rollingPeriodDaysProp
 	}
 	calendarPeriodProp, err := expandMonitoringSloCalendarPeriod(d.Get("calendar_period"), d, config)
 	if err != nil {
@@ -1672,7 +1703,7 @@ func flattenMonitoringSloSloId(v interface{}, d *schema.ResourceData, config *tr
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandMonitoringSloDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

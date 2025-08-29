@@ -79,6 +79,49 @@ data "google_compute_network" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=oracledatabase_cloud_vmcluster_odbnetwork&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Oracledatabase Cloud Vmcluster Odbnetwork
+
+
+```hcl
+resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
+  cloud_vm_cluster_id = "my-instance"
+  display_name = "my-instance displayname"
+  location = "europe-west2"
+  project = "my-project"
+  exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.cloudExadataInfrastructures.id
+  odb_network = "projects/my-project/locations/europe-west2/odbNetworks/my-odbnetwork"
+  odb_subnet = "projects/my-project/locations/europe-west2/odbNetworks/my-odbnetwork/odbSubnets/my-odbsubnet"
+  backup_odb_subnet = "projects/my-project/locations/europe-west2/odbNetworks/my-odbnetwork/odbSubnets/my-backup-odbsubnet"
+  properties {
+    license_type = "LICENSE_INCLUDED"
+    ssh_public_keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz1X2744t+6vRLmE5u6nHi6/QWh8bQDgHmd+OIxRQIGA/IWUtCs2FnaCNZcqvZkaeyjk5v0lTA/n+9jvO42Ipib53athrfVG8gRt8fzPL66C6ZqHq+6zZophhrCdfJh/0G4x9xJh5gdMprlaCR1P8yAaVvhBQSKGc4SiIkyMNBcHJ5YTtMQMTfxaB4G1sHZ6SDAY9a6Cq/zNjDwfPapWLsiP4mRhE5SSjJX6l6EYbkm0JeLQg+AbJiNEPvrvDp1wtTxzlPJtIivthmLMThFxK7+DkrYFuLvN5AHUdo9KTDLvHtDCvV70r8v0gafsrKkM/OE9Jtzoo0e1N/5K/ZdyFRbAkFT4QSF3nwpbmBWLf2Evg//YyEuxnz4CwPqFST2mucnrCCGCVWp1vnHZ0y30nM35njLOmWdRDFy5l27pKUTwLp02y3UYiiZyP7d3/u5pKiN4vC27VuvzprSdJxWoAvluOiDeRh+/oeQDowxoT/Oop8DzB9uJmjktXw8jyMW2+Rpg+ENQqeNgF1OGlEzypaWiRskEFlkpLb4v/s3ZDYkL1oW0Nv/J8LTjTOTEaYt2Udjoe9x2xWiGnQixhdChWuG+MaoWffzUgx1tsVj/DBXijR5DjkPkrA1GA98zd3q8GKEaAdcDenJjHhNYSd4+rE9pIsnYn7fo5X/tFfcQH1XQ== nobody@google.com"]
+    cpu_core_count = "4"
+    gi_version = "19.0.0.0"
+    hostname_prefix = "hostname1"
+  }
+
+  deletion_protection = "true"
+}
+
+resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfrastructures"{
+  cloud_exadata_infrastructure_id = "my-exadata"
+  display_name = "my-exadata displayname"
+  location = "europe-west2"
+  project = "my-project"
+  properties {
+    shape = "Exadata.X9M"
+    compute_count= "2"
+    storage_count= "3"
+  }
+
+  deletion_protection = "true"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=oracledatabase_cloud_vmcluster_full&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -165,19 +208,6 @@ The following arguments are supported:
   resource is created, in the following format:
   projects/{project}/locations/{region}/cloudExadataInfrastuctures/{cloud_extradata_infrastructure}
 
-* `cidr` -
-  (Required)
-  Network settings. CIDR to use for cluster IP allocation.
-
-* `backup_subnet_cidr` -
-  (Required)
-  CIDR range of the backup subnet.
-
-* `network` -
-  (Required)
-  The name of the VPC network.
-  Format: projects/{project}/global/networks/{network}
-
 * `location` -
   (Required)
   Resource ID segment making up resource `name`. See documentation for resource type `oracledatabase.googleapis.com/DbNode`.
@@ -188,9 +218,6 @@ The following arguments are supported:
   to (^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$) and must be a maximum of 63
   characters in length. The value must start with a letter and end with
   a letter or a number.
-
-
-- - -
 
 
 * `display_name` -
@@ -208,10 +235,44 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `cidr` -
+  (Optional)
+  Network settings. CIDR to use for cluster IP allocation.
+
+* `backup_subnet_cidr` -
+  (Optional)
+  CIDR range of the backup subnet.
+
+* `network` -
+  (Optional)
+  The name of the VPC network.
+  Format: projects/{project}/global/networks/{network}
+
+* `odb_network` -
+  (Optional)
+  The name of the OdbNetwork associated with the VM Cluster.
+  Format:
+  projects/{project}/locations/{location}/odbNetworks/{odb_network}
+  It is optional but if specified, this should match the parent ODBNetwork of
+  the odb_subnet and backup_odb_subnet.
+
+* `odb_subnet` -
+  (Optional)
+  The name of the OdbSubnet associated with the VM Cluster for
+  IP allocation. Format:
+  projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}
+
+* `backup_odb_subnet` -
+  (Optional)
+  The name of the backup OdbSubnet associated with the VM Cluster.
+  Format:
+  projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 * `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the cluster. Deleting this cluster via terraform destroy or terraform apply will only succeed if this field is false in the Terraform state.
+
 
 <a name="nested_properties"></a>The `properties` block supports:
 

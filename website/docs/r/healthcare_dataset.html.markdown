@@ -100,9 +100,6 @@ The following arguments are supported:
   The location for the Dataset.
 
 
-- - -
-
-
 * `time_zone` -
   (Optional)
   The default timezone used by this dataset. Must be a either a valid IANA time zone name such as
@@ -116,6 +113,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:

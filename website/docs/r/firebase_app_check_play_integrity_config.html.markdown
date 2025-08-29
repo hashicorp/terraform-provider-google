@@ -140,9 +140,6 @@ The following arguments are supported:
   [Android App](https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects.androidApps#AndroidApp.FIELDS.app_id).
 
 
-- - -
-
-
 * `token_ttl` -
   (Optional)
   Specifies the duration for which App Check tokens exchanged from Play Integrity artifacts will be valid.
@@ -151,6 +148,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

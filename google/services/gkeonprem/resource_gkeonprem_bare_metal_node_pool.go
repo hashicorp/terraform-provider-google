@@ -57,6 +57,29 @@ func ResourceGkeonpremBareMetalNodePool() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"bare_metal_cluster": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"bare_metal_cluster": {
 				Type:             schema.TypeString,
@@ -316,11 +339,11 @@ func resourceGkeonpremBareMetalNodePoolCreate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("node_pool_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodePoolConfigProp)) && (ok || !reflect.DeepEqual(v, nodePoolConfigProp)) {
 		obj["nodePoolConfig"] = nodePoolConfigProp
 	}
-	annotationsProp, err := expandGkeonpremBareMetalNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandGkeonpremBareMetalNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/bareMetalClusters/{{bare_metal_cluster}}/bareMetalNodePools?bare_metal_node_pool_id={{name}}")
@@ -364,22 +387,14 @@ func resourceGkeonpremBareMetalNodePoolCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GkeonpremOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating BareMetalNodePool", userAgent,
+	err = GkeonpremOperationWaitTime(
+		config, res, project, "Creating BareMetalNodePool", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
+
 		return fmt.Errorf("Error waiting to create BareMetalNodePool: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/bareMetalClusters/{{bare_metal_cluster}}/bareMetalNodePools/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating BareMetalNodePool %q: %#v", d.Id(), res)
 
@@ -465,6 +480,34 @@ func resourceGkeonpremBareMetalNodePoolRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading BareMetalNodePool: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("bare_metal_cluster"); ok && v != "" {
+		err = identity.Set("bare_metal_cluster", d.Get("bare_metal_cluster").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting bare_metal_cluster: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -496,11 +539,11 @@ func resourceGkeonpremBareMetalNodePoolUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("node_pool_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodePoolConfigProp)) {
 		obj["nodePoolConfig"] = nodePoolConfigProp
 	}
-	annotationsProp, err := expandGkeonpremBareMetalNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandGkeonpremBareMetalNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/bareMetalClusters/{{bare_metal_cluster}}/bareMetalNodePools/{{name}}")

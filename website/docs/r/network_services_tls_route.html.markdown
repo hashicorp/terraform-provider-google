@@ -184,6 +184,26 @@ The following arguments are supported:
   Name of the TlsRoute resource.
 
 
+* `description` -
+  (Optional)
+  A free-text description of the resource. Max length 1024 characters.
+
+* `meshes` -
+  (Optional)
+  Meshes defines a list of meshes this TlsRoute is attached to, as one of the routing rules to route the requests served by the mesh.
+  Each mesh reference should match the pattern: projects/*/locations/global/meshes/<mesh_name>
+  The attached Mesh should be of a type SIDECAR
+
+* `gateways` -
+  (Optional)
+  Gateways defines a list of gateways this TlsRoute is attached to, as one of the routing rules to route the requests served by the gateway.
+  Each gateway reference should match the pattern: projects/*/locations/global/gateways/<gateway_name>
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_rules"></a>The `rules` block supports:
 
 * `matches` -
@@ -225,28 +245,6 @@ The following arguments are supported:
 * `weight` -
   (Optional)
   Specifies the proportion of requests forwarded to the backend referenced by the serviceName field.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  A free-text description of the resource. Max length 1024 characters.
-
-* `meshes` -
-  (Optional)
-  Meshes defines a list of meshes this TlsRoute is attached to, as one of the routing rules to route the requests served by the mesh.
-  Each mesh reference should match the pattern: projects/*/locations/global/meshes/<mesh_name>
-  The attached Mesh should be of a type SIDECAR
-
-* `gateways` -
-  (Optional)
-  Gateways defines a list of gateways this TlsRoute is attached to, as one of the routing rules to route the requests served by the gateway.
-  Each gateway reference should match the pattern: projects/*/locations/global/gateways/<gateway_name>
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

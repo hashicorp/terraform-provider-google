@@ -94,23 +94,11 @@ func parseDurationAsSeconds(v string) (int, bool) {
 
 // Like tpgresource.DurationDiffSuppress, but supports 'd'
 func durationDiffSuppress(k, oldr, newr string, d *schema.ResourceData) bool {
-	o, n := d.GetChange(k)
-	old, ok := o.(string)
+	oldSeconds, ok := parseDurationAsSeconds(oldr)
 	if !ok {
 		return false
 	}
-	new, ok := n.(string)
-	if !ok {
-		return false
-	}
-	if old == new {
-		return true
-	}
-	oldSeconds, ok := parseDurationAsSeconds(old)
-	if !ok {
-		return false
-	}
-	newSeconds, ok := parseDurationAsSeconds(new)
+	newSeconds, ok := parseDurationAsSeconds(newr)
 	if !ok {
 		return false
 	}
@@ -118,15 +106,59 @@ func durationDiffSuppress(k, oldr, newr string, d *schema.ResourceData) bool {
 }
 
 func mapHashID(v any) int {
-	obj, ok := v.(map[string]any)
-	if !ok {
-		return 0
+	replaceNestedValue(v, []string{"condition", "older_than"}, expandDuration)
+	replaceNestedValue(v, []string{"condition", "newer_than"}, expandDuration)
+	return schema.HashString(fmt.Sprintf("%v", v))
+}
+
+func expandDuration(v any) (any, bool) {
+	if val, ok := v.(string); ok {
+		if secs, ok := parseDurationAsSeconds(val); ok {
+			return fmt.Sprintf("%ds", secs), true
+		}
 	}
-	s, ok := obj["id"].(string)
-	if !ok {
-		return 0
+	return nil, false
+
+}
+
+// Replace a value in a schema object, if it exists.
+// Nested maps follow the pattern map[string]any -> [1]any -> map[string]any
+func replaceNestedValue(obj any, keys []string, replaceFunc func(any) (any, bool)) {
+	if len(keys) == 0 {
+		return
 	}
-	return schema.HashString(s)
+	next := obj
+	for _, key := range keys[:len(keys)-1] {
+		nextMap, ok := next.(map[string]any)
+		if !ok {
+			return
+		}
+		arrObj, ok := nextMap[key]
+		if !ok {
+			return
+		}
+		arr, ok := arrObj.([]any)
+		if !ok {
+			return
+		}
+		if len(arr) != 1 {
+			return
+		}
+		next = arr[0]
+	}
+	lastMap, ok := next.(map[string]any)
+	if !ok {
+		return
+	}
+	lastKey := keys[len(keys)-1]
+	last, ok := lastMap[lastKey]
+	if !ok {
+		return
+	}
+	result, ok := replaceFunc(last)
+	if ok {
+		lastMap[lastKey] = result
+	}
 }
 
 func isDefaultEnum(val any) bool {
@@ -170,6 +202,25 @@ func ResourceArtifactRegistryRepository() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"repository_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"format": {
 				Type:             schema.TypeString,
@@ -414,7 +465,7 @@ snapshot versions.`,
 													Required:     true,
 													ForceNew:     true,
 													ValidateFunc: verify.ValidateEnum([]string{"DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"}),
-													Description:  `A common public repository base for Apt, e.g. '"debian/dists/buster"' Possible values: ["DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"]`,
+													Description:  `A common public repository base for Apt, e.g. '"debian/dists/stable"' Possible values: ["DEBIAN", "UBUNTU", "DEBIAN_SNAPSHOT"]`,
 												},
 												"repository_path": {
 													Type:        schema.TypeString,
@@ -873,11 +924,11 @@ func resourceArtifactRegistryRepositoryCreate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("vulnerability_scanning_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(vulnerabilityScanningConfigProp)) && (ok || !reflect.DeepEqual(v, vulnerabilityScanningConfigProp)) {
 		obj["vulnerabilityScanningConfig"] = vulnerabilityScanningConfigProp
 	}
-	labelsProp, err := expandArtifactRegistryRepositoryEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandArtifactRegistryRepositoryEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceArtifactRegistryRepositoryEncoder(d, meta, obj)
@@ -944,29 +995,15 @@ func resourceArtifactRegistryRepositoryCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ArtifactRegistryOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Repository", userAgent,
+	err = ArtifactRegistryOperationWaitTime(
+		config, res, project, "Creating Repository", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Repository: %s", err)
 	}
-
-	if err := d.Set("name", flattenArtifactRegistryRepositoryName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
 
@@ -1067,6 +1104,28 @@ func resourceArtifactRegistryRepositoryRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("repository_id"); ok && v != "" {
+		err = identity.Set("repository_id", d.Get("repository_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting repository_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -1128,11 +1187,11 @@ func resourceArtifactRegistryRepositoryUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("vulnerability_scanning_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, vulnerabilityScanningConfigProp)) {
 		obj["vulnerabilityScanningConfig"] = vulnerabilityScanningConfigProp
 	}
-	labelsProp, err := expandArtifactRegistryRepositoryEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandArtifactRegistryRepositoryEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceArtifactRegistryRepositoryEncoder(d, meta, obj)
@@ -1296,7 +1355,7 @@ func flattenArtifactRegistryRepositoryName(v interface{}, d *schema.ResourceData
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenArtifactRegistryRepositoryFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Data Catalog TagTemplate
+
 Three different resources help you manage your IAM policy for Data Catalog TagTemplate. Each of these resources serves a different use case:
 
 * `google_data_catalog_tag_template_iam_policy`: Authoritative. Sets the IAM policy for the tagtemplate and replaces any existing policy already attached.
@@ -81,6 +82,10 @@ resource "google_data_catalog_tag_template_iam_member" "member" {
 
 The following arguments are supported:
 
+* `region` - (Optional) Template location region.
+ Used to find the parent resource to bind the IAM policy to. If not specified,
+  the value will be parsed from the identifier of the parent resource. If no region is provided in the parent identifier and no
+  region is specified, it is taken from the provider configuration.
 * `tag_template` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

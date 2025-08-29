@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Cloud Run (v2 API) Job
+
 Three different resources help you manage your IAM policy for Cloud Run (v2 API) Job. Each of these resources serves a different use case:
 
 * `google_cloud_run_v2_job_iam_policy`: Authoritative. Sets the IAM policy for the job and replaces any existing policy already attached.
@@ -87,10 +88,10 @@ resource "google_cloud_run_v2_job_iam_member" "member" {
 
 The following arguments are supported:
 
-* `name` - (Required) Used to find the parent resource to bind the IAM policy to
 * `location` - (Optional) The location of the cloud run job Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
   location is specified, it is taken from the provider configuration.
+* `name` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

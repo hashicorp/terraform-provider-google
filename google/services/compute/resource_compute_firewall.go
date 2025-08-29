@@ -165,6 +165,21 @@ func ResourceComputeFirewall() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
@@ -254,6 +269,28 @@ If defined, logging is enabled, and logs will be exported to Cloud Logging.`,
 							Required:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"}),
 							Description:  `This field denotes whether to include or exclude metadata for firewall logs. Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"]`,
+						},
+					},
+				},
+			},
+			"params": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Additional params passed with the request, but not persisted as part of resource payload`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_manager_tags": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `Resource manager tags to be bound to the firewall. Tag keys and values have the
+same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+and values are in the format tagValues/456. The field is ignored when empty.
+The field is immutable and causes resource replacement when mutated. This field is only
+set at create time and modifying this field after creation will trigger recreation.
+To apply tags to an existing resource, see the google_tags_tag_binding resource.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -453,17 +490,17 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := make(map[string]interface{})
-	allowedProp, err := expandComputeFirewallAllow(d.Get("allow"), d, config)
+	allowProp, err := expandComputeFirewallAllow(d.Get("allow"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("allow"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowedProp)) && (ok || !reflect.DeepEqual(v, allowedProp)) {
-		obj["allowed"] = allowedProp
+	} else if v, ok := d.GetOkExists("allow"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowProp)) && (ok || !reflect.DeepEqual(v, allowProp)) {
+		obj["allowed"] = allowProp
 	}
-	deniedProp, err := expandComputeFirewallDeny(d.Get("deny"), d, config)
+	denyProp, err := expandComputeFirewallDeny(d.Get("deny"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("deny"); !tpgresource.IsEmptyValue(reflect.ValueOf(deniedProp)) && (ok || !reflect.DeepEqual(v, deniedProp)) {
-		obj["denied"] = deniedProp
+	} else if v, ok := d.GetOkExists("deny"); !tpgresource.IsEmptyValue(reflect.ValueOf(denyProp)) && (ok || !reflect.DeepEqual(v, denyProp)) {
+		obj["denied"] = denyProp
 	}
 	descriptionProp, err := expandComputeFirewallDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -542,6 +579,12 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("target_tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetTagsProp)) && (ok || !reflect.DeepEqual(v, targetTagsProp)) {
 		obj["targetTags"] = targetTagsProp
+	}
+	paramsProp, err := expandComputeFirewallParams(d.Get("params"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("params"); !tpgresource.IsEmptyValue(reflect.ValueOf(paramsProp)) && (ok || !reflect.DeepEqual(v, paramsProp)) {
+		obj["params"] = paramsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls")
@@ -693,7 +736,22 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
-
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -713,17 +771,17 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	allowedProp, err := expandComputeFirewallAllow(d.Get("allow"), d, config)
+	allowProp, err := expandComputeFirewallAllow(d.Get("allow"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("allow"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, allowedProp)) {
-		obj["allowed"] = allowedProp
+	} else if v, ok := d.GetOkExists("allow"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, allowProp)) {
+		obj["allowed"] = allowProp
 	}
-	deniedProp, err := expandComputeFirewallDeny(d.Get("deny"), d, config)
+	denyProp, err := expandComputeFirewallDeny(d.Get("deny"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("deny"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deniedProp)) {
-		obj["denied"] = deniedProp
+	} else if v, ok := d.GetOkExists("deny"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, denyProp)) {
+		obj["denied"] = denyProp
 	}
 	descriptionProp, err := expandComputeFirewallDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -1220,4 +1278,34 @@ func expandComputeFirewallTargetServiceAccounts(v interface{}, d tpgresource.Ter
 func expandComputeFirewallTargetTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
+}
+
+func expandComputeFirewallParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResourceManagerTags, err := expandComputeFirewallParamsResourceManagerTags(original["resource_manager_tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceManagerTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceManagerTags"] = transformedResourceManagerTags
+	}
+
+	return transformed, nil
+}
+
+func expandComputeFirewallParamsResourceManagerTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

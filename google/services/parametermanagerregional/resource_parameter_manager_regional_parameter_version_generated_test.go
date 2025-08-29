@@ -33,8 +33,18 @@ import (
 func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +60,12 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "parameter", "parameter_version_id"},
+			},
+			{
+				ResourceName:       "google_parameter_manager_regional_parameter_version.regional-parameter-version-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -73,8 +89,18 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithJsonFormatExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -117,8 +143,18 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithYamlFormatExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -167,9 +203,20 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 		},
 	})
 
-	context := map[string]interface{}{
-		"kms_key":       acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"kms_key": acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -205,6 +252,112 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
   parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
   parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
   parameter_data = "regional-parameter-version-data"
+}
+`, context)
+}
+
+func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithJsonFormatWithFileExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"data": "./test-fixtures/regional_parameter_data_json_format.json",
+	}
+	for k, v := range overrides {
+		context[k] = v
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerRegionalRegionalParameterVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithJsonFormatWithFileExample(context),
+			},
+			{
+				ResourceName:            "google_parameter_manager_regional_parameter_version.regional-parameter-version-with-json-format-with-file",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "parameter", "parameter_version_id"},
+			},
+		},
+	})
+}
+
+func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithJsonFormatWithFileExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
+  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  format = "JSON"
+  location = "us-central1"
+}
+
+resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-json-format-with-file" {
+  parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
+  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_data = file("%{data}")
+}
+`, context)
+}
+
+func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithYamlFormatWithFileExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"data": "./test-fixtures/regional_parameter_data_yaml_format.yaml",
+	}
+	for k, v := range overrides {
+		context[k] = v
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerRegionalRegionalParameterVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithYamlFormatWithFileExample(context),
+			},
+			{
+				ResourceName:            "google_parameter_manager_regional_parameter_version.regional-parameter-version-with-yaml-format-with-file",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "parameter", "parameter_version_id"},
+			},
+		},
+	})
+}
+
+func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithYamlFormatWithFileExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
+  parameter_id = "tf_test_regional_parameter%{random_suffix}"
+  format = "YAML"
+  location = "us-central1"
+}
+
+resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-yaml-format-with-file" {
+  parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
+  parameter_version_id = "tf_test_regional_parameter_version%{random_suffix}"
+  parameter_data = file("%{data}")
 }
 `, context)
 }

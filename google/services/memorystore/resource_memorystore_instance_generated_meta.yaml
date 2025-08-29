@@ -6,6 +6,7 @@ api_version: 'v1'
 api_resource_type_kind: 'Instance'
 autogen_status: true
 fields:
+  - field: 'allow_fewer_zones_deployment'
   - field: 'authorization_mode'
   - field: 'automated_backup_config.fixed_frequency_schedule.start_time.hours'
   - field: 'automated_backup_config.retention'
@@ -22,6 +23,10 @@ fields:
   - field: 'cross_instance_replication_config.secondary_instances.uid'
   - field: 'cross_instance_replication_config.update_time'
   - field: 'deletion_protection_enabled'
+  - field: 'desired_auto_created_endpoints.network'
+    provider_only: true
+  - field: 'desired_auto_created_endpoints.project_id'
+    provider_only: true
   - field: 'desired_psc_auto_connections.network'
     provider_only: true
   - field: 'desired_psc_auto_connections.project_id'
@@ -44,6 +49,7 @@ fields:
   - field: 'gcs_source.uris'
   - field: 'instance_id'
     provider_only: true
+  - field: 'kms_key'
   - field: 'labels'
   - field: 'location'
     provider_only: true
@@ -59,6 +65,7 @@ fields:
   - field: 'maintenance_schedule.schedule_deadline_time'
   - field: 'maintenance_schedule.start_time'
   - field: 'managed_backup_source.backup'
+  - field: 'managed_server_ca.ca_certs.certificates'
   - field: 'mode'
   - field: 'name'
   - field: 'node_config.size_gb'

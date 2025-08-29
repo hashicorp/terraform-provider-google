@@ -56,6 +56,29 @@ func ResourceDeveloperConnectGitRepositoryLink() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"parent_connection": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"git_repository_link_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"clone_uri": {
 				Type:        schema.TypeString,
@@ -194,17 +217,17 @@ func resourceDeveloperConnectGitRepositoryLinkCreate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
 	}
-	labelsProp, err := expandDeveloperConnectGitRepositoryLinkEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDeveloperConnectGitRepositoryLinkEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandDeveloperConnectGitRepositoryLinkEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandDeveloperConnectGitRepositoryLinkEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DeveloperConnectBasePath}}projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/gitRepositoryLinks?gitRepositoryLinkId={{git_repository_link_id}}")
@@ -248,29 +271,15 @@ func resourceDeveloperConnectGitRepositoryLinkCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = DeveloperConnectOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating GitRepositoryLink", userAgent,
+	err = DeveloperConnectOperationWaitTime(
+		config, res, project, "Creating GitRepositoryLink", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create GitRepositoryLink: %s", err)
 	}
-
-	if err := d.Set("name", flattenDeveloperConnectGitRepositoryLinkName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connections/{{parent_connection}}/gitRepositoryLinks/{{git_repository_link_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating GitRepositoryLink %q: %#v", d.Id(), res)
 
@@ -359,6 +368,34 @@ func resourceDeveloperConnectGitRepositoryLinkRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading GitRepositoryLink: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("parent_connection"); ok && v != "" {
+		err = identity.Set("parent_connection", d.Get("parent_connection").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting parent_connection: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("git_repository_link_id"); ok && v != "" {
+		err = identity.Set("git_repository_link_id", d.Get("git_repository_link_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting git_repository_link_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

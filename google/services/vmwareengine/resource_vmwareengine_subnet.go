@@ -50,6 +50,21 @@ func ResourceVmwareengineSubnet() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"parent": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"ip_cidr_range": {
 				Type:        schema.TypeString,
@@ -277,6 +292,22 @@ func resourceVmwareengineSubnetRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Subnet: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("parent"); ok && v != "" {
+		err = identity.Set("parent", d.Get("parent").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting parent: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
 	return nil
 }
 

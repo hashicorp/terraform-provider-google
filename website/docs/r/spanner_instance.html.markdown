@@ -109,9 +109,6 @@ The following arguments are supported:
   unique per project and between 4 and 30 characters in length.
 
 
-- - -
-
-
 * `name` -
   (Optional)
   A unique identifier for the instance, which cannot be changed after
@@ -121,13 +118,13 @@ The following arguments are supported:
 
 * `num_nodes` -
   (Optional)
-  The number of nodes allocated to this instance. Exactly one of either node_count or processing_units
-  must be present in terraform.
+  The number of nodes allocated to this instance. Exactly one of either num_nodes, processing_units or
+  autoscaling_config must be present in terraform except when instance_type = FREE_INSTANCE.
 
 * `processing_units` -
   (Optional)
-  The number of processing units allocated to this instance. Exactly one of processing_units
-  or node_count must be present in terraform.
+  The number of processing units allocated to this instance. Exactly one of either num_nodes,
+  processing_units or autoscaling_config must be present in terraform except when instance_type = FREE_INSTANCE.
 
 * `labels` -
   (Optional)
@@ -140,6 +137,8 @@ The following arguments are supported:
 * `autoscaling_config` -
   (Optional)
   The autoscaling configuration. Autoscaling is enabled if this field is set.
+  Exactly one of either num_nodes, processing_units or autoscaling_config must be
+  present in terraform except when instance_type = FREE_INSTANCE.
   When autoscaling is enabled, num_nodes and processing_units are treated as,
   OUTPUT_ONLY fields and reflect the current compute capacity allocated to
   the instance.
@@ -149,6 +148,13 @@ The following arguments are supported:
   (Optional)
   The edition selected for this instance. Different editions provide different capabilities at different price points.
   Possible values are: `EDITION_UNSPECIFIED`, `STANDARD`, `ENTERPRISE`, `ENTERPRISE_PLUS`.
+
+* `instance_type` -
+  (Optional)
+  The type of this instance. The type can be used to distinguish product variants, that can affect aspects like:
+  usage restrictions, quotas and billing. Currently this is used to distinguish FREE_INSTANCE vs PROVISIONED instances.
+  When configured as FREE_INSTANCE, the field `edition` should not be configured.
+  Possible values are: `PROVISIONED`, `FREE_INSTANCE`.
 
 * `default_backup_schedule_type` -
   (Optional)
@@ -162,6 +168,7 @@ The following arguments are supported:
 
 * `force_destroy` - (Optional) When deleting a spanner instance, this boolean option will delete all backups of this instance.
 This must be set to true if you created a backup manually in the console.
+
 
 
 <a name="nested_autoscaling_config"></a>The `autoscaling_config` block supports:

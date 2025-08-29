@@ -221,6 +221,7 @@ resource "google_colab_schedule" "schedule" {
 
 ```hcl
 resource "google_colab_runtime_template" "my_runtime_template" {
+  provider = google-beta
   name = "runtime-template"
   display_name = "Runtime template"
   location = "us-central1"
@@ -235,6 +236,7 @@ resource "google_colab_runtime_template" "my_runtime_template" {
 }
 
 resource "google_storage_bucket" "output_bucket" {
+  provider = google-beta
   name          = "my_bucket"
   location      = "US"
   force_destroy = true
@@ -242,6 +244,7 @@ resource "google_storage_bucket" "output_bucket" {
 }
 
 resource "google_secret_manager_secret" "secret" {
+  provider = google-beta
   secret_id = "secret"
   replication {
     auto {}
@@ -249,15 +252,17 @@ resource "google_secret_manager_secret" "secret" {
 }
 
 resource "google_secret_manager_secret_version" "secret_version" {
+  provider = google-beta
   secret = google_secret_manager_secret.secret.id
   secret_data = "secret-data"
 }
 
 resource "google_dataform_repository" "dataform_repository" {
+  provider = google-beta
   name = "dataform-repository"
   display_name = "dataform_repository"
   npmrc_environment_variables_secret_version = google_secret_manager_secret_version.secret_version.id
-  kms_key_name = ""
+  kms_key_name = "my-key"
 
   labels = {
     label_foo1 = "label-bar1"
@@ -278,6 +283,7 @@ resource "google_dataform_repository" "dataform_repository" {
 }
 
 resource "google_colab_schedule" "schedule" {
+  provider = google-beta
   display_name = "full-schedule"
   location = "us-west1"
   allow_queueing = true
@@ -340,6 +346,29 @@ The following arguments are supported:
 * `location` -
   (Required)
   The location for the resource: https://cloud.google.com/colab/docs/locations
+
+
+* `start_time` -
+  (Optional)
+  The timestamp after which the first run can be scheduled. Defaults to the schedule creation time. Must be in the RFC 3339 (https://www.ietf.org/rfc/rfc3339.txt) format.
+
+* `end_time` -
+  (Optional)
+  Timestamp after which no new runs can be scheduled. If specified, the schedule will be completed when either end_time is reached or when scheduled_run_count >= max_run_count. Must be in the RFC 3339 (https://www.ietf.org/rfc/rfc3339.txt) format.
+
+* `max_run_count` -
+  (Optional)
+  Maximum run count of the schedule. If specified, The schedule will be completed when either startedRunCount >= maxRunCount or when endTime is reached. If not specified, new runs will keep getting scheduled until this Schedule is paused or deleted. Already scheduled runs will be allowed to complete. Unset if not specified.
+
+* `allow_queueing` -
+  (Optional)
+  Whether new scheduled runs can be queued when max_concurrent_runs limit is reached. If set to true, new runs will be queued instead of skipped. Default to false.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+* `desired_state` - (Optional) Desired state of the Colab Schedule. Set this field to `ACTIVE` to start/resume the schedule, and `PAUSED` to pause the schedule.
+
 
 
 <a name="nested_create_notebook_execution_job_request"></a>The `create_notebook_execution_job_request` block supports:
@@ -406,31 +435,6 @@ The following arguments are supported:
 * `generation` -
   (Optional)
   The version of the Cloud Storage object to read. If unset, the current version of the object is read. See https://cloud.google.com/storage/docs/metadata#generation-number.
-
-- - -
-
-
-* `start_time` -
-  (Optional)
-  The timestamp after which the first run can be scheduled. Defaults to the schedule creation time. Must be in the RFC 3339 (https://www.ietf.org/rfc/rfc3339.txt) format.
-
-* `end_time` -
-  (Optional)
-  Timestamp after which no new runs can be scheduled. If specified, the schedule will be completed when either end_time is reached or when scheduled_run_count >= max_run_count. Must be in the RFC 3339 (https://www.ietf.org/rfc/rfc3339.txt) format.
-
-* `max_run_count` -
-  (Optional)
-  Maximum run count of the schedule. If specified, The schedule will be completed when either startedRunCount >= maxRunCount or when endTime is reached. If not specified, new runs will keep getting scheduled until this Schedule is paused or deleted. Already scheduled runs will be allowed to complete. Unset if not specified.
-
-* `allow_queueing` -
-  (Optional)
-  Whether new scheduled runs can be queued when max_concurrent_runs limit is reached. If set to true, new runs will be queued instead of skipped. Default to false.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
-* `desired_state` - (Optional) Desired state of the Colab Schedule. Set this field to `ACTIVE` to start/resume the schedule, and `PAUSED` to pause the schedule.
-
 
 ## Attributes Reference
 

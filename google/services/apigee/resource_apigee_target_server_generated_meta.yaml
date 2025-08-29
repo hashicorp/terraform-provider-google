@@ -18,6 +18,7 @@ fields:
   - field: 's_sl_info.common_name.value'
   - field: 's_sl_info.common_name.wildcard_match'
   - field: 's_sl_info.enabled'
+  - field: 's_sl_info.enforce'
   - field: 's_sl_info.ignore_validation_errors'
   - field: 's_sl_info.key_alias'
   - field: 's_sl_info.key_store'

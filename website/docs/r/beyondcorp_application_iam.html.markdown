@@ -20,6 +20,8 @@ description: |-
 ---
 
 # IAM policy for BeyondCorp Application
+~> **Warning:** `google_beyondcorp_application` and associated IAM resources are deprecated. Use `google_beyondcorp_security_gateway_application` instead.
+
 Three different resources help you manage your IAM policy for BeyondCorp Application. Each of these resources serves a different use case:
 
 * `google_beyondcorp_application_iam_policy`: Authoritative. Sets the IAM policy for the application and replaces any existing policy already attached.
@@ -149,6 +151,8 @@ resource "google_beyondcorp_application_iam_member" "member" {
 
 The following arguments are supported:
 
+* `security_gateways_id` - (Required) Part of `parent`. See documentation of `projectsId`. Used to find the parent resource to bind the IAM policy to
+* `application_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

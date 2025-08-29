@@ -37,8 +37,8 @@ To get more information about InstanceAttachment, see:
 resource "google_project" "project" {
   project_id      = "my-project"
   name            = "my-project"
-  org_id          = ""
-  billing_account = ""
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
   deletion_policy = "DELETE"
 }
 
@@ -122,8 +122,6 @@ The following arguments are supported:
   The Apigee instance associated with the Apigee environment,
   in the format `organizations/{{org_name}}/instances/{{instance_name}}`.
 
-
-- - -
 
 
 

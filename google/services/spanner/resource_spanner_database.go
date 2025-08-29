@@ -106,6 +106,25 @@ func ResourceSpannerDatabase() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"instance": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"instance": {
 				Type:             schema.TypeString,
@@ -216,6 +235,12 @@ or 'terraform destroy' that would delete the database will fail.
 When the field is set to false, deleting the database is allowed.`,
 				Default: true,
 			},
+			"default_time_zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The default time zone for the database. The default time zone must be a valid name
+from the tz database. Default value is "America/Los_angeles".`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -247,11 +272,11 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("version_retention_period"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionRetentionPeriodProp)) && (ok || !reflect.DeepEqual(v, versionRetentionPeriodProp)) {
 		obj["versionRetentionPeriod"] = versionRetentionPeriodProp
 	}
-	extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
+	ddlProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ddl"); !tpgresource.IsEmptyValue(reflect.ValueOf(extraStatementsProp)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
-		obj["extraStatements"] = extraStatementsProp
+	} else if v, ok := d.GetOkExists("ddl"); !tpgresource.IsEmptyValue(reflect.ValueOf(ddlProp)) && (ok || !reflect.DeepEqual(v, ddlProp)) {
+		obj["extraStatements"] = ddlProp
 	}
 	encryptionConfigProp, err := expandSpannerDatabaseEncryptionConfig(d.Get("encryption_config"), d, config)
 	if err != nil {
@@ -324,37 +349,15 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = SpannerOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Database", userAgent,
+	err = SpannerOperationWaitTime(
+		config, res, project, "Creating Database", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Database: %s", err)
 	}
-
-	opRes, err = resourceSpannerDatabaseDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if err := d.Set("name", flattenSpannerDatabaseName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{instance}}/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	// Note: Databases that are created with POSTGRESQL dialect do not support extra DDL
 	// statements at the time of database creation. To avoid users needing to run
@@ -362,15 +365,28 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	// `extraStatements` in the call to the `create` endpoint and all DDL (other than
 	//
 	//	<CREATE DATABASE>) is run post-create, by calling the `updateDdl` endpoint
+	defaultTimeZoneObj, defaultTimeZoneOk := d.GetOk("default_time_zone")
+	defaultTimeZone := defaultTimeZoneObj.(string)
 	retention, retentionPeriodOk := d.GetOk("version_retention_period")
 	retentionPeriod := retention.(string)
 	ddl, ddlOk := d.GetOk("ddl")
 	ddlStatements := ddl.([]interface{})
 
-	if retentionPeriodOk || ddlOk {
+	if defaultTimeZoneOk || retentionPeriodOk || ddlOk {
 
 		obj := make(map[string]interface{})
 		updateDdls := []string{}
+
+		// We need to put setting default time zone as first because it requires an empty
+		// database where tables do not exist.
+		if defaultTimeZoneOk {
+			dbName := d.Get("name")
+			timeZoneDdl := fmt.Sprintf("ALTER DATABASE `%s` SET OPTIONS (default_time_zone=\"%s\")", dbName, defaultTimeZone)
+			if dialect, ok := d.GetOk("database_dialect"); ok && dialect == "POSTGRESQL" {
+				timeZoneDdl = fmt.Sprintf("ALTER DATABASE \"%s\" SET spanner.default_time_zone TO \"%s\"", dbName, defaultTimeZone)
+			}
+			updateDdls = append(updateDdls, timeZoneDdl)
+		}
 
 		if ddlOk {
 			for i := 0; i < len(ddlStatements); i++ {
@@ -545,6 +561,28 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("instance"); ok && v != "" {
+		err = identity.Set("instance", d.Get("instance").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting instance: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -814,7 +852,7 @@ func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *t
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenSpannerDatabaseVersionRetentionPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

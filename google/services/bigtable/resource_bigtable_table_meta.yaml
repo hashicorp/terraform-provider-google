@@ -13,4 +13,6 @@ fields:
   - field: 'instance_name'
   - field: 'name'
   - field: 'project'
+  - field: 'row_key_schema'
+    json: true
   - field: 'split_keys'

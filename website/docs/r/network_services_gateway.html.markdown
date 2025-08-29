@@ -248,9 +248,6 @@ The following arguments are supported:
   Name of the Gateway resource.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Set of label tags associated with the Gateway resource.
@@ -329,6 +326,7 @@ The following arguments are supported:
 
 * `delete_swg_autogen_router_on_destroy` - (Optional) When deleting a gateway of type 'SECURE_WEB_GATEWAY', this boolean option will also delete auto generated router by the gateway creation.
 If there is no other gateway of type 'SECURE_WEB_GATEWAY' remaining for that region and network it will be deleted.
+
 
 
 ## Attributes Reference

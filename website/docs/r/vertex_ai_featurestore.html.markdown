@@ -99,9 +99,6 @@ The following arguments are supported:
 
 
 
-- - -
-
-
 * `name` -
   (Optional)
   The name of the Featurestore. This value may be up to 60 characters, and valid characters are [a-z0-9_]. The first character cannot be a number.
@@ -135,6 +132,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `force_destroy` - (Optional) If set to true, any EntityTypes and Features for this Featurestore will also be deleted
+
 
 <a name="nested_online_serving_config"></a>The `online_serving_config` block supports:
 

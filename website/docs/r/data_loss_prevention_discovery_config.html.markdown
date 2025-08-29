@@ -204,8 +204,8 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 
 ```hcl
 resource "google_data_loss_prevention_discovery_config" "org_folder_paused" {
-	parent = "organizations/123456789/locations/us"
-    location = "us"
+	parent = "organizations/123456789/locations/us-west1"
+    location = "us-west1"
 
     targets {
         big_query_target {
@@ -525,9 +525,6 @@ The following arguments are supported:
   Location to create the discovery config in.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   Display Name (max 1000 Chars)
@@ -555,6 +552,7 @@ The following arguments are supported:
   (Optional)
   Required. A status for this configuration
   Possible values are: `RUNNING`, `PAUSED`.
+
 
 
 <a name="nested_org_config"></a>The `org_config` block supports:

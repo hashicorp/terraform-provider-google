@@ -84,9 +84,6 @@ The following arguments are supported:
   The name of the resource (Max 25 characters).
 
 
-- - -
-
-
 * `network` -
   (Optional)
   Name or self_link of the VPC network. Required if `ip_cidr_range` is set.
@@ -108,12 +105,12 @@ The following arguments are supported:
 * `min_instances` -
   (Optional)
   Minimum value of instances in autoscaling group underlying the connector. Value must be between 2 and 9, inclusive. Must be
-  lower than the value specified by max_instances.
+  lower than the value specified by max_instances. Required alongside `max_instances` if not using `min_throughput`/`max_throughput`.
 
 * `max_instances` -
   (Optional)
   Maximum value of instances in autoscaling group underlying the connector. Value must be between 3 and 10, inclusive. Must be
-  higher than the value specified by min_instances.
+  higher than the value specified by min_instances. Required alongside `min_instances` if not using `min_throughput`/`max_throughput`.
 
 * `max_throughput` -
   (Optional)
@@ -132,6 +129,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_subnet"></a>The `subnet` block supports:
@@ -167,6 +165,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

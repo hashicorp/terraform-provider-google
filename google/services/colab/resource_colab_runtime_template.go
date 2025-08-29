@@ -56,6 +56,25 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:        schema.TypeString,
@@ -119,20 +138,22 @@ func ResourceColabRuntimeTemplate() *schema.Resource {
 				},
 			},
 			"euc_config": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `EUC configuration of the NotebookRuntimeTemplate.`,
-				MaxItems:    1,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
+				Description:      `EUC configuration of the NotebookRuntimeTemplate.`,
+				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"euc_disabled": {
-							Type:        schema.TypeBool,
-							Computed:    true,
-							Optional:    true,
-							ForceNew:    true,
-							Description: `Disable end user credential access for the runtime.`,
+							Type:             schema.TypeBool,
+							Computed:         true,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.EmptyOrFalseSuppressBoolean,
+							Description:      `Disable end user credential access for the runtime.`,
 						},
 					},
 				},
@@ -248,26 +269,29 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				},
 			},
 			"shielded_vm_config": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Runtime Shielded VM spec.`,
-				MaxItems:    1,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
+				Description:      `Runtime Shielded VM spec.`,
+				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable_secure_boot": {
-							Type:        schema.TypeBool,
-							Computed:    true,
-							Optional:    true,
-							ForceNew:    true,
-							Description: `Enables secure boot for the runtime.`,
+							Type:             schema.TypeBool,
+							Computed:         true,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.EmptyOrFalseSuppressBoolean,
+							Description:      `Enables secure boot for the runtime.`,
 						},
 					},
 				},
 			},
 			"software_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The notebook software configuration of the notebook runtime.`,
@@ -299,6 +323,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						"post_startup_script_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							Deprecated:  "`post_startup_script_config` is deprecated and will be removed in a future major release. New resource creation with this field is unavailable at this time.",
 							ForceNew:    true,
 							Description: `Post startup script config.`,
 							MaxItems:    1,
@@ -434,11 +459,11 @@ func resourceColabRuntimeTemplateCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("software_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(softwareConfigProp)) && (ok || !reflect.DeepEqual(v, softwareConfigProp)) {
 		obj["softwareConfig"] = softwareConfigProp
 	}
-	labelsProp, err := expandColabRuntimeTemplateEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandColabRuntimeTemplateEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ColabBasePath}}projects/{{project}}/locations/{{location}}/notebookRuntimeTemplates?notebook_runtime_template_id={{name}}")
@@ -482,26 +507,32 @@ func resourceColabRuntimeTemplateCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
-	err = ColabOperationWaitTime(
-		config, res, project, "Creating RuntimeTemplate", userAgent,
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
+	err = ColabOperationWaitTimeWithResponse(
+		config, res, &opRes, project, "Creating RuntimeTemplate", userAgent,
 		d.Timeout(schema.TimeoutCreate))
-
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
+
 		return fmt.Errorf("Error waiting to create RuntimeTemplate: %s", err)
 	}
 
-	// The operation for this resource contains the generated name that we need
-	// in order to perform a READ. We need to access the object inside of it as
-	// a map[string]interface, so let's do that.
-
-	resp := res["response"].(map[string]interface{})
-	name := tpgresource.GetResourceNameFromSelfLink(resp["name"].(string))
-	log.Printf("[DEBUG] Setting resource name to %s", name)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
+	// name is set by API when unset
+	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("name"))) {
+		if err := d.Set("name", flattenColabRuntimeTemplateName(opRes["name"], d, config)); err != nil {
+			return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+		}
 	}
+
+	// This may have caused the ID to update - update it if so.
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/notebookRuntimeTemplates/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating RuntimeTemplate %q: %#v", d.Id(), res)
 
@@ -596,6 +627,28 @@ func resourceColabRuntimeTemplateRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading RuntimeTemplate: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -684,7 +737,7 @@ func flattenColabRuntimeTemplateName(v interface{}, d *schema.ResourceData, conf
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenColabRuntimeTemplateDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

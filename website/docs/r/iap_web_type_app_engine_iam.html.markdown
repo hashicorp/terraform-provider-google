@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Identity-Aware Proxy WebTypeAppEngine
+
 Three different resources help you manage your IAM policy for Identity-Aware Proxy WebTypeAppEngine. Each of these resources serves a different use case:
 
 * `google_iap_web_type_app_engine_iam_policy`: Authoritative. Sets the IAM policy for the webtypeappengine and replaces any existing policy already attached.
@@ -143,7 +144,7 @@ resource "google_iap_web_type_app_engine_iam_member" "member" {
 
 The following arguments are supported:
 
-* `app_id` - (Required) Id of the App Engine application. Used to find the parent resource to bind the IAM policy to
+* `app_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

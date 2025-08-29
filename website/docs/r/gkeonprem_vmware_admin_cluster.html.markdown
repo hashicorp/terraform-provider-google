@@ -23,16 +23,16 @@ description: |-
 
 A Google VMware Admin Cluster.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
+To get more information about VmwareAdminCluster, see:
+
+* [API documentation](https://cloud.google.com/kubernetes-engine/distributed-cloud/reference/on-prem-api/rest/v1/projects.locations.vmwareAdminClusters)
 
 ## Example Usage - Gkeonprem Vmware Admin Cluster Basic
 
 
 ```hcl
 resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-basic" {
-  provider = google-beta
   name = "basic"
   location = "us-west1"
   description = "test admin cluster"
@@ -71,6 +71,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-basic" {
       snat_pool = "test-snat-pool"
     }
   }
+  private_registry_config {
+    address = "test-address"
+    ca_cert = "test-ca-cert"
+  }
 }
 ```
 ## Example Usage - Gkeonprem Vmware Admin Cluster Full
@@ -78,7 +82,6 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-basic" {
 
 ```hcl
 resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
-  provider = google-beta
   name = "full"
   location = "us-west1"
   description = "test admin cluster"
@@ -164,6 +167,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
   platform_config {
     required_platform_version = "1.31.0"
   }
+  private_registry_config {
+    address = "test-address"
+    ca_cert = "test-ca-cert"
+  }
 }
 ```
 ## Example Usage - Gkeonprem Vmware Admin Cluster Metallb
@@ -171,13 +178,13 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
 
 ```hcl
 resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-metallb" {
-  provider = google-beta
   name = "metallb"
   location = "us-west1"
   description = "test admin cluster"
   bootstrap_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
-  on_prem_version = "1.31.0-gke.35"
+  on_prem_version = "1.33.0-gke.35"
   image_type = "ubuntu_containerd"
+  enable_advanced_cluster = true
   vcenter {
     resource_pool = "test resource pool"
     datastore = "test data store"
@@ -208,6 +215,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-metallb" {
       enabled = true
     }
   }
+  private_registry_config {
+    address = "test-address"
+    ca_cert = "test-ca-cert"
+  }
 }
 ```
 
@@ -228,6 +239,91 @@ The following arguments are supported:
 * `location` -
   (Required)
   The location of the resource.
+
+
+* `description` -
+  (Optional)
+  A human readable description of this VMware admin cluster.
+
+* `on_prem_version` -
+  (Optional)
+  The Anthos clusters on the VMware version for the admin cluster.
+
+* `image_type` -
+  (Optional)
+  The OS image type for the VMware admin cluster.
+
+* `bootstrap_cluster_membership` -
+  (Optional)
+  The bootstrap cluster this VMware admin cluster belongs to.
+
+* `annotations` -
+  (Optional)
+  Annotations on the VMware Admin Cluster.
+  This field has the same restrictions as Kubernetes annotations.
+  The total size of all keys and values combined is limited to 256k.
+  Key can have 2 segments: prefix (optional) and name (required),
+  separated by a slash (/).
+  Prefix must be a DNS subdomain.
+  Name must be 63 characters or less, begin and end with alphanumerics,
+  with dashes (-), underscores (_), dots (.), and alphanumerics between.
+
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `control_plane_node` -
+  (Optional)
+  The VMware admin cluster control plane node configuration.
+  Structure is [documented below](#nested_control_plane_node).
+
+* `addon_node` -
+  (Optional)
+  The VMware admin cluster addon node configuration.
+  Structure is [documented below](#nested_addon_node).
+
+* `load_balancer` -
+  (Optional)
+  Specifies the load balancer configuration for VMware admin cluster.
+  Structure is [documented below](#nested_load_balancer).
+
+* `vcenter` -
+  (Optional)
+  Specifies vCenter config for the admin cluster.
+  Structure is [documented below](#nested_vcenter).
+
+* `anti_affinity_groups` -
+  (Optional)
+  AAGConfig specifies whether to spread VMware Admin Cluster nodes across at
+  least three physical hosts in the datacenter.
+  Structure is [documented below](#nested_anti_affinity_groups).
+
+* `auto_repair_config` -
+  (Optional)
+  Configuration for auto repairing.
+  Structure is [documented below](#nested_auto_repair_config).
+
+* `authorization` -
+  (Optional)
+  The VMware admin cluster authorization configuration.
+  Structure is [documented below](#nested_authorization).
+
+* `platform_config` -
+  (Optional)
+  The VMware platform configuration.
+  Structure is [documented below](#nested_platform_config).
+
+* `enable_advanced_cluster` -
+  (Optional)
+  If set, the advanced cluster feature is enabled.
+
+* `private_registry_config` -
+  (Optional)
+  Configuration for private registry.
+  Structure is [documented below](#nested_private_registry_config).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
 
 
 <a name="nested_network_config"></a>The `network_config` block supports:
@@ -356,84 +452,6 @@ The following arguments are supported:
 * `hostname` -
   (Optional)
   Hostname of the machine. VM's name will be used if this field is empty.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  A human readable description of this VMware admin cluster.
-
-* `on_prem_version` -
-  (Optional)
-  The Anthos clusters on the VMware version for the admin cluster.
-
-* `image_type` -
-  (Optional)
-  The OS image type for the VMware admin cluster.
-
-* `bootstrap_cluster_membership` -
-  (Optional)
-  The bootstrap cluster this VMware admin cluster belongs to.
-
-* `annotations` -
-  (Optional)
-  Annotations on the VMware Admin Cluster.
-  This field has the same restrictions as Kubernetes annotations.
-  The total size of all keys and values combined is limited to 256k.
-  Key can have 2 segments: prefix (optional) and name (required),
-  separated by a slash (/).
-  Prefix must be a DNS subdomain.
-  Name must be 63 characters or less, begin and end with alphanumerics,
-  with dashes (-), underscores (_), dots (.), and alphanumerics between.
-
-  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
-  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
-
-* `control_plane_node` -
-  (Optional)
-  The VMware admin cluster control plane node configuration.
-  Structure is [documented below](#nested_control_plane_node).
-
-* `addon_node` -
-  (Optional)
-  The VMware admin cluster addon node configuration.
-  Structure is [documented below](#nested_addon_node).
-
-* `load_balancer` -
-  (Optional)
-  Specifies the load balancer configuration for VMware admin cluster.
-  Structure is [documented below](#nested_load_balancer).
-
-* `vcenter` -
-  (Optional)
-  Specifies vCenter config for the admin cluster.
-  Structure is [documented below](#nested_vcenter).
-
-* `anti_affinity_groups` -
-  (Optional)
-  AAGConfig specifies whether to spread VMware Admin Cluster nodes across at
-  least three physical hosts in the datacenter.
-  Structure is [documented below](#nested_anti_affinity_groups).
-
-* `auto_repair_config` -
-  (Optional)
-  Configuration for auto repairing.
-  Structure is [documented below](#nested_auto_repair_config).
-
-* `authorization` -
-  (Optional)
-  The VMware admin cluster authorization configuration.
-  Structure is [documented below](#nested_authorization).
-
-* `platform_config` -
-  (Optional)
-  The VMware platform configuration.
-  Structure is [documented below](#nested_platform_config).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_control_plane_node"></a>The `control_plane_node` block supports:
 
@@ -727,6 +745,16 @@ The following arguments are supported:
   (Output)
   The lifecycle state of the condition.
 
+<a name="nested_private_registry_config"></a>The `private_registry_config` block supports:
+
+* `address` -
+  (Optional)
+  The registry address.
+
+* `ca_cert` -
+  (Optional)
+  The CA certificate public key for private registry.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -777,9 +805,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` -
   ResourceStatus representing detailed cluster state.
   Structure is [documented below](#nested_status).
-
-* `enable_advanced_cluster` -
-  If set, the advanced cluster feature is enabled.
 
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.

@@ -402,6 +402,93 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
   ip_cidr_range = "10.1.0.0/16"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=service_attachment_cross_region_ilb&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Service Attachment Cross Region Ilb
+
+
+```hcl
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  name                  = "sa"
+  region                = "us-central1"
+  description           = "A service attachment configured with Terraform"
+  connection_preference = "ACCEPT_AUTOMATIC"
+  enable_proxy_protocol = false
+  nat_subnets           = [google_compute_subnetwork.subnetwork_psc.id]
+  target_service        = google_compute_global_forwarding_rule.forwarding_rule.id
+}
+
+resource "google_compute_global_forwarding_rule" "forwarding_rule" {
+  name                  = "sa"
+  target                = google_compute_target_http_proxy.http_proxy.id
+  network               = google_compute_network.network.id
+  subnetwork            = google_compute_subnetwork.subnetwork.id
+  port_range            = "80"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+
+  depends_on = [google_compute_subnetwork.subnetwork_proxy]
+}
+
+resource "google_compute_target_http_proxy" "http_proxy" {
+  name        = "sa"
+  description = "a description"
+  url_map     = google_compute_url_map.url_map.id
+}
+
+resource "google_compute_url_map" "url_map" {
+  name            = "sa"
+  description     = "Url map."
+  default_service = google_compute_backend_service.backend_service.id
+}
+
+resource "google_compute_backend_service" "backend_service" {
+  name                  = "sa"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.health_check.id]
+}
+
+resource "google_compute_health_check" "health_check" {
+  name               = "sa"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_subnetwork" "subnetwork_psc" {
+  name          = "sa-psc"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+  purpose       =  "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/16"
+}
+
+resource "google_compute_subnetwork" "subnetwork_proxy" {
+  name          = "sa-proxy"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+  purpose       =  "GLOBAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  ip_cidr_range = "10.2.0.0/16"
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "sa"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_network" "network" {
+  name                    = "sa"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -435,9 +522,6 @@ The following arguments are supported:
   If true, enable the proxy protocol which is for supplying client TCP/IP
   address data in TCP connections that traverse proxies on their way to
   destination servers.
-
-
-- - -
 
 
 * `description` -
@@ -474,7 +558,7 @@ The following arguments are supported:
   This limit lets the service producer limit how many propagated Private Service Connect connections can be established to this service attachment from a single consumer.
   If the connection preference of the service attachment is ACCEPT_MANUAL, the limit applies to each project or network that is listed in the consumer accept list.
   If the connection preference of the service attachment is ACCEPT_AUTOMATIC, the limit applies to each project that contains a connected endpoint.
-  If unspecified, the default propagated connection limit is 250.
+  If unspecified, the default propagated connection limit is 250. To explicitly send a zero value, set `send_propagated_connection_limit_if_zero = true`.
 
 * `region` -
   (Optional)
@@ -482,6 +566,12 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `send_propagated_connection_limit_if_zero` - (Optional) Controls the behavior of propagated_connection_limit.
+When false, setting propagated_connection_limit to zero causes the provider to use to the API's default value.
+When true, the provider will set propagated_connection_limit to zero.
+Defaults to false.
+
 
 
 <a name="nested_consumer_accept_lists"></a>The `consumer_accept_lists` block supports:

@@ -141,6 +141,16 @@ The following arguments are supported:
   Structure is [documented below](#nested_attestation_authority_note).
 
 
+* `description` -
+  (Optional)
+  A descriptive comment. This field may be updated. The field may be
+  displayed in chooser dialogs.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_attestation_authority_note"></a>The `attestation_authority_note` block supports:
 
 * `note_reference` -
@@ -228,18 +238,6 @@ The following arguments are supported:
   match the structure and any object identifiers encoded in
   publicKeyPem (i.e. this algorithm must match that of the
   public key).
-
-- - -
-
-
-* `description` -
-  (Optional)
-  A descriptive comment. This field may be updated. The field may be
-  displayed in chooser dialogs.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

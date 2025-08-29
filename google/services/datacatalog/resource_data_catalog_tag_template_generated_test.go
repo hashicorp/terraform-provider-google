@@ -33,9 +33,20 @@ import (
 func TestAccDataCatalogTagTemplate_dataCatalogTagTemplateBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"force_delete":  true,
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"force_delete": true,
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -51,6 +62,12 @@ func TestAccDataCatalogTagTemplate_dataCatalogTagTemplateBasicExample(t *testing
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_delete", "region", "tag_template_id"},
+			},
+			{
+				ResourceName:       "google_data_catalog_tag_template.basic_tag_template",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

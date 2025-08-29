@@ -34,9 +34,20 @@ import (
 func TestAccChronicleRule_chronicleRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -46,6 +57,12 @@ func TestAccChronicleRule_chronicleRuleBasicExample(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccChronicleRule_chronicleRuleBasicExample(context),
+			},
+			{
+				ResourceName:       "google_chronicle_rule.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -67,9 +84,20 @@ resource "google_chronicle_rule" "example" {
 func TestAccChronicleRule_chronicleRuleWithForceDeletionExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -100,9 +128,20 @@ resource "google_chronicle_rule" "example" {
 func TestAccChronicleRule_chronicleRuleWithDataAccessScopeExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

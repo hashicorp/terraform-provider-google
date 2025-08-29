@@ -41,8 +41,8 @@ To get more information about Instance, see:
 ```hcl
 resource "google_memorystore_instance" "instance-basic" {
   instance_id = "basic-instance"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
@@ -104,40 +104,42 @@ data "google_project" "project" {
 
 ```hcl
 resource "google_memorystore_instance" "instance-full" {
-  instance_id = "full-instance"
-  shard_count = 3
-  desired_psc_auto_connections {
-    network    = google_compute_network.producer_net.id
-    project_id = data.google_project.project.project_id
+  instance_id                  = "full-instance"
+  shard_count                  = 1
+  desired_auto_created_endpoints {
+    network                    = google_compute_network.producer_net.id
+    project_id                 = data.google_project.project.project_id
+  }     
+  location                     = "us-central1"
+  replica_count                = 1
+  node_type                    = "SHARED_CORE_NANO"
+  transit_encryption_mode      = "TRANSIT_ENCRYPTION_DISABLED"
+  authorization_mode           = "AUTH_DISABLED"
+  kms_key                      = "my-key"
+  engine_configs = {     
+    maxmemory-policy           = "volatile-ttl"
   }
-  location                = "us-central1"
-  replica_count           = 2
-  node_type               = "SHARED_CORE_NANO"
-  transit_encryption_mode = "TRANSIT_ENCRYPTION_DISABLED"
-  authorization_mode      = "AUTH_DISABLED"
-  engine_configs = {
-    maxmemory-policy = "volatile-ttl"
-  }
+  allow_fewer_zones_deployment = true
   zone_distribution_config {
-    mode = "SINGLE_ZONE"
-    zone = "us-central1-b"
+    mode                       = "SINGLE_ZONE"
+    zone                       = "us-central1-b"
   }
   maintenance_policy {
     weekly_maintenance_window {
-      day = "MONDAY"
+      day                      = "MONDAY"
       start_time {
-        hours = 1
-        minutes = 0
-        seconds = 0
-        nanos = 0
+        hours                  = 1
+        minutes                = 0
+        seconds                = 0
+        nanos                  = 0
       }
     }
   }
   engine_version              = "VALKEY_7_2"
   deletion_protection_enabled = false
-  mode = "CLUSTER"
+  mode                        = "CLUSTER"
   persistence_config {
-    mode = "RDB"
+    mode                      = "RDB"
     rdb_config {
       rdb_snapshot_period     = "ONE_HOUR"
       rdb_snapshot_start_time = "2024-10-02T15:01:23Z"
@@ -192,8 +194,8 @@ data "google_project" "project" {
 ```hcl
 resource "google_memorystore_instance" "instance-persistence-aof" {
   instance_id = "aof-instance"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
@@ -252,7 +254,7 @@ data "google_project" "project" {
 resource "google_memorystore_instance" "primary_instance" {
   instance_id                    = "primary-instance"
   shard_count                    = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                      = google_compute_network.primary_producer_net.id
     project_id                   = data.google_project.project.project_id
   }
@@ -313,7 +315,7 @@ resource "google_compute_network" "primary_producer_net" {
 resource "google_memorystore_instance" "secondary_instance" {
   instance_id                    = "secondary-instance"
   shard_count                    = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                      = google_compute_network.secondary_producer_net.id
     project_id                   = data.google_project.project.project_id
   }
@@ -406,9 +408,6 @@ The following arguments are supported:
   * Must be unique within a location
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Optional. Labels to represent user-provided metadata. 
@@ -469,6 +468,15 @@ The following arguments are supported:
   Zone distribution configuration for allocation of instance resources.
   Structure is [documented below](#nested_zone_distribution_config).
 
+* `allow_fewer_zones_deployment` -
+  (Optional, Deprecated)
+  Allows customers to specify if they are okay with deploying a multi-zone
+  instance in less than 3 zones. Once set, if there is a zonal outage during
+  the instance creation, the instance will only be deployed in 2 zones, and
+  stay within the 2 zones for its lifecycle.
+
+  ~> **Warning:** allow_fewer_zone_deployment flag will no longer be a user settable field, default behaviour will be as if set to true
+
 * `deletion_protection_enabled` -
   (Optional)
   Optional. If set to true deletion of the instance will fail.
@@ -496,10 +504,16 @@ The following arguments are supported:
   Managed backup source for the instance.
   Structure is [documented below](#nested_managed_backup_source).
 
+* `kms_key` -
+  (Optional)
+  The KMS key used to encrypt the at-rest data of the cluster
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `desired_psc_auto_connections` - (Optional) Immutable. User inputs for the auto-created PSC connections. 
+* `desired_psc_auto_connections` - (Optional) `desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead.
+* `desired_auto_created_endpoints` - (Optional) Immutable. User inputs for the auto-created endpoints connections. 
+
 
 <a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
 
@@ -754,13 +768,13 @@ The following arguments are supported:
 * `uris` -
   (Required)
   URIs of the GCS objects to import.
-  Example: gs://bucket1/object1, gs//bucket2/folder2/object2
+  Example: gs://bucket1/object1, gs://bucket2/folder2/object2
 
 <a name="nested_managed_backup_source"></a>The `managed_backup_source` block supports:
 
 * `backup` -
   (Required)
-  Example: //memorystore.googleapis.com/projects/{project}/locations/{location}/backups/{backupId}. In this case, it assumes the backup is under memorystore.googleapis.com.
+  Example: `projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}`.
 
 ## Attributes Reference
 
@@ -794,9 +808,11 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. System assigned, unique identifier for the instance.
 
 * `discovery_endpoints` -
-  Output only. Endpoints clients can connect to the instance through. Currently only one
-  discovery endpoint is supported.
+  (Deprecated)
+  Deprecated. Output only. Endpoints clients can connect to the instance through.
   Structure is [documented below](#nested_discovery_endpoints).
+
+  ~> **Warning:** This field is deprecated. As a result it will not be populated if the connections are created using `desired_auto_created_endpoints` parameter or `google_memorystore_instance_desired_user_created_endpoints` resource. Instead of this parameter, for discovery, use `endpoints.connections.pscConnection` and `endpoints.connections.pscAutoConnection` with `connectionType` CONNECTION_TYPE_DISCOVERY.
 
 * `maintenance_schedule` -
   Upcoming maintenance schedule.
@@ -815,12 +831,19 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_psc_attachment_details).
 
 * `psc_auto_connections` -
+  (Deprecated)
   Output only. User inputs and resource details of the auto-created PSC connections.
   Structure is [documented below](#nested_psc_auto_connections).
+
+  ~> **Warning:** `psc_auto_connections` is deprecated  Use `endpoints.connections.pscAutoConnections` instead.
 
 * `backup_collection` -
   The backup collection full resource name.
   Example: projects/{project}/locations/{location}/backupCollections/{collection}
+
+* `managed_server_ca` -
+  Instance's Certificate Authority. This field will only be populated if instance's transit_encryption_mode is SERVER_AUTHENTICATION
+  Structure is [documented below](#nested_managed_server_ca).
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
@@ -1015,6 +1038,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `port` -
   (Output)
   Output only. Ports of the exposed endpoint.
+
+<a name="nested_managed_server_ca"></a>The `managed_server_ca` block contains:
+
+* `ca_certs` -
+  (Output)
+  The PEM encoded CA certificate chains for managed server authentication
+  Structure is [documented below](#nested_managed_server_ca_ca_certs).
+
+
+<a name="nested_managed_server_ca_ca_certs"></a>The `ca_certs` block contains:
+
+* `certificates` -
+  (Output)
+  The certificates that form the CA chain, from leaf to root order
 
 ## Timeouts
 

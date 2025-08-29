@@ -58,8 +58,6 @@ The following arguments are supported:
   The parent of the quota preference. Allowed parent format is "projects/[project-id / number]".
 
 
-- - -
-
 
 
 ## Attributes Reference
@@ -70,11 +68,17 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `effective_container` -
   The resource container that determines if the quota adjuster is set for this project.
-  Expect this field to be empty currently.
 
 * `effective_enablement` -
   Based on the effective container`s setting above, determines Whether this resource container has the quota adjuster enabled.
-  Expect this field to be empty currently.
+
+* `inherited` -
+  Indicates whether the setting is inherited or explicitly specified.
+
+* `inherited_from` -
+  The resource container from which the setting is inherited. This refers to the  nearest ancestor with enablement set (either ENABLED or DISABLED).
+  The value can be `organizations/{organization_id}`, `folders/{folder_id}`, or can be `default` if no ancestor exists with enablement set.
+  The value will be empty when `enablement` is specified on this resource container.
 
 
 ## Timeouts

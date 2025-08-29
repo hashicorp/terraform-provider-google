@@ -116,6 +116,21 @@ func ResourceSpannerInstance() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"config": {
 				Type:             schema.TypeString,
@@ -139,6 +154,8 @@ unique per project and between 4 and 30 characters in length.`,
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `The autoscaling configuration. Autoscaling is enabled if this field is set.
+Exactly one of either num_nodes, processing_units or autoscaling_config must be
+present in terraform except when instance_type = FREE_INSTANCE.
 When autoscaling is enabled, num_nodes and processing_units are treated as,
 OUTPUT_ONLY fields and reflect the current compute capacity allocated to
 the instance.`,
@@ -272,7 +289,8 @@ This number is on a scale from 0 (no utilization) to 100 (full utilization).`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"num_nodes", "processing_units", "autoscaling_config"},
+				ConflictsWith: []string{"num_nodes", "processing_units"},
+				AtLeastOneOf:  []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
 			},
 			"default_backup_schedule_type": {
 				Type:         schema.TypeString,
@@ -289,6 +307,16 @@ if unset or NONE, no default backup schedule will be created for new databases w
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"EDITION_UNSPECIFIED", "STANDARD", "ENTERPRISE", "ENTERPRISE_PLUS", ""}),
 				Description:  `The edition selected for this instance. Different editions provide different capabilities at different price points. Possible values: ["EDITION_UNSPECIFIED", "STANDARD", "ENTERPRISE", "ENTERPRISE_PLUS"]`,
+			},
+			"instance_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PROVISIONED", "FREE_INSTANCE", ""}),
+				Description: `The type of this instance. The type can be used to distinguish product variants, that can affect aspects like:
+usage restrictions, quotas and billing. Currently this is used to distinguish FREE_INSTANCE vs PROVISIONED instances.
+When configured as FREE_INSTANCE, the field 'edition' should not be configured. Possible values: ["PROVISIONED", "FREE_INSTANCE"]`,
+				AtLeastOneOf: []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -316,17 +344,19 @@ If not provided, a random string starting with 'tf-' will be selected.`,
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
-				Description: `The number of nodes allocated to this instance. Exactly one of either node_count or processing_units
-must be present in terraform.`,
-				ExactlyOneOf: []string{"num_nodes", "processing_units", "autoscaling_config"},
+				Description: `The number of nodes allocated to this instance. Exactly one of either num_nodes, processing_units or
+autoscaling_config must be present in terraform except when instance_type = FREE_INSTANCE.`,
+				ConflictsWith: []string{"processing_units", "autoscaling_config"},
+				AtLeastOneOf:  []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
 			},
 			"processing_units": {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
-				Description: `The number of processing units allocated to this instance. Exactly one of processing_units
-or node_count must be present in terraform.`,
-				ExactlyOneOf: []string{"num_nodes", "processing_units", "autoscaling_config"},
+				Description: `The number of processing units allocated to this instance. Exactly one of either num_nodes,
+processing_units or autoscaling_config must be present in terraform except when instance_type = FREE_INSTANCE.`,
+				ConflictsWith: []string{"num_nodes", "autoscaling_config"},
+				AtLeastOneOf:  []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -390,11 +420,11 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	nodeCountProp, err := expandSpannerInstanceNumNodes(d.Get("num_nodes"), d, config)
+	numNodesProp, err := expandSpannerInstanceNumNodes(d.Get("num_nodes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("num_nodes"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodeCountProp)) && (ok || !reflect.DeepEqual(v, nodeCountProp)) {
-		obj["nodeCount"] = nodeCountProp
+	} else if v, ok := d.GetOkExists("num_nodes"); !tpgresource.IsEmptyValue(reflect.ValueOf(numNodesProp)) && (ok || !reflect.DeepEqual(v, numNodesProp)) {
+		obj["nodeCount"] = numNodesProp
 	}
 	processingUnitsProp, err := expandSpannerInstanceProcessingUnits(d.Get("processing_units"), d, config)
 	if err != nil {
@@ -414,17 +444,23 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(editionProp)) && (ok || !reflect.DeepEqual(v, editionProp)) {
 		obj["edition"] = editionProp
 	}
+	instanceTypeProp, err := expandSpannerInstanceInstanceType(d.Get("instance_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceTypeProp)) && (ok || !reflect.DeepEqual(v, instanceTypeProp)) {
+		obj["instanceType"] = instanceTypeProp
+	}
 	defaultBackupScheduleTypeProp, err := expandSpannerInstanceDefaultBackupScheduleType(d.Get("default_backup_schedule_type"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("default_backup_schedule_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultBackupScheduleTypeProp)) && (ok || !reflect.DeepEqual(v, defaultBackupScheduleTypeProp)) {
 		obj["defaultBackupScheduleType"] = defaultBackupScheduleTypeProp
 	}
-	labelsProp, err := expandSpannerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandSpannerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceSpannerInstanceEncoder(d, meta, obj)
@@ -605,6 +641,9 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("edition", flattenSpannerInstanceEdition(res["edition"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("instance_type", flattenSpannerInstanceInstanceType(res["instanceType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("default_backup_schedule_type", flattenSpannerInstanceDefaultBackupScheduleType(res["defaultBackupScheduleType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -615,6 +654,22 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -640,11 +695,11 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	nodeCountProp, err := expandSpannerInstanceNumNodes(d.Get("num_nodes"), d, config)
+	numNodesProp, err := expandSpannerInstanceNumNodes(d.Get("num_nodes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("num_nodes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeCountProp)) {
-		obj["nodeCount"] = nodeCountProp
+	} else if v, ok := d.GetOkExists("num_nodes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, numNodesProp)) {
+		obj["nodeCount"] = numNodesProp
 	}
 	processingUnitsProp, err := expandSpannerInstanceProcessingUnits(d.Get("processing_units"), d, config)
 	if err != nil {
@@ -664,17 +719,23 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, editionProp)) {
 		obj["edition"] = editionProp
 	}
+	instanceTypeProp, err := expandSpannerInstanceInstanceType(d.Get("instance_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceTypeProp)) {
+		obj["instanceType"] = instanceTypeProp
+	}
 	defaultBackupScheduleTypeProp, err := expandSpannerInstanceDefaultBackupScheduleType(d.Get("default_backup_schedule_type"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("default_backup_schedule_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultBackupScheduleTypeProp)) {
 		obj["defaultBackupScheduleType"] = defaultBackupScheduleTypeProp
 	}
-	labelsProp, err := expandSpannerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandSpannerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceSpannerInstanceUpdateEncoder(d, meta, obj)
@@ -832,7 +893,7 @@ func flattenSpannerInstanceName(v interface{}, d *schema.ResourceData, config *t
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenSpannerInstanceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1154,6 +1215,10 @@ func flattenSpannerInstanceEdition(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
+func flattenSpannerInstanceInstanceType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSpannerInstanceDefaultBackupScheduleType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1439,6 +1504,10 @@ func expandSpannerInstanceEdition(v interface{}, d tpgresource.TerraformResource
 	return v, nil
 }
 
+func expandSpannerInstanceInstanceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSpannerInstanceDefaultBackupScheduleType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1455,10 +1524,18 @@ func expandSpannerInstanceEffectiveLabels(v interface{}, d tpgresource.Terraform
 }
 
 func resourceSpannerInstanceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// Temp Logic to accommodate autoscaling_config, processing_units and num_nodes
-	if obj["processingUnits"] == nil && obj["nodeCount"] == nil && obj["autoscalingConfig"] == nil {
-		obj["nodeCount"] = 1
+	if obj["instanceType"] == "FREE_INSTANCE" {
+		// when provisioning a FREE_INSTANCE, the following fields cannot be specified
+		if obj["nodeCount"] != nil || obj["processingUnits"] != nil || obj["autoscalingConfig"] != nil {
+			return nil, fmt.Errorf("`num_nodes`, `processing_units`, and `autoscaling_config` cannot be specified when instance_type is FREE_INSTANCE")
+		}
+	} else {
+		// Temp Logic to accommodate autoscaling_config, processing_units and num_nodes
+		if obj["processingUnits"] == nil && obj["nodeCount"] == nil && obj["autoscalingConfig"] == nil && obj["instanceType"] != "FREE_INSTANCE" {
+			obj["nodeCount"] = 1
+		}
 	}
+
 	newObj := make(map[string]interface{})
 	newObj["instance"] = obj
 	if obj["name"] == nil {

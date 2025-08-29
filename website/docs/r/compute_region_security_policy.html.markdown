@@ -142,9 +142,6 @@ The following arguments are supported:
   Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when you create the resource.
@@ -162,6 +159,11 @@ The following arguments are supported:
   (Optional)
   Configuration for Google Cloud Armor DDOS Proctection Config.
   Structure is [documented below](#nested_ddos_protection_config).
+
+* `advanced_options_config` -
+  (Optional)
+  Advanced Options Config of this security policy.
+  Structure is [documented below](#nested_advanced_options_config).
 
 * `user_defined_fields` -
   (Optional)
@@ -184,6 +186,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
 <a name="nested_ddos_protection_config"></a>The `ddos_protection_config` block supports:
 
 * `ddos_protection` -
@@ -193,6 +196,40 @@ The following arguments are supported:
   - ADVANCED: additional protections for Managed Protection Plus subscribers who use network load balancers, protocol forwarding, or VMs with public IP addresses.
   - ADVANCED_PREVIEW: flag to enable the security policy in preview mode.
   Possible values are: `ADVANCED`, `ADVANCED_PREVIEW`, `STANDARD`.
+
+<a name="nested_advanced_options_config"></a>The `advanced_options_config` block supports:
+
+* `json_parsing` -
+  (Optional)
+  JSON body parsing. Supported values include: "DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL".
+  Possible values are: `DISABLED`, `STANDARD`, `STANDARD_WITH_GRAPHQL`.
+
+* `json_custom_config` -
+  (Optional)
+  Custom configuration to apply the JSON parsing. Only applicable when JSON parsing is set to STANDARD.
+  Structure is [documented below](#nested_advanced_options_config_json_custom_config).
+
+* `log_level` -
+  (Optional)
+  Logging level. Supported values include: "NORMAL", "VERBOSE".
+  Possible values are: `NORMAL`, `VERBOSE`.
+
+* `user_ip_request_headers` -
+  (Optional)
+  An optional list of case-insensitive request header names to use for resolving the callers client IP address.
+
+* `request_body_inspection_size` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The maximum request size chosen by the customer with Waf enabled. Values supported are "8KB", "16KB, "32KB", "48KB" and "64KB".
+  Values are case insensitive.
+  Possible values are: `8KB`, `16KB`, `32KB`, `48KB`, `64KB`.
+
+
+<a name="nested_advanced_options_config_json_custom_config"></a>The `json_custom_config` block supports:
+
+* `content_types` -
+  (Required)
+  A list of custom Content-Type header values to apply the JSON parsing.
 
 <a name="nested_user_defined_fields"></a>The `user_defined_fields` block supports:
 
@@ -453,8 +490,9 @@ The following arguments are supported:
   * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
   * REGION_CODE: The country/region from which the request originates.
   * TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+  * TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
   * USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP.
-  Possible values are: `ALL`, `IP`, `HTTP_HEADER`, `XFF_IP`, `HTTP_COOKIE`, `HTTP_PATH`, `SNI`, `REGION_CODE`, `TLS_JA3_FINGERPRINT`, `USER_IP`.
+  Possible values are: `ALL`, `IP`, `HTTP_HEADER`, `XFF_IP`, `HTTP_COOKIE`, `HTTP_PATH`, `SNI`, `REGION_CODE`, `TLS_JA3_FINGERPRINT`, `TLS_JA4_FINGERPRINT`, `USER_IP`.
 
 * `enforce_on_key_name` -
   (Optional)
@@ -505,8 +543,9 @@ The following arguments are supported:
   * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
   * REGION_CODE: The country/region from which the request originates.
   * TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+  * TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
   * USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP.
-  Possible values are: `ALL`, `IP`, `HTTP_HEADER`, `XFF_IP`, `HTTP_COOKIE`, `HTTP_PATH`, `SNI`, `REGION_CODE`, `TLS_JA3_FINGERPRINT`, `USER_IP`.
+  Possible values are: `ALL`, `IP`, `HTTP_HEADER`, `XFF_IP`, `HTTP_COOKIE`, `HTTP_PATH`, `SNI`, `REGION_CODE`, `TLS_JA3_FINGERPRINT`, `TLS_JA4_FINGERPRINT`, `USER_IP`.
 
 * `enforce_on_key_name` -
   (Optional)

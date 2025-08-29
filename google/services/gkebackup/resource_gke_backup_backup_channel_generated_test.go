@@ -34,10 +34,22 @@ import (
 func TestAccGKEBackupBackupChannel_gkebackupBackupchannelBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"destination_project": "projects/24240755850",
-		"random_suffix":       acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -54,6 +66,12 @@ func TestAccGKEBackupBackupChannel_gkebackupBackupchannelBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_backup_channel.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -63,7 +81,7 @@ func testAccGKEBackupBackupChannel_gkebackupBackupchannelBasicExample(context ma
 resource "google_gke_backup_backup_channel" "basic" {
   name = "tf-test-basic-channel%{random_suffix}"
   location = "us-central1"
-  description = ""
+  description = "Description"
   destination_project = "%{destination_project}"
   labels = { "key": "some-value" }
 }

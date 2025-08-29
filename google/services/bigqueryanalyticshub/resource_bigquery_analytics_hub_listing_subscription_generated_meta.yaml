@@ -5,6 +5,7 @@ api_service_name: 'analyticshub.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Subscription'
 fields:
+  - field: 'commercial_info.cloud_marketplace.order'
   - field: 'creation_time'
   - field: 'data_exchange_id'
     provider_only: true
@@ -23,6 +24,7 @@ fields:
     provider_only: true
   - field: 'location'
     provider_only: true
+  - field: 'log_linked_dataset_query_user_email'
   - field: 'name'
   - field: 'organization_display_name'
   - field: 'organization_id'

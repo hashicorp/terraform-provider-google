@@ -34,8 +34,18 @@ import (
 func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -47,9 +57,16 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 				Config: testAccComputeNetwork_networkBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				ResourceName:       "google_compute_network.vpc_network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -66,9 +83,20 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,9 +108,10 @@ func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 				Config: testAccComputeNetwork_networkCustomMtuExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -102,9 +131,20 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -116,9 +156,10 @@ func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testi
 				Config: testAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -138,9 +179,20 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkBgpBestPathSelectionModeExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -152,9 +204,10 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeExample(t *testing.T) 
 				Config: testAccComputeNetwork_networkBgpBestPathSelectionModeExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -173,9 +226,20 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -187,9 +251,10 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(t *tes
 				Config: testAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -209,9 +274,20 @@ resource "google_compute_network" "vpc_network" {
 func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -223,9 +299,10 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsEx
 				Config: testAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network.vpc_network",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})

@@ -57,6 +57,21 @@ func ResourceComputeGlobalForwardingRule() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -163,6 +178,35 @@ features](https://cloud.google.com/load-balancing/docs/features#protocols_from_t
 				Description: `An optional description of this resource. Provide this property when
 you create the resource.`,
 			},
+			"external_managed_backend_bucket_migration_state": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PREPARE", "TEST_BY_PERCENTAGE", "TEST_ALL_TRAFFIC", ""}),
+				Description: `Specifies the canary migration state for the backend buckets attached to this forwarding rule.
+Possible values are PREPARE, TEST_BY_PERCENTAGE, and TEST_ALL_TRAFFIC.
+
+To begin the migration from EXTERNAL to EXTERNAL_MANAGED, the state must be changed to
+PREPARE. The state must be changed to TEST_ALL_TRAFFIC before the loadBalancingScheme can be
+changed to EXTERNAL_MANAGED. Optionally, the TEST_BY_PERCENTAGE state can be used to migrate
+traffic to backend buckets attached to this forwarding rule by percentage using
+externalManagedBackendBucketMigrationTestingPercentage.
+
+Rolling back a migration requires the states to be set in reverse order. So changing the
+scheme from EXTERNAL_MANAGED to EXTERNAL requires the state to be set to TEST_ALL_TRAFFIC at
+the same time. Optionally, the TEST_BY_PERCENTAGE state can be used to migrate some traffic
+back to EXTERNAL or PREPARE can be used to migrate all traffic back to EXTERNAL. Possible values: ["PREPARE", "TEST_BY_PERCENTAGE", "TEST_ALL_TRAFFIC"]`,
+			},
+			"external_managed_backend_bucket_migration_testing_percentage": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+				Description: `Determines the fraction of requests to backend buckets that should be processed by the Global
+external Application Load Balancer.
+
+The value of this field must be in the range [0, 100].
+
+This value can only be set if the loadBalancingScheme in the forwarding rule is set to
+EXTERNAL (when using the Classic ALB) and the migration state is TEST_BY_PERCENTAGE.`,
+			},
 			"ip_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -183,7 +227,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL_MANAGED", "INTERNAL_SELF_MANAGED", ""}),
 				Description: `Specifies the forwarding rule type.
 
@@ -448,17 +491,17 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	IPAddressProp, err := expandComputeGlobalForwardingRuleIPAddress(d.Get("ip_address"), d, config)
+	iPAddressProp, err := expandComputeGlobalForwardingRuleIPAddress(d.Get("ip_address"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ip_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(IPAddressProp)) && (ok || !reflect.DeepEqual(v, IPAddressProp)) {
-		obj["IPAddress"] = IPAddressProp
+	} else if v, ok := d.GetOkExists("ip_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(iPAddressProp)) && (ok || !reflect.DeepEqual(v, iPAddressProp)) {
+		obj["IPAddress"] = iPAddressProp
 	}
-	IPProtocolProp, err := expandComputeGlobalForwardingRuleIPProtocol(d.Get("ip_protocol"), d, config)
+	iPProtocolProp, err := expandComputeGlobalForwardingRuleIPProtocol(d.Get("ip_protocol"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ip_protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(IPProtocolProp)) && (ok || !reflect.DeepEqual(v, IPProtocolProp)) {
-		obj["IPProtocol"] = IPProtocolProp
+	} else if v, ok := d.GetOkExists("ip_protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(iPProtocolProp)) && (ok || !reflect.DeepEqual(v, iPProtocolProp)) {
+		obj["IPProtocol"] = iPProtocolProp
 	}
 	ipVersionProp, err := expandComputeGlobalForwardingRuleIpVersion(d.Get("ip_version"), d, config)
 	if err != nil {
@@ -520,6 +563,18 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("network_tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkTierProp)) && (ok || !reflect.DeepEqual(v, networkTierProp)) {
 		obj["networkTier"] = networkTierProp
 	}
+	externalManagedBackendBucketMigrationStateProp, err := expandComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationState(d.Get("external_managed_backend_bucket_migration_state"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_managed_backend_bucket_migration_state"); !tpgresource.IsEmptyValue(reflect.ValueOf(externalManagedBackendBucketMigrationStateProp)) && (ok || !reflect.DeepEqual(v, externalManagedBackendBucketMigrationStateProp)) {
+		obj["externalManagedBackendBucketMigrationState"] = externalManagedBackendBucketMigrationStateProp
+	}
+	externalManagedBackendBucketMigrationTestingPercentageProp, err := expandComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationTestingPercentage(d.Get("external_managed_backend_bucket_migration_testing_percentage"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_managed_backend_bucket_migration_testing_percentage"); !tpgresource.IsEmptyValue(reflect.ValueOf(externalManagedBackendBucketMigrationTestingPercentageProp)) && (ok || !reflect.DeepEqual(v, externalManagedBackendBucketMigrationTestingPercentageProp)) {
+		obj["externalManagedBackendBucketMigrationTestingPercentage"] = externalManagedBackendBucketMigrationTestingPercentageProp
+	}
 	serviceDirectoryRegistrationsProp, err := expandComputeGlobalForwardingRuleServiceDirectoryRegistrations(d.Get("service_directory_registrations"), d, config)
 	if err != nil {
 		return err
@@ -538,11 +593,11 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("no_automate_dns_zone"); ok || !reflect.DeepEqual(v, noAutomateDnsZoneProp) {
 		obj["noAutomateDnsZone"] = noAutomateDnsZoneProp
 	}
-	labelsProp, err := expandComputeGlobalForwardingRuleEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandComputeGlobalForwardingRuleEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/forwardingRules")
@@ -604,8 +659,8 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error waiting to create GlobalForwardingRule: %s", err)
 	}
 
-	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		labels := d.Get("labels")
+	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		userLabels := d.Get("labels")
 		terraformLables := d.Get("terraform_labels")
 
 		// Labels cannot be set in a create.  We'll have to set them here.
@@ -649,7 +704,7 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		}
 
 		// Set back the labels field, as it is needed to decide the value of "labels" in the state in the read function.
-		if err := d.Set("labels", labels); err != nil {
+		if err := d.Set("labels", userLabels); err != nil {
 			return fmt.Errorf("Error setting back labels: %s", err)
 		}
 
@@ -762,6 +817,12 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 	if err := d.Set("network_tier", flattenComputeGlobalForwardingRuleNetworkTier(res["networkTier"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
+	if err := d.Set("external_managed_backend_bucket_migration_state", flattenComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationState(res["externalManagedBackendBucketMigrationState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
+	}
+	if err := d.Set("external_managed_backend_bucket_migration_testing_percentage", flattenComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationTestingPercentage(res["externalManagedBackendBucketMigrationTestingPercentage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
+	}
 	if err := d.Set("service_directory_registrations", flattenComputeGlobalForwardingRuleServiceDirectoryRegistrations(res["serviceDirectoryRegistrations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
@@ -780,7 +841,22 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -877,6 +953,63 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating GlobalForwardingRule %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating GlobalForwardingRule %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, tpgresource.GetResourceNameFromSelfLink(project), "Updating GlobalForwardingRule", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("load_balancing_scheme") || d.HasChange("external_managed_backend_bucket_migration_state") || d.HasChange("external_managed_backend_bucket_migration_testing_percentage") {
+		obj := make(map[string]interface{})
+
+		loadBalancingSchemeProp, err := expandComputeGlobalForwardingRuleLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("load_balancing_scheme"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
+			obj["loadBalancingScheme"] = loadBalancingSchemeProp
+		}
+		externalManagedBackendBucketMigrationStateProp, err := expandComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationState(d.Get("external_managed_backend_bucket_migration_state"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("external_managed_backend_bucket_migration_state"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalManagedBackendBucketMigrationStateProp)) {
+			obj["externalManagedBackendBucketMigrationState"] = externalManagedBackendBucketMigrationStateProp
+		}
+		externalManagedBackendBucketMigrationTestingPercentageProp, err := expandComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationTestingPercentage(d.Get("external_managed_backend_bucket_migration_testing_percentage"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("external_managed_backend_bucket_migration_testing_percentage"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalManagedBackendBucketMigrationTestingPercentageProp)) {
+			obj["externalManagedBackendBucketMigrationTestingPercentage"] = externalManagedBackendBucketMigrationTestingPercentageProp
+		}
+
+		url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/forwardingRules/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
 			Project:   billingProject,
 			RawURL:    url,
 			UserAgent: userAgent,
@@ -1123,6 +1256,14 @@ func flattenComputeGlobalForwardingRuleNetworkTier(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationTestingPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeGlobalForwardingRuleServiceDirectoryRegistrations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1300,6 +1441,14 @@ func expandComputeGlobalForwardingRuleTarget(v interface{}, d tpgresource.Terraf
 }
 
 func expandComputeGlobalForwardingRuleNetworkTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleExternalManagedBackendBucketMigrationTestingPercentage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

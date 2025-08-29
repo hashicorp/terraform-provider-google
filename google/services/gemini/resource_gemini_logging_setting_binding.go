@@ -57,6 +57,29 @@ func ResourceGeminiLoggingSettingBinding() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"logging_setting_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"setting_binding_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"logging_setting_id": {
 				Type:        schema.TypeString,
@@ -92,6 +115,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			},
 			"product": {
 				Type:         schema.TypeString,
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"GEMINI_CODE_ASSIST", ""}),
 				Description:  `Product type of the setting binding. Possible values: ["GEMINI_CODE_ASSIST"]`,
@@ -156,11 +180,11 @@ func resourceGeminiLoggingSettingBindingCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("product"); !tpgresource.IsEmptyValue(reflect.ValueOf(productProp)) && (ok || !reflect.DeepEqual(v, productProp)) {
 		obj["product"] = productProp
 	}
-	labelsProp, err := expandGeminiLoggingSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiLoggingSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}")
@@ -211,29 +235,15 @@ func resourceGeminiLoggingSettingBindingCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GeminiOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating LoggingSettingBinding", userAgent,
+	err = GeminiOperationWaitTime(
+		config, res, project, "Creating LoggingSettingBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create LoggingSettingBinding: %s", err)
 	}
-
-	if err := d.Set("name", flattenGeminiLoggingSettingBindingName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}/settingBindings/{{setting_binding_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating LoggingSettingBinding %q: %#v", d.Id(), res)
 
@@ -307,6 +317,34 @@ func resourceGeminiLoggingSettingBindingRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading LoggingSettingBinding: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("logging_setting_id"); ok && v != "" {
+		err = identity.Set("logging_setting_id", d.Get("logging_setting_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting logging_setting_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("setting_binding_id"); ok && v != "" {
+		err = identity.Set("setting_binding_id", d.Get("setting_binding_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting setting_binding_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -338,11 +376,11 @@ func resourceGeminiLoggingSettingBindingUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("product"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, productProp)) {
 		obj["product"] = productProp
 	}
-	labelsProp, err := expandGeminiLoggingSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiLoggingSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/loggingSettings/{{logging_setting_id}}")

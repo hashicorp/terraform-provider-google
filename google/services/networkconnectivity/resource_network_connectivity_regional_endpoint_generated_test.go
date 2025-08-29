@@ -33,8 +33,18 @@ import (
 func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpointRegionalAccessExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +60,12 @@ func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_regional_endpoint.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -72,12 +88,12 @@ resource "google_compute_subnetwork" "my_subnetwork" {
 resource "google_network_connectivity_regional_endpoint" "default" {
   name              = "tf-test-my-rep%{random_suffix}"
   location          = "us-central1"
-  target_google_api = "storage.us-central1.p.rep.googleapis.com"
+  target_google_api = "storage.us-central1.rep.googleapis.com"
   access_type       = "REGIONAL"
   address           = "192.168.0.5"
   network           = google_compute_network.my_network.id
   subnetwork        = google_compute_subnetwork.my_subnetwork.id
-  description       = "My RegionalEndpoint targeting Google API storage.us-central1.p.rep.googleapis.com"
+  description       = "My RegionalEndpoint targeting Google API storage.us-central1.rep.googleapis.com"
   labels            = {env = "default"}
 }
 `, context)
@@ -86,8 +102,18 @@ resource "google_network_connectivity_regional_endpoint" "default" {
 func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpointGlobalAccessExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,7 +151,7 @@ resource "google_compute_subnetwork" "my_subnetwork" {
 resource "google_network_connectivity_regional_endpoint" "default" {
   name              = "tf-test-my-rep%{random_suffix}"
   location          = "us-central1"
-  target_google_api = "storage.us-central1.p.rep.googleapis.com"
+  target_google_api = "storage.us-central1.rep.googleapis.com"
   access_type       = "GLOBAL"
   address           = "192.168.0.4"
   network           = google_compute_network.my_network.id

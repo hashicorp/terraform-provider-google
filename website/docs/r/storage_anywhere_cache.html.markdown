@@ -70,9 +70,6 @@ The following arguments are supported:
   A reference to Bucket resource
 
 
-- - -
-
-
 * `admission_policy` -
   (Optional)
   The cache admission policy dictates whether a block should be inserted upon a cache miss.
@@ -82,6 +79,7 @@ The following arguments are supported:
 * `ttl` -
   (Optional)
   The TTL of all cache entries in whole seconds. e.g., "7200s". It defaults to `86400s`
+
 
 
 ## Attributes Reference

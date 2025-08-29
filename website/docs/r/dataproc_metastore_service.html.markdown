@@ -417,9 +417,6 @@ The following arguments are supported:
   3 and 63 characters.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   User-defined labels for the metastore service.
@@ -499,12 +496,6 @@ The following arguments are supported:
   The configuration specifying telemetry settings for the Dataproc Metastore service. If unspecified defaults to JSON.
   Structure is [documented below](#nested_telemetry_config).
 
-* `tags` -
-  (Optional)
-  A map of resource manager tags.
-  Resource manager tag keys and values have the same definition as resource manager tags.
-  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.
-
 * `location` -
   (Optional)
   The location where the metastore service should reside.
@@ -512,6 +503,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_scaling_config"></a>The `scaling_config` block supports:

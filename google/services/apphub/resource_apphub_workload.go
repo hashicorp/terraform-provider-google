@@ -56,6 +56,29 @@ func ResourceApphubWorkload() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"application_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"workload_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"application_id": {
 				Type:        schema.TypeString,
@@ -339,29 +362,15 @@ func resourceApphubWorkloadCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ApphubOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Workload", userAgent,
+	err = ApphubOperationWaitTime(
+		config, res, project, "Creating Workload", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Workload: %s", err)
 	}
-
-	if err := d.Set("name", flattenApphubWorkloadName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/applications/{{application_id}}/workloads/{{workload_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Workload %q: %#v", d.Id(), res)
 
@@ -444,6 +453,34 @@ func resourceApphubWorkloadRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Workload: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("application_id"); ok && v != "" {
+		err = identity.Set("application_id", d.Get("application_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting application_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("workload_id"); ok && v != "" {
+		err = identity.Set("workload_id", d.Get("workload_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting workload_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

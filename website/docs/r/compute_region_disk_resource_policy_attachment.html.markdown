@@ -100,15 +100,13 @@ The following arguments are supported:
   The name of the regional disk in which the resource policies are attached to.
 
 
-- - -
-
-
 * `region` -
   (Optional)
   A reference to the region where the disk resides.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

@@ -31,11 +31,23 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"billing_acct":     envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":           envvar.GetTestOrgFromEnv(t),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"billing_acct": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":       envvar.GetTestOrgFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"quota_start_time": time.Now().AddDate(0, 0, 1).Format(time.RFC3339),
-		"random_suffix":    acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +62,12 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client.0.api_key", "client.0.firebase_subdomain"},
+			},
+			{
+				ResourceName:       "google_identity_platform_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -131,10 +149,21 @@ resource "google_identity_platform_config" "default" {
 func TestAccIdentityPlatformConfig_identityPlatformConfigMinimalExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"billing_acct": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":       envvar.GetTestOrgFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -212,10 +241,21 @@ resource "google_identity_platform_config" "default" {
 func TestAccIdentityPlatformConfig_identityPlatformConfigWithFalseValuesExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"billing_acct": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":       envvar.GetTestOrgFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

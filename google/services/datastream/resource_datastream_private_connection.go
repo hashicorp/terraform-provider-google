@@ -81,9 +81,9 @@ func ResourceDatastreamPrivateConnection() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		SchemaVersion: 1,
@@ -100,6 +100,25 @@ func ResourceDatastreamPrivateConnection() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"private_connection_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:        schema.TypeString,
@@ -119,9 +138,50 @@ func ResourceDatastreamPrivateConnection() *schema.Resource {
 				ForceNew:    true,
 				Description: `The private connectivity identifier.`,
 			},
+			"create_without_validation": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If set to true, will skip validations.`,
+				Default:     false,
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"psc_interface_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `The PSC Interface configuration is used to create PSC Interface
+between Datastream and the consumer's PSC.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network_attachment": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Fully qualified name of the network attachment that Datastream will connect to.
+Format: projects/{project}/regions/{region}/networkAttachments/{name}
+
+To get Datastream project for the accepted list:
+'gcloud datastream private-connections create [PC ID] --location=[LOCATION] --network-attachment=[NA URI] --validate-only --display-name=[ANY STRING]'
+Add Datastream project to the attachment accepted list:
+'gcloud compute network-attachments update [NA URI] --region=[NA region] --producer-accept-list=[TP from prev command]'`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"vpc_peering_config", "psc_interface_config"},
+			},
 			"vpc_peering_config": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 				Description: `The VPC Peering configuration is used to create VPC peering
 between Datastream and the consumer's VPC.`,
@@ -143,22 +203,7 @@ Format: projects/{project}/global/{networks}/{name}`,
 						},
 					},
 				},
-			},
-			"create_without_validation": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `If set to true, will skip validations.`,
-				Default:     false,
-			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Description: `Labels.
-
-**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
-				Elem: &schema.Schema{Type: schema.TypeString},
+				ExactlyOneOf: []string{"vpc_peering_config", "psc_interface_config"},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -235,11 +280,17 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("vpc_peering_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(vpcPeeringConfigProp)) && (ok || !reflect.DeepEqual(v, vpcPeeringConfigProp)) {
 		obj["vpcPeeringConfig"] = vpcPeeringConfigProp
 	}
-	labelsProp, err := expandDatastreamPrivateConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
+	pscInterfaceConfigProp, err := expandDatastreamPrivateConnectionPscInterfaceConfig(d.Get("psc_interface_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("psc_interface_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(pscInterfaceConfigProp)) && (ok || !reflect.DeepEqual(v, pscInterfaceConfigProp)) {
+		obj["pscInterfaceConfig"] = pscInterfaceConfigProp
+	}
+	effectiveLabelsProp, err := expandDatastreamPrivateConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/privateConnections?privateConnectionId={{private_connection_id}}&force={{create_without_validation}}")
@@ -283,29 +334,15 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = DatastreamOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating PrivateConnection", userAgent,
+	err = DatastreamOperationWaitTime(
+		config, res, project, "Creating PrivateConnection", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create PrivateConnection: %s", err)
 	}
-
-	if err := d.Set("name", flattenDatastreamPrivateConnectionName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	if err := waitForPrivateConnectionReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return fmt.Errorf("Error waiting for PrivateConnection %q to be CREATED. %q", d.Get("name").(string), err)
@@ -376,6 +413,9 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("vpc_peering_config", flattenDatastreamPrivateConnectionVpcPeeringConfig(res["vpcPeeringConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
+	if err := d.Set("psc_interface_config", flattenDatastreamPrivateConnectionPscInterfaceConfig(res["pscInterfaceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateConnection: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenDatastreamPrivateConnectionTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
@@ -383,6 +423,28 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("private_connection_id"); ok && v != "" {
+		err = identity.Set("private_connection_id", d.Get("private_connection_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting private_connection_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -549,6 +611,23 @@ func flattenDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d *
 	return v
 }
 
+func flattenDatastreamPrivateConnectionPscInterfaceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["network_attachment"] =
+		flattenDatastreamPrivateConnectionPscInterfaceConfigNetworkAttachment(original["networkAttachment"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatastreamPrivateConnectionPscInterfaceConfigNetworkAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDatastreamPrivateConnectionTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -603,6 +682,29 @@ func expandDatastreamPrivateConnectionVpcPeeringConfigVpc(v interface{}, d tpgre
 }
 
 func expandDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamPrivateConnectionPscInterfaceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedNetworkAttachment, err := expandDatastreamPrivateConnectionPscInterfaceConfigNetworkAttachment(original["network_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkAttachment"] = transformedNetworkAttachment
+	}
+
+	return transformed, nil
+}
+
+func expandDatastreamPrivateConnectionPscInterfaceConfigNetworkAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

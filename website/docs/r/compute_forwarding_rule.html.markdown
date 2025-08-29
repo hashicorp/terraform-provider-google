@@ -1367,9 +1367,6 @@ The following arguments are supported:
   lowercase letters and numbers and must start with a letter.
 
 
-- - -
-
-
 * `is_mirroring_collector` -
   (Optional)
   Indicates whether or not this load balancer can be used as a collector for
@@ -1442,6 +1439,9 @@ The following arguments are supported:
 * `load_balancing_scheme` -
   (Optional)
   Specifies the forwarding rule type.
+  Note that an empty string value (`""`) is also supported for some use
+  cases, for example PSC (private service connection) regional forwarding
+  rules.
   For more information about forwarding rules, refer to
   [Forwarding rule concepts](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts).
   Default value is `EXTERNAL`.
@@ -1519,9 +1519,6 @@ The following arguments are supported:
   load balancing resource.
   The forwarded traffic must be of a type appropriate to the target object.
   *  For load balancers, see the "Target" column in [Port specifications](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts#ip_address_specifications).
-  *  For Private Service Connect forwarding rules that forward traffic to Google APIs, provide the name of a supported Google API bundle:
-    *  `vpc-sc` - [ APIs that support VPC Service Controls](https://cloud.google.com/vpc-service-controls/docs/supported-products).
-    *  `all-apis` - [All supported Google APIs](https://cloud.google.com/vpc/docs/private-service-connect#supported-apis).
   For Private Service Connect forwarding rules that forward traffic to managed services, the target must be a service attachment.
 
 * `allow_global_access` -
@@ -1630,6 +1627,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `recreate_closed_psc` - (Optional) This is used in PSC consumer ForwardingRule to make terraform recreate the ForwardingRule when the status is closed
+
 
 <a name="nested_service_directory_registrations"></a>The `service_directory_registrations` block supports:
 

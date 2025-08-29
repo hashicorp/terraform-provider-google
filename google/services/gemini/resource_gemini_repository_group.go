@@ -56,6 +56,29 @@ func ResourceGeminiRepositoryGroup() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"code_repository_index": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"repository_group_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"code_repository_index": {
 				Type:        schema.TypeString,
@@ -158,11 +181,11 @@ func resourceGeminiRepositoryGroupCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("repositories"); !tpgresource.IsEmptyValue(reflect.ValueOf(repositoriesProp)) && (ok || !reflect.DeepEqual(v, repositoriesProp)) {
 		obj["repositories"] = repositoriesProp
 	}
-	labelsProp, err := expandGeminiRepositoryGroupEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiRepositoryGroupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeRepositoryIndexes/{{code_repository_index}}")
@@ -214,29 +237,15 @@ func resourceGeminiRepositoryGroupCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GeminiOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating RepositoryGroup", userAgent,
+	err = GeminiOperationWaitTime(
+		config, res, project, "Creating RepositoryGroup", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create RepositoryGroup: %s", err)
 	}
-
-	if err := d.Set("name", flattenGeminiRepositoryGroupName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeRepositoryIndexes/{{code_repository_index}}/repositoryGroups/{{repository_group_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating RepositoryGroup %q: %#v", d.Id(), res)
 
@@ -308,6 +317,34 @@ func resourceGeminiRepositoryGroupRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading RepositoryGroup: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("code_repository_index"); ok && v != "" {
+		err = identity.Set("code_repository_index", d.Get("code_repository_index").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting code_repository_index: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("repository_group_id"); ok && v != "" {
+		err = identity.Set("repository_group_id", d.Get("repository_group_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting repository_group_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -333,11 +370,11 @@ func resourceGeminiRepositoryGroupUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("repositories"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, repositoriesProp)) {
 		obj["repositories"] = repositoriesProp
 	}
-	labelsProp, err := expandGeminiRepositoryGroupEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiRepositoryGroupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeRepositoryIndexes/{{code_repository_index}}")

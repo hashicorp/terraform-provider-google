@@ -314,7 +314,7 @@ func TestAccIapWebCloudRunServiceIamPolicyGenerated_withCondition(t *testing.T) 
 			{
 				Config: testAccIapWebCloudRunServiceIamPolicy_withConditionGenerated(context),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// TODO(SarahFrench) - uncomment once https://github.com/GoogleCloudPlatform/magic-modules/pull/6466 merged
+					// TODO - uncomment once https://github.com/GoogleCloudPlatform/magic-modules/pull/6466 merged
 					// resource.TestCheckResourceAttr("data.google_iam_policy.foo", "policy_data", expectedPolicyData),
 					resource.TestCheckResourceAttr("google_iap_web_cloud_run_service_iam_policy.foo", "policy_data", expectedPolicyData),
 					resource.TestCheckResourceAttrWith("data.google_iam_policy.foo", "policy_data", tpgresource.CheckGoogleIamPolicy),
@@ -337,6 +337,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -362,6 +366,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -402,6 +410,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -429,6 +441,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -454,6 +470,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -479,6 +499,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -509,6 +533,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -561,6 +589,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -591,6 +623,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {
@@ -643,6 +679,10 @@ resource "google_cloud_run_v2_service" "default" {
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = 100
+  }
   
   template {
     containers {

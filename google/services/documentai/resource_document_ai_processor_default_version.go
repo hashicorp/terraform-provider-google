@@ -48,6 +48,17 @@ func ResourceDocumentAIProcessorDefaultVersion() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"processor": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"processor": {
 				Type:        schema.TypeString,
@@ -76,11 +87,11 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 	}
 
 	obj := make(map[string]interface{})
-	defaultProcessorVersionProp, err := expandDocumentAIProcessorDefaultVersionVersion(d.Get("version"), d, config)
+	versionProp, err := expandDocumentAIProcessorDefaultVersionVersion(d.Get("version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("version"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultProcessorVersionProp)) && (ok || !reflect.DeepEqual(v, defaultProcessorVersionProp)) {
-		obj["defaultProcessorVersion"] = defaultProcessorVersionProp
+	} else if v, ok := d.GetOkExists("version"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionProp)) && (ok || !reflect.DeepEqual(v, versionProp)) {
+		obj["defaultProcessorVersion"] = versionProp
 	}
 	processorProp, err := expandDocumentAIProcessorDefaultVersionProcessor(d.Get("processor"), d, config)
 	if err != nil {
@@ -175,6 +186,16 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading ProcessorDefaultVersion: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("processor"); ok && v != "" {
+		err = identity.Set("processor", d.Get("processor").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting processor: %s", err)
+		}
+	}
 	return nil
 }
 

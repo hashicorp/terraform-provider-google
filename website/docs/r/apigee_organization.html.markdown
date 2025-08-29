@@ -86,9 +86,11 @@ provider "google" {
 data "google_client_config" "current" {}
 
 resource "google_apigee_organization" "org" {
-  description         = "Terraform-provisioned basic Apigee Org under European Union hosting jurisdiction."
-  project_id          = data.google_client_config.current.project
-  disable_vpc_peering = true
+  description                = "Terraform-provisioned basic Apigee Org under European Union hosting jurisdiction."
+  project_id                 = data.google_client_config.current.project
+  api_consumer_data_location = "europe-west1"
+  billing_type               = "PAYG"
+  disable_vpc_peering        = true
 }
 ```
 ## Example Usage - Apigee Organization Cloud Full
@@ -213,9 +215,6 @@ The following arguments are supported:
   The project ID associated with the Apigee organization.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   The display name of the Apigee organization.
@@ -287,6 +286,7 @@ The following arguments are supported:
   After this period, the Organization will no longer be able to be restored.
   Default value is `DELETION_RETENTION_UNSPECIFIED`.
   Possible values are: `DELETION_RETENTION_UNSPECIFIED`, `MINIMUM`.
+
 
 
 <a name="nested_properties"></a>The `properties` block supports:

@@ -55,6 +55,25 @@ func ResourceCloudBuildBitbucketServerConfig() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"config_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"api_key": {
 				Type:     schema.TypeString,
@@ -268,29 +287,15 @@ func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = CloudBuildOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating BitbucketServerConfig", userAgent,
+	err = CloudBuildOperationWaitTime(
+		config, res, project, "Creating BitbucketServerConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create BitbucketServerConfig: %s", err)
 	}
-
-	if err := d.Set("name", flattenCloudBuildBitbucketServerConfigName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating BitbucketServerConfig without connected repos: %q: %#v", d.Id(), res)
 
@@ -418,6 +423,28 @@ func resourceCloudBuildBitbucketServerConfigRead(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading BitbucketServerConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("config_id"); ok && v != "" {
+		err = identity.Set("config_id", d.Get("config_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting config_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

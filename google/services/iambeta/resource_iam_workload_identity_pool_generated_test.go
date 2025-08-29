@@ -33,8 +33,18 @@ import (
 func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -51,6 +61,12 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolBasicExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"workload_identity_pool_id"},
 			},
+			{
+				ResourceName:       "google_iam_workload_identity_pool.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -59,42 +75,6 @@ func testAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolBasicExample(cont
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
   workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
-}
-`, context)
-}
-
-func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullExample(context),
-			},
-			{
-				ResourceName:            "google_iam_workload_identity_pool.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"workload_identity_pool_id"},
-			},
-		},
-	})
-}
-
-func testAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_iam_workload_identity_pool" "example" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
-  display_name              = "Name of pool"
-  description               = "Identity pool for automated test"
-  disabled                  = true
 }
 `, context)
 }

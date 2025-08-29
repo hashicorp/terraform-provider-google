@@ -56,6 +56,21 @@ func ResourceAppEngineServiceNetworkSettings() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"service": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"network_settings": {
 				Type:        schema.TypeList,
@@ -98,11 +113,11 @@ func resourceAppEngineServiceNetworkSettingsCreate(d *schema.ResourceData, meta 
 	}
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
+	serviceProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceProp)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+		obj["id"] = serviceProp
 	}
 	networkSettingsProp, err := expandAppEngineServiceNetworkSettingsNetworkSettings(d.Get("network_settings"), d, config)
 	if err != nil {
@@ -223,6 +238,22 @@ func resourceAppEngineServiceNetworkSettingsRead(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading ServiceNetworkSettings: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("service"); ok && v != "" {
+		err = identity.Set("service", d.Get("service").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting service: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -242,11 +273,11 @@ func resourceAppEngineServiceNetworkSettingsUpdate(d *schema.ResourceData, meta 
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
+	serviceProp, err := expandAppEngineServiceNetworkSettingsService(d.Get("service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("service"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
+		obj["id"] = serviceProp
 	}
 	networkSettingsProp, err := expandAppEngineServiceNetworkSettingsNetworkSettings(d.Get("network_settings"), d, config)
 	if err != nil {

@@ -31,11 +31,23 @@ import (
 )
 
 func TestAccDataprocGdcServiceInstance_dataprocgdcServiceinstanceExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/21173")
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       "gdce-cluster-monitoring",
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"project": "gdce-cluster-monitoring",
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -51,6 +63,12 @@ func TestAccDataprocGdcServiceInstance_dataprocgdcServiceinstanceExample(t *test
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_instance_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_gdc_service_instance.service-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

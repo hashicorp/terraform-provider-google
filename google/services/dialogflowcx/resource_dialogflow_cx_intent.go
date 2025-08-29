@@ -57,6 +57,21 @@ func ResourceDialogflowCXIntent() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"parent": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:         schema.TypeString,
@@ -272,11 +287,11 @@ func resourceDialogflowCXIntentCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandDialogflowCXIntentEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDialogflowCXIntentEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	languageCodeProp, err := expandDialogflowCXIntentLanguageCode(d.Get("language_code"), d, config)
 	if err != nil {
@@ -312,7 +327,10 @@ func resourceDialogflowCXIntentCreate(d *schema.ResourceData, meta interface{}) 
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 
 	// if it's a default object Dialogflow creates for you, "Update" instead of "Create"
 	// Note: below we try to access fields that aren't present in the resource, because this custom code is reused across multiple Dialogflow resources that contain different fields. When the field isn't present, we deliberately ignore the error and the boolean is false.
@@ -406,7 +424,10 @@ func resourceDialogflowCXIntentRead(d *schema.ResourceData, meta interface{}) er
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -455,6 +476,22 @@ func resourceDialogflowCXIntentRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Intent: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("parent"); ok && v != "" {
+		err = identity.Set("parent", d.Get("parent").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting parent: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -504,11 +541,11 @@ func resourceDialogflowCXIntentUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandDialogflowCXIntentEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDialogflowCXIntentEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/intents/{{name}}")
@@ -566,7 +603,10 @@ func resourceDialogflowCXIntentUpdate(d *schema.ResourceData, meta interface{}) 
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -697,7 +737,7 @@ func flattenDialogflowCXIntentName(v interface{}, d *schema.ResourceData, config
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenDialogflowCXIntentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

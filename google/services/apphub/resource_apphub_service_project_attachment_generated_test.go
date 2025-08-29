@@ -34,10 +34,21 @@ import (
 func TestAccApphubServiceProjectAttachment_serviceProjectAttachmentBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"host_project":  envvar.GetTestProjectFromEnv(),
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"host_project": envvar.GetTestProjectFromEnv(),
+		"org_id":       envvar.GetTestOrgFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -57,6 +68,12 @@ func TestAccApphubServiceProjectAttachment_serviceProjectAttachmentBasicExample(
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"service_project_attachment_id"},
+			},
+			{
+				ResourceName:       "google_apphub_service_project_attachment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -87,10 +104,21 @@ resource "time_sleep" "wait_120s" {
 func TestAccApphubServiceProjectAttachment_serviceProjectAttachmentFullExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"host_project":  envvar.GetTestProjectFromEnv(),
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"host_project": envvar.GetTestProjectFromEnv(),
+		"org_id":       envvar.GetTestOrgFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

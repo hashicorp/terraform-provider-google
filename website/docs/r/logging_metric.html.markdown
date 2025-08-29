@@ -174,9 +174,6 @@ The following arguments are supported:
   is used to match log entries.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of this metric, which is used in documentation. The maximum length of the
@@ -224,6 +221,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_metric_descriptor"></a>The `metric_descriptor` block supports:

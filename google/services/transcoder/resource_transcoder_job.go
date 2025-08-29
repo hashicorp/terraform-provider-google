@@ -60,25 +60,17 @@ func ResourceTranscoderJob() *schema.Resource {
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
 					"project": {
 						Type:              schema.TypeString,
 						OptionalForImport: true,
-						Description:       `The project that the transcoding job resource belongs to.`,
-					},
-					"location": {
-						Type:              schema.TypeString,
-						OptionalForImport: true,
-						Description:       `The location of the transcoding job resource.`,
-					},
-					"name": {
-						Type:              schema.TypeString,
-						OptionalForImport: true,
-						Description:       `The name of the transcoding job resource.`,
 					},
 				}
 			},
 		},
-
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -837,11 +829,11 @@ func resourceTranscoderJobCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("config"); !tpgresource.IsEmptyValue(reflect.ValueOf(configProp)) && (ok || !reflect.DeepEqual(v, configProp)) {
 		obj["config"] = configProp
 	}
-	labelsProp, err := expandTranscoderJobEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandTranscoderJobEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{TranscoderBasePath}}projects/{{project}}/locations/{{location}}/jobs")
@@ -968,24 +960,20 @@ func resourceTranscoderJobRead(d *schema.ResourceData, meta interface{}) error {
 
 	identity, err := d.Identity()
 	if err != nil {
-		return fmt.Errorf("Error reading Job: %s", err)
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		if err := identity.Set("project", project); err != nil {
-			return fmt.Errorf("Error setting project for identity: %s", err)
-		}
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		if err := identity.Set("location", d.Get("location").(string)); err != nil {
-			return fmt.Errorf("Error setting location for identity: %s", err)
-		}
+		return fmt.Errorf("Error getting identity: %s", err)
 	}
 	if v, ok := identity.GetOk("name"); ok && v != "" {
-		if err := identity.Set("name", d.Get("name").(string)); err != nil {
-			return fmt.Errorf("Error setting name for identity: %s", err)
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
 		}
 	}
-
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

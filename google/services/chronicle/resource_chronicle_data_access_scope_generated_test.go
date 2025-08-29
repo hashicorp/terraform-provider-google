@@ -34,9 +34,20 @@ import (
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithLogtypeExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -52,6 +63,12 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithLogtypeExample(
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_access_scope_id", "instance", "location"},
+			},
+			{
+				ResourceName:       "google_chronicle_data_access_scope.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -77,9 +94,20 @@ resource "google_chronicle_data_access_scope" "example" {
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithDataaccesslabelExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -124,9 +152,20 @@ resource "google_chronicle_data_access_scope" "example" {
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithAssetNamespaceExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -164,9 +203,20 @@ resource "google_chronicle_data_access_scope" "example" {
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithIngestionLabelExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -207,9 +257,20 @@ resource "google_chronicle_data_access_scope" "example" {
 func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithDeniedLabelsExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

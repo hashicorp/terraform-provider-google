@@ -90,9 +90,6 @@ The following arguments are supported:
   and must be 63 characters or less.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   The description of the notification config (max of 1024 characters).
@@ -128,6 +125,7 @@ The following arguments are supported:
 * `location` -
   (Optional)
   The BigQuery export configuration is stored in this location. If not provided, Use global as default.
+
 
 
 ## Attributes Reference

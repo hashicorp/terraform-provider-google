@@ -110,6 +110,43 @@ resource "google_dialogflow_cx_agent" "full_agent" {
       }
     })
   }
+  gen_app_builder_settings {
+    engine = "projects/-/locations/-/collections/-/engines/-"
+  }
+  start_playbook = "projects/-/locations/-/agents/-/playbooks/00000000-0000-0000-0000-000000000000"
+  enable_multi_language_training = false
+  locked = false
+  answer_feedback_settings {
+    enable_answer_feedback = false
+  }
+  client_certificate_settings {
+    passphrase      = "projects/example-proj/secrets/example-secret/versions/example-version"
+    private_key     = "projects/example-proj/secrets/example-secret/versions/example-version"
+    ssl_certificate = <<EOT
+-----BEGIN CERTIFICATE-----
+MIIDdDCCAlygAwIBAgIJANg0gKeB5LKmMA0GCSqGSIb3DQEBCwUAMIGSMQswCQYD
+VQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5j
+aXNjbzEZMBcGA1UECgwQR2l0SHViLCBJbmMuMRkwFwYDVQQLDBBHb3Zlcm5tZW50
+IFRlYW0xGTAXBgNVBAMMEGdvdnN0YWNrLmdpdGh1Yi5pbzAeFw0yMDA1MDUxNzM2
+MzVaFw0zMDA1MDMxNzM2MzVaMIGSMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2Fs
+aWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzEZMBcGA1UECgwQR2l0SHVi
+LCBJbmMuMRkwFwYDVQQLDBBHb3Zlcm5tZW50IFRlYW0xGTAXBgNVBAMMEGdvdnN0
+YWNrLmdpdGh1Yi5pbzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK5P
+4d9qWZPjZ2eA4eYV2Q8Z3Zp4g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6AgMBAAGjggEaMIIBFjAdBgNVHQ4EFgQUCneA9H8fC+tC
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6g8e6
+-----END CERTIFICATE-----
+EOT
+  }
+  personalization_settings {
+    default_end_user_metadata = "{\"example-key\": \"example-value\"}"
+  }
 }
 ```
 
@@ -138,9 +175,6 @@ The following arguments are supported:
   (Required)
   The time zone of this agent from the [time zone database](https://www.iana.org/time-zones), e.g., America/New_York,
   Europe/Paris.
-
-
-- - -
 
 
 * `supported_language_codes` -
@@ -190,8 +224,56 @@ The following arguments are supported:
   Settings related to speech synthesizing.
   Structure is [documented below](#nested_text_to_speech_settings).
 
+* `gen_app_builder_settings` -
+  (Optional)
+  Gen App Builder-related agent-level settings.
+  Structure is [documented below](#nested_gen_app_builder_settings).
+
+* `start_playbook` -
+  (Optional)
+  Name of the start playbook in this agent. A start playbook will be automatically created when the agent is created, and can only be deleted by deleting the agent. Format: **projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/playbooks/<PlaybookID>**. Currently only the default playbook with id "00000000-0000-0000-0000-000000000000" is allowed.
+
+* `enable_multi_language_training` -
+  (Optional)
+  Enable training multi-lingual models for this agent. These models will be trained on all the languages supported by the agent.
+
+* `locked` -
+  (Optional)
+  Indicates whether the agent is locked for changes. If the agent is locked, modifications to the agent will be rejected except for [agents.restore][].
+
+* `answer_feedback_settings` -
+  (Optional)
+  Answer feedback collection settings.
+  Structure is [documented below](#nested_answer_feedback_settings).
+
+* `personalization_settings` -
+  (Optional)
+  Settings for end user personalization.
+  Structure is [documented below](#nested_personalization_settings).
+
+* `client_certificate_settings` -
+  (Optional)
+  Settings for custom client certificates.
+  Structure is [documented below](#nested_client_certificate_settings).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `delete_chat_engine_on_destroy` - (Optional) If set to `true`, Terraform will delete the chat engine associated with the agent when the agent is destroyed.
+Otherwise, the chat engine will persist.
+
+This virtual field addresses a critical dependency chain: `agent` -> `engine` -> `data store`. The chat engine is automatically
+provisioned when a data store is linked to the agent, meaning Terraform doesn't have direct control over its lifecycle as a managed
+resource. This creates a problem when both the agent and data store are managed by Terraform and need to be destroyed. Without
+delete_chat_engine_on_destroy set to true, the data store's deletion would fail because the unmanaged chat engine would still be
+using it. This setting ensures that the entire dependency chain can be properly torn down.
+See `mmv1/templates/terraform/examples/dialogflowcx_tool_data_store.tf.tmpl` as an example.
+
+Data store can be linked to an agent through the `knowledgeConnectorSettings` field of a [flow](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows#resource:-flow)
+or a [page](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows.pages#resource:-page)
+or the `dataStoreSpec` field of a [tool](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.tools#resource:-tool).
+The ID of the implicitly created engine is stored in the `genAppBuilderSettings` field of the [agent](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents#resource:-agent).
+
 
 
 <a name="nested_speech_to_text_settings"></a>The `speech_to_text_settings` block supports:
@@ -329,6 +411,43 @@ The following arguments are supported:
   * The phone gateway synthesize configuration set via Agent.text_to_speech_settings.
   * How speech is synthesized when invoking session APIs. `Agent.text_to_speech_settings` only applies if `OutputAudioConfig.synthesize_speech_config` is not specified.
 
+<a name="nested_gen_app_builder_settings"></a>The `gen_app_builder_settings` block supports:
+
+* `engine` -
+  (Required)
+  The full name of the Gen App Builder engine related to this agent if there is one.
+  Format: projects/{Project ID}/locations/{Location ID}/collections/{Collection ID}/engines/{Engine ID}
+
+<a name="nested_answer_feedback_settings"></a>The `answer_feedback_settings` block supports:
+
+* `enable_answer_feedback` -
+  (Optional)
+  If enabled, end users will be able to provide [answer feedback](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.sessions/submitAnswerFeedback#body.AnswerFeedback)
+  to Dialogflow responses. Feature works only if interaction logging is enabled in the Dialogflow agent.
+
+<a name="nested_personalization_settings"></a>The `personalization_settings` block supports:
+
+* `default_end_user_metadata` -
+  (Optional)
+  Default end user metadata, used when processing DetectIntent requests. Recommended to be filled as a template instead of hard-coded value, for example { "age": "$session.params.age" }.
+  The data will be merged with the [QueryParameters.end_user_metadata](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/QueryParameters#FIELDS.end_user_metadata)
+  in [DetectIntentRequest.query_params](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.sessions/detectIntent#body.request_body.FIELDS.query_params) during query processing.
+  This field uses JSON data as a string. The value provided must be a valid JSON representation documented in [Struct](https://protobuf.dev/reference/protobuf/google.protobuf/#struct).
+
+<a name="nested_client_certificate_settings"></a>The `client_certificate_settings` block supports:
+
+* `ssl_certificate` -
+  (Required)
+  The ssl certificate encoded in PEM format. This string must include the begin header and end footer lines.
+
+* `private_key` -
+  (Required)
+  The name of the SecretManager secret version resource storing the private key encoded in PEM format. Format: **projects/{project}/secrets/{secret}/versions/{version}**
+
+* `passphrase` -
+  (Optional)
+  The name of the SecretManager secret version resource storing the passphrase. 'passphrase' should be left unset if the private key is not encrypted. Format: **projects/{project}/secrets/{secret}/versions/{version}**
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -340,6 +459,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `start_flow` -
   Name of the start flow in this agent. A start flow will be automatically created when the agent is created, and can only be deleted by deleting the agent. Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
+
+* `satisfies_pzs` -
+  A read only boolean field reflecting Zone Separation status of the agent.
+
+* `satisfies_pzi` -
+  A read only boolean field reflecting Zone Isolation status of the agent.
 
 
 ## Timeouts

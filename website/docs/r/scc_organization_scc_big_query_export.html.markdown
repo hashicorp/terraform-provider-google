@@ -40,7 +40,7 @@ To get more information about OrganizationSccBigQueryExport, see:
 
 ```hcl
 resource "google_bigquery_dataset" "default" {
-  dataset_id                  = ""
+  dataset_id                  = "my-dataset"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "US"
@@ -81,9 +81,6 @@ The following arguments are supported:
   This must be unique within the organization.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   The description of the notification config (max of 1024 characters).
@@ -115,6 +112,7 @@ The following arguments are supported:
   See
   [Filtering notifications](https://cloud.google.com/security-command-center/docs/how-to-api-filter-notifications)
   for information on how to write a filter.
+
 
 
 ## Attributes Reference

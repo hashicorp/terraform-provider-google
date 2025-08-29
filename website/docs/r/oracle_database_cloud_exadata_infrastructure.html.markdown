@@ -113,9 +113,6 @@ The following arguments are supported:
   a letter or a number.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   User friendly name for this resource.
@@ -139,6 +136,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.
+
 
 <a name="nested_properties"></a>The `properties` block supports:
 

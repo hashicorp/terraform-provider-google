@@ -54,7 +54,7 @@ To get more information about Backup, see:
 
 ```hcl
 data "google_compute_network" "default" {
-  name = ""
+  name = "network"
 }
 
 resource "google_netapp_storage_pool" "default" {
@@ -109,9 +109,6 @@ The following arguments are supported:
   The resource name of the backup. Needs to be unique per location.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the backup with 2048 characters or less. Requests with longer descriptions will be rejected.
@@ -137,6 +134,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -158,6 +156,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `chain_storage_bytes` -
   Backups of a volume build incrementally on top of each other. They form a "backup chain".
   Total size of all backups in a chain in bytes = baseline backup size + sum(incremental backup size)
+
+* `volume_region` -
+  Region of the volume from which the backup was created.
+
+* `backup_region` -
+  Region in which backup is stored.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

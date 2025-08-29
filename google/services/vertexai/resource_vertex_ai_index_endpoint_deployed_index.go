@@ -49,6 +49,29 @@ func ResourceVertexAIIndexEndpointDeployedIndex() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"deployed_index_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"index_endpoint": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"deployed_index_id": {
 				Type:        schema.TypeString,
@@ -210,6 +233,12 @@ Note: we only support up to 5 deployment groups (not including 'default').`,
 				ForceNew:    true,
 				Description: `If true, private endpoint's access logs are sent to Cloud Logging.`,
 				Default:     false,
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The region of the index endpoint deployment. eg us-central1`,
 			},
 			"reserved_ip_ranges": {
 				Type:     schema.TypeList,
@@ -394,37 +423,15 @@ func resourceVertexAIIndexEndpointDeployedIndexCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = VertexAIOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating IndexEndpointDeployedIndex", userAgent,
+	err = VertexAIOperationWaitTime(
+		config, res, project, "Creating IndexEndpointDeployedIndex", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create IndexEndpointDeployedIndex: %s", err)
 	}
-
-	opRes, err = resourceVertexAIIndexEndpointDeployedIndexDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if err := d.Set("name", flattenVertexAIIndexEndpointDeployedIndexName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{index_endpoint}}/deployedIndex/{{deployed_index_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating IndexEndpointDeployedIndex %q: %#v", d.Id(), res)
 
@@ -515,6 +522,34 @@ func resourceVertexAIIndexEndpointDeployedIndexRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading IndexEndpointDeployedIndex: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("deployed_index_id"); ok && v != "" {
+		err = identity.Set("deployed_index_id", d.Get("deployed_index_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting deployed_index_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("index_endpoint"); ok && v != "" {
+		err = identity.Set("index_endpoint", d.Get("index_endpoint").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting index_endpoint: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("region"); ok && v != "" {
+		err = identity.Set("region", d.Get("region").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting region: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

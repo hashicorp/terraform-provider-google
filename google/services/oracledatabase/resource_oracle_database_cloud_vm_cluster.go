@@ -55,19 +55,26 @@ func ResourceOracleDatabaseCloudVmCluster() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"cloud_vm_cluster_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
-			"backup_subnet_cidr": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `CIDR range of the backup subnet.`,
-			},
-			"cidr": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Network settings. CIDR to use for cluster IP allocation.`,
-			},
 			"cloud_vm_cluster_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -91,12 +98,26 @@ projects/{project}/locations/{region}/cloudExadataInfrastuctures/{cloud_extradat
 				ForceNew:    true,
 				Description: `Resource ID segment making up resource 'name'. See documentation for resource type 'oracledatabase.googleapis.com/DbNode'.`,
 			},
-			"network": {
+			"backup_odb_subnet": {
 				Type:     schema.TypeString,
-				Required: true,
+				Computed: true,
+				Optional: true,
 				ForceNew: true,
-				Description: `The name of the VPC network.
-Format: projects/{project}/global/networks/{network}`,
+				Description: `The name of the backup OdbSubnet associated with the VM Cluster.
+Format:
+projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}`,
+			},
+			"backup_subnet_cidr": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `CIDR range of the backup subnet.`,
+			},
+			"cidr": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Network settings. CIDR to use for cluster IP allocation.`,
 			},
 			"display_name": {
 				Type:        schema.TypeString,
@@ -112,6 +133,33 @@ Format: projects/{project}/global/networks/{network}`,
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"network": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the VPC network.
+Format: projects/{project}/global/networks/{network}`,
+			},
+			"odb_network": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the OdbNetwork associated with the VM Cluster.
+Format:
+projects/{project}/locations/{location}/odbNetworks/{odb_network}
+It is optional but if specified, this should match the parent ODBNetwork of
+the odb_subnet and backup_odb_subnet.`,
+			},
+			"odb_subnet": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the OdbSubnet associated with the VM Cluster for
+IP allocation. Format:
+projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}`,
 			},
 			"properties": {
 				Type:        schema.TypeList,
@@ -470,11 +518,29 @@ func resourceOracleDatabaseCloudVmClusterCreate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
-	labelsProp, err := expandOracleDatabaseCloudVmClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	odbNetworkProp, err := expandOracleDatabaseCloudVmClusterOdbNetwork(d.Get("odb_network"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("odb_network"); !tpgresource.IsEmptyValue(reflect.ValueOf(odbNetworkProp)) && (ok || !reflect.DeepEqual(v, odbNetworkProp)) {
+		obj["odbNetwork"] = odbNetworkProp
+	}
+	odbSubnetProp, err := expandOracleDatabaseCloudVmClusterOdbSubnet(d.Get("odb_subnet"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("odb_subnet"); !tpgresource.IsEmptyValue(reflect.ValueOf(odbSubnetProp)) && (ok || !reflect.DeepEqual(v, odbSubnetProp)) {
+		obj["odbSubnet"] = odbSubnetProp
+	}
+	backupOdbSubnetProp, err := expandOracleDatabaseCloudVmClusterBackupOdbSubnet(d.Get("backup_odb_subnet"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("backup_odb_subnet"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupOdbSubnetProp)) && (ok || !reflect.DeepEqual(v, backupOdbSubnetProp)) {
+		obj["backupOdbSubnet"] = backupOdbSubnetProp
+	}
+	effectiveLabelsProp, err := expandOracleDatabaseCloudVmClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/cloudVmClusters?cloudVmClusterId={{cloud_vm_cluster_id}}")
@@ -518,29 +584,15 @@ func resourceOracleDatabaseCloudVmClusterCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = OracleDatabaseOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating CloudVmCluster", userAgent,
+	err = OracleDatabaseOperationWaitTime(
+		config, res, project, "Creating CloudVmCluster", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create CloudVmCluster: %s", err)
 	}
-
-	if err := d.Set("name", flattenOracleDatabaseCloudVmClusterName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/cloudVmClusters/{{cloud_vm_cluster_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating CloudVmCluster %q: %#v", d.Id(), res)
 
@@ -625,6 +677,15 @@ func resourceOracleDatabaseCloudVmClusterRead(d *schema.ResourceData, meta inter
 	if err := d.Set("network", flattenOracleDatabaseCloudVmClusterNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
+	if err := d.Set("odb_network", flattenOracleDatabaseCloudVmClusterOdbNetwork(res["odbNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
+	}
+	if err := d.Set("odb_subnet", flattenOracleDatabaseCloudVmClusterOdbSubnet(res["odbSubnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
+	}
+	if err := d.Set("backup_odb_subnet", flattenOracleDatabaseCloudVmClusterBackupOdbSubnet(res["backupOdbSubnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenOracleDatabaseCloudVmClusterTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
@@ -632,6 +693,28 @@ func resourceOracleDatabaseCloudVmClusterRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("cloud_vm_cluster_id"); ok && v != "" {
+		err = identity.Set("cloud_vm_cluster_id", d.Get("cloud_vm_cluster_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting cloud_vm_cluster_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -1103,6 +1186,18 @@ func flattenOracleDatabaseCloudVmClusterNetwork(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenOracleDatabaseCloudVmClusterOdbNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterOdbSubnet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterBackupOdbSubnet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenOracleDatabaseCloudVmClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1563,6 +1658,18 @@ func expandOracleDatabaseCloudVmClusterBackupSubnetCidr(v interface{}, d tpgreso
 }
 
 func expandOracleDatabaseCloudVmClusterNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseCloudVmClusterOdbNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseCloudVmClusterOdbSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseCloudVmClusterBackupOdbSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -186,6 +186,54 @@ The following arguments are supported:
   Structure is [documented below](#nested_conditions).
 
 
+* `enabled` -
+  (Optional)
+  Whether or not the policy is enabled. The default is true.
+
+* `notification_channels` -
+  (Optional)
+  Identifies the notification channels to which notifications should be
+  sent when incidents are opened or closed or when new violations occur
+  on an already opened incident. Each element of this array corresponds
+  to the name field in each of the NotificationChannel objects that are
+  returned from the notificationChannels.list method. The syntax of the
+  entries in this field is
+  `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`
+
+* `alert_strategy` -
+  (Optional)
+  Control over how this alert policy's notification channels are notified.
+  Structure is [documented below](#nested_alert_strategy).
+
+* `user_labels` -
+  (Optional)
+  This field is intended to be used for organizing and identifying the AlertPolicy
+  objects.The field can contain up to 64 entries. Each key and value is limited
+  to 63 Unicode characters or 128 bytes, whichever is smaller. Labels and values
+  can contain only lowercase letters, numerals, underscores, and dashes. Keys
+  must begin with a letter.
+
+* `severity` -
+  (Optional)
+  The severity of an alert policy indicates how important incidents generated
+  by that policy are. The severity level will be displayed on the Incident
+  detail page and in notifications.
+  Possible values are: `CRITICAL`, `ERROR`, `WARNING`.
+
+* `documentation` -
+  (Optional)
+  Documentation that is included with notifications and incidents related
+  to this policy. Best practice is for the documentation to include information
+  to help responders understand, mitigate, escalate, and correct the underlying
+  problems detected by the alerting policy. Notification channels that have
+  limited capacity might not show this documentation.
+  Structure is [documented below](#nested_documentation).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_conditions"></a>The `conditions` block supports:
 
 * `condition_absent` -
@@ -994,56 +1042,6 @@ The following arguments are supported:
   (Required)
   The name of the column containing the boolean value. If the value in a row is
   NULL, that row is ignored.
-
-- - -
-
-
-* `enabled` -
-  (Optional)
-  Whether or not the policy is enabled. The default is true.
-
-* `notification_channels` -
-  (Optional)
-  Identifies the notification channels to which notifications should be
-  sent when incidents are opened or closed or when new violations occur
-  on an already opened incident. Each element of this array corresponds
-  to the name field in each of the NotificationChannel objects that are
-  returned from the notificationChannels.list method. The syntax of the
-  entries in this field is
-  `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`
-
-* `alert_strategy` -
-  (Optional)
-  Control over how this alert policy's notification channels are notified.
-  Structure is [documented below](#nested_alert_strategy).
-
-* `user_labels` -
-  (Optional)
-  This field is intended to be used for organizing and identifying the AlertPolicy
-  objects.The field can contain up to 64 entries. Each key and value is limited
-  to 63 Unicode characters or 128 bytes, whichever is smaller. Labels and values
-  can contain only lowercase letters, numerals, underscores, and dashes. Keys
-  must begin with a letter.
-
-* `severity` -
-  (Optional)
-  The severity of an alert policy indicates how important incidents generated
-  by that policy are. The severity level will be displayed on the Incident
-  detail page and in notifications.
-  Possible values are: `CRITICAL`, `ERROR`, `WARNING`.
-
-* `documentation` -
-  (Optional)
-  Documentation that is included with notifications and incidents related
-  to this policy. Best practice is for the documentation to include information
-  to help responders understand, mitigate, escalate, and correct the underlying
-  problems detected by the alerting policy. Notification channels that have
-  limited capacity might not show this documentation.
-  Structure is [documented below](#nested_documentation).
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_alert_strategy"></a>The `alert_strategy` block supports:
 

@@ -55,6 +55,21 @@ func ResourceIntegrationsAuthConfig() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:        schema.TypeString,
@@ -524,11 +539,11 @@ func resourceIntegrationsAuthConfigCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("decrypted_credential"); !tpgresource.IsEmptyValue(reflect.ValueOf(decryptedCredentialProp)) && (ok || !reflect.DeepEqual(v, decryptedCredentialProp)) {
 		obj["decryptedCredential"] = decryptedCredentialProp
 	}
-	client_certificateProp, err := expandIntegrationsAuthConfigClientCertificate(d.Get("client_certificate"), d, config)
+	clientCertificateProp, err := expandIntegrationsAuthConfigClientCertificate(d.Get("client_certificate"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("client_certificate"); !tpgresource.IsEmptyValue(reflect.ValueOf(client_certificateProp)) && (ok || !reflect.DeepEqual(v, client_certificateProp)) {
-		obj["client_certificate"] = client_certificateProp
+	} else if v, ok := d.GetOkExists("client_certificate"); !tpgresource.IsEmptyValue(reflect.ValueOf(clientCertificateProp)) && (ok || !reflect.DeepEqual(v, clientCertificateProp)) {
+		obj["client_certificate"] = clientCertificateProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "{{name}}")
@@ -701,6 +716,22 @@ func resourceIntegrationsAuthConfigRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading AuthConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -756,11 +787,11 @@ func resourceIntegrationsAuthConfigUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("decrypted_credential"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, decryptedCredentialProp)) {
 		obj["decryptedCredential"] = decryptedCredentialProp
 	}
-	client_certificateProp, err := expandIntegrationsAuthConfigClientCertificate(d.Get("client_certificate"), d, config)
+	clientCertificateProp, err := expandIntegrationsAuthConfigClientCertificate(d.Get("client_certificate"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("client_certificate"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, client_certificateProp)) {
-		obj["client_certificate"] = client_certificateProp
+	} else if v, ok := d.GetOkExists("client_certificate"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientCertificateProp)) {
+		obj["client_certificate"] = clientCertificateProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "{{name}}")

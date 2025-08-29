@@ -20,6 +20,7 @@
 package beyondcorp
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -34,6 +35,19 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
+
+func beyondcorpSecurityGatewayHubsHash(v interface{}) int {
+	if v == nil {
+		return 0
+	}
+
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+
+	buf.WriteString(fmt.Sprintf("%s-", m["region"].(string)))
+
+	return tpgresource.Hashcode(buf.String())
+}
 
 func ResourceBeyondcorpSecurityGateway() *schema.Resource {
 	return &schema.Resource{
@@ -56,6 +70,25 @@ func ResourceBeyondcorpSecurityGateway() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"security_gateway_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"security_gateway_id": {
 				Type:     schema.TypeString,
@@ -85,6 +118,7 @@ as a key.`,
 						},
 						"internet_gateway": {
 							Type:        schema.TypeList,
+							Computed:    true,
 							Optional:    true,
 							Description: `Internet Gateway configuration.`,
 							MaxItems:    1,
@@ -103,6 +137,7 @@ as a key.`,
 						},
 					},
 				},
+				Set: beyondcorpSecurityGatewayHubsHash,
 			},
 			"location": {
 				Type:         schema.TypeString,
@@ -117,6 +152,11 @@ as a key.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. Timestamp when the resource was created.`,
+			},
+			"delegating_service_account": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Service account used for operations that involve resources in consumer projects.`,
 			},
 			"external_ips": {
 				Type:     schema.TypeList,
@@ -223,29 +263,15 @@ func resourceBeyondcorpSecurityGatewayCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = BeyondcorpOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating SecurityGateway", userAgent,
+	err = BeyondcorpOperationWaitTime(
+		config, res, project, "Creating SecurityGateway", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create SecurityGateway: %s", err)
 	}
-
-	if err := d.Set("name", flattenBeyondcorpSecurityGatewayName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/securityGateways/{{security_gateway_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating SecurityGateway %q: %#v", d.Id(), res)
 
@@ -315,7 +341,32 @@ func resourceBeyondcorpSecurityGatewayRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("name", flattenBeyondcorpSecurityGatewayName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityGateway: %s", err)
 	}
+	if err := d.Set("delegating_service_account", flattenBeyondcorpSecurityGatewayDelegatingServiceAccount(res["delegatingServiceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("security_gateway_id"); ok && v != "" {
+		err = identity.Set("security_gateway_id", d.Get("security_gateway_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting security_gateway_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -505,7 +556,7 @@ func flattenBeyondcorpSecurityGatewayHubs(v interface{}, d *schema.ResourceData,
 		original := raw.(map[string]interface{})
 		transformed = append(transformed, map[string]interface{}{
 			"region":           k,
-			"internet_gateway": flattenBeyondcorpSecurityGatewayHubsInternetGateway(original["internet_gateway"], d, config),
+			"internet_gateway": flattenBeyondcorpSecurityGatewayHubsInternetGateway(original["internetGateway"], d, config),
 		})
 	}
 	return transformed
@@ -520,7 +571,7 @@ func flattenBeyondcorpSecurityGatewayHubsInternetGateway(v interface{}, d *schem
 	}
 	transformed := make(map[string]interface{})
 	transformed["assigned_ips"] =
-		flattenBeyondcorpSecurityGatewayHubsInternetGatewayAssignedIps(original["assigned_ips"], d, config)
+		flattenBeyondcorpSecurityGatewayHubsInternetGatewayAssignedIps(original["assignedIps"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBeyondcorpSecurityGatewayHubsInternetGatewayAssignedIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -539,6 +590,10 @@ func flattenBeyondcorpSecurityGatewayName(v interface{}, d *schema.ResourceData,
 	return v
 }
 
+func flattenBeyondcorpSecurityGatewayDelegatingServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBeyondcorpSecurityGatewayHubs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
@@ -552,7 +607,7 @@ func expandBeyondcorpSecurityGatewayHubs(v interface{}, d tpgresource.TerraformR
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedInternetGateway); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["internet_gateway"] = transformedInternetGateway
+			transformed["internetGateway"] = transformedInternetGateway
 		}
 
 		transformedRegion, err := tpgresource.ExpandString(original["region"], d, config)
@@ -577,7 +632,7 @@ func expandBeyondcorpSecurityGatewayHubsInternetGateway(v interface{}, d tpgreso
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedAssignedIps); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["assigned_ips"] = transformedAssignedIps
+		transformed["assignedIps"] = transformedAssignedIps
 	}
 
 	return transformed, nil

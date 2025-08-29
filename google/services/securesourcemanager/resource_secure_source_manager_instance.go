@@ -45,9 +45,9 @@ func ResourceSecureSourceManagerInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(60 * time.Minute),
-			Update: schema.DefaultTimeout(60 * time.Minute),
-			Delete: schema.DefaultTimeout(60 * time.Minute),
+			Create: schema.DefaultTimeout(120 * time.Minute),
+			Update: schema.DefaultTimeout(120 * time.Minute),
+			Delete: schema.DefaultTimeout(120 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -55,6 +55,25 @@ func ResourceSecureSourceManagerInstance() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"instance_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
 				Type:        schema.TypeString,
@@ -92,17 +111,17 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"ca_pool": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `CA pool resource, resource must in the format of 'projects/{project}/locations/{location}/caPools/{ca_pool}'.`,
-						},
 						"is_private": {
 							Type:        schema.TypeBool,
 							Required:    true,
 							ForceNew:    true,
 							Description: `'Indicate if it's private instance.'`,
+						},
+						"ca_pool": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `CA pool resource, resource must in the format of 'projects/{project}/locations/{location}/caPools/{ca_pool}'.`,
 						},
 						"http_service_attachment": {
 							Type:        schema.TypeString,
@@ -203,6 +222,19 @@ If unset, defaults to the Google OIDC IdP.`,
 				Computed:    true,
 				Description: `Time the Instance was updated in UTC.`,
 			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The deletion policy for the instance. Setting 'ABANDON' allows the resource
+to be abandoned, rather than deleted. Setting 'DELETE' deletes the resource
+and all its contents. Setting 'PREVENT' prevents the resource from accidental
+deletion by erroring out during plan.
+Default is 'DELETE'.  Possible values are:
+  * DELETE
+  * PREVENT
+  * ABANDON`,
+				Default: "DELETE",
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -240,11 +272,11 @@ func resourceSecureSourceManagerInstanceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("workforce_identity_federation_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(workforceIdentityFederationConfigProp)) && (ok || !reflect.DeepEqual(v, workforceIdentityFederationConfigProp)) {
 		obj["workforceIdentityFederationConfig"] = workforceIdentityFederationConfigProp
 	}
-	labelsProp, err := expandSecureSourceManagerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandSecureSourceManagerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecureSourceManagerBasePath}}projects/{{project}}/locations/{{location}}/instances?instance_id={{instance_id}}")
@@ -341,6 +373,12 @@ func resourceSecureSourceManagerInstanceRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecureSourceManagerInstance %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -382,6 +420,28 @@ func resourceSecureSourceManagerInstanceRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("instance_id"); ok && v != "" {
+		err = identity.Set("instance_id", d.Get("instance_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting instance_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -418,6 +478,13 @@ func resourceSecureSourceManagerInstanceDelete(d *schema.ResourceData, meta inte
 	}
 
 	headers := make(http.Header)
+	deletionPolicy := d.Get("deletion_policy")
+
+	if deletionPolicy == "ABANDON" {
+		return nil
+	} else if deletionPolicy == "PREVENT" {
+		return fmt.Errorf(`cannot destroy resource without setting deletion_policy="DELETE"`)
+	}
 
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -463,6 +530,11 @@ func resourceSecureSourceManagerInstanceImport(d *schema.ResourceData, meta inte
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "DELETE"); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

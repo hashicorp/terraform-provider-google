@@ -29,9 +29,20 @@ import (
 func TestAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -40,6 +51,12 @@ func TestAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(t *test
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(context),
+			},
+			{
+				ResourceName:       "google_public_ca_external_account_key.prod",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

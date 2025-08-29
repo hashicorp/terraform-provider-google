@@ -33,8 +33,18 @@ import (
 func TestAccNetworkSecurityMirroringEndpointGroupAssociation_networkSecurityMirroringEndpointGroupAssociationBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +60,12 @@ func TestAccNetworkSecurityMirroringEndpointGroupAssociation_networkSecurityMirr
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "mirroring_endpoint_group_association_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_mirroring_endpoint_group_association.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

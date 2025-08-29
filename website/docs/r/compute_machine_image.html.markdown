@@ -126,9 +126,6 @@ The following arguments are supported:
   The source instance used to create the machine image. You can provide this as a partial or full URL to the resource.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A text description of the resource.
@@ -148,6 +145,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_machine_image_encryption_key"></a>The `machine_image_encryption_key` block supports:

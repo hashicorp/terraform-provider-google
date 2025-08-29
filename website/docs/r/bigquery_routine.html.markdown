@@ -48,6 +48,7 @@ resource "google_bigquery_routine" "sproc" {
   routine_id     = "routine_id"
   routine_type = "PROCEDURE"
   language = "SQL"
+  security_mode = "INVOKER"
   definition_body = "CREATE FUNCTION Add(x FLOAT64, y FLOAT64) RETURNS FLOAT64 AS (x + y);"
 }
 ```
@@ -322,9 +323,6 @@ The following arguments are supported:
   If language=SQL, it is the substring inside (but excluding) the parentheses.
 
 
-- - -
-
-
 * `language` -
   (Optional)
   The language of the routine.
@@ -373,6 +371,11 @@ The following arguments are supported:
   If set to DATA_MASKING, the function is validated and made available as a masking function. For more information, see https://cloud.google.com/bigquery/docs/user-defined-functions#custom-mask
   Possible values are: `DATA_MASKING`.
 
+* `security_mode` -
+  (Optional)
+  Optional. The security mode of the routine, if defined. If not defined, the security mode is automatically determined from the routine's configuration.
+  Possible values are: `DEFINER`, `INVOKER`.
+
 * `spark_options` -
   (Optional)
   Optional. If language is one of "PYTHON", "JAVA", "SCALA", this field stores the options for spark stored procedure.
@@ -385,6 +388,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_arguments"></a>The `arguments` block supports:

@@ -33,9 +33,20 @@ import (
 func TestAccMemorystoreInstance_memorystoreInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -52,6 +63,12 @@ func TestAccMemorystoreInstance_memorystoreInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_memorystore_instance.instance-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -60,8 +77,8 @@ func testAccMemorystoreInstance_memorystoreInstanceBasicExample(context map[stri
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-basic" {
   instance_id = "tf-test-basic-instance%{random_suffix}"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
@@ -117,10 +134,28 @@ data "google_project" "project" {
 
 func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-memorystore.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"kms_key_name":    acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -135,7 +170,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_memorystore_instance.instance-full",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -144,40 +179,42 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 func testAccMemorystoreInstance_memorystoreInstanceFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-full" {
-  instance_id = "tf-test-full-instance%{random_suffix}"
-  shard_count = 3
-  desired_psc_auto_connections {
-    network    = google_compute_network.producer_net.id
-    project_id = data.google_project.project.project_id
+  instance_id                  = "tf-test-full-instance%{random_suffix}"
+  shard_count                  = 1
+  desired_auto_created_endpoints {
+    network                    = google_compute_network.producer_net.id
+    project_id                 = data.google_project.project.project_id
+  }     
+  location                     = "us-central1"
+  replica_count                = 1
+  node_type                    = "SHARED_CORE_NANO"
+  transit_encryption_mode      = "TRANSIT_ENCRYPTION_DISABLED"
+  authorization_mode           = "AUTH_DISABLED"
+  kms_key                      = "%{kms_key_name}"
+  engine_configs = {     
+    maxmemory-policy           = "volatile-ttl"
   }
-  location                = "us-central1"
-  replica_count           = 2
-  node_type               = "SHARED_CORE_NANO"
-  transit_encryption_mode = "TRANSIT_ENCRYPTION_DISABLED"
-  authorization_mode      = "AUTH_DISABLED"
-  engine_configs = {
-    maxmemory-policy = "volatile-ttl"
-  }
+  allow_fewer_zones_deployment = true
   zone_distribution_config {
-    mode = "SINGLE_ZONE"
-    zone = "us-central1-b"
+    mode                       = "SINGLE_ZONE"
+    zone                       = "us-central1-b"
   }
   maintenance_policy {
     weekly_maintenance_window {
-      day = "MONDAY"
+      day                      = "MONDAY"
       start_time {
-        hours = 1
-        minutes = 0
-        seconds = 0
-        nanos = 0
+        hours                  = 1
+        minutes                = 0
+        seconds                = 0
+        nanos                  = 0
       }
     }
   }
   engine_version              = "VALKEY_7_2"
   deletion_protection_enabled = false
-  mode = "CLUSTER"
+  mode                        = "CLUSTER"
   persistence_config {
-    mode = "RDB"
+    mode                      = "RDB"
     rdb_config {
       rdb_snapshot_period     = "ONE_HOUR"
       rdb_snapshot_start_time = "2024-10-02T15:01:23Z"
@@ -226,9 +263,20 @@ data "google_project" "project" {
 func TestAccMemorystoreInstance_memorystoreInstancePersistenceAofExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -253,8 +301,8 @@ func testAccMemorystoreInstance_memorystoreInstancePersistenceAofExample(context
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-persistence-aof" {
   instance_id = "tf-test-aof-instance%{random_suffix}"
-  shard_count = 3
-  desired_psc_auto_connections {
+  shard_count = 1
+  desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
@@ -305,12 +353,23 @@ data "google_project" "project" {
 func TestAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"primary_instance_deletion_protection_enabled":   false,
 		"primary_instance_prevent_destroy":               false,
 		"secondary_instance_deletion_protection_enabled": false,
 		"secondary_instance_prevent_destroy":             false,
-		"random_suffix":                                  acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -337,7 +396,7 @@ func testAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(cont
 resource "google_memorystore_instance" "primary_instance" {
   instance_id                    = "tf-test-primary-instance%{random_suffix}"
   shard_count                    = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                      = google_compute_network.primary_producer_net.id
     project_id                   = data.google_project.project.project_id
   }
@@ -398,7 +457,7 @@ resource "google_compute_network" "primary_producer_net" {
 resource "google_memorystore_instance" "secondary_instance" {
   instance_id                    = "tf-test-secondary-instance%{random_suffix}"
   shard_count                    = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                      = google_compute_network.secondary_producer_net.id
     project_id                   = data.google_project.project.project_id
   }

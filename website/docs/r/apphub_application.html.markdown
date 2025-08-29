@@ -118,19 +118,6 @@ The following arguments are supported:
   Required. The Application identifier.
 
 
-<a name="nested_scope"></a>The `scope` block supports:
-
-* `type` -
-  (Required)
-  Required. Scope Type. 
-   Possible values:
-  REGIONAL
-  GLOBAL
-  Possible values are: `REGIONAL`, `GLOBAL`.
-
-- - -
-
-
 * `display_name` -
   (Optional)
   Optional. User-defined name for the Application.
@@ -147,6 +134,17 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_scope"></a>The `scope` block supports:
+
+* `type` -
+  (Required)
+  Required. Scope Type. 
+   Possible values:
+  REGIONAL
+  GLOBAL
+  Possible values are: `REGIONAL`, `GLOBAL`.
 
 <a name="nested_attributes"></a>The `attributes` block supports:
 

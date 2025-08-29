@@ -125,9 +125,6 @@ The following arguments are supported:
   Required. The ID of the site to which the release belongs.
 
 
-- - -
-
-
 * `type` -
   (Optional)
   The type of the release; indicates what happened to the content of the site. There is no need to specify
@@ -152,6 +149,7 @@ The following arguments are supported:
   The content of the version specified will be actively displayed on the appropriate URL.
   The Version must belong to the same site as in the `site_id`.
   This parameter must be empty if the `type` of the release is `SITE_DISABLE`.
+
 
 
 ## Attributes Reference

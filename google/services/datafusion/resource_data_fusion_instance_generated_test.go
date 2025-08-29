@@ -33,9 +33,20 @@ import (
 func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prober_test_run": `options = { prober_test_run = "true" }`,
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -51,6 +62,12 @@ func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "network_config.0.private_service_connect_config.0.unreachable_cidr_block", "region", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_data_fusion_instance.basic_instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -70,9 +87,20 @@ resource "google_data_fusion_instance" "basic_instance" {
 func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prober_test_run": `options = { prober_test_run = "true" }`,
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -142,9 +170,20 @@ resource "google_compute_global_address" "private_ip_alloc" {
 func TestAccDataFusionInstance_dataFusionInstancePscExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prober_test_run": `options = { prober_test_run = "true" }`,
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -212,8 +251,18 @@ resource "google_compute_network_attachment" "psc" {
 func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -245,7 +294,7 @@ resource "google_data_fusion_instance" "cmek" {
     key_reference = google_kms_crypto_key.crypto_key.id
   }
 
-  depends_on = [google_kms_crypto_key_iam_member.crypto_key_member]
+  depends_on = [google_kms_crypto_key_iam_member.crypto_key_member_cdf_sa, google_kms_crypto_key_iam_member.crypto_key_member_gcs_sa]
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
@@ -258,11 +307,18 @@ resource "google_kms_key_ring" "key_ring" {
   location = "us-central1"
 }
 
-resource "google_kms_crypto_key_iam_member" "crypto_key_member" {
+resource "google_kms_crypto_key_iam_member" "crypto_key_member_cdf_sa" {
   crypto_key_id = google_kms_crypto_key.crypto_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datafusion.iam.gserviceaccount.com"
+}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key_member_gcs_sa" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  member = "serviceAccount:service-${data.google_project.project.number}@gs-project-accounts.iam.gserviceaccount.com"
 }
 
 data "google_project" "project" {}
@@ -272,9 +328,20 @@ data "google_project" "project" {}
 func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prober_test_run": `options = { prober_test_run = "true" }`,
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -310,8 +377,18 @@ resource "google_data_fusion_instance" "enterprise_instance" {
 func TestAccDataFusionInstance_dataFusionInstanceEventExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -354,8 +431,18 @@ resource "google_pubsub_topic" "event" {
 func TestAccDataFusionInstance_dataFusionInstanceZoneExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

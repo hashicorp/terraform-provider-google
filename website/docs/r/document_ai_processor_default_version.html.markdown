@@ -68,8 +68,6 @@ The following arguments are supported:
   The processor to set the version on.
 
 
-- - -
-
 
 
 ## Attributes Reference

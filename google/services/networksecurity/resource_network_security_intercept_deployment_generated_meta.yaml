@@ -1,0 +1,24 @@
+resource: 'google_network_security_intercept_deployment'
+generation_type: 'mmv1'
+source_file: 'products/networksecurity/InterceptDeployment.yaml'
+api_service_name: 'networksecurity.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'InterceptDeployment'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'forwarding_rule'
+  - field: 'intercept_deployment_group'
+  - field: 'intercept_deployment_id'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'reconciling'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'

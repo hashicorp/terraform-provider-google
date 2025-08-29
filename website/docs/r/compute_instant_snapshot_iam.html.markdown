@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Compute Engine InstantSnapshot
+
 Three different resources help you manage your IAM policy for Compute Engine InstantSnapshot. Each of these resources serves a different use case:
 
 * `google_compute_instant_snapshot_iam_policy`: Authoritative. Sets the IAM policy for the instantsnapshot and replaces any existing policy already attached.
@@ -149,10 +150,10 @@ resource "google_compute_instant_snapshot_iam_member" "member" {
 
 The following arguments are supported:
 
-* `name` - (Required) Used to find the parent resource to bind the IAM policy to
 * `zone` - (Optional) A reference to the zone where the disk is located. Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no zone is provided in the parent identifier and no
   zone is specified, it is taken from the provider configuration.
+* `name` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

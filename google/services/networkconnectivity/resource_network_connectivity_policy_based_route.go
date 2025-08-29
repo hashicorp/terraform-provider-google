@@ -56,6 +56,21 @@ func ResourceNetworkConnectivityPolicyBasedRoute() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"filter": {
 				Type:        schema.TypeList,
@@ -69,14 +84,14 @@ func ResourceNetworkConnectivityPolicyBasedRoute() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"IPV4"}),
-							Description:  `Internet protocol versions this policy-based route applies to. Possible values: ["IPV4"]`,
+							ValidateFunc: verify.ValidateEnum([]string{"IPV4", "IPV6"}),
+							Description:  `Internet protocol versions this policy-based route applies to. Possible values: ["IPV4", "IPV6"]`,
 						},
 						"dest_range": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							ForceNew:    true,
-							Description: `The destination IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0" if protocol version is IPv4.`,
+							Description: `The destination IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0".`,
 							Default:     "0.0.0.0/0",
 						},
 						"ip_protocol": {
@@ -90,7 +105,7 @@ func ResourceNetworkConnectivityPolicyBasedRoute() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							ForceNew:    true,
-							Description: `The source IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0" if protocol version is IPv4.`,
+							Description: `The source IP range of outgoing packets that this policy-based route applies to. Default is "0.0.0.0/0".`,
 							Default:     "0.0.0.0/0",
 						},
 					},
@@ -306,11 +321,11 @@ func resourceNetworkConnectivityPolicyBasedRouteCreate(d *schema.ResourceData, m
 	} else if v, ok := d.GetOkExists("interconnect_attachment"); !tpgresource.IsEmptyValue(reflect.ValueOf(interconnectAttachmentProp)) && (ok || !reflect.DeepEqual(v, interconnectAttachmentProp)) {
 		obj["interconnectAttachment"] = interconnectAttachmentProp
 	}
-	labelsProp, err := expandNetworkConnectivityPolicyBasedRouteEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkConnectivityPolicyBasedRouteEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/global/policyBasedRoutes?policyBasedRouteId={{name}}")
@@ -457,6 +472,22 @@ func resourceNetworkConnectivityPolicyBasedRouteRead(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading PolicyBasedRoute: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

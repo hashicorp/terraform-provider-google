@@ -77,13 +77,11 @@ The following arguments are supported:
   trailing '/'. For example, `example_dir/example_dir2/`.
 
 
-- - -
-
-
 * `force_destroy` - (Optional) Allows the deletion of a managed folder even if contains
 objects. If a non-empty managed folder is deleted, any objects
 within the folder will remain in a simulated folder with the
 same name.
+
 
 
 ## Attributes Reference

@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Secret Manager RegionalSecret
+
 Three different resources help you manage your IAM policy for Secret Manager RegionalSecret. Each of these resources serves a different use case:
 
 * `google_secret_manager_regional_secret_iam_policy`: Authoritative. Sets the IAM policy for the regionalsecret and replaces any existing policy already attached.
@@ -153,6 +154,7 @@ The following arguments are supported:
  Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
   location is specified, it is taken from the provider configuration.
+* `secret_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

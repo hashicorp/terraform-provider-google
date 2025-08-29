@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Dataproc Metastore Table
+
 Three different resources help you manage your IAM policy for Dataproc Metastore Table. Each of these resources serves a different use case:
 
 * `google_dataproc_metastore_table_iam_policy`: Authoritative. Sets the IAM policy for the table and replaces any existing policy already attached.
@@ -93,6 +94,11 @@ resource "google_dataproc_metastore_table_iam_member" "member" {
 
 The following arguments are supported:
 
+* `location` - (Optional)  Used to find the parent resource to bind the IAM policy to. If not specified,
+  the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
+  location is specified, it is taken from the provider configuration.
+* `service_id` - (Required)  Used to find the parent resource to bind the IAM policy to
+* `database_id` - (Required)  Used to find the parent resource to bind the IAM policy to
 * `table` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

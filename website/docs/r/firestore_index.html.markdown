@@ -260,6 +260,36 @@ The following arguments are supported:
   Structure is [documented below](#nested_fields).
 
 
+* `database` -
+  (Optional)
+  The Firestore database id. Defaults to `"(default)"`.
+
+* `query_scope` -
+  (Optional)
+  The scope at which a query is run.
+  Default value is `COLLECTION`.
+  Possible values are: `COLLECTION`, `COLLECTION_GROUP`, `COLLECTION_RECURSIVE`.
+
+* `api_scope` -
+  (Optional)
+  The API scope at which a query is run.
+  Default value is `ANY_API`.
+  Possible values are: `ANY_API`, `DATASTORE_MODE_API`, `MONGODB_COMPATIBLE_API`.
+
+* `density` -
+  (Optional)
+  The density configuration for this index.
+  Possible values are: `SPARSE_ALL`, `SPARSE_ANY`, `DENSE`.
+
+* `multikey` -
+  (Optional)
+  Optional. Whether the index is multikey. By default, the index is not multikey. For non-multikey indexes, none of the paths in the index definition reach or traverse an array, except via an explicit array index. For multikey indexes, at most one of the paths in the index definition reach or traverse an array, except via an explicit array index. Violations will result in errors. Note this field only applies to indexes with MONGODB_COMPATIBLE_API ApiScope.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_fields"></a>The `fields` block supports:
 
 * `field_path` -
@@ -295,38 +325,6 @@ The following arguments are supported:
 * `flat` -
   (Optional)
   Indicates the vector index is a flat index.
-
-- - -
-
-
-* `database` -
-  (Optional)
-  The Firestore database id. Defaults to `"(default)"`.
-
-* `query_scope` -
-  (Optional)
-  The scope at which a query is run.
-  Default value is `COLLECTION`.
-  Possible values are: `COLLECTION`, `COLLECTION_GROUP`, `COLLECTION_RECURSIVE`.
-
-* `api_scope` -
-  (Optional)
-  The API scope at which a query is run.
-  Default value is `ANY_API`.
-  Possible values are: `ANY_API`, `DATASTORE_MODE_API`, `MONGODB_COMPATIBLE_API`.
-
-* `density` -
-  (Optional)
-  The density configuration for this index.
-  Possible values are: `SPARSE_ALL`, `SPARSE_ANY`, `DENSE`.
-
-* `multikey` -
-  (Optional)
-  Optional. Whether the index is multikey. By default, the index is not multikey. For non-multikey indexes, none of the paths in the index definition reach or traverse an array, except via an explicit array index. For multikey indexes, at most one of the paths in the index definition reach or traverse an array, except via an explicit array index. Violations will result in errors. Note this field only applies to indexes with MONGODB_COMPATIBLE_API ApiScope.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

@@ -34,9 +34,20 @@ import (
 func TestAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"org_id": envvar.GetTestOrgFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -55,6 +66,12 @@ func TestAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyEx
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "organization", "principal_access_boundary_policy_id"},
+			},
+			{
+				ResourceName:       "google_iam_principal_access_boundary_policy.pab-policy-for-org",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

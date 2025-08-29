@@ -58,6 +58,25 @@ func ResourceBackupDRBackupVault() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"backup_vault_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"backup_minimum_enforced_retention_duration": {
 				Type:        schema.TypeString,
@@ -99,6 +118,12 @@ Stores small amounts of arbitrary data.
 **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
 Please refer to the field 'effective_annotations' for all of the annotations present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"backup_retention_inheritance": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"BACKUP_RETENTION_INHERITANCE_UNSPECIFIED", "INHERIT_VAULT_RETENTION", "MATCH_BACKUP_EXPIRE_TIME", ""}),
+				Description:  `How a backup's enforced retention end time is inherited. Default value is 'INHERIT_VAULT_RETENTION' if not provided during creation. Possible values: ["BACKUP_RETENTION_INHERITANCE_UNSPECIFIED", "INHERIT_VAULT_RETENTION", "MATCH_BACKUP_EXPIRE_TIME"]`,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -271,17 +296,23 @@ func resourceBackupDRBackupVaultCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("access_restriction"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessRestrictionProp)) && (ok || !reflect.DeepEqual(v, accessRestrictionProp)) {
 		obj["accessRestriction"] = accessRestrictionProp
 	}
-	labelsProp, err := expandBackupDRBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
+	backupRetentionInheritanceProp, err := expandBackupDRBackupVaultBackupRetentionInheritance(d.Get("backup_retention_inheritance"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("backup_retention_inheritance"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupRetentionInheritanceProp)) && (ok || !reflect.DeepEqual(v, backupRetentionInheritanceProp)) {
+		obj["backupRetentionInheritance"] = backupRetentionInheritanceProp
 	}
-	annotationsProp, err := expandBackupDRBackupVaultEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveLabelsProp, err := expandBackupDRBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
+	effectiveAnnotationsProp, err := expandBackupDRBackupVaultEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupVaults?backupVaultId={{backup_vault_id}}")
@@ -325,29 +356,15 @@ func resourceBackupDRBackupVaultCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = BackupDROperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating BackupVault", userAgent,
+	err = BackupDROperationWaitTime(
+		config, res, project, "Creating BackupVault", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create BackupVault: %s", err)
 	}
-
-	if err := d.Set("name", flattenBackupDRBackupVaultName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating BackupVault %q: %#v", d.Id(), res)
 
@@ -454,6 +471,28 @@ func resourceBackupDRBackupVaultRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("backup_vault_id"); ok && v != "" {
+		err = identity.Set("backup_vault_id", d.Get("backup_vault_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting backup_vault_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -491,17 +530,23 @@ func resourceBackupDRBackupVaultUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("effective_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveTimeProp)) {
 		obj["effectiveTime"] = effectiveTimeProp
 	}
-	labelsProp, err := expandBackupDRBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
+	backupRetentionInheritanceProp, err := expandBackupDRBackupVaultBackupRetentionInheritance(d.Get("backup_retention_inheritance"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("backup_retention_inheritance"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupRetentionInheritanceProp)) {
+		obj["backupRetentionInheritance"] = backupRetentionInheritanceProp
 	}
-	annotationsProp, err := expandBackupDRBackupVaultEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveLabelsProp, err := expandBackupDRBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
+	effectiveAnnotationsProp, err := expandBackupDRBackupVaultEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}?force={{force_update}}")
@@ -523,6 +568,10 @@ func resourceBackupDRBackupVaultUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("effective_time") {
 		updateMask = append(updateMask, "effectiveTime")
+	}
+
+	if d.HasChange("backup_retention_inheritance") {
+		updateMask = append(updateMask, "backupRetentionInheritance")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -797,6 +846,10 @@ func expandBackupDRBackupVaultEffectiveTime(v interface{}, d tpgresource.Terrafo
 }
 
 func expandBackupDRBackupVaultAccessRestriction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBackupDRBackupVaultBackupRetentionInheritance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

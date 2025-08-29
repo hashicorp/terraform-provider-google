@@ -25,6 +25,7 @@ fields:
   - field: 'description'
   - field: 'location'
     provider_only: true
+  - field: 'log_retention_days'
   - field: 'name'
   - field: 'resource_type'
   - field: 'update_time'

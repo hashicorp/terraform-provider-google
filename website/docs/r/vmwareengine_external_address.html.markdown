@@ -40,7 +40,7 @@ resource "google_vmwareengine_network" "external-address-nw" {
 }
 
 resource "google_vmwareengine_private_cloud" "external-address-pc" {
-  location    = "-a"
+  location    = "us-west1-a"
   name        = "sample-pc"
   description = "Sample test PC."
   network_config {
@@ -58,7 +58,7 @@ resource "google_vmwareengine_private_cloud" "external-address-pc" {
 }
 
 resource "google_vmwareengine_network_policy" "external-address-np" {
-  location = ""
+  location = "us-west1"
   name = "sample-np"
   edge_services_cidr = "192.168.30.0/26"
   vmware_engine_network = google_vmwareengine_network.external-address-nw.id
@@ -95,12 +95,10 @@ The following arguments are supported:
   The ID of the external IP Address.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   User-provided description for this resource.
+
 
 
 ## Attributes Reference

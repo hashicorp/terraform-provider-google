@@ -33,8 +33,18 @@ import (
 func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDesiredUserCreatedEndpointsExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +60,12 @@ func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDe
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "region"},
+			},
+			{
+				ResourceName:       "google_memorystore_instance_desired_user_created_endpoints.instance-user-conn",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -211,8 +227,18 @@ data "google_project" "project" {
 func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDesiredUserAndAutoCreatedEndpointsExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -310,7 +336,7 @@ resource "google_compute_network" "network2" {
 resource "google_memorystore_instance" "instance-user-auto-conn" {
   instance_id                 = "tf-test-instance-user-auto-conn%{random_suffix}"
   shard_count                 = 1
-  desired_psc_auto_connections {
+  desired_auto_created_endpoints {
     network                   = google_compute_network.network1.id
     project_id                = data.google_project.project.project_id
   }

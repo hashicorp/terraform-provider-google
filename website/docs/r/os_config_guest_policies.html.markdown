@@ -216,6 +216,36 @@ The following arguments are supported:
   * Must be unique within the project.
 
 
+* `description` -
+  (Optional)
+  Description of the guest policy. Length of the description is limited to 1024 characters.
+
+* `packages` -
+  (Optional)
+  The software packages to be managed by this policy.
+  Structure is [documented below](#nested_packages).
+
+* `package_repositories` -
+  (Optional)
+  A list of package repositories to configure on the VM instance.
+  This is done before any other configs are applied so they can use these repos.
+  Package repositories are only configured if the corresponding package manager(s) are available.
+  Structure is [documented below](#nested_package_repositories).
+
+* `recipes` -
+  (Optional)
+  A list of Recipes to install on the VM instance.
+  Structure is [documented below](#nested_recipes).
+
+* `etag` -
+  (Optional)
+  The etag for this guest policy. If this is provided on update, it must match the server's etag.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_assignment"></a>The `assignment` block supports:
 
 * `group_labels` -
@@ -270,38 +300,6 @@ The following arguments are supported:
 * `os_architecture` -
   (Optional)
   Targets VM instances with OS Inventory enabled and having the following OS architecture.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  Description of the guest policy. Length of the description is limited to 1024 characters.
-
-* `packages` -
-  (Optional)
-  The software packages to be managed by this policy.
-  Structure is [documented below](#nested_packages).
-
-* `package_repositories` -
-  (Optional)
-  A list of package repositories to configure on the VM instance.
-  This is done before any other configs are applied so they can use these repos.
-  Package repositories are only configured if the corresponding package manager(s) are available.
-  Structure is [documented below](#nested_package_repositories).
-
-* `recipes` -
-  (Optional)
-  A list of Recipes to install on the VM instance.
-  Structure is [documented below](#nested_recipes).
-
-* `etag` -
-  (Optional)
-  The etag for this guest policy. If this is provided on update, it must match the server's etag.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 <a name="nested_packages"></a>The `packages` block supports:
 

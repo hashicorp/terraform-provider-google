@@ -56,10 +56,30 @@ func ResourceNetworkSecurityAddressGroup() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"parent": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"capacity": {
 				Type:        schema.TypeInt,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Capacity of the Address Group.`,
 			},
 			"location": {
@@ -174,11 +194,11 @@ func resourceNetworkSecurityAddressGroupCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("capacity"); !tpgresource.IsEmptyValue(reflect.ValueOf(capacityProp)) && (ok || !reflect.DeepEqual(v, capacityProp)) {
 		obj["capacity"] = capacityProp
 	}
-	labelsProp, err := expandNetworkSecurityAddressGroupEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkSecurityAddressGroupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/addressGroups?addressGroupId={{name}}")
@@ -291,6 +311,28 @@ func resourceNetworkSecurityAddressGroupRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading AddressGroup: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("parent"); ok && v != "" {
+		err = identity.Set("parent", d.Get("parent").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting parent: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -323,17 +365,11 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("items"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, itemsProp)) {
 		obj["items"] = itemsProp
 	}
-	capacityProp, err := expandNetworkSecurityAddressGroupCapacity(d.Get("capacity"), d, config)
+	effectiveLabelsProp, err := expandNetworkSecurityAddressGroupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("capacity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, capacityProp)) {
-		obj["capacity"] = capacityProp
-	}
-	labelsProp, err := expandNetworkSecurityAddressGroupEffectiveLabels(d.Get("effective_labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/addressGroups/{{name}}")
@@ -355,10 +391,6 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("items") {
 		updateMask = append(updateMask, "items")
-	}
-
-	if d.HasChange("capacity") {
-		updateMask = append(updateMask, "capacity")
 	}
 
 	if d.HasChange("effective_labels") {

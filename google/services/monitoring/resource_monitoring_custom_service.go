@@ -56,6 +56,21 @@ func ResourceMonitoringService() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:        schema.TypeString,
@@ -142,11 +157,11 @@ func resourceMonitoringServiceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("telemetry"); !tpgresource.IsEmptyValue(reflect.ValueOf(telemetryProp)) && (ok || !reflect.DeepEqual(v, telemetryProp)) {
 		obj["telemetry"] = telemetryProp
 	}
-	nameProp, err := expandMonitoringServiceServiceId(d.Get("service_id"), d, config)
+	serviceIdProp, err := expandMonitoringServiceServiceId(d.Get("service_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("service_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
+	} else if v, ok := d.GetOkExists("service_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceIdProp)) && (ok || !reflect.DeepEqual(v, serviceIdProp)) {
+		obj["name"] = serviceIdProp
 	}
 
 	obj, err = resourceMonitoringServiceEncoder(d, meta, obj)
@@ -266,6 +281,22 @@ func resourceMonitoringServiceRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -460,7 +491,7 @@ func flattenMonitoringServiceServiceId(v interface{}, d *schema.ResourceData, co
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandMonitoringServiceDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -50,6 +50,21 @@ func ResourceApigeeTargetServer() *schema.Resource {
 			Delete: schema.DefaultTimeout(1 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"env_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"env_id": {
 				Type:     schema.TypeString,
@@ -137,6 +152,11 @@ in the format 'organizations/{{org_name}}/environments/{{env_name}}'.`,
 									},
 								},
 							},
+						},
+						"enforce": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, TLS is strictly enforced.`,
 						},
 						"ignore_validation_errors": {
 							Type:        schema.TypeBool,
@@ -319,6 +339,22 @@ func resourceApigeeTargetServerRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading TargetServer: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("env_id"); ok && v != "" {
+		err = identity.Set("env_id", d.Get("env_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting env_id: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -531,6 +567,8 @@ func flattenApigeeTargetServerSSLInfo(v interface{}, d *schema.ResourceData, con
 		flattenApigeeTargetServerSSLInfoCiphers(original["ciphers"], d, config)
 	transformed["common_name"] =
 		flattenApigeeTargetServerSSLInfoCommonName(original["commonName"], d, config)
+	transformed["enforce"] =
+		flattenApigeeTargetServerSSLInfoEnforce(original["enforce"], d, config)
 	return []interface{}{transformed}
 }
 func flattenApigeeTargetServerSSLInfoEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -585,6 +623,10 @@ func flattenApigeeTargetServerSSLInfoCommonNameValue(v interface{}, d *schema.Re
 }
 
 func flattenApigeeTargetServerSSLInfoCommonNameWildcardMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApigeeTargetServerSSLInfoEnforce(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -684,6 +726,13 @@ func expandApigeeTargetServerSSLInfo(v interface{}, d tpgresource.TerraformResou
 		transformed["commonName"] = transformedCommonName
 	}
 
+	transformedEnforce, err := expandApigeeTargetServerSSLInfoEnforce(original["enforce"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforce); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enforce"] = transformedEnforce
+	}
+
 	return transformed, nil
 }
 
@@ -750,6 +799,10 @@ func expandApigeeTargetServerSSLInfoCommonNameValue(v interface{}, d tpgresource
 }
 
 func expandApigeeTargetServerSSLInfoCommonNameWildcardMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeTargetServerSSLInfoEnforce(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

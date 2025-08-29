@@ -503,6 +503,46 @@ The following arguments are supported:
   The ID of the job. The ID must contain only letters (a-z, A-Z), numbers (0-9), underscores (_), or dashes (-). The maximum length is 1,024 characters.
 
 
+* `job_timeout_ms` -
+  (Optional)
+  Job timeout in milliseconds. If this time limit is exceeded, BigQuery may attempt to terminate the job.
+
+* `labels` -
+  (Optional)
+  The labels associated with this job. You can use these to organize and group your jobs.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `query` -
+  (Optional)
+  Configures a query job.
+  Structure is [documented below](#nested_configuration_query).
+
+* `load` -
+  (Optional)
+  Configures a load job.
+  Structure is [documented below](#nested_configuration_load).
+
+* `copy` -
+  (Optional)
+  Copies a table.
+  Structure is [documented below](#nested_configuration_copy).
+
+* `extract` -
+  (Optional)
+  Configures an extract job.
+  Structure is [documented below](#nested_configuration_extract).
+
+* `location` -
+  (Optional)
+  The geographic location of the job. The default value is US.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_configuration_query"></a>The `query` block supports:
 
 * `query` -
@@ -614,6 +654,13 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Whether to run the query as continuous or a regular query.
 
+* `connection_properties` -
+  (Optional)
+  Connection properties to customize query behavior. Under JDBC, these correspond
+  directly to connection properties passed to the DriverManager. Under ODBC, these
+  correspond to properties in the connection string.
+  Structure is [documented below](#nested_configuration_query_connection_properties).
+
 
 <a name="nested_configuration_query_destination_table"></a>The `destination_table` block supports:
 
@@ -678,6 +725,21 @@ The following arguments are supported:
   Determines which statement in the script represents the "key result",
   used to populate the schema and query results of the script job.
   Possible values are: `LAST`, `FIRST_SELECT`.
+
+<a name="nested_configuration_query_connection_properties"></a>The `connection_properties` block supports:
+
+* `key` -
+  (Required)
+  The key of the property to set. Currently supported connection properties:
+  * `dataset_project_id`: represents the default project for datasets that are used in the query
+  * `time_zone`: represents the default timezone used to run the query
+  * `session_id`: associates the query with a given session
+  * `query_label`: associates the query with a given job label
+  * `service_account`: indicates the service account to use to run a continuous query
+
+* `value` -
+  (Required)
+  The value of the property to set.
 
 <a name="nested_configuration_load"></a>The `load` block supports:
 
@@ -1028,48 +1090,6 @@ The following arguments are supported:
 * `model_id` -
   (Required)
   The ID of the model.
-
-- - -
-
-
-* `job_timeout_ms` -
-  (Optional)
-  Job timeout in milliseconds. If this time limit is exceeded, BigQuery may attempt to terminate the job.
-
-* `labels` -
-  (Optional)
-  The labels associated with this job. You can use these to organize and group your jobs.
-
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `query` -
-  (Optional)
-  Configures a query job.
-  Structure is [documented below](#nested_configuration_query).
-
-* `load` -
-  (Optional)
-  Configures a load job.
-  Structure is [documented below](#nested_configuration_load).
-
-* `copy` -
-  (Optional)
-  Copies a table.
-  Structure is [documented below](#nested_configuration_copy).
-
-* `extract` -
-  (Optional)
-  Configures an extract job.
-  Structure is [documented below](#nested_configuration_extract).
-
-* `location` -
-  (Optional)
-  The geographic location of the job. The default value is US.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

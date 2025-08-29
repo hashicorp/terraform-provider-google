@@ -88,7 +88,7 @@ The following arguments are supported:
 * `peer_network_type` -
   (Required)
   The type of the network to peer with the VMware Engine network.
-  Possible values are: `STANDARD`, `VMWARE_ENGINE_NETWORK`, `PRIVATE_SERVICES_ACCESS`, `NETAPP_CLOUD_VOLUMES`, `THIRD_PARTY_SERVICE`, `DELL_POWERSCALE`.
+  Possible values are: `STANDARD`, `VMWARE_ENGINE_NETWORK`, `PRIVATE_SERVICES_ACCESS`, `NETAPP_CLOUD_VOLUMES`, `THIRD_PARTY_SERVICE`, `DELL_POWERSCALE`, `GOOGLE_CLOUD_NETAPP_VOLUMES`.
 
 * `vmware_engine_network` -
   (Required)
@@ -99,9 +99,6 @@ The following arguments are supported:
 * `name` -
   (Required)
   The ID of the Network Peering.
-
-
-- - -
 
 
 * `export_custom_routes` -
@@ -126,6 +123,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

@@ -105,9 +105,6 @@ The following arguments are supported:
   Taxonomy the policy tag is associated with
 
 
-- - -
-
-
 * `description` -
   (Optional)
   Description of this policy tag. It must: contain only unicode characters, tabs,
@@ -120,6 +117,7 @@ The following arguments are supported:
   Resource name of this policy tag's parent policy tag.
   If empty, it means this policy tag is a top level policy tag.
   If not set, defaults to an empty string.
+
 
 
 ## Attributes Reference

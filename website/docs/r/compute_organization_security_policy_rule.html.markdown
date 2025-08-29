@@ -92,6 +92,39 @@ The following arguments are supported:
   The ID of the OrganizationSecurityPolicy this rule applies to.
 
 
+* `description` -
+  (Optional)
+  A description of the rule.
+
+* `preview` -
+  (Optional)
+  If set to true, the specified action is not enforced.
+
+* `direction` -
+  (Optional)
+  The direction in which this rule applies. If unspecified an INGRESS rule is created.
+  Possible values are: `INGRESS`, `EGRESS`.
+
+* `target_resources` -
+  (Optional)
+  A list of network resource URLs to which this rule applies.
+  This field allows you to control which network's VMs get
+  this rule. If this field is left blank, all VMs
+  within the organization will receive the rule.
+
+* `enable_logging` -
+  (Optional)
+  Denotes whether to enable logging for a particular rule.
+  If logging is enabled, logs will be exported to the
+  configured export destination in Stackdriver.
+
+* `target_service_accounts` -
+  (Optional)
+  A list of service accounts indicating the sets of
+  instances that are applied with this rule.
+
+
+
 <a name="nested_match"></a>The `match` block supports:
 
 * `description` -
@@ -147,41 +180,6 @@ The following arguments are supported:
   applies to connections through any port.
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
-
-- - -
-
-
-* `description` -
-  (Optional)
-  A description of the rule.
-
-* `preview` -
-  (Optional)
-  If set to true, the specified action is not enforced.
-
-* `direction` -
-  (Optional)
-  The direction in which this rule applies. If unspecified an INGRESS rule is created.
-  Possible values are: `INGRESS`, `EGRESS`.
-
-* `target_resources` -
-  (Optional)
-  A list of network resource URLs to which this rule applies.
-  This field allows you to control which network's VMs get
-  this rule. If this field is left blank, all VMs
-  within the organization will receive the rule.
-
-* `enable_logging` -
-  (Optional)
-  Denotes whether to enable logging for a particular rule.
-  If logging is enabled, logs will be exported to the
-  configured export destination in Stackdriver.
-
-* `target_service_accounts` -
-  (Optional)
-  A list of service accounts indicating the sets of
-  instances that are applied with this rule.
-
 
 ## Attributes Reference
 

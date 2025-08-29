@@ -58,6 +58,21 @@ func ResourceNetworkServicesEdgeCacheOrigin() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -118,6 +133,32 @@ After maxAttempts is reached, the configured failoverOrigin will be used to fulf
 
 The value of timeout.maxAttemptsTimeout dictates the timeout across all origins.
 A reference to a Topic resource.`,
+			},
+			"flex_shielding": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The FlexShieldingOptions to be used for all routes to this origin.
+
+If not set, defaults to a global caching layer in front of the origin.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"flex_shielding_regions": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Whenever possible, content will be fetched from origin and cached in or
+near the specified origin. Best effort.
+
+You must specify exactly one FlexShieldingRegion. Possible values: ["AFRICA_SOUTH1", "ME_CENTRAL1"]`,
+							MinItems: 1,
+							MaxItems: 1,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: verify.ValidateEnum([]string{"AFRICA_SOUTH1", "ME_CENTRAL1"}),
+							},
+						},
+					},
+				},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -441,11 +482,17 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("origin_redirect"); !tpgresource.IsEmptyValue(reflect.ValueOf(originRedirectProp)) && (ok || !reflect.DeepEqual(v, originRedirectProp)) {
 		obj["originRedirect"] = originRedirectProp
 	}
-	labelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
+	flexShieldingProp, err := expandNetworkServicesEdgeCacheOriginFlexShielding(d.Get("flex_shielding"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("flex_shielding"); !tpgresource.IsEmptyValue(reflect.ValueOf(flexShieldingProp)) && (ok || !reflect.DeepEqual(v, flexShieldingProp)) {
+		obj["flexShielding"] = flexShieldingProp
+	}
+	effectiveLabelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins?edgeCacheOriginId={{name}}")
@@ -582,6 +629,9 @@ func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta int
 	if err := d.Set("origin_redirect", flattenNetworkServicesEdgeCacheOriginOriginRedirect(res["originRedirect"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
 	}
+	if err := d.Set("flex_shielding", flattenNetworkServicesEdgeCacheOriginFlexShielding(res["flexShielding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetworkServicesEdgeCacheOriginTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
 	}
@@ -589,6 +639,22 @@ func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -674,11 +740,17 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("origin_redirect"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, originRedirectProp)) {
 		obj["originRedirect"] = originRedirectProp
 	}
-	labelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
+	flexShieldingProp, err := expandNetworkServicesEdgeCacheOriginFlexShielding(d.Get("flex_shielding"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("flex_shielding"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, flexShieldingProp)) {
+		obj["flexShielding"] = flexShieldingProp
+	}
+	effectiveLabelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")
@@ -732,6 +804,10 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("origin_redirect") {
 		updateMask = append(updateMask, "originRedirect")
+	}
+
+	if d.HasChange("flex_shielding") {
+		updateMask = append(updateMask, "flexShielding")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1072,6 +1148,23 @@ func flattenNetworkServicesEdgeCacheOriginOriginRedirectRedirectConditions(v int
 	return v
 }
 
+func flattenNetworkServicesEdgeCacheOriginFlexShielding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["flex_shielding_regions"] =
+		flattenNetworkServicesEdgeCacheOriginFlexShieldingFlexShieldingRegions(original["flexShieldingRegions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesEdgeCacheOriginFlexShieldingFlexShieldingRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesEdgeCacheOriginTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1356,6 +1449,29 @@ func expandNetworkServicesEdgeCacheOriginOriginRedirect(v interface{}, d tpgreso
 }
 
 func expandNetworkServicesEdgeCacheOriginOriginRedirectRedirectConditions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginFlexShielding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFlexShieldingRegions, err := expandNetworkServicesEdgeCacheOriginFlexShieldingFlexShieldingRegions(original["flex_shielding_regions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFlexShieldingRegions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["flexShieldingRegions"] = transformedFlexShieldingRegions
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginFlexShieldingFlexShieldingRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

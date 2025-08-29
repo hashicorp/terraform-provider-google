@@ -142,9 +142,9 @@ func listAndActionComputeRegionTargetTcpProxy(action sweeper.ResourceAction) err
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["regionTargetTcpProxies"]
+		resourceList, ok := res["targetTcpProxies"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'regionTargetTcpProxies'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'targetTcpProxies'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

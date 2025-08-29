@@ -58,9 +58,6 @@ The following arguments are supported:
   Relative name of the domain serving the application. Example: example.com.
 
 
-- - -
-
-
 * `ssl_settings` -
   (Optional)
   SSL configuration for this domain. If unconfigured, this domain will not serve with SSL.
@@ -75,6 +72,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_ssl_settings"></a>The `ssl_settings` block supports:

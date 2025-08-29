@@ -128,16 +128,15 @@ The following arguments are supported:
   The display name of the Index. The name can be up to 128 characters long and can consist of any UTF-8 characters.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   The description of the Index.
 
 * `metadata` -
   (Optional)
-  An additional information about the Index
+  Additional information about the Index.
+  Although this field is not marked as required in the API specification, it is currently required when creating an Index and must be provided.
+  Attempts to create an Index without this field will result in an API error.
   Structure is [documented below](#nested_metadata).
 
 * `labels` -
@@ -158,6 +157,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_metadata"></a>The `metadata` block supports:

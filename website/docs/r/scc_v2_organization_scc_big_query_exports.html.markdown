@@ -41,7 +41,7 @@ To get more information about OrganizationSccBigQueryExports, see:
 
 ```hcl
 resource "google_bigquery_dataset" "default" {
-  dataset_id                  = ""
+  dataset_id                  = "my-dataset"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "US"
@@ -81,9 +81,6 @@ The following arguments are supported:
 * `big_query_export_id` -
   (Required)
   This must be unique within the organization.
-
-
-- - -
 
 
 * `name` -
@@ -127,6 +124,7 @@ The following arguments are supported:
 * `location` -
   (Optional)
   location Id is provided by organization. If not provided, Use global as default.
+
 
 
 ## Attributes Reference

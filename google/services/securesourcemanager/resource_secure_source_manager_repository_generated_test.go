@@ -33,9 +33,20 @@ import (
 func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"deletion_policy": "DELETE",
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -52,6 +63,12 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"initial_config", "location", "repository_id"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_repository.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -63,9 +80,7 @@ resource "google_secure_source_manager_instance" "instance" {
     instance_id = "tf-test-my-instance%{random_suffix}"
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -74,9 +89,7 @@ resource "google_secure_source_manager_repository" "default" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 `, context)
 }
@@ -84,9 +97,20 @@ resource "google_secure_source_manager_repository" "default" {
 func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryInitialConfigExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"deletion_policy": "DELETE",
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,10 +137,8 @@ resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
     instance_id = "tf-test-my-instance%{random_suffix}"
 
-    # For preventing accidental deletions
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    # Prevent accidental deletions.
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -133,9 +155,7 @@ resource "google_secure_source_manager_repository" "default" {
     }
 
     # Prevent accidental deletions.
-    lifecycle {
-      prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 `, context)
 }

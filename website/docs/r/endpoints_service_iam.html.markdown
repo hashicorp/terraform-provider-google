@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Cloud Endpoints Service
+
 Three different resources help you manage your IAM policy for Cloud Endpoints Service. Each of these resources serves a different use case:
 
 * `google_endpoints_service_iam_policy`: Authoritative. Sets the IAM policy for the service and replaces any existing policy already attached.
@@ -81,6 +82,7 @@ resource "google_endpoints_service_iam_member" "member" {
 
 The following arguments are supported:
 
+* `service_name` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:

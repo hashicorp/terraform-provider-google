@@ -56,26 +56,45 @@ func ResourceLustreInstance() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"instance_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"capacity_gib": {
 				Type:     schema.TypeString,
 				Required: true,
-				Description: `Required. The storage capacity of the instance in gibibytes (GiB). Allowed values
-are from 18000 to 954000, in increments of 9000.`,
+				Description: `The storage capacity of the instance in gibibytes (GiB). Allowed values
+are from '18000' to '954000', in increments of 9000.`,
 			},
 			"filesystem": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `Required. Immutable. The filesystem name for this instance. This name is used by client-side
-tools, including when mounting the instance. Must be 8 characters or less
-and may only contain letters and numbers.`,
+				Description: `The filesystem name for this instance. This name is used by client-side
+tools, including when mounting the instance. Must be eight characters or
+less and can only contain letters and numbers.`,
 			},
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `Required. The name of the Managed Lustre instance.
+				Description: `The name of the Managed Lustre instance.
 
 * Must contain only lowercase letters, numbers, and hyphens.
 * Must start with a letter.
@@ -92,25 +111,32 @@ and may only contain letters and numbers.`,
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `Required. Immutable. The full name of the VPC network to which the instance is connected.
+				Description: `The full name of the VPC network to which the instance is connected.
 Must be in the format
 'projects/{project_id}/global/networks/{network_name}'.`,
+			},
+			"per_unit_storage_throughput": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The throughput of the instance in MB/s/TiB.
+Valid values are 125, 250, 500, 1000.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Optional. A user-readable description of the instance.`,
+				Description: `A user-readable description of the instance.`,
 			},
 			"gke_support_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Description: `Optional. Indicates whether you want to enable support for GKE clients. By default,
+				Description: `Indicates whether you want to enable support for GKE clients. By default,
 GKE clients are not supported.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Description: `Optional. Labels as key value pairs.
+				Description: `Labels as key value pairs.
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
@@ -119,7 +145,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Output only. Timestamp when the instance was created.`,
+				Description: `Timestamp when the instance was created.`,
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -130,7 +156,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"mount_point": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Output only. Mount point of the instance in the format 'IP_ADDRESS@tcp:/FILESYSTEM'.`,
+				Description: `Mount point of the instance in the format 'IP_ADDRESS@tcp:/FILESYSTEM'.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -140,7 +166,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `Output only. The state of the instance.
+				Description: `The state of the instance.
 Possible values:
 STATE_UNSPECIFIED
 ACTIVE
@@ -160,7 +186,7 @@ STOPPED`,
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Output only. Timestamp when the instance was last updated.`,
+				Description: `Timestamp when the instance was last updated.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -187,12 +213,6 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("capacity_gib"); !tpgresource.IsEmptyValue(reflect.ValueOf(capacityGibProp)) && (ok || !reflect.DeepEqual(v, capacityGibProp)) {
 		obj["capacityGib"] = capacityGibProp
 	}
-	descriptionProp, err := expandLustreInstanceDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
 	gkeSupportEnabledProp, err := expandLustreInstanceGkeSupportEnabled(d.Get("gke_support_enabled"), d, config)
 	if err != nil {
 		return err
@@ -211,11 +231,23 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
-	labelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	descriptionProp, err := expandLustreInstanceDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	perUnitStorageThroughputProp, err := expandLustreInstancePerUnitStorageThroughput(d.Get("per_unit_storage_throughput"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("per_unit_storage_throughput"); !tpgresource.IsEmptyValue(reflect.ValueOf(perUnitStorageThroughputProp)) && (ok || !reflect.DeepEqual(v, perUnitStorageThroughputProp)) {
+		obj["perUnitStorageThroughput"] = perUnitStorageThroughputProp
+	}
+	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{LustreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{instance_id}}")
@@ -259,29 +291,15 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = LustreOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Instance", userAgent,
+	err = LustreOperationWaitTime(
+		config, res, project, "Creating Instance", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Instance: %s", err)
 	}
-
-	if err := d.Set("name", flattenLustreInstanceName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
 
@@ -330,37 +348,40 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
-	if err := d.Set("state", flattenLustreInstanceState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("mount_point", flattenLustreInstanceMountPoint(res["mountPoint"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("labels", flattenLustreInstanceLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
 	if err := d.Set("capacity_gib", flattenLustreInstanceCapacityGib(res["capacityGib"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("create_time", flattenLustreInstanceCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("update_time", flattenLustreInstanceUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("description", flattenLustreInstanceDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
 	if err := d.Set("gke_support_enabled", flattenLustreInstanceGkeSupportEnabled(res["gkeSupportEnabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
-	if err := d.Set("name", flattenLustreInstanceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("filesystem", flattenLustreInstanceFilesystem(res["filesystem"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("network", flattenLustreInstanceNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("state", flattenLustreInstanceState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("mount_point", flattenLustreInstanceMountPoint(res["mountPoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("create_time", flattenLustreInstanceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("description", flattenLustreInstanceDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("labels", flattenLustreInstanceLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("per_unit_storage_throughput", flattenLustreInstancePerUnitStorageThroughput(res["perUnitStorageThroughput"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("name", flattenLustreInstanceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenLustreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -370,6 +391,28 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("instance_id"); ok && v != "" {
+		err = identity.Set("instance_id", d.Get("instance_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting instance_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -395,23 +438,23 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("capacity_gib"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, capacityGibProp)) {
 		obj["capacityGib"] = capacityGibProp
 	}
-	descriptionProp, err := expandLustreInstanceDescription(d.Get("description"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-		obj["description"] = descriptionProp
-	}
 	gkeSupportEnabledProp, err := expandLustreInstanceGkeSupportEnabled(d.Get("gke_support_enabled"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("gke_support_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gkeSupportEnabledProp)) {
 		obj["gkeSupportEnabled"] = gkeSupportEnabledProp
 	}
-	labelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	descriptionProp, err := expandLustreInstanceDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{LustreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
@@ -427,12 +470,12 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMask = append(updateMask, "capacityGib")
 	}
 
-	if d.HasChange("description") {
-		updateMask = append(updateMask, "description")
-	}
-
 	if d.HasChange("gke_support_enabled") {
 		updateMask = append(updateMask, "gkeSupportEnabled")
+	}
+
+	if d.HasChange("description") {
+		updateMask = append(updateMask, "description")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -557,11 +600,39 @@ func resourceLustreInstanceImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenLustreInstanceCapacityGib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceGkeSupportEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceFilesystem(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenLustreInstanceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 func flattenLustreInstanceMountPoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -580,35 +651,11 @@ func flattenLustreInstanceLabels(v interface{}, d *schema.ResourceData, config *
 	return transformed
 }
 
-func flattenLustreInstanceCapacityGib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceGkeSupportEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenLustreInstancePerUnitStorageThroughput(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 func flattenLustreInstanceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceFilesystem(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenLustreInstanceNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -635,10 +682,6 @@ func expandLustreInstanceCapacityGib(v interface{}, d tpgresource.TerraformResou
 	return v, nil
 }
 
-func expandLustreInstanceDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
 func expandLustreInstanceGkeSupportEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -648,6 +691,14 @@ func expandLustreInstanceFilesystem(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandLustreInstanceNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstancePerUnitStorageThroughput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

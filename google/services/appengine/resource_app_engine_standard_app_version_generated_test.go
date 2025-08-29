@@ -32,9 +32,20 @@ import (
 func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"org_id": envvar.GetTestOrgFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +61,12 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"delete_service_on_destroy", "deployment", "entrypoint", "env_variables", "service", "threadsafe"},
+			},
+			{
+				ResourceName:       "google_app_engine_standard_app_version.myapp_v1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

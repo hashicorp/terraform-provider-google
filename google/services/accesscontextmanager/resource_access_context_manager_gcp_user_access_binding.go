@@ -51,6 +51,17 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"group_key": {
 				Type:        schema.TypeString,
@@ -171,7 +182,7 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 												"restricted_client_application": {
 													Type:        schema.TypeList,
 													Optional:    true,
-													Description: `Optional. The application that is subject to this binding's scope.`,
+													Description: `Optional. The application that is subject to this binding's scope. Only one of clientId or name should be specified.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -179,6 +190,11 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 																Type:        schema.TypeString,
 																Optional:    true,
 																Description: `The OAuth client ID of the application.`,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The name of the application. Example: "Cloud Console"`,
 															},
 														},
 													},
@@ -383,6 +399,16 @@ func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData
 		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -655,9 +681,15 @@ func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeCli
 	transformed := make(map[string]interface{})
 	transformed["client_id"] =
 		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationClientId(original["clientId"], d, config)
+	transformed["name"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationName(original["name"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -903,10 +935,21 @@ func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClie
 		transformed["clientId"] = transformedClientId
 	}
 
+	transformedName, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
 	return transformed, nil
 }
 
 func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationClientId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -74,6 +74,25 @@ func ResourceColabSchedule() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"create_notebook_execution_job_request": {
 				Type:        schema.TypeList,
@@ -348,22 +367,6 @@ func resourceColabScheduleCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
-	// The response for create request contains the generated name generated name that we need
-	// in order to perform a READ. We need to access the object inside of it as
-	// a map[string]interface, so let's do that.
-
-	longName := res["name"].(string)
-	name := tpgresource.GetResourceNameFromSelfLink(longName)
-	log.Printf("[DEBUG] Setting resource name to %s", name)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
-
-	parts := strings.Split(longName, "/")
-	parts[1] = project
-	updatedLongName := strings.Join(parts, "/")
-	d.SetId(updatedLongName)
-
 	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "PAUSED" {
 		_, err := modifyScheduleState(config, d, project, billingProject, userAgent, "pause")
 		if err != nil {
@@ -455,6 +458,28 @@ func resourceColabScheduleRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Schedule: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -703,7 +728,7 @@ func flattenColabScheduleName(v interface{}, d *schema.ResourceData, config *tra
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenColabScheduleDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

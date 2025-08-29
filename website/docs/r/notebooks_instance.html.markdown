@@ -50,8 +50,8 @@ resource "google_notebooks_instance" "instance" {
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 }
 ```
@@ -69,8 +69,8 @@ resource "google_notebooks_instance" "instance" {
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
   desired_state = "STOPPED"
 }
@@ -118,8 +118,8 @@ resource "google_notebooks_instance" "instance" {
     core_count   = 1
   }
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "tf-latest-gpu"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 }
 ```
@@ -133,8 +133,8 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
 
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 
   instance_owners = [ "my@service-account.com"]
@@ -142,7 +142,7 @@ resource "google_notebooks_instance" "instance" {
 
   install_gpu_driver = true
   boot_disk_type = "PD_SSD"
-  boot_disk_size_gb = 110
+  boot_disk_size_gb = 150
 
   no_public_ip = true
   no_proxy_access = true
@@ -197,9 +197,6 @@ The following arguments are supported:
 * `location` -
   (Required)
   A reference to the zone where the machine resides.
-
-
-- - -
 
 
 * `post_startup_script` -
@@ -351,6 +348,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `desired_state` - (Optional) Desired state of the Notebook Instance. Set this field to `ACTIVE` to start the Instance, and `STOPPED` to stop the Instance.
+
 
 
 <a name="nested_accelerator_config"></a>The `accelerator_config` block supports:

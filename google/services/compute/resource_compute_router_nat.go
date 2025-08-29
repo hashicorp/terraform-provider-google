@@ -111,7 +111,7 @@ func computeRouterNatSubnetworkHash(v interface{}) int {
 		}
 	}
 
-	return schema.HashString(tpgresource.NameFromSelfLinkStateFunc(name)) + sourceIpRangesHash + secondaryIpRangeHash
+	return schema.HashString(tpgresource.GetResourceNameFromSelfLink(name.(string))) + sourceIpRangesHash + secondaryIpRangeHash
 }
 
 func computeRouterNatIPsHash(v interface{}) int {
@@ -214,6 +214,29 @@ func ResourceComputeRouterNat() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"router": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
@@ -351,6 +374,14 @@ This field can only be set when enableDynamicPortAllocation is enabled.`,
 				Optional:    true,
 				Description: `Minimum number of ports allocated to a VM from this NAT. Defaults to 64 for static port allocation and 32 dynamic port allocation if not set.`,
 			},
+			"nat64_subnetwork": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Description: `One or more subnetwork NAT configurations whose traffic should be translated by NAT64 Gateway.
+Only used if 'source_subnetwork_ip_ranges_to_nat64' is set to 'LIST_OF_IPV6_SUBNETWORKS'`,
+				Elem: computeRouterNatNat64SubnetworkSchema(),
+				Set:  computeRouterNatSubnetworkHash,
+			},
 			"nat_ip_allocate_option": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -388,6 +419,16 @@ the number of resources can be increased/decreased without triggering the 'resou
 				Description: `A list of rules associated with this NAT.`,
 				Elem:        computeRouterNatRulesSchema(),
 				Set:         computeRouterNatRulesHash,
+			},
+			"source_subnetwork_ip_ranges_to_nat64": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ALL_IPV6_SUBNETWORKS", "LIST_OF_IPV6_SUBNETWORKS", ""}),
+				Description: `Specify the Nat option for NAT64, which can take one of the following values:
+ALL_IPV6_SUBNETWORKS: All of the IP ranges in every Subnetwork are allowed to Nat.
+LIST_OF_IPV6_SUBNETWORKS: A list of Subnetworks are allowed to Nat (specified in the field nat64Subnetwork below).
+Note that if this field contains NAT64_ALL_V6_SUBNETWORKS no other Router.Nat section in this region can also enable NAT64 for any Subnetworks in this network.
+Other Router.Nat sections can still be present to enable NAT44 only. Possible values: ["ALL_IPV6_SUBNETWORKS", "LIST_OF_IPV6_SUBNETWORKS"]`,
 			},
 			"subnetwork": {
 				Type:     schema.TypeSet,
@@ -479,6 +520,19 @@ sourceIpRangesToNat`,
 					Type: schema.TypeString,
 				},
 				Set: schema.HashString,
+			},
+		},
+	}
+}
+
+func computeRouterNatNat64SubnetworkSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `Self-link of the subnetwork resource that will use NAT64`,
 			},
 		},
 	}
@@ -623,11 +677,23 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSubnetworkIpRangesToNatProp)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
 		obj["sourceSubnetworkIpRangesToNat"] = sourceSubnetworkIpRangesToNatProp
 	}
-	subnetworksProp, err := expandNestedComputeRouterNatSubnetwork(d.Get("subnetwork"), d, config)
+	subnetworkProp, err := expandNestedComputeRouterNatSubnetwork(d.Get("subnetwork"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("subnetwork"); ok || !reflect.DeepEqual(v, subnetworksProp) {
-		obj["subnetworks"] = subnetworksProp
+	} else if v, ok := d.GetOkExists("subnetwork"); ok || !reflect.DeepEqual(v, subnetworkProp) {
+		obj["subnetworks"] = subnetworkProp
+	}
+	sourceSubnetworkIpRangesToNat64Prop, err := expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat64(d.Get("source_subnetwork_ip_ranges_to_nat64"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat64"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSubnetworkIpRangesToNat64Prop)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNat64Prop)) {
+		obj["sourceSubnetworkIpRangesToNat64"] = sourceSubnetworkIpRangesToNat64Prop
+	}
+	nat64SubnetworkProp, err := expandNestedComputeRouterNatNat64Subnetwork(d.Get("nat64_subnetwork"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("nat64_subnetwork"); ok || !reflect.DeepEqual(v, nat64SubnetworkProp) {
+		obj["nat64Subnetworks"] = nat64SubnetworkProp
 	}
 	minPortsPerVmProp, err := expandNestedComputeRouterNatMinPortsPerVm(d.Get("min_ports_per_vm"), d, config)
 	if err != nil {
@@ -885,6 +951,12 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("subnetwork", flattenNestedComputeRouterNatSubnetwork(res["subnetworks"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
+	if err := d.Set("source_subnetwork_ip_ranges_to_nat64", flattenNestedComputeRouterNatSourceSubnetworkIpRangesToNat64(res["sourceSubnetworkIpRangesToNat64"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
+	if err := d.Set("nat64_subnetwork", flattenNestedComputeRouterNatNat64Subnetwork(res["nat64Subnetworks"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
 	if err := d.Set("min_ports_per_vm", flattenNestedComputeRouterNatMinPortsPerVm(res["minPortsPerVm"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
@@ -924,10 +996,35 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("type", flattenNestedComputeRouterNatType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("auto_network_tier", flattenNestedComputeRouterNatAutoNetworkTier(res["autoNetworkTier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading RouterNat: %s", err)
-	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("router"); ok && v != "" {
+		err = identity.Set("router", d.Get("router").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting router: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("region"); ok && v != "" {
+		err = identity.Set("region", d.Get("region").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting region: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -971,11 +1068,23 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
 		obj["sourceSubnetworkIpRangesToNat"] = sourceSubnetworkIpRangesToNatProp
 	}
-	subnetworksProp, err := expandNestedComputeRouterNatSubnetwork(d.Get("subnetwork"), d, config)
+	subnetworkProp, err := expandNestedComputeRouterNatSubnetwork(d.Get("subnetwork"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("subnetwork"); ok || !reflect.DeepEqual(v, subnetworksProp) {
-		obj["subnetworks"] = subnetworksProp
+	} else if v, ok := d.GetOkExists("subnetwork"); ok || !reflect.DeepEqual(v, subnetworkProp) {
+		obj["subnetworks"] = subnetworkProp
+	}
+	sourceSubnetworkIpRangesToNat64Prop, err := expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat64(d.Get("source_subnetwork_ip_ranges_to_nat64"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat64"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNat64Prop)) {
+		obj["sourceSubnetworkIpRangesToNat64"] = sourceSubnetworkIpRangesToNat64Prop
+	}
+	nat64SubnetworkProp, err := expandNestedComputeRouterNatNat64Subnetwork(d.Get("nat64_subnetwork"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("nat64_subnetwork"); ok || !reflect.DeepEqual(v, nat64SubnetworkProp) {
+		obj["nat64Subnetworks"] = nat64SubnetworkProp
 	}
 	minPortsPerVmProp, err := expandNestedComputeRouterNatMinPortsPerVm(d.Get("min_ports_per_vm"), d, config)
 	if err != nil {
@@ -1290,6 +1399,35 @@ func flattenNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{},
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
+func flattenNestedComputeRouterNatSourceSubnetworkIpRangesToNat64(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeRouterNatNat64Subnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := schema.NewSet(computeRouterNatSubnetworkHash, []interface{}{})
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed.Add(map[string]interface{}{
+			"name": flattenNestedComputeRouterNatNat64SubnetworkName(original["name"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNestedComputeRouterNatNat64SubnetworkName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
 func flattenNestedComputeRouterNatMinPortsPerVm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -1526,10 +1664,6 @@ func flattenNestedComputeRouterNatType(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
-func flattenNestedComputeRouterNatAutoNetworkTier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func expandNestedComputeRouterNatName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1646,6 +1780,41 @@ func expandNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d 
 func expandNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
+}
+
+func expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat64(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterNatNat64Subnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandNestedComputeRouterNatNat64SubnetworkName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNestedComputeRouterNatNat64SubnetworkName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for name: %s", err)
+	}
+	return f.RelativeLink(), nil
 }
 
 func expandNestedComputeRouterNatMinPortsPerVm(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2016,23 +2185,25 @@ func resourceComputeRouterNatPatchUpdateEncoder(d *schema.ResourceData, meta int
 	// Merge any fields in item that aren't managed by this resource into obj
 	// This is necessary because item might be managed by multiple resources.
 	settableFields := map[string]struct{}{
-		"natIpAllocateOption":              {},
-		"natIps":                           {},
-		"drainNatIps":                      {},
-		"sourceSubnetworkIpRangesToNat":    {},
-		"subnetworks":                      {},
-		"minPortsPerVm":                    {},
-		"maxPortsPerVm":                    {},
-		"enableDynamicPortAllocation":      {},
-		"udpIdleTimeoutSec":                {},
-		"icmpIdleTimeoutSec":               {},
-		"tcpEstablishedIdleTimeoutSec":     {},
-		"tcpTransitoryIdleTimeoutSec":      {},
-		"tcpTimeWaitTimeoutSec":            {},
-		"logConfig":                        {},
-		"rules":                            {},
-		"enableEndpointIndependentMapping": {},
-		"autoNetworkTier":                  {},
+		"natIpAllocateOption":              struct{}{},
+		"natIps":                           struct{}{},
+		"drainNatIps":                      struct{}{},
+		"sourceSubnetworkIpRangesToNat":    struct{}{},
+		"subnetworks":                      struct{}{},
+		"sourceSubnetworkIpRangesToNat64":  struct{}{},
+		"nat64Subnetworks":                 struct{}{},
+		"minPortsPerVm":                    struct{}{},
+		"maxPortsPerVm":                    struct{}{},
+		"enableDynamicPortAllocation":      struct{}{},
+		"udpIdleTimeoutSec":                struct{}{},
+		"icmpIdleTimeoutSec":               struct{}{},
+		"tcpEstablishedIdleTimeoutSec":     struct{}{},
+		"tcpTransitoryIdleTimeoutSec":      struct{}{},
+		"tcpTimeWaitTimeoutSec":            struct{}{},
+		"logConfig":                        struct{}{},
+		"rules":                            struct{}{},
+		"enableEndpointIndependentMapping": struct{}{},
+		"autoNetworkTier":                  struct{}{},
 	}
 	for k, v := range item {
 		if _, ok := settableFields[k]; !ok {

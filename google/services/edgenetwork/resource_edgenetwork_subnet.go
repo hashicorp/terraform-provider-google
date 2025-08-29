@@ -55,6 +55,29 @@ func ResourceEdgenetworkSubnet() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"zone": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"subnet_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -211,11 +234,11 @@ func resourceEdgenetworkSubnetCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("vlan_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(vlanIdProp)) && (ok || !reflect.DeepEqual(v, vlanIdProp)) {
 		obj["vlanId"] = vlanIdProp
 	}
-	labelsProp, err := expandEdgenetworkSubnetEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEdgenetworkSubnetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgenetworkBasePath}}projects/{{project}}/locations/{{location}}/zones/{{zone}}/subnets?subnetId={{subnet_id}}")
@@ -353,6 +376,34 @@ func resourceEdgenetworkSubnetRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Subnet: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("zone"); ok && v != "" {
+		err = identity.Set("zone", d.Get("zone").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting zone: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("subnet_id"); ok && v != "" {
+		err = identity.Set("subnet_id", d.Get("subnet_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting subnet_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

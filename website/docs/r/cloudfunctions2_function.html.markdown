@@ -836,7 +836,7 @@ resource "google_cloudfunctions2_function" "function" {
 
 }
 ```
-## Example Usage - Cloudfunctions2 Abiu
+## Example Usage - Cloudfunctions2 Automatic Base Image Update
 
 
 ```hcl
@@ -913,7 +913,7 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 ```
-## Example Usage - Cloudfunctions2 Abiu On Deploy
+## Example Usage - Cloudfunctions2 On Deploy Base Image Update
 
 
 ```hcl
@@ -1006,9 +1006,6 @@ The following arguments are supported:
   The location of this cloud function.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   User-provided description of a function.
@@ -1044,6 +1041,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_build_config"></a>The `build_config` block supports:

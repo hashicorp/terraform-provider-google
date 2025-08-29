@@ -70,9 +70,6 @@ The following arguments are supported:
   The client id of an OAuth client.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   Human friendly display name.
@@ -94,6 +91,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_response_type"></a>The `response_type` block supports:

@@ -56,6 +56,29 @@ func ResourceFirebaseAppHostingBuild() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"backend": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"build_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"backend": {
 				Type:             schema.TypeString,
@@ -380,17 +403,17 @@ func resourceFirebaseAppHostingBuildCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("source"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceProp)) && (ok || !reflect.DeepEqual(v, sourceProp)) {
 		obj["source"] = sourceProp
 	}
-	annotationsProp, err := expandFirebaseAppHostingBuildEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandFirebaseAppHostingBuildEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
-	labelsProp, err := expandFirebaseAppHostingBuildEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandFirebaseAppHostingBuildEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{FirebaseAppHostingBasePath}}projects/{{project}}/locations/{{location}}/backends/{{backend}}/builds?buildId={{build_id}}")
@@ -434,29 +457,15 @@ func resourceFirebaseAppHostingBuildCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = FirebaseAppHostingOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Build", userAgent,
+	err = FirebaseAppHostingOperationWaitTime(
+		config, res, project, "Creating Build", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Build: %s", err)
 	}
-
-	if err := d.Set("name", flattenFirebaseAppHostingBuildName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backends/{{backend}}/builds/{{build_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Build %q: %#v", d.Id(), res)
 
@@ -560,6 +569,34 @@ func resourceFirebaseAppHostingBuildRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading Build: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("backend"); ok && v != "" {
+		err = identity.Set("backend", d.Get("backend").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting backend: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("build_id"); ok && v != "" {
+		err = identity.Set("build_id", d.Get("build_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting build_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

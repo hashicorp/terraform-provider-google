@@ -155,9 +155,6 @@ The following arguments are supported:
   Secret Manager regional secret resource.
 
 
-- - -
-
-
 * `enabled` -
   (Optional)
   The current state of the regional secret version.
@@ -170,6 +167,7 @@ disabled rather than deleted. Default is `DELETE`. Possible values are:
   * ABANDON
 
 * `is_secret_data_base64` - (Optional) If set to 'true', the secret data is expected to be base64-encoded string and would be sent as is.
+
 
 ## Attributes Reference
 

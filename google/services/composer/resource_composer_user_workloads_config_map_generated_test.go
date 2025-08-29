@@ -33,8 +33,18 @@ import (
 func TestAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -51,12 +61,31 @@ func TestAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"environment", "region"},
 			},
+			{
+				ResourceName:       "google_composer_user_workloads_config_map.config_map",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
 
 func testAccComposerUserWorkloadsConfigMap_composerUserWorkloadsConfigMapBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "tf-test-test-sa%{random_suffix}"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "environment" {
   name   = "tf-test-test-environment%{random_suffix}"
   region = "us-central1"
@@ -64,7 +93,11 @@ resource "google_composer_environment" "environment" {
     software_config {
       image_version = "composer-3-airflow-2"
     }
+    node_config {
+      service_account = google_service_account.test.name
+    }
   }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_composer_user_workloads_config_map" "config_map" {

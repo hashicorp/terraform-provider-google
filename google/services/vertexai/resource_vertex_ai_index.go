@@ -56,6 +56,25 @@ func ResourceVertexAIIndex() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:        schema.TypeString,
@@ -86,10 +105,12 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"metadata": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `An additional information about the Index`,
-				MaxItems:    1,
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Additional information about the Index.
+Although this field is not marked as required in the API specification, it is currently required when creating an Index and must be provided.
+Attempts to create an Index without this field will result in an API error.`,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"config": {
@@ -336,11 +357,11 @@ func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("index_update_method"); !tpgresource.IsEmptyValue(reflect.ValueOf(indexUpdateMethodProp)) && (ok || !reflect.DeepEqual(v, indexUpdateMethodProp)) {
 		obj["indexUpdateMethod"] = indexUpdateMethodProp
 	}
-	labelsProp, err := expandVertexAIIndexEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandVertexAIIndexEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes")
@@ -495,6 +516,28 @@ func resourceVertexAIIndexRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("region"); ok && v != "" {
+		err = identity.Set("region", d.Get("region").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting region: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -726,7 +769,7 @@ func flattenVertexAIIndexName(v interface{}, d *schema.ResourceData, config *tra
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenVertexAIIndexDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

@@ -34,10 +34,21 @@ import (
 func TestAccOSConfigV2PolicyOrchestratorForFolder_osconfigv2PolicyOrchestratorForFolderBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"zone":          envvar.GetTestZoneFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"org_id": envvar.GetTestOrgFromEnv(t),
+		"zone":   envvar.GetTestZoneFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -56,6 +67,12 @@ func TestAccOSConfigV2PolicyOrchestratorForFolder_osconfigv2PolicyOrchestratorFo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"folder_id", "labels", "policy_orchestrator_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_os_config_v2_policy_orchestrator_for_folder.policy_orchestrator_for_folder",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

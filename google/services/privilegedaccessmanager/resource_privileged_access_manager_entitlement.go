@@ -75,6 +75,25 @@ func ResourcePrivilegedAccessManagerEntitlement() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"entitlement_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"parent": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"eligible_users": {
 				Type:        schema.TypeList,
@@ -431,29 +450,15 @@ func resourcePrivilegedAccessManagerEntitlementCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = PrivilegedAccessManagerOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating Entitlement", userAgent,
+	err = PrivilegedAccessManagerOperationWaitTime(
+		config, res, "Creating Entitlement", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Entitlement: %s", err)
 	}
-
-	if err := d.Set("name", flattenPrivilegedAccessManagerEntitlementName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{parent}}/locations/{{location}}/entitlements/{{entitlement_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Entitlement %q: %#v", d.Id(), res)
 
@@ -526,6 +531,28 @@ func resourcePrivilegedAccessManagerEntitlementRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading Entitlement: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("entitlement_id"); ok && v != "" {
+		err = identity.Set("entitlement_id", d.Get("entitlement_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting entitlement_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("parent"); ok && v != "" {
+		err = identity.Set("parent", d.Get("parent").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting parent: %s", err)
+		}
+	}
 	return nil
 }
 

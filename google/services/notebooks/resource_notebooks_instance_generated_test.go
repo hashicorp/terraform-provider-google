@@ -34,8 +34,18 @@ import (
 func TestAccNotebooksInstance_notebookInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,7 +60,13 @@ func TestAccNotebooksInstance_notebookInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
+			},
+			{
+				ResourceName:       "google_notebooks_instance.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -63,18 +79,29 @@ resource "google_notebooks_instance" "instance" {
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 }
 `, context)
 }
 
 func TestAccNotebooksInstance_notebookInstanceBasicStoppedExample(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/17593#issuecomment-2888583933")
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -89,7 +116,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicStoppedExample(t *testing.T) 
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "desired_state", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "desired_state", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
 			},
 		},
 	})
@@ -102,8 +129,8 @@ resource "google_notebooks_instance" "instance" {
   location = "us-west1-a"
   machine_type = "e2-medium"
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
   desired_state = "STOPPED"
 }
@@ -113,8 +140,18 @@ resource "google_notebooks_instance" "instance" {
 func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -129,7 +166,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
 			},
 		},
 	})
@@ -156,8 +193,18 @@ resource "google_notebooks_instance" "instance" {
 func TestAccNotebooksInstance_notebookInstanceBasicGpuExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -172,7 +219,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicGpuExample(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
 			},
 		},
 	})
@@ -191,8 +238,8 @@ resource "google_notebooks_instance" "instance" {
     core_count   = 1
   }
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "tf-latest-gpu"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 }
 `, context)
@@ -201,10 +248,22 @@ resource "google_notebooks_instance" "instance" {
 func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"key_name":        acctest.BootstrapKMSKeyInLocation(t, "global").CryptoKey.Name,
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"key_name": acctest.BootstrapKMSKeyInLocation(t, "global").CryptoKey.Name,
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -219,7 +278,7 @@ func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "vm_image"},
+				ImportStateVerifyIgnore: []string{"boot_disk_size_gb", "boot_disk_type", "container_image", "data_disk_size_gb", "data_disk_type", "instance_owners", "labels", "location", "metadata", "name", "no_remove_data_disk", "terraform_labels", "update_time", "vm_image"},
 			},
 		},
 	})
@@ -233,8 +292,8 @@ resource "google_notebooks_instance" "instance" {
   machine_type = "e2-medium"
 
   vm_image {
-    project      = "deeplearning-platform-release"
-    image_family = "tf-latest-cpu"
+    project      = "cloud-notebooks-managed"
+    image_family = "workbench-instances"
   }
 
   instance_owners = [ "%{service_account}"]
@@ -242,7 +301,7 @@ resource "google_notebooks_instance" "instance" {
 
   install_gpu_driver = true
   boot_disk_type = "PD_SSD"
-  boot_disk_size_gb = 110
+  boot_disk_size_gb = 150
 
   no_public_ip = true
   no_proxy_access = true

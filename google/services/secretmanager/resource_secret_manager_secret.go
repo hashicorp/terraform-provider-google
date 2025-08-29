@@ -89,20 +89,17 @@ func ResourceSecretManagerSecret() *schema.Resource {
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
+					"secret_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
 					"project": {
 						Type:              schema.TypeString,
 						OptionalForImport: true,
-						Description:       `The project that the secret belongs to.`,
-					},
-					"secret_id": {
-						Type:              schema.TypeString,
-						OptionalForImport: true,
-						Description:       `The secret ID that the secret belongs to.`,
 					},
 				}
 			},
 		},
-
 		Schema: map[string]*schema.Schema{
 			"replication": {
 				Type:     schema.TypeList,
@@ -277,7 +274,7 @@ If rotationPeriod is set, 'next_rotation_time' must be set. 'next_rotation_time'
 				ForceNew: true,
 				Description: `A map of resource manager tags.
 Resource manager tag keys and values have the same definition as resource manager tags.
-Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_key_value}.`,
+Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"topics": {
@@ -355,6 +352,14 @@ the actual destruction happens after this TTL expires.`,
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the secret. Defaults to false.
+When the field is set to true in Terraform state, a 'terraform apply'
+or 'terraform destroy' that would delete the secret will fail.`,
+				Default: false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -422,17 +427,17 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(tagsProp)) && (ok || !reflect.DeepEqual(v, tagsProp)) {
 		obj["tags"] = tagsProp
 	}
-	labelsProp, err := expandSecretManagerSecretEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandSecretManagerSecretEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandSecretManagerSecretEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandSecretManagerSecretEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets?secretId={{secret_id}}")
@@ -519,6 +524,12 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecretManagerSecret %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_protection"); !ok {
+		if err := d.Set("deletion_protection", false); err != nil {
+			return fmt.Errorf("Error setting deletion_protection: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Secret: %s", err)
 	}
@@ -567,15 +578,18 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("Error getting identity: %s", err)
 	}
-	err = identity.Set("project", project)
-	if err != nil {
-		return fmt.Errorf("Error setting project: %s", err)
+	if v, ok := identity.GetOk("secret_id"); ok && v != "" {
+		err = identity.Set("secret_id", d.Get("secret_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting secret_id: %s", err)
+		}
 	}
-	err = identity.Set("secret_id", d.Get("secret_id").(string))
-	if err != nil {
-		return fmt.Errorf("Error setting secret_id: %s", err)
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
 	}
-
 	return nil
 }
 
@@ -631,17 +645,17 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("rotation"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rotationProp)) {
 		obj["rotation"] = rotationProp
 	}
-	labelsProp, err := expandSecretManagerSecretEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandSecretManagerSecretEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandSecretManagerSecretEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandSecretManagerSecretEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret_id}}")
@@ -771,6 +785,9 @@ func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy secret manager secret without setting deletion_protection=false and running `terraform apply`")
+	}
 
 	log.Printf("[DEBUG] Deleting Secret %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -807,6 +824,11 @@ func resourceSecretManagerSecretImport(d *schema.ResourceData, meta interface{})
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_protection", false); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

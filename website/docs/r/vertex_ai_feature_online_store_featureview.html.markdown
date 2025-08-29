@@ -373,13 +373,7 @@ resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
     foo = "bar"
   }
   region = "us-central1"
-  bigtable {
-    auto_scaling {
-      min_node_count         = 1
-      max_node_count         = 2
-      cpu_utilization_target = 80
-    }
-  }
+  optimized {}
   embedding_management {
     enabled = true
   }
@@ -445,6 +439,7 @@ resource "google_bigquery_table" "tf-test-table" {
 ]
 EOF
 }
+
 resource "google_vertex_ai_feature_online_store_featureview" "featureview_vector_search" {
   provider             = google-beta
   name                 = "example_feature_view_vector_search"
@@ -489,9 +484,6 @@ The following arguments are supported:
   The region for the resource. It should be the same as the featureonlinestore region.
 
 
-- - -
-
-
 * `name` -
   (Optional)
   Name of the FeatureView. This value may be up to 60 characters, and valid characters are [a-z0-9_]. The first character cannot be a number.
@@ -525,6 +517,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_sync_config"></a>The `sync_config` block supports:

@@ -56,6 +56,25 @@ func ResourceNetworkManagementVpcFlowLogsConfig() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"vpc_flow_logs_config_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:     schema.TypeString,
@@ -76,7 +95,7 @@ for resource type 'networkmanagement.googleapis.com/VpcFlowLogsConfig'.`,
 				Computed: true,
 				Optional: true,
 				Description: `Optional. The aggregation interval for the logs. Default value is
-INTERVAL_5_SEC.   Possible values:  AGGREGATION_INTERVAL_UNSPECIFIED INTERVAL_5_SEC INTERVAL_30_SEC INTERVAL_1_MIN INTERVAL_5_MIN INTERVAL_10_MIN INTERVAL_15_MIN"`,
+INTERVAL_5_SEC.   Possible values:  AGGREGATION_INTERVAL_UNSPECIFIED INTERVAL_5_SEC INTERVAL_30_SEC INTERVAL_1_MIN INTERVAL_5_MIN INTERVAL_10_MIN INTERVAL_15_MIN`,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -135,7 +154,8 @@ logs. Can only be specified if \"metadata\" was set to CUSTOM_METADATA.`,
 				Computed: true,
 				Optional: true,
 				Description: `Optional. The state of the VPC Flow Log configuration. Default value
-is ENABLED. When creating a new configuration, it must be enabled.   Possible`,
+is ENABLED. When creating a new configuration, it must be enabled.
+Possible values: STATE_UNSPECIFIED ENABLED DISABLED`,
 			},
 			"vpn_tunnel": {
 				Type:        schema.TypeString,
@@ -157,6 +177,16 @@ is ENABLED. When creating a new configuration, it must be enabled.   Possible`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Identifier. Unique name of the configuration using the form:     'projects/{project_id}/locations/global/vpcFlowLogsConfigs/{vpc_flow_logs_config_id}'`,
+			},
+			"target_resource_state": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Describes the state of the configured target resource for diagnostic
+purposes.
+Possible values:
+TARGET_RESOURCE_STATE_UNSPECIFIED
+TARGET_RESOURCE_EXISTS
+TARGET_RESOURCE_DOES_NOT_EXIST`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -243,11 +273,11 @@ func resourceNetworkManagementVpcFlowLogsConfigCreate(d *schema.ResourceData, me
 	} else if v, ok := d.GetOkExists("vpn_tunnel"); !tpgresource.IsEmptyValue(reflect.ValueOf(vpnTunnelProp)) && (ok || !reflect.DeepEqual(v, vpnTunnelProp)) {
 		obj["vpnTunnel"] = vpnTunnelProp
 	}
-	labelsProp, err := expandNetworkManagementVpcFlowLogsConfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkManagementVpcFlowLogsConfigEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/{{location}}/vpcFlowLogsConfigs?vpcFlowLogsConfigId={{vpc_flow_logs_config_id}}")
@@ -291,29 +321,15 @@ func resourceNetworkManagementVpcFlowLogsConfigCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = NetworkManagementOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating VpcFlowLogsConfig", userAgent,
+	err = NetworkManagementOperationWaitTime(
+		config, res, project, "Creating VpcFlowLogsConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create VpcFlowLogsConfig: %s", err)
 	}
-
-	if err := d.Set("name", flattenNetworkManagementVpcFlowLogsConfigName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating VpcFlowLogsConfig %q: %#v", d.Id(), res)
 
@@ -401,6 +417,9 @@ func resourceNetworkManagementVpcFlowLogsConfigRead(d *schema.ResourceData, meta
 	if err := d.Set("update_time", flattenNetworkManagementVpcFlowLogsConfigUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpcFlowLogsConfig: %s", err)
 	}
+	if err := d.Set("target_resource_state", flattenNetworkManagementVpcFlowLogsConfigTargetResourceState(res["targetResourceState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpcFlowLogsConfig: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetworkManagementVpcFlowLogsConfigTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpcFlowLogsConfig: %s", err)
 	}
@@ -408,6 +427,28 @@ func resourceNetworkManagementVpcFlowLogsConfigRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading VpcFlowLogsConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("vpc_flow_logs_config_id"); ok && v != "" {
+		err = identity.Set("vpc_flow_logs_config_id", d.Get("vpc_flow_logs_config_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting vpc_flow_logs_config_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -481,11 +522,11 @@ func resourceNetworkManagementVpcFlowLogsConfigUpdate(d *schema.ResourceData, me
 	} else if v, ok := d.GetOkExists("vpn_tunnel"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, vpnTunnelProp)) {
 		obj["vpnTunnel"] = vpnTunnelProp
 	}
-	labelsProp, err := expandNetworkManagementVpcFlowLogsConfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkManagementVpcFlowLogsConfigEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/{{location}}/vpcFlowLogsConfigs/{{vpc_flow_logs_config_id}}")
@@ -715,6 +756,10 @@ func flattenNetworkManagementVpcFlowLogsConfigCreateTime(v interface{}, d *schem
 }
 
 func flattenNetworkManagementVpcFlowLogsConfigUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkManagementVpcFlowLogsConfigTargetResourceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

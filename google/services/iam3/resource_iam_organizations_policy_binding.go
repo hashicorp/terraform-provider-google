@@ -55,6 +55,25 @@ func ResourceIAM3OrganizationsPolicyBinding() *schema.Resource {
 			tpgresource.SetAnnotationsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"organization": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"policy_binding_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -256,11 +275,11 @@ func resourceIAM3OrganizationsPolicyBindingCreate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("condition"); !tpgresource.IsEmptyValue(reflect.ValueOf(conditionProp)) && (ok || !reflect.DeepEqual(v, conditionProp)) {
 		obj["condition"] = conditionProp
 	}
-	annotationsProp, err := expandIAM3OrganizationsPolicyBindingEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandIAM3OrganizationsPolicyBindingEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAM3BasePath}}organizations/{{organization}}/locations/{{location}}/policyBindings?policyBindingId={{policy_binding_id}}")
@@ -298,29 +317,15 @@ func resourceIAM3OrganizationsPolicyBindingCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = IAM3OperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating OrganizationsPolicyBinding", userAgent,
+	err = IAM3OperationWaitTime(
+		config, res, project, "Creating OrganizationsPolicyBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create OrganizationsPolicyBinding: %s", err)
 	}
-
-	if err := d.Set("name", flattenIAM3OrganizationsPolicyBindingName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "organizations/{{organization}}/locations/{{location}}/policyBindings/{{policy_binding_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating OrganizationsPolicyBinding %q: %#v", d.Id(), res)
 
@@ -399,6 +404,28 @@ func resourceIAM3OrganizationsPolicyBindingRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading OrganizationsPolicyBinding: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("organization"); ok && v != "" {
+		err = identity.Set("organization", d.Get("organization").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting organization: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("policy_binding_id"); ok && v != "" {
+		err = identity.Set("policy_binding_id", d.Get("policy_binding_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting policy_binding_id: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -431,11 +458,11 @@ func resourceIAM3OrganizationsPolicyBindingUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("condition"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, conditionProp)) {
 		obj["condition"] = conditionProp
 	}
-	annotationsProp, err := expandIAM3OrganizationsPolicyBindingEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandIAM3OrganizationsPolicyBindingEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAM3BasePath}}organizations/{{organization}}/locations/{{location}}/policyBindings/{{policy_binding_id}}")

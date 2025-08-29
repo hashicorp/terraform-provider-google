@@ -50,6 +50,17 @@ func ResourceAccessContextManagerAccessPolicy() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"parent": {
 				Type:     schema.TypeString,
@@ -66,6 +77,7 @@ Format: 'organizations/{{organization_id}}'`,
 			"scopes": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				Description: `Folder or project on which this policy is applicable.
 Format: 'folders/{{folder_id}}' or 'projects/{{project_number}}'`,
 				MaxItems: 1,
@@ -242,6 +254,16 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading AccessPolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -260,12 +282,6 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("title"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, titleProp)) {
 		obj["title"] = titleProp
-	}
-	scopesProp, err := expandAccessContextManagerAccessPolicyScopes(d.Get("scopes"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("scopes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopesProp)) {
-		obj["scopes"] = scopesProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "accessPolicies/{{name}}")
@@ -286,10 +302,6 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("title") {
 		updateMask = append(updateMask, "title")
-	}
-
-	if d.HasChange("scopes") {
-		updateMask = append(updateMask, "scopes")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -413,7 +425,7 @@ func flattenAccessContextManagerAccessPolicyName(v interface{}, d *schema.Resour
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenAccessContextManagerAccessPolicyCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

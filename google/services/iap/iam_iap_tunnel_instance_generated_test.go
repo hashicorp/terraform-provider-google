@@ -314,7 +314,7 @@ func TestAccIapTunnelInstanceIamPolicyGenerated_withCondition(t *testing.T) {
 			{
 				Config: testAccIapTunnelInstanceIamPolicy_withConditionGenerated(context),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// TODO(SarahFrench) - uncomment once https://github.com/GoogleCloudPlatform/magic-modules/pull/6466 merged
+					// TODO - uncomment once https://github.com/GoogleCloudPlatform/magic-modules/pull/6466 merged
 					// resource.TestCheckResourceAttr("data.google_iam_policy.foo", "policy_data", expectedPolicyData),
 					resource.TestCheckResourceAttr("google_iap_tunnel_instance_iam_policy.foo", "policy_data", expectedPolicyData),
 					resource.TestCheckResourceAttrWith("data.google_iam_policy.foo", "policy_data", tpgresource.CheckGoogleIamPolicy),
@@ -334,7 +334,7 @@ func testAccIapTunnelInstanceIamMember_basicGenerated(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -362,7 +362,7 @@ func testAccIapTunnelInstanceIamPolicy_basicGenerated(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -405,7 +405,7 @@ func testAccIapTunnelInstanceIamPolicy_emptyBinding(context map[string]interface
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -435,7 +435,7 @@ func testAccIapTunnelInstanceIamBinding_basicGenerated(context map[string]interf
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -463,7 +463,7 @@ func testAccIapTunnelInstanceIamBinding_updateGenerated(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -491,7 +491,7 @@ func testAccIapTunnelInstanceIamBinding_withConditionGenerated(context map[strin
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -524,7 +524,7 @@ func testAccIapTunnelInstanceIamBinding_withAndWithoutConditionGenerated(context
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -579,7 +579,7 @@ func testAccIapTunnelInstanceIamMember_withConditionGenerated(context map[string
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -612,7 +612,7 @@ func testAccIapTunnelInstanceIamMember_withAndWithoutConditionGenerated(context 
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -667,7 +667,7 @@ func testAccIapTunnelInstanceIamPolicy_withConditionGenerated(context map[string
 	return acctest.Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
   name         = "tf-test-tunnel-vm%{random_suffix}"
-  zone         = ""
+  zone         = "us-central1-a"
   machine_type = "e2-medium"
 
   boot_disk {

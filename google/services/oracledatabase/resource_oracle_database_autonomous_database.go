@@ -55,6 +55,25 @@ func ResourceOracleDatabaseAutonomousDatabase() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"autonomous_database_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"autonomous_database_id": {
 				Type:     schema.TypeString,
@@ -64,12 +83,6 @@ func ResourceOracleDatabaseAutonomousDatabase() *schema.Resource {
 to (^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$) and must be a maximum of 63
 characters in length. The value must start with a letter and end with
 a letter or a number.`,
-			},
-			"cidr": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The subnet CIDR range for the Autonmous Database.`,
 			},
 			"database": {
 				Type:     schema.TypeString,
@@ -84,13 +97,6 @@ contain a maximum of 30 alphanumeric characters.`,
 				Required:    true,
 				ForceNew:    true,
 				Description: `Resource ID segment making up resource 'name'. See documentation for resource type 'oracledatabase.googleapis.com/AutonomousDatabaseBackup'.`,
-			},
-			"network": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The name of the VPC network used by the Autonomous Database.
-Format: projects/{project}/global/networks/{network}`,
 			},
 			"properties": {
 				Type:        schema.TypeList,
@@ -884,6 +890,12 @@ gigabytes.`,
 				ForceNew:    true,
 				Description: `The password for the default ADMIN user.`,
 			},
+			"cidr": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The subnet CIDR range for the Autonmous Database.`,
+			},
 			"display_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -900,6 +912,31 @@ be unique within your project.`,
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"network": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the VPC network used by the Autonomous Database.
+Format: projects/{project}/global/networks/{network}`,
+			},
+			"odb_network": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the OdbNetwork associated with the Autonomous Database.
+Format:
+projects/{project}/locations/{location}/odbNetworks/{odb_network}
+It is optional but if specified, this should match the parent ODBNetwork of
+the odb_subnet and backup_odb_subnet.`,
+			},
+			"odb_subnet": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the OdbSubnet associated with the Autonomous Database for
+IP allocation. Format:
+projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -993,11 +1030,23 @@ func resourceOracleDatabaseAutonomousDatabaseCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("cidr"); !tpgresource.IsEmptyValue(reflect.ValueOf(cidrProp)) && (ok || !reflect.DeepEqual(v, cidrProp)) {
 		obj["cidr"] = cidrProp
 	}
-	labelsProp, err := expandOracleDatabaseAutonomousDatabaseEffectiveLabels(d.Get("effective_labels"), d, config)
+	odbNetworkProp, err := expandOracleDatabaseAutonomousDatabaseOdbNetwork(d.Get("odb_network"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("odb_network"); !tpgresource.IsEmptyValue(reflect.ValueOf(odbNetworkProp)) && (ok || !reflect.DeepEqual(v, odbNetworkProp)) {
+		obj["odbNetwork"] = odbNetworkProp
+	}
+	odbSubnetProp, err := expandOracleDatabaseAutonomousDatabaseOdbSubnet(d.Get("odb_subnet"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("odb_subnet"); !tpgresource.IsEmptyValue(reflect.ValueOf(odbSubnetProp)) && (ok || !reflect.DeepEqual(v, odbSubnetProp)) {
+		obj["odbSubnet"] = odbSubnetProp
+	}
+	effectiveLabelsProp, err := expandOracleDatabaseAutonomousDatabaseEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/autonomousDatabases?autonomousDatabaseId={{autonomous_database_id}}")
@@ -1041,29 +1090,15 @@ func resourceOracleDatabaseAutonomousDatabaseCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = OracleDatabaseOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating AutonomousDatabase", userAgent,
+	err = OracleDatabaseOperationWaitTime(
+		config, res, project, "Creating AutonomousDatabase", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create AutonomousDatabase: %s", err)
 	}
-
-	if err := d.Set("name", flattenOracleDatabaseAutonomousDatabaseName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/autonomousDatabases/{{autonomous_database_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating AutonomousDatabase %q: %#v", d.Id(), res)
 
@@ -1142,6 +1177,12 @@ func resourceOracleDatabaseAutonomousDatabaseRead(d *schema.ResourceData, meta i
 	if err := d.Set("cidr", flattenOracleDatabaseAutonomousDatabaseCidr(res["cidr"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutonomousDatabase: %s", err)
 	}
+	if err := d.Set("odb_network", flattenOracleDatabaseAutonomousDatabaseOdbNetwork(res["odbNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutonomousDatabase: %s", err)
+	}
+	if err := d.Set("odb_subnet", flattenOracleDatabaseAutonomousDatabaseOdbSubnet(res["odbSubnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutonomousDatabase: %s", err)
+	}
 	if err := d.Set("create_time", flattenOracleDatabaseAutonomousDatabaseCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutonomousDatabase: %s", err)
 	}
@@ -1152,6 +1193,28 @@ func resourceOracleDatabaseAutonomousDatabaseRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading AutonomousDatabase: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("autonomous_database_id"); ok && v != "" {
+		err = identity.Set("autonomous_database_id", d.Get("autonomous_database_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting autonomous_database_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -2155,6 +2218,14 @@ func flattenOracleDatabaseAutonomousDatabaseNetwork(v interface{}, d *schema.Res
 }
 
 func flattenOracleDatabaseAutonomousDatabaseCidr(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseAutonomousDatabaseOdbNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseAutonomousDatabaseOdbSubnet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3388,6 +3459,14 @@ func expandOracleDatabaseAutonomousDatabaseNetwork(v interface{}, d tpgresource.
 }
 
 func expandOracleDatabaseAutonomousDatabaseCidr(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseAutonomousDatabaseOdbNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseAutonomousDatabaseOdbSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

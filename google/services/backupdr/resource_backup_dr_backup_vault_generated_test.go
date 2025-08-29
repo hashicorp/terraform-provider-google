@@ -34,9 +34,20 @@ import (
 func TestAccBackupDRBackupVault_backupDrBackupVaultFullExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -51,7 +62,13 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultFullExample(t *testing.T) {
 				ResourceName:            "google_backup_dr_backup_vault.backup-vault-test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_retention_inheritance", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_backup_dr_backup_vault.backup-vault-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -74,6 +91,7 @@ resource "google_backup_dr_backup_vault" "backup-vault-test" {
   }
   force_update = "true"
   access_restriction = "WITHIN_ORGANIZATION"
+  backup_retention_inheritance = "INHERIT_VAULT_RETENTION"
   ignore_inactive_datasources = "true"
   ignore_backup_plan_references = "true"
   allow_missing = "true"

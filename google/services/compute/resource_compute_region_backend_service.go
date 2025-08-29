@@ -150,6 +150,25 @@ func ResourceComputeRegionBackendService() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -341,7 +360,7 @@ responses will not be altered.`,
 				Optional: true,
 				Description: `Settings controlling the volume of connections to a backend service. This field
 is applicable only when the 'load_balancing_scheme' is set to INTERNAL_MANAGED
-and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
+and the 'protocol' is set to HTTP, HTTPS, HTTP2 or H2C.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -408,7 +427,7 @@ destination service. This field specifies parameters that control consistent
 hashing.
 This field only applies when all of the following are true -
   * 'load_balancing_scheme' is set to INTERNAL_MANAGED
-  * 'protocol' is set to HTTP, HTTPS, or HTTP2
+  * 'protocol' is set to HTTP, HTTPS, HTTP2 or H2C
   * 'locality_lb_policy' is set to MAGLEV or RING_HASH`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -570,6 +589,78 @@ This field is only used with l4 load balancing.`,
 					},
 				},
 			},
+			"ha_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Configures self-managed High Availability (HA) for External and Internal Protocol Forwarding.
+The backends of this regional backend service must only specify zonal network endpoint groups
+(NEGs) of type GCE_VM_IP. Note that haPolicy is not for load balancing, and therefore cannot
+be specified with sessionAffinity, connectionTrackingPolicy, and failoverPolicy. haPolicy
+requires customers to be responsible for tracking backend endpoint health and electing a
+leader among the healthy endpoints. Therefore, haPolicy cannot be specified with healthChecks.
+haPolicy can only be specified for External Passthrough Network Load Balancers and Internal
+Passthrough Network Load Balancers.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"fast_ip_move": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "GARP_RA", ""}),
+							Description: `Specifies whether fast IP move is enabled, and if so, the mechanism to achieve it.
+Supported values are:
+
+* 'DISABLED': Fast IP Move is disabled. You can only use the haPolicy.leader API to
+              update the leader.
+
+* 'GARP_RA': Provides a method to very quickly define a new network endpoint as the
+             leader. This method is faster than updating the leader using the
+             haPolicy.leader API. Fast IP move works as follows: The VM hosting the
+             network endpoint that should become the new leader sends either a
+             Gratuitous ARP (GARP) packet (IPv4) or an ICMPv6 Router Advertisement(RA)
+             packet (IPv6). Google Cloud immediately but temporarily associates the
+             forwarding rule IP address with that VM, and both new and in-flight packets
+             are quickly delivered to that VM. Possible values: ["DISABLED", "GARP_RA"]`,
+						},
+						"leader": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Selects one of the network endpoints attached to the backend NEGs of this service as the
+active endpoint (the leader) that receives all traffic.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"backend_group": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+										Description: `A fully-qualified URL of the zonal Network Endpoint Group (NEG) that the leader is
+attached to.`,
+									},
+									"network_endpoint": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The network endpoint within the leader.backendGroup that is designated as the leader.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"instance": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The name of the VM instance of the leader network endpoint. The instance must
+already be attached to the NEG specified in the haPolicy.leader.backendGroup.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{"session_affinity", "failover_policy", "health_checks"},
+			},
 			"health_checks": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -691,7 +782,7 @@ The possible values are:
 
 locality_lb_policy is applicable to either:
 
-* A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
+* A regional backend service with the service_protocol set to HTTP, HTTPS, HTTP2 or H2C,
   and loadBalancingScheme set to INTERNAL_MANAGED.
 * A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
 * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
@@ -764,7 +855,7 @@ This field can only be specified when the load balancing scheme is set to INTERN
 				Optional: true,
 				Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
 This field is applicable only when the 'load_balancing_scheme' is set
-to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
+to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, HTTP2 or H2C.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -915,10 +1006,11 @@ Must be omitted when the loadBalancingScheme is INTERNAL (Internal TCP/UDP Load 
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", "UNSPECIFIED", ""}),
-				Description: `The protocol this RegionBackendService uses to communicate with backends.
-The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", "UNSPECIFIED"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "UDP", "GRPC", "UNSPECIFIED", "H2C", ""}),
+				Description: `The protocol this BackendService uses to communicate with backends.
+The default is HTTP. Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP
+or GRPC. Refer to the documentation for the load balancers or for Traffic Director
+for more information. Possible values: ["HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "UDP", "GRPC", "UNSPECIFIED", "H2C"]`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -1212,11 +1304,11 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("affinity_cookie_ttl_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(affinityCookieTtlSecProp)) && (ok || !reflect.DeepEqual(v, affinityCookieTtlSecProp)) {
 		obj["affinityCookieTtlSec"] = affinityCookieTtlSecProp
 	}
-	backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
+	backendProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("backend"); !tpgresource.IsEmptyValue(reflect.ValueOf(backendsProp)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
-		obj["backends"] = backendsProp
+	} else if v, ok := d.GetOkExists("backend"); !tpgresource.IsEmptyValue(reflect.ValueOf(backendProp)) && (ok || !reflect.DeepEqual(v, backendProp)) {
+		obj["backends"] = backendProp
 	}
 	circuitBreakersProp, err := expandComputeRegionBackendServiceCircuitBreakers(d.Get("circuit_breakers"), d, config)
 	if err != nil {
@@ -1355,6 +1447,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
+	}
+	haPolicyProp, err := expandComputeRegionBackendServiceHaPolicy(d.Get("ha_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ha_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(haPolicyProp)) && (ok || !reflect.DeepEqual(v, haPolicyProp)) {
+		obj["haPolicy"] = haPolicyProp
 	}
 	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -1571,13 +1669,37 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("network", flattenComputeRegionBackendServiceNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("ha_policy", flattenComputeRegionBackendServiceHaPolicy(res["haPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("region", flattenComputeRegionBackendServiceRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
-
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("region"); ok && v != "" {
+		err = identity.Set("region", d.Get("region").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting region: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -1603,11 +1725,11 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("affinity_cookie_ttl_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, affinityCookieTtlSecProp)) {
 		obj["affinityCookieTtlSec"] = affinityCookieTtlSecProp
 	}
-	backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
+	backendProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("backend"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
-		obj["backends"] = backendsProp
+	} else if v, ok := d.GetOkExists("backend"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backendProp)) {
+		obj["backends"] = backendProp
 	}
 	circuitBreakersProp, err := expandComputeRegionBackendServiceCircuitBreakers(d.Get("circuit_breakers"), d, config)
 	if err != nil {
@@ -1746,6 +1868,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
+	}
+	haPolicyProp, err := expandComputeRegionBackendServiceHaPolicy(d.Get("ha_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ha_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, haPolicyProp)) {
+		obj["haPolicy"] = haPolicyProp
 	}
 	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -3093,11 +3221,69 @@ func flattenComputeRegionBackendServiceNetwork(v interface{}, d *schema.Resource
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeRegionBackendServiceHaPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["fast_ip_move"] =
+		flattenComputeRegionBackendServiceHaPolicyFastIPMove(original["fastIPMove"], d, config)
+	transformed["leader"] =
+		flattenComputeRegionBackendServiceHaPolicyLeader(original["leader"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceHaPolicyFastIPMove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceHaPolicyLeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["backend_group"] =
+		flattenComputeRegionBackendServiceHaPolicyLeaderBackendGroup(original["backendGroup"], d, config)
+	transformed["network_endpoint"] =
+		flattenComputeRegionBackendServiceHaPolicyLeaderNetworkEndpoint(original["networkEndpoint"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceHaPolicyLeaderBackendGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeRegionBackendServiceHaPolicyLeaderNetworkEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["instance"] =
+		flattenComputeRegionBackendServiceHaPolicyLeaderNetworkEndpointInstance(original["instance"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceHaPolicyLeaderNetworkEndpointInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandComputeRegionBackendServiceAffinityCookieTtlSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4232,6 +4418,89 @@ func expandComputeRegionBackendServiceNetwork(v interface{}, d tpgresource.Terra
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeRegionBackendServiceHaPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFastIPMove, err := expandComputeRegionBackendServiceHaPolicyFastIPMove(original["fast_ip_move"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFastIPMove); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fastIPMove"] = transformedFastIPMove
+	}
+
+	transformedLeader, err := expandComputeRegionBackendServiceHaPolicyLeader(original["leader"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["leader"] = transformedLeader
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyFastIPMove(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyLeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBackendGroup, err := expandComputeRegionBackendServiceHaPolicyLeaderBackendGroup(original["backend_group"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBackendGroup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["backendGroup"] = transformedBackendGroup
+	}
+
+	transformedNetworkEndpoint, err := expandComputeRegionBackendServiceHaPolicyLeaderNetworkEndpoint(original["network_endpoint"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkEndpoint); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkEndpoint"] = transformedNetworkEndpoint
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyLeaderBackendGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyLeaderNetworkEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInstance, err := expandComputeRegionBackendServiceHaPolicyLeaderNetworkEndpointInstance(original["instance"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInstance); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["instance"] = transformedInstance
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceHaPolicyLeaderNetworkEndpointInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionBackendServiceRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

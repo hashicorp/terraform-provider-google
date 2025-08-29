@@ -55,6 +55,17 @@ func ResourceCoreBillingProjectInfo() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"billing_account": {
 				Type:     schema.TypeString,
@@ -82,11 +93,11 @@ func resourceCoreBillingProjectInfoCreate(d *schema.ResourceData, meta interface
 	}
 
 	obj := make(map[string]interface{})
-	billing_accountProp, err := expandCoreBillingProjectInfoBillingAccount(d.Get("billing_account"), d, config)
+	billingAccountProp, err := expandCoreBillingProjectInfoBillingAccount(d.Get("billing_account"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("billing_account"); !tpgresource.IsEmptyValue(reflect.ValueOf(billing_accountProp)) && (ok || !reflect.DeepEqual(v, billing_accountProp)) {
-		obj["billing_account"] = billing_accountProp
+	} else if v, ok := d.GetOkExists("billing_account"); !tpgresource.IsEmptyValue(reflect.ValueOf(billingAccountProp)) && (ok || !reflect.DeepEqual(v, billingAccountProp)) {
+		obj["billing_account"] = billingAccountProp
 	}
 
 	obj, err = resourceCoreBillingProjectInfoEncoder(d, meta, obj)
@@ -198,6 +209,16 @@ func resourceCoreBillingProjectInfoRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading ProjectInfo: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -217,11 +238,11 @@ func resourceCoreBillingProjectInfoUpdate(d *schema.ResourceData, meta interface
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	billing_accountProp, err := expandCoreBillingProjectInfoBillingAccount(d.Get("billing_account"), d, config)
+	billingAccountProp, err := expandCoreBillingProjectInfoBillingAccount(d.Get("billing_account"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("billing_account"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, billing_accountProp)) {
-		obj["billing_account"] = billing_accountProp
+	} else if v, ok := d.GetOkExists("billing_account"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, billingAccountProp)) {
+		obj["billing_account"] = billingAccountProp
 	}
 
 	obj, err = resourceCoreBillingProjectInfoEncoder(d, meta, obj)

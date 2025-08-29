@@ -14,6 +14,7 @@ import projects.reused.mmUpstream
 import projects.reused.nightlyTests
 import replaceCharsId
 import vcs_roots.HashiCorpVCSRootGa
+import vcs_roots.ModularMagicianVCSRootGa
 
 // googleSubProjectGa returns a subproject that is used for testing terraform-provider-google (GA)
 fun googleSubProjectGa(allConfig: AllContextParameters): Project {
@@ -30,7 +31,10 @@ fun googleSubProjectGa(allConfig: AllContextParameters): Project {
         description = "Subproject containing builds for testing the GA version of the Google provider"
 
         // Nightly Test project that uses hashicorp/terraform-provider-google
-        subProject(nightlyTests(gaId, ProviderNameGa, HashiCorpVCSRootGa, gaConfig, NightlyTriggerConfiguration(nightlyTestsEnabled = false)))
+        subProject(nightlyTests(gaId, ProviderNameGa, HashiCorpVCSRootGa, gaConfig, NightlyTriggerConfiguration(daysOfWeek="1-3,5-7"))) // All nights except Wednesday (4) for GA; feature branch testing happens on Wednesday and TeamCity numbers days Sun=1...Sat=7
+
+        // MM Upstream project that uses modular-magician/terraform-provider-google
+        subProject(mmUpstream(gaId, ProviderNameGa, ModularMagicianVCSRootGa, HashiCorpVCSRootGa, vcrConfig, NightlyTriggerConfiguration()))
 
         params {
             readOnlySettings()

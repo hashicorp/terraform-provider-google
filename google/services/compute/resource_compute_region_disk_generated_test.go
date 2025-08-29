@@ -33,8 +33,18 @@ import (
 func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +60,12 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "terraform_labels", "type"},
+			},
+			{
+				ResourceName:       "google_compute_region_disk.regiondisk",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -86,8 +102,18 @@ resource "google_compute_snapshot" "snapdisk" {
 func TestAccComputeRegionDisk_regionDiskAsyncExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -137,8 +163,18 @@ resource "google_compute_region_disk" "secondary" {
 func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -182,6 +218,53 @@ resource "google_compute_region_disk" "regiondisk" {
   licenses = ["https://www.googleapis.com/compute/v1/projects/windows-cloud/global/licenses/windows-server-core"]
 
   replica_zones = ["us-central1-a", "us-central1-f"]
+}
+`, context)
+}
+
+func TestAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_disk.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "terraform_labels", "type"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_disk" "primary" {
+  name                      = "tf-test-my-region-hyperdisk%{random_suffix}"
+  type                      = "hyperdisk-balanced-high-availability"
+  region                    = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+  access_mode = "READ_WRITE_MANY"
 }
 `, context)
 }

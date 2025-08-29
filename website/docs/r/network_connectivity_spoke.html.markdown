@@ -550,9 +550,6 @@ The following arguments are supported:
   The location for the resource
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   Optional labels in key:value format. For more information about labels, see [Requirements for labels](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements).
@@ -594,6 +591,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_linked_vpn_tunnels"></a>The `linked_vpn_tunnels` block supports:
@@ -707,6 +705,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   Output only. The current lifecycle state of this spoke.
 
+* `reasons` -
+  The reasons for the current state in the lifecycle
+  Structure is [documented below](#nested_reasons).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -714,6 +716,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_reasons"></a>The `reasons` block contains:
+
+* `code` -
+  (Optional)
+  The code associated with this reason.
+
+* `message` -
+  (Optional)
+  Human-readable details about this reason.
+
+* `user_details` -
+  (Optional)
+  Additional information provided by the user in the RejectSpoke call.
 
 ## Timeouts
 

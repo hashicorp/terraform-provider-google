@@ -29,9 +29,20 @@ import (
 func TestAccChronicleRuleDeployment_chronicleRuledeploymentBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -46,6 +57,12 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentBasicExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "location", "rule"},
+			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -76,9 +93,20 @@ resource "google_chronicle_rule_deployment" "example" {
 func TestAccChronicleRuleDeployment_chronicleRuledeploymentDisabledExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -121,9 +149,20 @@ resource "google_chronicle_rule_deployment" "example" {
 func TestAccChronicleRuleDeployment_chronicleRuledeploymentRunFrequencyMissingExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"chronicle_id": envvar.GetTestChronicleInstanceIdFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

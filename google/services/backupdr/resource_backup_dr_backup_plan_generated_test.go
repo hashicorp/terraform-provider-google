@@ -33,8 +33,18 @@ import (
 func TestAccBackupDRBackupPlan_backupDrBackupPlanSimpleExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +60,12 @@ func TestAccBackupDRBackupPlan_backupDrBackupPlanSimpleExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_plan_id", "location"},
+			},
+			{
+				ResourceName:       "google_backup_dr_backup_plan.my-backup-plan-1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -84,6 +100,75 @@ resource "google_backup_dr_backup_plan" "my-backup-plan-1" {
       }
     }
   }
+}
+`, context)
+}
+
+func TestAccBackupDRBackupPlan_backupDrBackupPlanForCsqlResourceExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBackupDRBackupPlanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBackupDRBackupPlan_backupDrBackupPlanForCsqlResourceExample(context),
+			},
+			{
+				ResourceName:            "google_backup_dr_backup_plan.my-csql-backup-plan-1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backup_plan_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccBackupDRBackupPlan_backupDrBackupPlanForCsqlResourceExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_backup_dr_backup_vault" "my_backup_vault" {
+  location                                      = "us-central1"
+  backup_vault_id                               = "tf-test-backup-vault-csql-test%{random_suffix}"
+  backup_minimum_enforced_retention_duration    = "100000s"
+}
+
+resource "google_backup_dr_backup_plan" "my-csql-backup-plan-1" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-backup-plan-csql-test%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 5
+
+    standard_schedule {
+      recurrence_type     = "HOURLY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 6
+      }
+    }
+  }
+  log_retention_days = 4
 }
 `, context)
 }

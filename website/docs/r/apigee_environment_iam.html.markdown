@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Apigee Environment
+
 Three different resources help you manage your IAM policy for Apigee Environment. Each of these resources serves a different use case:
 
 * `google_apigee_environment_iam_policy`: Authoritative. Sets the IAM policy for the environment and replaces any existing policy already attached.
@@ -84,6 +85,9 @@ resource "google_apigee_environment_iam_member" "member" {
 
 The following arguments are supported:
 
+* `org_id` - (Required) The Apigee Organization associated with the Apigee environment,
+in the format `organizations/{{org_name}}`.
+ Used to find the parent resource to bind the IAM policy to
 * `env_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.

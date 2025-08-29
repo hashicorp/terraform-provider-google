@@ -55,6 +55,25 @@ func ResourceAppEngineStandardAppVersion() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"version_id": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"service": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"deployment": {
 				Type:        schema.TypeList,
@@ -490,11 +509,11 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	}
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineStandardAppVersionVersionId(d.Get("version_id"), d, config)
+	versionIdProp, err := expandAppEngineStandardAppVersionVersionId(d.Get("version_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("version_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("version_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionIdProp)) && (ok || !reflect.DeepEqual(v, versionIdProp)) {
+		obj["id"] = versionIdProp
 	}
 	runtimeProp, err := expandAppEngineStandardAppVersionRuntime(d.Get("runtime"), d, config)
 	if err != nil {
@@ -754,6 +773,28 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("version_id"); ok && v != "" {
+		err = identity.Set("version_id", d.Get("version_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting version_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("service"); ok && v != "" {
+		err = identity.Set("service", d.Get("service").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting service: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -773,11 +814,11 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineStandardAppVersionVersionId(d.Get("version_id"), d, config)
+	versionIdProp, err := expandAppEngineStandardAppVersionVersionId(d.Get("version_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("version_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, idProp)) {
-		obj["id"] = idProp
+	} else if v, ok := d.GetOkExists("version_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionIdProp)) {
+		obj["id"] = versionIdProp
 	}
 	runtimeProp, err := expandAppEngineStandardAppVersionRuntime(d.Get("runtime"), d, config)
 	if err != nil {

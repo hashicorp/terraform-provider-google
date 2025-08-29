@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -33,8 +34,18 @@ import (
 func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -46,9 +57,16 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				ResourceName:       "google_compute_backend_bucket.image_backend",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -73,8 +91,18 @@ resource "google_storage_bucket" "image_bucket" {
 func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -86,9 +114,10 @@ func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend_full",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend_full",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -124,8 +153,18 @@ resource "google_storage_bucket" "image_backend_full" {
 func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -137,9 +176,10 @@ func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T
 				Config: testAccComputeBackendBucket_backendBucketSecurityPolicyExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -171,8 +211,18 @@ resource "google_compute_security_policy" "policy" {
 func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -184,9 +234,10 @@ func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *tes
 				Config: testAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -216,8 +267,18 @@ resource "google_storage_bucket" "image_bucket" {
 func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -229,9 +290,10 @@ func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testi
 				Config: testAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -261,8 +323,18 @@ resource "google_storage_bucket" "image_bucket" {
 func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -274,9 +346,10 @@ func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testin
 				Config: testAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -391,8 +464,18 @@ resource "google_compute_backend_bucket" "default" {
 func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -404,9 +487,10 @@ func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketBypassCacheExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -436,8 +520,18 @@ resource "google_storage_bucket" "image_bucket" {
 func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -449,9 +543,10 @@ func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketCoalescingExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -472,6 +567,81 @@ resource "google_compute_backend_bucket" "image_backend" {
 resource "google_storage_bucket" "image_bucket" {
   name     = "tf-test-image-store-bucket%{random_suffix}"
   location = "EU"
+}
+`, context)
+}
+
+func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_backendBucketGlobalIlbExample(context),
+			},
+			{
+				ResourceName:            "google_compute_backend_bucket.global-ilb-backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
+			},
+		},
+	})
+}
+
+func testAccComputeBackendBucket_backendBucketGlobalIlbExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "unarmored" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "project" {
+  project = google_project.unarmored.number
+  service = "compute.googleapis.com"
+  disable_on_destroy = true
+}
+
+resource "google_compute_backend_bucket" "global-ilb-backend" {
+  name                  = "tf-test-global-ilb-backend-bucket%{random_suffix}"
+  project               = google_project.unarmored.name
+  bucket_name           = google_storage_bucket.global-ilb-backend.name
+  load_balancing_scheme = "INTERNAL_MANAGED"
+
+  depends_on = [google_project_service.project]
+}
+
+resource "google_storage_bucket" "global-ilb-backend" {
+  name                        = "tf-test-global-ilb-bucket%{random_suffix}"
+  project                     = google_project.unarmored.number
+  location                    = "US-CENTRAL1"
+  force_destroy               = true
+  uniform_bucket_level_access = true
+
+  depends_on = [google_project_service.project]
 }
 `, context)
 }

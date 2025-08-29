@@ -80,9 +80,6 @@ The following arguments are supported:
   ID of the AppGateway.
 
 
-- - -
-
-
 * `region` -
   (Optional)
   The region of the AppGateway.
@@ -112,6 +109,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference
@@ -153,9 +151,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `create` - Default is 40 minutes.
+- `update` - Default is 40 minutes.
+- `delete` - Default is 40 minutes.
 
 ## Import
 

@@ -109,17 +109,6 @@ The following arguments are supported:
   Whether the measurement is an integer, a floating-point number, etc. Some combinations of metricKind and valueType might not be supported.
   Possible values are: `BOOL`, `INT64`, `DOUBLE`, `STRING`, `DISTRIBUTION`.
 
-* `description` -
-  (Required)
-  A detailed description of the metric, which can be used in documentation.
-
-* `display_name` -
-  (Required)
-  A concise name for the metric, which can be displayed in user interfaces. Use sentence case without an ending period, for example "Request count".
-
-
-- - -
-
 
 * `labels` -
   (Optional)
@@ -146,6 +135,14 @@ The following arguments are supported:
   More info can be found in the API documentation
   (https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors).
 
+* `description` -
+  (Optional)
+  A detailed description of the metric, which can be used in documentation.
+
+* `display_name` -
+  (Optional)
+  A concise name for the metric, which can be displayed in user interfaces. Use sentence case without an ending period, for example "Request count".
+
 * `metadata` -
   (Optional)
   Metadata which can be used to guide usage of the metric.
@@ -158,6 +155,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_labels"></a>The `labels` block supports:

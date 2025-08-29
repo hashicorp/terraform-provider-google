@@ -61,6 +61,25 @@ func ResourceComputeRegionDisk() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -85,6 +104,17 @@ character, which cannot be a dash.`,
 					Type:             schema.TypeString,
 					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				},
+			},
+			"access_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `The access mode of the disk.
+For example:
+  * READ_WRITE_SINGLE: The default AccessMode, means the disk can be attached to single instance in RW mode.
+  * READ_WRITE_MANY: The AccessMode means the disk can be attached to multiple instances in RW mode.
+  * READ_ONLY_SINGLE: The AccessMode means the disk can be attached to multiple instances in RO mode.
+The AccessMode is only valid for Hyperdisk disk types.`,
 			},
 			"async_primary_disk": {
 				Type:             schema.TypeList,
@@ -203,6 +233,21 @@ in a request, a default value is used. Currently supported sizes
 are 4096 and 16384, other sizes may be added in the future.
 If an unsupported value is requested, the error message will list
 the supported values for the caller's project.`,
+			},
+			"provisioned_iops": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second
+that the disk can handle. Values must be between 10,000 and 120,000.
+For more details, see the Extreme persistent disk [documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).`,
+			},
+			"provisioned_throughput": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				Description: `Indicates how much throughput to provision for the disk. This sets the number of throughput
+mb per second that the disk can handle. Values must be greater than or equal to 1.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -434,11 +479,11 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	sizeGbProp, err := expandComputeRegionDiskSize(d.Get("size"), d, config)
+	sizeProp, err := expandComputeRegionDiskSize(d.Get("size"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("size"); !tpgresource.IsEmptyValue(reflect.ValueOf(sizeGbProp)) && (ok || !reflect.DeepEqual(v, sizeGbProp)) {
-		obj["sizeGb"] = sizeGbProp
+	} else if v, ok := d.GetOkExists("size"); !tpgresource.IsEmptyValue(reflect.ValueOf(sizeProp)) && (ok || !reflect.DeepEqual(v, sizeProp)) {
+		obj["sizeGb"] = sizeProp
 	}
 	physicalBlockSizeBytesProp, err := expandComputeRegionDiskPhysicalBlockSizeBytes(d.Get("physical_block_size_bytes"), d, config)
 	if err != nil {
@@ -482,11 +527,29 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("licenses"); !tpgresource.IsEmptyValue(reflect.ValueOf(licensesProp)) && (ok || !reflect.DeepEqual(v, licensesProp)) {
 		obj["licenses"] = licensesProp
 	}
-	labelsProp, err := expandComputeRegionDiskEffectiveLabels(d.Get("effective_labels"), d, config)
+	accessModeProp, err := expandComputeRegionDiskAccessMode(d.Get("access_mode"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessModeProp)) && (ok || !reflect.DeepEqual(v, accessModeProp)) {
+		obj["accessMode"] = accessModeProp
+	}
+	provisionedIopsProp, err := expandComputeRegionDiskProvisionedIops(d.Get("provisioned_iops"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("provisioned_iops"); !tpgresource.IsEmptyValue(reflect.ValueOf(provisionedIopsProp)) && (ok || !reflect.DeepEqual(v, provisionedIopsProp)) {
+		obj["provisionedIops"] = provisionedIopsProp
+	}
+	provisionedThroughputProp, err := expandComputeRegionDiskProvisionedThroughput(d.Get("provisioned_throughput"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("provisioned_throughput"); !tpgresource.IsEmptyValue(reflect.ValueOf(provisionedThroughputProp)) && (ok || !reflect.DeepEqual(v, provisionedThroughputProp)) {
+		obj["provisionedThroughput"] = provisionedThroughputProp
+	}
+	effectiveLabelsProp, err := expandComputeRegionDiskEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	regionProp, err := expandComputeRegionDiskRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -494,11 +557,11 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("region"); !tpgresource.IsEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
 		obj["region"] = regionProp
 	}
-	sourceSnapshotProp, err := expandComputeRegionDiskSnapshot(d.Get("snapshot"), d, config)
+	snapshotProp, err := expandComputeRegionDiskSnapshot(d.Get("snapshot"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSnapshotProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
-		obj["sourceSnapshot"] = sourceSnapshotProp
+	} else if v, ok := d.GetOkExists("snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(snapshotProp)) && (ok || !reflect.DeepEqual(v, snapshotProp)) {
+		obj["sourceSnapshot"] = snapshotProp
 	}
 
 	obj, err = resourceComputeRegionDiskEncoder(d, meta, obj)
@@ -685,6 +748,15 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("licenses", flattenComputeRegionDiskLicenses(res["licenses"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
+	if err := d.Set("access_mode", flattenComputeRegionDiskAccessMode(res["accessMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
+	if err := d.Set("provisioned_iops", flattenComputeRegionDiskProvisionedIops(res["provisionedIops"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
+	if err := d.Set("provisioned_throughput", flattenComputeRegionDiskProvisionedThroughput(res["provisionedThroughput"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionDisk: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenComputeRegionDiskTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
@@ -700,7 +772,28 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
-
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("region"); ok && v != "" {
+		err = identity.Set("region", d.Get("region").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting region: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -735,6 +828,11 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 			obj["labels"] = labelsProp
+		}
+
+		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
 		}
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}/setLabels")
@@ -782,6 +880,11 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			obj["sizeGb"] = sizeGbProp
 		}
 
+		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}/resize")
 		if err != nil {
 			return err
@@ -797,6 +900,156 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating RegionDisk %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating RegionDisk", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("access_mode") {
+		obj := make(map[string]interface{})
+
+		accessModeProp, err := expandComputeRegionDiskAccessMode(d.Get("access_mode"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessModeProp)) {
+			obj["accessMode"] = accessModeProp
+		}
+
+		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}?paths=accessMode")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating RegionDisk %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating RegionDisk", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("provisioned_iops") {
+		obj := make(map[string]interface{})
+
+		provisionedIopsProp, err := expandComputeRegionDiskProvisionedIops(d.Get("provisioned_iops"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("provisioned_iops"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, provisionedIopsProp)) {
+			obj["provisionedIops"] = provisionedIopsProp
+		}
+
+		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}?paths=provisionedIops")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating RegionDisk %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating RegionDisk", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("provisioned_throughput") {
+		obj := make(map[string]interface{})
+
+		provisionedThroughputProp, err := expandComputeRegionDiskProvisionedThroughput(d.Get("provisioned_throughput"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("provisioned_throughput"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, provisionedThroughputProp)) {
+			obj["provisionedThroughput"] = provisionedThroughputProp
+		}
+
+		obj, err = resourceComputeRegionDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}?paths=provisionedThroughput")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
 			Project:   billingProject,
 			RawURL:    url,
 			UserAgent: userAgent,
@@ -1209,7 +1462,7 @@ func flattenComputeRegionDiskType(v interface{}, d *schema.ResourceData, config 
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenComputeRegionDiskSourceDisk(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1270,6 +1523,44 @@ func flattenComputeRegionDiskLicenses(v interface{}, d *schema.ResourceData, con
 	return tpgresource.ConvertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)
 }
 
+func flattenComputeRegionDiskAccessMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionDiskProvisionedIops(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionDiskProvisionedThroughput(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeRegionDiskTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1293,7 +1584,7 @@ func flattenComputeRegionDiskRegion(v interface{}, d *schema.ResourceData, confi
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenComputeRegionDiskSnapshot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1507,6 +1798,18 @@ func expandComputeRegionDiskLicenses(v interface{}, d tpgresource.TerraformResou
 	return req, nil
 }
 
+func expandComputeRegionDiskAccessMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskProvisionedIops(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionDiskProvisionedThroughput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionDiskEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1572,6 +1875,17 @@ func resourceComputeRegionDiskEncoder(d *schema.ResourceData, meta interface{}, 
 		log.Printf("[DEBUG] Image name resolved to: %s", imageUrl)
 	}
 
+	return obj, nil
+}
+
+func resourceComputeRegionDiskUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+
+	if (d.HasChange("provisioned_iops") && strings.Contains(d.Get("type").(string), "hyperdisk")) || (d.HasChange("provisioned_throughput") && strings.Contains(d.Get("type").(string), "hyperdisk")) || (d.HasChange("access_mode") && strings.Contains(d.Get("type").(string), "hyperdisk")) {
+		nameProp := d.Get("name")
+		if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+			obj["name"] = nameProp
+		}
+	}
 	return obj, nil
 }
 

@@ -31,13 +31,46 @@ import (
 
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/googleapi"
 )
+
+func setEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) error {
+	name := d.Get("name").(string)
+	if name == "" {
+		return nil
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}")
+	if err != nil {
+		return err
+	}
+	if v == true {
+		url = fmt.Sprintf("%s:enable", url)
+	} else {
+		url = fmt.Sprintf("%s:disable", url)
+	}
+
+	parts := strings.Split(name, "/")
+	project := parts[1]
+
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	return err
+}
 
 func ResourceSecretManagerSecretVersion() *schema.Resource {
 	return &schema.Resource{
@@ -56,10 +89,21 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		ValidateRawResourceConfigFuncs: []schema.ValidateRawResourceConfigFunc{
-			validation.PreferWriteOnlyAttribute(cty.GetAttrPath("secret_data"), cty.GetAttrPath("secret_data_wo")),
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"version": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
 		},
-
 		Schema: map[string]*schema.Schema{
 			"secret_data_wo_version": {
 				Type:        schema.TypeInt,
@@ -150,11 +194,11 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	}
 
 	obj := make(map[string]interface{})
-	stateProp, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
+	enabledProp, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(stateProp)) && (ok || !reflect.DeepEqual(v, stateProp)) {
-		obj["state"] = stateProp
+	} else if v, ok := d.GetOkExists("enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(enabledProp)) && (ok || !reflect.DeepEqual(v, enabledProp)) {
+		obj["state"] = enabledProp
 	}
 	payloadProp, err := expandSecretManagerSecretVersionPayload(nil, d, config)
 	if err != nil {
@@ -214,7 +258,7 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(name.(string))
 
-	_, err = expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
+	err = setEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
 	}
@@ -312,12 +356,28 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		}
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("version"); ok && v != "" {
+		err = identity.Set("version", d.Get("version").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting version: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
 func resourceSecretManagerSecretVersionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	_, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
+	err := setEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
 	}
@@ -492,42 +552,7 @@ func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceD
 	return []interface{}{transformed}
 }
 
-func expandSecretManagerSecretVersionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	name := d.Get("name").(string)
-	if name == "" {
-		return "", nil
-	}
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}")
-	if err != nil {
-		return nil, err
-	}
-
-	if v == true {
-		url = fmt.Sprintf("%s:enable", url)
-	} else {
-		url = fmt.Sprintf("%s:disable", url)
-	}
-
-	parts := strings.Split(name, "/")
-	project := parts[1]
-
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   project,
-		RawURL:    url,
-		UserAgent: userAgent,
-	})
-	if err != nil {
-		return nil, err
-	}
-
+func expandSecretManagerSecretVersionEnabled(_ interface{}, _ tpgresource.TerraformResourceData, _ *transport_tpg.Config) (interface{}, error) {
 	return nil, nil
 }
 

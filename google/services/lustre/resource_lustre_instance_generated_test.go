@@ -33,9 +33,20 @@ import (
 func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "default-vpc"),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"network_name": acctest.BootstrapSharedServiceNetworkingConnection(t, "default-vpc"),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -52,6 +63,12 @@ func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_lustre_instance.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -59,13 +76,14 @@ func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 func testAccLustreInstance_lustreInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
-  instance_id  = "tf-test-my-instance%{random_suffix}"
-  location     = "us-central1-a"
-  description  = "test lustre instance"
-  filesystem   = "testfs"
-  capacity_gib = 18000
-  network      = data.google_compute_network.lustre-network.id
-  labels       = {
+  instance_id                 = "tf-test-my-instance%{random_suffix}"
+  location                    = "us-central1-a"
+  description                 = "test lustre instance"
+  filesystem                  = "testfs"
+  capacity_gib                = 18000
+  network                     = data.google_compute_network.lustre-network.id
+  per_unit_storage_throughput = 1000
+  labels                      = {
     test = "value"
   }
   timeouts {

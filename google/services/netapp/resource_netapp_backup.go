@@ -56,6 +56,29 @@ func ResourceNetappBackup() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"vault_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -105,6 +128,11 @@ Format: 'projects/{{projectId}}/locations/{{location}}/volumes/{{volumename}}/sn
 				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 				Description:      `ID of volumes this backup belongs to. Format: 'projects/{{projects_id}}/locations/{{location}}/volumes/{{name}}''`,
 			},
+			"backup_region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Region in which backup is stored.`,
+			},
 			"backup_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -138,6 +166,11 @@ Total size of all backups in a chain in bytes = baseline backup size + sum(incre
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"volume_region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Region of the volume from which the backup was created.`,
 			},
 			"volume_usage_bytes": {
 				Type:        schema.TypeString,
@@ -181,11 +214,11 @@ func resourceNetappBackupCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("source_snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSnapshotProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
 		obj["sourceSnapshot"] = sourceSnapshotProp
 	}
-	labelsProp, err := expandNetappBackupEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetappBackupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{vault_name}}/backups?backupId={{name}}")
@@ -313,6 +346,12 @@ func resourceNetappBackupRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("source_snapshot", flattenNetappBackupSourceSnapshot(res["sourceSnapshot"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
+	if err := d.Set("volume_region", flattenNetappBackupVolumeRegion(res["volumeRegion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err := d.Set("backup_region", flattenNetappBackupBackupRegion(res["backupRegion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappBackupTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
@@ -320,6 +359,34 @@ func resourceNetappBackupRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("vault_name"); ok && v != "" {
+		err = identity.Set("vault_name", d.Get("vault_name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting vault_name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -351,11 +418,11 @@ func resourceNetappBackupUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("source_snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
 		obj["sourceSnapshot"] = sourceSnapshotProp
 	}
-	labelsProp, err := expandNetappBackupEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetappBackupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{vault_name}}/backups/{{name}}")
@@ -541,6 +608,14 @@ func flattenNetappBackupChainStorageBytes(v interface{}, d *schema.ResourceData,
 }
 
 func flattenNetappBackupSourceSnapshot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupVolumeRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappBackupBackupRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

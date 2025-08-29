@@ -91,7 +91,7 @@ resource "google_project_iam_member" "permissions" {
 resource "google_bigquery_data_transfer_config" "query_config_cmek" {
   depends_on = [google_project_iam_member.permissions]
 
-  display_name           = ""
+  display_name           = "display-name"
   location               = "asia-northeast1"
   data_source_id         = "scheduled_query"
   schedule               = "first sunday of quarter 00:00"
@@ -174,9 +174,6 @@ The following arguments are supported:
   **NOTE** : If you are attempting to update a parameter that cannot be updated (due to api limitations) [please force recreation of the resource](https://www.terraform.io/cli/state/taint#forcing-re-creation-of-resources).
 
 
-- - -
-
-
 * `destination_dataset_id` -
   (Optional)
   The BigQuery target dataset id.
@@ -249,6 +246,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_schedule_options"></a>The `schedule_options` block supports:

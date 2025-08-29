@@ -17,7 +17,9 @@ fields:
   - field: 'name'
     provider_only: true
   - field: 'network'
+  - field: 'psc_config.allowed_google_producers_resource_hierarchy_level'
   - field: 'psc_config.limit'
+  - field: 'psc_config.producer_instance_location'
   - field: 'psc_config.subnetworks'
   - field: 'psc_connections.consumer_address'
   - field: 'psc_connections.consumer_forwarding_rule'

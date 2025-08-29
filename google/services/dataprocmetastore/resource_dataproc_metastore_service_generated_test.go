@@ -33,8 +33,18 @@ import (
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -49,7 +59,13 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(t *tes
 				ResourceName:            "google_dataproc_metastore_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -82,9 +98,20 @@ resource "google_dataproc_metastore_service" "default" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -99,7 +126,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionE
 				ResourceName:            "google_dataproc_metastore_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -134,8 +161,20 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"kms_key_name": acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-metastore-service-key1").CryptoKey.Name,
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -150,7 +189,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *
 				ResourceName:            "google_dataproc_metastore_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -168,7 +207,7 @@ resource "google_dataproc_metastore_service" "default" {
   location   = "us-central1"
 
   encryption_config {
-    kms_key = "tf-test-acctest.BootstrapKMSKeyWithPurposeInLocationAn%{random_suffix}"
+    kms_key = "%{kms_key_name}"
   }
 
   hive_metastore_config {
@@ -182,14 +221,14 @@ resource "google_dataproc_metastore_service" "default" {
 }
 
 resource "google_kms_crypto_key_iam_member" "crypto_key_member_1" {
-  crypto_key_id = "tf-test-acctest.BootstrapKMSKeyWithPurposeInLocationAn%{random_suffix}"
+  crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-metastore.iam.gserviceaccount.com"
 }
 
 resource "google_kms_crypto_key_iam_member" "crypto_key_member_2" {
-  crypto_key_id = "tf-test-acctest.BootstrapKMSKeyWithPurposeInLocationAn%{random_suffix}"
+  crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   member = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
@@ -200,8 +239,18 @@ resource "google_kms_crypto_key_iam_member" "crypto_key_member_2" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -216,7 +265,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(t *
 				ResourceName:            "google_dataproc_metastore_service.endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -240,8 +289,18 @@ resource "google_dataproc_metastore_service" "endpoint" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAuxExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -256,7 +315,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAuxExample(t *testi
 				ResourceName:            "google_dataproc_metastore_service.aux",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -283,8 +342,18 @@ resource "google_dataproc_metastore_service" "aux" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceMetadataExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -299,7 +368,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceMetadataExample(t *
 				ResourceName:            "google_dataproc_metastore_service.metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -328,8 +397,18 @@ resource "google_dataproc_metastore_service" "metadata" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -344,7 +423,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t 
 				ResourceName:            "google_dataproc_metastore_service.telemetry",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -372,8 +451,18 @@ resource "google_dataproc_metastore_service" "telemetry" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -388,7 +477,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(t *tes
 				ResourceName:            "google_dataproc_metastore_service.dpms2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -418,8 +507,18 @@ resource "google_dataproc_metastore_service" "dpms2" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -434,7 +533,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorE
 				ResourceName:            "google_dataproc_metastore_service.dpms2_scaling_factor",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -464,8 +563,18 @@ resource "google_dataproc_metastore_service" "dpms2_scaling_factor" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorLt1Example(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -480,7 +589,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorL
 				ResourceName:            "google_dataproc_metastore_service.dpms2_scaling_factor_lt1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -510,8 +619,18 @@ resource "google_dataproc_metastore_service" "dpms2_scaling_factor_lt1" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -526,7 +645,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExam
 				ResourceName:            "google_dataproc_metastore_service.backup",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -571,8 +690,18 @@ resource "google_storage_bucket" "bucket" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScalingFactorExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -587,7 +716,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMaxScali
 				ResourceName:            "google_dataproc_metastore_service.test_resource",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -622,8 +751,18 @@ resource "google_dataproc_metastore_service" "test_resource" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMaxScalingFactorExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -638,7 +777,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinAndMa
 				ResourceName:            "google_dataproc_metastore_service.test_resource",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -674,8 +813,18 @@ resource "google_dataproc_metastore_service" "test_resource" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScalingFactorExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -690,7 +839,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingMinScali
 				ResourceName:            "google_dataproc_metastore_service.test_resource",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})
@@ -725,8 +874,18 @@ resource "google_dataproc_metastore_service" "test_resource" {
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingNoLimitConfigExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -741,7 +900,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceAutoscalingNoLimitC
 				ResourceName:            "google_dataproc_metastore_service.test_resource",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
 		},
 	})

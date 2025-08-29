@@ -56,6 +56,29 @@ func ResourceComputeRouterRoutePolicy() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"router": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -77,6 +100,36 @@ func ResourceComputeRouterRoutePolicy() *schema.Resource {
 				Description: `List of terms (the order in the list is not important, they are evaluated in order of priority).`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"match": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `CEL expression evaluated against a route to determine if this term applies (see Policy Language).`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"expression": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Textual representation of an expression in Common Expression Language syntax.`,
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Description of the expression`,
+									},
+									"location": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `String indicating the location of the expression for error reporting, e.g. a file name and a position in the file`,
+									},
+									"title": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Title for the expression, i.e. a short string describing its purpose.`,
+									},
+								},
+							},
+						},
 						"priority": {
 							Type:        schema.TypeInt,
 							Required:    true,
@@ -110,36 +163,6 @@ reporting, e.g. a file name and a position in the file`,
 										Optional: true,
 										Description: `Title for the expression, i.e. a short string describing its
 purpose.`,
-									},
-								},
-							},
-						},
-						"match": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `CEL expression evaluated against a route to determine if this term applies (see Policy Language). When not set, the term applies to all routes.`,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"expression": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `Textual representation of an expression in Common Expression Language syntax.`,
-									},
-									"description": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Description of the expression`,
-									},
-									"location": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `String indicating the location of the expression for error reporting, e.g. a file name and a position in the file`,
-									},
-									"title": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Title for the expression, i.e. a short string describing its purpose.`,
 									},
 								},
 							},
@@ -334,6 +357,34 @@ func resourceComputeRouterRoutePolicyRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading RouterRoutePolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("router"); ok && v != "" {
+		err = identity.Set("router", d.Get("router").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting router: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("region"); ok && v != "" {
+		err = identity.Set("region", d.Get("region").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting region: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

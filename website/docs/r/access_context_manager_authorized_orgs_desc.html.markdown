@@ -58,7 +58,7 @@ resource "google_access_context_manager_authorized_orgs_desc" "authorized-orgs-d
 }
 
 resource "google_access_context_manager_access_policy" "test-access" {
-  parent = "organizations/"
+  parent = "organizations/123456789"
   title  = "my policy"
 }
 ```
@@ -79,9 +79,6 @@ The following arguments are supported:
   The `authorized_orgs_desc` component must begin with a letter, followed by
   alphanumeric characters or `_`.
   After you create an `AuthorizedOrgsDesc`, you cannot change its `name`.
-
-
-- - -
 
 
 * `orgs` -
@@ -119,6 +116,7 @@ The following arguments are supported:
   (Optional)
   A granular control type for authorization levels. Valid value is "AUTHORIZATION_TYPE_TRUST".
   Possible values are: `AUTHORIZATION_TYPE_TRUST`.
+
 
 
 ## Attributes Reference

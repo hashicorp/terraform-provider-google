@@ -34,11 +34,23 @@ import (
 func TestAccDataprocBatch_dataprocBatchSparkExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project_name": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-spark-test-network", "dataproc-spark-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -54,6 +66,12 @@ func TestAccDataprocBatch_dataprocBatchSparkExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"batch_id", "labels", "location", "runtime_config.0.properties", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_batch.example_batch_spark",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -91,11 +109,23 @@ resource "google_dataproc_batch" "example_batch_spark" {
 func TestAccDataprocBatch_dataprocBatchSparkFullExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project_name": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-batch-key1").CryptoKey.Name,
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -142,6 +172,9 @@ resource "google_dataproc_batch" "example_batch_spark" {
         network_uri = "default"
         service_account = "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
         staging_bucket = google_storage_bucket.bucket.name
+        authentication_config {
+          user_workload_authentication_type = "SERVICE_ACCOUNT"
+        }
       }
       peripherals_config {
         metastore_service = google_dataproc_metastore_service.ms.name
@@ -227,11 +260,23 @@ resource "google_dataproc_cluster" "basic" {
 func TestAccDataprocBatch_dataprocBatchSparksqlExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project_name": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-sparksql-test-network", "dataproc-sparksql-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -283,11 +328,23 @@ resource "google_dataproc_batch" "example_batch_sparsql" {
 func TestAccDataprocBatch_dataprocBatchPysparkExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project_name": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-pyspark-test-network", "dataproc-pyspark-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -343,11 +400,23 @@ resource "google_dataproc_batch" "example_batch_pyspark" {
 func TestAccDataprocBatch_dataprocBatchSparkrExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project_name": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-pyspark-test-network", "dataproc-pyspark-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -399,11 +468,23 @@ resource "google_dataproc_batch" "example_batch_sparkr" {
 func TestAccDataprocBatch_dataprocBatchAutotuningExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"project_name": envvar.GetTestProjectFromEnv(),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"prevent_destroy": false,
 		"subnetwork_name": acctest.BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-autotuning-test-network", "dataproc-autotuning-test-subnetwork"),
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

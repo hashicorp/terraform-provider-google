@@ -84,6 +84,21 @@ func ResourceIAMBetaWorkloadIdentityPool() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"workload_identity_pool_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"workload_identity_pool_id": {
 				Type:         schema.TypeString,
@@ -121,11 +136,11 @@ access again.`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The state of the pool.
-* STATE_UNSPECIFIED: State unspecified.
-* ACTIVE: The pool is active, and may be used in Google Cloud policies.
-* DELETED: The pool is soft-deleted. Soft-deleted pools are permanently deleted after
+* 'STATE_UNSPECIFIED': State unspecified.
+* 'ACTIVE': The pool is active, and may be used in Google Cloud policies.
+* 'DELETED': The pool is soft-deleted. Soft-deleted pools are permanently deleted after
   approximately 30 days. You can restore a soft-deleted pool using
-  UndeleteWorkloadIdentityPool. You cannot reuse the ID of a soft-deleted pool until it is
+  'UndeleteWorkloadIdentityPool'. You cannot reuse the ID of a soft-deleted pool until it is
   permanently deleted. While a pool is deleted, you cannot use it to exchange tokens, or
   use existing tokens to access resources. If the pool is undeleted, existing tokens grant
   access again.`,
@@ -294,6 +309,22 @@ func resourceIAMBetaWorkloadIdentityPoolRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading WorkloadIdentityPool: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("workload_identity_pool_id"); ok && v != "" {
+		err = identity.Set("workload_identity_pool_id", d.Get("workload_identity_pool_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting workload_identity_pool_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

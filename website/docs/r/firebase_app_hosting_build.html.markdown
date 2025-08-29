@@ -202,10 +202,6 @@ resource "google_developer_connect_git_repository_link" "my-repository" {
 
   project  = "my-project-name"
   location = "us-central1"
-  provider = google-beta
-
-  provider = google-beta
-  project  = "my-project-name"
   service  = "developerconnect.googleapis.com"
 }
 
@@ -257,6 +253,30 @@ The following arguments are supported:
 * `build_id` -
   (Required)
   The user-specified ID of the build being created.
+
+
+* `display_name` -
+  (Optional)
+  Human-readable name. 63 character limit.
+
+* `annotations` -
+  (Optional)
+  Unstructured key value map that may be set by external tools to
+  store and arbitrary metadata. They are not queryable and should be
+  preserved when modifying objects.
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `labels` -
+  (Optional)
+  Unstructured key value map that can be used to organize and categorize
+  objects.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
 
 
 <a name="nested_source"></a>The `source` block supports:
@@ -336,32 +356,6 @@ The following arguments are supported:
   (Output)
   The URI of an image file associated with the user's account in an
   external source control provider, if available.
-
-- - -
-
-
-* `display_name` -
-  (Optional)
-  Human-readable name. 63 character limit.
-
-* `annotations` -
-  (Optional)
-  Unstructured key value map that may be set by external tools to
-  store and arbitrary metadata. They are not queryable and should be
-  preserved when modifying objects.
-  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
-  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
-
-* `labels` -
-  (Optional)
-  Unstructured key value map that can be used to organize and categorize
-  objects.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

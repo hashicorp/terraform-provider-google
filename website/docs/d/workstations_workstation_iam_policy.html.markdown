@@ -49,6 +49,11 @@ The following arguments are supported:
  Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
   location is specified, it is taken from the provider configuration.
+* `workstation_cluster_id` - (Required) The ID of the parent workstation cluster.
+ Used to find the parent resource to bind the IAM policy to
+* `workstation_config_id` - (Required) The ID of the parent workstation cluster config.
+ Used to find the parent resource to bind the IAM policy to
+* `workstation_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

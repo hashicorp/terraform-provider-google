@@ -33,8 +33,18 @@ import (
 func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,6 +60,12 @@ func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyBasicExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_clouddeploy_deploy_policy.b-deploy-policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -72,11 +88,11 @@ resource "google_clouddeploy_deploy_policy" "b-deploy-policy" {
         time_zone = "America/Los_Angeles"
         weekly_windows {
             start_time {
-                hours = "12"
-                minutes = "00"
+                hours = 0
+                minutes = 0
             }
             end_time {
-                hours = "13"
+                hours = "24"
                 minutes = "00"
             }
         }
@@ -90,8 +106,18 @@ resource "google_clouddeploy_deploy_policy" "b-deploy-policy" {
 func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyFullExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -150,16 +176,12 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
         time_zone = "America/Los_Angeles"
         weekly_windows {
             start_time {
-                hours = "12"
-                minutes = "00"
-                seconds = "00"
-                nanos = "00"
+                hours = 0
+                minutes = 0
             }
             end_time {
                 hours = "13"
                 minutes = "00"
-                seconds = "00"
-                nanos = "00"
             }
         }
       }
@@ -176,8 +198,6 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
             start_time {
                 hours = "13"
                 minutes = "00"
-                seconds = "00"
-                nanos = "00"
             }
             end_time {
                 hours = "14"
@@ -190,16 +210,12 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
 
         one_time_windows {
         start_time {
-            hours = "15"
+            hours = "00"
             minutes = "00"
-            seconds = "00"
-            nanos = "00"
         }
         end_time {
             hours = "16"
             minutes = "00"
-            seconds = "00"
-            nanos = "00"
         }
         start_date {
             year = "2019"

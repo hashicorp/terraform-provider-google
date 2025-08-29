@@ -24,6 +24,9 @@ description: |-
 A Google VMware User Cluster.
 
 
+To get more information about VmwareCluster, see:
+
+* [API documentation](https://cloud.google.com/kubernetes-engine/distributed-cloud/reference/on-prem-api/rest/v1/projects.locations.vmwareClusters)
 
 ## Example Usage - Gkeonprem Vmware Cluster Basic
 
@@ -269,53 +272,6 @@ The following arguments are supported:
   The location of the resource.
 
 
-<a name="nested_control_plane_node"></a>The `control_plane_node` block supports:
-
-* `cpus` -
-  (Optional)
-  The number of CPUs for each admin cluster node that serve as control planes
-  for this VMware User Cluster. (default: 4 CPUs)
-
-* `memory` -
-  (Optional)
-  The megabytes of memory for each admin cluster node that serves as a
-  control plane for this VMware User Cluster (default: 8192 MB memory).
-
-* `replicas` -
-  (Optional)
-  The number of control plane nodes for this VMware User Cluster.
-  (default: 1 replica).
-
-* `auto_resize_config` -
-  (Optional)
-  AutoResizeConfig provides auto resizing configurations.
-  Structure is [documented below](#nested_control_plane_node_auto_resize_config).
-
-* `vsphere_config` -
-  (Output)
-  Vsphere-specific config.
-  Structure is [documented below](#nested_control_plane_node_vsphere_config).
-
-
-<a name="nested_control_plane_node_auto_resize_config"></a>The `auto_resize_config` block supports:
-
-* `enabled` -
-  (Required)
-  Whether to enable control plane node auto resizing.
-
-<a name="nested_control_plane_node_vsphere_config"></a>The `vsphere_config` block contains:
-
-* `datastore` -
-  (Output)
-  The Vsphere datastore used by the Control Plane Node.
-
-* `storage_policy_name` -
-  (Output)
-  The Vsphere storage policy used by the control plane Node.
-
-- - -
-
-
 * `description` -
   (Optional)
   A human readable description of this VMware User Cluster.
@@ -400,6 +356,51 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+
+<a name="nested_control_plane_node"></a>The `control_plane_node` block supports:
+
+* `cpus` -
+  (Optional)
+  The number of CPUs for each admin cluster node that serve as control planes
+  for this VMware User Cluster. (default: 4 CPUs)
+
+* `memory` -
+  (Optional)
+  The megabytes of memory for each admin cluster node that serves as a
+  control plane for this VMware User Cluster (default: 8192 MB memory).
+
+* `replicas` -
+  (Optional)
+  The number of control plane nodes for this VMware User Cluster.
+  (default: 1 replica).
+
+* `auto_resize_config` -
+  (Optional)
+  AutoResizeConfig provides auto resizing configurations.
+  Structure is [documented below](#nested_control_plane_node_auto_resize_config).
+
+* `vsphere_config` -
+  (Output)
+  Vsphere-specific config.
+  Structure is [documented below](#nested_control_plane_node_vsphere_config).
+
+
+<a name="nested_control_plane_node_auto_resize_config"></a>The `auto_resize_config` block supports:
+
+* `enabled` -
+  (Required)
+  Whether to enable control plane node auto resizing.
+
+<a name="nested_control_plane_node_vsphere_config"></a>The `vsphere_config` block contains:
+
+* `datastore` -
+  (Output)
+  The Vsphere datastore used by the Control Plane Node.
+
+* `storage_policy_name` -
+  (Output)
+  The Vsphere storage policy used by the control plane Node.
 
 <a name="nested_anti_affinity_groups"></a>The `anti_affinity_groups` block supports:
 

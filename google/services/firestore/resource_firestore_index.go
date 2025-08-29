@@ -91,6 +91,17 @@ func ResourceFirestoreIndex() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"collection": {
 				Type:        schema.TypeString,
@@ -343,16 +354,6 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	// The operation for this resource contains the generated name that we need
-	// in order to perform a READ.
-	metadata := res["metadata"].(map[string]interface{})
-	name := metadata["index"].(string)
-	log.Printf("[DEBUG] Setting Index name, id to %s", name)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
-	d.SetId(name)
-
 	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
 
 	return resourceFirestoreIndexRead(d, meta)
@@ -420,6 +421,16 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
 	return nil
 }
 

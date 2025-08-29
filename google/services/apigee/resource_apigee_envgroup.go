@@ -50,6 +50,21 @@ func ResourceApigeeEnvgroup() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -133,29 +148,15 @@ func resourceApigeeEnvgroupCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ApigeeOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating Envgroup", userAgent,
+	err = ApigeeOperationWaitTime(
+		config, res, "Creating Envgroup", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Envgroup: %s", err)
 	}
-
-	if err := d.Set("name", flattenApigeeEnvgroupName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Envgroup %q: %#v", d.Id(), res)
 
@@ -201,6 +202,22 @@ func resourceApigeeEnvgroupRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Envgroup: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("org_id"); ok && v != "" {
+		err = identity.Set("org_id", d.Get("org_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting org_id: %s", err)
+		}
+	}
 	return nil
 }
 

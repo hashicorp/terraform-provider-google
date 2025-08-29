@@ -481,6 +481,87 @@ resource "google_storage_bucket_iam_member" "admin" {
   member = "serviceAccount:${google_service_account.storage_write_service_account.email}"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_subscription_single_smt&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Subscription Single Smt
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.id
+
+  message_transforms {
+    javascript_udf {
+      function_name = "isYearEven"
+      code = <<EOF
+function isYearEven(message, metadata) {
+  const data = JSON.parse(message.data);
+  return message.year %2 === 0;
+}
+EOF
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_subscription_multiple_smts&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Subscription Multiple Smts
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.id
+
+  message_transforms {
+    javascript_udf {
+      function_name = "redactSSN"
+      code = <<EOF
+function redactSSN(message, metadata) {
+  const data = JSON.parse(message.data);
+  delete data['ssn'];
+  message.data = JSON.stringify(data);
+  return message;
+}
+EOF
+    }
+  }
+
+  message_transforms {
+    javascript_udf {
+      function_name = "otherFunc"
+      code = <<EOF
+function otherFunc(message, metadata) {
+  return null;
+}
+EOF
+    }
+  }
+
+  message_transforms {
+    disabled = true
+    javascript_udf {
+      function_name = "someSMTWeDisabled"
+      code = "..."
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -496,9 +577,6 @@ The following arguments are supported:
   A reference to a Topic resource, of the form projects/{project}/topics/{{name}}
   (as in the id property of a google_pubsub_topic), or just a topic name if
   the topic is in the same project as the subscription.
-
-
-- - -
 
 
 * `labels` -
@@ -616,8 +694,15 @@ The following arguments are supported:
   Note that subscribers may still receive multiple copies of a message when `enable_exactly_once_delivery`
   is true if the message was published multiple times by a publisher client. These copies are considered distinct by Pub/Sub and have distinct messageId values
 
+* `message_transforms` -
+  (Optional)
+  Transforms to be applied to messages published to the topic. Transforms are applied in the
+  order specified.
+  Structure is [documented below](#nested_message_transforms).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_bigquery_config"></a>The `bigquery_config` block supports:
@@ -826,6 +911,57 @@ The following arguments are supported:
   (Optional)
   The maximum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 600 seconds.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+<a name="nested_message_transforms"></a>The `message_transforms` block supports:
+
+* `javascript_udf` -
+  (Optional)
+  Javascript User Defined Function. If multiple Javascript UDFs are specified on a resource,
+  each one must have a unique `function_name`.
+  Structure is [documented below](#nested_message_transforms_message_transforms_javascript_udf).
+
+* `disabled` -
+  (Optional)
+  Controls whether or not to use this transform. If not set or `false`,
+  the transform will be applied to messages. Default: `true`.
+
+
+<a name="nested_message_transforms_message_transforms_javascript_udf"></a>The `javascript_udf` block supports:
+
+* `function_name` -
+  (Required)
+  Name of the JavaScript function that should be applied to Pub/Sub messages.
+
+* `code` -
+  (Required)
+  JavaScript code that contains a function `function_name` with the
+  following signature:
+  ```
+    /**
+    * Transforms a Pub/Sub message.
+    *
+    * @return {(Object<string, (string | Object<string, string>)>|null)} - To
+    * filter a message, return `null`. To transform a message return a map
+    * with the following keys:
+    *   - (required) 'data' : {string}
+    *   - (optional) 'attributes' : {Object<string, string>}
+    * Returning empty `attributes` will remove all attributes from the
+    * message.
+    *
+    * @param  {(Object<string, (string | Object<string, string>)>} Pub/Sub
+    * message. Keys:
+    *   - (required) 'data' : {string}
+    *   - (required) 'attributes' : {Object<string, string>}
+    *
+    * @param  {Object<string, any>} metadata - Pub/Sub message metadata.
+    * Keys:
+    *   - (required) 'message_id'  : {string}
+    *   - (optional) 'publish_time': {string} YYYY-MM-DDTHH:MM:SSZ format
+    *   - (optional) 'ordering_key': {string}
+    */
+    function <function_name>(message, metadata) {
+    }
+  ```
 
 ## Attributes Reference
 

@@ -57,6 +57,21 @@ func ResourceDialogflowCXEnvironment() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"parent": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:         schema.TypeString,
@@ -160,7 +175,10 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -244,7 +262,10 @@ func resourceDialogflowCXEnvironmentRead(d *schema.ResourceData, meta interface{
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -273,6 +294,22 @@ func resourceDialogflowCXEnvironmentRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("parent"); ok && v != "" {
+		err = identity.Set("parent", d.Get("parent").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting parent: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -344,7 +381,10 @@ func resourceDialogflowCXEnvironmentUpdate(d *schema.ResourceData, meta interfac
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -417,7 +457,10 @@ func resourceDialogflowCXEnvironmentDelete(d *schema.ResourceData, meta interfac
 		)
 	}
 
-	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	}
 
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -463,7 +506,7 @@ func flattenDialogflowCXEnvironmentName(v interface{}, d *schema.ResourceData, c
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenDialogflowCXEnvironmentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

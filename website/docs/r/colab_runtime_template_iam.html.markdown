@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Colab Enterprise RuntimeTemplate
+
 Three different resources help you manage your IAM policy for Colab Enterprise RuntimeTemplate. Each of these resources serves a different use case:
 
 * `google_colab_runtime_template_iam_policy`: Authoritative. Sets the IAM policy for the runtimetemplate and replaces any existing policy already attached.
@@ -87,10 +88,10 @@ resource "google_colab_runtime_template_iam_member" "member" {
 
 The following arguments are supported:
 
-* `runtime_template` - (Required) Used to find the parent resource to bind the IAM policy to
 * `location` - (Optional) The location for the resource: https://cloud.google.com/colab/docs/locations Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
   location is specified, it is taken from the provider configuration.
+* `runtime_template` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

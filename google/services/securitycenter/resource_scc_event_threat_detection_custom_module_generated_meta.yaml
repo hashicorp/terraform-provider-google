@@ -8,6 +8,7 @@ api_variant_patterns:
   - 'organizations/{organization}/eventThreatDetectionSettings/customModules/{customModule}'
 fields:
   - field: 'config'
+    json: true
   - field: 'display_name'
   - field: 'enablement_state'
   - field: 'last_editor'

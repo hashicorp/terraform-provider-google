@@ -64,9 +64,6 @@ The following arguments are supported:
   Points to a YAML file stored on Google Cloud Storage describing additional information about the Dataset. The schema is defined as an OpenAPI 3.0.2 Schema Object. The schema files that can be used here are found in gs://google-cloud-aiplatform/schema/dataset/metadata/.
 
 
-- - -
-
-
 * `labels` -
   (Optional)
   A set of key/value label pairs to assign to this Workflow.
@@ -85,6 +82,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:

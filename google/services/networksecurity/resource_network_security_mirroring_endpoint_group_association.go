@@ -56,6 +56,25 @@ func ResourceNetworkSecurityMirroringEndpointGroupAssociation() *schema.Resource
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"mirroring_endpoint_group_association_id": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -235,11 +254,11 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationCreate(d *schema.Re
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
-	labelsProp, err := expandNetworkSecurityMirroringEndpointGroupAssociationEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkSecurityMirroringEndpointGroupAssociationEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations?mirroringEndpointGroupAssociationId={{mirroring_endpoint_group_association_id}}")
@@ -283,29 +302,15 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationCreate(d *schema.Re
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = NetworkSecurityOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating MirroringEndpointGroupAssociation", userAgent,
+	err = NetworkSecurityOperationWaitTime(
+		config, res, project, "Creating MirroringEndpointGroupAssociation", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create MirroringEndpointGroupAssociation: %s", err)
 	}
-
-	if err := d.Set("name", flattenNetworkSecurityMirroringEndpointGroupAssociationName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations/{{mirroring_endpoint_group_association_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating MirroringEndpointGroupAssociation %q: %#v", d.Id(), res)
 
@@ -391,6 +396,28 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationRead(d *schema.Reso
 		return fmt.Errorf("Error reading MirroringEndpointGroupAssociation: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("mirroring_endpoint_group_association_id"); ok && v != "" {
+		err = identity.Set("mirroring_endpoint_group_association_id", d.Get("mirroring_endpoint_group_association_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting mirroring_endpoint_group_association_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -410,11 +437,11 @@ func resourceNetworkSecurityMirroringEndpointGroupAssociationUpdate(d *schema.Re
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandNetworkSecurityMirroringEndpointGroupAssociationEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkSecurityMirroringEndpointGroupAssociationEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations/{{mirroring_endpoint_group_association_id}}")

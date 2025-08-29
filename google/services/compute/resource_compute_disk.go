@@ -73,6 +73,20 @@ func IsDiskShrinkage(_ context.Context, old, new, _ interface{}) bool {
 	return new.(int) < old.(int)
 }
 
+func matchImageLink(old string) (string, string, bool) {
+	// 'old' is read from the API.
+	// In GCP It has the format 'https://www.googleapis.com/compute/v1/projects/(%s)/global/images/(%s)'
+	matches := resolveImageLink.FindStringSubmatch(old)
+	if matches == nil {
+		// In alternate universes, it has the format https://compute.%s/compute/[a-z0-9]+/projects/(%s)/global/images/(%s)
+		matches = resolveImageUniverseLink.FindStringSubmatch(old)
+		if matches == nil {
+			return "", "", false
+		}
+	}
+	return matches[1], matches[2], true
+}
+
 // We cannot suppress the diff for the case when family name is not part of the image name since we can't
 // make a network call in a DiffSuppressFunc.
 func DiskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
@@ -83,15 +97,10 @@ func DiskImageDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	// In order to keep this maintainable, we need to ensure that the positive and negative examples
 	// in resource_compute_disk_test.go are as complete as possible.
 
-	// 'old' is read from the API.
-	// It always has the format 'https://www.googleapis.com/compute/v1/projects/(%s)/global/images/(%s)'
-	matches := resolveImageLink.FindStringSubmatch(old)
-	if matches == nil {
-		// Image read from the API doesn't have the expected format. In practice, it should never happen
+	oldProject, oldName, matched := matchImageLink(old)
+	if matched == false {
 		return false
 	}
-	oldProject := matches[1]
-	oldName := matches[2]
 
 	// Partial or full self link family
 	if resolveImageProjectFamily.MatchString(new) {
@@ -358,6 +367,25 @@ func ResourceComputeDisk() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"zone": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
@@ -376,17 +404,18 @@ character, which cannot be a dash.`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				Description: `The accessMode of the disk.
+				Description: `The access mode of the disk.
 For example:
-* READ_WRITE_SINGLE
-* READ_WRITE_MANY
-* READ_ONLY_SINGLE`,
+  * READ_WRITE_SINGLE: The default AccessMode, means the disk can be attached to single instance in RW mode.
+  * READ_WRITE_MANY: The AccessMode means the disk can be attached to multiple instances in RW mode.
+  * READ_ONLY_SINGLE: The AccessMode means the disk can be attached to multiple instances in RO mode.
+The AccessMode is only valid for Hyperdisk disk types.`,
 			},
 			"architecture": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: `The architecture of the disk. Values include 'X86_64', 'ARM64'.`,
 			},
 			"async_primary_disk": {
 				Type:             schema.TypeList,
@@ -943,11 +972,11 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	sizeGbProp, err := expandComputeDiskSize(d.Get("size"), d, config)
+	sizeProp, err := expandComputeDiskSize(d.Get("size"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("size"); !tpgresource.IsEmptyValue(reflect.ValueOf(sizeGbProp)) && (ok || !reflect.DeepEqual(v, sizeGbProp)) {
-		obj["sizeGb"] = sizeGbProp
+	} else if v, ok := d.GetOkExists("size"); !tpgresource.IsEmptyValue(reflect.ValueOf(sizeProp)) && (ok || !reflect.DeepEqual(v, sizeProp)) {
+		obj["sizeGb"] = sizeProp
 	}
 	physicalBlockSizeBytesProp, err := expandComputeDiskPhysicalBlockSizeBytes(d.Get("physical_block_size_bytes"), d, config)
 	if err != nil {
@@ -967,11 +996,11 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
-	sourceImageProp, err := expandComputeDiskImage(d.Get("image"), d, config)
+	imageProp, err := expandComputeDiskImage(d.Get("image"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("image"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceImageProp)) && (ok || !reflect.DeepEqual(v, sourceImageProp)) {
-		obj["sourceImage"] = sourceImageProp
+	} else if v, ok := d.GetOkExists("image"); !tpgresource.IsEmptyValue(reflect.ValueOf(imageProp)) && (ok || !reflect.DeepEqual(v, imageProp)) {
+		obj["sourceImage"] = imageProp
 	}
 	enableConfidentialComputeProp, err := expandComputeDiskEnableConfidentialCompute(d.Get("enable_confidential_compute"), d, config)
 	if err != nil {
@@ -1033,11 +1062,11 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessModeProp)) && (ok || !reflect.DeepEqual(v, accessModeProp)) {
 		obj["accessMode"] = accessModeProp
 	}
-	labelsProp, err := expandComputeDiskEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandComputeDiskEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	zoneProp, err := expandComputeDiskZone(d.Get("zone"), d, config)
 	if err != nil {
@@ -1045,11 +1074,11 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
 		obj["zone"] = zoneProp
 	}
-	sourceSnapshotProp, err := expandComputeDiskSnapshot(d.Get("snapshot"), d, config)
+	snapshotProp, err := expandComputeDiskSnapshot(d.Get("snapshot"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSnapshotProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
-		obj["sourceSnapshot"] = sourceSnapshotProp
+	} else if v, ok := d.GetOkExists("snapshot"); !tpgresource.IsEmptyValue(reflect.ValueOf(snapshotProp)) && (ok || !reflect.DeepEqual(v, snapshotProp)) {
+		obj["sourceSnapshot"] = snapshotProp
 	}
 
 	obj, err = resourceComputeDiskEncoder(d, meta, obj)
@@ -1278,7 +1307,28 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
-
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("zone"); ok && v != "" {
+		err = identity.Set("zone", d.Get("zone").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting zone: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -2017,7 +2067,7 @@ func flattenComputeDiskType(v interface{}, d *schema.ResourceData, config *trans
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenComputeDiskImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2112,7 +2162,7 @@ func flattenComputeDiskStoragePool(v interface{}, d *schema.ResourceData, config
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenComputeDiskAccessMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2142,7 +2192,7 @@ func flattenComputeDiskZone(v interface{}, d *schema.ResourceData, config *trans
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenComputeDiskSnapshot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

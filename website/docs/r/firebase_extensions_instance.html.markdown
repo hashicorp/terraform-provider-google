@@ -67,7 +67,7 @@ resource "google_firebase_extensions_instance" "resize_image" {
     }
 
     system_params = {
-      "firebaseextensions.v1beta.function/location"                   = ""
+      "firebaseextensions.v1beta.function/location"                   = "us-central1"
       "firebaseextensions.v1beta.function/maxInstances"               = 3000
       "firebaseextensions.v1beta.function/minInstances"               = 0
       "firebaseextensions.v1beta.function/vpcConnectorEgressSettings" = "VPC_CONNECTOR_EGRESS_SETTINGS_UNSPECIFIED"
@@ -77,7 +77,7 @@ resource "google_firebase_extensions_instance" "resize_image" {
       "firebase.extensions.storage-resize-images.v1.onCompletion"
     ]
 
-    eventarc_channel = "projects/my-project-name/locations//channels/firebase"
+    eventarc_channel = "projects/my-project-name/locations/us-central1/channels/firebase"
   }
 }
 ```
@@ -96,6 +96,11 @@ The following arguments are supported:
   (Required)
   The ID to use for the Extension Instance, which will become the final
   component of the instance's name.
+
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
 
 
 <a name="nested_config"></a>The `config` block supports:
@@ -143,13 +148,6 @@ The following arguments are supported:
   with actual values. These strings include: ${param:FOO},
   ${function:myFunc.url},
   ${function:myFunc.name}, and ${function:myFunc.location}
-
-- - -
-
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

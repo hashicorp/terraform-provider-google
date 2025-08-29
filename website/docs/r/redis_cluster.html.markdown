@@ -494,7 +494,7 @@ resource "google_redis_cluster" "cluster-aof" {
     maxmemory-policy	= "volatile-ttl"
   }
   deletion_protection_enabled = true
-
+  allow_fewer_zones_deployment = true
   zone_distribution_config {
     mode = "MULTI_ZONE"
   }
@@ -609,9 +609,6 @@ The following arguments are supported:
   projects/{projectId}/locations/{locationId}/clusters/{clusterId}
 
 
-- - -
-
-
 * `gcs_source` -
   (Optional)
   Backups stored in Cloud Storage buckets. The Cloud Storage buckets need to be the same region as the clusters.
@@ -650,6 +647,15 @@ The following arguments are supported:
   (Optional)
   Immutable. Zone distribution config for Memorystore Redis cluster.
   Structure is [documented below](#nested_zone_distribution_config).
+
+* `allow_fewer_zones_deployment` -
+  (Optional, Deprecated)
+  Allows customers to specify if they are okay with deploying a multi-zone
+  cluster in less than 3 zones. Once set, if there is a zonal outage during
+  the cluster creation, the cluster will only be deployed in 2 zones, and
+  stay within the 2 zones for its lifecycle.
+
+  ~> **Warning:** allow_fewer_zone_deployment flag will no longer be a user settable field, default behaviour will be as if set to true
 
 * `psc_configs` -
   (Optional)
@@ -701,6 +707,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
 <a name="nested_gcs_source"></a>The `gcs_source` block supports:
 
 * `uris` -
@@ -711,8 +718,7 @@ The following arguments are supported:
 
 * `backup` -
   (Required)
-  Example: //redis.googleapis.com/projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup} A shorter version (without the prefix) of the backup name is also supported,
-  like projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backupId}. In this case, it assumes the backup is under redis.googleapis.com.
+  Example: `projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}`.
 
 <a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
 
@@ -1015,6 +1021,10 @@ In addition to the arguments listed above, the following computed attributes are
   Service attachment details to configure Psc connections.
   Structure is [documented below](#nested_psc_service_attachments).
 
+* `managed_server_ca` -
+  Cluster's Certificate Authority. This field will only be populated if Redis Cluster's transit_encryption_mode is TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION
+  Structure is [documented below](#nested_managed_server_ca).
+
 
 <a name="nested_discovery_endpoints"></a>The `discovery_endpoints` block contains:
 
@@ -1111,6 +1121,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `connection_type` -
   (Output)
   Type of a PSC connection targeting this service attachment.
+
+<a name="nested_managed_server_ca"></a>The `managed_server_ca` block contains:
+
+* `ca_certs` -
+  (Output)
+  The PEM encoded CA certificate chains for redis managed server authentication
+  Structure is [documented below](#nested_managed_server_ca_ca_certs).
+
+
+<a name="nested_managed_server_ca_ca_certs"></a>The `ca_certs` block contains:
+
+* `certificates` -
+  (Output)
+  The certificates that form the CA chain, from leaf to root order
 
 ## Timeouts
 

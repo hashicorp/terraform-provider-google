@@ -77,6 +77,25 @@ func ResourceClouddomainsRegistration() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"domain_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"contact_settings": {
 				Type:        schema.TypeList,
@@ -727,11 +746,11 @@ func resourceClouddomainsRegistrationCreate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("contact_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(contactSettingsProp)) && (ok || !reflect.DeepEqual(v, contactSettingsProp)) {
 		obj["contactSettings"] = contactSettingsProp
 	}
-	labelsProp, err := expandClouddomainsRegistrationEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandClouddomainsRegistrationEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	domainNameProp, err := expandClouddomainsRegistrationDomainName(d.Get("domain_name"), d, config)
 	if err != nil {
@@ -890,6 +909,28 @@ func resourceClouddomainsRegistrationRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading Registration: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("domain_name"); ok && v != "" {
+		err = identity.Set("domain_name", d.Get("domain_name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting domain_name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

@@ -350,9 +350,6 @@ The following arguments are supported:
   `gcp-` is reserved for use by Google, and may not be specified.
 
 
-- - -
-
-
 * `display_name` -
   (Optional)
   A display name for the provider. Cannot exceed 32 characters.
@@ -461,6 +458,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_aws"></a>The `aws` block supports:

@@ -48,6 +48,21 @@ func ResourceApigeeDnsZone() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"dns_zone_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Type:        schema.TypeString,
@@ -170,29 +185,15 @@ func resourceApigeeDnsZoneCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ApigeeOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating DnsZone", userAgent,
+	err = ApigeeOperationWaitTime(
+		config, res, "Creating DnsZone", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create DnsZone: %s", err)
 	}
-
-	if err := d.Set("name", flattenApigeeDnsZoneName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{org_id}}/dnsZones/{{dns_zone_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating DnsZone %q: %#v", d.Id(), res)
 
@@ -244,6 +245,22 @@ func resourceApigeeDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading DnsZone: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("org_id"); ok && v != "" {
+		err = identity.Set("org_id", d.Get("org_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting org_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("dns_zone_id"); ok && v != "" {
+		err = identity.Set("dns_zone_id", d.Get("dns_zone_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting dns_zone_id: %s", err)
+		}
+	}
 	return nil
 }
 

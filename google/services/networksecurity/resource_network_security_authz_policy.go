@@ -57,6 +57,25 @@ func ResourceNetworkSecurityAuthzPolicy() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"action": {
 				Type:         schema.TypeString,
@@ -864,11 +883,11 @@ func resourceNetworkSecurityAuthzPolicyCreate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("custom_provider"); !tpgresource.IsEmptyValue(reflect.ValueOf(customProviderProp)) && (ok || !reflect.DeepEqual(v, customProviderProp)) {
 		obj["customProvider"] = customProviderProp
 	}
-	labelsProp, err := expandNetworkSecurityAuthzPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkSecurityAuthzPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	nameProp, err := expandNetworkSecurityAuthzPolicyName(d.Get("name"), d, config)
 	if err != nil {
@@ -1009,6 +1028,28 @@ func resourceNetworkSecurityAuthzPolicyRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading AuthzPolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -1058,11 +1099,11 @@ func resourceNetworkSecurityAuthzPolicyUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("custom_provider"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customProviderProp)) {
 		obj["customProvider"] = customProviderProp
 	}
-	labelsProp, err := expandNetworkSecurityAuthzPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkSecurityAuthzPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	nameProp, err := expandNetworkSecurityAuthzPolicyName(d.Get("name"), d, config)
 	if err != nil {
@@ -2047,7 +2088,7 @@ func flattenNetworkSecurityAuthzPolicyName(v interface{}, d *schema.ResourceData
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func expandNetworkSecurityAuthzPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

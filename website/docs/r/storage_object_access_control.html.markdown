@@ -101,8 +101,6 @@ The following arguments are supported:
   Possible values are: `OWNER`, `READER`.
 
 
-- - -
-
 
 
 ## Attributes Reference

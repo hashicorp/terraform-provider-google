@@ -58,6 +58,25 @@ func ResourceRedisCluster() *schema.Resource {
 			tpgresource.DefaultProviderRegion,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -71,6 +90,16 @@ projects/{projectId}/locations/{locationId}/clusters/{clusterId}`,
 				Type:        schema.TypeInt,
 				Required:    true,
 				Description: `Required. Number of shards for the Redis cluster.`,
+			},
+			"allow_fewer_zones_deployment": {
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "allow_fewer_zone_deployment flag will no longer be a user settable field, default behaviour will be as if set to true",
+				ForceNew:   true,
+				Description: `Allows customers to specify if they are okay with deploying a multi-zone
+cluster in less than 3 zones. Once set, if there is a zonal outage during
+the cluster creation, the cluster will only be deployed in 2 zones, and
+stay within the 2 zones for its lifecycle.`,
 			},
 			"authorization_mode": {
 				Type:         schema.TypeString,
@@ -378,11 +407,10 @@ resolution and up to nine fractional digits.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"backup": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							Description: `Example: //redis.googleapis.com/projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup} A shorter version (without the prefix) of the backup name is also supported,
-like projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backupId}. In this case, it assumes the backup is under redis.googleapis.com.`,
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Example: 'projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}'.`,
 						},
 					},
 				},
@@ -626,6 +654,32 @@ resolution and up to nine fractional digits.`,
 					},
 				},
 			},
+			"managed_server_ca": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Cluster's Certificate Authority. This field will only be populated if Redis Cluster's transit_encryption_mode is TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ca_certs": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The PEM encoded CA certificate chains for redis managed server authentication`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"certificates": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `The certificates that form the CA chain, from leaf to root order`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"precise_size_gb": {
 				Type:        schema.TypeFloat,
 				Computed:    true,
@@ -789,6 +843,12 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("zone_distribution_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(zoneDistributionConfigProp)) && (ok || !reflect.DeepEqual(v, zoneDistributionConfigProp)) {
 		obj["zoneDistributionConfig"] = zoneDistributionConfigProp
 	}
+	allowFewerZonesDeploymentProp, err := expandRedisClusterAllowFewerZonesDeployment(d.Get("allow_fewer_zones_deployment"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allow_fewer_zones_deployment"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowFewerZonesDeploymentProp)) && (ok || !reflect.DeepEqual(v, allowFewerZonesDeploymentProp)) {
+		obj["allowFewerZonesDeployment"] = allowFewerZonesDeploymentProp
+	}
 	pscConfigsProp, err := expandRedisClusterPscConfigs(d.Get("psc_configs"), d, config)
 	if err != nil {
 		return err
@@ -943,6 +1003,18 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("RedisCluster %q", d.Id()))
 	}
 
+	res, err = resourceRedisClusterDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing RedisCluster because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -980,6 +1052,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("zone_distribution_config", flattenRedisClusterZoneDistributionConfig(res["zoneDistributionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("allow_fewer_zones_deployment", flattenRedisClusterAllowFewerZonesDeployment(res["allowFewerZonesDeployment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("discovery_endpoints", flattenRedisClusterDiscoveryEndpoints(res["discoveryEndpoints"], d, config)); err != nil {
@@ -1027,7 +1102,32 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("kms_key", flattenRedisClusterKmsKey(res["kmsKey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("managed_server_ca", flattenRedisClusterManagedServerCa(res["managedServerCa"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("region"); ok && v != "" {
+		err = identity.Set("region", d.Get("region").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting region: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -1405,6 +1505,10 @@ func flattenRedisClusterZoneDistributionConfigMode(v interface{}, d *schema.Reso
 }
 
 func flattenRedisClusterZoneDistributionConfigZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterAllowFewerZonesDeployment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2035,6 +2139,41 @@ func flattenRedisClusterKmsKey(v interface{}, d *schema.ResourceData, config *tr
 	return v
 }
 
+func flattenRedisClusterManagedServerCa(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ca_certs"] =
+		flattenRedisClusterManagedServerCaCaCerts(original["caCerts"], d, config)
+	return []interface{}{transformed}
+}
+func flattenRedisClusterManagedServerCaCaCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"certificates": flattenRedisClusterManagedServerCaCaCertsCertificates(original["certificates"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenRedisClusterManagedServerCaCaCertsCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandRedisClusterGcsSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -2204,6 +2343,10 @@ func expandRedisClusterZoneDistributionConfigMode(v interface{}, d tpgresource.T
 }
 
 func expandRedisClusterZoneDistributionConfigZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisClusterAllowFewerZonesDeployment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2733,4 +2876,55 @@ func resourceRedisClusterEncoder(d *schema.ResourceData, meta interface{}, obj m
 	}
 
 	return obj, nil
+}
+
+func resourceRedisClusterDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// Such custom code is necessary as the Cluster's certificate authority has to be retrieved via a dedicated
+	// getCertificateAuthority API.
+	// See https://cloud.google.com/memorystore/docs/cluster/reference/rest/v1/projects.locations.clusters/getCertificateAuthority#http-request
+	// for details about this API.
+	config := meta.(*transport_tpg.Config)
+
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	// Only clusters with TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION mode have certificate authority set
+	if v, ok := res["transitEncryptionMode"].(string); !ok || v != "TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION" {
+		return res, nil
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters/{{name}}/certificateAuthority")
+	if err != nil {
+		return nil, err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return nil, fmt.Errorf("Error fetching project for Cluster: %s", err)
+	}
+
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	certificateAuthority, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Error reading certificateAuthority: %s", err)
+	}
+
+	res["managedServerCa"] = certificateAuthority["managedServerCa"]
+	return res, nil
 }

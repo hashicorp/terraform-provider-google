@@ -55,6 +55,25 @@ func ResourceOracleDatabaseCloudExadataInfrastructure() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"cloud_exadata_infrastructure_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"cloud_exadata_infrastructure_id": {
 				Type:     schema.TypeString,
@@ -454,11 +473,11 @@ func resourceOracleDatabaseCloudExadataInfrastructureCreate(d *schema.ResourceDa
 	} else if v, ok := d.GetOkExists("properties"); !tpgresource.IsEmptyValue(reflect.ValueOf(propertiesProp)) && (ok || !reflect.DeepEqual(v, propertiesProp)) {
 		obj["properties"] = propertiesProp
 	}
-	labelsProp, err := expandOracleDatabaseCloudExadataInfrastructureEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandOracleDatabaseCloudExadataInfrastructureEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/cloudExadataInfrastructures?cloudExadataInfrastructureId={{cloud_exadata_infrastructure_id}}")
@@ -502,29 +521,15 @@ func resourceOracleDatabaseCloudExadataInfrastructureCreate(d *schema.ResourceDa
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = OracleDatabaseOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating CloudExadataInfrastructure", userAgent,
+	err = OracleDatabaseOperationWaitTime(
+		config, res, project, "Creating CloudExadataInfrastructure", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create CloudExadataInfrastructure: %s", err)
 	}
-
-	if err := d.Set("name", flattenOracleDatabaseCloudExadataInfrastructureName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/cloudExadataInfrastructures/{{cloud_exadata_infrastructure_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating CloudExadataInfrastructure %q: %#v", d.Id(), res)
 
@@ -607,6 +612,28 @@ func resourceOracleDatabaseCloudExadataInfrastructureRead(d *schema.ResourceData
 		return fmt.Errorf("Error reading CloudExadataInfrastructure: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("cloud_exadata_infrastructure_id"); ok && v != "" {
+		err = identity.Set("cloud_exadata_infrastructure_id", d.Get("cloud_exadata_infrastructure_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting cloud_exadata_infrastructure_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

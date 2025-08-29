@@ -160,9 +160,6 @@ The following arguments are supported:
   The id of the entry to create.
 
 
-- - -
-
-
 * `linked_resource` -
   (Optional)
   The resource this metadata entry refers to.
@@ -212,6 +209,7 @@ The following arguments are supported:
   (Optional)
   Specification that applies to a Cloud Storage fileset. This is only valid on entries of type FILESET.
   Structure is [documented below](#nested_gcs_fileset_spec).
+
 
 
 <a name="nested_gcs_fileset_spec"></a>The `gcs_fileset_spec` block supports:

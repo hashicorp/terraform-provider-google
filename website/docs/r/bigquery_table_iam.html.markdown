@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for BigQuery Table
+
 Three different resources help you manage your IAM policy for BigQuery Table. Each of these resources serves a different use case:
 
 * `google_bigquery_table_iam_policy`: Authoritative. Sets the IAM policy for the table and replaces any existing policy already attached.
@@ -87,6 +88,8 @@ resource "google_bigquery_table_iam_member" "member" {
 
 The following arguments are supported:
 
+* `dataset_id` - (Required)  Used to find the parent resource to bind the IAM policy to
+* `table_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

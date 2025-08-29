@@ -25,4 +25,6 @@ fields:
   - field: 'description'
   - field: 'edge_security_policy'
   - field: 'enable_cdn'
+  - field: 'load_balancing_scheme'
   - field: 'name'
+  - field: 'params.resource_manager_tags'

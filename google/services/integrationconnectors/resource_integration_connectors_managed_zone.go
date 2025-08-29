@@ -56,6 +56,21 @@ func ResourceIntegrationConnectorsManagedZone() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"dns": {
 				Type:        schema.TypeString,
@@ -159,11 +174,11 @@ func resourceIntegrationConnectorsManagedZoneCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("target_vpc"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetVpcProp)) && (ok || !reflect.DeepEqual(v, targetVpcProp)) {
 		obj["targetVpc"] = targetVpcProp
 	}
-	labelsProp, err := expandIntegrationConnectorsManagedZoneEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandIntegrationConnectorsManagedZoneEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IntegrationConnectorsBasePath}}projects/{{project}}/locations/global/managedZones?managedZoneId={{name}}")
@@ -207,25 +222,15 @@ func resourceIntegrationConnectorsManagedZoneCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = IntegrationConnectorsOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating ManagedZone", userAgent,
+	err = IntegrationConnectorsOperationWaitTime(
+		config, res, project, "Creating ManagedZone", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create ManagedZone: %s", err)
 	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/managedZones/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating ManagedZone %q: %#v", d.Id(), res)
 
@@ -302,6 +307,22 @@ func resourceIntegrationConnectorsManagedZoneRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -345,11 +366,11 @@ func resourceIntegrationConnectorsManagedZoneUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("target_vpc"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetVpcProp)) {
 		obj["targetVpc"] = targetVpcProp
 	}
-	labelsProp, err := expandIntegrationConnectorsManagedZoneEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandIntegrationConnectorsManagedZoneEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IntegrationConnectorsBasePath}}projects/{{project}}/locations/global/managedZones/{{name}}")

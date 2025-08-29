@@ -56,6 +56,29 @@ func ResourceDiscoveryEngineSearchEngine() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"engine_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"collection_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"collection_id": {
 				Type:        schema.TypeString,
@@ -253,29 +276,15 @@ func resourceDiscoveryEngineSearchEngineCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = DiscoveryEngineOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating SearchEngine", userAgent,
+	err = DiscoveryEngineOperationWaitTime(
+		config, res, project, "Creating SearchEngine", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create SearchEngine: %s", err)
 	}
-
-	if err := d.Set("name", flattenDiscoveryEngineSearchEngineName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating SearchEngine %q: %#v", d.Id(), res)
 
@@ -349,6 +358,34 @@ func resourceDiscoveryEngineSearchEngineRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading SearchEngine: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("engine_id"); ok && v != "" {
+		err = identity.Set("engine_id", d.Get("engine_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting engine_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("collection_id"); ok && v != "" {
+		err = identity.Set("collection_id", d.Get("collection_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting collection_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

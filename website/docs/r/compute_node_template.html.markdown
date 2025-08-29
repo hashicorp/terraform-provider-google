@@ -129,17 +129,14 @@ resource "google_compute_node_template" "template" {
 The following arguments are supported:
 
 
-
-- - -
+* `name` -
+  (Required)
+  Name of the resource.
 
 
 * `description` -
   (Optional)
   An optional textual description of the resource.
-
-* `name` -
-  (Optional)
-  Name of the resource.
 
 * `node_affinity_labels` -
   (Optional)
@@ -190,6 +187,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_node_type_flexibility"></a>The `node_type_flexibility` block supports:

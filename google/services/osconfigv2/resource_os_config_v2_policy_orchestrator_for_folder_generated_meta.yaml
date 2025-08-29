@@ -3,7 +3,9 @@ generation_type: 'mmv1'
 source_file: 'products/osconfigv2/PolicyOrchestratorForFolder.yaml'
 api_service_name: 'osconfig.googleapis.com'
 api_version: 'v2'
-api_resource_type_kind: 'PolicyOrchestratorForFolder'
+api_resource_type_kind: 'PolicyOrchestrator'
+api_variant_patterns:
+  - 'folders/{folder}/locations/{location}/policyOrchestrators/{policyOrchestrator}'
 autogen_status: true
 fields:
   - field: 'action'

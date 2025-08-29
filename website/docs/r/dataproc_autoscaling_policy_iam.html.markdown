@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Dataproc AutoscalingPolicy
+
 Three different resources help you manage your IAM policy for Dataproc AutoscalingPolicy. Each of these resources serves a different use case:
 
 * `google_dataproc_autoscaling_policy_iam_policy`: Authoritative. Sets the IAM policy for the autoscalingpolicy and replaces any existing policy already attached.
@@ -87,15 +88,12 @@ resource "google_dataproc_autoscaling_policy_iam_member" "member" {
 
 The following arguments are supported:
 
-* `policy_id` - (Required) The policy id. The id must contain only letters (a-z, A-Z), numbers (0-9), underscores (_),
-and hyphens (-). Cannot begin or end with underscore or hyphen. Must consist of between
-3 and 50 characters.
- Used to find the parent resource to bind the IAM policy to
 * `location` - (Optional) The  location where the autoscaling policy should reside.
 The default value is `global`.
  Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
   location is specified, it is taken from the provider configuration.
+* `policy_id` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

@@ -48,6 +48,21 @@ func ResourceAccessContextManagerEgressPolicy() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"resource": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"egress_policy_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"egress_policy_name": {
 				Type:             schema.TypeString,
@@ -143,39 +158,15 @@ func resourceAccessContextManagerEgressPolicyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = AccessContextManagerOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating EgressPolicy", userAgent,
+	err = AccessContextManagerOperationWaitTime(
+		config, res, "Creating EgressPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create EgressPolicy: %s", err)
 	}
-
-	if _, ok := opRes["status"]; ok {
-		opRes, err = flattenNestedAccessContextManagerEgressPolicy(d, meta, opRes)
-		if err != nil {
-			return fmt.Errorf("Error getting nested object from operation response: %s", err)
-		}
-		if opRes == nil {
-			// Object isn't there any more - remove it from the state.
-			return fmt.Errorf("Error decoding response from operation, could not find nested object")
-		}
-	}
-	if err := d.Set("resource", flattenNestedAccessContextManagerEgressPolicyResource(opRes["resource"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{egress_policy_name}}/{{resource}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating EgressPolicy %q: %#v", d.Id(), res)
 
@@ -230,6 +221,22 @@ func resourceAccessContextManagerEgressPolicyRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading EgressPolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("resource"); ok && v != "" {
+		err = identity.Set("resource", d.Get("resource").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting resource: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("egress_policy_name"); ok && v != "" {
+		err = identity.Set("egress_policy_name", d.Get("egress_policy_name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting egress_policy_name: %s", err)
+		}
+	}
 	return nil
 }
 

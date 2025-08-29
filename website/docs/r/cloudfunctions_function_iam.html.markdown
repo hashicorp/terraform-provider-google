@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Cloud Functions CloudFunction
+
 Three different resources help you manage your IAM policy for Cloud Functions CloudFunction. Each of these resources serves a different use case:
 
 * `google_cloudfunctions_function_iam_policy`: Authoritative. Sets the IAM policy for the cloudfunction and replaces any existing policy already attached.
@@ -87,10 +88,10 @@ resource "google_cloudfunctions_function_iam_member" "member" {
 
 The following arguments are supported:
 
-* `cloud_function` - (Required) Used to find the parent resource to bind the IAM policy to
 * `region` - (Optional) The location of this cloud function. Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no region is provided in the parent identifier and no
   region is specified, it is taken from the provider configuration.
+* `cloud_function` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

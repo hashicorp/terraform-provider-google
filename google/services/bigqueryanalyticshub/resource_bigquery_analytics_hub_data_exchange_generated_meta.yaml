@@ -8,12 +8,14 @@ fields:
   - field: 'data_exchange_id'
     provider_only: true
   - field: 'description'
+  - field: 'discovery_type'
   - field: 'display_name'
   - field: 'documentation'
   - field: 'icon'
   - field: 'listing_count'
   - field: 'location'
     provider_only: true
+  - field: 'log_linked_dataset_query_user_email'
   - field: 'name'
   - field: 'primary_contact'
   - field: 'sharing_environment_config.dcr_exchange_config'

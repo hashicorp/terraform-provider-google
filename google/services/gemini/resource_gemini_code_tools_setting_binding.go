@@ -57,6 +57,29 @@ func ResourceGeminiCodeToolsSettingBinding() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"code_tools_setting_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"setting_binding_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"code_tools_setting_id": {
 				Type:        schema.TypeString,
@@ -157,11 +180,11 @@ func resourceGeminiCodeToolsSettingBindingCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("target"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
-	labelsProp, err := expandGeminiCodeToolsSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiCodeToolsSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeToolsSettings/{{code_tools_setting_id}}")
@@ -212,29 +235,15 @@ func resourceGeminiCodeToolsSettingBindingCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = GeminiOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating CodeToolsSettingBinding", userAgent,
+	err = GeminiOperationWaitTime(
+		config, res, project, "Creating CodeToolsSettingBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create CodeToolsSettingBinding: %s", err)
 	}
-
-	if err := d.Set("name", flattenGeminiCodeToolsSettingBindingName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeToolsSettings/{{code_tools_setting_id}}/settingBindings/{{setting_binding_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating CodeToolsSettingBinding %q: %#v", d.Id(), res)
 
@@ -308,6 +317,34 @@ func resourceGeminiCodeToolsSettingBindingRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading CodeToolsSettingBinding: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("code_tools_setting_id"); ok && v != "" {
+		err = identity.Set("code_tools_setting_id", d.Get("code_tools_setting_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting code_tools_setting_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("setting_binding_id"); ok && v != "" {
+		err = identity.Set("setting_binding_id", d.Get("setting_binding_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting setting_binding_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -339,11 +376,11 @@ func resourceGeminiCodeToolsSettingBindingUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("target"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
-	labelsProp, err := expandGeminiCodeToolsSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGeminiCodeToolsSettingBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/codeToolsSettings/{{code_tools_setting_id}}")

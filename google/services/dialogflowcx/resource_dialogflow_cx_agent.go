@@ -58,6 +58,25 @@ func ResourceDialogflowCXAgent() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"default_language_code": {
 				Type:     schema.TypeString,
@@ -209,16 +228,62 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 					},
 				},
 			},
+			"answer_feedback_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Answer feedback collection settings.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_answer_feedback": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `If enabled, end users will be able to provide [answer feedback](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.sessions/submitAnswerFeedback#body.AnswerFeedback)
+to Dialogflow responses. Feature works only if interaction logging is enabled in the Dialogflow agent.`,
+						},
+					},
+				},
+			},
 			"avatar_uri": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The URI of the agent's avatar. Avatars are used throughout the Dialogflow console and in the self-hosted Web Demo integration.`,
+			},
+			"client_certificate_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for custom client certificates.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"private_key": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the SecretManager secret version resource storing the private key encoded in PEM format. Format: **projects/{project}/secrets/{secret}/versions/{version}**`,
+						},
+						"ssl_certificate": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ssl certificate encoded in PEM format. This string must include the begin header and end footer lines.`,
+						},
+						"passphrase": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The name of the SecretManager secret version resource storing the passphrase. 'passphrase' should be left unset if the private key is not encrypted. Format: **projects/{project}/secrets/{secret}/versions/{version}**`,
+						},
+					},
+				},
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 500),
 				Description:  `The description of this agent. The maximum length is 500 characters. If exceeded, the request is rejected.`,
+			},
+			"enable_multi_language_training": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Enable training multi-lingual models for this agent. These models will be trained on all the languages supported by the agent.`,
 			},
 			"enable_spell_correction": {
 				Type:        schema.TypeBool,
@@ -230,6 +295,23 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 				Optional:    true,
 				Deprecated:  "`enable_stackdriver_logging` is deprecated and will be removed in a future major release. Please use `advanced_settings.logging_settings.enable_stackdriver_logging`instead.",
 				Description: `Determines whether this agent should log conversation queries.`,
+			},
+			"gen_app_builder_settings": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Gen App Builder-related agent-level settings.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"engine": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The full name of the Gen App Builder engine related to this agent if there is one.
+Format: projects/{Project ID}/locations/{Location ID}/collections/{Collection ID}/engines/{Engine ID}`,
+						},
+					},
+				},
 			},
 			"git_integration_settings": {
 				Type:        schema.TypeList,
@@ -280,6 +362,32 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 					},
 				},
 			},
+			"locked": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether the agent is locked for changes. If the agent is locked, modifications to the agent will be rejected except for [agents.restore][].`,
+			},
+			"personalization_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for end user personalization.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default_end_user_metadata": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringIsJSON,
+							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+							Description: `Default end user metadata, used when processing DetectIntent requests. Recommended to be filled as a template instead of hard-coded value, for example { "age": "$session.params.age" }.
+The data will be merged with the [QueryParameters.end_user_metadata](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/QueryParameters#FIELDS.end_user_metadata)
+in [DetectIntentRequest.query_params](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.sessions/detectIntent#body.request_body.FIELDS.query_params) during query processing.
+
+This field uses JSON data as a string. The value provided must be a valid JSON representation documented in [Struct](https://protobuf.dev/reference/protobuf/google.protobuf/#struct).`,
+						},
+					},
+				},
+			},
 			"security_settings": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -299,6 +407,12 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 						},
 					},
 				},
+			},
+			"start_playbook": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Description:   `Name of the start playbook in this agent. A start playbook will be automatically created when the agent is created, and can only be deleted by deleting the agent. Format: **projects/<ProjectID>/locations/<LocationID>/agents/<AgentID>/playbooks/<PlaybookID>**. Currently only the default playbook with id "00000000-0000-0000-0000-000000000000" is allowed.`,
+				ConflictsWith: []string{"start_flow"},
 			},
 			"supported_language_codes": {
 				Type:        schema.TypeList,
@@ -333,10 +447,39 @@ These settings affect:
 				Computed:    true,
 				Description: `The unique identifier of the agent.`,
 			},
+			"satisfies_pzi": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `A read only boolean field reflecting Zone Isolation status of the agent.`,
+			},
+			"satisfies_pzs": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `A read only boolean field reflecting Zone Separation status of the agent.`,
+			},
 			"start_flow": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Name of the start flow in this agent. A start flow will be automatically created when the agent is created, and can only be deleted by deleting the agent. Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
+			},
+			"delete_chat_engine_on_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `If set to 'true', Terraform will delete the chat engine associated with the agent when the agent is destroyed.
+Otherwise, the chat engine will persist.
+
+This virtual field addresses a critical dependency chain: 'agent' -> 'engine' -> 'data store'. The chat engine is automatically
+provisioned when a data store is linked to the agent, meaning Terraform doesn't have direct control over its lifecycle as a managed
+resource. This creates a problem when both the agent and data store are managed by Terraform and need to be destroyed. Without
+delete_chat_engine_on_destroy set to true, the data store's deletion would fail because the unmanaged chat engine would still be
+using it. This setting ensures that the entire dependency chain can be properly torn down.
+See 'mmv1/templates/terraform/examples/dialogflowcx_tool_data_store.tf.tmpl' as an example.
+
+Data store can be linked to an agent through the 'knowledgeConnectorSettings' field of a [flow](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows#resource:-flow)
+or a [page](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.flows.pages#resource:-page)
+or the 'dataStoreSpec' field of a [tool](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents.tools#resource:-tool).
+The ID of the implicitly created engine is stored in the 'genAppBuilderSettings' field of the [agent](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents#resource:-agent).`,
+				Default: false,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -435,6 +578,48 @@ func resourceDialogflowCXAgentCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("text_to_speech_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(textToSpeechSettingsProp)) && (ok || !reflect.DeepEqual(v, textToSpeechSettingsProp)) {
 		obj["textToSpeechSettings"] = textToSpeechSettingsProp
 	}
+	genAppBuilderSettingsProp, err := expandDialogflowCXAgentGenAppBuilderSettings(d.Get("gen_app_builder_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gen_app_builder_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(genAppBuilderSettingsProp)) && (ok || !reflect.DeepEqual(v, genAppBuilderSettingsProp)) {
+		obj["genAppBuilderSettings"] = genAppBuilderSettingsProp
+	}
+	startPlaybookProp, err := expandDialogflowCXAgentStartPlaybook(d.Get("start_playbook"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("start_playbook"); !tpgresource.IsEmptyValue(reflect.ValueOf(startPlaybookProp)) && (ok || !reflect.DeepEqual(v, startPlaybookProp)) {
+		obj["startPlaybook"] = startPlaybookProp
+	}
+	enableMultiLanguageTrainingProp, err := expandDialogflowCXAgentEnableMultiLanguageTraining(d.Get("enable_multi_language_training"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_multi_language_training"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableMultiLanguageTrainingProp)) && (ok || !reflect.DeepEqual(v, enableMultiLanguageTrainingProp)) {
+		obj["enableMultiLanguageTraining"] = enableMultiLanguageTrainingProp
+	}
+	lockedProp, err := expandDialogflowCXAgentLocked(d.Get("locked"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("locked"); !tpgresource.IsEmptyValue(reflect.ValueOf(lockedProp)) && (ok || !reflect.DeepEqual(v, lockedProp)) {
+		obj["locked"] = lockedProp
+	}
+	answerFeedbackSettingsProp, err := expandDialogflowCXAgentAnswerFeedbackSettings(d.Get("answer_feedback_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("answer_feedback_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(answerFeedbackSettingsProp)) && (ok || !reflect.DeepEqual(v, answerFeedbackSettingsProp)) {
+		obj["answerFeedbackSettings"] = answerFeedbackSettingsProp
+	}
+	personalizationSettingsProp, err := expandDialogflowCXAgentPersonalizationSettings(d.Get("personalization_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("personalization_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(personalizationSettingsProp)) && (ok || !reflect.DeepEqual(v, personalizationSettingsProp)) {
+		obj["personalizationSettings"] = personalizationSettingsProp
+	}
+	clientCertificateSettingsProp, err := expandDialogflowCXAgentClientCertificateSettings(d.Get("client_certificate_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client_certificate_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(clientCertificateSettingsProp)) && (ok || !reflect.DeepEqual(v, clientCertificateSettingsProp)) {
+		obj["clientCertificateSettings"] = clientCertificateSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents")
 	if err != nil {
@@ -526,6 +711,12 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXAgent %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("delete_chat_engine_on_destroy"); !ok {
+		if err := d.Set("delete_chat_engine_on_destroy", false); err != nil {
+			return fmt.Errorf("Error setting delete_chat_engine_on_destroy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
@@ -572,7 +763,50 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("text_to_speech_settings", flattenDialogflowCXAgentTextToSpeechSettings(res["textToSpeechSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
+	if err := d.Set("gen_app_builder_settings", flattenDialogflowCXAgentGenAppBuilderSettings(res["genAppBuilderSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err := d.Set("enable_multi_language_training", flattenDialogflowCXAgentEnableMultiLanguageTraining(res["enableMultiLanguageTraining"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err := d.Set("locked", flattenDialogflowCXAgentLocked(res["locked"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err := d.Set("satisfies_pzs", flattenDialogflowCXAgentSatisfiesPzs(res["satisfiesPzs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err := d.Set("satisfies_pzi", flattenDialogflowCXAgentSatisfiesPzi(res["satisfiesPzi"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err := d.Set("personalization_settings", flattenDialogflowCXAgentPersonalizationSettings(res["personalizationSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
+	if err := d.Set("client_certificate_settings", flattenDialogflowCXAgentClientCertificateSettings(res["clientCertificateSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Agent: %s", err)
+	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -664,6 +898,48 @@ func resourceDialogflowCXAgentUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("text_to_speech_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, textToSpeechSettingsProp)) {
 		obj["textToSpeechSettings"] = textToSpeechSettingsProp
 	}
+	genAppBuilderSettingsProp, err := expandDialogflowCXAgentGenAppBuilderSettings(d.Get("gen_app_builder_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gen_app_builder_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, genAppBuilderSettingsProp)) {
+		obj["genAppBuilderSettings"] = genAppBuilderSettingsProp
+	}
+	startPlaybookProp, err := expandDialogflowCXAgentStartPlaybook(d.Get("start_playbook"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("start_playbook"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, startPlaybookProp)) {
+		obj["startPlaybook"] = startPlaybookProp
+	}
+	enableMultiLanguageTrainingProp, err := expandDialogflowCXAgentEnableMultiLanguageTraining(d.Get("enable_multi_language_training"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_multi_language_training"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableMultiLanguageTrainingProp)) {
+		obj["enableMultiLanguageTraining"] = enableMultiLanguageTrainingProp
+	}
+	lockedProp, err := expandDialogflowCXAgentLocked(d.Get("locked"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("locked"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, lockedProp)) {
+		obj["locked"] = lockedProp
+	}
+	answerFeedbackSettingsProp, err := expandDialogflowCXAgentAnswerFeedbackSettings(d.Get("answer_feedback_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("answer_feedback_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, answerFeedbackSettingsProp)) {
+		obj["answerFeedbackSettings"] = answerFeedbackSettingsProp
+	}
+	personalizationSettingsProp, err := expandDialogflowCXAgentPersonalizationSettings(d.Get("personalization_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("personalization_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, personalizationSettingsProp)) {
+		obj["personalizationSettings"] = personalizationSettingsProp
+	}
+	clientCertificateSettingsProp, err := expandDialogflowCXAgentClientCertificateSettings(d.Get("client_certificate_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client_certificate_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientCertificateSettingsProp)) {
+		obj["clientCertificateSettings"] = clientCertificateSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
 	if err != nil {
@@ -720,6 +996,34 @@ func resourceDialogflowCXAgentUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("text_to_speech_settings") {
 		updateMask = append(updateMask, "textToSpeechSettings")
+	}
+
+	if d.HasChange("gen_app_builder_settings") {
+		updateMask = append(updateMask, "genAppBuilderSettings")
+	}
+
+	if d.HasChange("start_playbook") {
+		updateMask = append(updateMask, "startPlaybook")
+	}
+
+	if d.HasChange("enable_multi_language_training") {
+		updateMask = append(updateMask, "enableMultiLanguageTraining")
+	}
+
+	if d.HasChange("locked") {
+		updateMask = append(updateMask, "locked")
+	}
+
+	if d.HasChange("answer_feedback_settings") {
+		updateMask = append(updateMask, "answerFeedbackSettings")
+	}
+
+	if d.HasChange("personalization_settings") {
+		updateMask = append(updateMask, "personalizationSettings")
+	}
+
+	if d.HasChange("client_certificate_settings") {
+		updateMask = append(updateMask, "clientCertificateSettings")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -785,6 +1089,26 @@ func resourceDialogflowCXAgentDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	headers := make(http.Header)
+	// Extract engine ID from the gen_app_builder_settings field of the Agent
+	s := d.Get("gen_app_builder_settings")
+	log.Printf("[DEBUG] gen_app_builder_settings: %v", s)
+	settings, ok := s.([]interface{})
+	if !ok {
+		return fmt.Errorf("Error converting gen_app_builder_settings %s to  []interface{}", s)
+	}
+
+	engineID := ""
+	if len(settings) > 0 {
+		// An engine is linked to the Agent. Delete it.
+		engineIDIntf, ok := settings[0].(map[string]interface{})["engine"]
+		if !ok {
+			return fmt.Errorf("Expected key 'engine' in map %+v", settings[0])
+		}
+		engineID, ok = engineIDIntf.(string)
+		if !ok {
+			return fmt.Errorf("Can convert engine ID %s to string", engineIDIntf)
+		}
+	}
 
 	log.Printf("[DEBUG] Deleting Agent %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -799,6 +1123,41 @@ func resourceDialogflowCXAgentDelete(d *schema.ResourceData, meta interface{}) e
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Agent")
+	}
+
+	if d.Get("delete_chat_engine_on_destroy").(bool) && engineID != "" {
+		// Check if the engine exist.
+		baseUrl, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}")
+		if err != nil {
+			return err
+		}
+		engineUrl := baseUrl + engineID
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    engineUrl,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			log.Printf("[DEBUG] engine %s doesn't exist. No need to delete", engineID)
+			return nil
+		}
+
+		// delete the engine
+		log.Printf("[DEBUG] Deleting engine %v", engineID)
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "DELETE",
+			Project:   project,
+			RawURL:    engineUrl,
+			UserAgent: userAgent,
+			Timeout:   d.Timeout(schema.TimeoutDelete),
+		})
+		if err != nil {
+			return fmt.Errorf("Error deleting engine %s: %s", engineID, err)
+		}
+		log.Printf("[DEBUG] Finished deleting engine %s", engineID)
 	}
 
 	log.Printf("[DEBUG] Finished deleting Agent %q: %#v", d.Id(), res)
@@ -822,6 +1181,11 @@ func resourceDialogflowCXAgentImport(d *schema.ResourceData, meta interface{}) (
 	}
 	d.SetId(id)
 
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("delete_chat_engine_on_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting delete_chat_engine_on_destroy: %s", err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -829,7 +1193,7 @@ func flattenDialogflowCXAgentName(v interface{}, d *schema.ResourceData, config 
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenDialogflowCXAgentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1075,6 +1439,93 @@ func flattenDialogflowCXAgentTextToSpeechSettingsSynthesizeSpeechConfigs(v inter
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
+}
+
+func flattenDialogflowCXAgentGenAppBuilderSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["engine"] =
+		flattenDialogflowCXAgentGenAppBuilderSettingsEngine(original["engine"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXAgentGenAppBuilderSettingsEngine(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentEnableMultiLanguageTraining(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentLocked(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentSatisfiesPzs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentSatisfiesPzi(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentPersonalizationSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["default_end_user_metadata"] =
+		flattenDialogflowCXAgentPersonalizationSettingsDefaultEndUserMetadata(original["defaultEndUserMetadata"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXAgentPersonalizationSettingsDefaultEndUserMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenDialogflowCXAgentClientCertificateSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ssl_certificate"] =
+		flattenDialogflowCXAgentClientCertificateSettingsSslCertificate(original["sslCertificate"], d, config)
+	transformed["private_key"] =
+		flattenDialogflowCXAgentClientCertificateSettingsPrivateKey(original["privateKey"], d, config)
+	transformed["passphrase"] =
+		flattenDialogflowCXAgentClientCertificateSettingsPassphrase(original["passphrase"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXAgentClientCertificateSettingsSslCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentClientCertificateSettingsPrivateKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXAgentClientCertificateSettingsPassphrase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandDialogflowCXAgentDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1477,6 +1928,140 @@ func expandDialogflowCXAgentTextToSpeechSettingsSynthesizeSpeechConfigs(v interf
 		return nil, err
 	}
 	return m, nil
+}
+
+func expandDialogflowCXAgentGenAppBuilderSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEngine, err := expandDialogflowCXAgentGenAppBuilderSettingsEngine(original["engine"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEngine); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["engine"] = transformedEngine
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXAgentGenAppBuilderSettingsEngine(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentStartPlaybook(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentEnableMultiLanguageTraining(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentLocked(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentAnswerFeedbackSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableAnswerFeedback, err := expandDialogflowCXAgentAnswerFeedbackSettingsEnableAnswerFeedback(original["enable_answer_feedback"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableAnswerFeedback); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableAnswerFeedback"] = transformedEnableAnswerFeedback
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXAgentAnswerFeedbackSettingsEnableAnswerFeedback(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentPersonalizationSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDefaultEndUserMetadata, err := expandDialogflowCXAgentPersonalizationSettingsDefaultEndUserMetadata(original["default_end_user_metadata"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultEndUserMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defaultEndUserMetadata"] = transformedDefaultEndUserMetadata
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXAgentPersonalizationSettingsDefaultEndUserMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func expandDialogflowCXAgentClientCertificateSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSslCertificate, err := expandDialogflowCXAgentClientCertificateSettingsSslCertificate(original["ssl_certificate"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSslCertificate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sslCertificate"] = transformedSslCertificate
+	}
+
+	transformedPrivateKey, err := expandDialogflowCXAgentClientCertificateSettingsPrivateKey(original["private_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrivateKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["privateKey"] = transformedPrivateKey
+	}
+
+	transformedPassphrase, err := expandDialogflowCXAgentClientCertificateSettingsPassphrase(original["passphrase"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPassphrase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["passphrase"] = transformedPassphrase
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXAgentClientCertificateSettingsSslCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentClientCertificateSettingsPrivateKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXAgentClientCertificateSettingsPassphrase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func resourceDialogflowCXAgentPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {

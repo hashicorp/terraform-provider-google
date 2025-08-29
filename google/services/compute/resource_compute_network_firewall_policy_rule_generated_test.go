@@ -34,11 +34,22 @@ import (
 func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"project_name":  envvar.GetTestProjectFromEnv(),
-		"service_acct":  envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
+		"org_id":       envvar.GetTestOrgFromEnv(t),
+		"project_name": envvar.GetTestProjectFromEnv(),
+		"service_acct": envvar.GetTestServiceAccountFromEnv(t),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -54,6 +65,12 @@ func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+			{
+				ResourceName:       "google_compute_network_firewall_policy_rule.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

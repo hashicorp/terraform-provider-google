@@ -105,6 +105,45 @@ resource "google_compute_network" "network" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=compute_interconnect_attachment_custom_ranges&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Interconnect Attachment Custom Ranges
+
+
+```hcl
+resource "google_compute_interconnect_attachment" "custom-ranges-interconnect-attachment" {
+  name                                   = "test-custom-ranges-interconnect-attachment"
+  edge_availability_domain               = "AVAILABILITY_DOMAIN_1"
+  type                                   = "PARTNER"
+  router                                 = google_compute_router.foobar.id
+  mtu                                    = 1500
+  stack_type                             = "IPV4_IPV6"
+  labels                                 = { mykey = "myvalue" }
+  candidate_cloud_router_ip_address      = "192.169.0.1/29"
+  candidate_customer_router_ip_address   = "192.169.0.2/29"
+  candidate_cloud_router_ipv6_address    = "748d:2f23:6651:9455:828b:ca81:6fe0:fed1/125"
+  candidate_customer_router_ipv6_address = "748d:2f23:6651:9455:828b:ca81:6fe0:fed2/125"
+  provider                               = google-beta
+}
+
+resource "google_compute_router" "foobar" {
+  name     = "test-router"
+  network  = google_compute_network.foobar.name
+  bgp {
+    asn = 16550
+  }
+  provider = google-beta
+}
+
+resource "google_compute_network" "foobar" {
+  name                    = "test-network"
+  auto_create_subnetworks = false
+  provider                = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -128,9 +167,6 @@ The following arguments are supported:
   letter, or digit, except the last character, which cannot be a dash.
 
 
-- - -
-
-
 * `admin_enabled` -
   (Optional)
   Whether the VLAN attachment is enabled or disabled.  When using
@@ -148,8 +184,8 @@ The following arguments are supported:
 
 * `mtu` -
   (Optional)
-  Maximum Transmission Unit (MTU), in bytes, of packets passing through
-  this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not specified, the value will default to 1440.
+  Maximum Transmission Unit (MTU), in bytes, of packets passing through this interconnect attachment.
+  Valid values are 1440, 1460, 1500, and 8896. If not specified, the value will default to 1440.
 
 * `bandwidth` -
   (Optional)
@@ -249,12 +285,33 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `candidate_cloud_router_ip_address` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Single IPv4 address + prefix length to be configured on the cloud router interface for this
+  interconnect attachment. Example: 203.0.113.1/29
+
+* `candidate_customer_router_ip_address` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Single IPv4 address + prefix length to be configured on the customer router interface for this
+  interconnect attachment. Example: 203.0.113.2/29
+
+* `candidate_cloud_router_ipv6_address` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Single IPv6 address + prefix length to be configured on the cloud router interface for this
+  interconnect attachment. Example: 2001:db8::1/125
+
+* `candidate_customer_router_ipv6_address` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Single IPv6 address + prefix length to be configured on the customer router interface for this
+  interconnect attachment. Example: 2001:db8::2/125
+
 * `region` -
   (Optional)
   Region where the regional interconnect attachment resides.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference
@@ -310,6 +367,9 @@ In addition to the arguments listed above, the following computed attributes are
   Compute Engine and changes after every request to modify or update labels.
   You must always provide an up-to-date fingerprint hash in order to update or change labels,
   otherwise the request will fail with error 412 conditionNotMet.
+
+* `attachment_group` -
+  URL of the AttachmentGroup that includes this Attachment.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

@@ -78,6 +78,21 @@ func ResourceComputeSslPolicy() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -336,7 +351,22 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -557,10 +587,10 @@ func expandComputeSslPolicyCustomFeatures(v interface{}, d tpgresource.Terraform
 }
 
 func resourceComputeSslPolicyUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// TODO(https://github.com/GoogleCloudPlatform/magic-modules/issues/184): Handle fingerprint consistently
+	// TODO: https://github.com/GoogleCloudPlatform/magic-modules/issues/184 Handle fingerprint consistently
 	obj["fingerprint"] = d.Get("fingerprint")
 
-	// TODO(https://github.com/GoogleCloudPlatform/magic-modules/issues/183): Can we generalize this
+	// TODO: https://github.com/GoogleCloudPlatform/magic-modules/issues/183 Can we generalize this
 	// Send a null fields if customFeatures is empty.
 	if v, ok := obj["customFeatures"]; ok && len(v.([]interface{})) == 0 {
 		obj["customFeatures"] = nil

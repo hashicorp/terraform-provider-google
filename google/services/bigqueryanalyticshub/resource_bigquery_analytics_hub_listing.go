@@ -32,6 +32,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
@@ -55,10 +56,62 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"data_exchange_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"listing_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
+			"data_exchange_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the data exchange. Must contain only Unicode letters, numbers (0-9), underscores (_). Should not use characters that require URL-escaping, or characters outside of ASCII, spaces.`,
+			},
+			"display_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Human-readable display name of the listing. The display name must contain only Unicode letters, numbers (0-9), underscores (_), dashes (-), spaces ( ), ampersands (&) and can't start or end with spaces.`,
+			},
+			"listing_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the listing. Must contain only Unicode letters, numbers (0-9), underscores (_). Should not use characters that require URL-escaping, or characters outside of ASCII, spaces.`,
+			},
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the location this data exchange listing.`,
+			},
+			"allow_only_metadata_sharing": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If true, the listing is only available to get the resource metadata. Listing is non subscribable.`,
+			},
 			"bigquery_dataset": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `Shared dataset i.e. BigQuery dataset source.`,
 				MaxItems:    1,
@@ -84,35 +137,14 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 										ForceNew:         true,
 										DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 										Description:      `Format: For table: projects/{projectId}/datasets/{datasetId}/tables/{tableId} Example:"projects/test_project/datasets/test_dataset/tables/test_table"`,
+										ExactlyOneOf:     []string{},
 									},
 								},
 							},
 						},
 					},
 				},
-			},
-			"data_exchange_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The ID of the data exchange. Must contain only Unicode letters, numbers (0-9), underscores (_). Should not use characters that require URL-escaping, or characters outside of ASCII, spaces.`,
-			},
-			"display_name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Human-readable display name of the listing. The display name must contain only Unicode letters, numbers (0-9), underscores (_), dashes (-), spaces ( ), ampersands (&) and can't start or end with spaces.`,
-			},
-			"listing_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The ID of the listing. Must contain only Unicode letters, numbers (0-9), underscores (_). Should not use characters that require URL-escaping, or characters outside of ASCII, spaces.`,
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The name of the location this data exchange listing.`,
+				ExactlyOneOf: []string{"pubsub_topic", "bigquery_dataset"},
 			},
 			"categories": {
 				Type:        schema.TypeList,
@@ -147,6 +179,13 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 				Optional:    true,
 				Description: `Short description of the listing. The description must not contain Unicode non-characters and C0 and C1 control codes except tabs (HT), new lines (LF), carriage returns (CR), and page breaks (FF).`,
 			},
+			"discovery_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DISCOVERY_TYPE_PRIVATE", "DISCOVERY_TYPE_PUBLIC", ""}),
+				Description:  `Specifies the type of discovery on the discovery page. Cannot be set for a restricted listing. Note that this does not control the visibility of the exchange/listing which is defined by IAM permission. Possible values: ["DISCOVERY_TYPE_PRIVATE", "DISCOVERY_TYPE_PUBLIC"]`,
+			},
 			"documentation": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -156,6 +195,11 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Base64 encoded image representing the listing.`,
+			},
+			"log_linked_dataset_query_user_email": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, subscriber email logging is enabled and all queries on the linked dataset will log the email address of the querying user. Once enabled, this setting cannot be turned off.`,
 			},
 			"primary_contact": {
 				Type:        schema.TypeString,
@@ -181,6 +225,34 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 						},
 					},
 				},
+			},
+			"pubsub_topic": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Pub/Sub topic source.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"topic": {
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+							Description:      `Resource name of the Pub/Sub topic source for this listing. e.g. projects/myproject/topics/topicId`,
+						},
+						"data_affinity_regions": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Description: `Region hint on where the data might be published. Data affinity regions are modifiable.
+See https://cloud.google.com/about/locations for full listing of possible Cloud regions.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set: schema.HashString,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"pubsub_topic", "bigquery_dataset"},
 			},
 			"request_access": {
 				Type:        schema.TypeString,
@@ -212,10 +284,49 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 					},
 				},
 			},
+			"commercial_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Commercial info contains the information about the commercial data products associated with the listing.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cloud_marketplace": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Details of the Marketplace Data Product associated with the Listing.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"commercial_state": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `Commercial state of the Marketplace Data Product.
+Possible values: COMMERCIAL_STATE_UNSPECIFIED, ONBOARDING, ACTIVE`,
+									},
+									"service": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Resource name of the commercial service associated with the Marketplace Data Product. e.g. example.com`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The resource name of the listing. e.g. "projects/myproject/locations/US/dataExchanges/123/listings/456"`,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Current state of the listing.`,
+			},
+			"delete_commercial": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If the listing is commercial then this field must be set to true, otherwise a failure is thrown. This acts as a safety guard to avoid deleting commercial listings accidentally.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -296,11 +407,35 @@ func resourceBigqueryAnalyticsHubListingCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("bigquery_dataset"); !tpgresource.IsEmptyValue(reflect.ValueOf(bigqueryDatasetProp)) && (ok || !reflect.DeepEqual(v, bigqueryDatasetProp)) {
 		obj["bigqueryDataset"] = bigqueryDatasetProp
 	}
+	pubsubTopicProp, err := expandBigqueryAnalyticsHubListingPubsubTopic(d.Get("pubsub_topic"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("pubsub_topic"); !tpgresource.IsEmptyValue(reflect.ValueOf(pubsubTopicProp)) && (ok || !reflect.DeepEqual(v, pubsubTopicProp)) {
+		obj["pubsubTopic"] = pubsubTopicProp
+	}
 	restrictedExportConfigProp, err := expandBigqueryAnalyticsHubListingRestrictedExportConfig(d.Get("restricted_export_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("restricted_export_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(restrictedExportConfigProp)) && (ok || !reflect.DeepEqual(v, restrictedExportConfigProp)) {
 		obj["restrictedExportConfig"] = restrictedExportConfigProp
+	}
+	logLinkedDatasetQueryUserEmailProp, err := expandBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(d.Get("log_linked_dataset_query_user_email"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_linked_dataset_query_user_email"); !tpgresource.IsEmptyValue(reflect.ValueOf(logLinkedDatasetQueryUserEmailProp)) && (ok || !reflect.DeepEqual(v, logLinkedDatasetQueryUserEmailProp)) {
+		obj["logLinkedDatasetQueryUserEmail"] = logLinkedDatasetQueryUserEmailProp
+	}
+	discoveryTypeProp, err := expandBigqueryAnalyticsHubListingDiscoveryType(d.Get("discovery_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("discovery_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(discoveryTypeProp)) && (ok || !reflect.DeepEqual(v, discoveryTypeProp)) {
+		obj["discoveryType"] = discoveryTypeProp
+	}
+	allowOnlyMetadataSharingProp, err := expandBigqueryAnalyticsHubListingAllowOnlyMetadataSharing(d.Get("allow_only_metadata_sharing"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allow_only_metadata_sharing"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowOnlyMetadataSharingProp)) && (ok || !reflect.DeepEqual(v, allowOnlyMetadataSharingProp)) {
+		obj["allowOnlyMetadataSharing"] = allowOnlyMetadataSharingProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings?listing_id={{listing_id}}")
@@ -387,6 +522,7 @@ func resourceBigqueryAnalyticsHubListingRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryAnalyticsHubListing %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Listing: %s", err)
 	}
@@ -424,10 +560,56 @@ func resourceBigqueryAnalyticsHubListingRead(d *schema.ResourceData, meta interf
 	if err := d.Set("bigquery_dataset", flattenBigqueryAnalyticsHubListingBigqueryDataset(res["bigqueryDataset"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Listing: %s", err)
 	}
+	if err := d.Set("pubsub_topic", flattenBigqueryAnalyticsHubListingPubsubTopic(res["pubsubTopic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
 	if err := d.Set("restricted_export_config", flattenBigqueryAnalyticsHubListingRestrictedExportConfig(res["restrictedExportConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Listing: %s", err)
 	}
+	if err := d.Set("log_linked_dataset_query_user_email", flattenBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(res["logLinkedDatasetQueryUserEmail"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err := d.Set("state", flattenBigqueryAnalyticsHubListingState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err := d.Set("discovery_type", flattenBigqueryAnalyticsHubListingDiscoveryType(res["discoveryType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err := d.Set("allow_only_metadata_sharing", flattenBigqueryAnalyticsHubListingAllowOnlyMetadataSharing(res["allowOnlyMetadataSharing"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
+	if err := d.Set("commercial_info", flattenBigqueryAnalyticsHubListingCommercialInfo(res["commercialInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Listing: %s", err)
+	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("data_exchange_id"); ok && v != "" {
+		err = identity.Set("data_exchange_id", d.Get("data_exchange_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting data_exchange_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("listing_id"); ok && v != "" {
+		err = identity.Set("listing_id", d.Get("listing_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting listing_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -501,11 +683,29 @@ func resourceBigqueryAnalyticsHubListingUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("categories"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, categoriesProp)) {
 		obj["categories"] = categoriesProp
 	}
+	pubsubTopicProp, err := expandBigqueryAnalyticsHubListingPubsubTopic(d.Get("pubsub_topic"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("pubsub_topic"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pubsubTopicProp)) {
+		obj["pubsubTopic"] = pubsubTopicProp
+	}
 	restrictedExportConfigProp, err := expandBigqueryAnalyticsHubListingRestrictedExportConfig(d.Get("restricted_export_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("restricted_export_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, restrictedExportConfigProp)) {
 		obj["restrictedExportConfig"] = restrictedExportConfigProp
+	}
+	logLinkedDatasetQueryUserEmailProp, err := expandBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(d.Get("log_linked_dataset_query_user_email"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_linked_dataset_query_user_email"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logLinkedDatasetQueryUserEmailProp)) {
+		obj["logLinkedDatasetQueryUserEmail"] = logLinkedDatasetQueryUserEmailProp
+	}
+	discoveryTypeProp, err := expandBigqueryAnalyticsHubListingDiscoveryType(d.Get("discovery_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("discovery_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, discoveryTypeProp)) {
+		obj["discoveryType"] = discoveryTypeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
@@ -553,14 +753,45 @@ func resourceBigqueryAnalyticsHubListingUpdate(d *schema.ResourceData, meta inte
 		updateMask = append(updateMask, "categories")
 	}
 
+	if d.HasChange("pubsub_topic") {
+		updateMask = append(updateMask, "pubsubTopic")
+	}
+
 	if d.HasChange("restricted_export_config") {
 		updateMask = append(updateMask, "restrictedExportConfig")
+	}
+
+	if d.HasChange("log_linked_dataset_query_user_email") {
+		updateMask = append(updateMask, "logLinkedDatasetQueryUserEmail")
+	}
+
+	if d.HasChange("discovery_type") {
+		updateMask = append(updateMask, "discoveryType")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
+	}
+	if d.HasChange("pubsub_topic.0.data_affinity_regions") {
+		// Split URL into base and query parts
+		parts := strings.SplitN(url, "?", 2)
+		if len(parts) == 2 {
+			base := parts[0]
+			query := parts[1]
+
+			query = strings.ReplaceAll(query, "%2C", ",")
+			query = strings.ReplaceAll(query, "%2c", ",")
+
+			// Replace "pubsubTopic" with "pubsubTopic.dataAffinityRegions"
+			query = strings.ReplaceAll(query, "pubsubTopic", "pubsubTopic.dataAffinityRegions")
+
+			// Re-encode commas back
+			query = strings.ReplaceAll(query, ",", "%2C")
+
+			url = base + "?" + query
+		}
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -620,6 +851,10 @@ func resourceBigqueryAnalyticsHubListingDelete(d *schema.ResourceData, meta inte
 	}
 
 	headers := make(http.Header)
+	deleteCommercial := d.Get("delete_commercial")
+	if deleteCommercial != nil {
+		url = url + "?deleteCommercial=" + fmt.Sprintf("%v", deleteCommercial)
+	}
 
 	log.Printf("[DEBUG] Deleting Listing %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -656,6 +891,8 @@ func resourceBigqueryAnalyticsHubListingImport(d *schema.ResourceData, meta inte
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -779,6 +1016,32 @@ func flattenBigqueryAnalyticsHubListingBigqueryDatasetSelectedResourcesTable(v i
 	return v
 }
 
+func flattenBigqueryAnalyticsHubListingPubsubTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["topic"] =
+		flattenBigqueryAnalyticsHubListingPubsubTopicTopic(original["topic"], d, config)
+	transformed["data_affinity_regions"] =
+		flattenBigqueryAnalyticsHubListingPubsubTopicDataAffinityRegions(original["dataAffinityRegions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryAnalyticsHubListingPubsubTopicTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingPubsubTopicDataAffinityRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
 func flattenBigqueryAnalyticsHubListingRestrictedExportConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -805,6 +1068,58 @@ func flattenBigqueryAnalyticsHubListingRestrictedExportConfigRestrictDirectTable
 }
 
 func flattenBigqueryAnalyticsHubListingRestrictedExportConfigRestrictQueryResult(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingDiscoveryType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingAllowOnlyMetadataSharing(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingCommercialInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["cloud_marketplace"] =
+		flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplace(original["cloudMarketplace"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service"] =
+		flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplaceService(original["service"], d, config)
+	transformed["commercial_state"] =
+		flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplaceCommercialState(original["commercialState"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplaceService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingCommercialInfoCloudMarketplaceCommercialState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -960,6 +1275,41 @@ func expandBigqueryAnalyticsHubListingBigqueryDatasetSelectedResourcesTable(v in
 	return v, nil
 }
 
+func expandBigqueryAnalyticsHubListingPubsubTopic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTopic, err := expandBigqueryAnalyticsHubListingPubsubTopicTopic(original["topic"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTopic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["topic"] = transformedTopic
+	}
+
+	transformedDataAffinityRegions, err := expandBigqueryAnalyticsHubListingPubsubTopicDataAffinityRegions(original["data_affinity_regions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataAffinityRegions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dataAffinityRegions"] = transformedDataAffinityRegions
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingPubsubTopicTopic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingPubsubTopicDataAffinityRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
 func expandBigqueryAnalyticsHubListingRestrictedExportConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -1002,5 +1352,17 @@ func expandBigqueryAnalyticsHubListingRestrictedExportConfigRestrictDirectTableA
 }
 
 func expandBigqueryAnalyticsHubListingRestrictedExportConfigRestrictQueryResult(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingLogLinkedDatasetQueryUserEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingDiscoveryType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingAllowOnlyMetadataSharing(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

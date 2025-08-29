@@ -124,9 +124,6 @@ The following arguments are supported:
   'projects/{project}/locations/{location}/datasets/{dataset}'
 
 
-- - -
-
-
 * `default_consent_ttl` -
   (Optional)
   Default time to live for consents in this store. Must be at least 24 hours. Updating this field will not affect the expiration time of existing consents.
@@ -149,6 +146,7 @@ The following arguments are supported:
 
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 
 
 ## Attributes Reference

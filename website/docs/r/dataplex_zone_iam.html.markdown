@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Dataplex Zone
+
 Three different resources help you manage your IAM policy for Dataplex Zone. Each of these resources serves a different use case:
 
 * `google_dataplex_zone_iam_policy`: Authoritative. Sets the IAM policy for the zone and replaces any existing policy already attached.
@@ -90,6 +91,10 @@ resource "google_dataplex_zone_iam_member" "member" {
 
 The following arguments are supported:
 
+* `location` - (Optional)  Used to find the parent resource to bind the IAM policy to. If not specified,
+  the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
+  location is specified, it is taken from the provider configuration.
+* `lake` - (Required)  Used to find the parent resource to bind the IAM policy to
 * `dataplex_zone` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

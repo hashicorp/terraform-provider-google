@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Identity-Aware Proxy TunnelInstance
+
 Three different resources help you manage your IAM policy for Identity-Aware Proxy TunnelInstance. Each of these resources serves a different use case:
 
 * `google_iap_tunnel_instance_iam_policy`: Authoritative. Sets the IAM policy for the tunnelinstance and replaces any existing policy already attached.
@@ -149,6 +150,9 @@ resource "google_iap_tunnel_instance_iam_member" "member" {
 
 The following arguments are supported:
 
+* `zone` - (Optional)  Used to find the parent resource to bind the IAM policy to. If not specified,
+  the value will be parsed from the identifier of the parent resource. If no zone is provided in the parent identifier and no
+  zone is specified, it is taken from the provider configuration.
 * `instance` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

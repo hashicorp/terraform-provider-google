@@ -58,7 +58,7 @@ resource "google_compute_region_instance_template" "a3_dws" {
   }
 
   disk {
-    source_image = "cos-cloud/cos-105-lts"
+    source_image = "cos-cloud/cos-121-lts"
     auto_delete  = true
     boot         = true
     disk_type    = "pd-ssd"
@@ -133,9 +133,6 @@ The following arguments are supported:
   The reference of the instance group manager this ResizeRequest is a part of.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resize-request.
@@ -151,6 +148,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 <a name="nested_requested_run_duration"></a>The `requested_run_duration` block supports:

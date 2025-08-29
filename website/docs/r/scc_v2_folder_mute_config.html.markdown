@@ -80,9 +80,6 @@ The following arguments are supported:
   Unique identifier provided by the client within the parent scope.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   A description of the mute config.
@@ -90,6 +87,7 @@ The following arguments are supported:
 * `location` -
   (Optional)
   location Id is provided by folder. If not provided, Use global as default.
+
 
 
 ## Attributes Reference

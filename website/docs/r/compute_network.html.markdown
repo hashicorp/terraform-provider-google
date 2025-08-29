@@ -116,9 +116,6 @@ The following arguments are supported:
   character, which cannot be a dash.
 
 
-- - -
-
-
 * `description` -
   (Optional)
   An optional description of this resource. The resource must be
@@ -191,12 +188,26 @@ The following arguments are supported:
   * https://www.googleapis.com/compute/v1/projects/{projectId}/global/networkProfiles/{network_profile_name}
   * projects/{projectId}/global/networkProfiles/{network_profile_name}
 
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 * `delete_default_routes_on_create` - (Optional) If set to `true`, default routes (`0.0.0.0/0`) will be deleted
 immediately after network creation. Defaults to `false`.
 
+
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the network. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
 
 ## Attributes Reference
 

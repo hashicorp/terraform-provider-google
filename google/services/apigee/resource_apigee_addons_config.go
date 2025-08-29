@@ -50,6 +50,17 @@ func ResourceApigeeAddonsConfig() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"org": {
 				Type:        schema.TypeString,
@@ -67,7 +78,7 @@ func ResourceApigeeAddonsConfig() *schema.Resource {
 						"advanced_api_ops_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Configuration for the Monetization add-on.`,
+							Description: `Configuration for the Advanced API Ops add-on.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -82,19 +93,19 @@ func ResourceApigeeAddonsConfig() *schema.Resource {
 						"api_security_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Configuration for the Monetization add-on.`,
+							Description: `Configuration for the API Security add-on.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: `Flag that specifies whether the Advanced API Ops add-on is enabled.`,
+										Description: `Flag that specifies whether the API security add-on is enabled.`,
 									},
 									"expires_at": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: `Flag that specifies whether the Advanced API Ops add-on is enabled.`,
+										Description: `Time at which the API Security add-on expires in in milliseconds since epoch. If unspecified, the add-on will never expire.`,
 									},
 								},
 							},
@@ -109,12 +120,12 @@ func ResourceApigeeAddonsConfig() *schema.Resource {
 									"enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: `Flag that specifies whether the Advanced API Ops add-on is enabled.`,
+										Description: `Flag that specifies whether the Connectors Platform add-on is enabled.`,
 									},
 									"expires_at": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: `Flag that specifies whether the Advanced API Ops add-on is enabled.`,
+										Description: `Time at which the Connectors Platform add-on expires in milliseconds since epoch. If unspecified, the add-on will never expire.`,
 									},
 								},
 							},
@@ -122,14 +133,14 @@ func ResourceApigeeAddonsConfig() *schema.Resource {
 						"integration_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Configuration for the Monetization add-on.`,
+							Description: `Configuration for the Integration add-on.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: `Flag that specifies whether the Advanced API Ops add-on is enabled.`,
+										Description: `Flag that specifies whether the Integration add-on is enabled.`,
 									},
 								},
 							},
@@ -144,7 +155,7 @@ func ResourceApigeeAddonsConfig() *schema.Resource {
 									"enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: `Flag that specifies whether the Advanced API Ops add-on is enabled.`,
+										Description: `Flag that specifies whether the Monetization add-on is enabled.`,
 									},
 								},
 							},
@@ -256,6 +267,17 @@ func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) er
 
 	if err := d.Set("addons_config", flattenApigeeAddonsConfigAddonsConfig(res["addonsConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AddonsConfig: %s", err)
+	}
+
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("org"); ok && v != "" {
+		err = identity.Set("org", d.Get("org").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting org: %s", err)
+		}
 	}
 
 	return nil

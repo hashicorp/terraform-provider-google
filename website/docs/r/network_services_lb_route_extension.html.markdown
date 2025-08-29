@@ -423,6 +423,21 @@ The following arguments are supported:
   Name of the LbRouteExtension resource in the following format: projects/{project}/locations/{location}/lbRouteExtensions/{lbRouteExtension}
 
 
+* `description` -
+  (Optional)
+  A human-readable description of the resource.
+
+* `labels` -
+  (Optional)
+  Set of labels associated with the LbRouteExtension resource.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
+
 <a name="nested_extension_chains"></a>The `extension_chains` block supports:
 
 * `name` -
@@ -486,23 +501,6 @@ The following arguments are supported:
   (Optional)
   List of the HTTP headers to forward to the extension (from the client or backend).
   If omitted, all headers are sent. Each element is a string indicating the header name.
-
-- - -
-
-
-* `description` -
-  (Optional)
-  A human-readable description of the resource.
-
-* `labels` -
-  (Optional)
-  Set of labels associated with the LbRouteExtension resource.
-  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-  Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 

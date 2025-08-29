@@ -35,6 +35,35 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+func resourceComputeRegionSecurityPolicySpecRulesDiffSuppress(k, o, n string, d *schema.ResourceData) bool {
+	oldCount, newCount := d.GetChange("rules.#")
+	var count int
+	// There could be duplicates - worth continuing even if the counts are unequal.
+	if oldCount.(int) < newCount.(int) {
+		count = newCount.(int)
+	} else {
+		count = oldCount.(int)
+	}
+
+	old := make([]interface{}, 0, count)
+	new := make([]interface{}, 0, count)
+	for i := 0; i < count; i++ {
+		o, n := d.GetChange(fmt.Sprintf("rules.%d", i))
+
+		if o != nil {
+			old = append(old, o)
+		}
+		if n != nil {
+			new = append(new, n)
+		}
+	}
+
+	oldSet := schema.NewSet(schema.HashResource(ResourceComputeRegionSecurityPolicy().Schema["rules"].Elem.(*schema.Resource)), old)
+	newSet := schema.NewSet(schema.HashResource(ResourceComputeRegionSecurityPolicy().Schema["rules"].Elem.(*schema.Resource)), new)
+
+	return oldSet.Equal(newSet)
+}
+
 func ResourceComputeRegionSecurityPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionSecurityPolicyCreate,
@@ -56,6 +85,25 @@ func ResourceComputeRegionSecurityPolicy() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"region": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -63,6 +111,56 @@ func ResourceComputeRegionSecurityPolicy() *schema.Resource {
 				ForceNew: true,
 				Description: `Name of the resource. Provided by the client when the resource is created. The name must be 1-63 characters long, and comply with RFC1035.
 Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash.`,
+			},
+			"advanced_options_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Advanced Options Config of this security policy.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"json_custom_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Custom configuration to apply the JSON parsing. Only applicable when JSON parsing is set to STANDARD.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"content_types": {
+										Type:        schema.TypeSet,
+										Required:    true,
+										Description: `A list of custom Content-Type header values to apply the JSON parsing.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+								},
+							},
+						},
+						"json_parsing": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL", ""}),
+							Description:  `JSON body parsing. Supported values include: "DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL". Possible values: ["DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL"]`,
+						},
+						"log_level": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"NORMAL", "VERBOSE", ""}),
+							Description:  `Logging level. Supported values include: "NORMAL", "VERBOSE". Possible values: ["NORMAL", "VERBOSE"]`,
+						},
+						"user_ip_request_headers": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: `An optional list of case-insensitive request header names to use for resolving the callers client IP address.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set: schema.HashString,
+						},
+					},
+				},
 			},
 			"ddos_protection_config": {
 				Type:        schema.TypeList,
@@ -98,10 +196,11 @@ Specifically, the name must be 1-63 characters long and match the regular expres
 If it is not provided, the provider region is used.`,
 			},
 			"rules": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				Description: `The set of rules that belong to this policy. There must always be a default rule (rule with priority 2147483647 and match "*"). If no rules are provided when creating a security policy, a default rule with action "allow" will be added.`,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				DiffSuppressFunc: resourceComputeRegionSecurityPolicySpecRulesDiffSuppress,
+				Description:      `The set of rules that belong to this policy. There must always be a default rule (rule with priority 2147483647 and match "*"). If no rules are provided when creating a security policy, a default rule with action "allow" will be added.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"action": {
@@ -471,7 +570,7 @@ Valid option is "allow" only.`,
 									"enforce_on_key": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "TLS_JA4_FINGERPRINT", "USER_IP", ""}),
 										Description: `Determines the key to enforce the rateLimitThreshold on. Possible values are:
 * ALL: A single rate limit threshold is applied to all the requests matching this rule. This is the default value if "enforceOnKey" is not configured.
 * IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
@@ -482,7 +581,8 @@ Valid option is "allow" only.`,
 * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
 * REGION_CODE: The country/region from which the request originates.
 * TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
-* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP"]`,
+* TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "TLS_JA4_FINGERPRINT", "USER_IP"]`,
 									},
 									"enforce_on_key_configs": {
 										Type:     schema.TypeList,
@@ -502,7 +602,7 @@ HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.`,
 												"enforce_on_key_type": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "TLS_JA4_FINGERPRINT", "USER_IP", ""}),
 													Description: `Determines the key to enforce the rateLimitThreshold on. Possible values are:
 * ALL: A single rate limit threshold is applied to all the requests matching this rule. This is the default value if "enforceOnKeyConfigs" is not configured.
 * IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
@@ -513,7 +613,8 @@ HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.`,
 * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
 * REGION_CODE: The country/region from which the request originates.
 * TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
-* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP"]`,
+* TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "TLS_JA4_FINGERPRINT", "USER_IP"]`,
 												},
 											},
 										},
@@ -681,6 +782,12 @@ func resourceComputeRegionSecurityPolicyCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("ddos_protection_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(ddosProtectionConfigProp)) && (ok || !reflect.DeepEqual(v, ddosProtectionConfigProp)) {
 		obj["ddosProtectionConfig"] = ddosProtectionConfigProp
 	}
+	advancedOptionsConfigProp, err := expandComputeRegionSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advanced_options_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(advancedOptionsConfigProp)) && (ok || !reflect.DeepEqual(v, advancedOptionsConfigProp)) {
+		obj["advancedOptionsConfig"] = advancedOptionsConfigProp
+	}
 	userDefinedFieldsProp, err := expandComputeRegionSecurityPolicyUserDefinedFields(d.Get("user_defined_fields"), d, config)
 	if err != nil {
 		return err
@@ -816,6 +923,9 @@ func resourceComputeRegionSecurityPolicyRead(d *schema.ResourceData, meta interf
 	if err := d.Set("ddos_protection_config", flattenComputeRegionSecurityPolicyDdosProtectionConfig(res["ddosProtectionConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
 	}
+	if err := d.Set("advanced_options_config", flattenComputeRegionSecurityPolicyAdvancedOptionsConfig(res["advancedOptionsConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
+	}
 	if err := d.Set("self_link", flattenComputeRegionSecurityPolicySelfLink(res["selfLink"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
 	}
@@ -832,6 +942,28 @@ func resourceComputeRegionSecurityPolicyRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading RegionSecurityPolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("region"); ok && v != "" {
+		err = identity.Set("region", d.Get("region").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting region: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -869,6 +1001,12 @@ func resourceComputeRegionSecurityPolicyUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("ddos_protection_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ddosProtectionConfigProp)) {
 		obj["ddosProtectionConfig"] = ddosProtectionConfigProp
 	}
+	advancedOptionsConfigProp, err := expandComputeRegionSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advanced_options_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, advancedOptionsConfigProp)) {
+		obj["advancedOptionsConfig"] = advancedOptionsConfigProp
+	}
 	userDefinedFieldsProp, err := expandComputeRegionSecurityPolicyUserDefinedFields(d.Get("user_defined_fields"), d, config)
 	if err != nil {
 		return err
@@ -901,6 +1039,10 @@ func resourceComputeRegionSecurityPolicyUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("ddos_protection_config") {
 		updateMask = append(updateMask, "ddosProtectionConfig")
+	}
+
+	if d.HasChange("advanced_options_config") {
+		updateMask = append(updateMask, "advancedOptionsConfig")
 	}
 
 	if d.HasChange("user_defined_fields") {
@@ -1065,6 +1207,60 @@ func flattenComputeRegionSecurityPolicyDdosProtectionConfig(v interface{}, d *sc
 }
 func flattenComputeRegionSecurityPolicyDdosProtectionConfigDdosProtection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeRegionSecurityPolicyAdvancedOptionsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["json_parsing"] =
+		flattenComputeRegionSecurityPolicyAdvancedOptionsConfigJsonParsing(original["jsonParsing"], d, config)
+	transformed["json_custom_config"] =
+		flattenComputeRegionSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(original["jsonCustomConfig"], d, config)
+	transformed["log_level"] =
+		flattenComputeRegionSecurityPolicyAdvancedOptionsConfigLogLevel(original["logLevel"], d, config)
+	transformed["user_ip_request_headers"] =
+		flattenComputeRegionSecurityPolicyAdvancedOptionsConfigUserIpRequestHeaders(original["userIpRequestHeaders"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionSecurityPolicyAdvancedOptionsConfigJsonParsing(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["content_types"] =
+		flattenComputeRegionSecurityPolicyAdvancedOptionsConfigJsonCustomConfigContentTypes(original["contentTypes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionSecurityPolicyAdvancedOptionsConfigJsonCustomConfigContentTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeRegionSecurityPolicyAdvancedOptionsConfigLogLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionSecurityPolicyAdvancedOptionsConfigUserIpRequestHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeRegionSecurityPolicySelfLink(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1714,6 +1910,83 @@ func expandComputeRegionSecurityPolicyDdosProtectionConfig(v interface{}, d tpgr
 }
 
 func expandComputeRegionSecurityPolicyDdosProtectionConfigDdosProtection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionSecurityPolicyAdvancedOptionsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedJsonParsing, err := expandComputeRegionSecurityPolicyAdvancedOptionsConfigJsonParsing(original["json_parsing"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonParsing); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jsonParsing"] = transformedJsonParsing
+	}
+
+	transformedJsonCustomConfig, err := expandComputeRegionSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(original["json_custom_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonCustomConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jsonCustomConfig"] = transformedJsonCustomConfig
+	}
+
+	transformedLogLevel, err := expandComputeRegionSecurityPolicyAdvancedOptionsConfigLogLevel(original["log_level"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLogLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["logLevel"] = transformedLogLevel
+	}
+
+	transformedUserIpRequestHeaders, err := expandComputeRegionSecurityPolicyAdvancedOptionsConfigUserIpRequestHeaders(original["user_ip_request_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUserIpRequestHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["userIpRequestHeaders"] = transformedUserIpRequestHeaders
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionSecurityPolicyAdvancedOptionsConfigJsonParsing(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedContentTypes, err := expandComputeRegionSecurityPolicyAdvancedOptionsConfigJsonCustomConfigContentTypes(original["content_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContentTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["contentTypes"] = transformedContentTypes
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionSecurityPolicyAdvancedOptionsConfigJsonCustomConfigContentTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeRegionSecurityPolicyAdvancedOptionsConfigLogLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionSecurityPolicyAdvancedOptionsConfigUserIpRequestHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 

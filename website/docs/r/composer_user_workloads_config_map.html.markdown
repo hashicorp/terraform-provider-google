@@ -38,6 +38,19 @@ To get more information about UserWorkloadsConfigMap, see:
 
 
 ```hcl
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "test-sa"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+
 resource "google_composer_environment" "environment" {
   name   = "test-environment"
   region = "us-central1"
@@ -45,7 +58,11 @@ resource "google_composer_environment" "environment" {
     software_config {
       image_version = "composer-3-airflow-2"
     }
+    node_config {
+      service_account = google_service_account.test.name
+    }
   }
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_composer_user_workloads_config_map" "config_map" {
@@ -72,9 +89,6 @@ The following arguments are supported:
   Environment where the Kubernetes ConfigMap will be stored and used.
 
 
-- - -
-
-
 * `data` -
   (Optional)
   The "data" field of Kubernetes ConfigMap, organized in key-value pairs.
@@ -86,6 +100,7 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
 
 
 ## Attributes Reference

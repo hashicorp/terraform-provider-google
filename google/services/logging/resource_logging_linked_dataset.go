@@ -47,6 +47,29 @@ func ResourceLoggingLinkedDataset() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"link_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"parent": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"bucket": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"bucket": {
 				Type:             schema.TypeString,
@@ -180,29 +203,15 @@ func resourceLoggingLinkedDatasetCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = LoggingOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating LinkedDataset", userAgent,
+	err = LoggingOperationWaitTime(
+		config, res, "Creating LinkedDataset", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create LinkedDataset: %s", err)
 	}
-
-	if err := d.Set("name", flattenLoggingLinkedDatasetName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "{{parent}}/locations/{{location}}/buckets/{{bucket}}/links/{{link_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating LinkedDataset %q: %#v", d.Id(), res)
 
@@ -257,6 +266,34 @@ func resourceLoggingLinkedDatasetRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading LinkedDataset: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("link_id"); ok && v != "" {
+		err = identity.Set("link_id", d.Get("link_id").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting link_id: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("parent"); ok && v != "" {
+		err = identity.Set("parent", d.Get("parent").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting parent: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("bucket"); ok && v != "" {
+		err = identity.Set("bucket", d.Get("bucket").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting bucket: %s", err)
+		}
+	}
 	return nil
 }
 

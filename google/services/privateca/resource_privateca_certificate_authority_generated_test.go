@@ -33,11 +33,22 @@ import (
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"deletion_protection": false,
 		"pool_location":       "us-central1",
 		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"random_suffix":       acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -53,6 +64,12 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"certificate_authority_id", "deletion_protection", "ignore_active_certificates_on_deletion", "labels", "location", "pem_ca_certificate", "pool", "skip_grace_period", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_privateca_certificate_authority.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -99,15 +116,105 @@ resource "google_privateca_certificate_authority" "default" {
 `, context)
 }
 
+func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicNoOrgExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
+		"deletion_protection": false,
+		"pool_location":       "us-central1",
+		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+	}
+	for k, v := range overrides {
+		context[k] = v
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicNoOrgExample(context),
+			},
+			{
+				ResourceName:            "google_privateca_certificate_authority.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"certificate_authority_id", "deletion_protection", "ignore_active_certificates_on_deletion", "labels", "location", "pem_ca_certificate", "pool", "skip_grace_period", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicNoOrgExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_privateca_certificate_authority" "default" {
+  // This example assumes this pool already exists.
+  // Pools cannot be deleted in normal test circumstances, so we depend on static pools
+  pool = "%{pool_name}"
+  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
+  location = "%{pool_location}"
+  deletion_protection = %{deletion_protection}
+  config {
+    subject_config {
+      subject {
+        common_name = "my-certificate-authority"
+      }
+    }
+    x509_config {
+      ca_options {
+        # is_ca *MUST* be true for certificate authorities
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          # cert_sign and crl_sign *MUST* be true for certificate authorities
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+        }
+      }
+    }
+  }
+  # valid for 10 years
+  lifetime = "${10 * 365 * 24 * 3600}s"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+}
+`, context)
+}
+
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"deletion_protection": false,
 		"pool_location":       "us-central1",
 		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"random_suffix":       acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -216,11 +323,22 @@ resource "google_privateca_certificate_authority" "default" {
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicWithCustomCdpAiaUrlsExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{
 		"deletion_protection": false,
 		"pool_location":       "us-central1",
 		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"random_suffix":       acctest.RandString(t, 10),
+	}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

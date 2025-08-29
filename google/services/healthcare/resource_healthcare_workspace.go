@@ -55,6 +55,21 @@ func ResourceHealthcareWorkspace() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"dataset": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"dataset": {
 				Type:             schema.TypeString,
@@ -136,11 +151,11 @@ func resourceHealthcareWorkspaceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(settingsProp)) && (ok || !reflect.DeepEqual(v, settingsProp)) {
 		obj["settings"] = settingsProp
 	}
-	labelsProp, err := expandHealthcareWorkspaceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandHealthcareWorkspaceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/dataMapperWorkspaces?workspaceId={{name}}")
@@ -231,6 +246,22 @@ func resourceHealthcareWorkspaceRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Workspace: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("dataset"); ok && v != "" {
+		err = identity.Set("dataset", d.Get("dataset").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting dataset: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -250,11 +281,11 @@ func resourceHealthcareWorkspaceUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, settingsProp)) {
 		obj["settings"] = settingsProp
 	}
-	labelsProp, err := expandHealthcareWorkspaceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandHealthcareWorkspaceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/dataMapperWorkspaces/{{name}}")
@@ -373,7 +404,7 @@ func flattenHealthcareWorkspaceName(v interface{}, d *schema.ResourceData, confi
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenHealthcareWorkspaceSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

@@ -34,9 +34,20 @@ import (
 func TestAccClouddeployAutomation_clouddeployAutomationBasicExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -52,6 +63,12 @@ func TestAccClouddeployAutomation_clouddeployAutomationBasicExample(t *testing.T
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "delivery_pipeline", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_clouddeploy_automation.b-automation",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -70,11 +87,35 @@ resource "google_clouddeploy_automation" "b-automation" {
       id = "*"
     }
   }
-  suspended = false
   rules {
     promote_release_rule {
       id = "promote-release"
     }
+  }
+  rules {
+      advance_rollout_rule {
+        id                    = "advance-rollout"
+      }
+    }
+  rules {
+    repair_rollout_rule {
+      id                    = "repair-rollout"
+      repair_phases {
+      retry  {
+                      attempts = "1"
+                  }
+       }
+      repair_phases {
+             rollback {}
+          }
+      }
+  }
+  rules {
+    timed_promote_release_rule {
+      id                    = "timed-promote-release"
+      schedule              = "0 9 * * 1"
+      time_zone              = "America/New_York"
+     }
   }
 }
 
@@ -94,9 +135,20 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 func TestAccClouddeployAutomation_clouddeployAutomationFullExample(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
+	randomSuffix := acctest.RandString(t, 10)
+	context := make(map[string]interface{})
+	context["random_suffix"] = randomSuffix
+
+	envVars := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+	}
+	for k, v := range envVars {
+		context[k] = v
+	}
+
+	overrides := map[string]interface{}{}
+	for k, v := range overrides {
+		context[k] = v
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

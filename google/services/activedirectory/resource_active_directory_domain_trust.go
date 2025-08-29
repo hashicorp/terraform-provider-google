@@ -55,6 +55,25 @@ func ResourceActiveDirectoryDomainTrust() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"target_domain_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"domain": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"domain": {
 				Type:     schema.TypeString,
@@ -206,47 +225,15 @@ func resourceActiveDirectoryDomainTrustCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = ActiveDirectoryOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating DomainTrust", userAgent,
+	err = ActiveDirectoryOperationWaitTime(
+		config, res, project, "Creating DomainTrust", userAgent,
 		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create DomainTrust: %s", err)
 	}
-
-	opRes, err = resourceActiveDirectoryDomainTrustDecoder(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error decoding response from operation: %s", err)
-	}
-	if opRes == nil {
-		return fmt.Errorf("Error decoding response from operation, could not find object")
-	}
-
-	if _, ok := opRes["trusts"]; ok {
-		opRes, err = flattenNestedActiveDirectoryDomainTrust(d, meta, opRes)
-		if err != nil {
-			return fmt.Errorf("Error getting nested object from operation response: %s", err)
-		}
-		if opRes == nil {
-			// Object isn't there any more - remove it from the state.
-			return fmt.Errorf("Error decoding response from operation, could not find nested object")
-		}
-	}
-	if err := d.Set("target_domain_name", flattenNestedActiveDirectoryDomainTrustTargetDomainName(opRes["targetDomainName"], d, config)); err != nil {
-		return err
-	}
-
-	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/domains/{{domain}}/{{target_domain_name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating DomainTrust %q: %#v", d.Id(), res)
 
@@ -335,6 +322,28 @@ func resourceActiveDirectoryDomainTrustRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading DomainTrust: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("target_domain_name"); ok && v != "" {
+		err = identity.Set("target_domain_name", d.Get("target_domain_name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting target_domain_name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("domain"); ok && v != "" {
+		err = identity.Set("domain", d.Get("domain").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting domain: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 

@@ -57,6 +57,25 @@ func ResourceNetworkConnectivityServiceConnectionPolicy() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -113,10 +132,34 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 								Type: schema.TypeString,
 							},
 						},
+						"allowed_google_producers_resource_hierarchy_level": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `List of Projects, Folders, or Organizations from where the Producer instance can be within. For example,
+a network administrator can provide both 'organizations/foo' and 'projects/bar' as
+allowed_google_producers_resource_hierarchy_levels. This allowlists this network to connect with any Producer
+instance within the 'foo' organization or the 'bar' project. By default,
+allowedGoogleProducersResourceHierarchyLevel is empty. The format for each
+allowedGoogleProducersResourceHierarchyLevel is / where is one of 'projects', 'folders', or 'organizations'
+and is either the ID or the number of the resource type. Format for each
+allowedGoogleProducersResourceHierarchyLevel value: 'projects/' or 'folders/' or 'organizations/' Eg.
+[projects/my-project-id, projects/567, folders/891, organizations/123]`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"limit": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `Max number of PSC connections for this policy.`,
+						},
+						"producer_instance_location": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"PRODUCER_INSTANCE_LOCATION_UNSPECIFIED", "CUSTOM_RESOURCE_HIERARCHY_LEVELS", ""}),
+							Description: `ProducerInstanceLocation is used to specify which authorization mechanism to use to determine which projects
+the Producer instance can be within. Possible values: ["PRODUCER_INSTANCE_LOCATION_UNSPECIFIED", "CUSTOM_RESOURCE_HIERARCHY_LEVELS"]`,
 						},
 					},
 				},
@@ -304,11 +347,11 @@ func resourceNetworkConnectivityServiceConnectionPolicyCreate(d *schema.Resource
 	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
 	}
-	labelsProp, err := expandNetworkConnectivityServiceConnectionPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkConnectivityServiceConnectionPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/serviceConnectionPolicies?serviceConnectionPolicyId={{name}}")
@@ -446,6 +489,28 @@ func resourceNetworkConnectivityServiceConnectionPolicyRead(d *schema.ResourceDa
 		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("location"); ok && v != "" {
+		err = identity.Set("location", d.Get("location").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -483,11 +548,11 @@ func resourceNetworkConnectivityServiceConnectionPolicyUpdate(d *schema.Resource
 	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
 	}
-	labelsProp, err := expandNetworkConnectivityServiceConnectionPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkConnectivityServiceConnectionPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceNetworkConnectivityServiceConnectionPolicyUpdateEncoder(d, meta, obj)
@@ -669,11 +734,23 @@ func flattenNetworkConnectivityServiceConnectionPolicyPscConfig(v interface{}, d
 	transformed := make(map[string]interface{})
 	transformed["subnetworks"] =
 		flattenNetworkConnectivityServiceConnectionPolicyPscConfigSubnetworks(original["subnetworks"], d, config)
+	transformed["producer_instance_location"] =
+		flattenNetworkConnectivityServiceConnectionPolicyPscConfigProducerInstanceLocation(original["producerInstanceLocation"], d, config)
+	transformed["allowed_google_producers_resource_hierarchy_level"] =
+		flattenNetworkConnectivityServiceConnectionPolicyPscConfigAllowedGoogleProducersResourceHierarchyLevel(original["allowedGoogleProducersResourceHierarchyLevel"], d, config)
 	transformed["limit"] =
 		flattenNetworkConnectivityServiceConnectionPolicyPscConfigLimit(original["limit"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkConnectivityServiceConnectionPolicyPscConfigSubnetworks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConfigProducerInstanceLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConfigAllowedGoogleProducersResourceHierarchyLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -876,6 +953,20 @@ func expandNetworkConnectivityServiceConnectionPolicyPscConfig(v interface{}, d 
 		transformed["subnetworks"] = transformedSubnetworks
 	}
 
+	transformedProducerInstanceLocation, err := expandNetworkConnectivityServiceConnectionPolicyPscConfigProducerInstanceLocation(original["producer_instance_location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProducerInstanceLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["producerInstanceLocation"] = transformedProducerInstanceLocation
+	}
+
+	transformedAllowedGoogleProducersResourceHierarchyLevel, err := expandNetworkConnectivityServiceConnectionPolicyPscConfigAllowedGoogleProducersResourceHierarchyLevel(original["allowed_google_producers_resource_hierarchy_level"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedGoogleProducersResourceHierarchyLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowedGoogleProducersResourceHierarchyLevel"] = transformedAllowedGoogleProducersResourceHierarchyLevel
+	}
+
 	transformedLimit, err := expandNetworkConnectivityServiceConnectionPolicyPscConfigLimit(original["limit"], d, config)
 	if err != nil {
 		return nil, err
@@ -887,6 +978,14 @@ func expandNetworkConnectivityServiceConnectionPolicyPscConfig(v interface{}, d 
 }
 
 func expandNetworkConnectivityServiceConnectionPolicyPscConfigSubnetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityServiceConnectionPolicyPscConfigProducerInstanceLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityServiceConnectionPolicyPscConfigAllowedGoogleProducersResourceHierarchyLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

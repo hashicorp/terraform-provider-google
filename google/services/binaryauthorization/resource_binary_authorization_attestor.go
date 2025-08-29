@@ -83,6 +83,21 @@ func ResourceBinaryAuthorizationAttestor() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"attestation_authority_note": {
 				Type:        schema.TypeList,
@@ -238,11 +253,11 @@ func resourceBinaryAuthorizationAttestorCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	userOwnedGrafeasNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
+	attestationAuthorityNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation_authority_note"); !tpgresource.IsEmptyValue(reflect.ValueOf(userOwnedGrafeasNoteProp)) && (ok || !reflect.DeepEqual(v, userOwnedGrafeasNoteProp)) {
-		obj["userOwnedGrafeasNote"] = userOwnedGrafeasNoteProp
+	} else if v, ok := d.GetOkExists("attestation_authority_note"); !tpgresource.IsEmptyValue(reflect.ValueOf(attestationAuthorityNoteProp)) && (ok || !reflect.DeepEqual(v, attestationAuthorityNoteProp)) {
+		obj["userOwnedGrafeasNote"] = attestationAuthorityNoteProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors?attestorId={{name}}")
@@ -343,6 +358,22 @@ func resourceBinaryAuthorizationAttestorRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Attestor: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -374,11 +405,11 @@ func resourceBinaryAuthorizationAttestorUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	userOwnedGrafeasNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
+	attestationAuthorityNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation_authority_note"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userOwnedGrafeasNoteProp)) {
-		obj["userOwnedGrafeasNote"] = userOwnedGrafeasNoteProp
+	} else if v, ok := d.GetOkExists("attestation_authority_note"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attestationAuthorityNoteProp)) {
+		obj["userOwnedGrafeasNote"] = attestationAuthorityNoteProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
@@ -486,7 +517,7 @@ func flattenBinaryAuthorizationAttestorName(v interface{}, d *schema.ResourceDat
 	if v == nil {
 		return v
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
 }
 
 func flattenBinaryAuthorizationAttestorDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

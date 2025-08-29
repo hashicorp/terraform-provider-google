@@ -60,6 +60,21 @@ func ResourceComputeInterconnect() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"interconnect_type": {
 				Type:             schema.TypeString,
@@ -82,6 +97,14 @@ bundle, not the speed of the entire bundle. Can take one of the following values
   - LINK_TYPE_ETHERNET_10G_LR: A 10G Ethernet with LR optics.
   - LINK_TYPE_ETHERNET_100G_LR: A 100G Ethernet with LR optics.
   - LINK_TYPE_ETHERNET_400G_LR4: A 400G Ethernet with LR4 optics Possible values: ["LINK_TYPE_ETHERNET_10G_LR", "LINK_TYPE_ETHERNET_100G_LR", "LINK_TYPE_ETHERNET_400G_LR4"]`,
+			},
+			"location": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `URL of the InterconnectLocation object that represents where this connection is to be provisioned.
+Specifies the location inside Google's Networks.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
@@ -131,14 +154,6 @@ method. Each label key/value pair must comply with RFC1035. Label values may be 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
-			},
-			"location": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description: `URL of the InterconnectLocation object that represents where this connection is to be provisioned.
-Specifies the location inside Google's Networks, should not be passed in case of cross-cloud interconnect.`,
 			},
 			"macsec": {
 				Type:     schema.TypeList,
@@ -231,10 +246,10 @@ of Google's network that the interconnect is connected to.`,
 If specified then the connection is created on MACsec capable hardware ports. If not
 specified, the default value is false, which allocates non-MACsec capable ports first if
 available). Note that MACSEC is still technically allowed for compatibility reasons, but it
-does not work with the API, and will be removed in an upcoming major version. Possible values: ["MACSEC", "IF_MACSEC"]`,
+does not work with the API, and will be removed in an upcoming major version. Possible values: ["MACSEC", "CROSS_SITE_NETWORK", "IF_MACSEC"]`,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: verify.ValidateEnum([]string{"MACSEC", "IF_MACSEC"}),
+					ValidateFunc: verify.ValidateEnum([]string{"MACSEC", "CROSS_SITE_NETWORK", "IF_MACSEC"}),
 				},
 			},
 			"available_features": {
@@ -370,6 +385,16 @@ backend connectivity issues.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"interconnect_groups": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Description: `URLs of InterconnectGroups that include this Interconnect.
+Order is arbitrary and items are unique.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: schema.HashString,
 			},
 			"label_fingerprint": {
 				Type:     schema.TypeString,
@@ -529,11 +554,11 @@ func resourceComputeInterconnectCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("requested_features"); !tpgresource.IsEmptyValue(reflect.ValueOf(requestedFeaturesProp)) && (ok || !reflect.DeepEqual(v, requestedFeaturesProp)) {
 		obj["requestedFeatures"] = requestedFeaturesProp
 	}
-	labelsProp, err := expandComputeInterconnectEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandComputeInterconnectEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnects")
@@ -587,8 +612,8 @@ func resourceComputeInterconnectCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error waiting to create Interconnect: %s", err)
 	}
 
-	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		labels := d.Get("labels")
+	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		userLabels := d.Get("labels")
 		terraformLables := d.Get("terraform_labels")
 
 		// Labels cannot be set in a create.  We'll have to set them here.
@@ -632,7 +657,7 @@ func resourceComputeInterconnectCreate(d *schema.ResourceData, meta interface{})
 		}
 
 		// Set back the labels field, as it is needed to decide the value of "labels" in the state in the read function.
-		if err := d.Set("labels", labels); err != nil {
+		if err := d.Set("labels", userLabels); err != nil {
 			return fmt.Errorf("Error setting back labels: %s", err)
 		}
 
@@ -775,6 +800,9 @@ func resourceComputeInterconnectRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("available_features", flattenComputeInterconnectAvailableFeatures(res["availableFeatures"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
+	if err := d.Set("interconnect_groups", flattenComputeInterconnectInterconnectGroups(res["interconnectGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenComputeInterconnectTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
@@ -782,6 +810,22 @@ func resourceComputeInterconnectRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -1278,6 +1322,13 @@ func flattenComputeInterconnectRequestedFeatures(v interface{}, d *schema.Resour
 
 func flattenComputeInterconnectAvailableFeatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeInterconnectInterconnectGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeInterconnectTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

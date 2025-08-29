@@ -56,6 +56,34 @@ func ResourceContainerAzureNodePool() *schema.Resource {
 			tpgresource.SetAnnotationsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"cluster": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The azureCluster for the resource",
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       "The project for the resource",
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The location for the resource",
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The name of this resource.",
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"autoscaling": {
 				Type:        schema.TypeList,
