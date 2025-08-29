@@ -501,7 +501,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `desired_psc_auto_connections` - (Optional) `desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead.
+* `desired_psc_auto_connections` - (Optional) `desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead `terraform import` will only work with desired_auto_created_endpoints`.
 * `desired_auto_created_endpoints` - (Optional) Immutable. User inputs for the auto-created endpoints connections. 
 
 
