@@ -908,9 +908,9 @@ DELETING`,
 			"desired_psc_auto_connections": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Deprecated:  "`desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead.",
+				Deprecated:  "`desired_psc_auto_connections` is deprecated. Use `desired_auto_created_endpoints` instead. `terraform import` will only work with desired_auto_created_endpoints`.",
 				ForceNew:    true,
-				Description: `'desired_psc_auto_connections' is deprecated  Use 'desired_auto_created_endpoints' instead.`,
+				Description: `'desired_psc_auto_connections' is deprecated  Use 'desired_auto_created_endpoints' instead 'terraform import' will only work with desired_auto_created_endpoints'.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": {
@@ -3371,10 +3371,28 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 					}
 				}
 			}
+			// We want to make these fields detect API-side drift, so if the API returns a value for them and they're set in config, we set them in state.
+			// On import, we only set `desired_auto_created_endpoints` because that's the non-deprecated field.
 			if len(transformed) > 0 {
-				d.Set("desired_auto_created_endpoints", transformed)
-				log.Printf("[DEBUG] Setting desired_auto_created_endpoints in decoder for %#v", transformed)
-
+				_, okEndpoint := d.GetOk("desired_auto_created_endpoints")
+				_, okPsc := d.GetOk("desired_psc_auto_connections")
+				if okEndpoint {
+					d.Set("desired_auto_created_endpoints", transformed)
+					log.Printf("[DEBUG] Setting desired_auto_created_endpoints in decoder within endpoints for %#v", transformed)
+				} else if okPsc {
+					d.Set("desired_auto_created_endpoints", []interface{}{})
+				}
+				if okPsc {
+					d.Set("desired_psc_auto_connections", transformed)
+					log.Printf("[DEBUG] Setting desired_psc_auto_connections in decoder within endpoints for %#v", transformed)
+				} else if okEndpoint {
+					d.Set("desired_psc_auto_connections", []interface{}{})
+				}
+				// Set preferred field on import
+				if !okPsc && !okEndpoint {
+					d.Set("desired_auto_created_endpoints", transformed)
+					log.Printf("[DEBUG] Setting desired_auto_created_endpoints in decoder within endpoints for %#v", transformed)
+				}
 			}
 		}
 

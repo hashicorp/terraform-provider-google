@@ -1,0 +1,3 @@
+```release-note:bug
+memorystore:  `desired_auto_created_endpoints` field incorrectly updated when desired_psc_auto_connections should have been 
+```
