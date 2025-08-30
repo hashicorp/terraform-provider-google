@@ -211,7 +211,7 @@ resource "time_sleep" "wait_60_seconds" {
 
 resource "google_project_service" "apigee" {
   project = google_project.project.project_id
-  service = "apigee.googleapis.com""
+  service = "apigee.googleapis.com"
   depends_on = [time_sleep.wait_60_seconds]
 }
 
@@ -253,7 +253,7 @@ resource "google_service_networking_connection" "apigee_vpc_connection" {
 
 resource "google_apigee_organization" "apigee_org" {
     analytics_region   = "us-central1"
-    project_id         = data.google_client_config.current.project
+    project_id         = google_project.project.project_id
     authorized_network = google_compute_network.apigee_network.id
     depends_on         = [google_service_networking_connection.apigee_vpc_connection]
 }
