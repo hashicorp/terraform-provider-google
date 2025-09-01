@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_compute_public_advertised_prefix'
 generation_type: 'mmv1'
 source_file: 'products/compute/PublicAdvertisedPrefix.yaml'
