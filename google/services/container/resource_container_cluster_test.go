@@ -8023,8 +8023,8 @@ resource "google_container_cluster" "with_node_config_kubelet_config_settings_in
 	min_node_cpus = 1
       }
       linux_node_config {
-        transparent_hugepage_defrag  = %s
-	transparent_hugepage_enabled = %s
+        transparent_hugepage_defrag  = "%s"
+	transparent_hugepage_enabled = "%s"
       }
     }
   }
