@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `secret_manager_config.rotation_config` field to `google_container_cluster` resource
+```
