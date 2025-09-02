@@ -1,0 +1,47 @@
+```release-note:bug
+osconfig: fix permadiff where `patch_config.yum.minimal` doesn't send `false` for empty values
+```
+
+Implemented a specific test to reproduce the permadiff, but I'm fine removing it if it is too much overhead.
+
+**Acceptance tests:**
+
+```
+❮ make testacc TEST=./google/services/osconfig TESTARGS='-run=TestAccOSConfigPatchDeployment_'
+TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/osconfig -v -run=TestAccOSConfigPatchDeployment_ -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample
+=== PAUSE TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample
+=== RUN   TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample
+=== PAUSE TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample
+=== RUN   TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample
+=== PAUSE TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample
+=== RUN   TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample
+=== PAUSE TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample
+=== RUN   TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample
+=== PAUSE TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample
+=== RUN   TestAccOSConfigPatchDeployment_osConfigPatchDeployment_yum_basic
+=== PAUSE TestAccOSConfigPatchDeployment_osConfigPatchDeployment_yum_basic
+=== CONT  TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample
+=== CONT  TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample
+=== CONT  TestAccOSConfigPatchDeployment_osConfigPatchDeployment_yum_basic
+=== CONT  TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample
+=== CONT  TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample
+=== CONT  TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample
+--- PASS: TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample (5.41s)
+--- PASS: TestAccOSConfigPatchDeployment_osConfigPatchDeployment_yum_basic (5.41s)
+--- PASS: TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample (5.43s)
+--- PASS: TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample (5.43s)
+--- PASS: TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample (5.76s)
+--- PASS: TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample (128.94s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/osconfig 129.689s
+
+```
+
+Had to update the decoder as welll, because even if you provide `false` in the POST for the `patchConfig.yum.minimal`, the GET returns an empty object:
+
+```
+  "patchConfig": {
+    "yum": {}
+  },
+```
