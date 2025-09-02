@@ -1299,7 +1299,7 @@ notification_config {
 <a name="nested_secret_manager_config"></a>The `secret_manager_config` block supports:
 
 * `enabled` (Required) - Enable the Secret Manager add-on for this cluster.
-* `rotation_config` (Optional, Beta) - config for secret manager auto rotation. Structure is [docuemented below](#rotation_config)
+* `rotation_config` (Optional) - config for secret manager auto rotation. Structure is [docuemented below](#rotation_config)
 
 <a name="rotation_config"></a>The `rotation_config` block supports:
 

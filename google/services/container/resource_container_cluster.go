@@ -1534,6 +1534,28 @@ func ResourceContainerCluster() *schema.Resource {
 							Required:    true,
 							Description: `Enable the Secret manager csi component.`,
 						},
+						"rotation_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
+							Description: `Configuration for Secret Manager auto rotation.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Enable the Secret manager auto rotation.`,
+									},
+									"rotation_interval": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: `The interval between two consecutive rotations. Default rotation interval is 2 minutes`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -5963,6 +5985,23 @@ func expandSecretManagerConfig(configured interface{}) *container.SecretManagerC
 		Enabled:         config["enabled"].(bool),
 		ForceSendFields: []string{"Enabled"},
 	}
+	if autoRotation, ok := config["rotation_config"]; ok {
+		if autoRotationList, ok := autoRotation.([]interface{}); ok {
+			if len(autoRotationList) > 0 {
+				autoRotationConfig := autoRotationList[0].(map[string]interface{})
+				if rotationInterval, ok := autoRotationConfig["rotation_interval"].(string); ok && rotationInterval != "" {
+					sc.RotationConfig = &container.RotationConfig{
+						Enabled:          autoRotationConfig["enabled"].(bool),
+						RotationInterval: rotationInterval,
+					}
+				} else {
+					sc.RotationConfig = &container.RotationConfig{
+						Enabled: autoRotationConfig["enabled"].(bool),
+					}
+				}
+			}
+		}
+	}
 	return sc
 }
 
@@ -6941,6 +6980,18 @@ func flattenSecretManagerConfig(c *container.SecretManagerConfig) []map[string]i
 	result := make(map[string]interface{})
 
 	result["enabled"] = c.Enabled
+
+	rotationList := []map[string]interface{}{}
+	if c.RotationConfig != nil {
+		rotationConfigMap := map[string]interface{}{
+			"enabled": c.RotationConfig.Enabled,
+		}
+		if c.RotationConfig.RotationInterval != "" {
+			rotationConfigMap["rotation_interval"] = c.RotationConfig.RotationInterval
+		}
+		rotationList = append(rotationList, rotationConfigMap)
+	}
+	result["rotation_config"] = rotationList
 	return []map[string]interface{}{result}
 }
 

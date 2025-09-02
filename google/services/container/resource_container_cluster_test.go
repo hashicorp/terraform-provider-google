@@ -10894,6 +10894,10 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
   secret_manager_config {
     enabled = true
+  rotation_config {
+    enabled = true
+    rotation_interval = "300s"
+    }
   }
   deletion_protection = false
   network    = "%s"
@@ -10916,6 +10920,10 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
   secret_manager_config {
     enabled = true
+  rotation_config {
+    enabled = true
+    rotation_interval = "120s"
+    }
   }
   deletion_protection = false
   network    = "%s"
@@ -10938,6 +10946,10 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
   secret_manager_config {
     enabled = true
+  rotation_config {
+    enabled = false
+    rotation_interval = "120s"
+    }
   }
   deletion_protection = false
   network    = "%s"
