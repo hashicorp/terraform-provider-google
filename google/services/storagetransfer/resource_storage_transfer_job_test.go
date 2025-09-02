@@ -640,13 +640,11 @@ func TestAccStorageTransferJob_withServiceAccount(t *testing.T) {
 	})
 }
 
-func TestAccStorageTransferJob_transferUpdateToEmptyString(t *testing.T) {
+func TestAccStorageTransferJob_awsS3CompatibleDataSource(t *testing.T) {
 	t.Parallel()
 
 	testDataSourceBucketName := acctest.RandString(t, 10)
 	testDataSinkName := acctest.RandString(t, 10)
-	testTransferJobDescription := acctest.RandString(t, 10)
-	testTransferJobName := fmt.Sprintf("tf-test-transfer-job-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -654,13 +652,20 @@ func TestAccStorageTransferJob_transferUpdateToEmptyString(t *testing.T) {
 		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageTransferJob_transferJobGcsPath(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription, testTransferJobName, "bar/"),
+				Config: testAccStorageTransferJob_awsS3CompatibleDataSource(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName),
 			},
 			{
-				Config: testAccStorageTransferJob_transferJobGcsPath(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription, testTransferJobName, ""),
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
-				Config: testAccStorageTransferJob_transferJobGcsPath(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription, testTransferJobName, "bar/"),
+				Config: testAccStorageTransferJob_updateAwsS3CompatibleDataSource(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -1004,7 +1009,7 @@ resource "google_storage_transfer_job" "transfer_job" {
     }
 	  repeat_interval = "604800s"
   }
-
+  
   logging_config {
     log_actions      = [
       "COPY",
@@ -1179,7 +1184,7 @@ resource "google_storage_transfer_job" "transfer_job" {
     }
 	  repeat_interval = "604800s"
   }
-
+  
   logging_config {
     log_actions      = [
       "COPY",
@@ -1205,7 +1210,7 @@ func testAccStorageTransferJob_transferJobName(project string, dataSourceBucketN
   data "google_storage_transfer_project_service_account" "default" {
     project = "%s"
   }
-
+  
   resource "google_storage_bucket" "data_source" {
     name          = "%s"
     project       = "%s"
@@ -1213,13 +1218,13 @@ func testAccStorageTransferJob_transferJobName(project string, dataSourceBucketN
     force_destroy = true
     uniform_bucket_level_access = true
   }
-
+  
   resource "google_storage_bucket_iam_member" "data_source" {
     bucket = google_storage_bucket.data_source.name
     role   = "roles/storage.admin"
     member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
   }
-
+  
   resource "google_storage_bucket" "data_sink" {
     name          = "%s"
     project       = "%s"
@@ -1227,18 +1232,18 @@ func testAccStorageTransferJob_transferJobName(project string, dataSourceBucketN
     force_destroy = true
     uniform_bucket_level_access = true
   }
-
+  
   resource "google_storage_bucket_iam_member" "data_sink" {
     bucket = google_storage_bucket.data_sink.name
     role   = "roles/storage.admin"
     member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
   }
-
+  
   resource "google_storage_transfer_job" "transfer_job" {
     name        = "transferJobs/%s"
     description = "%s"
     project     = "%s"
-
+  
     transfer_spec {
       gcs_data_source {
         bucket_name = google_storage_bucket.data_source.name
@@ -1249,7 +1254,7 @@ func testAccStorageTransferJob_transferJobName(project string, dataSourceBucketN
         path  = "foo/bar/"
       }
     }
-
+  
     schedule {
       schedule_start_date {
         year  = 2018
@@ -1269,7 +1274,7 @@ func testAccStorageTransferJob_transferJobName(project string, dataSourceBucketN
       }
       repeat_interval = "604800s"
     }
-
+  
     depends_on = [
       google_storage_bucket_iam_member.data_source,
       google_storage_bucket_iam_member.data_sink,
@@ -1454,7 +1459,7 @@ resource "google_storage_transfer_job" "transfer_job" {
       path  = "foo/bar/"
     }
   }
-
+  
   logging_config {
     enable_on_prem_gcs_transfer_logs = true
   }
@@ -1589,7 +1594,7 @@ resource "google_storage_transfer_job" "transfer_job" {
       bucket_name = google_storage_bucket.data_source.name
     }
   }
-
+  
   logging_config {
     enable_on_prem_gcs_transfer_logs = false
   }
@@ -2222,7 +2227,7 @@ resource "google_storage_transfer_job" "transfer_job" {
       last_modified_since = "2020-01-01T00:00:00Z"
       last_modified_before = "2020-01-01T00:00:00Z"
       exclude_prefixes = [
-        "a/b/c",
+        "a/b/c", 
       ]
       include_prefixes = [
         "a/b"
@@ -2308,7 +2313,7 @@ resource "google_storage_transfer_job" "transfer_job" {
       last_modified_since = "2020-01-01T00:00:00Z"
       last_modified_before = "2020-01-01T00:00:00Z"
       exclude_prefixes = [
-        "a/b/c",
+        "a/b/c", 
       ]
       include_prefixes = [
         "a/b"
@@ -2493,82 +2498,141 @@ resource "google_storage_transfer_job" "transfer_job" {
 `, project, dataSourceBucketName, project, dataSinkBucketName, project, transferJobDescription, project)
 }
 
-func testAccStorageTransferJob_transferJobGcsPath(project string, dataSourceBucketName string, dataSinkBucketName string, transferJobDescription string, testTransferJobName string, gcsPath string) string {
+func testAccStorageTransferJob_awsS3CompatibleDataSource(project string, dataSourceBucketName string, dataSinkBucketName string) string {
 	return fmt.Sprintf(`
-  data "google_storage_transfer_project_service_account" "default" {
-    project = "%s"
-  }
+data "google_storage_transfer_project_service_account" "default" {
+  project = "%s"
+}
 
-  resource "google_storage_bucket" "data_source" {
-    name          = "%s"
-    project       = "%s"
-    location      = "US"
-    force_destroy = true
-    uniform_bucket_level_access = true
-  }
+resource "google_storage_bucket" "data_sink" {
+  name          = "%s"
+  project       = "%s"
+  location      = "US"
+  force_destroy = true
+}
 
-  resource "google_storage_bucket_iam_member" "data_source" {
-    bucket = google_storage_bucket.data_source.name
-    role   = "roles/storage.admin"
-    member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
-  }
+resource "google_storage_bucket_iam_member" "data_sink" {
+  bucket = google_storage_bucket.data_sink.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
 
-  resource "google_storage_bucket" "data_sink" {
-    name          = "%s"
-    project       = "%s"
-    location      = "US"
-    force_destroy = true
-    uniform_bucket_level_access = true
-  }
+resource "google_storage_transfer_job" "transfer_job" {
+  description = "A test job using an aws s3 compatible data source"
+  project     = "%s"
 
-  resource "google_storage_bucket_iam_member" "data_sink" {
-    bucket = google_storage_bucket.data_sink.name
-    role   = "roles/storage.admin"
-    member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
-  }
-
-  resource "google_storage_transfer_job" "transfer_job" {
-    name        = "transferJobs/%s"
-    description = "%s"
-    project     = "%s"
-
-    transfer_spec {
-      gcs_data_source {
-        bucket_name = google_storage_bucket.data_source.name
-        path  = "foo/"
-      }
-      gcs_data_sink {
-        bucket_name = google_storage_bucket.data_sink.name
-        path  = "%s"
+  transfer_spec {
+    aws_s3_compatible_data_source {
+      bucket_name = "%s"
+      path        = "foo/bar/"
+      endpoint    = "https://sample.r2.cloudflarestorage.com/"
+      region      = "enam"
+      s3_metadata {
+        auth_method   = "AUTH_METHOD_AWS_SIGNATURE_V4"
+        list_api      = "LIST_OBJECTS_V2"
+        protocol      = "NETWORK_PROTOCOL_HTTP"
+        request_model = "REQUEST_MODEL_PATH_STYLE"
       }
     }
-
-    schedule {
-      schedule_start_date {
-        year  = 2018
-        month = 10
-        day   = 1
-      }
-      schedule_end_date {
-        year  = 2019
-        month = 10
-        day   = 1
-      }
-      start_time_of_day {
-        hours   = 0
-        minutes = 30
-        seconds = 0
-        nanos   = 0
-      }
-      repeat_interval = "604800s"
+    gcs_data_sink {
+      bucket_name = google_storage_bucket.data_sink.name
+      path        = "foo/bar/"
     }
-
-    depends_on = [
-      google_storage_bucket_iam_member.data_source,
-      google_storage_bucket_iam_member.data_sink,
-    ]
   }
-  `, project, dataSourceBucketName, project, dataSinkBucketName, project, testTransferJobName, transferJobDescription, project, gcsPath)
+
+  schedule {
+    schedule_start_date {
+      year  = 2018
+      month = 10
+      day   = 1
+    }
+    schedule_end_date {
+      year  = 2019
+      month = 10
+      day   = 1
+    }
+    start_time_of_day {
+      hours   = 0
+      minutes = 30
+      seconds = 0
+      nanos   = 0
+    }
+	  repeat_interval = "604800s"
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.data_sink,
+  ]
+}
+`, project, dataSinkBucketName, project, project, dataSourceBucketName)
+}
+
+func testAccStorageTransferJob_updateAwsS3CompatibleDataSource(project string, dataSourceBucketName string, dataSinkBucketName string) string {
+	return fmt.Sprintf(`
+data "google_storage_transfer_project_service_account" "default" {
+  project = "%s"
+}
+
+resource "google_storage_bucket" "data_sink" {
+  name          = "%s"
+  project       = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_iam_member" "data_sink" {
+  bucket = google_storage_bucket.data_sink.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_storage_transfer_job" "transfer_job" {
+  description = "A test job using an aws s3 compatible data source"
+  project     = "%s"
+
+  transfer_spec {
+    aws_s3_compatible_data_source {
+      bucket_name = "%s"
+      path        = "foo/bar/foo/"
+      endpoint    = "https://sample-update.r2.cloudflarestorage.com/"
+      s3_metadata {
+        auth_method   = "AUTH_METHOD_AWS_SIGNATURE_V2"
+        list_api      = "LIST_OBJECTS"
+        protocol      = "NETWORK_PROTOCOL_HTTPS"
+        request_model = "REQUEST_MODEL_VIRTUAL_HOSTED_STYLE"
+      }
+    }
+    gcs_data_sink {
+      bucket_name = google_storage_bucket.data_sink.name
+      path        = "foo/bar/"
+    }
+  }
+
+  schedule {
+    schedule_start_date {
+      year  = 2018
+      month = 10
+      day   = 1
+    }
+    schedule_end_date {
+      year  = 2019
+      month = 10
+      day   = 1
+    }
+    start_time_of_day {
+      hours   = 0
+      minutes = 30
+      seconds = 0
+      nanos   = 0
+    }
+	  repeat_interval = "604800s"
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.data_sink,
+  ]
+}
+`, project, dataSinkBucketName, project, project, dataSourceBucketName)
 }
 
 func testAccStorageTransferJob_withServiceAccount(description, dataSourceBucketName, dataSinkBucketName, serviceAccountId, project string) string {
