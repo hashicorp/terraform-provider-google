@@ -188,6 +188,8 @@ The following arguments are supported:
 
 * `hdfs_data_source` - (Optional) An HDFS data source. Structure [documented below](#nested_hdfs_data_source).
 
+* `aws_s3_compatible_data_source` - (Optional) An AWS S3 Compatible data source. Structure [documented below](#nested_aws_s3_compatible_data_source).
+
 <a name="nested_replication_spec"></a>The `replication_spec` block supports:
 
 * `gcs_data_sink` - (Optional) A Google Cloud Storage data sink. Structure [documented below](#nested_gcs_data_sink).
@@ -265,6 +267,29 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 <a name="nested_hdfs_data_source"></a>The `hdfs_data_source` block supports:
 
 * `path` - (Required) Root directory path to the filesystem.
+
+<a name="nested_aws_s3_compatible_data_source"></a>The `aws_s3_compatible_data_source` block supports:
+
+* `bucket_name` - (Required) Name of the bucket.
+
+* `path` - (Optional) Specifies the path to transfer objects.
+
+* `endpoint` - (Required) Endpoint of the storage service.
+
+* `region` - (Optional) Specifies the region to sign requests with. This can be left blank if requests should be signed with an empty region.
+
+* `s3_metadata` - (Optional) S3 compatible metadata. [documented below](#nested_s3_metadata).
+
+<a name="nested_s3_metadata"></a>The `s3_metadata` block supports:
+
+* `auth_method` - (Optional) Authentication and authorization method used by the storage service. When not specified, Transfer Service will attempt to determine right auth method to use.
+
+* `request_model` - (Optional) API request model used to call the storage service. When not specified, the default value of RequestModel REQUEST_MODEL_VIRTUAL_HOSTED_STYLE is used.
+
+* `protocol` - (Optional) The network protocol of the agent. When not specified, the default value of NetworkProtocol NETWORK_PROTOCOL_HTTPS is used.
+
+* `list_api` - (Optional) The Listing API to use for discovering objects. When not specified, Transfer Service will attempt to determine the right API to use.
+
 
 <a name="nested_aws_s3_data_source"></a>The `aws_s3_data_source` block supports:
 
