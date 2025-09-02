@@ -2750,6 +2750,12 @@ func ConfigureBasePaths(c *Config) {
 }
 
 func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
+	ud := config.UniverseDomain
+	if ud != "" && ud != "googleapis.com" {
+		log.Printf("[INFO] Configured universe domain detected. Skipping user email retrieval.")
+		return "", nil
+	}
+
 	// When environment variables UserProjectOverride and BillingProject are set for the provider,
 	// the header X-Goog-User-Project is set for the API requests.
 	// But it causes an error when calling GetCurrentUserEmail. Set the project to be "NO_BILLING_PROJECT_OVERRIDE".
@@ -2758,9 +2764,10 @@ func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
 	// See https://github.com/golang/oauth2/issues/306 for a recommendation to do this from a Go maintainer
 	// URL retrieved from https://accounts.google.com/.well-known/openid-configuration
 	res, err := SendRequest(SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   "NO_BILLING_PROJECT_OVERRIDE",
+		Config:  config,
+		Method:  "GET",
+		Project: "NO_BILLING_PROJECT_OVERRIDE",
+		// URL does not need to be universe domain-aware since we return early for non-GDU universes
 		RawURL:    "https://openidconnect.googleapis.com/v1/userinfo",
 		UserAgent: userAgent,
 	})
