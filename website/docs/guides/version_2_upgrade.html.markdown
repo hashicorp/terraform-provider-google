@@ -314,8 +314,8 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     tags   = ["team-a", "service-b", "updated"]
 
     step {
-      name = "gcr.io/cloud-builders/gsutil"
-      args = ["cp", "gs://mybucket/remotefile.zip", "localfile-updated.zip"]
+      name = "gcr.io/cloud-builders/gcloud"
+      args = ["storage", "cp", "gs://mybucket/remotefile.zip", "localfile-updated.zip"]
     }
 
     step {
