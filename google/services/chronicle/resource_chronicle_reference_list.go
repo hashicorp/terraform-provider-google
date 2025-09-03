@@ -110,6 +110,37 @@ REFERENCE_LIST_SYNTAX_TYPE_PLAIN_TEXT_STRING
 REFERENCE_LIST_SYNTAX_TYPE_REGEX
 REFERENCE_LIST_SYNTAX_TYPE_CIDR`,
 			},
+			"scope_info": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `ScopeInfo specifies the scope info of the reference list.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"reference_list_scope": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `ReferenceListScope specifies the list of scope names of the reference list.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"scope_names": {
+										Type:             schema.TypeList,
+										Optional:         true,
+										DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+										Description: `Optional. The list of scope names of the reference list. The scope names should be
+full resource names and should be of the format:
+"projects/{project}/locations/{location}/instances/{instance}/dataAccessScopes/{scope_name}".`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -142,35 +173,6 @@ This is returned only when the view is REFERENCE_LIST_VIEW_FULL.`,
 					Type: schema.TypeString,
 				},
 			},
-			"scope_info": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: `ScopeInfo specifies the scope info of the reference list.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"reference_list_scope": {
-							Type:        schema.TypeList,
-							Required:    true,
-							Description: `ReferenceListScope specifies the list of scope names of the reference list.`,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"scope_names": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Description: `Optional. The list of scope names of the reference list. The scope names should be
-full resource names and should be of the format:
-"projects/{project}/locations/{location}/instances/{instance}/dataAccessScopes/{scope_name}".`,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -201,6 +203,12 @@ func resourceChronicleReferenceListCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("entries"); !tpgresource.IsEmptyValue(reflect.ValueOf(entriesProp)) && (ok || !reflect.DeepEqual(v, entriesProp)) {
 		obj["entries"] = entriesProp
+	}
+	scopeInfoProp, err := expandChronicleReferenceListScopeInfo(d.Get("scope_info"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scope_info"); !tpgresource.IsEmptyValue(reflect.ValueOf(scopeInfoProp)) && (ok || !reflect.DeepEqual(v, scopeInfoProp)) {
+		obj["scopeInfo"] = scopeInfoProp
 	}
 	syntaxTypeProp, err := expandChronicleReferenceListSyntaxType(d.Get("syntax_type"), d, config)
 	if err != nil {
@@ -356,6 +364,12 @@ func resourceChronicleReferenceListUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("entries"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entriesProp)) {
 		obj["entries"] = entriesProp
 	}
+	scopeInfoProp, err := expandChronicleReferenceListScopeInfo(d.Get("scope_info"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scope_info"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopeInfoProp)) {
+		obj["scopeInfo"] = scopeInfoProp
+	}
 	syntaxTypeProp, err := expandChronicleReferenceListSyntaxType(d.Get("syntax_type"), d, config)
 	if err != nil {
 		return err
@@ -378,6 +392,10 @@ func resourceChronicleReferenceListUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("entries") {
 		updateMask = append(updateMask, "entries")
+	}
+
+	if d.HasChange("scope_info") {
+		updateMask = append(updateMask, "scopeInfo")
 	}
 
 	if d.HasChange("syntax_type") {
@@ -568,6 +586,48 @@ func expandChronicleReferenceListEntries(v interface{}, d tpgresource.TerraformR
 }
 
 func expandChronicleReferenceListEntriesValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandChronicleReferenceListScopeInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedReferenceListScope, err := expandChronicleReferenceListScopeInfoReferenceListScope(original["reference_list_scope"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReferenceListScope); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["referenceListScope"] = transformedReferenceListScope
+	}
+
+	return transformed, nil
+}
+
+func expandChronicleReferenceListScopeInfoReferenceListScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScopeNames, err := expandChronicleReferenceListScopeInfoReferenceListScopeScopeNames(original["scope_names"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScopeNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scopeNames"] = transformedScopeNames
+	}
+
+	return transformed, nil
+}
+
+func expandChronicleReferenceListScopeInfoReferenceListScopeScopeNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

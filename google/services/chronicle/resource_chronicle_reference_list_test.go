@@ -29,8 +29,10 @@ func TestAccChronicleReferenceList_chronicleReferencelistBasicExample_update(t *
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"chronicle_id":             envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"random_suffix":            acctest.RandString(t, 10),
+		"data_access_scope_id":     "test-scope-id" + acctest.RandString(t, 5),
+		"data_access_scope_id_new": "new-test-scope-id" + acctest.RandString(t, 5),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -61,6 +63,16 @@ func TestAccChronicleReferenceList_chronicleReferencelistBasicExample_update(t *
 
 func testAccChronicleReferenceList_chronicleReferencelistBasicExample_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_chronicle_data_access_scope" "test_scope" {
+  location = "us"
+  instance = "%{chronicle_id}"
+  data_access_scope_id = "%{data_access_scope_id}"
+  description = "test scope description"
+  allowed_data_access_labels {
+    log_type = "GCP_CLOUDAUDIT"
+  }
+}
+
 resource "google_chronicle_reference_list" "example" {
  location = "us"
  instance = "%{chronicle_id}"
@@ -70,12 +82,29 @@ resource "google_chronicle_reference_list" "example" {
   value = "referencelist-entry-value"
  }
  syntax_type = "REFERENCE_LIST_SYNTAX_TYPE_PLAIN_TEXT_STRING"
+ scope_info {
+    reference_list_scope {
+      scope_names = [
+        google_chronicle_data_access_scope.test_scope.name
+      ]
+    }
+  }
 }
 `, context)
 }
 
 func testAccChronicleReferenceList_chronicleReferencelistBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_chronicle_data_access_scope" "test_scope" {
+  location = "us"
+  instance = "%{chronicle_id}"
+  data_access_scope_id = "%{data_access_scope_id_new}"
+  description = "test scope description"
+  allowed_data_access_labels {
+    log_type = "GITHUB"
+  }
+}
+
 resource "google_chronicle_reference_list" "example" {
  location = "us"
  instance = "%{chronicle_id}"
@@ -85,6 +114,13 @@ resource "google_chronicle_reference_list" "example" {
   value = "referencelist-entry-value-updated"
  }
  syntax_type = "REFERENCE_LIST_SYNTAX_TYPE_REGEX"
+ scope_info {
+    reference_list_scope {
+      scope_names = [
+        google_chronicle_data_access_scope.test_scope.name
+      ]
+    }
+  }
 }
 `, context)
 }
