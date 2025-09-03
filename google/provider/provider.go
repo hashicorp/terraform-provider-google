@@ -976,6 +976,19 @@ func ResourceMap() map[string]*schema.Resource {
 	return resourceMap
 }
 
+func ListResources() []list.ListResource {
+	var output []list.ListResource
+
+	listResourceMap := generatedListResources
+	for _, listResource := range listResourceMap {
+		if listResource != nil {
+			output = append(output, listResource)
+		}
+	}
+
+	return output
+}
+
 func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	return mergeResourceMaps(
 		generatedResources,
@@ -1303,19 +1316,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 
 	return &config, nil
-}
-
-func ListResourceMap() []list.ListResource {
-	var output []list.ListResource
-
-	listResourceMap := ResourceMap()
-	for _, resource := range listResourceMap {
-		if resource != nil {
-			output = append(output, list.ListResource(resource.NewComputeDiskListResource()))
-		}
-	}
-
-	return output
 }
 
 func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Resource, error) {

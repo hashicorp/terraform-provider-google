@@ -17,6 +17,7 @@
 package provider
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/services/accessapproval"
 	"github.com/hashicorp/terraform-provider-google/google/services/accesscontextmanager"
@@ -559,6 +560,12 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 	"google_service_account_iam_policy":         tpgiamresource.DataSourceIamPolicy(resourcemanager.IamServiceAccountSchema, resourcemanager.NewServiceAccountIamUpdater),
 	"google_storage_bucket_iam_policy":          tpgiamresource.DataSourceIamPolicy(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer),
 	// ####### END non-generated IAM datasources ###########
+}
+
+// TODO: LOOK INTO HOW WE'D GENERATE THIS THE LIST OF LISTRESOURCES
+// ListResources
+var generatedListResources = map[string]list.ListResource{
+	"google_compute_disk": compute.NewComputeDiskListResource(),
 }
 
 // Resources

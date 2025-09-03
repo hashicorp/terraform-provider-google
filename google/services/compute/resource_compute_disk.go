@@ -411,28 +411,28 @@ type ComputeDiskListModel struct {
 }
 
 func (r *ComputeDiskListResource) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
-	client := r.Client.Compute.Disks
-	ctx, cancel := context.WithTimeout(ctx, time.Minute*5)
-	defer cancel()
+	// client := r.Client.Compute.Disks
+	// ctx, cancel := context.WithTimeout(ctx, time.Minute*5)
+	// defer cancel()
 
-	var data ComputeDiskListModel
+	// var data ComputeDiskListModel
 
-	diags := req.Config.Get(ctx, &data)
-	if diags.HasError() {
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
+	// diags := req.Config.Get(ctx, &data)
+	// if diags.HasError() {
+	// 	stream.Results = list.ListResultsStreamDiagnostics(diags)
+	// 	return
+	// }
 
-	disks := make([]compute.Disk, 0)
+	// disks := make([]compute.Disk, 0)
 
-	resp, err := client.List(ctx, commonids.NewResourceGroupID(r.SubscriptionId, data.ResourceGroupName))
-	if err != nil {
-		sdk.SetResponseErrorDiagnostic(stream.Results, "", err)
-	}
+	// resp, err := client.List(ctx, commonids.NewResourceGroupID(r.SubscriptionId, data.ResourceGroupName))
+	// if err != nil {
+	// 	sdk.SetResponseErrorDiagnostic(stream.Results, "", err)
+	// }
 
-	if resp.Model != nil {
-		disks = *resp.Model
-	}
+	// if resp.Model != nil {
+	// 	disks = *resp.Model
+	// }
 
 	// stream.Results = func(push func(list.ListResult) bool) {
 	// 	for _, vnet := range virtualNetworks {
