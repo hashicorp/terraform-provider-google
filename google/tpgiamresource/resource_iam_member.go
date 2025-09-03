@@ -197,7 +197,9 @@ func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdate
 		// resource is used.
 		DeprecationMessage: settings.DeprecationMessage,
 
-		Schema: tpgresource.MergeSchemas(IamMemberBaseSchema, parentSpecificSchema),
+		Schema:         tpgresource.MergeSchemas(IamMemberBaseSchema, parentSpecificSchema),
+		SchemaVersion:  settings.SchemaVersion,
+		StateUpgraders: settings.StateUpgraders,
 		Importer: &schema.ResourceImporter{
 			State: iamMemberImport(newUpdaterFunc, resourceIdParser),
 		},

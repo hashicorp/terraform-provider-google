@@ -483,6 +483,8 @@ func CompareAuditConfigs(a, b []*cloudresourcemanager.AuditConfig) bool {
 type IamSettings struct {
 	DeprecationMessage string
 	EnableBatching     bool
+	StateUpgraders     []schema.StateUpgrader
+	SchemaVersion      int
 }
 
 func NewIamSettings(options ...func(*IamSettings)) *IamSettings {
@@ -505,6 +507,18 @@ func IamWithGAResourceDeprecation() func(s *IamSettings) {
 
 func IamWithBatching(s *IamSettings) {
 	s.EnableBatching = true
+}
+
+func IamWithStateUpgraders(upgraders []schema.StateUpgrader) func(*IamSettings) {
+	return func(s *IamSettings) {
+		s.StateUpgraders = upgraders
+	}
+}
+
+func IamWithSchemaVersion(version int) func(*IamSettings) {
+	return func(s *IamSettings) {
+		s.SchemaVersion = version
+	}
 }
 
 // Util to deref and print auditConfigs
