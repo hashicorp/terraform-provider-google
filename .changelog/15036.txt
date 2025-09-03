@@ -1,0 +1,3 @@
+```release-note:note
+chronicle: made the `scope_info` field in `google_chronicle_reference_list` configurable
+```
