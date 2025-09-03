@@ -1,0 +1,310 @@
+```release-note:bug
+bigtable: fixed an error encountered when applying `google_bigtable_table_iam_*` resources after upgrading to 7.x and replacing `instance` with `instance_name`
+```
+
+@melinath tagging you since I know you know quite a bit about [state upgraders](https://developer.hashicorp.com/terraform/plugin/framework/resources/state-upgrade) https://github.com/hashicorp/terraform-provider-google/issues/15584#issuecomment-2263991790 because of our recent conversations around write-only ;)
+
+Please read the issue for more info, but TLDR, essentially there is a bug in `v7.X.X` that requires a state upgrader to get resolved. ~The thing is that it is on a handwritten IAM resource, and as far I can see there is not really a structured way yet to implement state upgraders on handwritten IAM resources.~
+
+~For now I just injected them in `mmv1/third_party/terraform/provider/provider.go.tmpl` right before `mergeResourceMaps` because I needed a way to test this, but I know this is not the right way to do it. Any clue if there is a "nice" way to use state upgraders for handwritten IAM resources?~
+
+**EDIT:** Eventually went with extending the `IamSettings` which seems like the right approach to add state upgraders support for the handwritten IAM resources.
+
+**Tests:**
+
+Did a test where I first reproduced the issue (see https://github.com/hashicorp/terraform-provider-google/issues/24200#issuecomment-3237530138) by first applying with `v6.49.0`, then upgrading to `v7.0.1`. Then I used a binary build from this branch, and was able to apply while using the state upgrader defined in this PR:
+
+<details>
+<summary>Execution logs of state upgrade (search for "[DEBUG] Attributes before migration:")</summary>
+
+```
+❯ TF_LOG=DEBUG TF_CLI_CONFIG_FILE="$(pwd)/tf-dev-override.tfrc" terraform apply --auto-approve
+
+2025-08-29T18:46:49.615+0200 [INFO]  Terraform version: 1.13.1
+2025-08-29T18:46:49.615+0200 [DEBUG] using github.com/hashicorp/go-tfe v1.74.1
+2025-08-29T18:46:49.615+0200 [DEBUG] using github.com/hashicorp/hcl/v2 v2.24.0
+2025-08-29T18:46:49.615+0200 [DEBUG] using github.com/hashicorp/terraform-svchost v0.1.1
+2025-08-29T18:46:49.615+0200 [DEBUG] using github.com/zclconf/go-cty v1.16.3
+2025-08-29T18:46:49.615+0200 [INFO]  Go runtime version: go1.24.5
+2025-08-29T18:46:49.615+0200 [INFO]  CLI args: []string{"terraform", "apply", "--auto-approve"}
+2025-08-29T18:46:49.615+0200 [DEBUG] Attempting to open CLI config file: /Users/ramon/projects/personal/terraform_test_suite/tf-dev-override.tfrc
+2025-08-29T18:46:49.615+0200 [INFO]  Loading CLI configuration from /Users/ramon/projects/personal/terraform_test_suite/tf-dev-override.tfrc
+2025-08-29T18:46:49.615+0200 [DEBUG] Not reading CLI config directory because config location is overridden by environment variable
+2025-08-29T18:46:49.615+0200 [DEBUG] Explicit provider installation configuration is set
+2025-08-29T18:46:49.615+0200 [INFO]  CLI command args: []string{"apply", "--auto-approve"}
+2025-08-29T18:46:49.616+0200 [DEBUG] Provider registry.terraform.io/hashicorp/google is overridden by dev_overrides
+2025-08-29T18:46:49.616+0200 [DEBUG] Provider registry.terraform.io/hashicorp/google-beta is overridden by dev_overrides
+2025-08-29T18:46:49.616+0200 [DEBUG] Provider registry.terraform.io/hashicorp/google is overridden to load from /Users/ramon/go/bin
+2025-08-29T18:46:49.616+0200 [DEBUG] Provider registry.terraform.io/hashicorp/google-beta is overridden to load from /Users/ramon/go/bin
+2025-08-29T18:46:49.616+0200 [DEBUG] checking for provisioner in "."
+2025-08-29T18:46:49.617+0200 [DEBUG] checking for provisioner in "/opt/homebrew/bin"
+2025-08-29T18:46:49.617+0200 [DEBUG] Provider registry.terraform.io/hashicorp/google-beta is overridden by dev_overrides
+2025-08-29T18:46:49.617+0200 [DEBUG] Provider registry.terraform.io/hashicorp/google is overridden by dev_overrides
+╷
+│ Warning: Provider development overrides are in effect
+│ 
+│ The following provider development overrides are set in the CLI configuration:
+│  - hashicorp/google in /Users/ramon/go/bin
+│  - hashicorp/google-beta in /Users/ramon/go/bin
+│ 
+│ The behavior may therefore not match any released version of the provider and applying changes may cause the state to become incompatible with published releases.
+╵
+2025-08-29T18:46:49.618+0200 [INFO]  backend/local: starting Apply operation
+2025-08-29T18:46:49.620+0200 [DEBUG] Config.VerifyDependencySelections: skipping registry.terraform.io/hashicorp/google because it's overridden by a special configuration setting
+2025-08-29T18:46:49.621+0200 [DEBUG] created provider logger: level=debug
+2025-08-29T18:46:49.621+0200 [INFO]  provider: configuring client automatic mTLS
+2025-08-29T18:46:49.626+0200 [DEBUG] provider: starting plugin: path=/Users/ramon/go/bin/terraform-provider-google args=["/Users/ramon/go/bin/terraform-provider-google"]
+2025-08-29T18:46:49.629+0200 [DEBUG] provider: plugin started: path=/Users/ramon/go/bin/terraform-provider-google pid=81391
+2025-08-29T18:46:49.630+0200 [DEBUG] provider: waiting for RPC address: plugin=/Users/ramon/go/bin/terraform-provider-google
+2025-08-29T18:46:49.679+0200 [INFO]  provider.terraform-provider-google: configuring server automatic mTLS: timestamp="2025-08-29T18:46:49.679+0200"
+2025-08-29T18:46:49.684+0200 [DEBUG] provider.terraform-provider-google: plugin address: address=/var/folders/00/hst4xc155dz2bqzlbhzpskzm0000gp/T/plugin910795399 network=unix timestamp="2025-08-29T18:46:49.684+0200"
+2025-08-29T18:46:49.684+0200 [DEBUG] provider: using plugin: version=5
+2025-08-29T18:46:49.771+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2025-08-29T18:46:49.774+0200 [INFO]  provider: plugin process exited: plugin=/Users/ramon/go/bin/terraform-provider-google id=81391
+2025-08-29T18:46:49.774+0200 [DEBUG] provider: plugin exited
+2025-08-29T18:46:49.774+0200 [DEBUG] Building and walking validate graph
+2025-08-29T18:46:49.775+0200 [DEBUG] ProviderTransformer: "google_bigtable_instance.main" (*terraform.NodeValidatableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2025-08-29T18:46:49.775+0200 [DEBUG] ProviderTransformer: "google_bigtable_table.main" (*terraform.NodeValidatableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2025-08-29T18:46:49.775+0200 [DEBUG] ProviderTransformer: "google_bigtable_table_iam_binding.user" (*terraform.NodeValidatableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2025-08-29T18:46:49.775+0200 [DEBUG] ReferenceTransformer: "local.project_id (expand)" references: []
+2025-08-29T18:46:49.775+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/hashicorp/google\"]" references: [local.project_id (expand)]
+2025-08-29T18:46:49.775+0200 [DEBUG] ReferenceTransformer: "google_bigtable_instance.main" references: []
+2025-08-29T18:46:49.775+0200 [DEBUG] ReferenceTransformer: "google_bigtable_table.main" references: [google_bigtable_instance.main]
+2025-08-29T18:46:49.775+0200 [DEBUG] ReferenceTransformer: "google_bigtable_table_iam_binding.user" references: [google_bigtable_table.main google_bigtable_instance.main]
+2025-08-29T18:46:49.775+0200 [DEBUG] Starting graph walk: walkValidate
+2025-08-29T18:46:49.775+0200 [DEBUG] created provider logger: level=debug
+2025-08-29T18:46:49.775+0200 [INFO]  provider: configuring client automatic mTLS
+2025-08-29T18:46:49.777+0200 [DEBUG] provider: starting plugin: path=/Users/ramon/go/bin/terraform-provider-google args=["/Users/ramon/go/bin/terraform-provider-google"]
+2025-08-29T18:46:49.780+0200 [DEBUG] provider: plugin started: path=/Users/ramon/go/bin/terraform-provider-google pid=81392
+2025-08-29T18:46:49.780+0200 [DEBUG] provider: waiting for RPC address: plugin=/Users/ramon/go/bin/terraform-provider-google
+2025-08-29T18:46:49.831+0200 [INFO]  provider.terraform-provider-google: configuring server automatic mTLS: timestamp="2025-08-29T18:46:49.831+0200"
+2025-08-29T18:46:49.835+0200 [DEBUG] provider.terraform-provider-google: plugin address: address=/var/folders/00/hst4xc155dz2bqzlbhzpskzm0000gp/T/plugin3189607574 network=unix timestamp="2025-08-29T18:46:49.835+0200"
+2025-08-29T18:46:49.835+0200 [DEBUG] provider: using plugin: version=5
+2025-08-29T18:46:49.861+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2025-08-29T18:46:49.864+0200 [INFO]  provider: plugin process exited: plugin=/Users/ramon/go/bin/terraform-provider-google id=81392
+2025-08-29T18:46:49.864+0200 [DEBUG] provider: plugin exited
+2025-08-29T18:46:49.864+0200 [INFO]  backend/local: apply calling Plan
+2025-08-29T18:46:49.864+0200 [DEBUG] Building and walking plan graph for NormalMode
+2025-08-29T18:46:49.864+0200 [DEBUG] ProviderTransformer: "google_bigtable_instance.main (expand)" (*terraform.nodeExpandPlannableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2025-08-29T18:46:49.864+0200 [DEBUG] ProviderTransformer: "google_bigtable_table.main (expand)" (*terraform.nodeExpandPlannableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2025-08-29T18:46:49.864+0200 [DEBUG] ProviderTransformer: "google_bigtable_table_iam_binding.user (expand)" (*terraform.nodeExpandPlannableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2025-08-29T18:46:49.864+0200 [DEBUG] ReferenceTransformer: "google_bigtable_instance.main (expand)" references: []
+2025-08-29T18:46:49.864+0200 [DEBUG] ReferenceTransformer: "google_bigtable_table.main (expand)" references: [google_bigtable_instance.main (expand)]
+2025-08-29T18:46:49.864+0200 [DEBUG] ReferenceTransformer: "google_bigtable_table_iam_binding.user (expand)" references: [google_bigtable_table.main (expand) google_bigtable_instance.main (expand)]
+2025-08-29T18:46:49.864+0200 [DEBUG] ReferenceTransformer: "local.project_id (expand)" references: []
+2025-08-29T18:46:49.864+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/hashicorp/google\"]" references: [local.project_id (expand)]
+2025-08-29T18:46:49.864+0200 [DEBUG] Starting graph walk: walkPlan
+2025-08-29T18:46:49.865+0200 [DEBUG] created provider logger: level=debug
+2025-08-29T18:46:49.865+0200 [INFO]  provider: configuring client automatic mTLS
+2025-08-29T18:46:49.866+0200 [DEBUG] provider: starting plugin: path=/Users/ramon/go/bin/terraform-provider-google args=["/Users/ramon/go/bin/terraform-provider-google"]
+2025-08-29T18:46:49.869+0200 [DEBUG] provider: plugin started: path=/Users/ramon/go/bin/terraform-provider-google pid=81393
+2025-08-29T18:46:49.869+0200 [DEBUG] provider: waiting for RPC address: plugin=/Users/ramon/go/bin/terraform-provider-google
+2025-08-29T18:46:49.920+0200 [INFO]  provider.terraform-provider-google: configuring server automatic mTLS: timestamp="2025-08-29T18:46:49.919+0200"
+2025-08-29T18:46:49.923+0200 [DEBUG] provider.terraform-provider-google: plugin address: address=/var/folders/00/hst4xc155dz2bqzlbhzpskzm0000gp/T/plugin4151266079 network=unix timestamp="2025-08-29T18:46:49.923+0200"
+2025-08-29T18:46:49.923+0200 [DEBUG] provider: using plugin: version=5
+2025-08-29T18:46:49.944+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:49 [INFO] Authenticating using DefaultClient...
+2025-08-29T18:46:49.944+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:49 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025-08-29T18:46:49.944+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:49 [INFO] Authenticating using DefaultClient...
+2025-08-29T18:46:49.944+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:49 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025-08-29T18:46:49.944+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:49 [DEBUG] Waiting for state to become: [success]
+2025-08-29T18:46:50.048+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:50 [INFO] Terraform is using this identity: myemail@address.com
+2025-08-29T18:46:50.049+0200 [DEBUG] ReferenceTransformer: "google_bigtable_instance.main" references: []
+google_bigtable_instance.main: Refreshing state... [id=projects/my-gcp-project/instances/temporary-instance]
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:50 [DEBUG] client request payload logged as grpc.request.content 
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google: {
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google:   "grpc.method": "ListInstances",
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google:   "grpc.request.content": {
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google:     "parent": "projects/my-gcp-project"
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google:   },
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google:   "grpc.service": "google.bigtable.admin.v2.BigtableInstanceAdmin",
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google:   "span.kind": "client",
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google:   "system": "grpc"
+2025-08-29T18:46:50.052+0200 [DEBUG] provider.terraform-provider-google: }
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] client response payload logged as grpc.response.content 
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google: {
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:   "grpc.method": "ListInstances",
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:   "grpc.response.content": {
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:     "instances": [
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:       {
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:         "name": "projects/my-gcp-project/instances/temporary-instance",
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:         "displayName": "temporary-instance",
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:         "state": "READY",
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:         "type": "PRODUCTION",
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:         "labels": {
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:           "goog-terraform-provisioned": "true"
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:         },
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:         "createTime": "2025-08-29T16:35:17.485117Z"
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:       }
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:     ]
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:   },
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:   "grpc.service": "google.bigtable.admin.v2.BigtableInstanceAdmin",
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:   "span.kind": "client",
+2025-08-29T18:46:51.001+0200 [DEBUG] provider.terraform-provider-google:   "system": "grpc"
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google: }
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] client request payload logged as grpc.request.content 
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google: {
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google:   "grpc.method": "ListClusters",
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google:   "grpc.request.content": {
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google:     "parent": "projects/my-gcp-project/instances/temporary-instance"
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google:   },
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google:   "grpc.service": "google.bigtable.admin.v2.BigtableInstanceAdmin",
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google:   "span.kind": "client",
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google:   "system": "grpc"
+2025-08-29T18:46:51.002+0200 [DEBUG] provider.terraform-provider-google: }
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] client response payload logged as grpc.response.content 
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google: {
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:   "grpc.method": "ListClusters",
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:   "grpc.response.content": {
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:     "clusters": [
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:       {
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:         "name": "projects/my-gcp-project/instances/temporary-instance/clusters/temporary-cluster",
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:         "location": "projects/my-gcp-project/locations/europe-west4-c",
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:         "state": "READY",
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:         "serveNodes": 1,
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:         "nodeScalingFactor": "NODE_SCALING_FACTOR_1X",
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:         "defaultStorageType": "HDD"
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:       }
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:     ]
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:   },
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:   "grpc.service": "google.bigtable.admin.v2.BigtableInstanceAdmin",
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:   "span.kind": "client",
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google:   "system": "grpc"
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google: }
+2025-08-29T18:46:51.404+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Setting clusters in state: []map[string]interface {}{map[string]interface {}{"cluster_id":"temporary-cluster", "kms_key_name":"", "node_scaling_factor":"NodeScalingFactor1X", "num_nodes":1, "state":"READY", "storage_type":"HDD", "zone":"europe-west4-c"}}
+2025-08-29T18:46:51.410+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Saw old ids: []string{"temporary-cluster"}
+2025-08-29T18:46:51.410+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Matched: "temporary-cluster"
+2025-08-29T18:46:51.410+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Remaining clusters: map[string]interface {}{}
+2025-08-29T18:46:51.411+0200 [WARN]  Provider "registry.terraform.io/hashicorp/google" produced an invalid plan for google_bigtable_instance.main, but we are tolerating it because it is using the legacy plugin SDK.
+    The following problems may be the cause of any confusing errors from downstream operations:
+      - .force_destroy: planned value cty.False for a non-computed attribute
+      - .instance_type: planned value cty.StringVal("PRODUCTION") for a non-computed attribute
+      - .labels: planned value cty.MapValEmpty(cty.String) for a non-computed attribute
+      - .cluster[0].node_scaling_factor: planned value cty.StringVal("NodeScalingFactor1X") for a non-computed attribute
+2025-08-29T18:46:51.412+0200 [DEBUG] ReferenceTransformer: "google_bigtable_table.main" references: []
+google_bigtable_table.main: Refreshing state... [id=projects/my-gcp-project/instances/temporary-instance/tables/temporary-table]
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] client request payload logged as grpc.request.content 
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google: {
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google:   "grpc.method": "GetTable",
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google:   "grpc.request.content": {
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google:     "name": "projects/my-gcp-project/instances/temporary-instance/tables/temporary-table",
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google:     "view": "SCHEMA_VIEW"
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google:   },
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google:   "grpc.service": "google.bigtable.admin.v2.BigtableTableAdmin",
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google:   "span.kind": "client",
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google:   "system": "grpc"
+2025-08-29T18:46:51.414+0200 [DEBUG] provider.terraform-provider-google: }
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] client response payload logged as grpc.response.content 
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google: {
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:   "grpc.method": "GetTable",
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:   "grpc.response.content": {
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:     "name": "projects/my-gcp-project/instances/temporary-instance/tables/temporary-table",
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:     "columnFamilies": {
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:       "attribute": {}
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:     },
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:     "granularity": "MILLIS"
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:   },
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:   "grpc.service": "google.bigtable.admin.v2.BigtableTableAdmin",
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:   "span.kind": "client",
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google:   "system": "grpc"
+2025-08-29T18:46:51.502+0200 [DEBUG] provider.terraform-provider-google: }
+2025-08-29T18:46:51.509+0200 [WARN]  Provider "registry.terraform.io/hashicorp/google" produced an invalid plan for google_bigtable_table.main, but we are tolerating it because it is using the legacy plugin SDK.
+    The following problems may be the cause of any confusing errors from downstream operations:
+      - .row_key_schema: planned value cty.StringVal("") for a non-computed attribute
+2025-08-29T18:46:51.510+0200 [DEBUG] ReferenceTransformer: "google_bigtable_table_iam_binding.user" references: []
+**2025-08-29T18:46:51.510+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Attributes before migration: map[string]interface {}{"condition":[]interface {}{}, "etag":"BwY9g5v1bMQ=", "id":"projects/my-gcp-project/instances/temporary-instance/tables/temporary-table/roles/bigtable.user", "instance":"temporary-instance", "members":[]interface {}{"user:myemail@address.com"}, "project":"my-gcp-project", "role":"roles/bigtable.user", "table":"temporary-table"}
+2025-08-29T18:46:51.510+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Attributes after migration: map[string]interface {}{"condition":[]interface {}{}, "etag":"BwY9g5v1bMQ=", "id":"projects/my-gcp-project/instances/temporary-instance/tables/temporary-table/roles/bigtable.user", "instance":"temporary-instance", "instance_name":"temporary-instance", "members":[]interface {}{"user:myemail@address.com"}, "project":"my-gcp-project", "role":"roles/bigtable.user", "table":"temporary-table"}**
+2025-08-29T18:46:51.510+0200 [DEBUG] provider.terraform-provider-google: attribute no longer present in schema: attribute=instance @module=sdk.helper_schema tf_mux_provider="*schema.GRPCProviderServer" tf_provider_addr=registry.terraform.io/hashicorp/google tf_req_id=25020e99-f681-c279-3b6c-06d5df7d3a5e tf_resource_type=google_bigtable_table_iam_binding tf_rpc=UpgradeResourceState @caller=/Users/ramon/go/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.37.0/helper/schema/grpc_provider.go:687 timestamp="2025-08-29T18:46:51.510+0200"
+google_bigtable_table_iam_binding.user: Refreshing state... [id=projects/my-gcp-project/instances/temporary-instance/tables/temporary-table/roles/bigtable.user]
+2025-08-29T18:46:51.511+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Locking "iam-bigtable-instance-my-gcp-project-temporary-instance-temporary-table"
+2025-08-29T18:46:51.511+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Locked "iam-bigtable-instance-my-gcp-project-temporary-instance-temporary-table"
+2025-08-29T18:46:51.511+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Retrieving policy for Bigtable Table my-gcp-project/temporary-instance-temporary-table
+2025-08-29T18:46:51.511+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Waiting for state to become: [success]
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [INFO] Instantiating Google Cloud BigtableAdmin for path https://bigtableadmin.googleapis.com/
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Retry Transport: request attempt 0
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Google API Request Details:
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: ---[ REQUEST ]---------------------------------------
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: POST /v2/projects/my-gcp-project/instances/temporary-instance/tables/temporary-table:getIamPolicy?alt=json&prettyPrint=false HTTP/1.1
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: Host: bigtableadmin.googleapis.com
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: User-Agent: google-api-go-client/0.5 Terraform/1.13.1 (+https://www.terraform.io) Terraform-Plugin-SDK/2.37.0 terraform-provider-google/dev6
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: Content-Length: 3
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: Content-Type: application/json
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: X-Goog-Api-Client: gl-go/1.24.5 gdcl/0.248.0
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: Accept-Encoding: gzip
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: {}
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google
+2025-08-29T18:46:51.512+0200 [DEBUG] provider.terraform-provider-google: -----------------------------------------------------
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Google API Response Details:
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: ---[ RESPONSE ]--------------------------------------
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: HTTP/2.0 200 OK
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: Alt-Svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: Content-Type: application/json; charset=UTF-8
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: Date: Fri, 29 Aug 2025 16:46:51 GMT
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: Server: ESF
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: Vary: Origin
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: Vary: X-Origin
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: Vary: Referer
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: X-Content-Type-Options: nosniff
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: X-Frame-Options: SAMEORIGIN
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: X-Xss-Protection: 0
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: {
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:  "version": 1,
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:  "etag": "BwY9g5v1bMQ=",
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:  "bindings": [
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:   {
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:    "role": "roles/bigtable.user",
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:    "members": [
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:     "user:myemail@address.com"
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:    ]
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:   }
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google:  ]
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: }
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: -----------------------------------------------------
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Retry Transport: Returning after 1 attempts
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Retrieved policy for Bigtable Table my-gcp-project/temporary-instance-temporary-table: (*cloudresourcemanager.Policy){AuditConfigs:([]*cloudresourcemanager.AuditConfig)<nil> Bindings:([]*cloudresourcemanager.Binding)[<*>{Condition:(*cloudresourcemanager.Expr)<nil> Members:([]string)[user:myemail@address.com] Role:(string)roles/bigtable.user ForceSendFields:([]string)<nil> NullFields:([]string)<nil>}] Etag:(string)BwY9g5v1bMQ= Version:(int64)1 ServerResponse:(googleapi.ServerResponse){HTTPStatusCode:(int)200 Header:(http.Header)map[Alt-Svc:[h3=":443"; ma=2592000,h3-29=":443"; ma=2592000] Vary:[Origin X-Origin Referer] Date:[Fri, 29 Aug 2025 16:46:51 GMT] Content-Type:[application/json; charset=UTF-8] Server:[ESF] X-Xss-Protection:[0] X-Frame-Options:[SAMEORIGIN] X-Content-Type-Options:[nosniff]]} ForceSendFields:([]string)<nil> NullFields:([]string)<nil>}
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Unlocking "iam-bigtable-instance-my-gcp-project-temporary-instance-temporary-table"
+2025-08-29T18:46:51.758+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Unlocked "iam-bigtable-instance-my-gcp-project-temporary-instance-temporary-table"
+2025-08-29T18:46:51.759+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Retrieved policy for Bigtable Table my-gcp-project/temporary-instance-temporary-table: (*cloudresourcemanager.Policy){AuditConfigs:([]*cloudresourcemanager.AuditConfig)<nil> Bindings:([]*cloudresourcemanager.Binding)[<*>{Condition:(*cloudresourcemanager.Expr)<nil> Members:([]string)[user:myemail@address.com] Role:(string)roles/bigtable.user ForceSendFields:([]string)<nil> NullFields:([]string)<nil>}] Etag:(string)BwY9g5v1bMQ= Version:(int64)1 ServerResponse:(googleapi.ServerResponse){HTTPStatusCode:(int)200 Header:(http.Header)map[Date:[Fri, 29 Aug 2025 16:46:51 GMT] Content-Type:[application/json; charset=UTF-8] Server:[ESF] X-Xss-Protection:[0] X-Frame-Options:[SAMEORIGIN] X-Content-Type-Options:[nosniff] Alt-Svc:[h3=":443"; ma=2592000,h3-29=":443"; ma=2592000] Vary:[Origin X-Origin Referer]]} ForceSendFields:([]string)<nil> NullFields:([]string)<nil>}
+2025-08-29T18:46:51.759+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Looking for binding with role "roles/bigtable.user" and condition tpgiamresource.conditionKey{Description:"", Expression:"", Title:""}
+2025-08-29T18:46:51.766+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2025-08-29T18:46:51.774+0200 [INFO]  provider: plugin process exited: plugin=/Users/ramon/go/bin/terraform-provider-google id=81393
+2025-08-29T18:46:51.774+0200 [DEBUG] provider: plugin exited
+2025-08-29T18:46:51.775+0200 [DEBUG] no planned changes, skipping apply graph check
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+2025-08-29T18:46:51.788+0200 [INFO]  backend/local: apply calling Apply
+2025-08-29T18:46:51.788+0200 [DEBUG] Building and walking apply graph for NormalMode plan
+2025-08-29T18:46:51.788+0200 [DEBUG] ProviderTransformer: "google_bigtable_table.main (expand)" (*terraform.nodeExpandApplyableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2025-08-29T18:46:51.788+0200 [DEBUG] ProviderTransformer: "google_bigtable_table_iam_binding.user (expand)" (*terraform.nodeExpandApplyableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2025-08-29T18:46:51.788+0200 [DEBUG] ProviderTransformer: "google_bigtable_instance.main (expand)" (*terraform.nodeExpandApplyableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2025-08-29T18:46:51.788+0200 [DEBUG] ReferenceTransformer: "google_bigtable_instance.main (expand)" references: []
+2025-08-29T18:46:51.788+0200 [DEBUG] ReferenceTransformer: "google_bigtable_table.main (expand)" references: [google_bigtable_instance.main (expand)]
+2025-08-29T18:46:51.788+0200 [DEBUG] ReferenceTransformer: "google_bigtable_table_iam_binding.user (expand)" references: [google_bigtable_instance.main (expand) google_bigtable_table.main (expand)]
+2025-08-29T18:46:51.788+0200 [DEBUG] ReferenceTransformer: "local.project_id (expand)" references: []
+2025-08-29T18:46:51.788+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/hashicorp/google\"]" references: [local.project_id (expand)]
+2025-08-29T18:46:51.789+0200 [DEBUG] Starting graph walk: walkApply
+2025-08-29T18:46:51.789+0200 [DEBUG] created provider logger: level=debug
+2025-08-29T18:46:51.789+0200 [INFO]  provider: configuring client automatic mTLS
+2025-08-29T18:46:51.792+0200 [DEBUG] provider: starting plugin: path=/Users/ramon/go/bin/terraform-provider-google args=["/Users/ramon/go/bin/terraform-provider-google"]
+2025-08-29T18:46:51.796+0200 [DEBUG] provider: plugin started: path=/Users/ramon/go/bin/terraform-provider-google pid=81394
+2025-08-29T18:46:51.796+0200 [DEBUG] provider: waiting for RPC address: plugin=/Users/ramon/go/bin/terraform-provider-google
+2025-08-29T18:46:51.857+0200 [INFO]  provider.terraform-provider-google: configuring server automatic mTLS: timestamp="2025-08-29T18:46:51.857+0200"
+2025-08-29T18:46:51.861+0200 [DEBUG] provider: using plugin: version=5
+2025-08-29T18:46:51.861+0200 [DEBUG] provider.terraform-provider-google: plugin address: address=/var/folders/00/hst4xc155dz2bqzlbhzpskzm0000gp/T/plugin2051281260 network=unix timestamp="2025-08-29T18:46:51.861+0200"
+2025-08-29T18:46:51.882+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [INFO] Authenticating using DefaultClient...
+2025-08-29T18:46:51.882+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025-08-29T18:46:51.883+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [INFO] Authenticating using DefaultClient...
+2025-08-29T18:46:51.883+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025-08-29T18:46:51.883+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [DEBUG] Waiting for state to become: [success]
+2025-08-29T18:46:51.988+0200 [DEBUG] provider.terraform-provider-google: 2025/08/29 18:46:51 [INFO] Terraform is using this identity: myemail@address.com
+2025-08-29T18:46:51.990+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2025-08-29T18:46:51.994+0200 [INFO]  provider: plugin process exited: plugin=/Users/ramon/go/bin/terraform-provider-google id=81394
+2025-08-29T18:46:51.994+0200 [DEBUG] provider: plugin exited
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+```
