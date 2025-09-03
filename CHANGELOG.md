@@ -1,4 +1,8 @@
-## 7.1.0 (Unreleased)
+## 7.1.1 (September 3 2025)
+
+* bigtable: fixed an error encountered when applying `google_bigtable_table_iam_*` resources after upgrading to 7.x and replacing `instance` with `instance_name` ([#24255](https://github.com/hashicorp/terraform-provider-google/pull/24255))
+
+## 7.1.0 (September 2 2025)
 
 DEPRECATIONS:
 * container: deprecated `enterprise_config` field in `google_container_cluster` resource. GKE Enterprise features are now available without an Enterprise tier. ([#24210](https://github.com/hashicorp/terraform-provider-google/pull/24210))
