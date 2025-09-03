@@ -29,6 +29,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/list"
+	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
@@ -341,6 +344,144 @@ func ExpandStoragePoolUrl(v interface{}, d tpgresource.TerraformResourceData, co
 		replacedStr = config.ComputeBasePath + "projects/" + project + "/zones/" + zone + "/storagePools/" + formattedStr
 	}
 	return replacedStr, nil
+}
+
+type ListResource interface {
+	list.ListResourceWithConfigure
+}
+
+
+type ListResourceWithRawV5Schemas interface {
+	ListResource
+
+	list.ListResourceWithRawV5Schemas
+}
+
+var _ ListResourceWithRawV5Schemas = &ComputeDiskListResource{}
+
+type ComputeDiskListResource struct {
+	ListResourceWithRawV5Schemas
+
+	resource       *schema.Resource
+	schemaIdentity *schema.ResourceIdentity
+}
+
+func NewComputeDiskListResource() list.ListResource {
+	return &ComputeDiskListResource{}
+}
+
+func (r *ComputeDiskListResource) Metadata(_ context.Context, _ resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "google_compute_disk"
+}
+
+func (r *ComputeDiskListResource) RawV5Schemas(ctx context.Context, _ list.RawV5SchemaRequest, resp *list.RawV5SchemaResponse) {
+	
+	resp.ProtoV5Schema = r.resource.ProtoSchema(ctx)()
+	resp.ProtoV5IdentitySchema = r.resource.ProtoIdentitySchema(ctx)()
+}
+
+func (r *ComputeDiskListResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	_, ok := req.ProviderData.(*transport_tpg.Config)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *transport_tpg.Config, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+
+}
+
+func (r *ComputeDiskListResource) ListResourceConfigSchema(ctx context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
+	resp.Schema = listschema.Schema{
+		Attributes: map[string]listschema.Attribute{
+			"resource_group_name": listschema.StringAttribute{
+				Required: true,
+			},
+		},
+	}
+}
+
+type ComputeDiskListModel struct {
+	ResourceGroupName string `tfsdk:"resource_group_name"`
+}
+
+func (r *ComputeDiskListResource) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
+	client := r.Client.Compute.Disks
+	ctx, cancel := context.WithTimeout(ctx, time.Minute*5)
+	defer cancel()
+
+	var data ComputeDiskListModel
+
+	diags := req.Config.Get(ctx, &data)
+	if diags.HasError() {
+		stream.Results = list.ListResultsStreamDiagnostics(diags)
+		return
+	}
+
+	disks := make([]compute.Disk, 0)
+
+	resp, err := client.List(ctx, commonids.NewResourceGroupID(r.SubscriptionId, data.ResourceGroupName))
+	if err != nil {
+		sdk.SetResponseErrorDiagnostic(stream.Results, "", err)
+	}
+
+	if resp.Model != nil {
+		disks = *resp.Model
+	}
+
+	// stream.Results = func(push func(list.ListResult) bool) {
+	// 	for _, vnet := range virtualNetworks {
+	// 		result := req.NewListResult(ctx)
+	// 		result.DisplayName = pointer.From(vnet.Name)
+
+	// 		id, err := commonids.ParseVirtualNetworkID(*vnet.Id)
+	// 		if err != nil {
+	// 			sdk.SetResponseErrorDiagnostic(stream.Results, "parsing Virtual Network ID", err)
+	// 			return
+	// 		}
+
+	// 		vNetResource := resourceVirtualNetwork()
+
+	// 		rd := vNetResource.Data(&terraform.InstanceState{})
+
+	// 		rd.SetId(id.ID())
+
+	// 		err = resourceVirtualNetworkEncode(rd, *id, &vnet)
+	// 		if err != nil {
+	// 			sdk.SetResponseErrorDiagnostic(stream.Results, "encoding resource data", err)
+	// 			return
+	// 		}
+
+	// 		tfTypeIdentity, err := rd.TfTypeIdentityState()
+	// 		if err != nil {
+	// 			// TODO
+	// 		}
+
+	// 		if err := result.Identity.Set(ctx, *tfTypeIdentity); err != nil {
+	// 			sdk.SetResponseErrorDiagnostic(stream.Results, "setting identity data", err)
+	// 			return
+	// 		}
+
+	// 		tfTypeResource, err := rd.TfTypeResourceState()
+	// 		if err != nil {
+	// 			// TODO
+	// 		}
+
+	// 		if err := result.Resource.Set(ctx, *tfTypeResource); err != nil {
+	// 			sdk.SetResponseErrorDiagnostic(stream.Results, "setting resource data", err)
+	// 			return
+	// 		}
+
+	// 		if !push(result) {
+	// 			return
+	// 		}
+	// 	}
+	// }
 }
 
 func ResourceComputeDisk() *schema.Resource {

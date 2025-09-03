@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -1302,6 +1303,19 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 
 	return &config, nil
+}
+
+func ListResourceMap() []list.ListResource {
+	var output []list.ListResource
+
+	listResourceMap := ResourceMap()
+	for _, resource := range listResourceMap {
+		if resource != nil {
+			output = append(output, list.ListResource(resource.NewComputeDiskListResource()))
+		}
+	}
+
+	return output
 }
 
 func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Resource, error) {

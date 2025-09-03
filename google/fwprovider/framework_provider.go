@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/function"
+	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/metaschema"
@@ -32,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	google_provider "github.com/hashicorp/terraform-provider-google/google/provider"
 
 	"github.com/hashicorp/terraform-provider-google/google/functions"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
@@ -48,6 +50,7 @@ var (
 	_ provider.ProviderWithMetaSchema         = &FrameworkProvider{}
 	_ provider.ProviderWithFunctions          = &FrameworkProvider{}
 	_ provider.ProviderWithEphemeralResources = &FrameworkProvider{}
+	_ provider.ProviderWithListResources      = &FrameworkProvider{}
 )
 
 // New is a helper function to simplify provider server and testing implementation.
@@ -1210,6 +1213,7 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 	resp.DataSourceData = meta
 	resp.ResourceData = meta
 	resp.EphemeralResourceData = meta
+	resp.ListResourceData = meta
 }
 
 // DataSources defines the data sources implemented in the provider.
@@ -1245,4 +1249,8 @@ func (p *FrameworkProvider) EphemeralResources(_ context.Context) []func() ephem
 		resourcemanager.GoogleEphemeralServiceAccountJwt,
 		resourcemanager.GoogleEphemeralServiceAccountKey,
 	}
+}
+
+func (p *FrameworkProvider) ListResources(_ context.Context) []func() list.ListResource {
+	return google_provider.ListResourceMap()
 }
