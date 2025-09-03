@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed faulty diff for arrays on user_managed_keys_config that caused faulty cluster updates to be triggered.
+```

@@ -6126,11 +6126,17 @@ func expandUserManagedKeysConfig(configured interface{}) *container.UserManagedK
 	}
 	if v, ok := config["service_account_signing_keys"]; ok {
 		sk := v.(*schema.Set)
-		umkc.ServiceAccountSigningKeys = tpgresource.ConvertStringSet(sk)
+		skss := tpgresource.ConvertStringSet(sk)
+		if len(skss) > 0 {
+			umkc.ServiceAccountSigningKeys = skss
+		}
 	}
 	if v, ok := config["service_account_verification_keys"]; ok {
 		vk := v.(*schema.Set)
-		umkc.ServiceAccountVerificationKeys = tpgresource.ConvertStringSet(vk)
+		vkss := tpgresource.ConvertStringSet(vk)
+		if len(vkss) > 0 {
+			umkc.ServiceAccountVerificationKeys = vkss
+		}
 	}
 	return umkc
 }
