@@ -1,0 +1,3 @@
+```release-note:enhancement
+healthcare: added `consentConfig` field to `healthcare_fhir_store` resource (beta)
+```
