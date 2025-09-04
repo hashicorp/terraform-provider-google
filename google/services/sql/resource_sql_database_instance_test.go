@@ -1673,6 +1673,38 @@ func TestAccSqlDatabaseInstance_RetainBackupOnDelete(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_FinalBackupConfig(t *testing.T) {
+	t.Parallel()
+
+	masterID := acctest.RandInt(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_FinalBackupConfig(masterID, true, 10),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "final_backup_description"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_FinalBackupConfig(masterID, false, -1),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "final_backup_description"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 	t.Parallel()
 
@@ -6362,6 +6394,47 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, masterID, retainBackupOnDelete)
+}
+
+func testGoogleSqlDatabaseInstance_FinalBackupConfig(masterID int, enabled bool, retention_days int64) string {
+	retentionSetting := ""
+	if retention_days >= 0 {
+		retentionSetting = fmt.Sprintf(`retention_days = %d`, retention_days)
+	}
+
+	finalBackupConfig := fmt.Sprintf(`final_backup_config {
+		enabled = %v
+		%v
+	}`, enabled, retentionSetting)
+
+	finalBackupDescription := `""`
+	if enabled {
+		finalBackupDescription = `"Test FinalBackup Description"`
+	}
+
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "tf-test-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_8_0"
+  deletion_protection = false
+  final_backup_description = %v
+
+  settings {
+    tier = "db-g1-small"
+    backup_configuration {
+      enabled                        = true
+      start_time                     = "00:00"
+      binary_log_enabled             = true
+	  transaction_log_retention_days = 2
+	  backup_retention_settings {
+	    retained_backups = 4
+	  }
+    }
+%v
+  }
+}
+`, masterID, finalBackupDescription, finalBackupConfig)
 }
 
 func testAccSqlDatabaseInstance_beforeBackup(context map[string]interface{}) string {

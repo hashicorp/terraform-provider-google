@@ -188,6 +188,11 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 				Optional:    true,
 				Description: `Used to block Terraform from deleting a SQL Instance. Defaults to true.`,
 			},
+			"final_backup_description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of final backup if instance enable create final backup during instance deletion. `,
+			},
 			"settings": {
 				Type:         schema.TypeList,
 				Optional:     true,
@@ -793,6 +798,27 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Description: `When this parameter is set to true, Cloud SQL retains backups of the instance even after the instance is deleted. The ON_DEMAND backup will be retained until customer deletes the backup or the project. The AUTOMATED backup will be retained based on the backups retention setting.`,
+						},
+						"final_backup_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `When this parameter is set to true, the final backup is enabled for the instance`,
+									},
+									"retention_days": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(1, 36135),
+										Description:  `The number of days to retain the final backup after the instance deletion. The valid range is between 1 and 365. For instances managed by BackupDR, the valid range is between 1 day and 99 years. The final backup will be purged at (time_of_instance_deletion + retention_days).`,
+									},
+								},
+							},
+							Description: `Config used to determine the final backup settings for the instance`,
 						},
 					},
 				},
@@ -1504,6 +1530,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		EnableGoogleMlIntegration: _settings["enable_google_ml_integration"].(bool),
 		EnableDataplexIntegration: _settings["enable_dataplex_integration"].(bool),
 		RetainBackupsOnDelete:     _settings["retain_backups_on_delete"].(bool),
+		FinalBackupConfig:         expandFinalBackupConfig(_settings["final_backup_config"].([]interface{})),
 		UserLabels:                tpgresource.ConvertStringMap(_settings["user_labels"].(map[string]interface{})),
 		BackupConfiguration:       expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
 		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].(*schema.Set).List()),
@@ -1743,6 +1770,19 @@ func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfigu
 		TransactionLogRetentionDays: int64(_backupConfiguration["transaction_log_retention_days"].(int)),
 		PointInTimeRecoveryEnabled:  _backupConfiguration["point_in_time_recovery_enabled"].(bool),
 		ForceSendFields:             []string{"BinaryLogEnabled", "Enabled", "PointInTimeRecoveryEnabled"},
+	}
+}
+
+func expandFinalBackupConfig(configured []interface{}) *sqladmin.FinalBackupConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	_finalBackupConfig := configured[0].(map[string]interface{})
+	return &sqladmin.FinalBackupConfig{
+		Enabled:         _finalBackupConfig["enabled"].(bool),
+		RetentionDays:   int64(_finalBackupConfig["retention_days"].(int)),
+		ForceSendFields: []string{"Enabled"},
 	}
 }
 
@@ -2374,9 +2414,13 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	var op *sqladmin.Operation
+	finalBackupDescription := ""
+	if v, ok := d.GetOk("finalBackupDescription"); ok {
+		finalBackupDescription = v.(string)
+	}
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (rerr error) {
-			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Delete(project, d.Get("name").(string)).Do()
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Delete(project, d.Get("name").(string)).FinalBackupDescription(finalBackupDescription).Do()
 			if rerr != nil {
 				return rerr
 			}
@@ -2436,6 +2480,7 @@ func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.Resour
 		"time_zone":                   settings.TimeZone,
 		"deletion_protection_enabled": settings.DeletionProtectionEnabled,
 		"retain_backups_on_delete":    settings.RetainBackupsOnDelete,
+		"final_backup_config":         settings.FinalBackupConfig,
 	}
 
 	if data["availability_type"] == "" {
@@ -2464,6 +2509,10 @@ func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.Resour
 
 	if settings.BackupConfiguration != nil {
 		data["backup_configuration"] = flattenBackupConfiguration(settings.BackupConfiguration)
+	}
+
+	if settings.FinalBackupConfig != nil {
+		data["final_backup_config"] = flattenFinalBackupConfig(settings.FinalBackupConfig)
 	}
 
 	if settings.DatabaseFlags != nil {
@@ -2545,6 +2594,15 @@ func flattenBackupConfiguration(backupConfiguration *sqladmin.BackupConfiguratio
 		"point_in_time_recovery_enabled": backupConfiguration.PointInTimeRecoveryEnabled,
 		"backup_retention_settings":      flattenBackupRetentionSettings(backupConfiguration.BackupRetentionSettings),
 		"transaction_log_retention_days": backupConfiguration.TransactionLogRetentionDays,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenFinalBackupConfig(finalBackupConfig *sqladmin.FinalBackupConfig) []map[string]interface{} {
+	data := map[string]interface{}{
+		"enabled":        finalBackupConfig.Enabled,
+		"retention_days": finalBackupConfig.RetentionDays,
 	}
 
 	return []map[string]interface{}{data}

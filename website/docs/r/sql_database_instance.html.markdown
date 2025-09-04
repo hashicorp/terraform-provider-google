@@ -341,6 +341,8 @@ includes an up-to-date reference of supported versions.
     or `terraform destroy` that would delete the instance will fail.
     When the field is set to false, deleting the instance is allowed.
 
+* `final_backup_description` - (Optional) The description of final backup. Only set this field when `final_backup_config.enabled` is true.
+
   ~> **NOTE:** This flag only protects instances from deletion within Terraform. To protect your instances from accidental deletion across all surfaces (API, gcloud, Cloud Console and Terraform), use the API flag `settings.deletion_protection_enabled`.
 
 * `restore_backup_context` - (optional) The context needed to restore the database to a backup run. This field will
@@ -408,6 +410,12 @@ The `settings` block supports:
 * `time_zone` - (Optional) The time_zone to be used by the database engine (supported only for SQL Server), in SQL Server timezone format.
 
 * `retain_backups_on_delete` - (Optional) When this parameter is set to true, Cloud SQL retains backups of the instance even after the instance is deleted. The `ON_DEMAND` backup will be retained until customer deletes the backup or the project. The `AUTOMATED` backup will be retained based on the backups retention setting.
+
+The optional `final_backup_config` subblock supports:
+
+* `enabled` - (Optional) True if enabled final backup.
+
+* `retention_days` - (Optional) The number of days we retain the final backup after instance deletion. The valid range is between 1 and 365. For instances managed by BackupDR, the valid range is between 1 day and 99 years.
 
 The optional `settings.advanced_machine_features` subblock supports:
 
