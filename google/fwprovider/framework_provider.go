@@ -1255,9 +1255,7 @@ func (p *FrameworkProvider) ListResources(_ context.Context) []func() list.ListR
 	var output []func() list.ListResource
 	generatedListResources := google_provider.ListResources()
 	for _, listResource := range generatedListResources {
-		if listResource != nil {
-			output = append(output, func() list.ListResource { return listResource })
-		}
+		output = append(output, func() list.ListResource { return listResource })
 	}
 	return output
 }
