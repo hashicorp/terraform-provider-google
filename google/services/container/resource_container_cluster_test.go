@@ -8014,50 +8014,51 @@ resource "google_container_cluster" "with_node_config_kubelet_config_settings_in
   node_pool {
     name               = "%s"
     initial_node_count = 1
-    machine_type = "n1-standard-1"
+    
     node_config {
+      machine_type = "n1-standard-1"
       kubelet_config {
         max_parallel_image_pulls               = 5
-	eviction_max_pod_grace_period_seconds  = 200
-	eviction_soft {
-	  memory_available = "200Mi"
-	  nodefs_available = "10%%"
-	  nodefs_inodes_free = "20%%"
-	  imagefs_available = "30%%"
-	  imagefs_inodes_free = "40%%"
-	  pid_available = "50%%"
-	}
-	eviction_soft_grace_period {
-	  memory_available = "1m"
-	  nodefs_available = "2s"
-	  nodefs_inodes_free = "3m"
-	  imagefs_available = "100s"
-	  imagefs_inodes_free = "2m"
-	  pid_available = "3m2.6s"
-	}
-	eviction_minimum_reclaim {
-	  memory_available = "10%%"
-	  nodefs_available = "8.5%%"
-	  nodefs_inodes_free = "5.0%%"
-	  imagefs_available = "3%%"
-	  imagefs_inodes_free = "9%%"
-	  pid_available = "5%%"
-	}
+        eviction_max_pod_grace_period_seconds  = 200
+        eviction_soft {
+          memory_available = "200Mi"
+          nodefs_available = "10%%"
+          nodefs_inodes_free = "20%%"
+          imagefs_available = "30%%"
+          imagefs_inodes_free = "40%%"
+          pid_available = "50%%"
+        }
+        eviction_soft_grace_period {
+          memory_available = "1m"
+          nodefs_available = "2s"
+          nodefs_inodes_free = "3m"
+          imagefs_available = "100s"
+          imagefs_inodes_free = "2m"
+          pid_available = "3m2.6s"
+        }
+        eviction_minimum_reclaim {
+          memory_available = "10%%"
+          nodefs_available = "8.5%%"
+          nodefs_inodes_free = "5.0%%"
+          imagefs_available = "3%%"
+          imagefs_inodes_free = "9%%"
+          pid_available = "5%%"
+        }
       }
       disk_size_gb = 15
       disk_type    = "pd-ssd"
       node_group   = google_compute_node_group.group.name
       sole_tenant_config {
         node_affinity {
-	  key      = "compute.googleapis.com/node-group-name"
-	  operator = "IN"
-	  values   = [google_compute_node_group.group.name]
-	}
-	min_node_cpus = 1
+          key      = "compute.googleapis.com/node-group-name"
+          operator = "IN"
+          values   = [google_compute_node_group.group.name]
+        }
+        min_node_cpus = 1
       }
       linux_node_config {
         transparent_hugepage_defrag  = "%s"
-	transparent_hugepage_enabled = "%s"
+        transparent_hugepage_enabled = "%s"
       }
     }
   }
