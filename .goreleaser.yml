@@ -5,8 +5,6 @@ archives:
         dst: 'LICENSE.txt'
     format: zip
     name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
-docker_digest:
-  disable: true
 builds:
   - # Special binary naming is only necessary for Terraform CLI 0.12
     binary: '{{ .ProjectName }}_v{{ .Version }}_x5'
