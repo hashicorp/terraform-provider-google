@@ -1,7 +1,5 @@
 ## 7.2.0 (Unreleased)
 
-NOTES:
-
 FEATURES:
 * **New Data Source:** `google_artifact_registry_python_package` ([#24267](https://github.com/hashicorp/terraform-provider-google/pull/24267))
 * **New Data Source:** `google_backup_dr_data_source_references` ([#24268](https://github.com/hashicorp/terraform-provider-google/pull/24268))
@@ -22,7 +20,7 @@ BUG FIXES:
 * provider: fixed an issue with `universe_domain` where the provider tried to connect to "googleapis.com" for user email logging when `universe_domain` was set ([#24238](https://github.com/hashicorp/terraform-provider-google/pull/24238))
 * bigtable: fixed an error encountered when applying `google_bigtable_table_iam_*` resources after upgrading to 7.x and replacing `instance` with `instance_name` ([#24255](https://github.com/hashicorp/terraform-provider-google/pull/24255))
 * container: fixed a faulty diff for arrays on `user_managed_keys_config` that caused faulty cluster updates to be triggered in `google_container_cluster`. ([#24256](https://github.com/hashicorp/terraform-provider-google/pull/24256))
-* memorystore: fixed an issue where `desired_auto_created_endpoints` field incorrectly updated when desired_psc_auto_connections should have been ([#24212](https://github.com/hashicorp/terraform-provider-google/pull/24212))
+* memorystore: fixed an issue where `desired_auto_created_endpoints` field incorrectly updated instead of `desired_psc_auto_connections` in `google_memorystore_instance` ([#24212](https://github.com/hashicorp/terraform-provider-google/pull/24212))
 * osconfig: fixed a permadiff in `google_osconfig_patch_deployment` where `patch_config.yum.minimal` doesn't send `false` for empty values ([#24247](https://github.com/hashicorp/terraform-provider-google/pull/24247))
 
 ## 7.1.1 (September 3 2025)
