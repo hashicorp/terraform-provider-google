@@ -191,12 +191,12 @@ func flattenPublicCAExternalAccountKeyB64urlMacKey(v interface{}, d *schema.Reso
 		return ""
 	}
 
-	dec, err := base64.StdEncoding.DecodeString(v.(string))
+	dec, err := base64.RawStdEncoding.DecodeString(v.(string))
 	if err != nil {
 		return ""
 	}
 
-	return base64.URLEncoding.EncodeToString(dec)
+	return base64.RawURLEncoding.EncodeToString(dec)
 }
 
 func resourcePublicCAExternalAccountKeyPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {

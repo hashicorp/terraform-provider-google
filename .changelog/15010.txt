@@ -1,0 +1,3 @@
+```release-note:bug
+publicca: use `RawURLEncoding` instead of `URLEncoding` for unpadded base64 encoding
+```
