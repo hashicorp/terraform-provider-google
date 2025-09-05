@@ -928,7 +928,7 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100ms", networkName, subnetworkName, "TRUE", "100Mi", "1m", "10m", true, true, 2048, 10, 10, 85),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "None", "best-effort", "pod", "100ms", networkName, subnetworkName, "TRUE", "100Mi", "1m", "10m", true, true, 2048, 10, 10, 85),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						acctest.ExpectNoDelete(),
@@ -955,6 +955,12 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 						"node_config.0.kubelet_config.0.image_minimum_gc_age", "1m"),
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.image_maximum_gc_age", "10m"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.memory_manager.0.policy", "None"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.policy", "best-effort"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.scope", "pod"),
 					// resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 					//      "node_config.0.kubelet_config.0.allowed_unsafe_sysctls.0", "kernel.shm*"),
 				),
@@ -965,7 +971,7 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "", networkName, subnetworkName, "FALSE", "200Mi", "30s", "", false, true, 1024, 5, 50, 80),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "Static", "single-numa-node", "container", "", networkName, subnetworkName, "FALSE", "200Mi", "30s", "", false, true, 1024, 5, 50, 80),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						acctest.ExpectNoDelete(),
@@ -976,6 +982,13 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 						"node_config.0.kubelet_config.0.cpu_cfs_quota", "false"),
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.insecure_kubelet_readonly_port_enabled", "FALSE"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.memory_manager.0.policy", "Static"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.policy", "single-numa-node"),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.scope", "container"),
 				),
 			},
 			{
@@ -1003,7 +1016,7 @@ func TestAccContainerNodePool_withInvalidKubeletCpuManagerPolicy(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", networkName, subnetworkName, "TRUE", "", "", "", false, true, 1024, 2, 70, 75),
+				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "", "", "", "100us", networkName, subnetworkName, "TRUE", "", "", "", false, true, 1024, 2, 70, 75),
 				ExpectError: regexp.MustCompile(`.*to be one of \["?static"? "?none"? "?"?\].*`),
 			},
 		},
@@ -3697,7 +3710,7 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
 `, projectID, cluster, networkName, subnetworkName, np)
 }
 
-func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled, containerLogMaxSize, imageMinimumGcAge, imageMaximumGcAge string, quota, singleProcessOomKill bool, podPidsLimit, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent int) string {
+func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, memoryManagerPolicy, topologyManagerPolicy, topologyManagerScope, period, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled, containerLogMaxSize, imageMinimumGcAge, imageMaximumGcAge string, quota, singleProcessOomKill bool, podPidsLimit, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent int) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-central1-a"
@@ -3721,9 +3734,17 @@ resource "google_container_node_pool" "with_kubelet_config" {
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 1
   node_config {
+    machine_type       = "c4-standard-2"
     image_type = "COS_CONTAINERD"
     kubelet_config {
       cpu_manager_policy                     = %q
+	  memory_manager  {
+	    policy = %q
+	  }
+	  topology_manager {
+	    policy = %q
+	    scope = %q
+	  }
       cpu_cfs_quota                          = %v
       cpu_cfs_quota_period                   = %q
       insecure_kubelet_readonly_port_enabled = "%s"
@@ -3770,7 +3791,7 @@ resource "google_container_node_pool" "with_kubelet_config" {
     logging_variant = "DEFAULT"
   }
 }
-`, cluster, networkName, subnetworkName, np, policy, quota, period, insecureKubeletReadonlyPortEnabled, podPidsLimit, containerLogMaxSize, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent, imageMinimumGcAge, imageMaximumGcAge, singleProcessOomKill)
+`, cluster, networkName, subnetworkName, np, policy, memoryManagerPolicy, topologyManagerPolicy, topologyManagerScope, quota, period, insecureKubeletReadonlyPortEnabled, podPidsLimit, containerLogMaxSize, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent, imageMinimumGcAge, imageMaximumGcAge, singleProcessOomKill)
 }
 
 func testAccContainerNodePool_withLinuxNodeConfig(cluster, np, tcpMem, networkName, subnetworkName string) string {
