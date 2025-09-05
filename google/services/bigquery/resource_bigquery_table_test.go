@@ -18,14 +18,13 @@ package bigquery_test
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
-	"testing"
-
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"regexp"
+	"strings"
+	"testing"
 )
 
 func TestAccBigQueryTable_Basic(t *testing.T) {
@@ -1819,7 +1818,74 @@ func TestAccBigQueryTable_invalidSchemas(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryTable_schemaColumnDropWithRowAccessPolicy(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id": envvar.GetTestProjectFromEnv(),
+		"dataset_id": fmt.Sprintf("tf_test_dataset_%s", acctest.RandString(t, 10)),
+		"table_id":   fmt.Sprintf("tf_test_table_%s", acctest.RandString(t, 10)),
+		"policy_id":  fmt.Sprintf("tf_test_policy_%s", acctest.RandString(t, 10)),
+	}
+
+	var tableCreationTime string
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithSchemaAndRowAccessPolicy(context),
+				Check: resource.ComposeTestCheckFunc(
+					// Store the creationTime of the original table
+					func(s *terraform.State) error {
+						rs, ok := s.RootModule().Resources["google_bigquery_table.test"]
+						if !ok {
+							return fmt.Errorf("Not found: google_bigquery_table.test")
+						}
+						tableCreationTime = rs.Primary.Attributes["creation_time"]
+						return nil
+					},
+				),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+			},
+			{
+				Config: testAccBigQueryTableWithSchemaColumnDroppedAndRowAccessPolicy(context), // Change column to trigger ForceNew
+				Check: resource.ComposeTestCheckFunc(
+					// Verify that creationTime has changed, implying that the table was recreated.
+					func(s *terraform.State) error {
+						rs, ok := s.RootModule().Resources["google_bigquery_table.test"]
+						if !ok {
+							return fmt.Errorf("Not found: google_bigquery_table.test")
+						}
+						newTimeCreated := rs.Primary.Attributes["creation_time"]
+						if newTimeCreated == tableCreationTime {
+							return fmt.Errorf("creationTime should have changed on recreation, but it's still %s", newTimeCreated)
+						}
+						return nil
+					},
+				),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryTable_schemaWithRequiredFieldAndView(t *testing.T) {
+	t.Parallel()
+
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 
@@ -4686,6 +4752,100 @@ resource "google_bigquery_table" "test" {
   EOF
 }
 `, datasetID, tableID, schema)
+}
+
+func testAccBigQueryTableWithSchemaAndRowAccessPolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%{dataset_id}"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%{table_id}"
+
+  schema = <<EOF
+[
+  {
+    "name": "user_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Unique identifier for the user"
+  },
+  {
+    "name": "email",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "User's email address"
+  },
+  {
+    "name": "region",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "User's assigned region"
+  }
+]
+EOF
+}
+
+resource "google_bigquery_row_access_policy" "test" {
+  dataset_id = google_bigquery_table.test.dataset_id
+  table_id   = google_bigquery_table.test.table_id
+  policy_id  = "%{policy_id}"
+
+  grantees = [
+    "group:googlers@google.com"
+  ]
+  filter_predicate = "email = SESSION_USER()"
+
+  depends_on = [google_bigquery_table.test]
+}
+`, context)
+}
+
+func testAccBigQueryTableWithSchemaColumnDroppedAndRowAccessPolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%{dataset_id}"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%{table_id}"
+
+  schema = <<EOF
+[
+  {
+    "name": "user_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Unique identifier for the user"
+  },
+  {
+    "name": "email",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "User's email address"
+  }
+]
+EOF
+}
+
+resource "google_bigquery_row_access_policy" "test" {
+  dataset_id = google_bigquery_table.test.dataset_id
+  table_id   = google_bigquery_table.test.table_id
+  policy_id  = "%{policy_id}"
+
+  grantees = [
+    "group:googlers@google.com"
+  ]
+  filter_predicate = "email = SESSION_USER()"
+
+  depends_on = [google_bigquery_table.test]
+}
+`, context)
 }
 
 func testAccBigQueryTableWithReplicationInfoAndView(datasetID, tableID string) string {

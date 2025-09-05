@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: updated the schema change detection for `google_bigquery_table` to take into account presence of row access policy
+```
