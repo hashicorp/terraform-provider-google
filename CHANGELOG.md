@@ -1,5 +1,30 @@
 ## 7.2.0 (Unreleased)
 
+NOTES:
+
+FEATURES:
+* **New Data Source:** `google_artifact_registry_python_package` ([#24267](https://github.com/hashicorp/terraform-provider-google/pull/24267))
+* **New Data Source:** `google_backup_dr_data_source_references` ([#24268](https://github.com/hashicorp/terraform-provider-google/pull/24268))
+* **New Resource:** `google_discovery_engine_acl_config` ([#24276](https://github.com/hashicorp/terraform-provider-google/pull/24276))
+* **New Resource:** `google_saas_runtime_unit_kind` ([#24236](https://github.com/hashicorp/terraform-provider-google/pull/24236))
+
+IMPROVEMENTS:
+* chronicle: made the `scope_info` field in `google_chronicle_reference_list` configurable ([#24250](https://github.com/hashicorp/terraform-provider-google/pull/24250))
+* compute: added `header_action` to `path_matcher` and `default_service` level on `google_compute_region_url_map` resource ([#24253](https://github.com/hashicorp/terraform-provider-google/pull/24253))
+* container: added `secret_manager_config.rotation_config` field to `google_container_cluster` resource ([#24244](https://github.com/hashicorp/terraform-provider-google/pull/24244))
+* container: added new fields `memory_manager and `topology_manager` to `node_kubelet_config` block ([#24277](https://github.com/hashicorp/terraform-provider-google/pull/24277))
+* healthcare: added `consentConfig` field to `healthcare_fhir_store` resource (beta) ([#24254](https://github.com/hashicorp/terraform-provider-google/pull/24254))
+* networkmanagement: added org to `google_network_management_vpc_flow_logs_config` resource (beta) ([#24245](https://github.com/hashicorp/terraform-provider-google/pull/24245))
+* sql: added `final_backup_description` and `final_backup_config` fields to `google_sql_database_instance` resource ([#24273](https://github.com/hashicorp/terraform-provider-google/pull/24273))
+* storage: added `aws_s3_compatible_data_source` to `google_storage_transfer_job` resource ([#24241](https://github.com/hashicorp/terraform-provider-google/pull/24241))
+
+BUG FIXES:
+* provider: fixed an issue with `universe_domain` where the provider tried to connect to "googleapis.com" for user email logging when `universe_domain` was set ([#24238](https://github.com/hashicorp/terraform-provider-google/pull/24238))
+* bigtable: fixed an error encountered when applying `google_bigtable_table_iam_*` resources after upgrading to 7.x and replacing `instance` with `instance_name` ([#24255](https://github.com/hashicorp/terraform-provider-google/pull/24255))
+* container: fixed a faulty diff for arrays on `user_managed_keys_config` that caused faulty cluster updates to be triggered in `google_container_cluster`. ([#24256](https://github.com/hashicorp/terraform-provider-google/pull/24256))
+* memorystore: fixed an issue where `desired_auto_created_endpoints` field incorrectly updated when desired_psc_auto_connections should have been ([#24212](https://github.com/hashicorp/terraform-provider-google/pull/24212))
+* osconfig: fixed a permadiff in `google_osconfig_patch_deployment` where `patch_config.yum.minimal` doesn't send `false` for empty values ([#24247](https://github.com/hashicorp/terraform-provider-google/pull/24247))
+
 ## 7.1.1 (September 3 2025)
 
 * bigtable: fixed an error encountered when applying `google_bigtable_table_iam_*` resources after upgrading to 7.x and replacing `instance` with `instance_name` ([#24255](https://github.com/hashicorp/terraform-provider-google/pull/24255))
