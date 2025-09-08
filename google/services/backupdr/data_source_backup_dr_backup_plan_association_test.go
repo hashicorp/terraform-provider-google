@@ -17,9 +17,14 @@
 package backupdr_test
 
 import (
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"fmt"
+	"strconv"
+	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceGoogleBackupDRBackupPlanAssociation_basic(t *testing.T) {
@@ -135,5 +140,170 @@ data "google_backup_dr_backup_plan_association" "bpa-test" {
   backup_plan_association_id="tf-test-bpa-test-%{random_suffix}"
   depends_on= [ google_backup_dr_backup_plan_association.bpa ]
   }
+`, context)
+}
+
+func TestAccDataSourceGoogleBackupDRBackupPlanAssociations(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"bpa_id":        "tf-test-bpa-plural-" + acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceGoogleBackupDRBackupPlanAssociations_config(context),
+				Check: testAccCheckBackupPlanAssociationInList(
+					"data.google_backup_dr_backup_plan_associations.bpas",
+					"google_compute_instance.default",
+					"google_backup_dr_backup_plan.foo1",
+					"data.google_project.project",
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckBackupPlanAssociationInList(dataSourceName, instanceName, backupPlanName, projectDsName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ds, ok := s.RootModule().Resources[dataSourceName]
+		if !ok {
+			return fmt.Errorf("data source not found: %s", dataSourceName)
+		}
+
+		instance, ok := s.RootModule().Resources[instanceName]
+		if !ok {
+			return fmt.Errorf("instance resource not found: %s", instanceName)
+		}
+
+		backupPlan, ok := s.RootModule().Resources[backupPlanName]
+		if !ok {
+			return fmt.Errorf("backup plan resource not found: %s", backupPlanName)
+		}
+		backupPlanNameFromState := backupPlan.Primary.Attributes["name"]
+
+		project, ok := s.RootModule().Resources[projectDsName]
+		if !ok {
+			return fmt.Errorf("project data source not found: %s", projectDsName)
+		}
+		projectID := project.Primary.Attributes["project_id"]
+		projectNumber := project.Primary.Attributes["number"]
+
+		fmt.Printf("\n--- Performing Direct Association Check ---\n")
+
+		// 1. Reconstruct the 'resource' string using the project NUMBER and instance ID
+		//    to match the format returned by the BackupDR API.
+		instanceID := instance.Primary.Attributes["instance_id"]
+		zone := instance.Primary.Attributes["zone"]
+		expectedResource := fmt.Sprintf("projects/%s/zones/%s/instances/%s", projectNumber, zone, instanceID)
+		fmt.Printf("Expected Resource (constructed): %s\n", expectedResource)
+
+		// 2. Normalize the backup plan name to also use the project NUMBER.
+		expectedBackupPlan := strings.Replace(backupPlanNameFromState, "projects/"+projectID, "projects/"+projectNumber, 1)
+		fmt.Printf("Expected Backup Plan (normalized): %s\n", expectedBackupPlan)
+
+		associationsCount, _ := strconv.Atoi(ds.Primary.Attributes["associations.#"])
+		fmt.Printf("Total associations found by data source: %d\n", associationsCount)
+
+		for i := 0; i < associationsCount; i++ {
+			resourceAttr := ds.Primary.Attributes[fmt.Sprintf("associations.%d.resource", i)]
+			backupPlanAttr := ds.Primary.Attributes[fmt.Sprintf("associations.%d.backup_plan", i)]
+
+			fmt.Printf("Found Association #%d: Resource='%s', BackupPlan='%s'\n", i, resourceAttr, backupPlanAttr)
+
+			if resourceAttr == expectedResource && backupPlanAttr == expectedBackupPlan {
+				fmt.Println("--- Match found! Test successful. ---")
+				return nil
+			}
+		}
+
+		fmt.Println("--- No match found after checking all associations. ---")
+		return fmt.Errorf("no matching backup plan association found in data source '%s' for resource '%s'", dataSourceName, expectedResource)
+	}
+}
+
+func testAccDataSourceGoogleBackupDRBackupPlanAssociations_config(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  data "google_project" "project" {}
+  
+resource "google_service_account" "default" {
+  account_id   = "tf-test-my-custom1-%{random_suffix}"
+  display_name = "Custom SA for VM Instance"
+}
+
+resource "google_compute_instance" "default" {
+  name         = "tf-test-compute-instance1-%{random_suffix}"
+  machine_type = "n2-standard-2"
+  zone         = "us-central1-a"
+  tags         = ["foo", "bar"]
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+  }
+  service_account {
+    email  = google_service_account.default.email
+    scopes = ["cloud-platform"]
+  }
+}
+
+resource "google_backup_dr_backup_vault" "my-backup-vault" {
+    location        = "us-central1"
+    backup_vault_id = "tf-test-bv1-%{random_suffix}"
+    description     = "This is a backup vault for list datasource test."
+    backup_minimum_enforced_retention_duration = "100000s"
+    labels = {
+      foo = "bar1"
+      bar = "baz1"
+    }
+    annotations = {
+      annotations1 = "bar1"
+      annotations2 = "baz1"
+    }
+    force_update = "true"
+    force_delete = "true"
+    allow_missing = "true" 
+}
+
+resource "google_backup_dr_backup_plan" "foo1" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test1-%{random_suffix}"
+  resource_type  = "compute.googleapis.com/Instance"
+  backup_vault   = google_backup_dr_backup_vault.my-backup-vault.name
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 2
+    standard_schedule {
+      recurrence_type     = "HOURLY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+      backup_window {
+        start_hour_of_day = 12
+        end_hour_of_day   = 18
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "bpa" {
+  location                     = "us-central1"
+  backup_plan_association_id   = "%{bpa_id}"
+  resource                     = google_compute_instance.default.id
+  resource_type                = "compute.googleapis.com/Instance"
+  backup_plan                  = google_backup_dr_backup_plan.foo1.name
+}
+
+data "google_backup_dr_backup_plan_associations" "bpas" {
+  location      = "us-central1"
+  resource_type = "compute.googleapis.com/Instance"
+  depends_on = [google_backup_dr_backup_plan_association.bpa]
+}
 `, context)
 }

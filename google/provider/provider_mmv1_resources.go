@@ -199,6 +199,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_apphub_discovered_service":                           apphub.DataSourceApphubDiscoveredService(),
 	"google_backup_dr_management_server":                         backupdr.DataSourceGoogleCloudBackupDRService(),
 	"google_backup_dr_backup_plan_association":                   backupdr.DataSourceGoogleCloudBackupDRBackupPlanAssociation(),
+	"google_backup_dr_backup_plan_associations":                  backupdr.DataSourceGoogleCloudBackupDRBackupPlanAssociations(),
 	"google_backup_dr_backup_plan":                               backupdr.DataSourceGoogleCloudBackupDRBackupPlan(),
 	"google_backup_dr_backup":                                    backupdr.DataSourceGoogleCloudBackupDRBackup(),
 	"google_backup_dr_data_source":                               backupdr.DataSourceGoogleCloudBackupDRDataSource(),
