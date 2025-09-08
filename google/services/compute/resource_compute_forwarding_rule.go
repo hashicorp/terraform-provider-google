@@ -51,6 +51,14 @@ func forwardingRuleCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v
 			}
 		}
 	}
+
+	// Force recreation if allow_global_access changes for INTERNAL_MANAGED load balancing scheme
+	if diff.Id() != "" && diff.HasChange("allow_global_access") {
+		if loadBalancingScheme, ok := diff.Get("load_balancing_scheme").(string); ok && loadBalancingScheme == "INTERNAL_MANAGED" {
+			diff.ForceNew("allow_global_access")
+		}
+	}
+
 	return nil
 }
 
