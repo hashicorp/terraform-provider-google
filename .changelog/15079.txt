@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed `allow_global_access` to correctly be immutable for `google_compute_forwarding_rule` resources with load balancing scheme of INTERNAL_MANAGED
+```

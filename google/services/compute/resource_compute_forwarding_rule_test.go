@@ -637,3 +637,183 @@ resource "google_compute_network" "custom-test" {
 }
 `, context)
 }
+
+func TestAccComputeForwardingRule_allowGlobalAccessUpdate_Internal(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	poolName := fmt.Sprintf("tf-test-%s", suffix)
+	ruleName := fmt.Sprintf("tf-test-%s", suffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_allowGlobalAccess_Internal(poolName, ruleName, false),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region"},
+			},
+			{
+				Config: testAccComputeForwardingRule_allowGlobalAccess_Internal(poolName, ruleName, true),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region"},
+			},
+		},
+	})
+}
+
+func TestAccComputeForwardingRule_allowGlobalAccessUpdate_InternalManaged(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	poolName := fmt.Sprintf("tf-test-%s", suffix)
+	ruleName := fmt.Sprintf("tf-test-%s", suffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_allowGlobalAccess_InternalManaged(poolName, ruleName, false),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"target", "network", "subnetwork", "region"},
+			},
+			{
+				// This should trigger recreation due to immutability for INTERNAL_MANAGED
+				Config: testAccComputeForwardingRule_allowGlobalAccess_InternalManaged(poolName, ruleName, true),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"target", "network", "subnetwork", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeForwardingRule_allowGlobalAccess_Internal(poolName, ruleName string, allowGlobalAccess bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name                    = "%s-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%s-subnet"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "%s-hc"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name                  = "%s-backend"
+  region                = "us-central1"
+  health_checks         = [google_compute_health_check.default.id]
+  load_balancing_scheme = "INTERNAL"
+  protocol              = "TCP"
+}
+
+resource "google_compute_forwarding_rule" "foobar" {
+  name                  = "%s"
+  region                = "us-central1"
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.default.id
+  all_ports             = true
+  allow_global_access   = %t
+}
+`, poolName, poolName, poolName, poolName, ruleName, allowGlobalAccess)
+}
+
+func testAccComputeForwardingRule_allowGlobalAccess_InternalManaged(poolName, ruleName string, allowGlobalAccess bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name                    = "%s-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%s-subnet"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "proxy" {
+  name          = "%s-proxy-subnet"
+  ip_cidr_range = "10.1.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "%s-hc"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  http_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name                  = "%s-backend"
+  region                = "us-central1"
+  health_checks         = [google_compute_health_check.default.id]
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  protocol              = "HTTP"
+}
+
+resource "google_compute_region_url_map" "default" {
+  name            = "%s-url-map"
+  region          = "us-central1"
+  default_service = google_compute_region_backend_service.default.id
+}
+
+resource "google_compute_region_target_http_proxy" "default" {
+  name    = "%s-http-proxy"
+  region  = "us-central1"
+  url_map = google_compute_region_url_map.default.id
+}
+
+resource "google_compute_forwarding_rule" "foobar" {
+  name                  = "%s"
+  region                = "us-central1"
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  target                = google_compute_region_target_http_proxy.default.id
+  port_range            = "80"
+  allow_global_access   = %t
+
+  depends_on = [google_compute_subnetwork.proxy]
+}
+`, poolName, poolName, poolName, poolName, poolName, poolName, poolName, ruleName, allowGlobalAccess)
+}
