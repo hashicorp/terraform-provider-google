@@ -34,6 +34,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/bigqueryanalyticshub"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigqueryconnection"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigquerydatapolicy"
+	"github.com/hashicorp/terraform-provider-google/google/services/bigquerydatapolicyv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigquerydatatransfer"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigqueryreservation"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigtable"
@@ -448,6 +449,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_bigquery_analytics_hub_listing_iam_policy":          tpgiamresource.DataSourceIamPolicy(bigqueryanalyticshub.BigqueryAnalyticsHubListingIamSchema, bigqueryanalyticshub.BigqueryAnalyticsHubListingIamUpdaterProducer),
 	"google_bigquery_connection_iam_policy":                     tpgiamresource.DataSourceIamPolicy(bigqueryconnection.BigqueryConnectionConnectionIamSchema, bigqueryconnection.BigqueryConnectionConnectionIamUpdaterProducer),
 	"google_bigquery_datapolicy_data_policy_iam_policy":         tpgiamresource.DataSourceIamPolicy(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer),
+	"google_bigquery_datapolicyv2_data_policy_iam_policy":       tpgiamresource.DataSourceIamPolicy(bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIamSchema, bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIamUpdaterProducer),
 	"google_binary_authorization_attestor_iam_policy":           tpgiamresource.DataSourceIamPolicy(binaryauthorization.BinaryAuthorizationAttestorIamSchema, binaryauthorization.BinaryAuthorizationAttestorIamUpdaterProducer),
 	"google_cloudbuildv2_connection_iam_policy":                 tpgiamresource.DataSourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer),
 	"google_clouddeploy_custom_target_type_iam_policy":          tpgiamresource.DataSourceIamPolicy(clouddeploy.ClouddeployCustomTargetTypeIamSchema, clouddeploy.ClouddeployCustomTargetTypeIamUpdaterProducer),
@@ -563,9 +565,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 644
-// Generated IAM resources: 315
-// Total generated resources: 959
+// Generated resources: 645
+// Generated IAM resources: 318
+// Total generated resources: 963
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -687,6 +689,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_bigquery_datapolicy_data_policy_iam_binding":                         tpgiamresource.ResourceIamBinding(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIdParseFunc),
 	"google_bigquery_datapolicy_data_policy_iam_member":                          tpgiamresource.ResourceIamMember(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIdParseFunc),
 	"google_bigquery_datapolicy_data_policy_iam_policy":                          tpgiamresource.ResourceIamPolicy(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIdParseFunc),
+	"google_bigquery_datapolicyv2_data_policy":                                   bigquerydatapolicyv2.ResourceBigqueryDatapolicyv2DataPolicy(),
+	"google_bigquery_datapolicyv2_data_policy_iam_binding":                       tpgiamresource.ResourceIamBinding(bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIamSchema, bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIamUpdaterProducer, bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIdParseFunc),
+	"google_bigquery_datapolicyv2_data_policy_iam_member":                        tpgiamresource.ResourceIamMember(bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIamSchema, bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIamUpdaterProducer, bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIdParseFunc),
+	"google_bigquery_datapolicyv2_data_policy_iam_policy":                        tpgiamresource.ResourceIamPolicy(bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIamSchema, bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIamUpdaterProducer, bigquerydatapolicyv2.BigqueryDatapolicyv2DataPolicyIdParseFunc),
 	"google_bigquery_data_transfer_config":                                       bigquerydatatransfer.ResourceBigqueryDataTransferConfig(),
 	"google_bigquery_bi_reservation":                                             bigqueryreservation.ResourceBigqueryReservationBiReservation(),
 	"google_bigquery_capacity_commitment":                                        bigqueryreservation.ResourceBigqueryReservationCapacityCommitment(),
@@ -1678,6 +1684,7 @@ func UseGeneratedProducts() {
 	var _ = bigqueryanalyticshub.ProductName
 	var _ = bigqueryconnection.ProductName
 	var _ = bigquerydatapolicy.ProductName
+	var _ = bigquerydatapolicyv2.ProductName
 	var _ = bigquerydatatransfer.ProductName
 	var _ = bigqueryreservation.ProductName
 	var _ = bigtable.ProductName

@@ -111,6 +111,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Bigquerydatapolicy",
         "path" to "./google/services/bigquerydatapolicy"
     ),
+    "bigquerydatapolicyv2" to mapOf(
+        "name" to "bigquerydatapolicyv2",
+        "displayName" to "Bigquerydatapolicyv2",
+        "path" to "./google/services/bigquerydatapolicyv2"
+    ),
     "bigquerydatatransfer" to mapOf(
         "name" to "bigquerydatatransfer",
         "displayName" to "Bigquerydatatransfer",

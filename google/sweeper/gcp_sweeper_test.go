@@ -33,6 +33,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigqueryanalyticshub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigqueryconnection"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquerydatapolicy"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquerydatapolicyv2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquerydatatransfer"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigqueryreservation"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigtable"
