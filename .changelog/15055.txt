@@ -1,0 +1,3 @@
+```release-note:bug
+workbench: fixed issue that resource creation with computed `labels` field fails in `google_workbench_instance` resource
+```
