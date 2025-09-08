@@ -79,10 +79,10 @@ The short name can have a maximum length of 256 characters. The permitted charac
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"GCE_FIREWALL", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"GCE_FIREWALL", "DATA_GOVERNANCE", ""}),
 				Description: `Optional. A purpose cannot be changed once set.
 
-A purpose denotes that this Tag is intended for use in policies of a specific policy engine, and will involve that policy engine in management operations involving this Tag. Possible values: ["GCE_FIREWALL"]`,
+A purpose denotes that this Tag is intended for use in policies of a specific policy engine, and will involve that policy engine in management operations involving this Tag. Possible values: ["GCE_FIREWALL", "DATA_GOVERNANCE"]`,
 			},
 			"purpose_data": {
 				Type:     schema.TypeMap,
