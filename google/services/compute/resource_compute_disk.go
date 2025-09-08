@@ -375,9 +375,9 @@ func (r *ComputeDiskListResource) Metadata(_ context.Context, _ resource.Metadat
 }
 
 func (r *ComputeDiskListResource) RawV5Schemas(ctx context.Context, _ list.RawV5SchemaRequest, resp *list.RawV5SchemaResponse) {
-	
-	resp.ProtoV5Schema = r.resource.ProtoSchema(ctx)()
-	resp.ProtoV5IdentitySchema = r.resource.ProtoIdentitySchema(ctx)()
+	computeDisk := ResourceComputeDisk()
+	resp.ProtoV5Schema = computeDisk.ProtoSchema(ctx)()
+	resp.ProtoV5IdentitySchema = computeDisk.ProtoIdentitySchema(ctx)()
 }
 
 func (r *ComputeDiskListResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
