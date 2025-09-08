@@ -1,0 +1,3 @@
+```release-note:enhancement
+backupdr: added new RPC fetch for resource type for backup plan association in `data_source_backup_dr_backup_plan_association.go` . This rpc will allow users to fetch all the backup plan associations for a particular resource type like compute.googleapis.com/Instance , sqladmin.googleapis.com/Instance etc 
+```

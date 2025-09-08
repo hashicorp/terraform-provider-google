@@ -18,6 +18,7 @@ package backupdr
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -58,5 +59,112 @@ func dataSourceGoogleCloudBackupDRBackupPlanAssociationRead(d *schema.ResourceDa
 	if d.Id() == "" {
 		return fmt.Errorf("%s not found", id)
 	}
+	return nil
+}
+
+// Plural datasource to Fetch BackupPlanAssociations for a given resource type
+func DataSourceGoogleCloudBackupDRBackupPlanAssociations() *schema.Resource {
+	return &schema.Resource{
+		Read: dataSourceGoogleCloudBackupDRBackupPlanAssociationsRead,
+		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The location to list the backup plan associations from.",
+			},
+			"project": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The ID of the project in which the resource belongs.",
+			},
+			"resource_type": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The resource type of workload on which backup plan is applied. Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk".`,
+			},
+
+			"associations": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "A list of the backup plan associations found.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"resource": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"backup_plan": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"create_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func dataSourceGoogleCloudBackupDRBackupPlanAssociationsRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	location := d.Get("location").(string)
+	resourceType := d.Get("resource_type").(string)
+
+	url := fmt.Sprintf("%sprojects/%s/locations/%s/backupPlanAssociations:fetchForResourceType?resourceType=%s", config.BackupDRBasePath, project, location, resourceType)
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return fmt.Errorf("Error reading BackupPlanAssociations: %s", err)
+	}
+
+	// Adjust "backupPlanAssociations" to match the key in the actual API response.
+	items, ok := res["backupPlanAssociations"].([]interface{})
+	if !ok {
+		items = make([]interface{}, 0)
+	}
+
+	// Flatten the list of items from the API response into the schema
+	associations := make([]map[string]interface{}, 0, len(items))
+	for _, item := range items {
+		association := item.(map[string]interface{})
+		flattened := map[string]interface{}{
+			"name":        association["name"],
+			"resource":    association["resource"],
+			"backup_plan": association["backupPlan"],
+			"create_time": association["createTime"],
+		}
+		associations = append(associations, flattened)
+	}
+
+	if err := d.Set("associations", associations); err != nil {
+		return fmt.Errorf("Error setting associations: %s", err)
+	}
+
+	d.SetId(url)
+
 	return nil
 }
