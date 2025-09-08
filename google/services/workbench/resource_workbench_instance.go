@@ -38,30 +38,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-var WorkbenchInstanceProvidedLabels = []string{
-	"consumer-project-id",
-	"consumer-project-number",
-	"notebooks-product",
-	"resource-name",
-}
-
-func WorkbenchInstanceLabelsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// Suppress diffs for the labels
-	for _, label := range WorkbenchInstanceProvidedLabels {
-		if strings.Contains(k, label) && new == "" {
-			return true
-		}
-	}
-
-	// Let diff be determined by labels (above)
-	if strings.Contains(k, "labels.%") {
-		return true
-	}
-
-	// For other keys, don't suppress diff.
-	return false
-}
-
 var WorkbenchInstanceSettableUnmodifiableDefaultMetadata = []string{
 	"install-monitoring-agent",
 	"serial-port-logging-enable",
@@ -834,9 +810,8 @@ https://cloud.google.com/vertex-ai/docs/workbench/instances/manage-access-jupyte
 				},
 			},
 			"labels": {
-				Type:             schema.TypeMap,
-				Optional:         true,
-				DiffSuppressFunc: WorkbenchInstanceLabelsDiffSuppress,
+				Type:     schema.TypeMap,
+				Optional: true,
 				Description: `Optional. Labels to apply to this instance. These can be later modified
 by the UpdateInstance method.
 
