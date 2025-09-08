@@ -273,6 +273,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					transport_tpg.CustomEndpointValidator(),
 				},
 			},
+			"bigquery_datapolicyv2_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
 			"bigquery_data_transfer_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{

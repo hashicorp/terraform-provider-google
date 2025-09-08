@@ -68,6 +68,7 @@ type ProviderModel struct {
 	BigqueryAnalyticsHubCustomEndpoint     types.String `tfsdk:"bigquery_analytics_hub_custom_endpoint"`
 	BigqueryConnectionCustomEndpoint       types.String `tfsdk:"bigquery_connection_custom_endpoint"`
 	BigqueryDatapolicyCustomEndpoint       types.String `tfsdk:"bigquery_datapolicy_custom_endpoint"`
+	BigqueryDatapolicyv2CustomEndpoint     types.String `tfsdk:"bigquery_datapolicyv2_custom_endpoint"`
 	BigqueryDataTransferCustomEndpoint     types.String `tfsdk:"bigquery_data_transfer_custom_endpoint"`
 	BigqueryReservationCustomEndpoint      types.String `tfsdk:"bigquery_reservation_custom_endpoint"`
 	BigtableCustomEndpoint                 types.String `tfsdk:"bigtable_custom_endpoint"`
