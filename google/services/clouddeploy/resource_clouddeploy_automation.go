@@ -404,7 +404,7 @@ func resourceClouddeployAutomationCreate(d *schema.ResourceData, meta interface{
 	suspendedProp, err := expandClouddeployAutomationSuspended(d.Get("suspended"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("suspended"); ok || !reflect.DeepEqual(v, suspendedProp) {
+	} else if v, ok := d.GetOkExists("suspended"); !tpgresource.IsEmptyValue(reflect.ValueOf(suspendedProp)) && (ok || !reflect.DeepEqual(v, suspendedProp)) {
 		obj["suspended"] = suspendedProp
 	}
 	serviceAccountProp, err := expandClouddeployAutomationServiceAccount(d.Get("service_account"), d, config)
@@ -607,7 +607,7 @@ func resourceClouddeployAutomationUpdate(d *schema.ResourceData, meta interface{
 	suspendedProp, err := expandClouddeployAutomationSuspended(d.Get("suspended"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("suspended"); ok || !reflect.DeepEqual(v, suspendedProp) {
+	} else if v, ok := d.GetOkExists("suspended"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, suspendedProp)) {
 		obj["suspended"] = suspendedProp
 	}
 	serviceAccountProp, err := expandClouddeployAutomationServiceAccount(d.Get("service_account"), d, config)
@@ -1511,7 +1511,7 @@ func expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollback(v int
 	transformedDisableRollbackIfRolloutPending, err := expandClouddeployAutomationRulesRepairRolloutRuleRepairPhasesRollbackDisableRollbackIfRolloutPending(original["disable_rollback_if_rollout_pending"], d, config)
 	if err != nil {
 		return nil, err
-	} else {
+	} else if val := reflect.ValueOf(transformedDisableRollbackIfRolloutPending); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["disableRollbackIfRolloutPending"] = transformedDisableRollbackIfRolloutPending
 	}
 
