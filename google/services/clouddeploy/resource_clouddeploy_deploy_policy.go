@@ -475,7 +475,7 @@ func resourceClouddeployDeployPolicyCreate(d *schema.ResourceData, meta interfac
 	suspendedProp, err := expandClouddeployDeployPolicySuspended(d.Get("suspended"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("suspended"); ok || !reflect.DeepEqual(v, suspendedProp) {
+	} else if v, ok := d.GetOkExists("suspended"); !tpgresource.IsEmptyValue(reflect.ValueOf(suspendedProp)) && (ok || !reflect.DeepEqual(v, suspendedProp)) {
 		obj["suspended"] = suspendedProp
 	}
 	selectorsProp, err := expandClouddeployDeployPolicySelectors(d.Get("selectors"), d, config)
@@ -669,7 +669,7 @@ func resourceClouddeployDeployPolicyUpdate(d *schema.ResourceData, meta interfac
 	suspendedProp, err := expandClouddeployDeployPolicySuspended(d.Get("suspended"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("suspended"); ok || !reflect.DeepEqual(v, suspendedProp) {
+	} else if v, ok := d.GetOkExists("suspended"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, suspendedProp)) {
 		obj["suspended"] = suspendedProp
 	}
 	selectorsProp, err := expandClouddeployDeployPolicySelectors(d.Get("selectors"), d, config)

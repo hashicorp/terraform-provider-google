@@ -56,6 +56,15 @@ func TestAccClouddeployAutomation_update(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "delivery_pipeline", "annotations", "labels", "terraform_labels"},
 			},
+			{
+				Config: testAccClouddeployAutomation_basic(context),
+			},
+			{
+				ResourceName:            "google_clouddeploy_automation.automation",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "delivery_pipeline", "annotations", "labels", "terraform_labels"},
+			},
 		},
 	})
 }

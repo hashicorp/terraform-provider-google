@@ -54,6 +54,15 @@ func TestAccClouddeployDeployPolicy_update(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "annotations", "labels", "terraform_labels"},
 			},
+			{
+				Config: testAccClouddeployDeployPolicy_basic(context),
+			},
+			{
+				ResourceName:            "google_clouddeploy_deploy_policy.deploy_policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "annotations", "labels", "terraform_labels"},
+			},
 		},
 	})
 }
@@ -101,6 +110,7 @@ resource "google_clouddeploy_deploy_policy" "deploy_policy" {
       id = "tf-test-cd-pipeline%{random_suffix}"
     }
   }
+  suspended = true
   rules {
     rollout_restriction {
       id = "rule"
