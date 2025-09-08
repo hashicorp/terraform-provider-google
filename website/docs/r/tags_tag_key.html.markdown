@@ -64,7 +64,7 @@ The following arguments are supported:
   (Optional)
   Optional. A purpose cannot be changed once set.
   A purpose denotes that this Tag is intended for use in policies of a specific policy engine, and will involve that policy engine in management operations involving this Tag.
-  Possible values are: `GCE_FIREWALL`.
+  Possible values are: `GCE_FIREWALL`, `DATA_GOVERNANCE`.
 
 * `purpose_data` -
   (Optional)

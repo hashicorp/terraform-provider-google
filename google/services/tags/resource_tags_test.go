@@ -35,20 +35,21 @@ import (
 
 func TestAccTags(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"tagKeyBasic":                       testAccTagsTagKey_tagKeyBasic,
-		"tagKeyBasicWithPurposeGceFirewall": testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall,
-		"tagKeyUpdate":                      testAccTagsTagKey_tagKeyUpdate,
-		"tagKeyIamBinding":                  testAccTagsTagKeyIamBinding,
-		"tagKeyIamMember":                   testAccTagsTagKeyIamMember,
-		"tagKeyIamPolicy":                   testAccTagsTagKeyIamPolicy,
-		"tagValueBasic":                     testAccTagsTagValue_tagValueBasic,
-		"tagValueUpdate":                    testAccTagsTagValue_tagValueUpdate,
-		"tagBindingBasic":                   testAccTagsTagBinding_tagBindingBasic,
-		"tagValueIamBinding":                testAccTagsTagValueIamBinding,
-		"tagValueIamMember":                 testAccTagsTagValueIamMember,
-		"tagValueIamPolicy":                 testAccTagsTagValueIamPolicy,
-		"tagsLocationTagBindingBasic":       testAccTagsLocationTagBinding_locationTagBindingbasic,
-		"tagsLocationTagBindingZonal":       TestAccTagsLocationTagBinding_locationTagBindingzonal,
+		"tagKeyBasic":                          testAccTagsTagKey_tagKeyBasic,
+		"tagKeyBasicWithPurposeGceFirewall":    testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall,
+		"tagKeyBasicWithPurposeDataGovernance": testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernance,
+		"tagKeyUpdate":                         testAccTagsTagKey_tagKeyUpdate,
+		"tagKeyIamBinding":                     testAccTagsTagKeyIamBinding,
+		"tagKeyIamMember":                      testAccTagsTagKeyIamMember,
+		"tagKeyIamPolicy":                      testAccTagsTagKeyIamPolicy,
+		"tagValueBasic":                        testAccTagsTagValue_tagValueBasic,
+		"tagValueUpdate":                       testAccTagsTagValue_tagValueUpdate,
+		"tagBindingBasic":                      testAccTagsTagBinding_tagBindingBasic,
+		"tagValueIamBinding":                   testAccTagsTagValueIamBinding,
+		"tagValueIamMember":                    testAccTagsTagValueIamMember,
+		"tagValueIamPolicy":                    testAccTagsTagValueIamPolicy,
+		"tagsLocationTagBindingBasic":          testAccTagsLocationTagBinding_locationTagBindingbasic,
+		"tagsLocationTagBindingZonal":          TestAccTagsLocationTagBinding_locationTagBindingzonal,
 	}
 
 	for name, tc := range testCases {
@@ -127,6 +128,35 @@ resource "google_tags_tag_key" "key" {
 	  purpose_data = {network = "${google_compute_network.tag_network.project}/${google_compute_network.tag_network.name}"}
 	}
 
+`, context)
+}
+
+func testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernance(t *testing.T) {
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckTagsTagKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernanceExample(context),
+			},
+		},
+	})
+}
+
+func testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernanceExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+	parent = "organizations/%{org_id}"
+	short_name = "data-gov-%{random_suffix}"
+	description = "For data governance purposes."
+	purpose = "DATA_GOVERNANCE"
+}
 `, context)
 }
 
