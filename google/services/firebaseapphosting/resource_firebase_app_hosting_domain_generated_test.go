@@ -114,7 +114,7 @@ func TestAccFirebaseAppHostingDomain_firebaseAppHostingDomainFullExample(t *test
 				ResourceName:            "google_firebase_app_hosting_domain.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"backend", "domain_id", "location"},
+				ImportStateVerifyIgnore: []string{"backend", "custom_domain_status", "domain_id", "location"},
 			},
 		},
 	})
