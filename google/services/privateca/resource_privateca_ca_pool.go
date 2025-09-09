@@ -78,6 +78,26 @@ running 'gcloud privateca locations list'.`,
 				ValidateFunc: verify.ValidateEnum([]string{"ENTERPRISE", "DEVOPS"}),
 				Description:  `The Tier of this CaPool. Possible values: ["ENTERPRISE", "DEVOPS"]`,
 			},
+			"encryption_spec": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Used when customer would like to encrypt data at rest. The customer-provided key will be used
+to encrypt the Subject, SubjectAltNames and PEM-encoded certificate fields. When unspecified,
+customer data will remain unencrypted.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cloud_kms_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The resource name for an existing Cloud KMS key in the format
+'projects/*/locations/*/keyRings/*/cryptoKeys/*'.`,
+						},
+					},
+				},
+			},
 			"issuance_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -659,6 +679,12 @@ func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("publishing_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(publishingOptionsProp)) && (ok || !reflect.DeepEqual(v, publishingOptionsProp)) {
 		obj["publishingOptions"] = publishingOptionsProp
 	}
+	encryptionSpecProp, err := expandPrivatecaCaPoolEncryptionSpec(d.Get("encryption_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionSpecProp)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
+		obj["encryptionSpec"] = encryptionSpecProp
+	}
 	effectiveLabelsProp, err := expandPrivatecaCaPoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -774,6 +800,9 @@ func resourcePrivatecaCaPoolRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading CaPool: %s", err)
 	}
 	if err := d.Set("labels", flattenPrivatecaCaPoolLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CaPool: %s", err)
+	}
+	if err := d.Set("encryption_spec", flattenPrivatecaCaPoolEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CaPool: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenPrivatecaCaPoolTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1201,6 +1230,23 @@ func flattenPrivatecaCaPoolLabels(v interface{}, d *schema.ResourceData, config 
 	return transformed
 }
 
+func flattenPrivatecaCaPoolEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["cloud_kms_key"] =
+		flattenPrivatecaCaPoolEncryptionSpecCloudKmsKey(original["cloudKmsKey"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCaPoolEncryptionSpecCloudKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenPrivatecaCaPoolTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1598,6 +1644,29 @@ func expandPrivatecaCaPoolPublishingOptionsPublishCrl(v interface{}, d tpgresour
 }
 
 func expandPrivatecaCaPoolPublishingOptionsEncodingFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPrivatecaCaPoolEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCloudKmsKey, err := expandPrivatecaCaPoolEncryptionSpecCloudKmsKey(original["cloud_kms_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudKmsKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cloudKmsKey"] = transformedCloudKmsKey
+	}
+
+	return transformed, nil
+}
+
+func expandPrivatecaCaPoolEncryptionSpecCloudKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
