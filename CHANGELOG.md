@@ -1,3 +1,65 @@
+## 7.2.0 (September 9, 2025)
+
+FEATURES:
+* **New Data Source:** `google_artifact_registry_python_package` ([#24267](https://github.com/hashicorp/terraform-provider-google/pull/24267))
+* **New Data Source:** `google_backup_dr_data_source_references` ([#24268](https://github.com/hashicorp/terraform-provider-google/pull/24268))
+* **New Resource:** `google_discovery_engine_acl_config` ([#24276](https://github.com/hashicorp/terraform-provider-google/pull/24276))
+* **New Resource:** `google_saas_runtime_unit_kind` ([#24236](https://github.com/hashicorp/terraform-provider-google/pull/24236))
+
+IMPROVEMENTS:
+* chronicle: made the `scope_info` field in `google_chronicle_reference_list` configurable ([#24250](https://github.com/hashicorp/terraform-provider-google/pull/24250))
+* compute: added `header_action` to `path_matcher` and `default_service` level on `google_compute_region_url_map` resource ([#24253](https://github.com/hashicorp/terraform-provider-google/pull/24253))
+* container: added `secret_manager_config.rotation_config` field to `google_container_cluster` resource ([#24244](https://github.com/hashicorp/terraform-provider-google/pull/24244))
+* container: added new fields `memory_manager` and `topology_manager` to `google_container_cluster.node_config.kubelet_config` and `google_container_node_pool.node_config.kubelet_config`  ([#24277](https://github.com/hashicorp/terraform-provider-google/pull/24277))
+* sql: added `final_backup_description` and `final_backup_config` fields to `google_sql_database_instance` resource ([#24273](https://github.com/hashicorp/terraform-provider-google/pull/24273))
+* storage: added `aws_s3_compatible_data_source` to `google_storage_transfer_job` resource ([#24241](https://github.com/hashicorp/terraform-provider-google/pull/24241))
+
+BUG FIXES:
+* provider: fixed an issue with `universe_domain` where the provider tried to connect to "googleapis.com" for user email logging when `universe_domain` was set ([#24238](https://github.com/hashicorp/terraform-provider-google/pull/24238))
+* container: fixed a faulty diff for arrays on `user_managed_keys_config` that caused faulty cluster updates to be triggered in `google_container_cluster` ([#24256](https://github.com/hashicorp/terraform-provider-google/pull/24256))
+* osconfig: fixed a permadiff in `google_osconfig_patch_deployment` where `patch_config.yum.minimal` doesn't send `false` for empty values ([#24247](https://github.com/hashicorp/terraform-provider-google/pull/24247))
+
+## 7.1.1 (September 4, 2025)
+
+BUG FIXES:
+* bigtable: fixed an error encountered when applying `google_bigtable_table_iam_*` resources after upgrading to 7.x and replacing `instance` with `instance_name` ([#24255](https://github.com/hashicorp/terraform-provider-google/pull/24255))
+
+## 7.1.0 (September 2, 2025)
+
+DEPRECATIONS:
+* container: deprecated `enterprise_config` field in `google_container_cluster` resource. GKE Enterprise features are now available without an Enterprise tier. ([#24210](https://github.com/hashicorp/terraform-provider-google/pull/24210))
+* storage: removed deprecated status for field to `detect_md5hash`  in  `google_storage_bucket_object` resource ([#24147](https://github.com/hashicorp/terraform-provider-google/pull/24147))
+
+FEATURES:
+* **New Data Source:** `google_iap_web_forwarding_rule_service_iam_policy` ([#24178](https://github.com/hashicorp/terraform-provider-google/pull/24178))
+* **New Resource:** `google_iap_web_forwarding_rule_service_iam_binding` ([#24178](https://github.com/hashicorp/terraform-provider-google/pull/24178))
+* **New Resource:** `google_iap_web_forwarding_rule_service_iam_member` ([#24178](https://github.com/hashicorp/terraform-provider-google/pull/24178))
+* **New Resource:** `google_iap_web_forwarding_rule_service_iam_policy` ([#24178](https://github.com/hashicorp/terraform-provider-google/pull/24178))
+
+IMPROVEMENTS:
+* artifactregistry: added `registry_uri` as attribute to `google_artifact_registry_repository` ([#24164](https://github.com/hashicorp/terraform-provider-google/pull/24164))
+* backupdr: added 'supported_resource_types' field to `google_backup_dr_backup_plan` resource ([#24189](https://github.com/hashicorp/terraform-provider-google/pull/24189))
+* backupdr: added `create_time` field to `google_backup_dr_backup` data source ([#24183](https://github.com/hashicorp/terraform-provider-google/pull/24183))
+* cloudbuild: added `worker_config.enable_nested_virtualization` field to `google_cloudbuild_worker_pool` resource ([#24176](https://github.com/hashicorp/terraform-provider-google/pull/24176))
+* cloudrunv2: added support for `multi_region_settings` field to `google_cloud_run_v2_service` resource ([#24149](https://github.com/hashicorp/terraform-provider-google/pull/24149))
+* compute: add `params.resource_manager_tags` field to the `google_compute_region_backend_service` ([#24191](https://github.com/hashicorp/terraform-provider-google/pull/24191))
+* compute: added `public_delegated_sub_prefixs` field to resource `google_compute_public_delegated_prefix` ([#24202](https://github.com/hashicorp/terraform-provider-google/pull/24202))
+* compute: added `update_strategy`  field to `google_compute_network_peering ` resource ([#24180](https://github.com/hashicorp/terraform-provider-google/pull/24180))
+* firestore: added `unique` field to `google_firestore_index` resource ([#24163](https://github.com/hashicorp/terraform-provider-google/pull/24163))
+* netapp: added  `qos_type` and `available_throughput_mibps` fields to `google_netapp_storage_pool` resource ([#24161](https://github.com/hashicorp/terraform-provider-google/pull/24161))
+* netapp: added  `throughput_mibps` field to `google_netapp_volume` resource ([#24161](https://github.com/hashicorp/terraform-provider-google/pull/24161))
+* networkservices: allowed `EXPLICIT_ROUTING_MODE` for `routing_mode` on `google_network_services_gateway` resource ([#24151](https://github.com/hashicorp/terraform-provider-google/pull/24151))
+* sql: added `consumer_network_status`, `ip_address`, and `status` fields to `psc_auto_connections` field on `google_sql_database_instance` resource ([#24201](https://github.com/hashicorp/terraform-provider-google/pull/24201))
+* storagetransfer: added `service_account` field to `google_storage_transfer_job` resource ([#24193](https://github.com/hashicorp/terraform-provider-google/pull/24193))
+* storagetransfer: added `transfer_spec.aws_s3_data_source.credentials_secret` to `google_storage_transfer_job` resource ([#24152](https://github.com/hashicorp/terraform-provider-google/pull/24152))
+
+BUG FIXES:
+* compute: fixed certain spurious diffs for `google_compute_region_backend_service.backend.group` ([#24157](https://github.com/hashicorp/terraform-provider-google/pull/24157))
+* compute: fixed permadiff on `google_compute_region_network_endpoint_group` when no `network` is specified ([#24182](https://github.com/hashicorp/terraform-provider-google/pull/24182))
+* memorystore: fixed permadiffs that cause destroy+recreate on new `google_memorystore_instance` when `desired_psc_auto_connections` is set ([#24212](https://github.com/hashicorp/terraform-provider-google/pull/24212))
+* netapp: fixed a permadiff on `total_iops` in `google_netapp_storage_pool` resource ([#24207](https://github.com/hashicorp/terraform-provider-google/pull/24207))
+* oracledatabase: fixed permadiffs on `google_oracle_database_autonomous_database` resource for the `odb_network` and `odb_subnet` fields ([#24184](https://github.com/hashicorp/terraform-provider-google/pull/24184))
+
 ## 7.0.1 (August 27, 2025)
 
 BUG FIXES:
