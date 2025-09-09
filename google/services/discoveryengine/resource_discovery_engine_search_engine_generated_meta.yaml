@@ -5,6 +5,7 @@ api_service_name: 'discoveryengine.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Engine'
 fields:
+  - field: 'app_type'
   - field: 'collection_id'
     provider_only: true
   - field: 'common_config.company_name'
