@@ -58,6 +58,35 @@ resource "google_discovery_engine_search_engine" "basic" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_searchengine_agentspace_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Discoveryengine Searchengine Agentspace Basic
+
+
+```hcl
+resource "google_discovery_engine_data_store" "agentspace_basic" {
+  location                    = "global"
+  data_store_id               = "example-datastore-id"
+  display_name                = "tf-test-structured-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "NO_CONTENT"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+}
+resource "google_discovery_engine_search_engine" "agentspace_basic" {
+  engine_id                   = "example-engine-id"
+  collection_id               = "default_collection"
+  location                    = google_discovery_engine_data_store.agentspace_basic.location
+  display_name                = "tf-test-agentspace-search-engine"
+  data_store_ids              = [google_discovery_engine_data_store.agentspace_basic.data_store_id]
+  industry_vertical           = "GENERIC"
+  search_engine_config {
+  }
+}
+```
 
 ## Argument Reference
 
@@ -100,6 +129,11 @@ The following arguments are supported:
   (Optional)
   Common config spec that specifies the metadata of the engine.
   Structure is [documented below](#nested_common_config).
+
+* `app_type` -
+  (Optional)
+  This is the application type this engine resource represents.
+  The supported values: 'APP_TYPE_UNSPECIFIED', 'APP_TYPE_INTRANET'.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

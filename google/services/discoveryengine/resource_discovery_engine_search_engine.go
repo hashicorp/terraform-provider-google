@@ -114,6 +114,13 @@ func ResourceDiscoveryEngineSearchEngine() *schema.Resource {
 					},
 				},
 			},
+			"app_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `This is the application type this engine resource represents.
+The supported values: 'APP_TYPE_UNSPECIFIED', 'APP_TYPE_INTRANET'.`,
+			},
 			"common_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -205,6 +212,12 @@ func resourceDiscoveryEngineSearchEngineCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("common_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(commonConfigProp)) && (ok || !reflect.DeepEqual(v, commonConfigProp)) {
 		obj["commonConfig"] = commonConfigProp
+	}
+	appTypeProp, err := expandDiscoveryEngineSearchEngineAppType(d.Get("app_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("app_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(appTypeProp)) && (ok || !reflect.DeepEqual(v, appTypeProp)) {
+		obj["appType"] = appTypeProp
 	}
 
 	obj, err = resourceDiscoveryEngineSearchEngineEncoder(d, meta, obj)
@@ -332,6 +345,9 @@ func resourceDiscoveryEngineSearchEngineRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading SearchEngine: %s", err)
 	}
 	if err := d.Set("common_config", flattenDiscoveryEngineSearchEngineCommonConfig(res["commonConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SearchEngine: %s", err)
+	}
+	if err := d.Set("app_type", flattenDiscoveryEngineSearchEngineAppType(res["appType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SearchEngine: %s", err)
 	}
 
@@ -574,6 +590,10 @@ func flattenDiscoveryEngineSearchEngineCommonConfigCompanyName(v interface{}, d 
 	return v
 }
 
+func flattenDiscoveryEngineSearchEngineAppType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDiscoveryEngineSearchEngineIndustryVertical(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -640,6 +660,10 @@ func expandDiscoveryEngineSearchEngineCommonConfig(v interface{}, d tpgresource.
 }
 
 func expandDiscoveryEngineSearchEngineCommonConfigCompanyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineSearchEngineAppType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
