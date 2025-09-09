@@ -745,6 +745,38 @@ func TestAccComputeSecurityPolicy_modifyExprOptions(t *testing.T) {
 	})
 }
 
+func TestAccComputeSecurityPolicy_labels(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicy_basicLabels(spName),
+			},
+			{
+				ResourceName:            "google_compute_security_policy.policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccComputeSecurityPolicy_updateLabels(spName),
+			},
+			{
+				ResourceName:            "google_compute_security_policy.policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccComputeSecurityPolicy_withRecaptchaOptionsConfig(project, spName string) string {
 	return fmt.Sprintf(`
 resource "google_recaptcha_enterprise_key" "primary" {
@@ -2136,6 +2168,35 @@ resource "google_compute_security_policy" "policy" {
 			}
 		}
 	}
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_basicLabels(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "basic security policy"
+  type        = "CLOUD_ARMOR"
+
+  labels = {
+    "env" = "test"
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_updateLabels(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "basic security policy"
+  type        = "CLOUD_ARMOR"
+
+  labels = {
+    "env" = "test",
+	"new_label" = "abcd1"
+  }
 }
 `, spName)
 }
