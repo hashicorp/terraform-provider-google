@@ -473,29 +473,49 @@ func flattenSecretManagerSecretVersionDestroyTime(v interface{}, d *schema.Resou
 }
 
 func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	transformed := make(map[string]interface{})
-	// write-only attributes are null on reads, secret_data_wo_version is used instead to return empty transformed that resolves a diff.
+	// helper: always return []interface{}{map} with the safest value
+	safeTransformed := func(val interface{}) []interface{} {
+		m := make(map[string]interface{})
+		if val != nil {
+			m["secret_data"] = val
+		}
+		return []interface{}{m}
+	}
+
+	// write-only: during read, resolve diff with empty object
 	if _, ok := d.GetOkExists("secret_data_wo_version"); ok {
-		return []interface{}{transformed}
+		return safeTransformed(nil)
 	}
 
-	// if this secret version is disabled, the api will return an error, as the value cannot be accessed, return what we have
-	if d.Get("enabled").(bool) == false {
-		transformed["secret_data"] = d.Get("secret_data")
-		return []interface{}{transformed}
+	// if "enabled" does not exist or is false, preserve what we already have in the state
+	enabledVal, exists := d.GetOk("enabled")
+	if !exists {
+		return safeTransformed(d.Get("secret_data"))
+	}
+	if enabled, _ := enabledVal.(bool); !enabled {
+		return safeTransformed(d.Get("secret_data"))
 	}
 
+	// build access URL; if it fails, preserve state
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:access")
 	if err != nil {
-		return err
+		log.Printf("[ERROR] Failed to build secret access URL: %v", err)
+		return safeTransformed(d.Get("secret_data"))
 	}
 
-	parts := strings.Split(d.Get("name").(string), "/")
+	// safely extract project
+	nameStr, _ := d.Get("name").(string)
+	parts := strings.Split(nameStr, "/")
+	if len(parts) < 2 {
+		log.Printf("[WARN] Unexpected secret name format %q, preserving state", nameStr)
+		return safeTransformed(d.Get("secret_data"))
+	}
 	project := parts[1]
 
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	ua, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
-		return err
+		log.Printf("[ERROR] Failed to generate user agent string: %v", err)
+		return safeTransformed(d.Get("secret_data"))
 	}
 
 	accessRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -503,22 +523,40 @@ func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceD
 		Method:    "GET",
 		Project:   project,
 		RawURL:    url,
-		UserAgent: userAgent,
+		UserAgent: ua,
 	})
 	if err != nil {
-		return err
+		// per review: add explicit log to diagnose underlying url/transport error
+		log.Printf("[ERROR] Failed to access secret version at %q: %v", url, err)
+		return safeTransformed(d.Get("secret_data"))
 	}
 
-	if d.Get("is_secret_data_base64").(bool) {
-		transformed["secret_data"] = accessRes["payload"].(map[string]interface{})["data"].(string)
-	} else {
-		data, err := base64.StdEncoding.DecodeString(accessRes["payload"].(map[string]interface{})["data"].(string))
-		if err != nil {
-			return err
+	// safely fetch payload.data
+	var dataB64 string
+	if payloadAny, ok := accessRes["payload"]; ok {
+		if payloadMap, ok := payloadAny.(map[string]interface{}); ok {
+			if s, ok := payloadMap["data"].(string); ok {
+				dataB64 = s
+			}
 		}
-		transformed["secret_data"] = string(data)
 	}
-	return []interface{}{transformed}
+	if dataB64 == "" {
+		log.Printf("[WARN] No payload.data found in secret access response for %q, preserving state", nameStr)
+		return safeTransformed(d.Get("secret_data"))
+	}
+
+	// decide whether to keep pure base64 or decode it
+	isB64, _ := d.Get("is_secret_data_base64").(bool)
+	if isB64 {
+		return safeTransformed(dataB64)
+	}
+
+	decoded, decErr := base64.StdEncoding.DecodeString(dataB64)
+	if decErr != nil {
+		log.Printf("[ERROR] Failed to decode base64 secret payload for %q: %v", nameStr, decErr)
+		return safeTransformed(d.Get("secret_data"))
+	}
+	return safeTransformed(string(decoded))
 }
 
 func expandSecretManagerSecretVersionEnabled(_ interface{}, _ tpgresource.TerraformResourceData, _ *transport_tpg.Config) (interface{}, error) {
