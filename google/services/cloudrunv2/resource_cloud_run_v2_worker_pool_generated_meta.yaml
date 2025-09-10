@@ -89,6 +89,7 @@ fields:
   - field: 'template.volumes.secret.items.path'
   - field: 'template.volumes.secret.items.version'
   - field: 'template.volumes.secret.secret'
+  - field: 'template.vpc_access.connector'
   - field: 'template.vpc_access.egress'
   - field: 'template.vpc_access.network_interfaces.network'
   - field: 'template.vpc_access.network_interfaces.subnetwork'

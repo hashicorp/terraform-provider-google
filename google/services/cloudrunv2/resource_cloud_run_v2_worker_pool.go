@@ -383,6 +383,11 @@ All system labels in v1 now have a corresponding field in v2 WorkerPoolRevisionT
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"connector": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `VPC Access connector name. Format: projects/{project}/locations/{location}/connectors/{connector}, where {project} can be project id or number.`,
+									},
 									"egress": {
 										Type:         schema.TypeString,
 										Computed:     true,
@@ -1581,12 +1586,18 @@ func flattenCloudRunV2WorkerPoolTemplateVpcAccess(v interface{}, d *schema.Resou
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["connector"] =
+		flattenCloudRunV2WorkerPoolTemplateVpcAccessConnector(original["connector"], d, config)
 	transformed["egress"] =
 		flattenCloudRunV2WorkerPoolTemplateVpcAccessEgress(original["egress"], d, config)
 	transformed["network_interfaces"] =
 		flattenCloudRunV2WorkerPoolTemplateVpcAccessNetworkInterfaces(original["networkInterfaces"], d, config)
 	return []interface{}{transformed}
 }
+func flattenCloudRunV2WorkerPoolTemplateVpcAccessConnector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudRunV2WorkerPoolTemplateVpcAccessEgress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2519,6 +2530,13 @@ func expandCloudRunV2WorkerPoolTemplateVpcAccess(v interface{}, d tpgresource.Te
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedConnector, err := expandCloudRunV2WorkerPoolTemplateVpcAccessConnector(original["connector"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConnector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["connector"] = transformedConnector
+	}
+
 	transformedEgress, err := expandCloudRunV2WorkerPoolTemplateVpcAccessEgress(original["egress"], d, config)
 	if err != nil {
 		return nil, err
@@ -2534,6 +2552,10 @@ func expandCloudRunV2WorkerPoolTemplateVpcAccess(v interface{}, d tpgresource.Te
 	}
 
 	return transformed, nil
+}
+
+func expandCloudRunV2WorkerPoolTemplateVpcAccessConnector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCloudRunV2WorkerPoolTemplateVpcAccessEgress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
