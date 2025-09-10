@@ -982,6 +982,140 @@ resource "google_datastream_stream" "default" {
     }
 }
 ```
+## Example Usage - Datastream Stream Bigquery Cross Project Source Hierachy
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_project" "cross-project-dataset" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.cross-project-dataset]
+}
+
+resource "google_project_service" "bigquery" {
+  project = google_project.cross-project-dataset.project_id
+  service = "bigquery.googleapis.com"
+  disable_on_destroy = false
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "google_project_iam_member" "datastream_bigquery_admin" {
+  project = google_project.cross-project-dataset.project_id
+  role    = "roles/bigquery.admin"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datastream.iam.gserviceaccount.com"
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "google_sql_database_instance" "instance" {
+    name             = "my-instance"
+    database_version = "MYSQL_8_0"
+    region           = "us-central1"
+    settings {
+        tier = "db-f1-micro"
+        backup_configuration {
+            enabled            = true
+            binary_log_enabled = true
+        }
+
+        ip_configuration {
+
+            // Datastream IPs will vary by region.
+            authorized_networks {
+                value = "34.71.242.81"
+            }
+
+            authorized_networks {
+                value = "34.72.28.29"
+            }
+
+            authorized_networks {
+                value = "34.67.6.157"
+            }
+
+            authorized_networks {
+                value = "34.67.234.134"
+            }
+
+            authorized_networks {
+                value = "34.72.239.218"
+            }
+        }
+    }
+
+    deletion_protection  = true
+}
+
+resource "google_sql_database" "db" {
+    instance = google_sql_database_instance.instance.name
+    name     = "db"
+}
+
+resource "random_password" "pwd" {
+    length = 16
+    special = false
+}
+
+resource "google_sql_user" "user" {
+    name     = "user"
+    instance = google_sql_database_instance.instance.name
+    host     = "%"
+    password = random_password.pwd.result
+}
+
+resource "google_datastream_connection_profile" "source_connection_profile" {
+    display_name          = "Source connection profile"
+    location              = "us-central1"
+    connection_profile_id = "source-profile"
+
+    mysql_profile {
+        hostname = google_sql_database_instance.instance.public_ip_address
+        username = google_sql_user.user.name
+        password = google_sql_user.user.password
+    }
+}
+
+resource "google_datastream_connection_profile" "destination_connection_profile" {
+    display_name          = "Connection profile"
+    location              = "us-central1"
+    connection_profile_id = "destination-profile"
+
+    bigquery_profile {}
+}
+
+resource "google_datastream_stream" "default" {
+    stream_id = "my-stream"
+    location = "us-central1"
+    display_name = "my stream"
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.source_connection_profile.id
+        mysql_source_config {}
+    }
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.destination_connection_profile.id
+        bigquery_destination_config {
+            source_hierarchy_datasets {
+                dataset_template {
+                    location = "us-central1"
+                }
+                project_id = google_project.cross-project-dataset.project_id
+            }
+        }
+    }
+
+    backfill_none {
+    }
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_bigquery_append_only&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -2183,6 +2317,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   (Required)
   Dataset template used for dynamic dataset creation.
   Structure is [documented below](#nested_destination_config_bigquery_destination_config_source_hierarchy_datasets_dataset_template).
+
+* `project_id` -
+  (Optional)
+  Optional. The project id of the BigQuery dataset. If not specified, the project will be inferred from the stream resource.
 
 
 <a name="nested_destination_config_bigquery_destination_config_source_hierarchy_datasets_dataset_template"></a>The `dataset_template` block supports:
