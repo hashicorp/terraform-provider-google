@@ -396,6 +396,7 @@ func testAccCloudRunV2Job_cloudrunv2JobWithGcsVolume(context map[string]interfac
           volume_mounts {
             name = "gcs"
             mount_path = "/mnt/gcs"
+            sub_path = "/LM01"
           }
         }
         volumes {

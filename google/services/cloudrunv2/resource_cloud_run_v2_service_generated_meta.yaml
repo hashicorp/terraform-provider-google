@@ -103,6 +103,7 @@ fields:
   - field: 'template.containers.startup_probe.timeout_seconds'
   - field: 'template.containers.volume_mounts.mount_path'
   - field: 'template.containers.volume_mounts.name'
+  - field: 'template.containers.volume_mounts.sub_path'
   - field: 'template.containers.working_dir'
   - field: 'template.encryption_key'
   - field: 'template.execution_environment'

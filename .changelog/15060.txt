@@ -1,0 +1,7 @@
+```release-note:enhancement
+cloudrun: added `sub_path` field to `google_cloud_run_service` resource.
+```
+
+```release-note:enhancement
+cloudrunv2: added `sub_path` field to `google_cloud_run_v2_service` `google_cloud_run_v2_job` and `google_cloud_run_v2_worker_pool` resource.
+```

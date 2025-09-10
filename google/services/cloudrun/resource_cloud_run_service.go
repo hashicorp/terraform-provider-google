@@ -596,6 +596,11 @@ not contain ':'.`,
 																Required:    true,
 																Description: `This must match the Name of a Volume.`,
 															},
+															"sub_path": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Path within the volume from which the container's volume should be mounted.`,
+															},
 														},
 													},
 												},
@@ -2100,12 +2105,17 @@ func flattenCloudRunServiceSpecTemplateSpecContainersVolumeMounts(v interface{},
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"mount_path": flattenCloudRunServiceSpecTemplateSpecContainersVolumeMountsMountPath(original["mountPath"], d, config),
+			"sub_path":   flattenCloudRunServiceSpecTemplateSpecContainersVolumeMountsSubPath(original["subPath"], d, config),
 			"name":       flattenCloudRunServiceSpecTemplateSpecContainersVolumeMountsName(original["name"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenCloudRunServiceSpecTemplateSpecContainersVolumeMountsMountPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersVolumeMountsSubPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3787,6 +3797,13 @@ func expandCloudRunServiceSpecTemplateSpecContainersVolumeMounts(v interface{}, 
 			transformed["mountPath"] = transformedMountPath
 		}
 
+		transformedSubPath, err := expandCloudRunServiceSpecTemplateSpecContainersVolumeMountsSubPath(original["sub_path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subPath"] = transformedSubPath
+		}
+
 		transformedName, err := expandCloudRunServiceSpecTemplateSpecContainersVolumeMountsName(original["name"], d, config)
 		if err != nil {
 			return nil, err
@@ -3800,6 +3817,10 @@ func expandCloudRunServiceSpecTemplateSpecContainersVolumeMounts(v interface{}, 
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersVolumeMountsMountPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersVolumeMountsSubPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
