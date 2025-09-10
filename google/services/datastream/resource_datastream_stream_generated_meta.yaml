@@ -65,6 +65,7 @@ fields:
   - field: 'destination_config.bigquery_destination_config.source_hierarchy_datasets.dataset_template.dataset_id_prefix'
   - field: 'destination_config.bigquery_destination_config.source_hierarchy_datasets.dataset_template.kms_key_name'
   - field: 'destination_config.bigquery_destination_config.source_hierarchy_datasets.dataset_template.location'
+  - field: 'destination_config.bigquery_destination_config.source_hierarchy_datasets.project_id'
   - field: 'destination_config.destination_connection_profile'
   - field: 'destination_config.gcs_destination_config.avro_file_format'
   - field: 'destination_config.gcs_destination_config.file_rotation_interval'

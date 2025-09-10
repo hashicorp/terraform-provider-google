@@ -1,0 +1,58 @@
+```release-note:enhancement
+datastream: added `destination_config.bigquery_destination_config.source_hierarchy_datasets.project_id` field to `google_datastream_stream` resource
+```
+
+google_datastream_stream: Add support for projectID field in SourceHierarchyDatasets. 
+
+Also added a new test in [`mmv1/templates/terraform/examples/datastream_stream_bigquery_cross_project_source_hierachy.tf.tmpl`](https://github.com/benjamin-maynard/magic-modules/blob/c1aaf45e21117e93ccbd5c25461efc2170b7b49e/mmv1/templates/terraform/examples/datastream_stream_bigquery_cross_project_source_hierachy.tf.tmpl).
+
+I also had to add `default_from_api: true` to `binaryLogPosition` (the default) as **all** of the BigQuery tests were failing with a diff-after-apply. Unrelated to my changes¹.
+
+I believe this is safe and all of the tests pass² (although the [blmt test is skipped](https://github.com/benjamin-maynard/magic-modules/blob/c1aaf45e21117e93ccbd5c25461efc2170b7b49e/mmv1/products/datastream/Stream.yaml#L234-L235)), but please let me know if any concerns.
+
+
+[1]
+```
+Step 1/2 error: After applying this test step, the plan was not empty.
+        stdout:
+        Terraform used the selected providers to generate the following execution
+        plan. Resource actions are indicated with the following symbols:
+          ~ update in-place
+        Terraform will perform the following actions:   
+          # google_datastream_stream.default will be updated in-place
+          ~ resource "google_datastream_stream" "default" {
+                id                              = "projects/platform-dev-8bvnw/locations/us-central1/streams/tf-test-my-streammpuoq3q4ky"
+                name                            = "projects/platform-dev-8bvnw/locations/us-central1/streams/tf-test-my-streammpuoq3q4ky"
+                # (10 unchanged attributes hidden)
+              ~ source_config {
+                    # (1 unchanged attribute hidden)
+                  ~ mysql_source_config {
+                        # (2 unchanged attributes hidden)
+                      - binary_log_position {}
+                    }
+                # (2 unchanged blocks hidden)
+            }      
+        Plan: 0 to add, 1 to change, 0 to destroy.
+```
+
+[2]
+```
+benmaynard$ make testacc TEST=./google/services/datastream TESTARGS='-run=TestAccDatastreamStream_datastreamStreamBigquery'
+TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/datastream -v -run=TestAccDatastreamStream_datastreamStreamBigquery -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccDatastreamStream_datastreamStreamBigqueryExample
+=== PAUSE TestAccDatastreamStream_datastreamStreamBigqueryExample
+=== RUN   TestAccDatastreamStream_datastreamStreamBigqueryCrossProjectSourceHierachyExample
+=== PAUSE TestAccDatastreamStream_datastreamStreamBigqueryCrossProjectSourceHierachyExample
+=== RUN   TestAccDatastreamStream_datastreamStreamBigqueryAppendOnlyExample
+=== PAUSE TestAccDatastreamStream_datastreamStreamBigqueryAppendOnlyExample
+=== CONT  TestAccDatastreamStream_datastreamStreamBigqueryExample
+=== CONT  TestAccDatastreamStream_datastreamStreamBigqueryAppendOnlyExample
+=== CONT  TestAccDatastreamStream_datastreamStreamBigqueryCrossProjectSourceHierachyExample
+2025/08/14 14:48:16 [INFO] Authenticating using DefaultClient...
+2025/08/14 14:48:16 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+--- PASS: TestAccDatastreamStream_datastreamStreamBigqueryAppendOnlyExample (1369.56s)
+--- PASS: TestAccDatastreamStream_datastreamStreamBigqueryExample (1420.77s)
+--- PASS: TestAccDatastreamStream_datastreamStreamBigqueryCrossProjectSourceHierachyExample (1503.81s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/datastream       1505.460s
+```
