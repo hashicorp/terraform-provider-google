@@ -214,6 +214,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
     address = "test-address"
     ca_cert = "test-ca-cert"
   }
+  proxy {
+    url = "http://my-proxy.example.local:80"
+    no_proxy = "10.151.222.0/24,my-host.example.local,10.151.2.1"
+  }
 }
 `, context)
 }
@@ -285,6 +289,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-metallb" {
   private_registry_config {
     address = "test-address"
     ca_cert = "test-ca-cert"
+  }
+  proxy {
+    url = "http://my-proxy.example.local:80"
+    no_proxy = "10.151.222.0/24,my-host.example.local,10.151.2.1"
   }
 }
 `, context)

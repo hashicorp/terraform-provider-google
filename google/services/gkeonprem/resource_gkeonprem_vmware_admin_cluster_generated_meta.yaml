@@ -72,6 +72,8 @@ fields:
   - field: 'platform_config.status.error_message'
   - field: 'private_registry_config.address'
   - field: 'private_registry_config.ca_cert'
+  - field: 'proxy.no_proxy'
+  - field: 'proxy.url'
   - field: 'reconciling'
   - field: 'state'
   - field: 'status.conditions.last_transition_time'
