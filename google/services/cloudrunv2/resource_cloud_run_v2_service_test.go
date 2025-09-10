@@ -29,6 +29,78 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 )
 
+func TestAccCloudRunV2WorkerPool_vpcAccess_basic(t *testing.T) {
+	t.Parallel()
+
+	ctx := map[string]interface{}{
+		"rs":     acctest.RandString(t, 10),
+		"region": "us-central1",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2WorkerPoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2WorkerPool_vpcAccess_basicConfig(ctx),
+			},
+			{
+				ResourceName:      "google_cloud_run_v2_worker_pool.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"name", "location", "annotations", "labels", "terraform_labels",
+					"deletion_protection",
+				},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2WorkerPool_vpcAccess_basicConfig(ctx map[string]interface{}) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "primary" {
+  name                    = "tf-crwp-vpc-%[1]s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "primary" {
+  name          = "tf-crwp-subnet-%[1]s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "%[2]s"
+  network       = google_compute_network.primary.id
+}
+
+resource "google_vpc_access_connector" "primary" {
+  name          = "tf-crwp-conn-%[1]s"
+  region        = "%[2]s"
+  network       = google_compute_network.primary.name
+  ip_cidr_range = "10.8.0.0/28"
+
+  # Exigência atual da API: definir capacidade explícita
+  min_instances = 2
+  max_instances = 3
+}
+
+resource "google_cloud_run_v2_worker_pool" "primary" {
+  name                = "tf-crwp-%[1]s"
+  location            = "%[2]s"
+  deletion_protection = false
+  launch_stage        = "BETA"
+
+  template {
+    containers {
+      image = "gcr.io/cloudrun/hello"
+    }
+    vpc_access {
+      connector = google_vpc_access_connector.primary.id
+    }
+  }
+}
+`, ctx["rs"], ctx["region"])
+}
+
 func TestAccCloudRunV2Service_cloudrunv2ServiceFullUpdate(t *testing.T) {
 	t.Parallel()
 

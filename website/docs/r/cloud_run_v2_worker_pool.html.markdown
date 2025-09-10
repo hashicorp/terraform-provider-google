@@ -604,6 +604,10 @@ When the field is set to false, deleting the WorkerPool is allowed.
 
 <a name="nested_template_vpc_access"></a>The `vpc_access` block supports:
 
+* `connector` -
+  (Optional)
+  VPC Access connector name. Format: projects/{project}/locations/{location}/connectors/{connector}, where {project} can be project id or number.
+
 * `egress` -
   (Optional)
   Traffic VPC egress settings.
