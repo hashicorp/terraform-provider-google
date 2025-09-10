@@ -173,6 +173,14 @@ resource "google_healthcare_fhir_store" "default" {
 	send_previous_resource_on_delete = true
   }
 
+  validation_config {
+    disable_profile_validation = true
+    enabled_implementation_guides = ["http://hl7.org/fhir/us/core/ImplementationGuide/ig", "http://example.com/SomeCustomIG"]
+    disable_required_field_validation = true
+    disable_reference_type_validation = true
+    disable_fhirpath_validation = true
+  }
+
   labels = {
     label1 = "labelvalue1"
   }
@@ -210,6 +218,29 @@ func testAccCheckGoogleHealthcareFhirStoreUpdate(t *testing.T, pubsubTopic strin
 				return fmt.Errorf("Unexpected failure while verifying 'updated' dataset: %s", err)
 			}
 
+			if response.ValidationConfig == nil {
+				return fmt.Errorf("fhirStore 'ValidationConfig' missing: %s", gcpResourceUri)
+			}
+			if !response.ValidationConfig.DisableProfileValidation {
+				return fmt.Errorf("fhirStore 'ValidationConfig.DisableProfileValidation' not updated: %s", gcpResourceUri)
+			}
+			if response.ValidationConfig.EnabledImplementationGuides == nil {
+				return fmt.Errorf("fhirStore 'ValidationConfig.EnabledImplementationGuides' missing: %s", gcpResourceUri)
+			}
+			expectedEnabledImplementationGuides := []string{"http://hl7.org/fhir/us/core/ImplementationGuide/ig", "http://example.com/SomeCustomIG"}
+			if !checkEnabledImplementationGuidesArraysAreEqual(expectedEnabledImplementationGuides, response.ValidationConfig.EnabledImplementationGuides) {
+				return fmt.Errorf("fhirStore 'ValidationConfig.EnabledImplementationGuides' not updated: %s", gcpResourceUri)
+			}
+			if !response.ValidationConfig.DisableRequiredFieldValidation {
+				return fmt.Errorf("fhirStore 'ValidationConfig.DisableRequiredFieldValidation' not updated: %s", gcpResourceUri)
+			}
+			if !response.ValidationConfig.DisableReferenceTypeValidation {
+				return fmt.Errorf("fhirStore 'ValidationConfig.DisableReferenceTypeValidation' not updated: %s", gcpResourceUri)
+			}
+			if !response.ValidationConfig.DisableFhirpathValidation {
+				return fmt.Errorf("fhirStore 'ValidationConfig.DisableFhirpathValidation' not updated: %s", gcpResourceUri)
+			}
+
 			if !response.EnableUpdateCreate {
 				return fmt.Errorf("fhirStore 'EnableUpdateCreate' not updated: %s", gcpResourceUri)
 			}
@@ -239,4 +270,22 @@ func testAccCheckGoogleHealthcareFhirStoreUpdate(t *testing.T, pubsubTopic strin
 		}
 		return nil
 	}
+}
+
+// Returns true if the size and contents (order dependent) of enabledImplementationGuides1 and enabledImplementationGuides2 are identical,
+// else false.
+func checkEnabledImplementationGuidesArraysAreEqual(enabledImplementationGuides1 []string, enabledImplementationGuides2 []string) bool {
+	// Same length?
+	if len(enabledImplementationGuides1) != len(enabledImplementationGuides2) {
+		return false
+	}
+
+	// Same contents - do NOT sort to ensure order is identical and avoid permadiff risk
+	for i1, v1 := range enabledImplementationGuides1 {
+		if v1 != enabledImplementationGuides2[i1] {
+			return false
+		}
+	}
+
+	return true
 }
