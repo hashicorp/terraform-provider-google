@@ -190,11 +190,12 @@ resource "google_sql_database_instance" "main" {
 ### Cloud SQL Instance with Managed Connection Pooling
 ```hcl
 resource "google_sql_database_instance" "instance" {
-  name:            = "mcp-enabled-main-instance"
+  name             = "mcp-enabled-main-instance"
   region           = "us-central1"
   database_version = "POSTGRES_16"
   settings {
-    tier = "db-perf-optimized-N-2"
+    tier    = "db-perf-optimized-N-2"
+    edition = "ENTERPRISE_PLUS"
 	  connection_pool_config {
 		  connection_pooling_enabled = true
       flags {
