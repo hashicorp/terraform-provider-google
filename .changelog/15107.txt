@@ -1,0 +1,3 @@
+```release-note:note
+Fixed the `google_sql_database_instance` examples to include `edition = "ENTERPRISE_PLUS"` when using `connection_pool_config`, since connection pooling requires Enterprise Plus.
+```

@@ -5442,7 +5442,8 @@ resource "google_sql_database_instance" "instance" {
   database_version    = "POSTGRES_16"
   deletion_protection = false
   settings {
-    tier = "db-perf-optimized-N-2"
+    tier    = "db-perf-optimized-N-2"
+    edition = "ENTERPRISE_PLUS"
 	connection_pool_config {
 		connection_pooling_enabled = true
 		flags {
