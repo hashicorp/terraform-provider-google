@@ -162,6 +162,11 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 													Required:    true,
 													Description: `This must match the Name of a Volume.`,
 												},
+												"sub_path": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Path within the volume from which the container's volume should be mounted.`,
+												},
 											},
 										},
 									},
@@ -1775,6 +1780,7 @@ func flattenCloudRunV2WorkerPoolTemplateContainersVolumeMounts(v interface{}, d 
 		transformed = append(transformed, map[string]interface{}{
 			"name":       flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsName(original["name"], d, config),
 			"mount_path": flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsMountPath(original["mountPath"], d, config),
+			"sub_path":   flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsSubPath(original["subPath"], d, config),
 		})
 	}
 	return transformed
@@ -1784,6 +1790,10 @@ func flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsName(v interface{}
 }
 
 func flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsMountPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsSubPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2853,6 +2863,13 @@ func expandCloudRunV2WorkerPoolTemplateContainersVolumeMounts(v interface{}, d t
 			transformed["mountPath"] = transformedMountPath
 		}
 
+		transformedSubPath, err := expandCloudRunV2WorkerPoolTemplateContainersVolumeMountsSubPath(original["sub_path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subPath"] = transformedSubPath
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2863,6 +2880,10 @@ func expandCloudRunV2WorkerPoolTemplateContainersVolumeMountsName(v interface{},
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersVolumeMountsMountPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2WorkerPoolTemplateContainersVolumeMountsSubPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
