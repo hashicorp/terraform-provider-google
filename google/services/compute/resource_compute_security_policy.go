@@ -1233,7 +1233,14 @@ func flattenMatchExprOptions(exprOptions *compute.SecurityPolicyRuleMatcherExprO
 		return nil
 	}
 
-	// We check if the API is returning a empty non-null value then we find the current value for this field in the rule config and check if its empty
+	// The API can return an explicit entry `exprOptions` object, causing evaluation of the `recaptcha_options` settings to fail as it's nil: https://github.com/hashicorp/terraform-provider-google/issues/24334
+	// Explicitly check it's available and exit early if not.
+	if exprOptions.RecaptchaOptions == nil {
+		return nil
+	}
+
+	// The API can return an explicit empty rule causing an issue: https://github.com/hashicorp/terraform-provider-google/issues/16882#issuecomment-2474528447
+	// We check if the API is returning a empty non-null value then we find the current value for this field in the rule config and check if its empty.
 	if (tpgresource.IsEmptyValue(reflect.ValueOf(exprOptions.RecaptchaOptions.ActionTokenSiteKeys)) &&
 		tpgresource.IsEmptyValue(reflect.ValueOf(exprOptions.RecaptchaOptions.SessionTokenSiteKeys))) &&
 		verifyRulePriorityCompareEmptyValues(d, rulePriority, "recaptcha_options") {
@@ -1241,7 +1248,9 @@ func flattenMatchExprOptions(exprOptions *compute.SecurityPolicyRuleMatcherExprO
 	}
 
 	data := map[string]interface{}{
+		// NOTE: when adding new entries, the recaptcha_options rule above will need to be revised
 		"recaptcha_options": flattenMatchExprOptionsRecaptchaOptions(exprOptions.RecaptchaOptions),
+		// NOTE: when adding new entries, the recaptcha_options rule above will need to be revised
 	}
 
 	return []map[string]interface{}{data}
