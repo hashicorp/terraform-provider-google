@@ -154,6 +154,11 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 										Optional:    true,
 										Description: `Defines the client ingress specification (allowed clients) as a comma separated list with IPv4 CIDRs or IPv4 host addresses.`,
 									},
+									"anon_uid": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `An integer representing the anonymous user ID. Range is 0 to 4294967295. Required when 'squash_mode' is 'ROOT_SQUASH' or 'ALL_SQUASH'.`,
+									},
 									"has_root_access": {
 										Type:        schema.TypeString,
 										Optional:    true,
@@ -198,6 +203,12 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: `Enable to apply the export rule to NFSV4.1 clients.`,
+									},
+									"squash_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH", ""}),
+										Description:  `SquashMode defines how remote user privileges are restricted when accessing an NFS export. It controls how the user identities (like root) are mapped to anonymous users to limit access and enforce security. Possible values: ["NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH"]`,
 									},
 								},
 							},
@@ -1393,6 +1404,8 @@ func flattenNetappVolumeExportPolicyRules(v interface{}, d *schema.ResourceData,
 			"kerberos5i_read_write": flattenNetappVolumeExportPolicyRulesKerberos5iReadWrite(original["kerberos5iReadWrite"], d, config),
 			"kerberos5p_read_only":  flattenNetappVolumeExportPolicyRulesKerberos5pReadOnly(original["kerberos5pReadOnly"], d, config),
 			"kerberos5p_read_write": flattenNetappVolumeExportPolicyRulesKerberos5pReadWrite(original["kerberos5pReadWrite"], d, config),
+			"squash_mode":           flattenNetappVolumeExportPolicyRulesSquashMode(original["squashMode"], d, config),
+			"anon_uid":              flattenNetappVolumeExportPolicyRulesAnonUid(original["anonUid"], d, config),
 		})
 	}
 	return transformed
@@ -1439,6 +1452,27 @@ func flattenNetappVolumeExportPolicyRulesKerberos5pReadOnly(v interface{}, d *sc
 
 func flattenNetappVolumeExportPolicyRulesKerberos5pReadWrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenNetappVolumeExportPolicyRulesSquashMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeExportPolicyRulesAnonUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenNetappVolumeProtocols(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2124,6 +2158,20 @@ func expandNetappVolumeExportPolicyRules(v interface{}, d tpgresource.TerraformR
 			transformed["kerberos5pReadWrite"] = transformedKerberos5pReadWrite
 		}
 
+		transformedSquashMode, err := expandNetappVolumeExportPolicyRulesSquashMode(original["squash_mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSquashMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["squashMode"] = transformedSquashMode
+		}
+
+		transformedAnonUid, err := expandNetappVolumeExportPolicyRulesAnonUid(original["anon_uid"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAnonUid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["anonUid"] = transformedAnonUid
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2170,6 +2218,14 @@ func expandNetappVolumeExportPolicyRulesKerberos5pReadOnly(v interface{}, d tpgr
 }
 
 func expandNetappVolumeExportPolicyRulesKerberos5pReadWrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeExportPolicyRulesSquashMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeExportPolicyRulesAnonUid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
