@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -476,7 +477,6 @@ func ResourceComputeInstance() *schema.Resource {
 										Optional:     true,
 										AtLeastOneOf: initializeParamsKeys,
 										Computed:     true,
-										ForceNew:     true,
 										Description:  `A set of key/value label pairs assigned to the disk.`,
 									},
 
@@ -2537,6 +2537,31 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
+	if d.HasChange("boot_disk") {
+		//default behavior for the disk is to have the same name as the instance
+		diskName := instance.Name
+		if v := tpgresource.GetResourceNameFromSelfLink(d.Get("boot_disk.0.source").(string)); v != diskName {
+			diskName = v
+		}
+
+		disk, err := config.NewComputeClient(userAgent).Disks.Get(project, zone, diskName).Do()
+		if err != nil {
+			return fmt.Errorf("Error getting boot disk: %s", err)
+		}
+
+		obj := make(map[string]interface{})
+
+		if d.HasChange("boot_disk.0.initialize_params.0.labels") {
+			obj["labels"] = tpgresource.ConvertStringMap(d.Get("boot_disk.0.initialize_params.0.labels").(map[string]interface{}))
+			obj["labelFingerprint"] = disk.LabelFingerprint
+			url := "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels"
+			err := updateDisk(d, config, userAgent, project, url, obj)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	if d.HasChange("attached_disk") {
 		o, n := d.GetChange("attached_disk")
 
@@ -3624,4 +3649,37 @@ func CheckForCommonAliasIp(old, new *compute.NetworkInterface) []*compute.AliasI
 		}
 	}
 	return resultAliasIpRanges
+}
+
+func updateDisk(d *schema.ResourceData, config *transport_tpg.Config, userAgent, project, patchUrl string, obj map[string]interface{}) error {
+	billingProject := project
+	url, err := tpgresource.ReplaceVars(d, config, patchUrl)
+	if err != nil {
+		return err
+	}
+	headers := make(http.Header)
+	if bp, err := tpgresource.GetBillingProject(d, config); err != nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+	if err != nil {
+		return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
+	}
+	err = ComputeOperationWaitTime(
+		config, res, project, "Updating Disk", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+	return nil
 }
