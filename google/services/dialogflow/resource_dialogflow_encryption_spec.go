@@ -129,10 +129,16 @@ func resourceDialogflowEncryptionSpecCreate(d *schema.ResourceData, meta interfa
 
 	headers := make(http.Header)
 	location := d.Get("location").(string)
+	universeDomain := config.UniverseDomain
 
-	// insert location into url for a different endpoint.
-	if strings.HasPrefix(url, "https://dialogflow.googleapis.com/v2/") {
-		url = strings.Replace(url, "https://dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+	if universeDomain != "" && universeDomain != "googleapis.com" {
+		url = strings.Replace(url, "googleapis.com", universeDomain, 1)
+	}
+
+	if strings.HasPrefix(url, "https://dialogflow") {
+		if location != "" && location != "global" {
+			url = strings.Replace(url, "https://dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+		}
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
