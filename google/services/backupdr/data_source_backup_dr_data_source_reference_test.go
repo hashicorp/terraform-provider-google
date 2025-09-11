@@ -162,3 +162,129 @@ data "google_backup_dr_data_source_references" "default" {
    }
 `, context)
 }
+
+func TestAccDataSourceGoogleBackupDRDataSourceReference_basic(t *testing.T) {
+	t.Parallel()
+
+	dsRefDataSourceName := "data.google_backup_dr_data_source_reference.default"
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				// All logic is now in a single HCL block and a single step.
+				Config: testAccDataSourceGoogleBackupDRDataSourceReference_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					// Check that the singular data source has been populated
+					resource.TestCheckResourceAttrSet(dsRefDataSourceName, "name"),
+					resource.TestCheckResourceAttrSet(dsRefDataSourceName, "data_source"),
+					resource.TestCheckResourceAttrSet(dsRefDataSourceName, "backup_config_state"),
+					resource.TestCheckResourceAttrSet(dsRefDataSourceName, "gcp_resource_name"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataSourceGoogleBackupDRDataSourceReference_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "default" {
+ account_id   = "tf-test-my-custom-%{random_suffix}"
+ display_name = "Custom SA for VM Instance"
+}
+
+resource "google_sql_database_instance" "instance" {
+ name             = "default-%{random_suffix}"
+ database_version = "MYSQL_8_0"
+ region          = "us-central1"
+ deletion_protection = false
+ settings {
+   tier = "db-f1-micro"
+   availability_type = "ZONAL"
+   activation_policy = "ALWAYS"
+ }
+}
+
+resource "google_backup_dr_backup_vault" "my-backup-vault" {
+   location ="us-central1"
+   backup_vault_id    = "tf-test-bv-%{random_suffix}"
+   description = "This is a second backup vault built by Terraform."
+   backup_minimum_enforced_retention_duration = "100000s"
+   labels = {
+     foo = "bar1"
+     bar = "baz1"
+   }
+   annotations = {
+     annotations1 = "bar1"
+     annotations2 = "baz1"
+   }
+   force_update = "true"
+   force_delete = "true"
+   allow_missing = "true"
+}
+
+resource "google_backup_dr_backup_plan" "foo" {
+ location       = "us-central1"
+ backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+ resource_type  = "sqladmin.googleapis.com/Instance"
+ backup_vault   = google_backup_dr_backup_vault.my-backup-vault.name
+
+ backup_rules {
+   rule_id                = "rule-1"
+   backup_retention_days  = 2
+
+   standard_schedule {
+     recurrence_type     = "HOURLY"
+     hourly_frequency    = 6
+     time_zone           = "UTC"
+
+     backup_window {
+       start_hour_of_day = 12
+       end_hour_of_day   = 18
+     }
+   }
+ }
+}
+
+resource "google_backup_dr_backup_plan_association" "bpa" {
+ location = "us-central1"
+ backup_plan_association_id = "tf-test-bpa-test-%{random_suffix}"
+ resource = "projects/${data.google_project.project.project_id}/instances/${google_sql_database_instance.instance.name}"
+ resource_type= "sqladmin.googleapis.com/Instance"
+ backup_plan = google_backup_dr_backup_plan.foo.name
+ depends_on = [ google_sql_database_instance.instance ]
+}
+
+data "google_backup_dr_data_source_references" "all_refs" {
+	project       = data.google_project.project.project_id
+	location      = "us-central1"
+	resource_type = "sqladmin.googleapis.com/Instance"
+	depends_on    = [google_backup_dr_backup_plan_association.bpa]
+}
+
+locals {
+	// Directly get the name from the first item in the list.
+	ds_ref_name = data.google_backup_dr_data_source_references.all_refs.data_source_references[0].name
+
+	// Split the name string and take the last element, which is the ID.
+	data_source_reference_id = element(split("/", local.ds_ref_name), 5)
+}
+
+// Now, use the singular data source to fetch the specific reference by its ID.
+data "google_backup_dr_data_source_reference" "default" {
+	project                  = data.google_project.project.project_id
+	location                 = "us-central1"
+	data_source_reference_id = local.data_source_reference_id
+}
+
+`, context)
+}
