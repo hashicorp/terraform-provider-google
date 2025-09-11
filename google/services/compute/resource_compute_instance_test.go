@@ -1236,6 +1236,51 @@ func TestAccComputeInstance_attachDisk_forceAttach(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_bootDiskUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	context1 := map[string]interface{}{
+		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"disk_size":     10,
+		"labels":        "bar",
+	}
+
+	context2 := map[string]interface{}{
+		"instance_name": context1["instance_name"].(string),
+		"disk_size":     10,
+		"labels":        "baz",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_bootDiskUpdate(context1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_bootDiskUpdate(context2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						// Check that the update is done in-place
+						plancheck.ExpectResourceAction("google_compute_instance.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -6520,6 +6565,35 @@ resource "google_compute_resource_policy" "instance_schedule2" {
   }
 }
 `, instance, schedule1, schedule2)
+}
+
+func testAccComputeInstance_bootDiskUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%{instance_name}"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+	initialize_params {
+	  image = data.google_compute_image.my_image.self_link
+	  size = %{disk_size}
+	  labels = {
+		  "foo" = "%{labels}"
+	  }
+	}
+  }
+
+  network_interface {
+	network = "default"
+  }
+}
+`, context)
 }
 
 func testAccComputeInstance_attachedDisk(disk, instance string) string {
