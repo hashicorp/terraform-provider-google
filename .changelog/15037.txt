@@ -1,0 +1,3 @@
+```release-note:bug
+dialogflow: added support for non-global endpoints for `google_dialogflow_conversation_profile`
+```

@@ -79,6 +79,35 @@ func TestAccDialogflowConversationProfile_update(t *testing.T) {
 	})
 }
 
+func TestAccDialogflowConversationProfile_regional(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowConversationProfile_dialogflowRegional(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_conversation_profile.profile",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "logging_config", "logging_config.0", "logging_config.0.enable_stackdriver_logging"},
+			},
+		},
+	})
+}
+
 func testAccDialogflowConversationProfile_dialogflowAgentFull1(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 	resource "google_project" "agent_project" {
@@ -262,6 +291,7 @@ func testAccDialogflowConversationProfile_dialogflowAgentFull1(context map[strin
 	}
 `, context)
 }
+
 func testAccDialogflowConversationProfile_dialogflowAgentFull2(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 	resource "google_project" "agent_project" {
@@ -422,6 +452,66 @@ func testAccDialogflowConversationProfile_dialogflowAgentFull2(context map[strin
 			topic          = google_pubsub_topic.topic_diff.id
 		}
 		security_settings = google_dialogflow_cx_security_settings.security_setting_diff.id
+	}
+`, context)
+}
+
+func testAccDialogflowConversationProfile_dialogflowRegional(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+	resource "google_project" "agent_project" {
+		name = "tf-test-dialogflow-%{random_suffix}"
+		project_id = "tf-test-dialogflow-%{random_suffix}"
+		org_id     = "%{org_id}"
+		billing_account = "%{billing_account}"
+		deletion_policy = "DELETE"
+	}
+	resource "google_project_service" "agent_project" {
+		project = "${google_project.agent_project.id}"
+		service = "dialogflow.googleapis.com"
+		disable_dependent_services = false
+	}
+
+	resource "google_service_account" "dialogflow_service_account" {
+		account_id = "tf-test-dialogflow-%{random_suffix}"
+	}
+
+	resource "google_project_iam_member" "agent_create" {
+		project = "${google_project.agent_project.id}"
+		role    = "roles/dialogflow.admin"
+		member  = "serviceAccount:${google_service_account.dialogflow_service_account.email}"
+	}
+
+	resource "google_dialogflow_agent" "agent" {
+		display_name = "tf-test-agent-%{random_suffix}"
+		default_language_code = "en-us"
+		time_zone = "America/New_York"
+		project = google_project.agent_project.name
+	}
+
+	resource "google_pubsub_topic" "topic_diff" {
+		name = "tf-test-topic-%{random_suffix}-diff"
+		project = google_project.agent_project.project_id
+		depends_on = [google_project.agent_project, time_sleep.wait_120_seconds]
+		message_retention_duration = "8000s"
+	}
+	resource "google_dialogflow_cx_security_settings" "security_setting_diff" {
+		display_name          = "tf-test-setting-%{random_suffix}-diff"
+		location              = "us-central1"
+		purge_data_types      = []
+		retention_window_days = 7
+		project = google_project.agent_project.project_id
+		depends_on = [time_sleep.wait_120_seconds]
+	}
+	resource "time_sleep" "wait_120_seconds" {
+		create_duration = "120s"
+		depends_on = [google_dialogflow_agent.agent]
+	}
+	resource "google_dialogflow_conversation_profile" "profile" {
+		depends_on    = [google_dialogflow_agent.agent, google_dialogflow_cx_security_settings.security_setting_diff, time_sleep.wait_120_seconds]
+		project = "${google_project.agent_project.name}"
+		display_name  = "tf-test-conversation-profile-%{random_suffix}-new"
+		location = "us-central1"
+		language_code = "en-US"
 	}
 `, context)
 }
