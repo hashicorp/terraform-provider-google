@@ -1,0 +1,22 @@
+resource: 'google_secure_source_manager_hook'
+generation_type: 'mmv1'
+source_file: 'products/securesourcemanager/Hook.yaml'
+api_service_name: 'securesourcemanager.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Hook'
+fields:
+  - field: 'create_time'
+  - field: 'disabled'
+  - field: 'events'
+  - field: 'hook_id'
+    provider_only: true
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'push_option.branch_filter'
+  - field: 'repository_id'
+    provider_only: true
+  - field: 'sensitive_query_string'
+  - field: 'target_uri'
+  - field: 'uid'
+  - field: 'update_time'
