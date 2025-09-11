@@ -4,6 +4,8 @@ source_file: 'products/storagecontrol/OrganizationIntelligenceConfig.yaml'
 api_service_name: 'storage.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'IntelligenceConfig'
+api_variant_patterns:
+  - 'organizations/{org}/locations/{location}/intelligenceConfig'
 fields:
   - field: 'edition_config'
   - field: 'effective_intelligence_config.effective_edition'
