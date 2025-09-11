@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a crash in `google_compute_security_policy` due to a changed API response for empty `match.0.expr_options` blocks
+```
