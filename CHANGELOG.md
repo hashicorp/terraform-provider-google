@@ -1,4 +1,4 @@
-## 7.3.0 ()
+## 7.3.0 (Unreleased)
 
 FEATURES:
 * **New Data Source:** `google_backup_dr_data_source_reference` ([#24346](https://github.com/hashicorp/terraform-provider-google/pull/24346))
