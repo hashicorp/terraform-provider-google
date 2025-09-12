@@ -61,7 +61,7 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
         // These hardcoded values affect the sweeper CLI command's behaviour
         val testPrefix = "TestAcc"
         val testTimeout = "12"
-        val releaseDiffTest = "false"
+        val releaseDiffTest = false
 
         return BuildType {
 
