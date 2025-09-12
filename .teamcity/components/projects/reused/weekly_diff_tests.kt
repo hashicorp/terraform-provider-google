@@ -37,7 +37,7 @@ fun weeklyDiffTests(parentProject:String, providerName: String, vcsRoot: GitVcsR
     // Create build configs to run acceptance tests for each package defined in packages.kt and services.kt files
     // and add cron trigger to them all
     val allPackages = getAllPackageInProviderVersion(providerName)
-    val packageBuildConfigs = BuildConfigurationsForPackages(allPackages, providerName, projectId, vcsRoot, sharedResources, config, releaseDiffTest = "true")
+    val packageBuildConfigs = BuildConfigurationsForPackages(allPackages, providerName, projectId, vcsRoot, sharedResources, config, releaseDiffTest = true)
     packageBuildConfigs.forEach { buildConfiguration ->
         buildConfiguration.addTrigger(cron)
     }
