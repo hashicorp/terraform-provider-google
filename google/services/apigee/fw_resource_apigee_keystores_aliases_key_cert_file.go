@@ -358,7 +358,7 @@ func (r *ApigeeKeystoresAliasesKeyCertFileResource) Delete(ctx context.Context, 
 
 	tflog.Trace(ctx, "Deleting Apigee Keystore Alias", map[string]interface{}{"url": url})
 
-	_ = fwtransport.SendRequest(fwtransport.SendRequestOptions{
+	_, _ = fwtransport.SendRequest(fwtransport.SendRequestOptions{
 		Config:    r.providerConfig,
 		Method:    "DELETE",
 		Project:   data.OrgId.ValueString(),
@@ -389,7 +389,7 @@ func (r *ApigeeKeystoresAliasesKeyCertFileResource) refresh(ctx context.Context,
 
 	tflog.Trace(ctx, "Refreshing Apigee Keystore Alias", map[string]interface{}{"url": url})
 
-	res := fwtransport.SendRequest(fwtransport.SendRequestOptions{
+	res, _ := fwtransport.SendRequest(fwtransport.SendRequestOptions{
 		Config:    r.providerConfig,
 		Method:    "GET",
 		Project:   data.OrgId.ValueString(),
