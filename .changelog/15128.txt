@@ -1,0 +1,3 @@
+```release-note:bug
+cloudscheduler: fixed a type assertion panic in `google_cloud_scheduler_job` when processing HTTP headers with nil or unexpected data types
+```

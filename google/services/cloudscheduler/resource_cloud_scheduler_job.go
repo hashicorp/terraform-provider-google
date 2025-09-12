@@ -1105,19 +1105,29 @@ func flattenCloudSchedulerJobAppEngineHttpTargetBody(v interface{}, d *schema.Re
 }
 
 func flattenCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	var headers = v.(map[string]interface{})
+	if v == nil {
+		return nil
+	}
+	headers, ok := v.(map[string]interface{})
+	if !ok {
+		return nil
+	}
 	if v, ok := headers["User-Agent"]; ok {
-		if v.(string) == "AppEngine-Google; (+http://code.google.com/appengine)" {
-			delete(headers, "User-Agent")
-		} else if v.(string) == "Google-Cloud-Scheduler" {
-			delete(headers, "User-Agent")
-		} else {
-			headers["User-Agent"] = strings.TrimSpace(strings.Replace(v.(string), "AppEngine-Google; (+http://code.google.com/appengine)", "", -1))
+		if userAgent, ok := v.(string); ok {
+			if userAgent == "AppEngine-Google; (+http://code.google.com/appengine)" {
+				delete(headers, "User-Agent")
+			} else if userAgent == "Google-Cloud-Scheduler" {
+				delete(headers, "User-Agent")
+			} else {
+				headers["User-Agent"] = strings.TrimSpace(strings.Replace(userAgent, "AppEngine-Google; (+http://code.google.com/appengine)", "", -1))
+			}
 		}
 	}
 	if v, ok := headers["Content-Type"]; ok {
-		if v.(string) == "application/octet-stream" {
-			delete(headers, "Content-Type")
+		if contentType, ok := v.(string); ok {
+			if contentType == "application/octet-stream" {
+				delete(headers, "Content-Type")
+			}
 		}
 	}
 	r := regexp.MustCompile(`(X-Google-|X-AppEngine-|Content-Length).*`)
@@ -1165,19 +1175,29 @@ func flattenCloudSchedulerJobHttpTargetBody(v interface{}, d *schema.ResourceDat
 }
 
 func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	var headers = v.(map[string]interface{})
+	if v == nil {
+		return nil
+	}
+	headers, ok := v.(map[string]interface{})
+	if !ok {
+		return nil
+	}
 	if v, ok := headers["User-Agent"]; ok {
-		if v.(string) == "AppEngine-Google; (+http://code.google.com/appengine)" {
-			delete(headers, "User-Agent")
-		} else if v.(string) == "Google-Cloud-Scheduler" {
-			delete(headers, "User-Agent")
-		} else {
-			headers["User-Agent"] = strings.TrimSpace(strings.Replace(v.(string), "AppEngine-Google; (+http://code.google.com/appengine)", "", -1))
+		if userAgent, ok := v.(string); ok {
+			if userAgent == "AppEngine-Google; (+http://code.google.com/appengine)" {
+				delete(headers, "User-Agent")
+			} else if userAgent == "Google-Cloud-Scheduler" {
+				delete(headers, "User-Agent")
+			} else {
+				headers["User-Agent"] = strings.TrimSpace(strings.Replace(userAgent, "AppEngine-Google; (+http://code.google.com/appengine)", "", -1))
+			}
 		}
 	}
 	if v, ok := headers["Content-Type"]; ok {
-		if v.(string) == "application/octet-stream" {
-			delete(headers, "Content-Type")
+		if contentType, ok := v.(string); ok {
+			if contentType == "application/octet-stream" {
+				delete(headers, "Content-Type")
+			}
 		}
 	}
 	r := regexp.MustCompile(`(X-Google-|X-AppEngine-|Content-Length).*`)
