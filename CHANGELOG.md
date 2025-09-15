@@ -1,4 +1,4 @@
-## 6.49.3 (September 12, 2025)
+## 6.49.3 (September 12, 2025) - test
 
 BUG FIXES:
 * compute: fixed a crash in `google_compute_security_policy` due to a changed API response for empty `match.0.expr_options` blocks ([#24353](https://github.com/hashicorp/terraform-provider-google/pull/24353))
