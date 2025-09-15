@@ -213,6 +213,18 @@ func ComputeInstanceMinCpuPlatformEmptyOrAutomaticDiffSuppress(k, old, new strin
 	return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
 }
 
+func ValidateInstanceMetadata(i interface{}, k string) ([]string, []error) {
+	metadata, ok := i.(map[string]interface{})
+	if !ok {
+		return nil, []error{fmt.Errorf("expected %q to be a map, got %T", k, i)}
+	}
+	var warnings []string
+	if _, ok := metadata["gce-container-declaration"]; ok {
+		warnings = append(warnings, "The option to deploy a container during VM creation using the container startup agent is deprecated. Use alternative services to run containers on your VMs. Learn more at https://cloud.google.com/compute/docs/containers/migrate-containers.")
+	}
+	return warnings, nil
+}
+
 func ResourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceCreate,
@@ -976,10 +988,11 @@ func ResourceComputeInstance() *schema.Resource {
 			},
 
 			"metadata": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Metadata key/value pairs made available within the instance.`,
+				Type:         schema.TypeMap,
+				Optional:     true,
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				Description:  `Metadata key/value pairs made available within the instance.`,
+				ValidateFunc: ValidateInstanceMetadata,
 			},
 
 			"metadata_startup_script": {

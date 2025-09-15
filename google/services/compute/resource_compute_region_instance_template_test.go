@@ -102,6 +102,35 @@ func TestAccComputeRegionInstanceTemplate_imageShorthand(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_metadataGceContainerDeclaration(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_metadataGceContainerDeclaration(acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeRegionInstanceTemplateMetadata(&instanceTemplate, "foo", "bar"),
+					testAccCheckComputeRegionInstanceTemplateMetadata(&instanceTemplate, "gce-container-declaration", "spec:\n containers:\n - name: test\n image: gcr.io/google-containers/busybox\n"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "metadata.foo", "metadata.gce-container-declaration"},
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionInstanceTemplate_preemptible(t *testing.T) {
 	t.Parallel()
 
@@ -2086,6 +2115,51 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 }
 `, context)
+}
+
+func testAccComputeRegionInstanceTemplate_metadataGceContainerDeclaration(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  region      = "us-central1"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    preemptible       = false
+    automatic_restart = true
+  }
+
+  metadata = {
+    foo                       = "bar"
+    gce-container-declaration = "spec:\n containers:\n - name: test\n image: gcr.io/google-containers/busybox\n"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  labels = {
+    my_label = "foobar"
+  }
+}
+`, suffix)
 }
 
 func testAccComputeRegionInstanceTemplate_preemptible(suffix string) string {

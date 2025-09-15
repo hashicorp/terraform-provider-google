@@ -432,10 +432,11 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 			},
 
 			"metadata": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Metadata key/value pairs to make available from within instances created from this template.`,
+				Type:         schema.TypeMap,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `Metadata key/value pairs to make available from within instances created from this template.`,
+				ValidateFunc: ValidateInstanceMetadata,
 			},
 
 			"metadata_startup_script": {
