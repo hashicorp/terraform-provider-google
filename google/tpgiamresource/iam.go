@@ -485,6 +485,7 @@ type IamSettings struct {
 	EnableBatching     bool
 	StateUpgraders     []schema.StateUpgrader
 	SchemaVersion      int
+	CreateTimeOut      int64
 }
 
 func NewIamSettings(options ...func(*IamSettings)) *IamSettings {
@@ -518,6 +519,12 @@ func IamWithStateUpgraders(upgraders []schema.StateUpgrader) func(*IamSettings) 
 func IamWithSchemaVersion(version int) func(*IamSettings) {
 	return func(s *IamSettings) {
 		s.SchemaVersion = version
+	}
+}
+
+func IamCreateTimeOut(createTimeout int64) func(s *IamSettings) {
+	return func(s *IamSettings) {
+		s.CreateTimeOut = createTimeout
 	}
 }
 
