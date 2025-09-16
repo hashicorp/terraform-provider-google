@@ -1,0 +1,11 @@
+```release-note:enhancement
+compute: added `scheduling.0.skip_guest_os_shutdown` field to `google_compute_instance` resource (beta)
+```
+
+```release-note:enhancement
+compute: added `scheduling.0.skip_guest_os_shutdown` field to `google_compute_instance_template` resource (beta)
+```
+
+```release-note:enhancement
+compute: added `scheduling.0.skip_guest_os_shutdown` field to `google_compute_region_instance_template` resource (beta)
+```
