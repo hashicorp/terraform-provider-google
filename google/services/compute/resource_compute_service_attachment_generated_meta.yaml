@@ -22,6 +22,8 @@ fields:
   - field: 'name'
   - field: 'nat_subnets'
   - field: 'propagated_connection_limit'
+  - field: 'psc_service_attachment_id.high'
+  - field: 'psc_service_attachment_id.low'
   - field: 'reconcile_connections'
   - field: 'region'
   - field: 'send_propagated_connection_limit_if_zero'

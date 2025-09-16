@@ -403,6 +403,98 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=service_attachment_tunneling_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Service Attachment Tunneling Config
+
+
+```hcl
+provider "google-beta" {
+}
+
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  provider = google-beta
+  
+  name        = "my-psc-ilb"
+  region      = "us-west2"
+  description = "A service attachment configured with tunneling"
+
+  enable_proxy_protocol    = false
+  connection_preference    = "ACCEPT_AUTOMATIC"
+  nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
+  target_service           = google_compute_forwarding_rule.psc_ilb_target_service.id
+
+  tunneling_config {
+    routing_mode = "REGIONAL"
+    encapsulation_profile = "IPV4"
+  }
+}
+
+resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
+  provider = google-beta
+  
+  name   = "producer-forwarding-rule"
+  region = "us-west2"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_producer_subnetwork.name
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  provider = google-beta
+  
+  name   = "producer-service"
+  region = "us-west2"
+
+  health_checks = [google_compute_health_check.producer_service_health_check.id]
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  provider = google-beta
+  
+  name = "producer-service-health-check"
+
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_network" "psc_ilb_network" {
+  provider = google-beta
+  
+  name = "psc-ilb-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
+  provider = google-beta
+  
+  name   = "psc-ilb-producer-subnetwork"
+  region = "us-west2"
+
+  network       = google_compute_network.psc_ilb_network.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_subnetwork" "psc_ilb_nat" {
+  provider = google-beta
+  
+  name   = "psc-ilb-nat"
+  region = "us-west2"
+
+  network       = google_compute_network.psc_ilb_network.id
+  purpose       =  "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/16"
+} 
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=service_attachment_cross_region_ilb&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -535,6 +627,11 @@ The following arguments are supported:
   valid domain name: "p.mycompany.com.". Current max number of domain names
   supported is 1.
 
+* `tunneling_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Tunneling configuration for this service attachment.
+  Structure is [documented below](#nested_tunneling_config).
+
 * `consumer_reject_lists` -
   (Optional)
   An array of projects that are not allowed to connect to this service
@@ -574,6 +671,16 @@ Defaults to false.
 
 
 
+<a name="nested_tunneling_config"></a>The `tunneling_config` block supports:
+
+* `routing_mode` -
+  (Optional)
+  The routing mode for tunneling traffic.
+
+* `encapsulation_profile` -
+  (Optional)
+  The encapsulation profile for tunneling traffic.
+
 <a name="nested_consumer_accept_lists"></a>The `consumer_accept_lists` block supports:
 
 * `project_id_or_num` -
@@ -601,12 +708,26 @@ In addition to the arguments listed above, the following computed attributes are
   Fingerprint of this resource. This field is used internally during
   updates of this resource.
 
+* `psc_service_attachment_id` -
+  An 128-bit global unique ID of the PSC service attachment.
+  Structure is [documented below](#nested_psc_service_attachment_id).
+
 * `connected_endpoints` -
   An array of the consumer forwarding rules connected to this service
   attachment.
   Structure is [documented below](#nested_connected_endpoints).
 * `self_link` - The URI of the created resource.
 
+
+<a name="nested_psc_service_attachment_id"></a>The `psc_service_attachment_id` block contains:
+
+* `high` -
+  (Output)
+  The high 64 bits of the PSC service attachment ID.
+
+* `low` -
+  (Output)
+  The low 64 bits of the PSC service attachment ID.
 
 <a name="nested_connected_endpoints"></a>The `connected_endpoints` block contains:
 
