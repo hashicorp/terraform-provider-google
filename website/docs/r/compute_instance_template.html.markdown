@@ -701,6 +701,8 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `graceful_shutdown` -  (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Settings for the instance to perform a graceful shutdown. Structure is [documented below](#nested_graceful_shutdown).
 
+* `skip_guest_os_shutdown` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Boolean parameter. Default is false and there will be 120 seconds between GCE ACPI G2 Soft Off and ACPI G3 Mechanical Off for Standard VMs and 30 seconds for Spot VMs.
+
 <a name="nested_graceful_shutdown"></a>The `graceful_shutdown` block supports:
 
 * `enabled` - (Required) Opts-in for graceful shutdown.
