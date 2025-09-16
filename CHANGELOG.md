@@ -1,3 +1,37 @@
+## 7.3.0 (September 16, 2025)
+
+FEATURES:
+* **New Data Source:** `google_backup_dr_data_source_reference` ([#24346](https://github.com/hashicorp/terraform-provider-google/pull/24346))
+* **New Resource:** `google_bigquery_datapolicyv2_data_policy` ([#24313](https://github.com/hashicorp/terraform-provider-google/pull/24313))
+* **New Resource:** `google_saas_runtime_release` ([#24289](https://github.com/hashicorp/terraform-provider-google/pull/24289))
+* **New Resource:** `google_secure_source_manager_hook` ([#24345](https://github.com/hashicorp/terraform-provider-google/pull/24345))
+
+IMPROVEMENTS:
+* cloudrun: added `sub_path` field to `google_cloud_run_service` resource. ([#24341](https://github.com/hashicorp/terraform-provider-google/pull/24341))
+* cloudrunv2: added `sub_path` field to `google_cloud_run_v2_service` `google_cloud_run_v2_job` and `google_cloud_run_v2_worker_pool` resource. ([#24341](https://github.com/hashicorp/terraform-provider-google/pull/24341))
+* compute: added `labels` and `label_fingerprint` fields to `google_compute_security_policy` resource ([#24322](https://github.com/hashicorp/terraform-provider-google/pull/24322))
+* compute: `labels` under `initialize_params` are now updatable on `google_compute_instance` ([#24349](https://github.com/hashicorp/terraform-provider-google/pull/24349))
+* container: added new fields `memory_manager` and `topology_manager` to `node_kubelet_config` block ([#24277](https://github.com/hashicorp/terraform-provider-google/pull/24277))
+* datastream: added `destination_config.bigquery_destination_config.source_hierarchy_datasets.project_id` field to `google_datastream_stream` resource ([#24340](https://github.com/hashicorp/terraform-provider-google/pull/24340))
+* discoveryengine: added `app_type` field to `google_discovery_engine_search_engine` resource ([#24320](https://github.com/hashicorp/terraform-provider-google/pull/24320))
+* gkeonprem: added `proxy` field to `google_gkeonprem_vmware_admin_cluster` resource ([#24338](https://github.com/hashicorp/terraform-provider-google/pull/24338))
+* healthcare: added `validation_config` to `google_healthcare_fhir_store` resource ([#24336](https://github.com/hashicorp/terraform-provider-google/pull/24336))
+* iamworkforcepool: added `extended_attributes` field to `workforce_pool_provider` resource ([#24308](https://github.com/hashicorp/terraform-provider-google/pull/24308))
+* netapp: added `export_policy.rules.squash_mode` field to `google_netapp_volume` resource. ([#24350](https://github.com/hashicorp/terraform-provider-google/pull/24350))
+* privateca: added `encryption_spec` field to `google_privateca_ca_pool` resource ([#24328](https://github.com/hashicorp/terraform-provider-google/pull/24328))
+* run: added `connector`  to `vpc_access` on `google_cloud_run_v2_worker_pool` resource ([#24337](https://github.com/hashicorp/terraform-provider-google/pull/24337))
+* tags: added the `DATA_GOVERNANCE` value to `google_tags_tag_key.purpose` ([#24307](https://github.com/hashicorp/terraform-provider-google/pull/24307))
+
+BUG FIXES:
+* bigquery: updated the schema change detection for `google_bigquery_table` to take into account presence of row access policy ([#24284](https://github.com/hashicorp/terraform-provider-google/pull/24284))
+* compute: fixed `allow_global_access` to correctly be immutable for `google_compute_forwarding_rule` resources with load balancing scheme of INTERNAL_MANAGED ([#24312](https://github.com/hashicorp/terraform-provider-google/pull/24312))
+* compute: fixed a crash in `google_compute_security_policy` due to a changed API response for empty `match.0.expr_options` blocks ([#24353](https://github.com/hashicorp/terraform-provider-google/pull/24353))
+* dialogflow: added support for non-global endpoints for `google_dialogflow_conversation_profile` ([#24351](https://github.com/hashicorp/terraform-provider-google/pull/24351))
+* publicca: use `RawURLEncoding` instead of `URLEncoding` for unpadded base64 encoding ([#24283](https://github.com/hashicorp/terraform-provider-google/pull/24283))
+* secretmanager: fixed a panic in `google_secret_manager_secret_version` in a `secret_manager` ([#24326](https://github.com/hashicorp/terraform-provider-google/pull/24326))
+* workbench: fixed issue that resource creation with computed `labels` field fails in `google_workbench_instance` resource ([#24311](https://github.com/hashicorp/terraform-provider-google/pull/24311))
+* workbench: made `report-notebook-metrics` metadata key settable for `google_workbench_instance` ([#24310](https://github.com/hashicorp/terraform-provider-google/pull/24310))
+
 ## 6.49.3 (September 12, 2025)
 
 BUG FIXES:
