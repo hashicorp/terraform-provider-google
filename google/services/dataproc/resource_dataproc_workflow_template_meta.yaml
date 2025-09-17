@@ -5,6 +5,7 @@ api_version: 'v1'
 api_resource_type_kind: 'WorkflowTemplate'
 api_variant_patterns:
   - 'projects/{project}/locations/{location}/workflowTemplates/{workflowTemplate}'
+cai_asset_name_format: //dataproc.googleapis.com/projects/{{project}}/regions/{{location}}/workflowTemplates/{{name}}
 fields:
   - field: 'create_time'
   - field: 'dag_timeout'
