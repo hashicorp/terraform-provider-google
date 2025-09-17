@@ -42,11 +42,12 @@ func (w *WorkbenchOperationWaiter) QueryOp() (interface{}, error) {
 	url := fmt.Sprintf("%s%s", w.Config.WorkbenchBasePath, w.CommonOperationWaiter.Op.Name)
 
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    w.Config,
-		Method:    "GET",
-		Project:   w.Project,
-		RawURL:    url,
-		UserAgent: w.UserAgent,
+		Config:               w.Config,
+		Method:               "GET",
+		Project:              w.Project,
+		RawURL:               url,
+		UserAgent:            w.UserAgent,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
 	})
 }
 

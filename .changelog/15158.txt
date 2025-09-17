@@ -1,0 +1,3 @@
+```release-note:bug
+workbench: added retry for `unable to queue the operation` 409 errors in `google_workbench_instance` resource.
+```
