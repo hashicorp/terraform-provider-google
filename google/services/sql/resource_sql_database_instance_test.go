@@ -3504,6 +3504,107 @@ func TestAccSqlDatabaseInstance_useCustomerManagedServerCa(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_DiskSizeAutoResizeWithoutDiskSize(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+
+	trueVar := true
+	falseVar := false
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create DB with disk size 10gb (minimal) - no disk size specified in configuration, auto resize enabled
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 100, nil, false, false),
+				// Add additional 2gb outside of TF to simulate increase in disk size
+				Check: testGoogleSqlDatabaseInstanceResizeDisk(t, databaseName, 2),
+			},
+			{
+				// Disk size is now 12gb - requested (original value) 10gb, configuration is empty - should not trigger resize, no errors.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, nil, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 12),
+			},
+			{
+				// Disk size is now 12gb - requested (original value) 10gb, configuration is empty - should not trigger resize, no errors.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, &trueVar, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 12),
+			},
+			{
+				// Disk size is now 12gb - requested (original value) 10gb, configuration is empty - disable auto resize - should not error.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, &falseVar, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 12),
+			},
+			{
+				// Disk size is now 12gb - requested (original value) 10gb, configuration is empty - disable auto resize, but enable deletion protection should not error.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, &falseVar, true, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 12),
+			},
+			{
+				// Allow destroy
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, &falseVar, true, true),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_DiskSizeAutoResizeWithDiskSize(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+
+	trueVar := true
+	falseVar := false
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create DB with disk size 12gb with auto resize enabled
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 12, 100, nil, false, false),
+				// Add additional 2gb outside of TF to simulate increase in disk size
+				Check: testGoogleSqlDatabaseInstanceResizeDisk(t, databaseName, 2),
+			},
+			{
+				// Disk size is now 14gb - requested (original value) 12gb and auto resize enable - should not trigger resize, no errors.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 12, 101, nil, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 14),
+			},
+			{
+				// Disk size is now 14gb - requested 13gb in configuration, still less - should not trigger resize, no errors.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 13, 102, &trueVar, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 14),
+			},
+			{
+				// Disk size is now 14gb - requested 15gb in configuration, that's an additional increase should trigger resize to 15gb.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 15, 103, nil, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 15),
+			},
+			{
+				// Disk size is now 15gb - requested 14gb, but disabled auto resize - should error because it can't be deleted for replacement.
+				Config:      testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 14, 104, &falseVar, false, false),
+				ExpectError: regexp.MustCompile("Instance cannot be destroyed"),
+			},
+			{
+				// Disk size is now 15gb - requested 14gb, but ignore changes is set - so should ignore the configuration change.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 14, 105, &falseVar, true, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 15),
+			},
+			{
+				// Allow destroy
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 14, 105, &falseVar, true, true),
+			},
+		},
+	})
+}
+
 func testGoogleSqlDatabaseInstance_setCustomSubjectAlternateName(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "project" {
@@ -7112,4 +7213,103 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, instance, databaseVersion, deletionProtection, activationPolicy)
+}
+
+func testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, dbName string, diskSize, maxConnections int, autoResize *bool, ignoreChanges, allowDestroy bool) string {
+	diskSizeStmt := ""
+	if diskSize != 0 {
+		diskSizeStmt = fmt.Sprintf("disk_size = %d", diskSize)
+	}
+	autoResizeStmt := ""
+	if autoResize != nil {
+		if *autoResize {
+			autoResizeStmt = "disk_autoresize = true"
+		} else {
+			autoResizeStmt = "disk_autoresize = false"
+		}
+	}
+	ignoreChangesStmt := ""
+	if ignoreChanges {
+		ignoreChangesStmt = "settings[0].disk_size"
+	}
+
+	preventDestroyStmt := "prevent_destroy = true"
+	if allowDestroy {
+		preventDestroyStmt = ""
+	}
+
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_15"
+  deletion_protection = false
+  settings {
+	tier = "db-f1-micro"
+	%s
+	%s
+	database_flags {
+      name  = "max_connections"
+      value = "%d"
+    }
+  }
+  lifecycle {
+    ignore_changes = [%s]
+	%s
+  }
+}
+`, project, dbName, diskSizeStmt, autoResizeStmt, maxConnections, ignoreChangesStmt, preventDestroyStmt)
+}
+
+func testGoogleSqlDatabaseInstanceResizeDisk(t *testing.T, instance string, addGb int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+
+		inst, err := sqlAdminClient.Instances.Get(config.Project, instance).Do()
+		if err != nil {
+			return fmt.Errorf("Could not get database instance %q: %s", instance, err)
+		}
+
+		operation, err := sqlAdminClient.Instances.Patch(config.Project, instance, &sqladmin.DatabaseInstance{
+			Settings: &sqladmin.Settings{
+				SettingsVersion: inst.Settings.SettingsVersion,
+				DataDiskSizeGb:  inst.Settings.DataDiskSizeGb + addGb,
+			},
+		}).Do()
+		if err != nil {
+			return fmt.Errorf("Could not update database instance %q: %s", instance, err)
+		}
+
+		// Wait for the operation to complete
+		if err := sql.SqlAdminOperationWaitTime(config, operation, config.Project, "Waiting for disk resize", config.UserAgent, 10*time.Minute); err != nil {
+			return fmt.Errorf("Could not wait for operation to complete: %s", err)
+		}
+
+		return nil
+	}
+}
+
+func testGoogleSqlDatabaseInstanceCheckDiskSize(t *testing.T, instance string, size int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+
+		inst, err := sqlAdminClient.Instances.Get(config.Project, instance).Do()
+		if err != nil {
+			return fmt.Errorf("Could not get database instance %q: %s", instance, err)
+		}
+
+		if inst.Settings.DataDiskSizeGb != size {
+			return fmt.Errorf("Expected disk size %d, got %d", size, inst.Settings.DataDiskSizeGb)
+		}
+
+		return nil
+	}
 }
