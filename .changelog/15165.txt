@@ -1,0 +1,3 @@
+```release-note:bug
+netapp: updated `google_netapp_storage_pool` to source the default value for the `qos_type` field from the API. If not specified in the configuration, `qos_type` will now default to the value provided by the NetApp Volumes API.
+```
