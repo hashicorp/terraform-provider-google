@@ -33,7 +33,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -143,6 +142,41 @@ var (
 	}
 )
 
+func diskSizeCutomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	key := "settings.0.disk_size"
+
+	old, new := d.GetChange(key)
+	// It's okay to remove size entirely.
+	if old == nil || new == nil {
+		return nil
+	}
+	autoResizeI, exists := d.GetOkExists("settings.0.disk_autoresize")
+	autoResize := !exists || autoResizeI.(bool)
+
+	if old.(int) <= new.(int) {
+		// If a resize up, always allow it - keep the diff.
+		return nil
+	}
+
+	if autoResize {
+		// Allow having disk size larger in the state than in config if auto resize is enabled.
+		// Delete the diff.
+		err := d.Clear(key)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	// If we are here, we are trying to shrink the disk with auto resize disabled and no ignore changes on disk size.
+	// This will force a new resource.
+	if err := d.ForceNew(key); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ResourceSqlDatabaseInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSqlDatabaseInstanceCreate,
@@ -161,7 +195,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
-			customdiff.ForceNewIfChange("settings.0.disk_size", compute.IsDiskShrinkage),
+			diskSizeCutomizeDiff,
 			customdiff.ForceNewIf("master_instance_name", func(_ context.Context, d *schema.ResourceDiff, meta interface{}) bool {
 				// If we set master but this is not the new master of a switchover, require replacement and warn user.
 				return !isSwitchoverFromOldPrimarySide(d)
@@ -2264,10 +2298,27 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	s := d.Get("settings")
 	instance = &sqladmin.DatabaseInstance{
 		Settings: expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{}), databaseVersion),
 	}
+
+	// If there is no change detected in disk size, no need to try and update the disk size, send 0 always
+	instance.Settings.DataDiskSizeGb = 0
+	if d.HasChange("settings.0.disk_size") {
+		autoResize := true
+		_, autoResizeI := d.GetChange("settings.0.disk_autoresize")
+		if autoResizeI != nil {
+			autoResize = autoResizeI.(bool)
+		}
+		oldDiskSizeI, newDiskSizeI := d.GetChange("settings.0.disk_size")
+		if !autoResize || newDiskSizeI.(int) > oldDiskSizeI.(int) {
+			// If auto resize is not enabled - set the disk size as requested, even if it's a decrease - let it fail.
+			// Otherwise, allow increasing even if auto resize is enabled.
+			instance.Settings.DataDiskSizeGb = int64(newDiskSizeI.(int))
+		}
+	}
+
+	s := d.Get("settings")
 	_settings := s.([]interface{})[0].(map[string]interface{})
 	// Instance.Patch operation on completion updates the settings proto version by +8. As terraform does not know this it tries
 	// to make an update call with the proto version before patch and fails. To resolve this issue we update the setting version
