@@ -30,10 +30,7 @@ import (
 	"time"
 
 
-	compute "cloud.google.com/go/compute/apiv1"
-	computepb "cloud.google.com/go/compute/apiv1/computepb"
-	"google.golang.org/api/iterator"
-
+	compute "google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
@@ -369,10 +366,10 @@ var _ ListResourceWithRawV5Schemas = &ComputeDiskListResource{}
 type ComputeDiskListResource struct {
 	ListResourceWithRawV5Schemas
 
-	d tpgresource.TerraformResourceData
 	Client *transport_tpg.Config
-	resource       *schema.Resource
-	schemaIdentity *schema.ResourceIdentity
+	ProjectId string
+	Region string
+	Zone string
 }
 
 func NewComputeDiskListResource() list.ListResource {
@@ -389,20 +386,25 @@ func (r *ComputeDiskListResource) RawV5Schemas(ctx context.Context, _ list.RawV5
 	resp.ProtoV5IdentitySchema = computeDisk.ProtoIdentitySchema(ctx)()
 }
 
-func (r *ComputeDiskListResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
+func (r *ComputeDiskListResource) Defaults(request resource.ConfigureRequest, response *resource.ConfigureResponse) {
+	if request.ProviderData == nil {
 		return
 	}
 
-	_, ok := req.ProviderData.(*transport_tpg.Config)
+	c, ok := request.ProviderData.(*transport_tpg.Config)
 	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *transport_tpg.Config, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
+		response.Diagnostics.AddError("Client Provider Data Error", "invalid provider data supplied")
 		return
 	}
 
+	r.Client = c
+	r.ProjectId = c.Project
+	r.Region = c.Region
+	r.Zone = c.Zone
+}
+
+func (r *ComputeDiskListResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	r.Defaults(req, resp)
 }
 
 func (r *ComputeDiskListResource) ListResourceConfigSchema(ctx context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
@@ -414,9 +416,9 @@ func (r *ComputeDiskListResource) ListResourceConfigSchema(ctx context.Context, 
 			"zone": listschema.StringAttribute{
 				Optional: true,
 			},
-			"filter": listschema.StringAttribute{
-				Optional: true,
-			},
+			// "filter": listschema.StringAttribute{
+			// 	Optional: true,
+			// },
 		},
 	}
 }
@@ -424,84 +426,85 @@ func (r *ComputeDiskListResource) ListResourceConfigSchema(ctx context.Context, 
 type ComputeDiskListModel struct {
 	Project string `tfsdk:"project"`
 	Zone string `tfsdk:"zone"`
-	Filter string `tfsdk:"filter"`
 }
 
 func (r *ComputeDiskListResource) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
-
 	var data ComputeDiskListModel
-	req.Config.Get(ctx, &data)
-
-	client, err := compute.NewDisksRESTClient(ctx)
-	if err != nil {
+	diags := req.Config.Get(ctx, &data)
+	if diags.HasError() {
+		stream.Results = list.ListResultsStreamDiagnostics(diags)
 		return
 	}
-	defer client.Close()
+
+	if r.Client == nil {
+		return
+	}
+
 	project := data.Project
-	zone := data.Zone
-	computeDiskRequest := &computepb.ListDisksRequest{
-		Project: project,
-		Zone:    zone,
-	}
-	computeDisk := client.List(ctx, computeDiskRequest)
-	if computeDisk == nil {
-		fmt.Println("[DEBUG]- error: %v", err)
-		return
+	if project == "" {
+		project = r.Client.Project
 	}
 
-	computeDiskResponse := computeDisk.PageInfo()
-	fmt.Println("[DEBUG]- computeDiskResponse: %d", computeDiskResponse.Remaining())
+	zone := data.Zone
+	if zone == "" {
+		zone = r.Client.Zone
+	}
+
+	if zone == "" {
+	
+		return
+	}
 
 	stream.Results = func(push func(list.ListResult) bool) {
-		fmt.Println("list() - computeDisk before looping through it.All()")
-		for {
-			if err == iterator.Done {
-				break
+		// Use the configured provider client to create a service-specific client
+		client := r.Client.NewComputeClient(r.Client.UserAgent)
+
+		// The API call returns a standard Go client *compute.DisksListCall
+		// which doesn't use the same iterator pattern as the newer clients.
+		// We use Pages to handle pagination.
+		listReq := client.Disks.List(project, zone)
+
+		if err := listReq.Pages(ctx, func(page *compute.DiskList) error {
+			for _, computeDisk := range page.Items {
+				fmt.Printf("list() - computeDisk: %v\n", computeDisk.Name)
+
+				result := req.NewListResult(ctx)
+				result.DisplayName = computeDisk.Name
+
+				computeDiskResource := ResourceComputeDisk()
+				rd := computeDiskResource.Data(&terraform.InstanceState{})
+				rd.SetId(computeDisk.Name)
+
+				// This flatten function would need to be created to map the compute.Disk to the schema.
+				// if err := flattenComputeDisk(rd, computeDisk); err != nil {
+				// 	return err // Returning an error stops pagination
+				// }
+
+				tfTypeIdentity, err := rd.TfTypeIdentityState()
+				if err != nil {
+					return err
+				}
+				if err := result.Identity.Set(ctx, *tfTypeIdentity); err != nil {
+					return errors.New("error setting identity")
+				}
+
+				tfTypeResource, err := rd.TfTypeResourceState()
+				if err != nil {
+					return err
+				}
+				if err := result.Resource.Set(ctx, *tfTypeResource); err != nil {
+					return errors.New("error setting resource")
+				}
+
+				if !push(result) {
+					// The stream has been closed, so we should stop.
+					return errors.New("stream closed")
+				}
 			}
-			if err != nil {
-				fmt.Println("[DEBUG]- error: %v", err)
-				return
-			}
-			fmt.Printf("list() - computeDisk: %v\n", computeDisk)
-			result := req.NewListResult(ctx)
-			// result.DisplayName = *computeDisk.Name
-
-
-			computeDiskResource := ResourceComputeDisk()
-
-			rd := computeDiskResource.Data(&terraform.InstanceState{})
-
-			// err = resourceComputeDiskEncode(rd, id, &computeDisk.(map[string]interface{}))
-			// if err != nil {
-			// 	// sdk.SetResponseErrorDiagnostic(stream.Results, "encoding compute disk data", err)
-			// 	return
-			// }
-
-			tfTypeIdentity, err := rd.TfTypeIdentityState()
-			if err != nil {
-				// TODO
-			}
-
-			if err := result.Identity.Set(ctx, *tfTypeIdentity); err != nil {
-				// sdk.SetResponseErrorDiagnostic(stream.Results, "setting identity data", err)
-				return
-			}
-
-			tfTypeResource, err := rd.TfTypeResourceState()
-			if err != nil {
-				// TODO
-			}
-
-			if err := result.Resource.Set(ctx, *tfTypeResource); err != nil {
-				return
-			}
-			// computeDisk, err = computeDisk.Next()
-
-			if !push(result) {
-				return
-			}
+			return nil
+		}); err != nil {
+			stream.Results = list.ListResultsStreamDiagnostics(diags)
 		}
-
 	}
 }
 

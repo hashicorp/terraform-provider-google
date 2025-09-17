@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/auth v0.16.4
 	cloud.google.com/go/auth/oauth2adapt v0.2.8
 	cloud.google.com/go/bigtable v1.37.0
+	cloud.google.com/go/compute v1.38.0
 	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.81.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/davecgh/go-spew v1.1.1
