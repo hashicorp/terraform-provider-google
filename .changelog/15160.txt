@@ -1,0 +1,1 @@
+unknown: added default_from_api: true for squashMode, hasRootAccess & accessType

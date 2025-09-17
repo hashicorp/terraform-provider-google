@@ -161,6 +161,7 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 									},
 									"has_root_access": {
 										Type:        schema.TypeString,
+										Computed:    true,
 										Optional:    true,
 										Description: `If enabled, the root user (UID = 0) of the specified clients doesn't get mapped to nobody (UID = 65534). This is also known as no_root_squash.`,
 									},
@@ -206,6 +207,7 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 									},
 									"squash_mode": {
 										Type:         schema.TypeString,
+										Computed:     true,
 										Optional:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH", ""}),
 										Description:  `SquashMode defines how remote user privileges are restricted when accessing an NFS export. It controls how the user identities (like root) are mapped to anonymous users to limit access and enforce security. Possible values: ["NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH"]`,
