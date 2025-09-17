@@ -320,6 +320,17 @@ func IsRepositoryGroupQueueError(err error) (bool, string) {
 	return false, ""
 }
 
+// Retry if Workbench operation returns a 409 with a specific message for
+// enqueued operations.
+func IsWorkbenchQueueError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && (strings.Contains(strings.ToLower(gerr.Body), "unable to queue the operation")) {
+			return true, "Waiting for other enqueued operations to finish"
+		}
+	}
+	return false, ""
+}
+
 // Retry if Monitoring operation returns a 409 with a specific message for
 // concurrent operations.
 func IsMonitoringConcurrentEditError(err error) (bool, string) {
