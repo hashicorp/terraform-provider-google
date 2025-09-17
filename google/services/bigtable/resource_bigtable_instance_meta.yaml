@@ -1,6 +1,7 @@
 resource: 'google_bigtable_instance'
 generation_type: 'handwritten'
 api_service_name: 'bigtableadmin.googleapis.com'
+cai_asset_name_format: '//bigtable.googleapis.com/projects/{{project}}/instances/{{name}}'
 api_version: 'v2'
 api_resource_type_kind: 'Instance'
 fields:
