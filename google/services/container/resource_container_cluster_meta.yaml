@@ -146,6 +146,7 @@ fields:
   - field: 'ip_allocation_policy.additional_pod_ranges_config.pod_range_names'
   - field: 'ip_allocation_policy.additional_ip_ranges_config.subnetwork'
   - field: 'ip_allocation_policy.additional_ip_ranges_config.pod_ipv4_range_names'
+  - field: 'ip_allocation_policy.auto_ipam_config.enabled'
   - field: 'ip_allocation_policy.cluster_ipv4_cidr_block'
   - field: 'ip_allocation_policy.cluster_secondary_range_name'
   - field: 'ip_allocation_policy.pod_cidr_overprovision_config.disabled'

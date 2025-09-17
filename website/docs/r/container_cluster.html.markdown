@@ -843,6 +843,12 @@ secondary Pod IP address assignment to node pools isn't needed. Structure is [do
 * `additional_ip_ranges_config` - (Optional) The configuration for individual additional subnetworks attached to the cluster.
 Structure is [documented below](#nested_additional_ip_ranges_config).
 
+* `auto_ipam_config` - (Optional) All the information related to Auto IPAM. Structure is [documented below](#nested_auto_ipam_config)
+
+<a name="nested_auto_ipam_config"></a>The auto ipam config supports:
+
+* `enabled` - (Required) The flag that enables Auto IPAM on this cluster.
+
 
 <a name="nested_additional_pod_ranges_config"></a>The `additional_pod_ranges_config` block supports:
 

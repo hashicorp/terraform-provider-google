@@ -1712,6 +1712,22 @@ func ResourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"auto_ipam_config": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: `AutoIpamConfig contains all information related to Auto IPAM.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `The flag that enables Auto IPAM on this cluster.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -4085,6 +4101,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s's AdditionalIpRangesConfig has been updated", d.Id())
 	}
 
+	if d.HasChange("ip_allocation_policy.0.auto_ipam_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredAutoIpamConfig: &container.AutoIpamConfig{Enabled: d.Get("ip_allocation_policy.0.auto_ipam_config.0.enabled").(bool)},
+			},
+		}
+
+		updateF := updateFunc(req, "updating AutoIpamConfig")
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's AutoIpamConfig has been updated", d.Id())
+	}
+
 	if n, ok := d.GetOk("node_pool.#"); ok {
 		for i := 0; i < n.(int); i++ {
 			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
@@ -5221,7 +5252,19 @@ func expandIPAllocationPolicy(configured interface{}, d *schema.ResourceData, ne
 		UseRoutes:                  networkingMode == "ROUTES",
 		StackType:                  stackType,
 		PodCidrOverprovisionConfig: expandPodCidrOverprovisionConfig(config["pod_cidr_overprovision_config"]),
+		AutoIpamConfig:             expandAutoIpamConfig(config["auto_ipam_config"]),
 	}, additionalIpRangesConfigs, nil
+}
+
+func expandAutoIpamConfig(configured interface{}) *container.AutoIpamConfig {
+	l, ok := configured.([]interface{})
+	if !ok || len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	return &container.AutoIpamConfig{
+		Enabled: l[0].(map[string]interface{})["enabled"].(bool),
+	}
 }
 
 func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *container.MaintenancePolicy {
@@ -6743,8 +6786,21 @@ func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, con
 			"pod_cidr_overprovision_config": flattenPodCidrOverprovisionConfig(p.PodCidrOverprovisionConfig),
 			"additional_pod_ranges_config":  flattenAdditionalPodRangesConfig(c.IpAllocationPolicy),
 			"additional_ip_ranges_config":   flattenAdditionalIpRangesConfigs(p.AdditionalIpRangesConfigs),
+			"auto_ipam_config":              flattenAutoIpamConfig(p.AutoIpamConfig),
 		},
 	}, nil
+}
+
+func flattenAutoIpamConfig(aic *container.AutoIpamConfig) []map[string]interface{} {
+	if aic == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"enabled": aic.Enabled,
+		},
+	}
 }
 
 func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]interface{} {
