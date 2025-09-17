@@ -138,6 +138,7 @@ using security identifiers for NFSv4.1 or principal names for kerberized NFSv4.1
 			},
 			"qos_type": {
 				Type:         schema.TypeString,
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"QOS_TYPE_UNSPECIFIED", "AUTO", "MANUAL", ""}),
 				Description: `QoS (Quality of Service) type of the storage pool.
