@@ -1,0 +1,3 @@
+```release-note:bug
+compute: The network field in 'google_compute_region_backend_service' is now correctly handled, forcing a new resource on change. This resolves the "Network field cannot be modified" error when trying to add, remove, or modify a network on an existing resource
+```
