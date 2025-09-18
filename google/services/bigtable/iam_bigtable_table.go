@@ -123,7 +123,7 @@ func BigtableTableIdParseFunc(d *schema.ResourceData, config *transport_tpg.Conf
 	}
 
 	if err := d.Set("instance_name", values["instance"]); err != nil {
-		return fmt.Errorf("Error setting instance: %s", err)
+		return fmt.Errorf("Error setting instance_name: %s", err)
 	}
 
 	if err := d.Set("table", values["table"]); err != nil {
