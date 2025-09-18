@@ -748,7 +748,10 @@ func resourceKMSCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res m
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	res["name"] = d.Get("name").(string)
+	v := d.Get("name")
+	if v != nil {
+		res["name"] = v.(string)
+	}
 	return res, nil
 }
 
