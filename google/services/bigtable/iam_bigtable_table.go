@@ -82,11 +82,11 @@ func NewBigtableTableUpdater(d tpgresource.TerraformResourceData, config *transp
 		instance = d.Get("instance_name").(string)
 	}
 
-	if err := d.Set("instance", ins); err != nil {
+	if err := d.Set("instance", instance); err != nil {
 		return nil, fmt.Errorf("Error setting instance: %s", err)
 	}
 
-	if err := d.Set("instance_name", ins); err != nil {
+	if err := d.Set("instance_name", instance); err != nil {
 		return nil, fmt.Errorf("Error setting instance_name: %s", err)
 	}
 
