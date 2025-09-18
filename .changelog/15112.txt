@@ -1,0 +1,44 @@
+```release-note:bug
+bigtable: fixed `node_scaling_factor` forcing new instance on `google_bigtable_instance` when adding new cluster
+```
+
+### Context:
+
+Related Github Issue: https://github.com/hashicorp/terraform-provider-google/issues/23564
+
+TLDR; When adding a new cluster to an existing bigtable instance a forced recreate is required due to the `forceNew` attribute on `node_scaling_factor`. This doesn't match the API / Console functionality where adding a new cluster requires no recreate. 
+
+This PR removes the unconditional `forceNew` attribute on `node_scaling_factor` and instead adds to the CustomizeDiff to check if an existing cluster's `node_scaling_factor` has changed or not. If yes; require recreate. If no; don't require recreate.
+
+### Testing:
+
+I've added two new test cases.
+1. Test modifying existing cluster's `node_scaling_factor` and fails when `deletion_protection` is `true` 
+2. Test adding a new cluster to an existing instance AND does not require deletion/recreate.
+
+I've run these test in local env, sample logs below
+
+```
+brandon.cate@DD944JY0FF terraform-provider-google-beta % make testacc TEST=./google-beta/services/bigtable TESTARGS='-run=TestAccBigtableInstance_addNewClusterWithoutDeletionProtection$$'
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google-beta/services/bigtable -v -run=TestAccBigtableInstance_addNewClusterWithoutDeletionProtection$ -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google-beta/version.ProviderVersion=acc"
+=== RUN   TestAccBigtableInstance_addNewClusterWithoutDeletionProtection
+=== PAUSE TestAccBigtableInstance_addNewClusterWithoutDeletionProtection
+=== CONT  TestAccBigtableInstance_addNewClusterWithoutDeletionProtection
+--- PASS: TestAccBigtableInstance_addNewClusterWithoutDeletionProtection (45.62s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google-beta/google-beta/services/bigtable       46.799s
+
+
+brandon.cate@DD944JY0FF terraform-provider-google-beta % make testacc TEST=./google-beta/services/bigtable TESTARGS='-run=TestAccBigtableInstance_createWithNodeScalingFactorThenFailFromDeletionProtection$$'
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google-beta/services/bigtable -v -run=TestAccBigtableInstance_createWithNodeScalingFactorThenFailFromDeletionProtection$ -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google-beta/version.ProviderVersion=acc"
+=== RUN   TestAccBigtableInstance_createWithNodeScalingFactorThenFailFromDeletionProtection
+=== PAUSE TestAccBigtableInstance_createWithNodeScalingFactorThenFailFromDeletionProtection
+=== CONT  TestAccBigtableInstance_createWithNodeScalingFactorThenFailFromDeletionProtection
+--- PASS: TestAccBigtableInstance_createWithNodeScalingFactorThenFailFromDeletionProtection (27.52s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google-beta/google-beta/services/bigtable       28.493s
+```
