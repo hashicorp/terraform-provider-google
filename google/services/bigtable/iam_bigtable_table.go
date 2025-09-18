@@ -33,6 +33,7 @@ var IamBigtableTableSchema = map[string]*schema.Schema{
 	"instance": {
 		Type:         schema.TypeString,
 		Optional:     true,
+		Computed:     true,
 		ForceNew:     true,
 		ExactlyOneOf: []string{"instance", "instance_name"},
 		Deprecated:   "`instance` is deprecated in favor of `instance_name`",
@@ -40,6 +41,7 @@ var IamBigtableTableSchema = map[string]*schema.Schema{
 	"instance_name": {
 		Type:         schema.TypeString,
 		Optional:     true,
+		Computed:     true,
 		ForceNew:     true,
 		ExactlyOneOf: []string{"instance", "instance_name"},
 	},
@@ -75,10 +77,23 @@ func NewBigtableTableUpdater(d tpgresource.TerraformResourceData, config *transp
 		return nil, fmt.Errorf("Error setting project: %s", err)
 	}
 
+	instance := d.Get("instance").(string)
+	if instance == "" {
+		instance = d.Get("instance_name").(string)
+	}
+
+	if err := d.Set("instance", ins); err != nil {
+		return nil, fmt.Errorf("Error setting instance: %s", err)
+	}
+
+	if err := d.Set("instance_name", ins); err != nil {
+		return nil, fmt.Errorf("Error setting instance_name: %s", err)
+	}
+
 	return &BigtableTableIamUpdater{
 		project:      project,
-		instance:     d.Get("instance").(string),
-		instanceName: d.Get("instance").(string),
+		instance:     instance,
+		instanceName: instance,
 		table:        d.Get("table").(string),
 		d:            d,
 		Config:       config,
