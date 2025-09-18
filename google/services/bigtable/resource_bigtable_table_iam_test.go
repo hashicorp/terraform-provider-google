@@ -122,7 +122,7 @@ func TestAccBigtableTableIamMember(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				// Test IAM Binding - Update instance to instance_name 
+				// Test IAM Binding - Update instance to instance_name
 				Config: testAccBigtableTableIamMember_updateName(instance, cluster, account, role),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
