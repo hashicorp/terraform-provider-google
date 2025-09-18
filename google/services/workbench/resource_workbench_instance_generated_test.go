@@ -262,7 +262,7 @@ func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gce_setup.0.boot_disk.0.disk_type", "gce_setup.0.data_disks.0.disk_type", "gce_setup.0.vm_image", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"gce_setup.0.boot_disk.0.disk_type", "gce_setup.0.data_disks.0.disk_type", "gce_setup.0.metadata.version", "gce_setup.0.vm_image", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 		},
 	})
