@@ -138,6 +138,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/pubsublite"
 	"github.com/hashicorp/terraform-provider-google/google/services/redis"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager3"
 	"github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/secretmanagerregional"
 	"github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
@@ -569,9 +570,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 646
+// Generated resources: 647
 // Generated IAM resources: 318
-// Total generated resources: 964
+// Total generated resources: 965
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1378,6 +1379,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_redis_cluster_user_created_connections":                              redis.ResourceRedisClusterUserCreatedConnections(),
 	"google_redis_instance":                                                      redis.ResourceRedisInstance(),
 	"google_resource_manager_lien":                                               resourcemanager.ResourceResourceManagerLien(),
+	"google_resource_manager_capability":                                         resourcemanager3.ResourceResourceManager3Capability(),
 	"google_secret_manager_secret":                                               secretmanager.ResourceSecretManagerSecret(),
 	"google_secret_manager_secret_iam_binding":                                   tpgiamresource.ResourceIamBinding(secretmanager.SecretManagerSecretIamSchema, secretmanager.SecretManagerSecretIamUpdaterProducer, secretmanager.SecretManagerSecretIdParseFunc),
 	"google_secret_manager_secret_iam_member":                                    tpgiamresource.ResourceIamMember(secretmanager.SecretManagerSecretIamSchema, secretmanager.SecretManagerSecretIamUpdaterProducer, secretmanager.SecretManagerSecretIdParseFunc),
@@ -1793,6 +1795,7 @@ func UseGeneratedProducts() {
 	var _ = pubsublite.ProductName
 	var _ = redis.ProductName
 	var _ = resourcemanager.ProductName
+	var _ = resourcemanager3.ProductName
 	var _ = secretmanager.ProductName
 	var _ = secretmanagerregional.ProductName
 	var _ = securesourcemanager.ProductName
