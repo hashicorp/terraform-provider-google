@@ -301,6 +301,15 @@ All system labels in v1 now have a corresponding field in v2 WorkerPoolRevisionT
 													Required:    true,
 													Description: `GCS Bucket name`,
 												},
+												"mount_options": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of flags to pass to the gcsfuse command for configuring this volume.
+Flags should be passed without leading dashes.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 												"read_only": {
 													Type:        schema.TypeBool,
 													Optional:    true,
@@ -1967,6 +1976,8 @@ func flattenCloudRunV2WorkerPoolTemplateVolumesGcs(v interface{}, d *schema.Reso
 		flattenCloudRunV2WorkerPoolTemplateVolumesGcsBucket(original["bucket"], d, config)
 	transformed["read_only"] =
 		flattenCloudRunV2WorkerPoolTemplateVolumesGcsReadOnly(original["readOnly"], d, config)
+	transformed["mount_options"] =
+		flattenCloudRunV2WorkerPoolTemplateVolumesGcsMountOptions(original["mountOptions"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2WorkerPoolTemplateVolumesGcsBucket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1974,6 +1985,10 @@ func flattenCloudRunV2WorkerPoolTemplateVolumesGcsBucket(v interface{}, d *schem
 }
 
 func flattenCloudRunV2WorkerPoolTemplateVolumesGcsReadOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2WorkerPoolTemplateVolumesGcsMountOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3122,6 +3137,13 @@ func expandCloudRunV2WorkerPoolTemplateVolumesGcs(v interface{}, d tpgresource.T
 		transformed["readOnly"] = transformedReadOnly
 	}
 
+	transformedMountOptions, err := expandCloudRunV2WorkerPoolTemplateVolumesGcsMountOptions(original["mount_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMountOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mountOptions"] = transformedMountOptions
+	}
+
 	return transformed, nil
 }
 
@@ -3130,6 +3152,10 @@ func expandCloudRunV2WorkerPoolTemplateVolumesGcsBucket(v interface{}, d tpgreso
 }
 
 func expandCloudRunV2WorkerPoolTemplateVolumesGcsReadOnly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2WorkerPoolTemplateVolumesGcsMountOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
