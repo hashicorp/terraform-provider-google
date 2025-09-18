@@ -1,0 +1,33 @@
+resource: 'google_network_services_wasm_plugin'
+generation_type: 'mmv1'
+source_file: 'products/networkservices/WasmPlugin.yaml'
+api_service_name: 'networkservices.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'WasmPlugin'
+fields:
+  - field: 'create_time'
+  - field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'log_config.enable'
+  - field: 'log_config.min_log_level'
+  - field: 'log_config.sample_rate'
+  - field: 'main_version_id'
+  - field: 'name'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'
+  - field: 'used_by.name'
+  - field: 'versions.value.create_time'
+  - field: 'versions.value.description'
+  - field: 'versions.value.image_digest'
+  - field: 'versions.value.image_uri'
+  - field: 'versions.value.labels'
+  - field: 'versions.value.plugin_config_data'
+  - field: 'versions.value.plugin_config_digest'
+  - field: 'versions.value.plugin_config_uri'
+  - field: 'versions.value.update_time'

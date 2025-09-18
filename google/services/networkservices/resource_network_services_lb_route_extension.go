@@ -87,7 +87,10 @@ and the last a letter or a number.`,
 										Type:             schema.TypeString,
 										Required:         true,
 										DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-										Description:      `The reference to the service that runs the extension. Must be a reference to a backend service`,
+										Description: `The reference to the service that runs the extension.
+
+* To configure a callout extension, service must be a fully-qualified reference to a backend service.
+* To configure a plugin extension, service must be a reference to a WasmPlugin resource.`,
 									},
 									"authority": {
 										Type:        schema.TypeString,
