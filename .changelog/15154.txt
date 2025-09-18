@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudrunv2: added `mount_options` in gcsfuse volumes for `google_cloud_run_v2_service`, `google_cloud_run_v2_job`, and `google_cloud_run_v2_workerpool` resources. (ga)
+```

@@ -881,7 +881,7 @@ When the field is set to false, deleting the job is allowed.
   If true, mount this volume as read-only in all mounts. If false, mount this volume as read-write.
 
 * `mount_options` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A list of flags to pass to the gcsfuse command for configuring this volume.
   Flags should be passed without leading dashes.
 

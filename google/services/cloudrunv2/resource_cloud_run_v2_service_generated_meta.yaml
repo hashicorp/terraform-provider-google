@@ -121,6 +121,7 @@ fields:
   - field: 'template.volumes.empty_dir.medium'
   - field: 'template.volumes.empty_dir.size_limit'
   - field: 'template.volumes.gcs.bucket'
+  - field: 'template.volumes.gcs.mount_options'
   - field: 'template.volumes.gcs.read_only'
   - field: 'template.volumes.name'
   - field: 'template.volumes.nfs.path'

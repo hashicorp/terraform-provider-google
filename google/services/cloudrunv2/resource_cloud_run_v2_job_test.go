@@ -404,7 +404,7 @@ func testAccCloudRunV2Job_cloudrunv2JobWithGcsVolume(context map[string]interfac
           gcs {
             bucket = "gcp-public-data-landsat"
             read_only = true
-
+            mount_options = ["log-severity=info"]
           }
         }
       }

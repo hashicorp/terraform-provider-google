@@ -641,6 +641,15 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 													Required:    true,
 													Description: `GCS Bucket name`,
 												},
+												"mount_options": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of flags to pass to the gcsfuse command for configuring this volume.
+Flags should be passed without leading dashes.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 												"read_only": {
 													Type:        schema.TypeBool,
 													Optional:    true,
@@ -3076,6 +3085,8 @@ func flattenCloudRunV2ServiceTemplateVolumesGcs(v interface{}, d *schema.Resourc
 		flattenCloudRunV2ServiceTemplateVolumesGcsBucket(original["bucket"], d, config)
 	transformed["read_only"] =
 		flattenCloudRunV2ServiceTemplateVolumesGcsReadOnly(original["readOnly"], d, config)
+	transformed["mount_options"] =
+		flattenCloudRunV2ServiceTemplateVolumesGcsMountOptions(original["mountOptions"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceTemplateVolumesGcsBucket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3083,6 +3094,10 @@ func flattenCloudRunV2ServiceTemplateVolumesGcsBucket(v interface{}, d *schema.R
 }
 
 func flattenCloudRunV2ServiceTemplateVolumesGcsReadOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateVolumesGcsMountOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5018,6 +5033,13 @@ func expandCloudRunV2ServiceTemplateVolumesGcs(v interface{}, d tpgresource.Terr
 		transformed["readOnly"] = transformedReadOnly
 	}
 
+	transformedMountOptions, err := expandCloudRunV2ServiceTemplateVolumesGcsMountOptions(original["mount_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMountOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mountOptions"] = transformedMountOptions
+	}
+
 	return transformed, nil
 }
 
@@ -5026,6 +5048,10 @@ func expandCloudRunV2ServiceTemplateVolumesGcsBucket(v interface{}, d tpgresourc
 }
 
 func expandCloudRunV2ServiceTemplateVolumesGcsReadOnly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateVolumesGcsMountOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
