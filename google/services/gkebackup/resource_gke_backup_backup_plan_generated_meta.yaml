@@ -12,6 +12,8 @@ fields:
   - field: 'backup_config.permissive_mode'
   - field: 'backup_config.selected_applications.namespaced_names.name'
   - field: 'backup_config.selected_applications.namespaced_names.namespace'
+  - field: 'backup_config.selected_namespace_labels.resource_labels.key'
+  - field: 'backup_config.selected_namespace_labels.resource_labels.value'
   - field: 'backup_config.selected_namespaces.namespaces'
   - field: 'backup_schedule.cron_schedule'
   - field: 'backup_schedule.paused'

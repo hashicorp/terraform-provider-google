@@ -148,6 +148,43 @@ resource "google_kms_key_ring" "key_ring" {
   location = "us-central1"
 }
 ```
+## Example Usage - Gkebackup Backupplan Nslabels
+
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "nslabels-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "my-project-name.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = true
+  network       = "default"
+  subnetwork    = "default"
+}
+
+resource "google_gke_backup_backup_plan" "nslabels" {
+  name = "nslabels-plan"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    selected_namespace_labels {
+      resource_labels {
+        key = "key1"
+        value ="value1"
+     }
+    }
+  }
+}
+```
 ## Example Usage - Gkebackup Backupplan Full
 
 
@@ -624,6 +661,11 @@ The following arguments are supported:
   A list of namespaced Kubernetes Resources.
   Structure is [documented below](#nested_backup_config_selected_applications).
 
+* `selected_namespace_labels` -
+  (Optional)
+  If set, include just the resources in the listed namespace Labels.
+  Structure is [documented below](#nested_backup_config_selected_namespace_labels).
+
 * `permissive_mode` -
   (Optional)
   This flag specifies whether Backups will not fail when
@@ -660,6 +702,24 @@ The following arguments are supported:
 * `name` -
   (Required)
   The name of a Kubernetes Resource.
+
+<a name="nested_backup_config_selected_namespace_labels"></a>The `selected_namespace_labels` block supports:
+
+* `resource_labels` -
+  (Required)
+  A list of Kubernetes Namespace labels.
+  Structure is [documented below](#nested_backup_config_selected_namespace_labels_resource_labels).
+
+
+<a name="nested_backup_config_selected_namespace_labels_resource_labels"></a>The `resource_labels` block supports:
+
+* `key` -
+  (Required)
+  The key of the kubernetes label.
+
+* `value` -
+  (Required)
+  The value of the Label.
 
 ## Attributes Reference
 
