@@ -324,6 +324,82 @@ you won't be able to send request to the shared DNS
 							Description: `The user-specified display name of the endpoint. If not set, a
 default name will be used.`,
 						},
+						"private_service_connect_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The configuration for Private Service Connect (PSC).`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable_private_service_connect": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Required. If true, expose the IndexEndpoint via private service connect.`,
+									},
+									"project_allowlist": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `A list of Projects from which the forwarding rule will target the service attachment.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"psc_automation_configs": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `PSC config that is used to automatically create PSC endpoints in the user projects.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"network": {
+													Type:     schema.TypeString,
+													Required: true,
+													ForceNew: true,
+													Description: `Required. The full name of the Google Compute Engine network.
+Format: projects/{project}/global/networks/{network}.`,
+												},
+												"project_id": {
+													Type:        schema.TypeString,
+													Required:    true,
+													ForceNew:    true,
+													Description: `Required. Project id used to create forwarding rule.`,
+												},
+												"error_message": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Output only. Error message if the PSC service automation failed.`,
+												},
+												"forwarding_rule": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Output only. Forwarding rule created by the PSC service automation.`,
+												},
+												"ip_address": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Output only. IP address rule created by the PSC service automation.`,
+												},
+												"state": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Output only. The state of the PSC service automation.`,
+												},
+											},
+										},
+									},
+									"service_attachment": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `Output only. The name of the generated service attachment resource.
+This is only populated if the endpoint is deployed with PrivateServiceConnect.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -2707,6 +2783,8 @@ func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfig(v interface{
 		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigEndpointDisplayName(original["endpointDisplayName"], d, config)
 	transformed["dedicated_endpoint_enabled"] =
 		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigDedicatedEndpointEnabled(original["dedicatedEndpointEnabled"], d, config)
+	transformed["private_service_connect_config"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfig(original["privateServiceConnectConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigEndpointDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2714,6 +2792,84 @@ func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigEndpointDispl
 }
 
 func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigDedicatedEndpointEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_private_service_connect"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enablePrivateServiceConnect"], d, config)
+	transformed["project_allowlist"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigProjectAllowlist(original["projectAllowlist"], d, config)
+	transformed["psc_automation_configs"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(original["pscAutomationConfigs"], d, config)
+	transformed["service_attachment"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigServiceAttachment(original["serviceAttachment"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigEnablePrivateServiceConnect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigProjectAllowlist(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["project_id"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsProjectId(original["projectId"], d, config)
+	transformed["network"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsNetwork(original["network"], d, config)
+	transformed["ip_address"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsIpAddress(original["ipAddress"], d, config)
+	transformed["forwarding_rule"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(original["forwardingRule"], d, config)
+	transformed["state"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsState(original["state"], d, config)
+	transformed["error_message"] =
+		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(original["errorMessage"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4130,6 +4286,13 @@ func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfig(v interface{}
 		transformed["dedicatedEndpointEnabled"] = transformedDedicatedEndpointEnabled
 	}
 
+	transformedPrivateServiceConnectConfig, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfig(original["private_service_connect_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrivateServiceConnectConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["privateServiceConnectConfig"] = transformedPrivateServiceConnectConfig
+	}
+
 	return transformed, nil
 }
 
@@ -4138,6 +4301,136 @@ func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigEndpointDispla
 }
 
 func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigDedicatedEndpointEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnablePrivateServiceConnect, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enable_private_service_connect"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnablePrivateServiceConnect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enablePrivateServiceConnect"] = transformedEnablePrivateServiceConnect
+	}
+
+	transformedProjectAllowlist, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigProjectAllowlist(original["project_allowlist"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectAllowlist); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["projectAllowlist"] = transformedProjectAllowlist
+	}
+
+	transformedPscAutomationConfigs, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(original["psc_automation_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPscAutomationConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pscAutomationConfigs"] = transformedPscAutomationConfigs
+	}
+
+	transformedServiceAttachment, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigServiceAttachment(original["service_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAttachment"] = transformedServiceAttachment
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigEnablePrivateServiceConnect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigProjectAllowlist(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedProjectId, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
+	transformedNetwork, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsNetwork(original["network"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["network"] = transformedNetwork
+	}
+
+	transformedIpAddress, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsIpAddress(original["ip_address"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIpAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ipAddress"] = transformedIpAddress
+	}
+
+	transformedForwardingRule, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(original["forwarding_rule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedForwardingRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["forwardingRule"] = transformedForwardingRule
+	}
+
+	transformedState, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsState(original["state"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["state"] = transformedState
+	}
+
+	transformedErrorMessage, err := expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(original["error_message"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedErrorMessage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["errorMessage"] = transformedErrorMessage
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigServiceAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
