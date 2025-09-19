@@ -31,9 +31,19 @@ import (
 
 var IamBigtableTableSchema = map[string]*schema.Schema{
 	"instance": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:         schema.TypeString,
+		Optional:     true,
+		Computed:     true,
+		ForceNew:     true,
+		ExactlyOneOf: []string{"instance", "instance_name"},
+		Deprecated:   "`instance` is deprecated in favor of `instance_name`",
+	},
+	"instance_name": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		Computed:     true,
+		ForceNew:     true,
+		ExactlyOneOf: []string{"instance", "instance_name"},
 	},
 	"project": {
 		Type:     schema.TypeString,
@@ -49,11 +59,12 @@ var IamBigtableTableSchema = map[string]*schema.Schema{
 }
 
 type BigtableTableIamUpdater struct {
-	project  string
-	instance string
-	table    string
-	d        tpgresource.TerraformResourceData
-	Config   *transport_tpg.Config
+	project      string
+	instance     string
+	instanceName string
+	table        string
+	d            tpgresource.TerraformResourceData
+	Config       *transport_tpg.Config
 }
 
 func NewBigtableTableUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
@@ -66,12 +77,26 @@ func NewBigtableTableUpdater(d tpgresource.TerraformResourceData, config *transp
 		return nil, fmt.Errorf("Error setting project: %s", err)
 	}
 
+	instance := d.Get("instance").(string)
+	if instance == "" {
+		instance = d.Get("instance_name").(string)
+	}
+
+	if err := d.Set("instance", instance); err != nil {
+		return nil, fmt.Errorf("Error setting instance: %s", err)
+	}
+
+	if err := d.Set("instance_name", instance); err != nil {
+		return nil, fmt.Errorf("Error setting instance_name: %s", err)
+	}
+
 	return &BigtableTableIamUpdater{
-		project:  project,
-		instance: d.Get("instance").(string),
-		table:    d.Get("table").(string),
-		d:        d,
-		Config:   config,
+		project:      project,
+		instance:     instance,
+		instanceName: instance,
+		table:        d.Get("table").(string),
+		d:            d,
+		Config:       config,
 	}, nil
 }
 
@@ -95,6 +120,10 @@ func BigtableTableIdParseFunc(d *schema.ResourceData, config *transport_tpg.Conf
 
 	if err := d.Set("instance", values["instance"]); err != nil {
 		return fmt.Errorf("Error setting instance: %s", err)
+	}
+
+	if err := d.Set("instance_name", values["instance"]); err != nil {
+		return fmt.Errorf("Error setting instance_name: %s", err)
 	}
 
 	if err := d.Set("table", values["table"]); err != nil {

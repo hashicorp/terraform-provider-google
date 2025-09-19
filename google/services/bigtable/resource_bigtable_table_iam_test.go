@@ -57,6 +57,20 @@ func TestAccBigtableTableIamBinding(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				// Test IAM Binding - Update instance to instance_name
+				Config: testAccBigtableTableIamBinding_basicUpdateName(instance, cluster, account, role),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_bigtable_table_iam_binding.binding", "role", role),
+				),
+			},
+			{
+				ResourceName:      "google_bigtable_table_iam_binding.binding",
+				ImportStateId:     importId,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				// Test IAM Binding update
 				Config: testAccBigtableTableIamBinding_update(instance, cluster, account, role),
 			},
@@ -107,6 +121,38 @@ func TestAccBigtableTableIamMember(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				// Test IAM Binding - Update instance to instance_name
+				Config: testAccBigtableTableIamMember_updateName(instance, cluster, account, role),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_bigtable_table_iam_member.member", "role", role),
+					resource.TestCheckResourceAttr(
+						"google_bigtable_table_iam_member.member", "member", "serviceAccount:"+envvar.ServiceAccountCanonicalEmail(account)),
+				),
+			},
+			{
+				ResourceName:      "google_bigtable_table_iam_member.member",
+				ImportStateId:     importId,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Test IAM Binding - Update instance_name to instance
+				Config: testAccBigtableTableIamMember(instance, cluster, account, role),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_bigtable_table_iam_member.member", "role", role),
+					resource.TestCheckResourceAttr(
+						"google_bigtable_table_iam_member.member", "member", "serviceAccount:"+envvar.ServiceAccountCanonicalEmail(account)),
+				),
+			},
+			{
+				ResourceName:      "google_bigtable_table_iam_member.member",
+				ImportStateId:     importId,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -139,6 +185,28 @@ func TestAccBigtableTableIamPolicy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				// Test IAM Binding - Update instance to instance_name
+				Config: testAccBigtableTableIamPolicy_updateName(instance, cluster, account, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_bigtable_table_iam_policy.policy", "policy_data"),
+			},
+			{
+				ResourceName:      "google_bigtable_table_iam_policy.policy",
+				ImportStateId:     importId,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Test IAM Binding - Update instance to instance_name
+				Config: testAccBigtableTableIamPolicy(instance, cluster, account, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_bigtable_table_iam_policy.policy", "policy_data"),
+			},
+			{
+				ResourceName:      "google_bigtable_table_iam_policy.policy",
+				ImportStateId:     importId,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -157,6 +225,29 @@ resource "google_service_account" "test-account2" {
 
 resource "google_bigtable_table_iam_binding" "binding" {
   instance = google_bigtable_instance.instance.name
+  table    = google_bigtable_table.table.name
+  role     = "%s"
+  members  = [
+    "serviceAccount:${google_service_account.test-account1.email}",
+  ]
+}
+`, instance, cluster, cluster, account, account, role)
+}
+
+func testAccBigtableTableIamBinding_basicUpdateName(instance, cluster, account, role string) string {
+	return fmt.Sprintf(testBigtableTableIam+`
+resource "google_service_account" "test-account1" {
+  account_id   = "%s-1"
+  display_name = "Bigtable Table IAM Testing Account"
+}
+
+resource "google_service_account" "test-account2" {
+  account_id   = "%s-2"
+  display_name = "Bigtable Table Iam Testing Account"
+}
+
+resource "google_bigtable_table_iam_binding" "binding" {
+  instance_name = google_bigtable_instance.instance.name
   table    = google_bigtable_table.table.name
   role     = "%s"
   members  = [
@@ -206,6 +297,22 @@ resource "google_bigtable_table_iam_member" "member" {
 `, instance, cluster, cluster, account, role)
 }
 
+func testAccBigtableTableIamMember_updateName(instance, cluster, account, role string) string {
+	return fmt.Sprintf(testBigtableTableIam+`
+resource "google_service_account" "test-account" {
+  account_id   = "%s"
+  display_name = "Bigtable Table IAM Testing Account"
+}
+
+resource "google_bigtable_table_iam_member" "member" {
+  instance_name = google_bigtable_instance.instance.name
+  table    = google_bigtable_table.table.name
+  role     = "%s"
+  member   = "serviceAccount:${google_service_account.test-account.email}"
+}
+`, instance, cluster, cluster, account, role)
+}
+
 func testAccBigtableTableIamPolicy(instance, cluster, account, role string) string {
 	return fmt.Sprintf(testBigtableTableIam+`
 resource "google_service_account" "test-account" {
@@ -222,6 +329,34 @@ data "google_iam_policy" "policy" {
 
 resource "google_bigtable_table_iam_policy" "policy" {
   instance    = google_bigtable_instance.instance.name
+  table       = google_bigtable_table.table.name
+  policy_data = data.google_iam_policy.policy.policy_data
+}
+
+data "google_bigtable_table_iam_policy" "policy" {
+  instance_name    = google_bigtable_instance.instance.name
+  table       = google_bigtable_table.table.name
+}
+
+`, instance, cluster, cluster, account, role)
+}
+
+func testAccBigtableTableIamPolicy_updateName(instance, cluster, account, role string) string {
+	return fmt.Sprintf(testBigtableTableIam+`
+resource "google_service_account" "test-account" {
+  account_id   = "%s"
+  display_name = "Bigtable Table IAM Testing Account"
+}
+
+data "google_iam_policy" "policy" {
+  binding {
+    role    = "%s"
+    members = ["serviceAccount:${google_service_account.test-account.email}"]
+  }
+}
+
+resource "google_bigtable_table_iam_policy" "policy" {
+  instance_name    = google_bigtable_instance.instance.name
   table       = google_bigtable_table.table.name
   policy_data = data.google_iam_policy.policy.policy_data
 }
