@@ -216,7 +216,7 @@ The following arguments are supported:
 
 * `steps` -
   (Required)
-  List of approval steps in this workflow. These steps would be followed in the specified order sequentially.  1 step is supported for now.
+  List of approval steps in this workflow. These steps would be followed in the specified order sequentially.
   Structure is [documented below](#nested_approval_workflow_manual_approvals_steps).
 
 
@@ -237,6 +237,10 @@ The following arguments are supported:
 * `approver_email_recipients` -
   (Optional)
   Optional. Additional email addresses to be notified when a grant is pending approval.
+
+* `id` -
+  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Output Only. The ID of the approval step.
 
 
 <a name="nested_approval_workflow_manual_approvals_steps_steps_approvers"></a>The `approvers` block supports:

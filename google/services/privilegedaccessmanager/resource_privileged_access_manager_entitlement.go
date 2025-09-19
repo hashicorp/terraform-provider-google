@@ -256,7 +256,7 @@ A single user might be part of 'approvers' ACL for multiple steps in this workfl
 									"steps": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: `List of approval steps in this workflow. These steps would be followed in the specified order sequentially.  1 step is supported for now.`,
+										Description: `List of approval steps in this workflow. These steps would be followed in the specified order sequentially.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"approvers": {
