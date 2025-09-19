@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudrunv2: added `startup_probe` and `liveness_probe` to `google_cloud_run_v2_worker_pool` resource
+```
