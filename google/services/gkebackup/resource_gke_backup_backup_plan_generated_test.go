@@ -230,6 +230,72 @@ resource "google_kms_key_ring" "key_ring" {
 `, context)
 }
 
+func TestAccGKEBackupBackupPlan_gkebackupBackupplanNslabelsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEBackupBackupPlanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEBackupBackupPlan_gkebackupBackupplanNslabelsExample(context),
+			},
+			{
+				ResourceName:            "google_gke_backup_backup_plan.nslabels",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEBackupBackupPlan_gkebackupBackupplanNslabelsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "tf-test-nslabels-cluster%{random_suffix}"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "%{project}.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = %{deletion_protection}
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
+}
+
+resource "google_gke_backup_backup_plan" "nslabels" {
+  name = "tf-test-nslabels-plan%{random_suffix}"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    selected_namespace_labels {
+      resource_labels {
+        key = "key1"
+        value ="value1"
+     }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(t *testing.T) {
 	t.Parallel()
 
