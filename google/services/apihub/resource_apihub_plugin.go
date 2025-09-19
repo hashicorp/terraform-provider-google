@@ -125,6 +125,7 @@ NON_API_HUB_MANAGED`,
 			},
 			"config_template": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `ConfigTemplate represents the configuration template for a plugin.`,
