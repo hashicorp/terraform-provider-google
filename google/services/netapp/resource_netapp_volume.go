@@ -248,9 +248,12 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 							Description: `Required. Name of the user's local source cluster to be peered with the destination cluster.`,
 						},
 						"peer_ip_addresses": {
-							Type:        schema.TypeString,
+							Type:        schema.TypeList,
 							Optional:    true,
 							Description: `Required. List of node ip addresses to be peered with.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 						"peer_svm_name": {
 							Type:        schema.TypeString,
