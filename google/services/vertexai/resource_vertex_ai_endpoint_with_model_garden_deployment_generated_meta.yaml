@@ -28,6 +28,15 @@ fields:
     provider_only: true
   - field: 'endpoint_config.dedicated_endpoint_enabled'
   - field: 'endpoint_config.endpoint_display_name'
+  - field: 'endpoint_config.private_service_connect_config.enable_private_service_connect'
+  - field: 'endpoint_config.private_service_connect_config.project_allowlist'
+  - field: 'endpoint_config.private_service_connect_config.psc_automation_configs.error_message'
+  - field: 'endpoint_config.private_service_connect_config.psc_automation_configs.forwarding_rule'
+  - field: 'endpoint_config.private_service_connect_config.psc_automation_configs.ip_address'
+  - field: 'endpoint_config.private_service_connect_config.psc_automation_configs.network'
+  - field: 'endpoint_config.private_service_connect_config.psc_automation_configs.project_id'
+  - field: 'endpoint_config.private_service_connect_config.psc_automation_configs.state'
+  - field: 'endpoint_config.private_service_connect_config.service_attachment'
   - field: 'hugging_face_model_id'
   - field: 'location'
     provider_only: true
