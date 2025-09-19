@@ -1,0 +1,3 @@
+```release-note:bug
+apihub: fixed permadiff on `config_template` in `google_apihub_plugin` resource
+```
