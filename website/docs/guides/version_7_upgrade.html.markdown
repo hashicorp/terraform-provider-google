@@ -155,19 +155,19 @@ The `view.use_legacy_sql` field no longer has a default value. Configurations th
 
 ### `instance` is now removed
 
-`instance` has been removed in favor of `instance_name`.
+`instance` has been removed in favor of `instance_name`. It is recommended to upgrade to v6.50.0+ and switch from `instance` to `instance_name` in your configuration before upgrading to v7.0.0+.
 
 ## Resource: `google_bigtable_table_iam_member`
 
 ### `instance` is now removed
 
-`instance` has been removed in favor of `instance_name`.
+`instance` has been removed in favor of `instance_name`. It is recommended to upgrade to v6.50.0+ and switch from `instance` to `instance_name` in your configuration before upgrading to v7.0.0+.
 
 ## Resource: `google_bigtable_table_iam_policy`
 
 ### `instance` is now removed
 
-`instance` has been removed in favor of `instance_name`.
+`instance` has been removed in favor of `instance_name`. It is recommended to upgrade to v6.50.0+ and switch from `instance` to `instance_name` in your configuration before upgrading to v7.0.0+.
 
 ## Resource: `google_billing_budget`
 
