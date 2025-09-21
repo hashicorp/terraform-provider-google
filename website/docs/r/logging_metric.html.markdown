@@ -132,7 +132,7 @@ resource "google_logging_project_bucket_config" "logging_metric" {
 resource "google_logging_metric" "logging_metric" {
   name        = "my-(custom)/metric"
   filter      = "resource.type=gae_app AND severity>=ERROR"
-  bucket_name = google_logging_project_bucket_config.logging_metric.id
+  bucket_name = google_logging_project_bucket_config.logging_metric.name
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
