@@ -49,7 +49,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushExample(t *testing.T) {
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -101,7 +101,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -158,7 +158,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullFilterExample(t *testing.T)
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -207,7 +207,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T)
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -264,7 +264,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqExample(t *testing.T) {
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -340,7 +340,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqTableSchemaExample(t *tes
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -407,7 +407,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqServiceAccountExample(t *
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -496,7 +496,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageExample(t *test
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -565,7 +565,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageAvroExample(t *
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -639,7 +639,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageServiceAccountE
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -715,7 +715,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionSingleSmtExample(t *testing.T) 
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -765,7 +765,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionMultipleSmtsExample(t *testing.
 				ResourceName:            "google_pubsub_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
 			},
 		},
 	})
@@ -813,6 +813,59 @@ EOF
       code = "..."
     }
   }
+}
+`, context)
+}
+
+func TestAccPubsubSubscription_pubsubSubscriptionTagsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_pubsubSubscriptionTagsExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+		},
+	})
+}
+
+func testAccPubsubSubscription_pubsubSubscriptionTagsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "tf-test-example-subscription%{random_suffix}"
+  topic = google_pubsub_topic.example.id
+  tags = {
+    (google_tags_tag_key.tag_key.namespaced_name) = google_tags_tag_value.tag_value.short_name
+  }
+}
+
+data "google_project" "project" {}
+
+resource "google_tags_tag_key" "tag_key" {
+  parent     = data.google_project.project.id
+  short_name = "tf_test_tag_key%{random_suffix}"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+  parent     = google_tags_tag_key.tag_key.id
+  short_name = "tf_test_tag_value%{random_suffix}"
 }
 `, context)
 }

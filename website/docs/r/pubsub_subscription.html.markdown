@@ -562,6 +562,39 @@ EOF
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_subscription_tags&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Subscription Tags
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.id
+  tags = {
+    (google_tags_tag_key.tag_key.namespaced_name) = google_tags_tag_value.tag_value.short_name
+  }
+}
+
+data "google_project" "project" {}
+
+resource "google_tags_tag_key" "tag_key" {
+  parent     = data.google_project.project.id
+  short_name = "tag_key"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+  parent     = google_tags_tag_key.tag_key.id
+  short_name = "tag_value"
+}
+```
 
 ## Argument Reference
 
@@ -699,6 +732,17 @@ The following arguments are supported:
   Transforms to be applied to messages published to the topic. Transforms are applied in the
   order specified.
   Structure is [documented below](#nested_message_transforms).
+
+* `tags` -
+  (Optional)
+  Input only. Resource manager tags to be bound to the subscription. Tag
+  keys and values have the same definition as resource manager tags. Keys
+  must be in the format tagKeys/{tag_key_id}, and values are in the format
+  tagValues/456. The field is ignored when empty. The field is immutable and
+  causes resource replacement when mutated. This field is only set at create
+  time and modifying this field after creation will trigger recreation. To
+  apply tags to an existing resource, see the `google_tags_tag_value`
+  resource.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

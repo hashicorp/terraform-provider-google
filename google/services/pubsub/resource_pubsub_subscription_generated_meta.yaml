@@ -45,6 +45,7 @@ fields:
   - field: 'retain_acked_messages'
   - field: 'retry_policy.maximum_backoff'
   - field: 'retry_policy.minimum_backoff'
+  - field: 'tags'
   - field: 'terraform_labels'
     provider_only: true
   - field: 'topic'

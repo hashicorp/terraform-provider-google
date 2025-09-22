@@ -50,7 +50,7 @@ func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -89,7 +89,7 @@ func TestAccPubsubTopic_pubsubTopicGeoRestrictedExample(t *testing.T) {
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -130,7 +130,7 @@ func TestAccPubsubTopic_pubsubTopicSchemaSettingsExample(t *testing.T) {
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -175,7 +175,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionKinesisExample(t *testing.T) {
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -218,7 +218,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionCloudStorageExample(t *testing.T) {
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -266,7 +266,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionAzureEventHubsExample(t *testing.T) 
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -312,7 +312,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionAwsMskExample(t *testing.T) {
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -355,7 +355,7 @@ func TestAccPubsubTopic_pubsubTopicIngestionConfluentCloudExample(t *testing.T) 
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -399,7 +399,7 @@ func TestAccPubsubTopic_pubsubTopicSingleSmtExample(t *testing.T) {
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -444,7 +444,7 @@ func TestAccPubsubTopic_pubsubTopicMultipleSmtsExample(t *testing.T) {
 				ResourceName:            "google_pubsub_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
 			},
 		},
 	})
@@ -487,6 +487,54 @@ EOF
       code = "..."
     }
   }
+}
+`, context)
+}
+
+func TestAccPubsubTopic_pubsubTopicTagsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubTopicDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubTopic_pubsubTopicTagsExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_topic.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccPubsubTopic_pubsubTopicTagsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+  tags = {
+    (google_tags_tag_key.tag_key.namespaced_name) = google_tags_tag_value.tag_value.short_name
+  }
+}
+
+data "google_project" "project" {}
+
+resource "google_tags_tag_key" "tag_key" {
+  parent     = data.google_project.project.id
+  short_name = "tf_test_tag_key%{random_suffix}"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+  parent     = google_tags_tag_key.tag_key.id
+  short_name = "tf_test_tag_value%{random_suffix}"
 }
 `, context)
 }
