@@ -131,6 +131,9 @@ resource "google_discovery_engine_search_engine" "basic" {
     search_tier = "SEARCH_TIER_STANDARD"
     search_add_ons = ["SEARCH_ADD_ON_LLM"]
   }
+  features = {
+    feedback = "FEATURE_STATE_OFF"
+  }
 }
 `, context)
 }
