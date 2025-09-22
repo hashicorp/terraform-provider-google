@@ -350,26 +350,11 @@ func ExpandStoragePoolUrl(v interface{}, d tpgresource.TerraformResourceData, co
 	return replacedStr, nil
 }
 
-type ListResource interface {
-	list.ListResourceWithConfigure
-}
 
+var _ tpgresource.ListResourceWithRawV5Schemas = &ComputeDiskListResource{}
 
-type ListResourceWithRawV5Schemas interface {
-	ListResource
-
-	list.ListResourceWithRawV5Schemas
-}
-
-var _ ListResourceWithRawV5Schemas = &ComputeDiskListResource{}
-
-type ComputeDiskListResource struct {
-	ListResourceWithRawV5Schemas
-
-	Client *transport_tpg.Config
-	ProjectId string
-	Region string
-	Zone string
+type ComputeDiskListResource struct{
+	tpgresource.ListResourceMetadata
 }
 
 func NewComputeDiskListResource() list.ListResource {
@@ -436,10 +421,6 @@ func (r *ComputeDiskListResource) List(ctx context.Context, req list.ListRequest
 		return
 	}
 
-	if r.Client == nil {
-		return
-	}
-
 	project := data.Project
 	if project == "" {
 		project = r.Client.Project
@@ -448,11 +429,6 @@ func (r *ComputeDiskListResource) List(ctx context.Context, req list.ListRequest
 	zone := data.Zone
 	if zone == "" {
 		zone = r.Client.Zone
-	}
-
-	if zone == "" {
-	
-		return
 	}
 
 	stream.Results = func(push func(list.ListResult) bool) {
@@ -466,8 +442,6 @@ func (r *ComputeDiskListResource) List(ctx context.Context, req list.ListRequest
 
 		if err := listReq.Pages(ctx, func(page *compute.DiskList) error {
 			for _, computeDisk := range page.Items {
-				fmt.Printf("list() - computeDisk: %v\n", computeDisk.Name)
-
 				result := req.NewListResult(ctx)
 				result.DisplayName = computeDisk.Name
 
