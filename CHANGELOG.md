@@ -25,6 +25,17 @@ BUG FIXES:
 * netapp: updated `google_netapp_storage_pool` to source the default value for the `qos_type` field from the API. If not specified in the configuration, `qos_type` will now default to the value provided by the NetApp Volumes API. ([#24394](https://github.com/hashicorp/terraform-provider-google/pull/24394))
 * workbench: added retry for `unable to queue the operation` 409 errors in `google_workbench_instance` resource. ([#24392](https://github.com/hashicorp/terraform-provider-google/pull/24392))
 
+## 6.50.0 (September 19, 2025)
+
+NOTES:
+* bigtable: It is recommended for `google_bigtable_table_iam_*` resources to upgrade to v6.50.0 and switch from `instance` to `instance_name` in your configuration before upgrading to v7.X ([#24400](https://github.com/hashicorp/terraform-provider-google/pull/24400))
+
+DEPRECATIONS:
+* bigtable: deprecated `instance` in favor of `instance_name` in `google_bigtable_table_iam_*` resources ([#24400](https://github.com/hashicorp/terraform-provider-google/pull/24400))
+
+IMPROVEMENTS:
+* bigtable: added `instance_name` field to `google_bigtable_table_iam_*` resources ([#24400](https://github.com/hashicorp/terraform-provider-google/pull/24400))
+
 ## 7.3.0 (September 16, 2025)
 
 FEATURES:
