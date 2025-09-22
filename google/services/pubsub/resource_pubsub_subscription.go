@@ -596,6 +596,20 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 					},
 				},
 			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `Input only. Resource manager tags to be bound to the subscription. Tag
+keys and values have the same definition as resource manager tags. Keys
+must be in the format tagKeys/{tag_key_id}, and values are in the format
+tagValues/456. The field is ignored when empty. The field is immutable and
+causes resource replacement when mutated. This field is only set at create
+time and modifying this field after creation will trigger recreation. To
+apply tags to an existing resource, see the 'google_tags_tag_value'
+resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -717,6 +731,12 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("message_transforms"); !tpgresource.IsEmptyValue(reflect.ValueOf(messageTransformsProp)) && (ok || !reflect.DeepEqual(v, messageTransformsProp)) {
 		obj["messageTransforms"] = messageTransformsProp
+	}
+	tagsProp, err := expandPubsubSubscriptionTags(d.Get("tags"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(tagsProp)) && (ok || !reflect.DeepEqual(v, tagsProp)) {
+		obj["tags"] = tagsProp
 	}
 	effectiveLabelsProp, err := expandPubsubSubscriptionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -2168,6 +2188,17 @@ func expandPubsubSubscriptionMessageTransformsJavascriptUdfCode(v interface{}, d
 
 func expandPubsubSubscriptionMessageTransformsDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandPubsubSubscriptionTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandPubsubSubscriptionEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

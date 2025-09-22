@@ -45,5 +45,6 @@ fields:
   - field: 'name'
   - field: 'schema_settings.encoding'
   - field: 'schema_settings.schema'
+  - field: 'tags'
   - field: 'terraform_labels'
     provider_only: true
