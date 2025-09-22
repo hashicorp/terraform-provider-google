@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_eventarc_message_bus'
 generation_type: 'mmv1'
 source_file: 'products/eventarc/MessageBus.yaml'

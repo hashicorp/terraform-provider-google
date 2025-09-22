@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_scc_management_organization_security_health_analytics_custom_module'
 generation_type: 'mmv1'
 source_file: 'products/securitycentermanagement/OrganizationSecurityHealthAnalyticsCustomModule.yaml'

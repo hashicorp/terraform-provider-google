@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_bigquery_table'
 generation_type: 'handwritten'
 api_service_name: 'bigquery.googleapis.com'

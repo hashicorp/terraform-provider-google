@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_storage_default_object_acl'
 generation_type: 'handwritten'
 api_service_name: 'storage.googleapis.com'

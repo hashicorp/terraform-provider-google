@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_resource_manager_lien'
 generation_type: 'mmv1'
 source_file: 'products/resourcemanager/Lien.yaml'

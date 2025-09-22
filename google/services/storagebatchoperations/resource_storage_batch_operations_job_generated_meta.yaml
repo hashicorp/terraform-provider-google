@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_storage_batch_operations_job'
 generation_type: 'mmv1'
 source_file: 'products/storagebatchoperations/Job.yaml'

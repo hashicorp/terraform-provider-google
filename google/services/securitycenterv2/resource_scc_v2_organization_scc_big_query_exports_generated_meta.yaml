@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_scc_v2_organization_scc_big_query_exports'
 generation_type: 'mmv1'
 source_file: 'products/securitycenterv2/OrganizationSccBigQueryExports.yaml'

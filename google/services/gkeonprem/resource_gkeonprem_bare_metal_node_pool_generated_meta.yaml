@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_gkeonprem_bare_metal_node_pool'
 generation_type: 'mmv1'
 source_file: 'products/gkeonprem/BareMetalNodePool.yaml'

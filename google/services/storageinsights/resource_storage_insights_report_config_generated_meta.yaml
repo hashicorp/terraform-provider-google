@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_storage_insights_report_config'
 generation_type: 'mmv1'
 source_file: 'products/storageinsights/ReportConfig.yaml'

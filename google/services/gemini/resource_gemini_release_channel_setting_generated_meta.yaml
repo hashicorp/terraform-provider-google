@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource: 'google_gemini_release_channel_setting'
 generation_type: 'mmv1'
 source_file: 'products/gemini/ReleaseChannelSetting.yaml'
