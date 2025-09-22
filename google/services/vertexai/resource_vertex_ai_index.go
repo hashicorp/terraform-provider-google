@@ -195,6 +195,23 @@ then existing content of the Index will be replaced by the data from the content
 				Optional:    true,
 				Description: `The description of the Index.`,
 			},
+			"encryption_spec": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Customer-managed encryption key spec for an Index. If set, this Index and all sub-resources of this Index will be secured by this key.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: 'projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key'. The key needs to be in the same region as where the compute resource is created.`,
+						},
+					},
+				},
+			},
 			"index_update_method": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -337,6 +354,12 @@ func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("index_update_method"); !tpgresource.IsEmptyValue(reflect.ValueOf(indexUpdateMethodProp)) && (ok || !reflect.DeepEqual(v, indexUpdateMethodProp)) {
 		obj["indexUpdateMethod"] = indexUpdateMethodProp
+	}
+	encryptionSpecProp, err := expandVertexAIIndexEncryptionSpec(d.Get("encryption_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionSpecProp)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
+		obj["encryptionSpec"] = encryptionSpecProp
 	}
 	effectiveLabelsProp, err := expandVertexAIIndexEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -488,6 +511,9 @@ func resourceVertexAIIndexRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 	if err := d.Set("index_update_method", flattenVertexAIIndexIndexUpdateMethod(res["indexUpdateMethod"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err := d.Set("encryption_spec", flattenVertexAIIndexEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenVertexAIIndexTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1001,6 +1027,23 @@ func flattenVertexAIIndexIndexUpdateMethod(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenVertexAIIndexEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenVertexAIIndexEncryptionSpecKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIIndexEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIIndexTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1219,6 +1262,29 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interfac
 }
 
 func expandVertexAIIndexIndexUpdateMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIIndexEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandVertexAIIndexEncryptionSpecKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIIndexEncryptionSpecKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

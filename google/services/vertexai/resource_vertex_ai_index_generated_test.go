@@ -36,6 +36,7 @@ func TestAccVertexAIIndex_vertexAiIndexExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
+		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -59,6 +60,10 @@ func TestAccVertexAIIndex_vertexAiIndexExample(t *testing.T) {
 
 func testAccVertexAIIndex_vertexAiIndexExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_project_service_identity" "vertexai_sa" {
+  service = "aiplatform.googleapis.com"
+}
+
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-vertex-ai-index-test%{random_suffix}"
   location = "us-central1"
@@ -74,6 +79,12 @@ resource "google_storage_bucket_object" "data" {
 {"id": "42", "embedding": [0.5, 1.0], "restricts": [{"namespace": "class", "allow": ["cat", "pet"]},{"namespace": "category", "allow": ["feline"]}]}
 {"id": "43", "embedding": [0.6, 1.0], "restricts": [{"namespace": "class", "allow": ["dog", "pet"]},{"namespace": "category", "allow": ["canine"]}]}
 EOF
+}
+
+resource "google_kms_crypto_key_iam_member" "vertexai_encrypterdecrypter" {
+  crypto_key_id = "%{kms_key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        =  google_project_service_identity.vertexai_sa.member
 }
 
 resource "google_vertex_ai_index" "index" {
@@ -98,7 +109,14 @@ resource "google_vertex_ai_index" "index" {
       }
     }
   }
+  encryption_spec {
+  kms_key_name = "%{kms_key_name}"
+  }
   index_update_method = "BATCH_UPDATE"
+
+  depends_on = [
+  google_kms_crypto_key_iam_member.vertexai_encrypterdecrypter,
+  ]
 }
 `, context)
 }
@@ -108,6 +126,7 @@ func TestAccVertexAIIndex_vertexAiIndexStreamingExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
+		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
