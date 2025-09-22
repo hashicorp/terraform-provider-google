@@ -135,6 +135,10 @@ The following arguments are supported:
   This is the application type this engine resource represents.
   The supported values: 'APP_TYPE_UNSPECIFIED', 'APP_TYPE_INTRANET'.
 
+* `features` -
+  (Optional)
+  A map of the feature config for the engine to opt in or opt out of features.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
