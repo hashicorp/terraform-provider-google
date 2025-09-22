@@ -1,0 +1,26 @@
+resource: 'google_managed_kafka_connect_cluster'
+generation_type: 'mmv1'
+source_file: 'products/managedkafka/ConnectCluster.yaml'
+api_service_name: 'managedkafka.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'ConnectCluster'
+fields:
+  - field: 'capacity_config.memory_bytes'
+  - field: 'capacity_config.vcpu_count'
+  - field: 'connect_cluster_id'
+    provider_only: true
+  - field: 'create_time'
+  - field: 'effective_labels'
+    provider_only: true
+  - field: 'gcp_config.access_config.network_configs.additional_subnets'
+  - field: 'gcp_config.access_config.network_configs.dns_domain_names'
+  - field: 'gcp_config.access_config.network_configs.primary_subnet'
+  - field: 'kafka_cluster'
+  - field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - field: 'update_time'
