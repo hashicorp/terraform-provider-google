@@ -1,0 +1,3 @@
+```release-note:note
+`google_managed_kafka_connect_cluster` and `google_managed_kafka_connector` (ga)
+```
