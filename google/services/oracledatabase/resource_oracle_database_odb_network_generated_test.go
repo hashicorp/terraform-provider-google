@@ -30,7 +30,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkExample(t *testing.T) {
+func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -46,7 +46,7 @@ func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkExample(t *testing.
 		CheckDestroy:             testAccCheckOracleDatabaseOdbNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkExample(context),
+				Config: testAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkBasicExample(context),
 			},
 			{
 				ResourceName:            "google_oracle_database_odb_network.my-odbnetwork",
@@ -58,13 +58,62 @@ func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkExample(t *testing.
 	})
 }
 
-func testAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkExample(context map[string]interface{}) string {
+func testAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_oracle_database_odb_network" "my-odbnetwork"{
   odb_network_id = "%{odb_network_id}"
   location = "us-west3"
   project = "%{project}"
   network = data.google_compute_network.default.id
+  labels = {
+    terraform_created = "true"
+  }
+  deletion_protection = "%{deletion_protection}"
+}
+
+data "google_compute_network" "default" {
+  name     = "new"
+  project = "%{project}"
+}
+`, context)
+}
+
+func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"odb_network_id":      fmt.Sprintf("tf-test-odbnetwork-full-%s", acctest.RandString(t, 10)),
+		"project":             "oci-terraform-testing-prod",
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOracleDatabaseOdbNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkFullExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_odb_network.my-odbnetwork",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "labels", "location", "odb_network_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkFullExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_oracle_database_odb_network" "my-odbnetwork"{
+  odb_network_id = "%{odb_network_id}"
+  location = "us-west3"
+  project = "%{project}"
+  network = data.google_compute_network.default.id
+  gcp_oracle_zone = "us-west3-a-r1"
   labels = {
     terraform_created = "true"
   }
