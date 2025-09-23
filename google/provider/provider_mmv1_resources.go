@@ -565,7 +565,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 // TODO: LOOK INTO HOW WE'D GENERATE THIS THE LIST OF LISTRESOURCES
 // ListResources
 var generatedListResources = map[string]list.ListResource{
-	"google_compute_disk": compute.NewComputeDiskListResource(),
+	"google_compute_disk":     compute.NewComputeDiskListResource(),
+	"google_compute_instance": compute.NewComputeInstanceListResource(),
 }
 
 // Resources

@@ -371,23 +371,6 @@ func (r *ComputeDiskListResource) RawV5Schemas(ctx context.Context, _ list.RawV5
 	resp.ProtoV5IdentitySchema = computeDisk.ProtoIdentitySchema(ctx)()
 }
 
-func (r *ComputeDiskListResource) Defaults(request resource.ConfigureRequest, response *resource.ConfigureResponse) {
-	if request.ProviderData == nil {
-		return
-	}
-
-	c, ok := request.ProviderData.(*transport_tpg.Config)
-	if !ok {
-		response.Diagnostics.AddError("Client Provider Data Error", "invalid provider data supplied")
-		return
-	}
-
-	r.Client = c
-	r.ProjectId = c.Project
-	r.Region = c.Region
-	r.Zone = c.Zone
-}
-
 func (r *ComputeDiskListResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	r.Defaults(req, resp)
 }

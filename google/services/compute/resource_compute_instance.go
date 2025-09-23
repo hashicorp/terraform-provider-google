@@ -28,10 +28,14 @@ import (
 	"time"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform-plugin-framework/list"
+	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/mitchellh/hashstructure"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -212,6 +216,119 @@ func ComputeInstanceMinCpuPlatformEmptyOrAutomaticDiffSuppress(k, old, new strin
 	return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
 }
 
+var _ tpgresource.ListResourceWithRawV5Schemas = &ComputeInstanceListResource{}
+
+type ComputeInstanceListResource struct {
+	tpgresource.ListResourceMetadata
+}
+
+func NewComputeInstanceListResource() list.ListResource {
+	return &ComputeInstanceListResource{}
+}
+
+func (r *ComputeInstanceListResource) Metadata(_ context.Context, _ resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "google_compute_instance"
+}
+
+func (r *ComputeInstanceListResource) RawV5Schemas(ctx context.Context, _ list.RawV5SchemaRequest, resp *list.RawV5SchemaResponse) {
+	computeInstance := ResourceComputeInstance()
+	resp.ProtoV5Schema = computeInstance.ProtoSchema(ctx)()
+	resp.ProtoV5IdentitySchema = computeInstance.ProtoIdentitySchema(ctx)()
+}
+
+func (r *ComputeInstanceListResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	r.Defaults(req, resp)
+}
+
+func (r *ComputeInstanceListResource) ListResourceConfigSchema(ctx context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
+	resp.Schema = listschema.Schema{
+		Attributes: map[string]listschema.Attribute{
+			"project": listschema.StringAttribute{
+				Optional: true,
+			},
+			"zone": listschema.StringAttribute{
+				Optional: true,
+			},
+		},
+	}
+}
+
+type ComputeInstanceListModel struct {
+	Project string `tfsdk:"project"`
+	Zone    string `tfsdk:"zone"`
+}
+
+func (r *ComputeInstanceListResource) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
+	var data ComputeInstanceListModel
+	diags := req.Config.Get(ctx, &data)
+	if diags.HasError() {
+		stream.Results = list.ListResultsStreamDiagnostics(diags)
+		return
+	}
+
+	project := data.Project
+	if project == "" {
+		project = r.Client.Project
+	}
+
+	zone := data.Zone
+	if zone == "" {
+		zone = r.Client.Zone
+	}
+
+	if zone == "" {
+		diags.AddError("`zone` must be configured", "The `zone` attribute must be set in the list configuration or provider configuration.")
+		stream.Results = list.ListResultsStreamDiagnostics(diags)
+		return
+	}
+
+	stream.Results = func(push func(list.ListResult) bool) {
+		client := r.Client.NewComputeClient(r.Client.UserAgent)
+
+		listReq := client.Instances.List(project, zone)
+
+		if err := listReq.Pages(ctx, func(page *compute.InstanceList) error {
+			log.Printf("[DEBUG] Instance list: %v", page.Items)
+			for _, computeInstance := range page.Items {
+				result := req.NewListResult(ctx)
+				result.DisplayName = computeInstance.Name
+
+				computeInstanceResource := ResourceComputeInstance()
+				rd := computeInstanceResource.Data(&terraform.InstanceState{})
+				rd.SetId(computeInstance.Name)
+
+				// if err := flattenComputeInstance(rd, computeInstance); err != nil {
+				// 	return err // Returning an error stops pagination
+				// }
+
+				tfTypeIdentity, err := rd.TfTypeIdentityState()
+				if err != nil {
+					return err
+				}
+				if err := result.Identity.Set(ctx, *tfTypeIdentity); err != nil {
+					return errors.New("error setting identity")
+				}
+
+				tfTypeResource, err := rd.TfTypeResourceState()
+				if err != nil {
+					return err
+				}
+				if err := result.Resource.Set(ctx, *tfTypeResource); err != nil {
+					return errors.New("error setting resource")
+				}
+
+				if !push(result) {
+					return errors.New("stream closed")
+				}
+			}
+			return nil
+		}); err != nil {
+			diags.AddError("API Error", err.Error())
+		}
+		stream.Results = list.ListResultsStreamDiagnostics(diags)
+	}
+}
+
 func ResourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceCreate,
@@ -234,6 +351,26 @@ func ResourceComputeInstance() *schema.Resource {
 		// A compute instance is more or less a superset of a compute instance
 		// template. Please attempt to maintain consistency with the
 		// resource_compute_instance_template schema when updating this one.
+
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"zone": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"boot_disk": {
 				Type:        schema.TypeList,
@@ -2109,6 +2246,29 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
+
+	identity, err := d.Identity()
+	if err != nil {
+		return fmt.Errorf("Error getting identity: %s", err)
+	}
+	if v, ok := identity.GetOk("name"); ok && v != "" {
+		err = identity.Set("name", d.Get("name").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting name: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("zone"); ok && v != "" {
+		err = identity.Set("zone", d.Get("zone").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting zone: %s", err)
+		}
+	}
+	if v, ok := identity.GetOk("project"); ok && v != "" {
+		err = identity.Set("project", d.Get("project").(string))
+		if err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+	}
 
 	return nil
 }
