@@ -1,4 +1,30 @@
-## 7.4.0 (Unreleased)
+## 7.5.0 (Unreleased)
+
+## 7.4.0 (September 23, 2025)
+
+DEPRECATIONS:
+* compute: deprecated the option to deploy a container during VM creation using the container startup agent in `google_compute_instance`. Use alternative services to run containers on your VMs. Learn more at https://cloud.google.com/compute/docs/containers/migrate-containers. ([#24375](https://github.com/hashicorp/terraform-provider-google/pull/24375))
+
+FEATURES:
+* **New Data Source:** `google_artifact_registry_maven_artifact` ([#24358](https://github.com/hashicorp/terraform-provider-google/pull/24358))
+* **New Data Source:** `google_compute_interconnect_location` ([#24377](https://github.com/hashicorp/terraform-provider-google/pull/24377))
+* **New Resource:** `google_network_services_wasm_plugin` ([#24406](https://github.com/hashicorp/terraform-provider-google/pull/24406))
+* **New Resource:** `google_resource_manager_capability` ([#24404](https://github.com/hashicorp/terraform-provider-google/pull/24404))
+
+IMPROVEMENTS:
+* cloudrunv2: added `mount_options` in gcsfuse volumes for `google_cloud_run_v2_service`, `google_cloud_run_v2_job`, and `google_cloud_run_v2_workerpool` resources. ([#24413](https://github.com/hashicorp/terraform-provider-google/pull/24413))
+* compute: added `cipher_suite` field to `google_compute_vpn_tunnel` resource. ([#24378](https://github.com/hashicorp/terraform-provider-google/pull/24378))
+* container: added `auto_ipam_config` to `google_container_cluster` resource. ([#24396](https://github.com/hashicorp/terraform-provider-google/pull/24396))
+* storage: added support for `timeouts`  to  `google_storage_bucket_iam_binding`, `google_storage_bucket_iam_member`, `google_storage_bucket_iam_policy` resources ([#24376](https://github.com/hashicorp/terraform-provider-google/pull/24376))
+
+BUG FIXES:
+* bigtable: fixed `node_scaling_factor` forcing new instance on `google_bigtable_instance` when adding new cluster ([#24410](https://github.com/hashicorp/terraform-provider-google/pull/24410))
+* cloudscheduler: fixed a type assertion panic in `google_cloud_scheduler_job` when processing HTTP headers with nil or unexpected data types ([#24360](https://github.com/hashicorp/terraform-provider-google/pull/24360))
+* compute: fixed the `Network field cannot be modified` issue in `google_compute_region_backend_service`. Now updating the `network` field will force the resource to be recreated. ([#24398](https://github.com/hashicorp/terraform-provider-google/pull/24398))
+* netapp: fixed incorrect default value handling in `google_netapp_volume` for `export_policy.rules` attributes `has_root_access` and `squash_mode`. When not specified, these fields will now take on the API default value with no diff. ([#24395](https://github.com/hashicorp/terraform-provider-google/pull/24395))
+* netapp: updated `google_netapp_storage_pool` to source the default value for the `qos_type` field from the API. If not specified in the configuration, `qos_type` will now default to the value provided by the NetApp Volumes API. ([#24394](https://github.com/hashicorp/terraform-provider-google/pull/24394))
+* sql: fixed the permadiffs on `disk_size ` when `disk_autoresize` is enabled in `google_sql_database_instance` ([#24399](https://github.com/hashicorp/terraform-provider-google/pull/24399))
+* workbench: added retry for `unable to queue the operation` 409 errors in `google_workbench_instance` resource. ([#24392](https://github.com/hashicorp/terraform-provider-google/pull/24392))
 
 ## 6.50.0 (September 19, 2025)
 
