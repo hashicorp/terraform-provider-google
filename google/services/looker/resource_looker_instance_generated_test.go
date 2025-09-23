@@ -102,6 +102,7 @@ resource "google_looker_instance" "looker-instance" {
   platform_edition   = "LOOKER_CORE_STANDARD_ANNUAL"
   region             = "us-central1"
   public_ip_enabled  = true
+  gemini_enabled     = true
   admin_settings {
     allowed_email_domains = ["google.com"]
   }
