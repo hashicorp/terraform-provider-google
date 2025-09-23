@@ -297,9 +297,9 @@ func (r *ComputeInstanceListResource) List(ctx context.Context, req list.ListReq
 				rd := computeInstanceResource.Data(&terraform.InstanceState{})
 				rd.SetId(computeInstance.Name)
 
-				// if err := flattenComputeInstance(rd, computeInstance); err != nil {
-				// 	return err // Returning an error stops pagination
-				// }
+				rd.Set("project", project)
+				rd.Set("zone", zone)
+				rd.Set("name", computeInstance.Name)
 
 				tfTypeIdentity, err := rd.TfTypeIdentityState()
 				if err != nil {
