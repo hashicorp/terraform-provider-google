@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `bandwidth_allocation` field to `google_compute_wire_group` resource
+```
