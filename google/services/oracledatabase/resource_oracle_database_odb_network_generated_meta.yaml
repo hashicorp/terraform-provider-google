@@ -12,6 +12,7 @@ fields:
   - field: 'effective_labels'
     provider_only: true
   - field: 'entitlement_id'
+  - field: 'gcp_oracle_zone'
   - field: 'labels'
   - field: 'location'
     provider_only: true
