@@ -9,6 +9,8 @@ fields:
   - field: 'csv_options.header_required'
   - field: 'csv_options.record_separator'
   - field: 'display_name'
+  - field: 'force_destroy'
+    provider_only: true
   - field: 'frequency_options.end_date.day'
   - field: 'frequency_options.end_date.month'
   - field: 'frequency_options.end_date.year'
