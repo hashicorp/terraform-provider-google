@@ -775,3 +775,107 @@ data "google_compute_network" "default" {
 }
 `, context)
 }
+
+func TestAccNetappVolume_flexAutoTierNetappVolume_update(t *testing.T) {
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetappVolumeDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetappVolume_flexAutoTierVolume_default(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappVolume_flexAutoTierVolume_update(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetappVolume_flexAutoTierVolume_default(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "default" {
+    name = "tf-test-pool%{random_suffix}"
+    location = "us-south1-a"
+    service_level = "FLEX"
+    capacity_gib = "2048"
+    network = data.google_compute_network.default.id
+    allow_auto_tiering = true
+    custom_performance_enabled = true
+    total_throughput_mibps = "64"
+    total_iops = "1024"
+    hot_tier_size_gib = "1024"
+    enable_hot_tier_auto_resize = true
+}
+resource "google_netapp_volume" "test_volume" {
+    location = "us-south1-a"
+    name = "tf-test-volume%{random_suffix}"
+    capacity_gib = "100"
+    share_name = "tf-test-volume%{random_suffix}"
+    storage_pool = google_netapp_storage_pool.default.name
+    protocols = ["NFSV3"]
+    tiering_policy {
+        cooling_threshold_days = 31
+        tier_action = "ENABLED"
+        hot_tier_bypass_mode_enabled = false
+    }
+}
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+`, context)
+}
+
+func testAccNetappVolume_flexAutoTierVolume_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "default" {
+    name = "tf-test-pool%{random_suffix}"
+    location = "us-south1-a"
+    service_level = "FLEX"
+    capacity_gib = "2048"
+    network = data.google_compute_network.default.id
+    allow_auto_tiering = true
+    custom_performance_enabled = true
+    total_throughput_mibps = "64"
+    total_iops = "1024"
+    hot_tier_size_gib = "1024"
+    enable_hot_tier_auto_resize = true
+}
+resource "google_netapp_volume" "test_volume" {
+    location = "us-south1-a"
+    name = "tf-test-volume%{random_suffix}"
+    capacity_gib = "100"
+    share_name = "tf-test-volume%{random_suffix}"
+    storage_pool = google_netapp_storage_pool.default.name
+    protocols = ["NFSV3"]
+    tiering_policy {
+        cooling_threshold_days = 20
+        tier_action = "ENABLED"
+        hot_tier_bypass_mode_enabled = true
+    }
+}
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+`, context)
+}

@@ -32,6 +32,7 @@ fields:
   - field: 'export_policy.rules.nfsv4'
   - field: 'export_policy.rules.squash_mode'
   - field: 'has_replication'
+  - field: 'hot_tier_size_used_gib'
   - field: 'hybrid_replication_parameters.cluster_location'
   - field: 'hybrid_replication_parameters.description'
   - field: 'hybrid_replication_parameters.labels'
@@ -50,6 +51,7 @@ fields:
   - field: 'mount_options.export'
   - field: 'mount_options.export_full'
   - field: 'mount_options.instructions'
+  - field: 'mount_options.ip_address'
   - field: 'mount_options.protocol'
   - field: 'multiple_endpoints'
   - field: 'name'
@@ -87,6 +89,7 @@ fields:
     provider_only: true
   - field: 'throughput_mibps'
   - field: 'tiering_policy.cooling_threshold_days'
+  - field: 'tiering_policy.hot_tier_bypass_mode_enabled'
   - field: 'tiering_policy.tier_action'
   - field: 'unix_permissions'
   - field: 'used_gib'

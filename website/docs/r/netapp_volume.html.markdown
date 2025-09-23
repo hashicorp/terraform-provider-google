@@ -386,7 +386,7 @@ Possible values: DEFAULT, FORCE.
   Possible values are: `ENABLED`, `PAUSED`.
 
 * `hot_tier_bypass_mode_enabled` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Optional. Flag indicating that the hot tier bypass mode is enabled. Default is false.
   Only applicable to Flex service level.
 
@@ -480,6 +480,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `cold_tier_size_gib` -
   Output only. Size of the volume cold tier data in GiB.
 
+* `hot_tier_size_used_gib` -
+  Total hot tier data rounded down to the nearest GiB used by the volume. This field is only used for flex Service Level
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -507,6 +510,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `protocol` -
   (Output)
   Protocol to mount with.
+
+* `ip_address` -
+  (Output)
+  IP Address.
 
 ## Timeouts
 
