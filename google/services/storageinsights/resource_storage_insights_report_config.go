@@ -230,6 +230,12 @@ must be in the same location.`,
 				Computed:    true,
 				Description: `The UUID of the inventory report configuration.`,
 			},
+			"force_destroy": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If set, all the inventory report details associated with this report configuration are deleted.`,
+				Default:     false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -370,6 +376,12 @@ func resourceStorageInsightsReportConfigRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageInsightsReportConfig %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("force_destroy"); !ok {
+		if err := d.Set("force_destroy", false); err != nil {
+			return fmt.Errorf("Error setting force_destroy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ReportConfig: %s", err)
 	}
@@ -524,7 +536,7 @@ func resourceStorageInsightsReportConfigDelete(d *schema.ResourceData, meta inte
 	}
 	billingProject = project
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageInsightsBasePath}}projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{StorageInsightsBasePath}}projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}?force={{force_destroy}}")
 	if err != nil {
 		return err
 	}
@@ -573,6 +585,11 @@ func resourceStorageInsightsReportConfigImport(d *schema.ResourceData, meta inte
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

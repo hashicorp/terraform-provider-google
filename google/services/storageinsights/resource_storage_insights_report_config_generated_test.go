@@ -49,7 +49,7 @@ func TestAccStorageInsightsReportConfig_storageInsightsReportConfigExample(t *te
 				ResourceName:            "google_storage_insights_report_config.config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "location"},
 			},
 		},
 	})
