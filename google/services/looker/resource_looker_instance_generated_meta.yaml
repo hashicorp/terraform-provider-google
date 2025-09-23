@@ -27,6 +27,7 @@ fields:
   - field: 'encryption_config.kms_key_name_version'
   - field: 'encryption_config.kms_key_state'
   - field: 'fips_enabled'
+  - field: 'gemini_enabled'
   - field: 'ingress_private_ip'
   - field: 'ingress_public_ip'
   - field: 'looker_uri'
