@@ -182,12 +182,12 @@ The following arguments are supported:
   Optional. Custom Performance Total IOPS of the pool If not provided, it will be calculated based on the totalThroughputMibps
 
 * `hot_tier_size_gib` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Total hot tier capacity for the Storage Pool. It is applicable only to Flex service level.
   It should be less than the minimum storage pool size and cannot be more than the current storage pool size. It cannot be decreased once set.
 
 * `enable_hot_tier_auto_resize` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Flag indicating that the hot-tier threshold will be auto-increased by 10% of the hot-tier when it hits 100%. Default is true.
   The increment will kick in only if the new size after increment is still less than or equal to storage pool size.
 
@@ -219,6 +219,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `available_throughput_mibps` -
   Available throughput of the storage pool (in MiB/s).
+
+* `cold_tier_size_used_gib` -
+  Total cold tier data rounded down to the nearest GiB used by the storage pool.
+
+* `hot_tier_size_used_gib` -
+  Total hot tier data rounded down to the nearest GiB used by the storage pool.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

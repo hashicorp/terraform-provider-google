@@ -1,0 +1,6 @@
+```release-note:enhancement
+netapp: promoted `hot_tier_size_gib`, `enable_hot_tier_auto_resize` fields of `google_netapp_storage_pool` resource to GA and added `cold_tier_size_used_gib` and `hot_tier_size_used_gib` fields to `google_netapp_storage_pool`
+```
+```release-note:enhancement
+netapp: promoted `hot_tier_bypass_mode_enabled` field of `google_netapp_volume` resource to GA and added `hot_tier_size_used_gib` fields to `google_netapp_volume`
+```

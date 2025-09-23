@@ -50,7 +50,7 @@ func TestAccNetappStoragePool_storagePoolCreateExample(t *testing.T) {
 				ResourceName:            "google_netapp_storage_pool.test_pool",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"enable_hot_tier_auto_resize", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
