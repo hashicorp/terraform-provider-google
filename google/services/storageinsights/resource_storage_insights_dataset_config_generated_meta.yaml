@@ -5,6 +5,7 @@ api_service_name: 'storageinsights.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'DatasetConfig'
 fields:
+  - field: 'activity_data_retention_period_days'
   - field: 'create_time'
   - field: 'dataset_config_id'
     provider_only: true
