@@ -66,6 +66,8 @@ fields:
   - field: 'name'
   - field: 'new_message_event_notification_config.message_format'
   - field: 'new_message_event_notification_config.topic'
+  - field: 'new_recognition_result_notification_config.message_format'
+  - field: 'new_recognition_result_notification_config.topic'
   - field: 'notification_config.message_format'
   - field: 'notification_config.topic'
   - field: 'security_settings'

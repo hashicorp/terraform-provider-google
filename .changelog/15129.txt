@@ -1,0 +1,31 @@
+```release-note:enhancement
+dialogflow:  added `new_recognition_result_notification_config` field to `google_dialogflow_conversation_profile ` resource
+```
+
+**New Configuration :**
+```
+resource "google_dialogflow_conversation_profile" "assist_profile" {
+  project        = "my-project-id"
+  display_name   = "Agent Assist Profile"
+  location       = "global"
+
+  automated_agent_config {
+    agent = "projects/my-project-id/agent"
+  }
+
+  human_agent_assistant_config {
+    notification_config {
+      topic = google_pubsub_topic.recognition_results.id
+    }
+  }
+  
+  # Add support for this new block
+  new_recognition_result_notification_config {
+    topic = google_pubsub_topic.recognition_results.id
+  }
+
+  language_code = "en-US"
+
+  depends_on = [google_pubsub_topic_iam_member.dialogflow_pubsub_publisher]
+}
+```

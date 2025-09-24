@@ -724,6 +724,30 @@ Expects the format "projects/<Project ID>/locations/<Location ID>/topics/<Topic 
 					},
 				},
 			},
+			"new_recognition_result_notification_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Optional. Configuration for publishing transcription intermediate results. Event will be sent in format of ConversationEvent. If configured, the following information will be populated as ConversationEvent Pub/Sub message attributes: - "participant_id" - "participantRole" - "message_id"`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"message_format": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"MESSAGE_FORMAT_UNSPECIFIED", "PROTO", "JSON", ""}),
+							Description:  `Format of message. Possible values: ["MESSAGE_FORMAT_UNSPECIFIED", "PROTO", "JSON"]`,
+						},
+						"topic": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Name of the Pub/Sub topic to publish conversation events like CONVERSATION_STARTED as serialized ConversationEvent protos.
+For telephony integration to receive notification, make sure either this topic is in the same project as the conversation or you grant service-<Conversation Project Number>@gcp-sa-dialogflow.iam.gserviceaccount.com the Dialogflow Service Agent role in the topic project.
+For chat integration to receive notification, make sure API caller has been granted the Dialogflow Service Agent role for the topic.
+Format: projects/<Project ID>/locations/<Location ID>/topics/<Topic ID>.`,
+						},
+					},
+				},
+			},
 			"notification_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -955,6 +979,12 @@ func resourceDialogflowConversationProfileCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("tts_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(ttsConfigProp)) && (ok || !reflect.DeepEqual(v, ttsConfigProp)) {
 		obj["ttsConfig"] = ttsConfigProp
 	}
+	newRecognitionResultNotificationConfigProp, err := expandDialogflowConversationProfileNewRecognitionResultNotificationConfig(d.Get("new_recognition_result_notification_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("new_recognition_result_notification_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(newRecognitionResultNotificationConfigProp)) && (ok || !reflect.DeepEqual(v, newRecognitionResultNotificationConfigProp)) {
+		obj["newRecognitionResultNotificationConfig"] = newRecognitionResultNotificationConfigProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/locations/{{location}}/conversationProfiles")
 	if err != nil {
@@ -1128,6 +1158,9 @@ func resourceDialogflowConversationProfileRead(d *schema.ResourceData, meta inte
 	if err := d.Set("tts_config", flattenDialogflowConversationProfileTtsConfig(res["ttsConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConversationProfile: %s", err)
 	}
+	if err := d.Set("new_recognition_result_notification_config", flattenDialogflowConversationProfileNewRecognitionResultNotificationConfig(res["newRecognitionResultNotificationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConversationProfile: %s", err)
+	}
 
 	return nil
 }
@@ -1220,6 +1253,12 @@ func resourceDialogflowConversationProfileUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("tts_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ttsConfigProp)) {
 		obj["ttsConfig"] = ttsConfigProp
 	}
+	newRecognitionResultNotificationConfigProp, err := expandDialogflowConversationProfileNewRecognitionResultNotificationConfig(d.Get("new_recognition_result_notification_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("new_recognition_result_notification_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, newRecognitionResultNotificationConfigProp)) {
+		obj["newRecognitionResultNotificationConfig"] = newRecognitionResultNotificationConfigProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
@@ -1276,6 +1315,10 @@ func resourceDialogflowConversationProfileUpdate(d *schema.ResourceData, meta in
 
 	if d.HasChange("tts_config") {
 		updateMask = append(updateMask, "ttsConfig")
+	}
+
+	if d.HasChange("new_recognition_result_notification_config") {
+		updateMask = append(updateMask, "newRecognitionResultNotificationConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -2310,6 +2353,29 @@ func flattenDialogflowConversationProfileTtsConfigVoiceName(v interface{}, d *sc
 }
 
 func flattenDialogflowConversationProfileTtsConfigVoiceSsmlGender(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowConversationProfileNewRecognitionResultNotificationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["topic"] =
+		flattenDialogflowConversationProfileNewRecognitionResultNotificationConfigTopic(original["topic"], d, config)
+	transformed["message_format"] =
+		flattenDialogflowConversationProfileNewRecognitionResultNotificationConfigMessageFormat(original["messageFormat"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowConversationProfileNewRecognitionResultNotificationConfigTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowConversationProfileNewRecognitionResultNotificationConfigMessageFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3849,6 +3915,43 @@ func expandDialogflowConversationProfileTtsConfigVoiceName(v interface{}, d tpgr
 }
 
 func expandDialogflowConversationProfileTtsConfigVoiceSsmlGender(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowConversationProfileNewRecognitionResultNotificationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTopic, err := expandDialogflowConversationProfileNewRecognitionResultNotificationConfigTopic(original["topic"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTopic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["topic"] = transformedTopic
+	}
+
+	transformedMessageFormat, err := expandDialogflowConversationProfileNewRecognitionResultNotificationConfigMessageFormat(original["message_format"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMessageFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["messageFormat"] = transformedMessageFormat
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowConversationProfileNewRecognitionResultNotificationConfigTopic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowConversationProfileNewRecognitionResultNotificationConfigMessageFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

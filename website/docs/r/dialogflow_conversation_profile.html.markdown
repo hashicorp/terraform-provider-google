@@ -58,6 +58,28 @@ resource "google_dialogflow_conversation_profile" "basic_profile" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflow_conversation_profile_recognition_result_notification&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dialogflow Conversation Profile Recognition Result Notification
+
+
+```hcl
+resource "google_dialogflow_conversation_profile" "recognition_result_notification_profile" {
+  display_name = "dialogflow-profile"
+  location = "global"
+  new_recognition_result_notification_config {
+    topic = google_pubsub_topic.recognition_result_notification_profile.id
+    message_format =  "JSON"
+  }
+}
+
+resource "google_pubsub_topic" "recognition_result_notification_profile" {
+  name = "recognition-result-notification"
+}
+```
 
 ## Argument Reference
 
@@ -126,6 +148,11 @@ The following arguments are supported:
   (Optional)
   Configuration for Text-to-Speech synthesization. If agent defines synthesization options as well, agent settings overrides the option here.
   Structure is [documented below](#nested_tts_config).
+
+* `new_recognition_result_notification_config` -
+  (Optional)
+  Optional. Configuration for publishing transcription intermediate results. Event will be sent in format of ConversationEvent. If configured, the following information will be populated as ConversationEvent Pub/Sub message attributes: - "participant_id" - "participantRole" - "message_id"
+  Structure is [documented below](#nested_new_recognition_result_notification_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -671,6 +698,20 @@ The following arguments are supported:
   (Optional)
   The preferred gender of the voice.
   Possible values are: `SSML_VOICE_GENDER_UNSPECIFIED`, `SSML_VOICE_GENDER_MALE`, `SSML_VOICE_GENDER_FEMALE`, `SSML_VOICE_GENDER_NEUTRAL`.
+
+<a name="nested_new_recognition_result_notification_config"></a>The `new_recognition_result_notification_config` block supports:
+
+* `topic` -
+  (Optional)
+  Name of the Pub/Sub topic to publish conversation events like CONVERSATION_STARTED as serialized ConversationEvent protos.
+  For telephony integration to receive notification, make sure either this topic is in the same project as the conversation or you grant service-<Conversation Project Number>@gcp-sa-dialogflow.iam.gserviceaccount.com the Dialogflow Service Agent role in the topic project.
+  For chat integration to receive notification, make sure API caller has been granted the Dialogflow Service Agent role for the topic.
+  Format: projects/<Project ID>/locations/<Location ID>/topics/<Topic ID>.
+
+* `message_format` -
+  (Optional)
+  Format of message.
+  Possible values are: `MESSAGE_FORMAT_UNSPECIFIED`, `PROTO`, `JSON`.
 
 ## Attributes Reference
 
