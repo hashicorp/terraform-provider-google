@@ -2092,6 +2092,9 @@ func expandNetappVolumeCapacityGib(v interface{}, d tpgresource.TerraformResourc
 }
 
 func expandNetappVolumeExportPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2111,6 +2114,9 @@ func expandNetappVolumeExportPolicy(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandNetappVolumeExportPolicyRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2297,6 +2303,9 @@ func expandNetappVolumeKerberosEnabled(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandNetappVolumeRestoreParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2335,6 +2344,9 @@ func expandNetappVolumeRestrictedActions(v interface{}, d tpgresource.TerraformR
 }
 
 func expandNetappVolumeSnapshotPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2386,6 +2398,9 @@ func expandNetappVolumeSnapshotPolicyEnabled(v interface{}, d tpgresource.Terraf
 }
 
 func expandNetappVolumeSnapshotPolicyHourlySchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2420,6 +2435,9 @@ func expandNetappVolumeSnapshotPolicyHourlyScheduleMinute(v interface{}, d tpgre
 }
 
 func expandNetappVolumeSnapshotPolicyDailySchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2465,6 +2483,9 @@ func expandNetappVolumeSnapshotPolicyDailyScheduleHour(v interface{}, d tpgresou
 }
 
 func expandNetappVolumeSnapshotPolicyWeeklySchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2521,6 +2542,9 @@ func expandNetappVolumeSnapshotPolicyWeeklyScheduleDay(v interface{}, d tpgresou
 }
 
 func expandNetappVolumeSnapshotPolicyMonthlySchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2577,6 +2601,9 @@ func expandNetappVolumeSnapshotPolicyMonthlyScheduleDaysOfMonth(v interface{}, d
 }
 
 func expandNetappVolumeBackupConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2630,6 +2657,9 @@ func expandNetappVolumeMultipleEndpoints(v interface{}, d tpgresource.TerraformR
 }
 
 func expandNetappVolumeTieringPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2675,6 +2705,9 @@ func expandNetappVolumeTieringPolicyHotTierBypassModeEnabled(v interface{}, d tp
 }
 
 func expandNetappVolumeHybridReplicationParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

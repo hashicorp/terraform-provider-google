@@ -865,6 +865,9 @@ func expandVmwareengineClusterNodeTypeConfigsCustomCoreCount(v interface{}, d tp
 }
 
 func expandVmwareengineClusterAutoscalingSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -966,6 +969,9 @@ func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesScaleOutSize
 }
 
 func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesCpuThresholds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1000,6 +1006,9 @@ func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesCpuThreshold
 }
 
 func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesConsumedMemoryThresholds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1034,6 +1043,9 @@ func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesConsumedMemo
 }
 
 func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesStorageThresholds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

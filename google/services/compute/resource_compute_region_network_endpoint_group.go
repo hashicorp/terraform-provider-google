@@ -734,6 +734,9 @@ func expandComputeRegionNetworkEndpointGroupSubnetwork(v interface{}, d tpgresou
 }
 
 func expandComputeRegionNetworkEndpointGroupPscData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -757,6 +760,9 @@ func expandComputeRegionNetworkEndpointGroupPscDataProducerPort(v interface{}, d
 }
 
 func expandComputeRegionNetworkEndpointGroupCloudRun(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -802,6 +808,9 @@ func expandComputeRegionNetworkEndpointGroupCloudRunUrlMask(v interface{}, d tpg
 }
 
 func expandComputeRegionNetworkEndpointGroupAppEngine(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -852,6 +861,9 @@ func expandComputeRegionNetworkEndpointGroupAppEngineUrlMask(v interface{}, d tp
 }
 
 func expandComputeRegionNetworkEndpointGroupCloudFunction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

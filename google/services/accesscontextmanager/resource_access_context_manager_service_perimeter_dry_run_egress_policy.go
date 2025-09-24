@@ -787,6 +787,9 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEtag(v i
 }
 
 func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -835,6 +838,9 @@ func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFro
 }
 
 func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -876,6 +882,9 @@ func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFro
 }
 
 func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -928,6 +937,9 @@ func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToR
 }
 
 func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -961,6 +973,9 @@ func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToO
 }
 
 func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

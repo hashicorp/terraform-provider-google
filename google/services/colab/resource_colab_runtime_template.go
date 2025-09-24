@@ -928,6 +928,9 @@ func expandColabRuntimeTemplateDescription(v interface{}, d tpgresource.Terrafor
 }
 
 func expandColabRuntimeTemplateMachineSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -973,6 +976,9 @@ func expandColabRuntimeTemplateMachineSpecAcceleratorCount(v interface{}, d tpgr
 }
 
 func expandColabRuntimeTemplateDataPersistentDiskSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1007,6 +1013,9 @@ func expandColabRuntimeTemplateDataPersistentDiskSpecDiskSizeGb(v interface{}, d
 }
 
 func expandColabRuntimeTemplateNetworkSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1052,6 +1061,9 @@ func expandColabRuntimeTemplateNetworkSpecSubnetwork(v interface{}, d tpgresourc
 }
 
 func expandColabRuntimeTemplateIdleShutdownConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1075,6 +1087,9 @@ func expandColabRuntimeTemplateIdleShutdownConfigIdleTimeout(v interface{}, d tp
 }
 
 func expandColabRuntimeTemplateEucConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1098,6 +1113,9 @@ func expandColabRuntimeTemplateEucConfigEucDisabled(v interface{}, d tpgresource
 }
 
 func expandColabRuntimeTemplateShieldedVmConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1125,6 +1143,9 @@ func expandColabRuntimeTemplateNetworkTags(v interface{}, d tpgresource.Terrafor
 }
 
 func expandColabRuntimeTemplateEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1148,6 +1169,9 @@ func expandColabRuntimeTemplateEncryptionSpecKmsKeyName(v interface{}, d tpgreso
 }
 
 func expandColabRuntimeTemplateSoftwareConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1167,6 +1191,9 @@ func expandColabRuntimeTemplateSoftwareConfig(v interface{}, d tpgresource.Terra
 }
 
 func expandColabRuntimeTemplateSoftwareConfigEnv(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

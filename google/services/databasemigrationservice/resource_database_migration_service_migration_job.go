@@ -1056,6 +1056,9 @@ func expandDatabaseMigrationServiceMigrationJobDestination(v interface{}, d tpgr
 }
 
 func expandDatabaseMigrationServiceMigrationJobDumpFlags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1075,6 +1078,9 @@ func expandDatabaseMigrationServiceMigrationJobDumpFlags(v interface{}, d tpgres
 }
 
 func expandDatabaseMigrationServiceMigrationJobDumpFlagsDumpFlags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1112,6 +1118,9 @@ func expandDatabaseMigrationServiceMigrationJobDumpFlagsDumpFlagsValue(v interfa
 }
 
 func expandDatabaseMigrationServiceMigrationJobPerformanceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1143,6 +1152,9 @@ func expandDatabaseMigrationServiceMigrationJobDumpType(v interface{}, d tpgreso
 }
 
 func expandDatabaseMigrationServiceMigrationJobStaticIpConnectivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1158,6 +1170,9 @@ func expandDatabaseMigrationServiceMigrationJobStaticIpConnectivity(v interface{
 }
 
 func expandDatabaseMigrationServiceMigrationJobReverseSshConnectivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1214,6 +1229,9 @@ func expandDatabaseMigrationServiceMigrationJobReverseSshConnectivityVpc(v inter
 }
 
 func expandDatabaseMigrationServiceMigrationJobVpcPeeringConnectivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

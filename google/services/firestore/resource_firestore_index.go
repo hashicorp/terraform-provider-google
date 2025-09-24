@@ -646,6 +646,9 @@ func expandFirestoreIndexUnique(v interface{}, d tpgresource.TerraformResourceDa
 }
 
 func expandFirestoreIndexFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -701,6 +704,9 @@ func expandFirestoreIndexFieldsArrayConfig(v interface{}, d tpgresource.Terrafor
 }
 
 func expandFirestoreIndexFieldsVectorConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -731,6 +737,9 @@ func expandFirestoreIndexFieldsVectorConfigDimension(v interface{}, d tpgresourc
 }
 
 func expandFirestoreIndexFieldsVectorConfigFlat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil

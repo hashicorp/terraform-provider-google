@@ -1185,6 +1185,9 @@ func expandOracleDatabaseCloudVmClusterDisplayName(v interface{}, d tpgresource.
 }
 
 func expandOracleDatabaseCloudVmClusterProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1433,6 +1436,9 @@ func expandOracleDatabaseCloudVmClusterPropertiesGiVersion(v interface{}, d tpgr
 }
 
 func expandOracleDatabaseCloudVmClusterPropertiesTimeZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1504,6 +1510,9 @@ func expandOracleDatabaseCloudVmClusterPropertiesHostnamePrefix(v interface{}, d
 }
 
 func expandOracleDatabaseCloudVmClusterPropertiesDiagnosticsDataCollectionOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

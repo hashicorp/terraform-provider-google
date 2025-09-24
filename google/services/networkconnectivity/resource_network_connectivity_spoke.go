@@ -1089,6 +1089,9 @@ func expandNetworkConnectivitySpokeGroup(v interface{}, d tpgresource.TerraformR
 }
 
 func expandNetworkConnectivitySpokeLinkedVpnTunnels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1134,6 +1137,9 @@ func expandNetworkConnectivitySpokeLinkedVpnTunnelsIncludeImportRanges(v interfa
 }
 
 func expandNetworkConnectivitySpokeLinkedInterconnectAttachments(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1179,6 +1185,9 @@ func expandNetworkConnectivitySpokeLinkedInterconnectAttachmentsIncludeImportRan
 }
 
 func expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1212,6 +1221,9 @@ func expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(v interface{},
 }
 
 func expandNetworkConnectivitySpokeLinkedRouterApplianceInstancesInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1257,6 +1269,9 @@ func expandNetworkConnectivitySpokeLinkedRouterApplianceInstancesIncludeImportRa
 }
 
 func expandNetworkConnectivitySpokeLinkedVpcNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1302,6 +1317,9 @@ func expandNetworkConnectivitySpokeLinkedVpcNetworkIncludeExportRanges(v interfa
 }
 
 func expandNetworkConnectivitySpokeLinkedProducerVpcNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

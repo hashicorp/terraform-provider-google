@@ -1126,6 +1126,9 @@ func expandDialogflowCXToolDescription(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandDialogflowCXToolOpenApiSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1166,6 +1169,9 @@ func expandDialogflowCXToolOpenApiSpec(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandDialogflowCXToolOpenApiSpecAuthentication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1206,6 +1212,9 @@ func expandDialogflowCXToolOpenApiSpecAuthentication(v interface{}, d tpgresourc
 }
 
 func expandDialogflowCXToolOpenApiSpecAuthenticationApiKeyConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1262,6 +1271,9 @@ func expandDialogflowCXToolOpenApiSpecAuthenticationApiKeyConfigRequestLocation(
 }
 
 func expandDialogflowCXToolOpenApiSpecAuthenticationOauthConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1340,6 +1352,9 @@ func expandDialogflowCXToolOpenApiSpecAuthenticationOauthConfigScopes(v interfac
 }
 
 func expandDialogflowCXToolOpenApiSpecAuthenticationServiceAgentAuthConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1363,6 +1378,9 @@ func expandDialogflowCXToolOpenApiSpecAuthenticationServiceAgentAuthConfigServic
 }
 
 func expandDialogflowCXToolOpenApiSpecAuthenticationBearerTokenConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1397,6 +1415,9 @@ func expandDialogflowCXToolOpenApiSpecAuthenticationBearerTokenConfigSecretVersi
 }
 
 func expandDialogflowCXToolOpenApiSpecTlsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1416,6 +1437,9 @@ func expandDialogflowCXToolOpenApiSpecTlsConfig(v interface{}, d tpgresource.Ter
 }
 
 func expandDialogflowCXToolOpenApiSpecTlsConfigCaCerts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1453,6 +1477,9 @@ func expandDialogflowCXToolOpenApiSpecTlsConfigCaCertsCert(v interface{}, d tpgr
 }
 
 func expandDialogflowCXToolOpenApiSpecServiceDirectoryConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1480,6 +1507,9 @@ func expandDialogflowCXToolOpenApiSpecTextSchema(v interface{}, d tpgresource.Te
 }
 
 func expandDialogflowCXToolDataStoreSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1506,6 +1536,9 @@ func expandDialogflowCXToolDataStoreSpec(v interface{}, d tpgresource.TerraformR
 }
 
 func expandDialogflowCXToolDataStoreSpecDataStoreConnections(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1554,6 +1587,9 @@ func expandDialogflowCXToolDataStoreSpecDataStoreConnectionsDocumentProcessingMo
 }
 
 func expandDialogflowCXToolDataStoreSpecFallbackPrompt(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1569,6 +1605,9 @@ func expandDialogflowCXToolDataStoreSpecFallbackPrompt(v interface{}, d tpgresou
 }
 
 func expandDialogflowCXToolFunctionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

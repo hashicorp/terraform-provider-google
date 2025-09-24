@@ -1932,6 +1932,9 @@ func expandDataLossPreventionInspectTemplateDisplayName(v interface{}, d tpgreso
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2012,6 +2015,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigMinLikelihood(v interfa
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigLimits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2053,6 +2059,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerReq
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2082,6 +2091,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInf
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2123,6 +2135,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInf
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2150,6 +2165,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInf
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2194,6 +2212,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigInfoTypesVersion(v inte
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2221,6 +2242,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigContentOptions(v interf
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2250,6 +2274,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSet(v interface{}, 
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2294,6 +2321,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesVersion
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2317,6 +2347,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensiti
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2346,6 +2379,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRules(v interfac
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2379,6 +2415,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRule
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRuleHotwordRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2413,6 +2452,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRule
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRuleProximity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2447,6 +2489,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRule
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRuleLikelihoodAdjustment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2481,6 +2526,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesHotwordRule
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2532,6 +2580,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleDictionary(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2558,6 +2609,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleDictionaryWordList(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2581,6 +2635,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleDictionaryCloudStoragePath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2604,6 +2661,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2638,6 +2698,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2657,6 +2720,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2701,6 +2767,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2724,6 +2793,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByHotword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2750,6 +2822,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByHotwordHotwordRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2784,6 +2859,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByHotwordProximity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2818,6 +2896,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2889,6 +2970,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v inter
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2930,6 +3014,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2961,6 +3048,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusio
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2984,6 +3074,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitiv
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3018,6 +3111,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegexGro
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionary(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3044,6 +3140,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictiona
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryWordList(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3067,6 +3166,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictiona
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryCloudStoragePath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3090,6 +3192,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictiona
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSurrogateType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -3105,6 +3210,9 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSurrogat
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

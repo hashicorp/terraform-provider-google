@@ -1157,6 +1157,9 @@ func expandBillingBudgetDisplayName(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandBillingBudgetBudgetFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1273,6 +1276,9 @@ func expandBillingBudgetBudgetFilterCalendarPeriod(v interface{}, d tpgresource.
 }
 
 func expandBillingBudgetBudgetFilterCustomPeriod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1299,6 +1305,9 @@ func expandBillingBudgetBudgetFilterCustomPeriod(v interface{}, d tpgresource.Te
 }
 
 func expandBillingBudgetBudgetFilterCustomPeriodStartDate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1344,6 +1353,9 @@ func expandBillingBudgetBudgetFilterCustomPeriodStartDateDay(v interface{}, d tp
 }
 
 func expandBillingBudgetBudgetFilterCustomPeriodEndDate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1389,6 +1401,9 @@ func expandBillingBudgetBudgetFilterCustomPeriodEndDateDay(v interface{}, d tpgr
 }
 
 func expandBillingBudgetAmount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1415,6 +1430,9 @@ func expandBillingBudgetAmount(v interface{}, d tpgresource.TerraformResourceDat
 }
 
 func expandBillingBudgetAmountSpecifiedAmount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1468,6 +1486,9 @@ func expandBillingBudgetAmountLastPeriodAmount(v interface{}, d tpgresource.Terr
 }
 
 func expandBillingBudgetThresholdRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1505,6 +1526,9 @@ func expandBillingBudgetThresholdRulesSpendBasis(v interface{}, d tpgresource.Te
 }
 
 func expandBillingBudgetAllUpdatesRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

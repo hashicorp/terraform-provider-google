@@ -684,6 +684,9 @@ func expandDataplexEntryTypeSystem(v interface{}, d tpgresource.TerraformResourc
 }
 
 func expandDataplexEntryTypeRequiredAspects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

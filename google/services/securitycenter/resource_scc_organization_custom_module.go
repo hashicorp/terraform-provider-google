@@ -728,6 +728,9 @@ func expandSecurityCenterOrganizationCustomModuleEnablementState(v interface{}, 
 }
 
 func expandSecurityCenterOrganizationCustomModuleCustomConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -782,6 +785,9 @@ func expandSecurityCenterOrganizationCustomModuleCustomConfig(v interface{}, d t
 }
 
 func expandSecurityCenterOrganizationCustomModuleCustomConfigPredicate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -838,6 +844,9 @@ func expandSecurityCenterOrganizationCustomModuleCustomConfigPredicateLocation(v
 }
 
 func expandSecurityCenterOrganizationCustomModuleCustomConfigCustomOutput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -857,6 +866,9 @@ func expandSecurityCenterOrganizationCustomModuleCustomConfigCustomOutput(v inte
 }
 
 func expandSecurityCenterOrganizationCustomModuleCustomConfigCustomOutputProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -890,6 +902,9 @@ func expandSecurityCenterOrganizationCustomModuleCustomConfigCustomOutputPropert
 }
 
 func expandSecurityCenterOrganizationCustomModuleCustomConfigCustomOutputPropertiesValueExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -946,6 +961,9 @@ func expandSecurityCenterOrganizationCustomModuleCustomConfigCustomOutputPropert
 }
 
 func expandSecurityCenterOrganizationCustomModuleCustomConfigResourceSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

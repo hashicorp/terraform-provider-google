@@ -1230,6 +1230,9 @@ func expandClouddomainsRegistrationContactNotices(v interface{}, d tpgresource.T
 }
 
 func expandClouddomainsRegistrationYearlyPrice(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1264,6 +1267,9 @@ func expandClouddomainsRegistrationYearlyPriceUnits(v interface{}, d tpgresource
 }
 
 func expandClouddomainsRegistrationManagementSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1309,6 +1315,9 @@ func expandClouddomainsRegistrationManagementSettingsTransferLockState(v interfa
 }
 
 func expandClouddomainsRegistrationDnsSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1335,6 +1344,9 @@ func expandClouddomainsRegistrationDnsSettings(v interface{}, d tpgresource.Terr
 }
 
 func expandClouddomainsRegistrationDnsSettingsCustomDns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1365,6 +1377,9 @@ func expandClouddomainsRegistrationDnsSettingsCustomDnsNameServers(v interface{}
 }
 
 func expandClouddomainsRegistrationDnsSettingsCustomDnsDsRecords(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1424,6 +1439,9 @@ func expandClouddomainsRegistrationDnsSettingsCustomDnsDsRecordsDigest(v interfa
 }
 
 func expandClouddomainsRegistrationDnsSettingsGlueRecords(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1472,6 +1490,9 @@ func expandClouddomainsRegistrationDnsSettingsGlueRecordsIpv6Addresses(v interfa
 }
 
 func expandClouddomainsRegistrationContactSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1516,6 +1537,9 @@ func expandClouddomainsRegistrationContactSettingsPrivacy(v interface{}, d tpgre
 }
 
 func expandClouddomainsRegistrationContactSettingsRegistrantContact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1568,6 +1592,9 @@ func expandClouddomainsRegistrationContactSettingsRegistrantContactFaxNumber(v i
 }
 
 func expandClouddomainsRegistrationContactSettingsRegistrantContactPostalAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1657,6 +1684,9 @@ func expandClouddomainsRegistrationContactSettingsRegistrantContactPostalAddress
 }
 
 func expandClouddomainsRegistrationContactSettingsAdminContact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1709,6 +1739,9 @@ func expandClouddomainsRegistrationContactSettingsAdminContactFaxNumber(v interf
 }
 
 func expandClouddomainsRegistrationContactSettingsAdminContactPostalAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1798,6 +1831,9 @@ func expandClouddomainsRegistrationContactSettingsAdminContactPostalAddressRecip
 }
 
 func expandClouddomainsRegistrationContactSettingsTechnicalContact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1850,6 +1886,9 @@ func expandClouddomainsRegistrationContactSettingsTechnicalContactFaxNumber(v in
 }
 
 func expandClouddomainsRegistrationContactSettingsTechnicalContactPostalAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

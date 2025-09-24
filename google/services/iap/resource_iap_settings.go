@@ -904,6 +904,9 @@ func expandIapSettingsName(v interface{}, d tpgresource.TerraformResourceData, c
 }
 
 func expandIapSettingsAccessSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -965,6 +968,9 @@ func expandIapSettingsAccessSettings(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandIapSettingsAccessSettingsGcipSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -999,6 +1005,9 @@ func expandIapSettingsAccessSettingsGcipSettingsLoginPageUri(v interface{}, d tp
 }
 
 func expandIapSettingsAccessSettingsCorsSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1022,6 +1031,9 @@ func expandIapSettingsAccessSettingsCorsSettingsAllowHttpOptions(v interface{}, 
 }
 
 func expandIapSettingsAccessSettingsOauthSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1056,6 +1068,9 @@ func expandIapSettingsAccessSettingsOauthSettingsProgrammaticClients(v interface
 }
 
 func expandIapSettingsAccessSettingsReauthSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1101,6 +1116,9 @@ func expandIapSettingsAccessSettingsReauthSettingsPolicyType(v interface{}, d tp
 }
 
 func expandIapSettingsAccessSettingsAllowedDomainsSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1135,6 +1153,9 @@ func expandIapSettingsAccessSettingsAllowedDomainsSettingsEnable(v interface{}, 
 }
 
 func expandIapSettingsAccessSettingsWorkforceIdentitySettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1165,6 +1186,9 @@ func expandIapSettingsAccessSettingsWorkforceIdentitySettingsWorkforcePools(v in
 }
 
 func expandIapSettingsAccessSettingsWorkforceIdentitySettingsOauth2(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1214,6 +1238,9 @@ func expandIapSettingsAccessSettingsIdentitySources(v interface{}, d tpgresource
 }
 
 func expandIapSettingsApplicationSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1254,6 +1281,9 @@ func expandIapSettingsApplicationSettings(v interface{}, d tpgresource.Terraform
 }
 
 func expandIapSettingsApplicationSettingsCsmSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1277,6 +1307,9 @@ func expandIapSettingsApplicationSettingsCsmSettingsRctokenAud(v interface{}, d 
 }
 
 func expandIapSettingsApplicationSettingsAccessDeniedPageSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1326,6 +1359,9 @@ func expandIapSettingsApplicationSettingsCookieDomain(v interface{}, d tpgresour
 }
 
 func expandIapSettingsApplicationSettingsAttributePropagationSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

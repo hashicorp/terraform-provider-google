@@ -1072,6 +1072,9 @@ func expandVertexAIIndexDescription(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandVertexAIIndexMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1113,6 +1116,9 @@ func expandVertexAIIndexMetadataIsCompleteOverwrite(v interface{}, d tpgresource
 }
 
 func expandVertexAIIndexMetadataConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1187,6 +1193,9 @@ func expandVertexAIIndexMetadataConfigFeatureNormType(v interface{}, d tpgresour
 }
 
 func expandVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1213,6 +1222,9 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d tpgresour
 }
 
 func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1247,6 +1259,9 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSear
 }
 
 func expandVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1266,6 +1281,9 @@ func expandVertexAIIndexIndexUpdateMethod(v interface{}, d tpgresource.Terraform
 }
 
 func expandVertexAIIndexEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

@@ -1391,6 +1391,9 @@ func expandMonitoringUptimeCheckConfigTimeout(v interface{}, d tpgresource.Terra
 }
 
 func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1435,6 +1438,9 @@ func expandMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d tp
 }
 
 func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1492,6 +1498,9 @@ func expandMonitoringUptimeCheckConfigUserLabels(v interface{}, d tpgresource.Te
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1614,6 +1623,9 @@ func expandMonitoringUptimeCheckConfigHttpCheckCustomContentType(v interface{}, 
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1670,6 +1682,9 @@ func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckServiceAgentAuthentication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1728,6 +1743,9 @@ func expandMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d tpgresource
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1765,6 +1783,9 @@ func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatus
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckPingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1788,6 +1809,9 @@ func expandMonitoringUptimeCheckConfigHttpCheckPingConfigPingsCount(v interface{
 }
 
 func expandMonitoringUptimeCheckConfigTcpCheck(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1818,6 +1842,9 @@ func expandMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d tpgresource.
 }
 
 func expandMonitoringUptimeCheckConfigTcpCheckPingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1841,6 +1868,9 @@ func expandMonitoringUptimeCheckConfigTcpCheckPingConfigPingsCount(v interface{}
 }
 
 func expandMonitoringUptimeCheckConfigResourceGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1875,6 +1905,9 @@ func expandMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d tpgr
 }
 
 func expandMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1916,6 +1949,9 @@ func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d t
 }
 
 func expandMonitoringUptimeCheckConfigSyntheticMonitor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1935,6 +1971,9 @@ func expandMonitoringUptimeCheckConfigSyntheticMonitor(v interface{}, d tpgresou
 }
 
 func expandMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

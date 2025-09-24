@@ -688,6 +688,9 @@ func expandVmwareengineExternalAccessRuleIpProtocol(v interface{}, d tpgresource
 }
 
 func expandVmwareengineExternalAccessRuleSourceIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -729,6 +732,9 @@ func expandVmwareengineExternalAccessRuleSourcePorts(v interface{}, d tpgresourc
 }
 
 func expandVmwareengineExternalAccessRuleDestinationIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

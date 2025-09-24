@@ -3006,6 +3006,9 @@ func expandCloudRunV2WorkerPoolLaunchStage(v interface{}, d tpgresource.Terrafor
 }
 
 func expandCloudRunV2WorkerPoolBinaryAuthorization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3055,6 +3058,9 @@ func expandCloudRunV2WorkerPoolCustomAudiences(v interface{}, d tpgresource.Terr
 }
 
 func expandCloudRunV2WorkerPoolScaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3111,6 +3117,9 @@ func expandCloudRunV2WorkerPoolScalingManualInstanceCount(v interface{}, d tpgre
 }
 
 func expandCloudRunV2WorkerPoolTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3233,6 +3242,9 @@ func expandCloudRunV2WorkerPoolTemplateAnnotations(v interface{}, d tpgresource.
 }
 
 func expandCloudRunV2WorkerPoolTemplateVpcAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3274,6 +3286,9 @@ func expandCloudRunV2WorkerPoolTemplateVpcAccessEgress(v interface{}, d tpgresou
 }
 
 func expandCloudRunV2WorkerPoolTemplateVpcAccessNetworkInterfaces(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3326,6 +3341,9 @@ func expandCloudRunV2WorkerPoolTemplateServiceAccount(v interface{}, d tpgresour
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3428,6 +3446,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersArgs(v interface{}, d tpgresour
 
 func expandCloudRunV2WorkerPoolTemplateContainersEnv(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3472,6 +3493,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersEnvValue(v interface{}, d tpgre
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersEnvValueSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3491,6 +3515,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersEnvValueSource(v interface{}, d
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersEnvValueSourceSecretKeyRef(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3525,6 +3552,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersEnvValueSourceSecretKeyRefVersi
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3555,6 +3585,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersResourcesLimits(v interface{}, 
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersVolumeMounts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3607,6 +3640,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersWorkingDir(v interface{}, d tpg
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbe(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3684,6 +3720,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbeFailureThreshold(v
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbeHttpGet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3725,6 +3764,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbeHttpGetPort(v inte
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbeHttpGetHttpHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3759,6 +3801,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbeHttpGetHttpHeaders
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbeTcpSocket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3782,6 +3827,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbeTcpSocketPort(v in
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbeGrpc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3816,6 +3864,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersLivenessProbeGrpcService(v inte
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersStartupProbe(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3893,6 +3944,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersStartupProbeFailureThreshold(v 
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersStartupProbeHttpGet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3934,6 +3988,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersStartupProbeHttpGetPort(v inter
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersStartupProbeHttpGetHttpHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3968,6 +4025,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersStartupProbeHttpGetHttpHeadersV
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersStartupProbeTcpSocket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3991,6 +4051,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersStartupProbeTcpSocketPort(v int
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersStartupProbeGrpc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4025,6 +4088,9 @@ func expandCloudRunV2WorkerPoolTemplateContainersStartupProbeGrpcService(v inter
 }
 
 func expandCloudRunV2WorkerPoolTemplateVolumes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -4086,6 +4152,9 @@ func expandCloudRunV2WorkerPoolTemplateVolumesName(v interface{}, d tpgresource.
 }
 
 func expandCloudRunV2WorkerPoolTemplateVolumesSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4127,6 +4196,9 @@ func expandCloudRunV2WorkerPoolTemplateVolumesSecretDefaultMode(v interface{}, d
 }
 
 func expandCloudRunV2WorkerPoolTemplateVolumesSecretItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -4175,6 +4247,9 @@ func expandCloudRunV2WorkerPoolTemplateVolumesSecretItemsMode(v interface{}, d t
 }
 
 func expandCloudRunV2WorkerPoolTemplateVolumesCloudSqlInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4199,6 +4274,9 @@ func expandCloudRunV2WorkerPoolTemplateVolumesCloudSqlInstanceInstances(v interf
 }
 
 func expandCloudRunV2WorkerPoolTemplateVolumesEmptyDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4233,6 +4311,9 @@ func expandCloudRunV2WorkerPoolTemplateVolumesEmptyDirSizeLimit(v interface{}, d
 }
 
 func expandCloudRunV2WorkerPoolTemplateVolumesGcs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4278,6 +4359,9 @@ func expandCloudRunV2WorkerPoolTemplateVolumesGcsMountOptions(v interface{}, d t
 }
 
 func expandCloudRunV2WorkerPoolTemplateVolumesNfs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4335,6 +4419,9 @@ func expandCloudRunV2WorkerPoolTemplateEncryptionKeyShutdownDuration(v interface
 }
 
 func expandCloudRunV2WorkerPoolTemplateNodeSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4362,6 +4449,9 @@ func expandCloudRunV2WorkerPoolTemplateGpuZonalRedundancyDisabled(v interface{},
 }
 
 func expandCloudRunV2WorkerPoolInstanceSplits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

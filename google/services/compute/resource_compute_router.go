@@ -744,6 +744,9 @@ func expandComputeRouterNetwork(v interface{}, d tpgresource.TerraformResourceDa
 }
 
 func expandComputeRouterBgp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -811,6 +814,9 @@ func expandComputeRouterBgpAdvertisedGroups(v interface{}, d tpgresource.Terrafo
 
 func expandComputeRouterBgpAdvertisedIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -860,6 +866,9 @@ func expandComputeRouterEncryptedInterconnectRouter(v interface{}, d tpgresource
 }
 
 func expandComputeRouterMd5AuthenticationKeys(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
