@@ -1718,6 +1718,9 @@ func flattenLookerInstanceCustomDomainState(v interface{}, d *schema.ResourceDat
 }
 
 func expandLookerInstanceAdminSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1745,6 +1748,9 @@ func expandLookerInstanceConsumerNetwork(v interface{}, d tpgresource.TerraformR
 }
 
 func expandLookerInstanceDenyMaintenancePeriod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1778,6 +1784,9 @@ func expandLookerInstanceDenyMaintenancePeriod(v interface{}, d tpgresource.Terr
 }
 
 func expandLookerInstanceDenyMaintenancePeriodStartDate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1823,6 +1832,9 @@ func expandLookerInstanceDenyMaintenancePeriodStartDateDay(v interface{}, d tpgr
 }
 
 func expandLookerInstanceDenyMaintenancePeriodEndDate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1868,6 +1880,9 @@ func expandLookerInstanceDenyMaintenancePeriodEndDateDay(v interface{}, d tpgres
 }
 
 func expandLookerInstanceDenyMaintenancePeriodTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1924,6 +1939,9 @@ func expandLookerInstanceDenyMaintenancePeriodTimeNanos(v interface{}, d tpgreso
 }
 
 func expandLookerInstanceEncryptionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1977,6 +1995,9 @@ func expandLookerInstanceGeminiEnabled(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandLookerInstanceMaintenanceWindow(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2007,6 +2028,9 @@ func expandLookerInstanceMaintenanceWindowDayOfWeek(v interface{}, d tpgresource
 }
 
 func expandLookerInstanceMaintenanceWindowStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2063,6 +2087,9 @@ func expandLookerInstanceMaintenanceWindowStartTimeNanos(v interface{}, d tpgres
 }
 
 func expandLookerInstanceOauthConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2105,6 +2132,9 @@ func expandLookerInstancePrivateIpEnabled(v interface{}, d tpgresource.Terraform
 }
 
 func expandLookerInstancePscConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2146,6 +2176,9 @@ func expandLookerInstancePscConfigLookerServiceAttachmentUri(v interface{}, d tp
 }
 
 func expandLookerInstancePscConfigServiceAttachments(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2206,6 +2239,9 @@ func expandLookerInstanceReservedRange(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandLookerInstanceUserMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2251,6 +2287,9 @@ func expandLookerInstanceUserMetadataAdditionalDeveloperUserCount(v interface{},
 }
 
 func expandLookerInstanceCustomDomain(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

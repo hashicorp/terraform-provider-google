@@ -886,6 +886,9 @@ func expandDialogflowCXIntentDisplayName(v interface{}, d tpgresource.TerraformR
 }
 
 func expandDialogflowCXIntentTrainingPhrases(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -926,6 +929,9 @@ func expandDialogflowCXIntentTrainingPhrasesId(v interface{}, d tpgresource.Terr
 }
 
 func expandDialogflowCXIntentTrainingPhrasesParts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -967,6 +973,9 @@ func expandDialogflowCXIntentTrainingPhrasesRepeatCount(v interface{}, d tpgreso
 }
 
 func expandDialogflowCXIntentParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

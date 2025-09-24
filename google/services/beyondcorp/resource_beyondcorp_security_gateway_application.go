@@ -601,6 +601,9 @@ func expandBeyondcorpSecurityGatewayApplicationDisplayName(v interface{}, d tpgr
 }
 
 func expandBeyondcorpSecurityGatewayApplicationEndpointMatchers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -638,6 +641,9 @@ func expandBeyondcorpSecurityGatewayApplicationEndpointMatchersPorts(v interface
 }
 
 func expandBeyondcorpSecurityGatewayApplicationUpstreams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -667,6 +673,9 @@ func expandBeyondcorpSecurityGatewayApplicationUpstreams(v interface{}, d tpgres
 }
 
 func expandBeyondcorpSecurityGatewayApplicationUpstreamsEgressPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -690,6 +699,9 @@ func expandBeyondcorpSecurityGatewayApplicationUpstreamsEgressPolicyRegions(v in
 }
 
 func expandBeyondcorpSecurityGatewayApplicationUpstreamsNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

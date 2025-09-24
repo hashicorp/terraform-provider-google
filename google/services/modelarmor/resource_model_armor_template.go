@@ -949,6 +949,9 @@ func flattenModelArmorTemplateEffectiveLabels(v interface{}, d *schema.ResourceD
 }
 
 func expandModelArmorTemplateFilterConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -994,6 +997,9 @@ func expandModelArmorTemplateFilterConfig(v interface{}, d tpgresource.Terraform
 }
 
 func expandModelArmorTemplateFilterConfigMaliciousUriFilterSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1017,6 +1023,9 @@ func expandModelArmorTemplateFilterConfigMaliciousUriFilterSettingsFilterEnforce
 }
 
 func expandModelArmorTemplateFilterConfigRaiSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1036,6 +1045,9 @@ func expandModelArmorTemplateFilterConfigRaiSettings(v interface{}, d tpgresourc
 }
 
 func expandModelArmorTemplateFilterConfigRaiSettingsRaiFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1073,6 +1085,9 @@ func expandModelArmorTemplateFilterConfigRaiSettingsRaiFiltersConfidenceLevel(v 
 }
 
 func expandModelArmorTemplateFilterConfigSdpSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1099,6 +1114,9 @@ func expandModelArmorTemplateFilterConfigSdpSettings(v interface{}, d tpgresourc
 }
 
 func expandModelArmorTemplateFilterConfigSdpSettingsAdvancedConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1133,6 +1151,9 @@ func expandModelArmorTemplateFilterConfigSdpSettingsAdvancedConfigDeidentifyTemp
 }
 
 func expandModelArmorTemplateFilterConfigSdpSettingsBasicConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1156,6 +1177,9 @@ func expandModelArmorTemplateFilterConfigSdpSettingsBasicConfigFilterEnforcement
 }
 
 func expandModelArmorTemplateFilterConfigPiAndJailbreakFilterSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1190,6 +1214,9 @@ func expandModelArmorTemplateFilterConfigPiAndJailbreakFilterSettingsConfidenceL
 }
 
 func expandModelArmorTemplateTemplateMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1278,6 +1305,9 @@ func expandModelArmorTemplateTemplateMetadataLogSanitizeOperations(v interface{}
 }
 
 func expandModelArmorTemplateTemplateMetadataMultiLanguageDetection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

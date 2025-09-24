@@ -935,6 +935,9 @@ func expandNestedBigQueryDatasetAccessIamMember(v interface{}, d tpgresource.Ter
 }
 
 func expandNestedBigQueryDatasetAccessView(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -980,6 +983,9 @@ func expandNestedBigQueryDatasetAccessViewTableId(v interface{}, d tpgresource.T
 }
 
 func expandNestedBigQueryDatasetAccessDataset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1006,6 +1012,9 @@ func expandNestedBigQueryDatasetAccessDataset(v interface{}, d tpgresource.Terra
 }
 
 func expandNestedBigQueryDatasetAccessDatasetDataset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1044,6 +1053,9 @@ func expandNestedBigQueryDatasetAccessDatasetTargetTypes(v interface{}, d tpgres
 }
 
 func expandNestedBigQueryDatasetAccessRoutine(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1089,6 +1101,9 @@ func expandNestedBigQueryDatasetAccessRoutineRoutineId(v interface{}, d tpgresou
 }
 
 func expandNestedBigQueryDatasetAccessCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

@@ -1182,6 +1182,9 @@ func expandNetworkServicesEdgeCacheOriginRetryConditions(v interface{}, d tpgres
 }
 
 func expandNetworkServicesEdgeCacheOriginTimeout(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1238,6 +1241,9 @@ func expandNetworkServicesEdgeCacheOriginTimeoutReadTimeout(v interface{}, d tpg
 }
 
 func expandNetworkServicesEdgeCacheOriginAwsV4Authentication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1283,6 +1289,9 @@ func expandNetworkServicesEdgeCacheOriginAwsV4AuthenticationOriginRegion(v inter
 }
 
 func expandNetworkServicesEdgeCacheOriginOriginOverrideAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1309,6 +1318,9 @@ func expandNetworkServicesEdgeCacheOriginOriginOverrideAction(v interface{}, d t
 }
 
 func expandNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1332,6 +1344,9 @@ func expandNetworkServicesEdgeCacheOriginOriginOverrideActionUrlRewriteHostRewri
 }
 
 func expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1351,6 +1366,9 @@ func expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderAction(v inte
 }
 
 func expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequestHeadersToAdd(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1399,6 +1417,9 @@ func expandNetworkServicesEdgeCacheOriginOriginOverrideActionHeaderActionRequest
 }
 
 func expandNetworkServicesEdgeCacheOriginOriginRedirect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1422,6 +1443,9 @@ func expandNetworkServicesEdgeCacheOriginOriginRedirectRedirectConditions(v inte
 }
 
 func expandNetworkServicesEdgeCacheOriginFlexShielding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

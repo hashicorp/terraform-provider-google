@@ -901,6 +901,9 @@ func expandNetworkConnectivityInternalRangeExcludeCidrRanges(v interface{}, d tp
 }
 
 func expandNetworkConnectivityInternalRangeAllocationOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -939,6 +942,9 @@ func expandNetworkConnectivityInternalRangeOverlaps(v interface{}, d tpgresource
 }
 
 func expandNetworkConnectivityInternalRangeMigration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

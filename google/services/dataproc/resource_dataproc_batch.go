@@ -1558,6 +1558,9 @@ func flattenDataprocBatchEffectiveLabels(v interface{}, d *schema.ResourceData, 
 }
 
 func expandDataprocBatchRuntimeConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1642,6 +1645,9 @@ func expandDataprocBatchRuntimeConfigEffectiveProperties(v interface{}, d tpgres
 }
 
 func expandDataprocBatchRuntimeConfigAutotuningConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1669,6 +1675,9 @@ func expandDataprocBatchRuntimeConfigCohort(v interface{}, d tpgresource.Terrafo
 }
 
 func expandDataprocBatchEnvironmentConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1695,6 +1704,9 @@ func expandDataprocBatchEnvironmentConfig(v interface{}, d tpgresource.Terraform
 }
 
 func expandDataprocBatchEnvironmentConfigExecutionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1791,6 +1803,9 @@ func expandDataprocBatchEnvironmentConfigExecutionConfigSubnetworkUri(v interfac
 }
 
 func expandDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1814,6 +1829,9 @@ func expandDataprocBatchEnvironmentConfigExecutionConfigAuthenticationConfigUser
 }
 
 func expandDataprocBatchEnvironmentConfigPeripheralsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1849,6 +1867,9 @@ func expandDataprocBatchEnvironmentConfigPeripheralsConfigMetastoreService(v int
 }
 
 func expandDataprocBatchEnvironmentConfigPeripheralsConfigSparkHistoryServerConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1872,6 +1893,9 @@ func expandDataprocBatchEnvironmentConfigPeripheralsConfigSparkHistoryServerConf
 }
 
 func expandDataprocBatchPysparkBatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1950,6 +1974,9 @@ func expandDataprocBatchPysparkBatchArchiveUris(v interface{}, d tpgresource.Ter
 }
 
 func expandDataprocBatchSparkBatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2028,6 +2055,9 @@ func expandDataprocBatchSparkBatchMainClass(v interface{}, d tpgresource.Terrafo
 }
 
 func expandDataprocBatchSparkRBatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2084,6 +2114,9 @@ func expandDataprocBatchSparkRBatchArchiveUris(v interface{}, d tpgresource.Terr
 }
 
 func expandDataprocBatchSparkSqlBatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

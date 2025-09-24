@@ -1071,6 +1071,9 @@ func expandApihubPluginInstanceDisable(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandApihubPluginInstanceAuthConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1118,6 +1121,9 @@ func expandApihubPluginInstanceAuthConfig(v interface{}, d tpgresource.Terraform
 }
 
 func expandApihubPluginInstanceAuthConfigGoogleServiceAccountConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1141,6 +1147,9 @@ func expandApihubPluginInstanceAuthConfigGoogleServiceAccountConfigServiceAccoun
 }
 
 func expandApihubPluginInstanceAuthConfigUserPasswordConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1171,6 +1180,9 @@ func expandApihubPluginInstanceAuthConfigUserPasswordConfigUsername(v interface{
 }
 
 func expandApihubPluginInstanceAuthConfigUserPasswordConfigPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1194,6 +1206,9 @@ func expandApihubPluginInstanceAuthConfigUserPasswordConfigPasswordSecretVersion
 }
 
 func expandApihubPluginInstanceAuthConfigApiKeyConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1231,6 +1246,9 @@ func expandApihubPluginInstanceAuthConfigApiKeyConfigName(v interface{}, d tpgre
 }
 
 func expandApihubPluginInstanceAuthConfigApiKeyConfigApiKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1258,6 +1276,9 @@ func expandApihubPluginInstanceAuthConfigApiKeyConfigHttpElementLocation(v inter
 }
 
 func expandApihubPluginInstanceAuthConfigOauth2ClientCredentialsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1284,6 +1305,9 @@ func expandApihubPluginInstanceAuthConfigOauth2ClientCredentialsConfig(v interfa
 }
 
 func expandApihubPluginInstanceAuthConfigOauth2ClientCredentialsConfigClientSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1319,6 +1343,9 @@ func expandApihubPluginInstanceDisplayName(v interface{}, d tpgresource.Terrafor
 }
 
 func expandApihubPluginInstanceActions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1376,6 +1403,9 @@ func expandApihubPluginInstanceActions(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandApihubPluginInstanceActionsHubInstanceAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1406,6 +1436,9 @@ func expandApihubPluginInstanceActionsHubInstanceActionCurrentExecutionState(v i
 }
 
 func expandApihubPluginInstanceActionsHubInstanceActionLastExecution(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1474,6 +1507,9 @@ func expandApihubPluginInstanceActionsScheduleCronExpression(v interface{}, d tp
 }
 
 func expandApihubPluginInstanceActionsCurationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1500,6 +1536,9 @@ func expandApihubPluginInstanceActionsCurationConfig(v interface{}, d tpgresourc
 }
 
 func expandApihubPluginInstanceActionsCurationConfigCustomCuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

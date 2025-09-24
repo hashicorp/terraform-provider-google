@@ -5060,6 +5060,9 @@ func expandDatastreamStreamDisplayName(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandDatastreamStreamSourceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -5118,6 +5121,9 @@ func expandDatastreamStreamSourceConfigSourceConnectionProfile(v interface{}, d 
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -5177,6 +5183,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfig(v interface{}, d tpgres
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -5196,6 +5205,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjects(v interfa
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjectsMysqlDatabases(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5229,6 +5241,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjectsMysqlDatab
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjectsMysqlDatabasesMysqlTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5262,6 +5277,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjectsMysqlDatab
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjectsMysqlDatabasesMysqlTablesMysqlColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5354,6 +5372,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjectsMysqlDatab
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -5373,6 +5394,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjects(v interfa
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlDatabases(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5406,6 +5430,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlDatab
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlDatabasesMysqlTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5439,6 +5466,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlDatab
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlDatabasesMysqlTablesMysqlColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5539,6 +5569,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentBackfillTas
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigBinaryLogPosition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -5554,6 +5587,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigBinaryLogPosition(v inte
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigGtid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -5569,6 +5605,9 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigGtid(v interface{}, d tp
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -5628,6 +5667,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfig(v interface{}, d tpgre
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -5647,6 +5689,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjects(v interf
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5680,6 +5725,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSch
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5713,6 +5761,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSch
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSchemasOracleTablesOracleColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5827,6 +5878,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSch
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -5846,6 +5900,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjects(v interf
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5879,6 +5936,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSch
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -5912,6 +5972,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSch
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSchemasOracleTablesOracleColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6034,6 +6097,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigMaxConcurrentBackfillTa
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigDropLargeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -6049,6 +6115,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigDropLargeObjects(v inte
 }
 
 func expandDatastreamStreamSourceConfigOracleSourceConfigStreamLargeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -6064,6 +6133,9 @@ func expandDatastreamStreamSourceConfigOracleSourceConfigStreamLargeObjects(v in
 }
 
 func expandDatastreamStreamSourceConfigPostgresqlSourceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -6116,6 +6188,9 @@ func expandDatastreamStreamSourceConfigPostgresqlSourceConfig(v interface{}, d t
 }
 
 func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6135,6 +6210,9 @@ func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjects(v in
 }
 
 func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6168,6 +6246,9 @@ func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostg
 }
 
 func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6201,6 +6282,9 @@ func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostg
 }
 
 func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6304,6 +6388,9 @@ func expandDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPostg
 }
 
 func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6323,6 +6410,9 @@ func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjects(v in
 }
 
 func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6356,6 +6446,9 @@ func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostg
 }
 
 func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6389,6 +6482,9 @@ func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostg
 }
 
 func expandDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6504,6 +6600,9 @@ func expandDatastreamStreamSourceConfigPostgresqlSourceConfigMaxConcurrentBackfi
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -6563,6 +6662,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfig(v interface{}, d tp
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6582,6 +6684,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjects(v int
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjectsSchemas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6615,6 +6720,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjectsSchema
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjectsSchemasTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6648,6 +6756,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjectsSchema
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjectsSchemasTablesColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6751,6 +6862,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjectsSchema
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6770,6 +6884,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjects(v int
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjectsSchemas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6803,6 +6920,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjectsSchema
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjectsSchemasTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6836,6 +6956,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjectsSchema
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjectsSchemasTablesColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6947,6 +7070,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigMaxConcurrentBackfil
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigTransactionLogs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -6962,6 +7088,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigTransactionLogs(v in
 }
 
 func expandDatastreamStreamSourceConfigSqlServerSourceConfigChangeTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -6977,6 +7106,9 @@ func expandDatastreamStreamSourceConfigSqlServerSourceConfigChangeTables(v inter
 }
 
 func expandDatastreamStreamSourceConfigSalesforceSourceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -7015,6 +7147,9 @@ func expandDatastreamStreamSourceConfigSalesforceSourceConfig(v interface{}, d t
 }
 
 func expandDatastreamStreamSourceConfigSalesforceSourceConfigIncludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7034,6 +7169,9 @@ func expandDatastreamStreamSourceConfigSalesforceSourceConfigIncludeObjects(v in
 }
 
 func expandDatastreamStreamSourceConfigSalesforceSourceConfigIncludeObjectsObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7067,6 +7205,9 @@ func expandDatastreamStreamSourceConfigSalesforceSourceConfigIncludeObjectsObjec
 }
 
 func expandDatastreamStreamSourceConfigSalesforceSourceConfigIncludeObjectsObjectsFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7093,6 +7234,9 @@ func expandDatastreamStreamSourceConfigSalesforceSourceConfigIncludeObjectsObjec
 }
 
 func expandDatastreamStreamSourceConfigSalesforceSourceConfigExcludeObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7112,6 +7256,9 @@ func expandDatastreamStreamSourceConfigSalesforceSourceConfigExcludeObjects(v in
 }
 
 func expandDatastreamStreamSourceConfigSalesforceSourceConfigExcludeObjectsObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7145,6 +7292,9 @@ func expandDatastreamStreamSourceConfigSalesforceSourceConfigExcludeObjectsObjec
 }
 
 func expandDatastreamStreamSourceConfigSalesforceSourceConfigExcludeObjectsObjectsFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7175,6 +7325,9 @@ func expandDatastreamStreamSourceConfigSalesforceSourceConfigPollingInterval(v i
 }
 
 func expandDatastreamStreamDestinationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7212,6 +7365,9 @@ func expandDatastreamStreamDestinationConfigDestinationConnectionProfile(v inter
 }
 
 func expandDatastreamStreamDestinationConfigGcsDestinationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7271,6 +7427,9 @@ func expandDatastreamStreamDestinationConfigGcsDestinationConfigFileRotationInte
 }
 
 func expandDatastreamStreamDestinationConfigGcsDestinationConfigAvroFileFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -7286,6 +7445,9 @@ func expandDatastreamStreamDestinationConfigGcsDestinationConfigAvroFileFormat(v
 }
 
 func expandDatastreamStreamDestinationConfigGcsDestinationConfigJsonFileFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7320,6 +7482,9 @@ func expandDatastreamStreamDestinationConfigGcsDestinationConfigJsonFileFormatCo
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7378,6 +7543,9 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigDataFreshne
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSingleTargetDataset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7410,6 +7578,9 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSingleTarge
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasets(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7436,6 +7607,9 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHiera
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7485,6 +7659,9 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHiera
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigBlmtConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7552,6 +7729,9 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigBlmtConfigR
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigMerge(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -7567,6 +7747,9 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigMerge(v int
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigAppendOnly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -7582,6 +7765,9 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigAppendOnly(
 }
 
 func expandDatastreamStreamBackfillAll(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -7634,6 +7820,9 @@ func expandDatastreamStreamBackfillAll(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandDatastreamStreamBackfillAllMysqlExcludedObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7653,6 +7842,9 @@ func expandDatastreamStreamBackfillAllMysqlExcludedObjects(v interface{}, d tpgr
 }
 
 func expandDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabases(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7686,6 +7878,9 @@ func expandDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesDatabase
 }
 
 func expandDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesMysqlTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7719,6 +7914,9 @@ func expandDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesMysqlTab
 }
 
 func expandDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesMysqlTablesMysqlColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7811,6 +8009,9 @@ func expandDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesMysqlTab
 }
 
 func expandDatastreamStreamBackfillAllPostgresqlExcludedObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7830,6 +8031,9 @@ func expandDatastreamStreamBackfillAllPostgresqlExcludedObjects(v interface{}, d
 }
 
 func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7863,6 +8067,9 @@ func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemas
 }
 
 func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7896,6 +8103,9 @@ func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemas
 }
 
 func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemasPostgresqlTablesPostgresqlColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7999,6 +8209,9 @@ func expandDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchemas
 }
 
 func expandDatastreamStreamBackfillAllOracleExcludedObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8018,6 +8231,9 @@ func expandDatastreamStreamBackfillAllOracleExcludedObjects(v interface{}, d tpg
 }
 
 func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8051,6 +8267,9 @@ func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasSchema(v
 }
 
 func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8084,6 +8303,9 @@ func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTa
 }
 
 func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTablesOracleColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8198,6 +8420,9 @@ func expandDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleTa
 }
 
 func expandDatastreamStreamBackfillAllSqlServerExcludedObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8217,6 +8442,9 @@ func expandDatastreamStreamBackfillAllSqlServerExcludedObjects(v interface{}, d 
 }
 
 func expandDatastreamStreamBackfillAllSqlServerExcludedObjectsSchemas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8250,6 +8478,9 @@ func expandDatastreamStreamBackfillAllSqlServerExcludedObjectsSchemasSchema(v in
 }
 
 func expandDatastreamStreamBackfillAllSqlServerExcludedObjectsSchemasTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8283,6 +8514,9 @@ func expandDatastreamStreamBackfillAllSqlServerExcludedObjectsSchemasTablesTable
 }
 
 func expandDatastreamStreamBackfillAllSqlServerExcludedObjectsSchemasTablesColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8386,6 +8620,9 @@ func expandDatastreamStreamBackfillAllSqlServerExcludedObjectsSchemasTablesColum
 }
 
 func expandDatastreamStreamBackfillAllSalesforceExcludedObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8405,6 +8642,9 @@ func expandDatastreamStreamBackfillAllSalesforceExcludedObjects(v interface{}, d
 }
 
 func expandDatastreamStreamBackfillAllSalesforceExcludedObjectsObjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8438,6 +8678,9 @@ func expandDatastreamStreamBackfillAllSalesforceExcludedObjectsObjectsObjectName
 }
 
 func expandDatastreamStreamBackfillAllSalesforceExcludedObjectsObjectsFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8464,6 +8707,9 @@ func expandDatastreamStreamBackfillAllSalesforceExcludedObjectsObjectsFieldsName
 }
 
 func expandDatastreamStreamBackfillNone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil

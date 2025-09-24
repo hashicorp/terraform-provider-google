@@ -425,6 +425,9 @@ func flattenVertexAIRagEngineConfigName(v interface{}, d *schema.ResourceData, c
 }
 
 func expandVertexAIRagEngineConfigRagManagedDbConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -458,6 +461,9 @@ func expandVertexAIRagEngineConfigRagManagedDbConfig(v interface{}, d tpgresourc
 }
 
 func expandVertexAIRagEngineConfigRagManagedDbConfigScaled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -473,6 +479,9 @@ func expandVertexAIRagEngineConfigRagManagedDbConfigScaled(v interface{}, d tpgr
 }
 
 func expandVertexAIRagEngineConfigRagManagedDbConfigBasic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -488,6 +497,9 @@ func expandVertexAIRagEngineConfigRagManagedDbConfigBasic(v interface{}, d tpgre
 }
 
 func expandVertexAIRagEngineConfigRagManagedDbConfigUnprovisioned(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil

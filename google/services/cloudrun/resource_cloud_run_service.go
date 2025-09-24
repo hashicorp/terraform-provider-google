@@ -3041,6 +3041,9 @@ func expandCloudRunServiceSpec(v interface{}, d tpgresource.TerraformResourceDat
 }
 
 func expandCloudRunServiceSpecTraffic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3111,6 +3114,9 @@ func expandCloudRunServiceSpecTrafficUrl(v interface{}, d tpgresource.TerraformR
 }
 
 func expandCloudRunServiceSpecTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3137,6 +3143,9 @@ func expandCloudRunServiceSpecTemplate(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandCloudRunServiceSpecTemplateMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3261,6 +3270,9 @@ func expandCloudRunServiceSpecTemplateMetadataName(v interface{}, d tpgresource.
 }
 
 func expandCloudRunServiceSpecTemplateSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3322,6 +3334,9 @@ func expandCloudRunServiceSpecTemplateSpec(v interface{}, d tpgresource.Terrafor
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3433,6 +3448,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersArgs(v interface{}, d tpgres
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnvFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3473,6 +3491,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersEnvFromPrefix(v interface{},
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRef(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3503,6 +3524,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefOptional(
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObjectReference(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3526,6 +3550,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObje
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRef(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3552,6 +3579,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRef(v interface
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObjectReference(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3588,6 +3618,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersCommand(v interface{}, d tpg
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnv(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3632,6 +3665,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersEnvValue(v interface{}, d tp
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnvValueFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3651,6 +3687,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersEnvValueFrom(v interface{}, 
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnvValueFromSecretKeyRef(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3685,6 +3724,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersEnvValueFromSecretKeyRefName
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersPorts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3733,6 +3775,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(v interfa
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3781,6 +3826,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersResourcesRequests(v interfac
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersVolumeMounts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3829,6 +3877,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersVolumeMountsName(v interface
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersStartupProbe(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3906,6 +3957,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeFailureThreshold
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeTcpSocket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -3934,6 +3988,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeTcpSocketPort(v 
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeHttpGet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -3980,6 +4037,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeHttpGetPort(v in
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeHttpGetHttpHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -4017,6 +4077,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeHttpGetHttpHeade
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeGrpc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -4056,6 +4119,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeGrpcService(v in
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersLivenessProbe(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4126,6 +4192,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersLivenessProbeFailureThreshol
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersLivenessProbeHttpGet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -4172,6 +4241,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersLivenessProbeHttpGetPort(v i
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersLivenessProbeHttpGetHttpHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -4209,6 +4281,9 @@ func expandCloudRunServiceSpecTemplateSpecContainersLivenessProbeHttpGetHttpHead
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersLivenessProbeGrpc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -4271,6 +4346,9 @@ func expandCloudRunServiceSpecTemplateSpecServiceAccountName(v interface{}, d tp
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -4325,6 +4403,9 @@ func expandCloudRunServiceSpecTemplateSpecVolumesName(v interface{}, d tpgresour
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumesSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4366,6 +4447,9 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecretDefaultMode(v interface{}
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumesSecretItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -4414,6 +4498,9 @@ func expandCloudRunServiceSpecTemplateSpecVolumesSecretItemsMode(v interface{}, 
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumesEmptyDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4448,6 +4535,9 @@ func expandCloudRunServiceSpecTemplateSpecVolumesEmptyDirSizeLimit(v interface{}
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumesCsi(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4500,6 +4590,9 @@ func expandCloudRunServiceSpecTemplateSpecVolumesCsiVolumeAttributes(v interface
 }
 
 func expandCloudRunServiceSpecTemplateSpecVolumesNfs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -4549,6 +4642,9 @@ func expandCloudRunServiceSpecTemplateSpecServingState(v interface{}, d tpgresou
 }
 
 func expandCloudRunServiceMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

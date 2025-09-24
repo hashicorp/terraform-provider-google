@@ -862,6 +862,9 @@ func expandNestedComputeRegionPerInstanceConfigName(v interface{}, d tpgresource
 }
 
 func expandNestedComputeRegionPerInstanceConfigPreservedState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -979,6 +982,9 @@ func expandNestedComputeRegionPerInstanceConfigPreservedStateInternalIpAutoDelet
 }
 
 func expandNestedComputeRegionPerInstanceConfigPreservedStateInternalIpIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1042,6 +1048,9 @@ func expandNestedComputeRegionPerInstanceConfigPreservedStateExternalIpAutoDelet
 }
 
 func expandNestedComputeRegionPerInstanceConfigPreservedStateExternalIpIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

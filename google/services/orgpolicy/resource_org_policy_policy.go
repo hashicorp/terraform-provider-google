@@ -956,6 +956,9 @@ func expandOrgPolicyPolicyName(v interface{}, d tpgresource.TerraformResourceDat
 }
 
 func expandOrgPolicyPolicySpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1011,6 +1014,9 @@ func expandOrgPolicyPolicySpecUpdateTime(v interface{}, d tpgresource.TerraformR
 }
 
 func expandOrgPolicyPolicySpecRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1068,6 +1074,9 @@ func expandOrgPolicyPolicySpecRules(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandOrgPolicyPolicySpecRulesValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1150,6 +1159,9 @@ func expandOrgPolicyPolicySpecRulesParameters(v interface{}, d tpgresource.Terra
 }
 
 func expandOrgPolicyPolicySpecRulesCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1214,6 +1226,9 @@ func expandOrgPolicyPolicySpecReset(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandOrgPolicyPolicyDryRunSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1269,6 +1284,9 @@ func expandOrgPolicyPolicyDryRunSpecUpdateTime(v interface{}, d tpgresource.Terr
 }
 
 func expandOrgPolicyPolicyDryRunSpecRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1326,6 +1344,9 @@ func expandOrgPolicyPolicyDryRunSpecRules(v interface{}, d tpgresource.Terraform
 }
 
 func expandOrgPolicyPolicyDryRunSpecRulesValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1408,6 +1429,9 @@ func expandOrgPolicyPolicyDryRunSpecRulesParameters(v interface{}, d tpgresource
 }
 
 func expandOrgPolicyPolicyDryRunSpecRulesCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

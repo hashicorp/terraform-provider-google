@@ -1066,6 +1066,9 @@ func expandNetworkManagementConnectivityTestDescription(v interface{}, d tpgreso
 }
 
 func expandNetworkManagementConnectivityTestSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1175,6 +1178,9 @@ func expandNetworkManagementConnectivityTestSourceCloudSqlInstance(v interface{}
 }
 
 func expandNetworkManagementConnectivityTestSourceCloudFunction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1198,6 +1204,9 @@ func expandNetworkManagementConnectivityTestSourceCloudFunctionUri(v interface{}
 }
 
 func expandNetworkManagementConnectivityTestSourceAppEngineVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1221,6 +1230,9 @@ func expandNetworkManagementConnectivityTestSourceAppEngineVersionUri(v interfac
 }
 
 func expandNetworkManagementConnectivityTestSourceCloudRunRevision(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1256,6 +1268,9 @@ func expandNetworkManagementConnectivityTestSourceProjectId(v interface{}, d tpg
 }
 
 func expandNetworkManagementConnectivityTestDestination(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
