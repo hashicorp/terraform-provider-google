@@ -297,6 +297,23 @@ func (r *ComputeInstanceListResource) List(ctx context.Context, req list.ListReq
 				rd := computeInstanceResource.Data(&terraform.InstanceState{})
 				rd.SetId(computeInstance.Name)
 
+				identity, err := rd.Identity()
+				if err != nil {
+					return fmt.Errorf("Error getting identity: %s", err)
+				}
+				err = identity.Set("name", computeInstance.Name)
+				if err != nil {
+					return fmt.Errorf("Error setting name: %s", err)
+				}
+				err = identity.Set("zone", zone)
+				if err != nil {
+					return fmt.Errorf("Error setting zone: %s", err)
+				}
+				err = identity.Set("project", project)
+				if err != nil {
+					return fmt.Errorf("Error setting project: %s", err)
+				}
+
 				rd.Set("project", project)
 				rd.Set("zone", zone)
 				rd.Set("name", computeInstance.Name)
