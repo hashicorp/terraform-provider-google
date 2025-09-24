@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_kms_organization_kaj_policy_config`
+```
