@@ -31,6 +31,10 @@ fields:
   - field: 'router'
   - field: 'shared_secret'
   - field: 'shared_secret_hash'
+  - field: 'shared_secret_wo'
+    api_field: 'shared_secret'
+  - field: 'shared_secret_wo_version'
+    provider_only: true
   - field: 'target_vpn_gateway'
   - field: 'terraform_labels'
     provider_only: true

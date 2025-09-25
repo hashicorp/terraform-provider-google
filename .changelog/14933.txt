@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `shared_secret_wo` and `shared_secret_wo_version` fields for `google_compute_vpn_tunnel` resource, enabling write-only management of the shared secret.
+```

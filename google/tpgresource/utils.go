@@ -928,3 +928,33 @@ func ReducedPrefixedUniqueId(prefix string) string {
 	date := uniqueId[2:8]
 	return prefix + date + counter
 }
+
+// GetRawConfigAttributeAsString retrieves an attribute directly from the raw config
+// This is useful for retrieving values that are not directly accessible via the
+// standard schema.ResourceData.Get method, such as write-only attributes.
+func GetRawConfigAttributeAsString(d *schema.ResourceData, key string) string {
+	// see https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments#retrieving-write-only-values
+	parts := strings.Split(key, ".")
+
+	var path cty.Path
+	if len(parts) > 0 {
+		path = cty.GetAttrPath(parts[0])
+	}
+
+	for i := 1; i < len(parts); i++ {
+		part := parts[i]
+
+		if index, err := strconv.Atoi(part); err == nil {
+			path = path.IndexInt(index)
+		} else {
+			path = path.GetAttr(part)
+		}
+	}
+
+	woCty, diags := d.GetRawConfigAt(path)
+	if len(diags) == 0 && !woCty.IsNull() && woCty.Type().Equals(cty.String) {
+		return woCty.AsString()
+	}
+
+	return ""
+}
