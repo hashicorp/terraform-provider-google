@@ -210,6 +210,7 @@ func IsFingerprintError(err error) (bool, string) {
 	if gerr.Code != 412 {
 		return false, ""
 	}
+	log.Printf("[DEBUG] Got a 412 error, checking for fingerprint mismatch: %s", err)
 
 	for _, msg := range FINGERPRINT_FAIL_ERRORS {
 		if strings.Contains(err.Error(), msg) {

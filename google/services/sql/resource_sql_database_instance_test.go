@@ -1374,6 +1374,8 @@ func TestAccSqlDatabaseInstance_createFromBackup(t *testing.T) {
 }
 
 func TestAccSqlDatabaseInstance_createFromBackupDR(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/24234")
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	// Bootstrap the BackupDR vault
@@ -1449,6 +1451,8 @@ func TestAccSqlDatabaseInstance_backupUpdate(t *testing.T) {
 }
 
 func TestAccSqlDatabaseInstance_BackupDRUpdate(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/24234")
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	// Bootstrap the BackupDR vault
@@ -1574,6 +1578,84 @@ func TestAccSqlDatabaseInstance_cloneWithDatabaseNames(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "clone"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_pointInTimeRestore(t *testing.T) {
+	// Skipped due to randomness
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	backupVaultID := "bv-test"
+	location := "us-central1"
+	project := envvar.GetTestProjectFromEnv()
+	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"project":         project,
+		"backup_vault_id": backupVaultID,
+		"backup_vault":    backupVault,
+		"db_version":      "MYSQL_8_0_41",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_pointInTimeRestoreContext(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "point_in_time_restore_context"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_pointInTimeRestoreWithSettings(t *testing.T) {
+	// Skipped due to randomness
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	backupVaultID := "bv-test"
+	location := "us-central1"
+	project := envvar.GetTestProjectFromEnv()
+	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"project":         project,
+		"backup_vault_id": backupVaultID,
+		"backup_vault":    backupVault,
+		"db_version":      "MYSQL_8_0_41",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_pointInTimeRestoreContextWithSettings(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "point_in_time_restore_context"},
 			},
 		},
 	})
@@ -6875,6 +6957,243 @@ resource "google_sql_database_instance" "instance" {
 data "google_sql_backup_run" "backup" {
 	instance = "%{original_db_name}"
 	most_recent = true
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_pointInTimeRestoreContext(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Create service account
+resource "google_service_account" "bkdr_sa" {
+    account_id   = "tf-test-bkdr-sa-%{random_suffix}"
+    display_name = "Backup DR Service Account"
+}
+
+// Create a backup plan
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+  log_retention_days = 2
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+// Create source SQL instance to backup
+resource "google_sql_database_instance" "source" {
+    name                = "tf-test-source-%{random_suffix}"
+    database_version    = "MYSQL_8_0_41"
+    region             	= "us-central1"
+    project            	= "%{project}"
+    settings {
+        tier = "db-f1-micro"
+        backup_configuration {
+            enabled = true
+        }
+    }
+	lifecycle {
+		ignore_changes = [
+		  settings[0].backup_configuration[0].enabled,
+		]
+ 	}
+    deletion_protection = false
+}
+
+// Associate backup plan with SQL instance
+resource "google_backup_dr_backup_plan_association" "association" { 
+  location 						= "us-central1" 
+  backup_plan_association_id 	= "tf-test-bpa-test-%{random_suffix}"
+  resource 						= "projects/${google_sql_database_instance.source.project}/instances/${google_sql_database_instance.source.name}"
+  resource_type					= "sqladmin.googleapis.com/Instance"
+  backup_plan 					= google_backup_dr_backup_plan.plan.name
+}
+
+// Wait for the first backup to be created
+resource "time_sleep" "wait_10_mins" {
+  depends_on = [google_backup_dr_backup_plan_association.association]
+
+  create_duration = "600s"
+}
+
+data "google_backup_dr_backup" "sql_backups" {
+  project			= "%{project}"
+  location      	= "us-central1"
+  backup_vault_id 	= "%{backup_vault_id}"
+  data_source_id 	= element(split("/", google_backup_dr_backup_plan_association.association.data_source), length(split("/", google_backup_dr_backup_plan_association.association.data_source)) - 1)
+
+  depends_on = [time_sleep.wait_10_mins]
+}
+
+// for a point in time restore operation to succeed, the source instance must be in active state and have logs
+resource "google_sql_database" "database" {
+  name     = "tf-test-db-%{random_suffix}"
+  instance =  google_sql_database_instance.source.name
+  project  = "%{project}"
+  depends_on = [data.google_backup_dr_backup.sql_backups]
+}
+
+// Wait for the ten minutes (RPO is 5 minutes)
+resource "time_sleep" "wait_for_binlog" {
+  depends_on = [google_sql_database.database]
+
+  create_duration = "600s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "MYSQL_8_0_41"
+  region           = "us-central1"
+
+  point_in_time_restore_context {
+    datasource      = google_backup_dr_backup_plan_association.association.data_source
+	target_instance = "%{project}:tf-test-%{random_suffix}"
+	point_in_time   = timestamp()
+  }
+
+  lifecycle {
+	ignore_changes = [point_in_time_restore_context[0].point_in_time]
+  }
+
+  depends_on = [time_sleep.wait_for_binlog]
+
+  deletion_protection 	= false
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_pointInTimeRestoreContextWithSettings(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Create service account
+resource "google_service_account" "bkdr_sa" {
+    account_id   = "tf-test-bkdr-sa-%{random_suffix}"
+    display_name = "Backup DR Service Account"
+}
+
+// Create a backup plan
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+  log_retention_days = 2
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+// Create source SQL instance to backup
+resource "google_sql_database_instance" "source" {
+    name                = "tf-test-source-%{random_suffix}"
+    database_version    = "MYSQL_8_0_41"
+    region             	= "us-central1"
+    project            	= "%{project}"
+    settings {
+        tier = "db-f1-micro"
+        backup_configuration {
+            enabled = true
+        }
+    }
+	lifecycle {
+		ignore_changes = [
+		  settings[0].backup_configuration[0].enabled,
+		]
+ 	}
+    deletion_protection = false
+}
+
+// Associate backup plan with SQL instance
+resource "google_backup_dr_backup_plan_association" "association" { 
+  location 						= "us-central1" 
+  backup_plan_association_id 	= "tf-test-bpa-test-%{random_suffix}"
+  resource 						= "projects/${google_sql_database_instance.source.project}/instances/${google_sql_database_instance.source.name}"
+  resource_type					= "sqladmin.googleapis.com/Instance"
+  backup_plan 					= google_backup_dr_backup_plan.plan.name
+}
+
+// Wait for the first backup to be created
+resource "time_sleep" "wait_10_mins" {
+  depends_on = [google_backup_dr_backup_plan_association.association]
+
+  create_duration = "600s"
+}
+
+data "google_backup_dr_backup" "sql_backups" {
+  project			= "%{project}"
+  location      	= "us-central1"
+  backup_vault_id 	= "%{backup_vault_id}"
+  data_source_id 	= element(split("/", google_backup_dr_backup_plan_association.association.data_source), length(split("/", google_backup_dr_backup_plan_association.association.data_source)) - 1)
+
+  depends_on = [time_sleep.wait_10_mins]
+}
+
+// for a point in time restore operation to succeed, the source instance must be in active state and have logs
+resource "google_sql_database" "database" {
+  name     = "tf-test-db-%{random_suffix}"
+  instance =  google_sql_database_instance.source.name
+  project  = "%{project}"
+  depends_on = [data.google_backup_dr_backup.sql_backups]
+}
+
+// Wait for the ten minutes (RPO is 5 minutes)
+resource "time_sleep" "wait_for_binlog" {
+  depends_on = [google_sql_database.database]
+
+  create_duration = "600s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "MYSQL_8_0_41"
+  region           = "us-central1"
+
+  settings {
+	tier = "db-g1-small"
+	backup_configuration {
+		enabled            = false
+	}
+  }
+
+  point_in_time_restore_context {
+    datasource      = google_backup_dr_backup_plan_association.association.data_source
+	target_instance = "%{project}:tf-test-%{random_suffix}"
+	point_in_time   = timestamp()
+  }
+
+  lifecycle {
+	ignore_changes = [point_in_time_restore_context[0].point_in_time]
+  }
+
+  depends_on = [time_sleep.wait_for_binlog]
+
+  deletion_protection 	= false
 }
 `, context)
 }
