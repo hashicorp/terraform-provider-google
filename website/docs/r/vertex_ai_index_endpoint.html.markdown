@@ -149,6 +149,11 @@ The following arguments are supported:
   (Optional)
   If true, the deployed index will be accessible through public endpoint.
 
+* `encryption_spec` -
+  (Optional)
+  Customer-managed encryption key spec for an IndexEndpoint. If set, this IndexEndpoint and all sub-resources of this IndexEndpoint will be secured by this key.
+  Structure is [documented below](#nested_encryption_spec).
+
 * `region` -
   (Optional)
   The region of the index endpoint. eg us-central1
@@ -167,6 +172,12 @@ The following arguments are supported:
 * `project_allowlist` -
   (Optional)
   A list of Projects from which the forwarding rule will target the service attachment.
+
+<a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`. The key needs to be in the same region as where the compute resource is created.
 
 ## Attributes Reference
 

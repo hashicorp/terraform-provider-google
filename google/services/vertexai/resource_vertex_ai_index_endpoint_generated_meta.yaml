@@ -10,6 +10,7 @@ fields:
   - field: 'display_name'
   - field: 'effective_labels'
     provider_only: true
+  - field: 'encryption_spec.kms_key_name'
   - field: 'etag'
   - field: 'labels'
   - field: 'name'
