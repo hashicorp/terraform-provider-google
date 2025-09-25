@@ -172,14 +172,6 @@ must be a lowercase letter, and all following characters must
 be a dash, lowercase letter, or digit,
 except the last character, which cannot be a dash.`,
 			},
-			"shared_secret": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `Shared secret used to set the secure session between the Cloud VPN
-gateway and the peer VPN gateway.`,
-				Sensitive: true,
-			},
 			"cipher_suite": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -383,6 +375,32 @@ Only IPv4 is supported.`,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `URL of router resource to be used for dynamic routing.`,
 			},
+			"shared_secret": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Shared secret used to set the secure session between the Cloud VPN
+gateway and the peer VPN gateway.`,
+				Sensitive:    true,
+				ExactlyOneOf: []string{"shared_secret", "shared_secret_wo"},
+			},
+			"shared_secret_wo": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Shared secret used to set the secure session between the Cloud VPN
+gateway and the peer VPN gateway.
+ Note: This property is write-only and will not be read from the API. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+				WriteOnly:    true,
+				ExactlyOneOf: []string{"shared_secret", "shared_secret_wo"},
+				RequiredWith: []string{"shared_secret_wo_version"},
+			},
+			"shared_secret_wo_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `Triggers update of shared_secret_wo write-only. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+				RequiredWith: []string{"shared_secret_wo"},
+			},
 			"target_vpn_gateway": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -563,6 +581,18 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("cipher_suite"); !tpgresource.IsEmptyValue(reflect.ValueOf(cipherSuiteProp)) && (ok || !reflect.DeepEqual(v, cipherSuiteProp)) {
 		obj["cipherSuite"] = cipherSuiteProp
+	}
+	sharedSecretWoProp, err := expandComputeVpnTunnelSharedSecretWo(tpgresource.GetRawConfigAttributeAsString(d, "shared_secret_wo"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("shared_secret_wo"); !tpgresource.IsEmptyValue(reflect.ValueOf(sharedSecretWoProp)) && (ok || !reflect.DeepEqual(v, sharedSecretWoProp)) {
+		obj["sharedSecret"] = sharedSecretWoProp
+	}
+	sharedSecretWoVersionProp, err := expandComputeVpnTunnelSharedSecretWoVersion(d.Get("shared_secret_wo_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("shared_secret_wo_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(sharedSecretWoVersionProp)) && (ok || !reflect.DeepEqual(v, sharedSecretWoVersionProp)) {
+		obj["sharedSecretWoVersion"] = sharedSecretWoVersionProp
 	}
 	effectiveLabelsProp, err := expandComputeVpnTunnelEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -798,6 +828,9 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
 	if err := d.Set("cipher_suite", flattenComputeVpnTunnelCipherSuite(res["cipherSuite"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("shared_secret_wo_version", flattenComputeVpnTunnelSharedSecretWoVersion(res["sharedSecretWoVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenComputeVpnTunnelTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1214,6 +1247,10 @@ func flattenComputeVpnTunnelCipherSuitePhase2Pfs(v interface{}, d *schema.Resour
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
+func flattenComputeVpnTunnelSharedSecretWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("shared_secret_wo_version")
+}
+
 func flattenComputeVpnTunnelTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1471,6 +1508,14 @@ func expandComputeVpnTunnelCipherSuitePhase2Integrity(v interface{}, d tpgresour
 
 func expandComputeVpnTunnelCipherSuitePhase2Pfs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeVpnTunnelSharedSecretWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeVpnTunnelSharedSecretWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
