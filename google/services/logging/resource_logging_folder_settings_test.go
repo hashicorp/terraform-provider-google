@@ -81,6 +81,9 @@ resource "google_kms_crypto_key_iam_member" "iam_folder" {
 
 data "google_logging_organization_settings" "settings" {
   organization = "%{org_id}"
+  depends_on   = [
+    google_kms_crypto_key_iam_member.iam_folder
+  ]
 }
 
 resource "google_kms_crypto_key_iam_member" "iam_org" {
@@ -95,8 +98,7 @@ resource "google_logging_folder_settings" "example" {
   kms_key_name         = "%{original_key}"
   storage_location     = "us-central1"
   depends_on   = [
-    google_kms_crypto_key_iam_member.iam_folder,
-	google_kms_crypto_key_iam_member.iam_org
+    google_kms_crypto_key_iam_member.iam_org
   ]
 }
 `, context)
@@ -122,6 +124,9 @@ resource "google_kms_crypto_key_iam_member" "iam_folder" {
 
 data "google_logging_organization_settings" "settings" {
   organization = "%{org_id}"
+  depends_on   = [
+    google_kms_crypto_key_iam_member.iam_folder
+  ]
 }
 
 resource "google_kms_crypto_key_iam_member" "iam_org" {
@@ -133,8 +138,7 @@ resource "google_kms_crypto_key_iam_member" "iam_org" {
 resource "google_logging_folder_settings" "example" {
   folder       = google_folder.my_folder.folder_id
   depends_on   = [
-    google_kms_crypto_key_iam_member.iam_folder,
-	google_kms_crypto_key_iam_member.iam_org
+    google_kms_crypto_key_iam_member.iam_org
   ]
 }
 `, context)
