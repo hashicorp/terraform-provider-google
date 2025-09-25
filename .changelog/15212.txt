@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: added `type` and `mirroring_deployment_groups` fields to `google_network_security_mirroring_endpoint_group` resource (beta)
+```
