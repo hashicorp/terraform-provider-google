@@ -231,7 +231,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 				Type:         schema.TypeList,
 				Optional:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"settings", "clone"},
+				AtLeastOneOf: []string{"settings", "clone", "point_in_time_restore_context"},
 				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1216,7 +1216,7 @@ API (for read pools, effective_availability_type may differ from availability_ty
 				Type:         schema.TypeList,
 				Optional:     true,
 				Computed:     false,
-				AtLeastOneOf: []string{"settings", "clone"},
+				AtLeastOneOf: []string{"settings", "clone", "point_in_time_restore_context"},
 				Description:  `Configuration for creating a new instance as a clone of another instance.`,
 				MaxItems:     1,
 				Elem: &schema.Resource{
@@ -1249,6 +1249,44 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `The name of the allocated ip range for the private ip CloudSQL instance. For example: "google-managed-services-default". If set, the cloned instance ip will be created in the allocated range. The range name must comply with [RFC 1035](https://tools.ietf.org/html/rfc1035). Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.`,
+						},
+					},
+				},
+			},
+			"point_in_time_restore_context": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				Computed:     false,
+				AtLeastOneOf: []string{"settings", "clone", "point_in_time_restore_context"},
+				Description:  `Configuration for creating a new instance using point-in-time-restore from backupdr backup.`,
+				MaxItems:     1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"datasource": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The Google Cloud Backup and Disaster Recovery Datasource URI. For example: "projects/my-project/locations/us-central1/datasources/my-datasource".`,
+						},
+						"point_in_time": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.TimestampDiffSuppress(time.RFC3339Nano),
+							Description:      `The date and time to which you want to restore the instance.`,
+						},
+						"preferred_zone": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Point-in-time recovery of an instance to the specified zone. If no zone is specified, then clone to the same primary zone as the source instance.`,
+						},
+						"allocated_ip_range": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The name of the allocated IP range for the internal IP Cloud SQL instance. For example: "google-managed-services-default". If you set this, then Cloud SQL creates the IP address for the cloned instance in the allocated range. This range must comply with [RFC 1035](https://tools.ietf.org/html/rfc1035) standards. Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.`,
+						},
+						"target_instance": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The name of the target instance to restore to.`,
 						},
 					},
 				},
@@ -1345,6 +1383,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
+	pointInTimeRestoreContext := expandPointInTimeRestoreContext(d.Get("point_in_time_restore_context").([]interface{}))
 
 	s, ok := d.GetOk("settings")
 	desiredSettings := expandSqlDatabaseInstanceSettings(s.([]interface{}), databaseVersion)
@@ -1398,6 +1437,9 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 				cloneContext.DestinationInstanceName = name
 				clodeReq := sqladmin.InstancesCloneRequest{CloneContext: cloneContext}
 				op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(project, cloneSource, &clodeReq).Do()
+			} else if pointInTimeRestoreContext != nil {
+				parent := fmt.Sprintf("projects/%s", project)
+				op, operr = config.NewSqlAdminClient(userAgent).Instances.PointInTimeRestore(parent, pointInTimeRestoreContext).Do()
 			} else {
 				op, operr = config.NewSqlAdminClient(userAgent).Instances.Insert(project, instance).Do()
 			}
@@ -1484,8 +1526,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	// Refresh settings from read as they may have defaulted from the API
 	s = d.Get("settings")
-	// If we've created an instance as a clone, we need to update it to set any user defined settings
-	if len(s.([]interface{})) != 0 && cloneContext != nil && desiredSettings != nil {
+	// If we've created an instance as a clone or pitr, we need to update it to set any user defined settings
+	if len(s.([]interface{})) != 0 && (cloneContext != nil || pointInTimeRestoreContext != nil) && desiredSettings != nil {
 		instanceUpdate := &sqladmin.DatabaseInstance{
 			Settings: desiredSettings,
 		}
@@ -3069,6 +3111,47 @@ func sqlDatabaseInstanceRestoreFromBackup(d *schema.ResourceData, config *transp
 	}
 
 	err = SqlAdminOperationWaitTime(config, op, project, "Restore Backup", userAgent, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func expandPointInTimeRestoreContext(configured []interface{}) *sqladmin.PointInTimeRestoreContext {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	_pitrc := configured[0].(map[string]interface{})
+	return &sqladmin.PointInTimeRestoreContext{
+		PointInTime:      _pitrc["point_in_time"].(string),
+		PreferredZone:    _pitrc["preferred_zone"].(string),
+		Datasource:       _pitrc["datasource"].(string),
+		AllocatedIpRange: _pitrc["allocated_ip_range"].(string),
+		TargetInstance:   _pitrc["target_instance"].(string),
+	}
+}
+
+func sqlDatabaseInstancePointInTimeRestore(d *schema.ResourceData, config *transport_tpg.Config, userAgent, project, instanceId string, r interface{}) error {
+	log.Printf("[DEBUG] Initiating GCBDR managed SQL database instance backup point in time restore")
+	pointInTimeRestoreContext := r.([]interface{})
+	parent := fmt.Sprintf("projects/%s", project)
+
+	var op *sqladmin.Operation
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (operr error) {
+			op, operr = config.NewSqlAdminClient(userAgent).Instances.PointInTimeRestore(parent, expandPointInTimeRestoreContext(pointInTimeRestoreContext)).Do()
+			return operr
+		},
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
+	if err != nil {
+		return fmt.Errorf("Error, failed to point in restore an instance %s: %s", instanceId, err)
+	}
+
+	err = SqlAdminOperationWaitTime(config, op, project, "Point in Time Restore", userAgent, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}

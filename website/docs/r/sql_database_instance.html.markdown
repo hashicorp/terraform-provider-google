@@ -360,6 +360,11 @@ includes an up-to-date reference of supported versions.
     resource creation, Terraform will attempt to clone another instance as indicated in the context. The
     configuration is detailed below.
 
+* `point_in_time_restore_context` - (Optional) The point_in_time_restore_context needed for performing a point-in-time recovery of an instance managed by Google Cloud Backup and Disaster Recovery. This field will
+    cause Terraform to trigger the database to restore to a point in time indicated. The configuration is detailed below.
+    **NOTE:** Restoring from a backup is an imperative action and not recommended via Terraform. Adding or modifying this
+    block during resource creation/update will trigger the restore action after the resource is created/updated.
+
 The `settings` block supports:
 
 * `tier` - (Required) The machine type to use. See [tiers](https://cloud.google.com/sql/docs/admin-api/v1beta4/tiers)
@@ -617,6 +622,24 @@ is present when the master instance is a source representation instance, `dump_f
 
 * `verify_server_certificate` - (Optional) True if the master's common name
     value is checked during the SSL handshake.
+
+The optional `point_in_time_restore_context` block supports:
+
+* `datasource` - The Google Cloud Backup and Disaster Recovery Datasource URI.
+
+* `point_in_time` -  The timestamp of the point in time that should be restored.
+
+    A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `target_instance` - The name of the target instance.
+
+* `private_network` - (Optional) The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP. For example, "/projects/myProject/global/networks/default".
+
+* `preferred_zone` - (Optional) Point-in-time recovery of an instance to the specified zone. If no zone is specified, then clone to the same primary zone as the source instance.
+
+* `allocated_ip_range` -  (Optional) The name of the allocated ip range for the private ip CloudSQL instance. For example: "google-managed-services-default". If set, the cloned instance ip will be created in the allocated range. The range name must comply with [RFC 1035](https://tools.ietf.org/html/rfc1035). Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.
+
+* `database_names` - (Optional) (SQL Server only, use with `point_in_time`) Clone only the specified databases from the source instance. Clone all databases if empty.
 
 The optional `clone` block supports:
 
