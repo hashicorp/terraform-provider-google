@@ -20,18 +20,157 @@
 package sql
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/list"
+	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"google.golang.org/api/sqladmin/v1beta4"
 )
+
+var _ tpgresource.ListResourceWithRawV5Schemas = &SQLDatabaseListResource{}
+
+type SQLDatabaseListResource struct {
+	tpgresource.ListResourceMetadata
+}
+
+func NewSQLDatabaseListResource() list.ListResource {
+	return &SQLDatabaseListResource{}
+}
+
+func (r *SQLDatabaseListResource) Metadata(_ context.Context, _ resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "google_sql_database"
+}
+
+func (r *SQLDatabaseListResource) RawV5Schemas(ctx context.Context, _ list.RawV5SchemaRequest, resp *list.RawV5SchemaResponse) {
+	sqlDatabase := ResourceSQLDatabase()
+	resp.ProtoV5Schema = sqlDatabase.ProtoSchema(ctx)()
+	resp.ProtoV5IdentitySchema = sqlDatabase.ProtoIdentitySchema(ctx)()
+}
+
+func (r *SQLDatabaseListResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	r.Defaults(req, resp)
+}
+
+func (r *SQLDatabaseListResource) ListResourceConfigSchema(ctx context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
+	resp.Schema = listschema.Schema{
+		Attributes: map[string]listschema.Attribute{
+			"project": listschema.StringAttribute{
+				Optional: true,
+			},
+			"instance": listschema.StringAttribute{
+				Required: true,
+			},
+			"name": listschema.StringAttribute{
+				Required: true,
+			},
+		},
+	}
+}
+
+type SQLDatabaseListModel struct {
+	Project  string `tfsdk:"project"`
+	Instance string `tfsdk:"instance"`
+}
+
+func (r *SQLDatabaseListResource) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
+	var data SQLDatabaseListModel
+	diags := req.Config.Get(ctx, &data)
+	if diags.HasError() {
+		stream.Results = list.ListResultsStreamDiagnostics(diags)
+		return
+	}
+
+	project := data.Project
+	if project == "" {
+		project = r.Client.Project
+	}
+
+	instance := data.Instance
+
+	stream.Results = func(push func(list.ListResult) bool) {
+		client := r.Client.NewSqlAdminClient(r.Client.UserAgent)
+
+		res, err := client.Databases.List(project, instance).Do()
+		if err != nil {
+			diags.AddError("API Error", err.Error())
+			stream.Results = list.ListResultsStreamDiagnostics(diags)
+			return
+		}
+
+		for _, sqlDatabase := range res.Items {
+			result := req.NewListResult(ctx)
+			result.DisplayName = sqlDatabase.Name
+
+			sqlDatabaseResource := ResourceSQLDatabase()
+			rd := sqlDatabaseResource.Data(&terraform.InstanceState{})
+			rd.SetId(fmt.Sprintf("projects/%s/instances/%s/databases/%s", project, instance, sqlDatabase.Name))
+
+			if err := flattenSQLDatabase(rd, sqlDatabase); err != nil {
+				diags.AddError("Data Flattening Error", err.Error())
+				continue
+			}
+
+			tfTypeIdentity, err := rd.TfTypeIdentityState()
+			if err != nil {
+				diags.AddError("Identity State Error", err.Error())
+				continue
+			}
+			if err := result.Identity.Set(ctx, *tfTypeIdentity); err != nil {
+				diags.AddError("Identity Set Error", err[0].Summary())
+				continue
+			}
+
+			tfTypeResource, err := rd.TfTypeResourceState()
+			if err != nil {
+				diags.AddError("Resource State Error", err.Error())
+				continue
+			}
+			if err := result.Resource.Set(ctx, *tfTypeResource); err != nil {
+				diags.AddError("Resource Set Error", err[0].Summary())
+				continue
+			}
+
+			if !push(result) {
+				return
+			}
+		}
+		stream.Results = list.ListResultsStreamDiagnostics(diags)
+	}
+}
+
+func flattenSQLDatabase(d tpgresource.TerraformResourceData, db *sqladmin.Database) error {
+	if err := d.Set("charset", db.Charset); err != nil {
+		return fmt.Errorf("Error setting charset: %s", err)
+	}
+	if err := d.Set("collation", db.Collation); err != nil {
+		return fmt.Errorf("Error setting collation: %s", err)
+	}
+	if err := d.Set("name", db.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("instance", db.Instance); err != nil {
+		return fmt.Errorf("Error setting instance: %s", err)
+	}
+	if err := d.Set("self_link", db.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("project", db.Project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	return nil
+}
 
 func ResourceSQLDatabase() *schema.Resource {
 	return &schema.Resource{
