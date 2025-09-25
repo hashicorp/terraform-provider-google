@@ -34,6 +34,7 @@ func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointTestExample(t *testing.T)
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -58,6 +59,16 @@ func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointTestExample(t *testing.T)
 
 func testAccVertexAIIndexEndpoint_vertexAiIndexEndpointTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_project_service_identity" "vertexai_sa" {
+  service = "aiplatform.googleapis.com"
+}
+
+resource "google_kms_crypto_key_iam_member" "vertexai_encrypterdecrypter" {
+  crypto_key_id = "%{kms_key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        =  google_project_service_identity.vertexai_sa.member
+}
+
 resource "google_vertex_ai_index_endpoint" "index_endpoint" {
   display_name = "sample-endpoint"
   description  = "A sample vertex endpoint"
@@ -66,6 +77,14 @@ resource "google_vertex_ai_index_endpoint" "index_endpoint" {
     label-one = "value-one"
   }
   network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
+
+  encryption_spec {
+    kms_key_name = "%{kms_key_name}"
+  }
+
+  depends_on = [
+    google_kms_crypto_key_iam_member.vertexai_encrypterdecrypter,
+  ]
 }
 
 data "google_compute_network" "vertex_network" {
