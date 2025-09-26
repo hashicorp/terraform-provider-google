@@ -59,7 +59,7 @@ resource "google_network_services_wasm_plugin" "wasm_plugin" {
   versions {
     version_name = "v1"
     description = "v1 version of my wasm plugin"
-    image_uri = "us-central1-docker.pkg.dev/${data.google_project.project.name}/{index $.Vars "repository_name"}/{index $.Vars "plugin_package_name"}:prod"
+    image_uri = "us-central1-docker.pkg.dev/${data.google_project.project.name}/my-artifact-registry-docker-repository/my-wasm-plugin-data:prod"
 
     labels = {
       test_label =  "test_value"
@@ -96,7 +96,7 @@ resource "google_network_services_wasm_plugin" "wasm_plugin" {
   versions {
     version_name = "v1"
     description = "v1 version of my wasm plugin"
-    image_uri = "projects/${data.google_project.project.name}/locations/us-central1/repositories/{index $.Vars "repository_name"}/genericArtifacts/{index $.Vars "plugin_package_name"}:v1"
+    image_uri = "projects/${data.google_project.project.name}/locations/us-central1/repositories/my-artifact-registry-generic-repository/genericArtifacts/my-wasm-plugin-data:v1"
 
     labels = {
       test_label =  "test_value"
