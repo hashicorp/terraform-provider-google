@@ -210,6 +210,7 @@ func TestAccStorageTransferJob_transferJobName(t *testing.T) {
 	testDataSourceBucketName := acctest.RandString(t, 10)
 	testDataSinkName := acctest.RandString(t, 10)
 	testTransferJobDescription := acctest.RandString(t, 10)
+	testTransferUpdateJobDescription := acctest.RandString(t, 10)
 	testTransferJobName := fmt.Sprintf("tf-test-transfer-job-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -219,6 +220,14 @@ func TestAccStorageTransferJob_transferJobName(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferJob_transferJobName(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription, testTransferJobName),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccStorageTransferJob_transferJobName(envvar.GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferUpdateJobDescription, testTransferJobName),
 			},
 			{
 				ResourceName:      "google_storage_transfer_job.transfer_job",
@@ -1207,6 +1216,10 @@ resource "google_storage_transfer_job" "transfer_job" {
 
 func testAccStorageTransferJob_transferJobName(project string, dataSourceBucketName string, dataSinkBucketName string, transferJobDescription string, testTransferJobName string) string {
 	return fmt.Sprintf(`
+  provider "google" {
+    alias                 = "user-project-override"
+    user_project_override = true
+  }
   data "google_storage_transfer_project_service_account" "default" {
     project = "%s"
   }
@@ -1243,6 +1256,7 @@ func testAccStorageTransferJob_transferJobName(project string, dataSourceBucketN
     name        = "transferJobs/%s"
     description = "%s"
     project     = "%s"
+    provider    = google.user-project-override
   
     transfer_spec {
       gcs_data_source {

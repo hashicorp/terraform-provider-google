@@ -1005,11 +1005,22 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 		ServiceAccount:     d.Get("service_account").(string),
 	}
 
+	billingProject := project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	var res *storagetransfer.TransferJob
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
-			res, err = config.NewStorageTransferClient(userAgent).TransferJobs.Create(transferJob).Do()
+			createCall := config.NewStorageTransferClient(userAgent).TransferJobs.Create(transferJob)
+			if config.UserProjectOverride {
+				createCall.Header().Add("X-Goog-User-Project", billingProject)
+			}
+			res, err = createCall.Do()
 			return err
 		},
 	})
@@ -1041,8 +1052,19 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	billingProject := project
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	name := d.Get("name").(string)
-	res, err := config.NewStorageTransferClient(userAgent).TransferJobs.Get(name, project).Do()
+	readCall := config.NewStorageTransferClient(userAgent).TransferJobs.Get(name, project)
+	if config.UserProjectOverride {
+		readCall.Header().Add("X-Goog-User-Project", billingProject)
+	}
+
+	res, err := readCall.Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Transfer Job %q", name))
 	}
@@ -1200,7 +1222,18 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 
 	updateRequest.UpdateTransferJobFieldMask = strings.Join(fieldMask, ",")
 
-	res, err := config.NewStorageTransferClient(userAgent).TransferJobs.Patch(d.Get("name").(string), updateRequest).Do()
+	billingProject := project
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	updateCall := config.NewStorageTransferClient(userAgent).TransferJobs.Patch(d.Get("name").(string), updateRequest)
+	if config.UserProjectOverride {
+		updateCall.Header().Add("X-Goog-User-Project", billingProject)
+	}
+
+	res, err := updateCall.Do()
 	if err != nil {
 		return err
 	}
@@ -1236,10 +1269,21 @@ func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) 
 
 	updateRequest.UpdateTransferJobFieldMask = fieldMask
 
+	billingProject := project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	// Update transfer job with status set to DELETE
 	log.Printf("[DEBUG] Setting status to DELETE for: %v\n\n", transferJobName)
 	err = retry.Retry(1*time.Minute, func() *retry.RetryError {
-		_, err := config.NewStorageTransferClient(userAgent).TransferJobs.Patch(transferJobName, updateRequest).Do()
+		deleteCall := config.NewStorageTransferClient(userAgent).TransferJobs.Patch(transferJobName, updateRequest)
+		if config.UserProjectOverride {
+			deleteCall.Header().Add("X-Goog-User-Project", billingProject)
+		}
+		_, err := deleteCall.Do()
 		if err != nil {
 			return retry.RetryableError(err)
 		}
