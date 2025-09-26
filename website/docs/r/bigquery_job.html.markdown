@@ -534,6 +534,11 @@ The following arguments are supported:
   Configures an extract job.
   Structure is [documented below](#nested_configuration_extract).
 
+* `reservation` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The reservation that job would use. User can specify a reservation to execute the job. If this field is not set, reservation is determined based on the rules defined by the reservation assignments.
+  The expected format is `projects/{project}/locations/{location}/reservations/{reservation}`.
+
 * `location` -
   (Optional)
   The geographic location of the job. The default value is US.
