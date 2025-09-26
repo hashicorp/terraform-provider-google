@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `backend.0.max_in_flight_requests`, `backend.0.max_in_flight_requests_per_instance`, `backend.0.max_in_flight_requests_per_endpoint` and `backend.0.traffic_duration` fields to `google_compute_backend_service` resource (beta)
+```

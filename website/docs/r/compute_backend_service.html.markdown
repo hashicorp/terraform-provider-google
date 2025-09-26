@@ -1066,6 +1066,30 @@ The following arguments are supported:
   Used when balancingMode is UTILIZATION. This ratio defines the
   CPU utilization target for the group. Valid range is [0.0, 1.0].
 
+* `max_in_flight_requests` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Defines a maximum number of in-flight requests for the whole NEG
+  or instance group. Not available if backend's balancingMode is RATE
+  or CONNECTION.
+
+* `max_in_flight_requests_per_instance` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Defines a maximum number of in-flight requests for a single VM.
+  Not available if backend's balancingMode is RATE or CONNECTION.
+
+* `max_in_flight_requests_per_endpoint` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Defines a maximum number of in-flight requests for a single endpoint.
+  Not available if backend's balancingMode is RATE or CONNECTION.
+
+* `traffic_duration` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  This field specifies how long a connection should be kept alive for:
+  - LONG: Most of the requests are expected to take more than multiple
+    seconds to finish.
+  - SHORT: Most requests are expected to finish with a sub-second latency.
+  Possible values are: `LONG`, `SHORT`.
+
 * `custom_metrics` -
   (Optional)
   The set of custom metrics that are used for <code>CUSTOM_METRICS</code> BalancingMode.
