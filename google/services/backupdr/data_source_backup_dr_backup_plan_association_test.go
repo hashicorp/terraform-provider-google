@@ -192,8 +192,6 @@ func testAccCheckBackupPlanAssociationInList(dataSourceName, instanceName, backu
 		projectID := project.Primary.Attributes["project_id"]
 		projectNumber := project.Primary.Attributes["number"]
 
-		fmt.Printf("\n--- Performing Direct Association Check ---\n")
-
 		// 1. Reconstruct the 'resource' string using the project NUMBER and instance ID
 		//    to match the format returned by the BackupDR API.
 		instanceID := instance.Primary.Attributes["instance_id"]
@@ -207,21 +205,32 @@ func testAccCheckBackupPlanAssociationInList(dataSourceName, instanceName, backu
 
 		associationsCount, _ := strconv.Atoi(ds.Primary.Attributes["associations.#"])
 		fmt.Printf("Total associations found by data source: %d\n", associationsCount)
+		found := false
 
 		for i := 0; i < associationsCount; i++ {
 			resourceAttr := ds.Primary.Attributes[fmt.Sprintf("associations.%d.resource", i)]
 			backupPlanAttr := ds.Primary.Attributes[fmt.Sprintf("associations.%d.backup_plan", i)]
 
-			fmt.Printf("Found Association #%d: Resource='%s', BackupPlan='%s'\n", i, resourceAttr, backupPlanAttr)
-
 			if resourceAttr == expectedResource && backupPlanAttr == expectedBackupPlan {
-				fmt.Println("--- Match found! Test successful. ---")
-				return nil
+				prefix := fmt.Sprintf("associations.%d.", i)
+				checks := []resource.TestCheckFunc{
+					resource.TestCheckResourceAttrSet(dataSourceName, prefix+"name"),
+					resource.TestCheckResourceAttrSet(dataSourceName, prefix+"data_source"),
+
+					resource.TestCheckResourceAttrSet(dataSourceName, prefix+"rules_config_info.0.rule_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, prefix+"rules_config_info.0.last_backup_state"),
+				}
+				if err := resource.ComposeTestCheckFunc(checks...)(s); err != nil {
+					return fmt.Errorf("error checking new fields for association %d: %v", i, err)
+				}
+				found = true
+				break
 			}
 		}
-
-		fmt.Println("--- No match found after checking all associations. ---")
-		return fmt.Errorf("no matching backup plan association found in data source '%s' for resource '%s'", dataSourceName, expectedResource)
+		if !found {
+			return fmt.Errorf("no matching backup plan association found in data source '%s' for resource '%s'", dataSourceName, expectedResource)
+		}
+		return nil
 	}
 }
 
