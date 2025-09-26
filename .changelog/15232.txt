@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `reservation` field to `google_bigquery_job` resource (beta)
+```
