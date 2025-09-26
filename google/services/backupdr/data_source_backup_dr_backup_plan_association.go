@@ -106,6 +106,53 @@ func DataSourceGoogleCloudBackupDRBackupPlanAssociations() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"data_source": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"rules_config_info": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Message for rules config info",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"rule_id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Backup Rule id fetched from backup plan.",
+									},
+									"last_backup_state": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "State of last backup taken.",
+									},
+									"last_backup_error": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "google.rpc.Status object to store the last backup error",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"code": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: "The status code, which should be an enum value of [google.rpc.Code]",
+												},
+												"message": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "A developer-facing error message, which should be in English.",
+												},
+											},
+										},
+									},
+									"last_successful_backup_consistency_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The point in time when the last successful backup was captured from the source",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -155,7 +202,10 @@ func dataSourceGoogleCloudBackupDRBackupPlanAssociationsRead(d *schema.ResourceD
 			"name":        association["name"],
 			"resource":    association["resource"],
 			"backup_plan": association["backupPlan"],
-			"create_time": association["createTime"],
+			"data_source": association["dataSource"],
+		}
+		if rules, ok := association["rulesConfigInfo"].([]interface{}); ok {
+			flattened["rules_config_info"] = flattenRulesConfigInfo(rules)
 		}
 		associations = append(associations, flattened)
 	}
@@ -167,4 +217,30 @@ func dataSourceGoogleCloudBackupDRBackupPlanAssociationsRead(d *schema.ResourceD
 	d.SetId(url)
 
 	return nil
+}
+
+func flattenRulesConfigInfo(rules []interface{}) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(rules))
+	for _, rule := range rules {
+		ruleMap := rule.(map[string]interface{})
+		flatRule := map[string]interface{}{
+			"rule_id":           ruleMap["ruleId"],
+			"last_backup_state": ruleMap["lastBackupState"],
+		}
+
+		if consistencyTime, ok := ruleMap["lastSuccessfulBackupConsistencyTime"].(string); ok {
+			flatRule["last_successful_backup_consistency_time"] = consistencyTime
+		}
+
+		if errInfo, ok := ruleMap["lastBackupError"].(map[string]interface{}); ok {
+			flatRule["last_backup_error"] = []map[string]interface{}{
+				{
+					"code":    errInfo["code"],
+					"message": errInfo["message"],
+				},
+			}
+		}
+		result = append(result, flatRule)
+	}
+	return result
 }
