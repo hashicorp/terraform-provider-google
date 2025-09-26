@@ -61,7 +61,7 @@ func testAccNetworkServicesEdgeCacheKeyset_update(context map[string]interface{}
 	return acctest.Nprintf(`
 
 resource "google_network_services_edge_cache_keyset" "default" {
-  name                 = "default%{random_suffix}"
+  name                 = "tf-test-my-keyset%{random_suffix}"
   description          = "T2"
   public_key {
     id = "my-public-key-2"
