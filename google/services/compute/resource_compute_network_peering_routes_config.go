@@ -300,26 +300,27 @@ func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("peering"); ok && v != "" {
-		err = identity.Set("peering", d.Get("peering").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting peering: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("peering"); ok && v != "" {
+			err = identity.Set("peering", d.Get("peering").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting peering: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("network"); ok && v != "" {
-		err = identity.Set("network", d.Get("network").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting network: %s", err)
+		if v, ok := identity.GetOk("network"); ok && v != "" {
+			err = identity.Set("network", d.Get("network").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting network: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

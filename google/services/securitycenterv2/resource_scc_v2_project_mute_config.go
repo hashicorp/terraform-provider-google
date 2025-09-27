@@ -284,26 +284,27 @@ func resourceSecurityCenterV2ProjectMuteConfigRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("mute_config_id"); ok && v != "" {
-		err = identity.Set("mute_config_id", d.Get("mute_config_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting mute_config_id: %s", err)
+		if v, ok := identity.GetOk("mute_config_id"); ok && v != "" {
+			err = identity.Set("mute_config_id", d.Get("mute_config_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting mute_config_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

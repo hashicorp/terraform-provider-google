@@ -403,32 +403,33 @@ func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, me
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("org_id"); ok && v != "" {
-		err = identity.Set("org_id", d.Get("org_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting org_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("environment"); ok && v != "" {
-		err = identity.Set("environment", d.Get("environment").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting environment: %s", err)
+		if v, ok := identity.GetOk("environment"); ok && v != "" {
+			err = identity.Set("environment", d.Get("environment").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting environment: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("keystore"); ok && v != "" {
-		err = identity.Set("keystore", d.Get("keystore").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting keystore: %s", err)
+		if v, ok := identity.GetOk("keystore"); ok && v != "" {
+			err = identity.Set("keystore", d.Get("keystore").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting keystore: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("alias"); ok && v != "" {
-		err = identity.Set("alias", d.Get("alias").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting alias: %s", err)
+		if v, ok := identity.GetOk("alias"); ok && v != "" {
+			err = identity.Set("alias", d.Get("alias").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting alias: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

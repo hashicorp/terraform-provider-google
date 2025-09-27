@@ -237,20 +237,21 @@ func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interfa
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("bucket"); ok && v != "" {
-		err = identity.Set("bucket", d.Get("bucket").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting bucket: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("bucket"); ok && v != "" {
+			err = identity.Set("bucket", d.Get("bucket").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("entity"); ok && v != "" {
-		err = identity.Set("entity", d.Get("entity").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting entity: %s", err)
+		if v, ok := identity.GetOk("entity"); ok && v != "" {
+			err = identity.Set("entity", d.Get("entity").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting entity: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

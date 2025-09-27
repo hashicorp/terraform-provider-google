@@ -399,20 +399,21 @@ func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("name"); ok && v != "" {
-		err = identity.Set("name", d.Get("name").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting name: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("name"); ok && v != "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("key_ring"); ok && v != "" {
-		err = identity.Set("key_ring", d.Get("key_ring").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting key_ring: %s", err)
+		if v, ok := identity.GetOk("key_ring"); ok && v != "" {
+			err = identity.Set("key_ring", d.Get("key_ring").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting key_ring: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

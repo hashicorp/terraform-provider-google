@@ -263,20 +263,21 @@ func resourceSecurityCenterFolderNotificationConfigRead(d *schema.ResourceData, 
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("folder"); ok && v != "" {
-		err = identity.Set("folder", d.Get("folder").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting folder: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("folder"); ok && v != "" {
+			err = identity.Set("folder", d.Get("folder").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting folder: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("config_id"); ok && v != "" {
-		err = identity.Set("config_id", d.Get("config_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting config_id: %s", err)
+		if v, ok := identity.GetOk("config_id"); ok && v != "" {
+			err = identity.Set("config_id", d.Get("config_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting config_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

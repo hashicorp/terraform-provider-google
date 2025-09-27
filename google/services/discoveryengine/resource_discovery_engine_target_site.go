@@ -373,32 +373,33 @@ func resourceDiscoveryEngineTargetSiteRead(d *schema.ResourceData, meta interfac
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("data_store_id"); ok && v != "" {
-		err = identity.Set("data_store_id", d.Get("data_store_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting data_store_id: %s", err)
+		if v, ok := identity.GetOk("data_store_id"); ok && v != "" {
+			err = identity.Set("data_store_id", d.Get("data_store_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting data_store_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("target_site_id"); ok && v != "" {
-		err = identity.Set("target_site_id", d.Get("target_site_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting target_site_id: %s", err)
+		if v, ok := identity.GetOk("target_site_id"); ok && v != "" {
+			err = identity.Set("target_site_id", d.Get("target_site_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting target_site_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

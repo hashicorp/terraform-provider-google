@@ -196,14 +196,15 @@ func resourceKMSAutokeyConfigRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("folder"); ok && v != "" {
-		err = identity.Set("folder", d.Get("folder").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting folder: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("folder"); ok && v != "" {
+			err = identity.Set("folder", d.Get("folder").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting folder: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

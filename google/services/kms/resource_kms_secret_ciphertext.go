@@ -217,14 +217,15 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("crypto_key"); ok && v != "" {
-		err = identity.Set("crypto_key", d.Get("crypto_key").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting crypto_key: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("crypto_key"); ok && v != "" {
+			err = identity.Set("crypto_key", d.Get("crypto_key").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting crypto_key: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

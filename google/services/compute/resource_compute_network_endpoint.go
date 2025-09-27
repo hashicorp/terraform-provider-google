@@ -316,44 +316,45 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("instance"); ok && v != "" {
-		err = identity.Set("instance", d.Get("instance").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting instance: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("instance"); ok && v != "" {
+			err = identity.Set("instance", d.Get("instance").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("port"); ok && v != "" {
-		err = identity.Set("port", d.Get("port").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting port: %s", err)
+		if v, ok := identity.GetOk("port"); ok && v != "" {
+			err = identity.Set("port", d.Get("port").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting port: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("ip_address"); ok && v != "" {
-		err = identity.Set("ip_address", d.Get("ip_address").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting ip_address: %s", err)
+		if v, ok := identity.GetOk("ip_address"); ok && v != "" {
+			err = identity.Set("ip_address", d.Get("ip_address").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting ip_address: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("zone"); ok && v != "" {
-		err = identity.Set("zone", d.Get("zone").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting zone: %s", err)
+		if v, ok := identity.GetOk("zone"); ok && v != "" {
+			err = identity.Set("zone", d.Get("zone").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting zone: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("network_endpoint_group"); ok && v != "" {
-		err = identity.Set("network_endpoint_group", d.Get("network_endpoint_group").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting network_endpoint_group: %s", err)
+		if v, ok := identity.GetOk("network_endpoint_group"); ok && v != "" {
+			err = identity.Set("network_endpoint_group", d.Get("network_endpoint_group").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting network_endpoint_group: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

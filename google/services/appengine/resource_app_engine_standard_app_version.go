@@ -774,26 +774,27 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("version_id"); ok && v != "" {
-		err = identity.Set("version_id", d.Get("version_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting version_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("version_id"); ok && v != "" {
+			err = identity.Set("version_id", d.Get("version_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting version_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("service"); ok && v != "" {
-		err = identity.Set("service", d.Get("service").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting service: %s", err)
+		if v, ok := identity.GetOk("service"); ok && v != "" {
+			err = identity.Set("service", d.Get("service").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting service: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

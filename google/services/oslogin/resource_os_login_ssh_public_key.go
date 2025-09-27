@@ -243,20 +243,21 @@ func resourceOSLoginSSHPublicKeyRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("fingerprint"); ok && v != "" {
-		err = identity.Set("fingerprint", d.Get("fingerprint").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting fingerprint: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("fingerprint"); ok && v != "" {
+			err = identity.Set("fingerprint", d.Get("fingerprint").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting fingerprint: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("user"); ok && v != "" {
-		err = identity.Set("user", d.Get("user").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting user: %s", err)
+		if v, ok := identity.GetOk("user"); ok && v != "" {
+			err = identity.Set("user", d.Get("user").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting user: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

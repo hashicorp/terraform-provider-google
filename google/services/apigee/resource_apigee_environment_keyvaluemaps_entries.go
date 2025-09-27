@@ -188,20 +188,21 @@ func resourceApigeeEnvironmentKeyvaluemapsEntriesRead(d *schema.ResourceData, me
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("name"); ok && v != "" {
-		err = identity.Set("name", d.Get("name").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting name: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("name"); ok && v != "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("env_keyvaluemap_id"); ok && v != "" {
-		err = identity.Set("env_keyvaluemap_id", d.Get("env_keyvaluemap_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting env_keyvaluemap_id: %s", err)
+		if v, ok := identity.GetOk("env_keyvaluemap_id"); ok && v != "" {
+			err = identity.Set("env_keyvaluemap_id", d.Get("env_keyvaluemap_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting env_keyvaluemap_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

@@ -193,14 +193,15 @@ func resourceApigeeEnvironmentAddonsConfigRead(d *schema.ResourceData, meta inte
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("env_id"); ok && v != "" {
-		err = identity.Set("env_id", d.Get("env_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting env_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("env_id"); ok && v != "" {
+			err = identity.Set("env_id", d.Get("env_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting env_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

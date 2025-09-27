@@ -543,20 +543,21 @@ func resourceComputeFirewallPolicyRuleRead(d *schema.ResourceData, meta interfac
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("priority"); ok && v != "" {
-		err = identity.Set("priority", d.Get("priority").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting priority: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("priority"); ok && v != "" {
+			err = identity.Set("priority", d.Get("priority").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("firewall_policy"); ok && v != "" {
-		err = identity.Set("firewall_policy", d.Get("firewall_policy").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting firewall_policy: %s", err)
+		if v, ok := identity.GetOk("firewall_policy"); ok && v != "" {
+			err = identity.Set("firewall_policy", d.Get("firewall_policy").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting firewall_policy: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

@@ -334,26 +334,27 @@ func resourceDataplexAspectTypeRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("aspect_type_id"); ok && v != "" {
-		err = identity.Set("aspect_type_id", d.Get("aspect_type_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting aspect_type_id: %s", err)
+		if v, ok := identity.GetOk("aspect_type_id"); ok && v != "" {
+			err = identity.Set("aspect_type_id", d.Get("aspect_type_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting aspect_type_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

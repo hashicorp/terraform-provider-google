@@ -57,6 +57,11 @@ func ResourceContainerAzureClient() *schema.Resource {
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       "The project for the resource",
+					},
 					"location": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
@@ -66,11 +71,6 @@ func ResourceContainerAzureClient() *schema.Resource {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 						Description:       "The name of this resource.",
-					},
-					"project": {
-						Type:              schema.TypeString,
-						OptionalForImport: true,
-						Description:       "The project for the resource",
 					},
 				}
 			},

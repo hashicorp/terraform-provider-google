@@ -322,14 +322,15 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("project_id"); ok && v != "" {
-		err = identity.Set("project_id", d.Get("project_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("project_id"); ok && v != "" {
+			err = identity.Set("project_id", d.Get("project_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

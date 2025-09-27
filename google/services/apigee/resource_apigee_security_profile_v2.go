@@ -235,20 +235,21 @@ func resourceApigeeSecurityProfileV2Read(d *schema.ResourceData, meta interface{
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("org_id"); ok && v != "" {
-		err = identity.Set("org_id", d.Get("org_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting org_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("profile_id"); ok && v != "" {
-		err = identity.Set("profile_id", d.Get("profile_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting profile_id: %s", err)
+		if v, ok := identity.GetOk("profile_id"); ok && v != "" {
+			err = identity.Set("profile_id", d.Get("profile_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting profile_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

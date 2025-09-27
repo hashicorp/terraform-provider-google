@@ -275,26 +275,27 @@ func resourceDNSResponsePolicyRuleRead(d *schema.ResourceData, meta interface{})
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("rule_name"); ok && v != "" {
-		err = identity.Set("rule_name", d.Get("rule_name").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting rule_name: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("rule_name"); ok && v != "" {
+			err = identity.Set("rule_name", d.Get("rule_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting rule_name: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("response_policy"); ok && v != "" {
-		err = identity.Set("response_policy", d.Get("response_policy").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting response_policy: %s", err)
+		if v, ok := identity.GetOk("response_policy"); ok && v != "" {
+			err = identity.Set("response_policy", d.Get("response_policy").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting response_policy: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }
