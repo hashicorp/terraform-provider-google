@@ -323,26 +323,27 @@ func resourceActiveDirectoryDomainTrustRead(d *schema.ResourceData, meta interfa
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("target_domain_name"); ok && v != "" {
-		err = identity.Set("target_domain_name", d.Get("target_domain_name").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting target_domain_name: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("target_domain_name"); ok && v != "" {
+			err = identity.Set("target_domain_name", d.Get("target_domain_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting target_domain_name: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("domain"); ok && v != "" {
-		err = identity.Set("domain", d.Get("domain").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting domain: %s", err)
+		if v, ok := identity.GetOk("domain"); ok && v != "" {
+			err = identity.Set("domain", d.Get("domain").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting domain: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

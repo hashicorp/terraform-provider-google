@@ -227,14 +227,15 @@ func resourceSiteVerificationWebResourceRead(d *schema.ResourceData, meta interf
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("web_resource_id"); ok && v != "" {
-		err = identity.Set("web_resource_id", d.Get("web_resource_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting web_resource_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("web_resource_id"); ok && v != "" {
+			err = identity.Set("web_resource_id", d.Get("web_resource_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting web_resource_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

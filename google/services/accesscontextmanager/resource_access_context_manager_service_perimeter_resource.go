@@ -250,20 +250,21 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("resource"); ok && v != "" {
-		err = identity.Set("resource", d.Get("resource").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting resource: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("resource"); ok && v != "" {
+			err = identity.Set("resource", d.Get("resource").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("perimeter_name"); ok && v != "" {
-		err = identity.Set("perimeter_name", d.Get("perimeter_name").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting perimeter_name: %s", err)
+		if v, ok := identity.GetOk("perimeter_name"); ok && v != "" {
+			err = identity.Set("perimeter_name", d.Get("perimeter_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting perimeter_name: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

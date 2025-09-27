@@ -1861,20 +1861,21 @@ func resourceOSConfigV2PolicyOrchestratorForFolderRead(d *schema.ResourceData, m
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("folder_id"); ok && v != "" {
-		err = identity.Set("folder_id", d.Get("folder_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting folder_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("folder_id"); ok && v != "" {
+			err = identity.Set("folder_id", d.Get("folder_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("policy_orchestrator_id"); ok && v != "" {
-		err = identity.Set("policy_orchestrator_id", d.Get("policy_orchestrator_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+		if v, ok := identity.GetOk("policy_orchestrator_id"); ok && v != "" {
+			err = identity.Set("policy_orchestrator_id", d.Get("policy_orchestrator_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

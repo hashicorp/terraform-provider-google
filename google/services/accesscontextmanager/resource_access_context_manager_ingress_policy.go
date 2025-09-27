@@ -222,20 +222,21 @@ func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("resource"); ok && v != "" {
-		err = identity.Set("resource", d.Get("resource").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting resource: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("resource"); ok && v != "" {
+			err = identity.Set("resource", d.Get("resource").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("ingress_policy_name"); ok && v != "" {
-		err = identity.Set("ingress_policy_name", d.Get("ingress_policy_name").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting ingress_policy_name: %s", err)
+		if v, ok := identity.GetOk("ingress_policy_name"); ok && v != "" {
+			err = identity.Set("ingress_policy_name", d.Get("ingress_policy_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting ingress_policy_name: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

@@ -1887,20 +1887,21 @@ func resourceOSConfigV2PolicyOrchestratorRead(d *schema.ResourceData, meta inter
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("policy_orchestrator_id"); ok && v != "" {
-		err = identity.Set("policy_orchestrator_id", d.Get("policy_orchestrator_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("policy_orchestrator_id"); ok && v != "" {
+			err = identity.Set("policy_orchestrator_id", d.Get("policy_orchestrator_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

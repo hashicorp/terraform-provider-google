@@ -799,26 +799,27 @@ func resourceSecurityposturePostureRead(d *schema.ResourceData, meta interface{}
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("parent"); ok && v != "" {
-		err = identity.Set("parent", d.Get("parent").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting parent: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("parent"); ok && v != "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("posture_id"); ok && v != "" {
-		err = identity.Set("posture_id", d.Get("posture_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting posture_id: %s", err)
+		if v, ok := identity.GetOk("posture_id"); ok && v != "" {
+			err = identity.Set("posture_id", d.Get("posture_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting posture_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

@@ -1077,14 +1077,15 @@ func resourceAccessContextManagerServicePerimetersRead(d *schema.ResourceData, m
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("parent"); ok && v != "" {
-		err = identity.Set("parent", d.Get("parent").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting parent: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("parent"); ok && v != "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

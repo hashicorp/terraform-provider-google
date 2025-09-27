@@ -519,14 +519,15 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead(d *schem
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("perimeter"); ok && v != "" {
-		err = identity.Set("perimeter", d.Get("perimeter").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting perimeter: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("perimeter"); ok && v != "" {
+			err = identity.Set("perimeter", d.Get("perimeter").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting perimeter: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

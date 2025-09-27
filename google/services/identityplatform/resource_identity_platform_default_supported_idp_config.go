@@ -257,20 +257,21 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigRead(d *schema.ResourceDat
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("idp_id"); ok && v != "" {
-		err = identity.Set("idp_id", d.Get("idp_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting idp_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("idp_id"); ok && v != "" {
+			err = identity.Set("idp_id", d.Get("idp_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting idp_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

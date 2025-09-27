@@ -301,20 +301,21 @@ func resourceStorageAnywhereCacheRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("anywhere_cache_id"); ok && v != "" {
-		err = identity.Set("anywhere_cache_id", d.Get("anywhere_cache_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting anywhere_cache_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("anywhere_cache_id"); ok && v != "" {
+			err = identity.Set("anywhere_cache_id", d.Get("anywhere_cache_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting anywhere_cache_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("bucket"); ok && v != "" {
-		err = identity.Set("bucket", d.Get("bucket").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting bucket: %s", err)
+		if v, ok := identity.GetOk("bucket"); ok && v != "" {
+			err = identity.Set("bucket", d.Get("bucket").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

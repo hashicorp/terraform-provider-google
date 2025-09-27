@@ -283,32 +283,33 @@ func resourceIAMWorkforcePoolOauthClientCredentialRead(d *schema.ResourceData, m
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("oauthclient"); ok && v != "" {
-		err = identity.Set("oauthclient", d.Get("oauthclient").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting oauthclient: %s", err)
+		if v, ok := identity.GetOk("oauthclient"); ok && v != "" {
+			err = identity.Set("oauthclient", d.Get("oauthclient").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting oauthclient: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("oauth_client_credential_id"); ok && v != "" {
-		err = identity.Set("oauth_client_credential_id", d.Get("oauth_client_credential_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting oauth_client_credential_id: %s", err)
+		if v, ok := identity.GetOk("oauth_client_credential_id"); ok && v != "" {
+			err = identity.Set("oauth_client_credential_id", d.Get("oauth_client_credential_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting oauth_client_credential_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

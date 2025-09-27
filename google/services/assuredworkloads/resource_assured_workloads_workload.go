@@ -64,15 +64,15 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 						RequiredForImport: true,
 						Description:       "The location for the resource",
 					},
-					"organization": {
-						Type:              schema.TypeString,
-						RequiredForImport: true,
-						Description:       "The organization for the resource",
-					},
 					"name": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 						Description:       "Output only. The resource name of the workload.",
+					},
+					"organization": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The organization for the resource",
 					},
 				}
 			},

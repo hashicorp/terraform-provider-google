@@ -255,20 +255,21 @@ func resourceApigeeSecurityMonitoringConditionRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("org_id"); ok && v != "" {
-		err = identity.Set("org_id", d.Get("org_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting org_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("condition_id"); ok && v != "" {
-		err = identity.Set("condition_id", d.Get("condition_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting condition_id: %s", err)
+		if v, ok := identity.GetOk("condition_id"); ok && v != "" {
+			err = identity.Set("condition_id", d.Get("condition_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting condition_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

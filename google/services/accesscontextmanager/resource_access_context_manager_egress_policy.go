@@ -222,20 +222,21 @@ func resourceAccessContextManagerEgressPolicyRead(d *schema.ResourceData, meta i
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("resource"); ok && v != "" {
-		err = identity.Set("resource", d.Get("resource").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting resource: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("resource"); ok && v != "" {
+			err = identity.Set("resource", d.Get("resource").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("egress_policy_name"); ok && v != "" {
-		err = identity.Set("egress_policy_name", d.Get("egress_policy_name").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting egress_policy_name: %s", err)
+		if v, ok := identity.GetOk("egress_policy_name"); ok && v != "" {
+			err = identity.Set("egress_policy_name", d.Get("egress_policy_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting egress_policy_name: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

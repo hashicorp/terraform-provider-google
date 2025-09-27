@@ -251,32 +251,33 @@ func resourceLoggingLogViewRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("name"); ok && v != "" {
-		err = identity.Set("name", d.Get("name").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting name: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("name"); ok && v != "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("parent"); ok && v != "" {
-		err = identity.Set("parent", d.Get("parent").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting parent: %s", err)
+		if v, ok := identity.GetOk("parent"); ok && v != "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("bucket"); ok && v != "" {
-		err = identity.Set("bucket", d.Get("bucket").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting bucket: %s", err)
+		if v, ok := identity.GetOk("bucket"); ok && v != "" {
+			err = identity.Set("bucket", d.Get("bucket").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

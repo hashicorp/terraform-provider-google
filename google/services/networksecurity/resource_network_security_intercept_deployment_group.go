@@ -381,26 +381,27 @@ func resourceNetworkSecurityInterceptDeploymentGroupRead(d *schema.ResourceData,
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("intercept_deployment_group_id"); ok && v != "" {
-		err = identity.Set("intercept_deployment_group_id", d.Get("intercept_deployment_group_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting intercept_deployment_group_id: %s", err)
+		if v, ok := identity.GetOk("intercept_deployment_group_id"); ok && v != "" {
+			err = identity.Set("intercept_deployment_group_id", d.Get("intercept_deployment_group_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting intercept_deployment_group_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("project"); ok && v != "" {
-		err = identity.Set("project", d.Get("project").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting project: %s", err)
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

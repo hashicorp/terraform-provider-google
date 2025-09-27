@@ -297,26 +297,27 @@ func resourceSecurityCenterV2FolderSccBigQueryExportRead(d *schema.ResourceData,
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("folder"); ok && v != "" {
-		err = identity.Set("folder", d.Get("folder").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting folder: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("folder"); ok && v != "" {
+			err = identity.Set("folder", d.Get("folder").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting folder: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("big_query_export_id"); ok && v != "" {
-		err = identity.Set("big_query_export_id", d.Get("big_query_export_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting big_query_export_id: %s", err)
+		if v, ok := identity.GetOk("big_query_export_id"); ok && v != "" {
+			err = identity.Set("big_query_export_id", d.Get("big_query_export_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting big_query_export_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

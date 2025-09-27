@@ -485,14 +485,15 @@ func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("access_level"); ok && v != "" {
-		err = identity.Set("access_level", d.Get("access_level").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting access_level: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("access_level"); ok && v != "" {
+			err = identity.Set("access_level", d.Get("access_level").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting access_level: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

@@ -277,26 +277,27 @@ func resourceSecurityCenterManagementOrganizationEventThreatDetectionCustomModul
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("name"); ok && v != "" {
-		err = identity.Set("name", d.Get("name").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting name: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("name"); ok && v != "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("organization"); ok && v != "" {
-		err = identity.Set("organization", d.Get("organization").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting organization: %s", err)
+		if v, ok := identity.GetOk("organization"); ok && v != "" {
+			err = identity.Set("organization", d.Get("organization").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

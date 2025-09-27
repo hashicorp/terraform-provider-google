@@ -202,20 +202,21 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("client_id"); ok && v != "" {
-		err = identity.Set("client_id", d.Get("client_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting client_id: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("client_id"); ok && v != "" {
+			err = identity.Set("client_id", d.Get("client_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting client_id: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("brand"); ok && v != "" {
-		err = identity.Set("brand", d.Get("brand").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting brand: %s", err)
+		if v, ok := identity.GetOk("brand"); ok && v != "" {
+			err = identity.Set("brand", d.Get("brand").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting brand: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

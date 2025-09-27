@@ -341,26 +341,27 @@ func resourceIAM3PrincipalAccessBoundaryPolicyRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("organization"); ok && v != "" {
-		err = identity.Set("organization", d.Get("organization").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting organization: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("organization"); ok && v != "" {
+			err = identity.Set("organization", d.Get("organization").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("location"); ok && v != "" {
-		err = identity.Set("location", d.Get("location").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting location: %s", err)
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
 		}
-	}
-	if v, ok := identity.GetOk("principal_access_boundary_policy_id"); ok && v != "" {
-		err = identity.Set("principal_access_boundary_policy_id", d.Get("principal_access_boundary_policy_id").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting principal_access_boundary_policy_id: %s", err)
+		if v, ok := identity.GetOk("principal_access_boundary_policy_id"); ok && v != "" {
+			err = identity.Set("principal_access_boundary_policy_id", d.Get("principal_access_boundary_policy_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting principal_access_boundary_policy_id: %s", err)
+			}
 		}
+	} else {
+		fmt.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }
