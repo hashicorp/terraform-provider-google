@@ -1,7 +1,7 @@
 ## 7.5.0 (Unreleased)
 
 BREAKING CHANGES:
-* netapp: changed `peerIpAddresses` field type from String to Array in `google_netapp_volume` resource ([#24428](https://github.com/hashicorp/terraform-provider-google/pull/24428))
+* netapp: changed `peerIpAddresses` field type from String to Array in `google_netapp_volume` resource, as it was unusable otherwise ([#24428](https://github.com/hashicorp/terraform-provider-google/pull/24428))
 
 FEATURES:
 * **New Data Source:** `google_artifact_registry_maven_artifacts` ([#24487](https://github.com/hashicorp/terraform-provider-google/pull/24487))
@@ -23,7 +23,7 @@ IMPROVEMENTS:
 * dlp: added `other_cloud_target` and `other_cloud_starting_location` to `google_data_loss_prevention_discovery_config` ([#24463](https://github.com/hashicorp/terraform-provider-google/pull/24463))
 * gkebackup: added `backup_config.selected_namespace_labels` field to `google_gke_backup_backup_plan` resource ([#24427](https://github.com/hashicorp/terraform-provider-google/pull/24427))
 * looker: added `gemini_enabled` field to `google_looker_instance` resource ([#24461](https://github.com/hashicorp/terraform-provider-google/pull/24461))
-* netapp: aded `hot_tier_bypass_mode_enabled` and `hot_tier_size_used_gib` fields to `google_netapp_volume` ([#24454](https://github.com/hashicorp/terraform-provider-google/pull/24454))
+* netapp: added `hot_tier_bypass_mode_enabled` and `hot_tier_size_used_gib` fields to `google_netapp_volume` ([#24454](https://github.com/hashicorp/terraform-provider-google/pull/24454))
 * netapp: added `hot_tier_size_gib`, `enable_hot_tier_auto_resize`, `cold_tier_size_used_gib` and `hot_tier_size_used_gib` fields to `google_netapp_storage_pool` ([#24454](https://github.com/hashicorp/terraform-provider-google/pull/24454))
 * oracledatabase: added `gcp_oracle_zone` field to `google_oracle_database_odb_network` resource ([#24456](https://github.com/hashicorp/terraform-provider-google/pull/24456))
 * privilegedaccessmanager: added `approval_workflow.steps.id` field to `google_privileged_access_manager_entitlement` resource ([#24419](https://github.com/hashicorp/terraform-provider-google/pull/24419))
@@ -36,8 +36,8 @@ IMPROVEMENTS:
 * vertexai: added `kmsKeyName` field to `google_vertex_ai_index` resource ([#24441](https://github.com/hashicorp/terraform-provider-google/pull/24441))
 
 BUG FIXES:
-* apihub: fixed permadiff on `config_template` in `google_apihub_plugin` resource ([#24429](https://github.com/hashicorp/terraform-provider-google/pull/24429))
-* storage: fixed panic caused by empty `cors` blocks `google_storage_bucket` resource ([#24476](https://github.com/hashicorp/terraform-provider-google/pull/24476))
+* apihub: fixed a permadiff on `config_template` in `google_apihub_plugin` resource ([#24429](https://github.com/hashicorp/terraform-provider-google/pull/24429))
+* storage: fixed a panic caused by empty `cors` blocks `google_storage_bucket` resource ([#24476](https://github.com/hashicorp/terraform-provider-google/pull/24476))
 
 ## 7.4.0 (September 23, 2025)
 
