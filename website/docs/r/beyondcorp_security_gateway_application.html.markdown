@@ -81,26 +81,95 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=beyondcorp_security_gateway_application_spa_api&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Beyondcorp Security Gateway Application Spa Api
+
+
+```hcl
+resource "google_beyondcorp_security_gateway" "default" {
+  security_gateway_id = "default-sg-spa-api"
+  display_name = "My SPA Security Gateway resource"
+}
+
+resource "google_beyondcorp_security_gateway_application" "example-spa" {
+  security_gateway_id = google_beyondcorp_security_gateway.default.security_gateway_id
+  application_id = "app-discovery"
+  upstreams {
+    external {
+      endpoints {
+        hostname = "my.discovery.service.com"
+        port = 443
+      }
+    }
+    proxy_protocol {
+      allowed_client_headers= ["header"]
+    }
+  }
+  schema = "API_GATEWAY"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=beyondcorp_security_gateway_application_spa_proxy&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Beyondcorp Security Gateway Application Spa Proxy
+
+
+```hcl
+resource "google_beyondcorp_security_gateway" "default" {
+  security_gateway_id = "default-sg-spa-proxy"
+  display_name = "My SPA Security Gateway resource"
+}
+
+resource "google_beyondcorp_security_gateway_application" "example-spa" {
+  security_gateway_id = google_beyondcorp_security_gateway.default.security_gateway_id
+  application_id = "app-proxy"
+  endpoint_matchers {
+    hostname = "a.site.com"
+    ports = [443]
+  }
+  upstreams {
+    external {
+      endpoints {
+        hostname = "my.proxy.service.com"
+        port = 443
+      }
+    }
+    proxy_protocol {
+      allowed_client_headers = ["header1", "header2"]
+      contextual_headers {
+        user_info {
+          output_type = "PROTOBUF"
+        }
+        group_info {
+          output_type = "JSON"
+        }
+        device_info {
+          output_type = "NONE"
+        }
+        output_type = "JSON"
+      }
+      metadata_headers = {
+        metadata-header1 = "value1"
+        metadata-header2 = "value2"
+      }
+      gateway_identity = "RESOURCE_NAME"
+      client_ip = true
+    }
+  }
+  schema = "PROXY_GATEWAY"
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-
-* `endpoint_matchers` -
-  (Required)
-  Required. Endpoint matchers associated with an application.
-  A combination of hostname and ports as endpoint matcher is used to match
-  the application.
-  Match conditions for OR logic.
-  An array of match conditions to allow for multiple matching criteria.
-  The rule is considered a match if one the conditions are met.
-  The conditions can be one of the following combination
-  (Hostname), (Hostname & Ports)
-  EXAMPLES:
-  Hostname - ("*.abc.com"), ("xyz.abc.com")
-  Hostname and Ports - ("abc.com" and "22"), ("abc.com" and "22,33") etc
-  Structure is [documented below](#nested_endpoint_matchers).
 
 * `security_gateway_id` -
   (Required)
@@ -119,10 +188,30 @@ The following arguments are supported:
   Optional. An arbitrary user-provided name for the Application resource.
   Cannot exceed 64 characters.
 
+* `endpoint_matchers` -
+  (Optional)
+  Required. Endpoint matchers associated with an application.
+  A combination of hostname and ports as endpoint matcher is used to match
+  the application.
+  Match conditions for OR logic.
+  An array of match conditions to allow for multiple matching criteria.
+  The rule is considered a match if one the conditions are met.
+  The conditions can be one of the following combination
+  (Hostname), (Hostname & Ports)
+  EXAMPLES:
+  Hostname - ("*.abc.com"), ("xyz.abc.com")
+  Hostname and Ports - ("abc.com" and "22"), ("abc.com" and "22,33") etc
+  Structure is [documented below](#nested_endpoint_matchers).
+
 * `upstreams` -
   (Optional)
   Optional. List of which upstream resource(s) to forward traffic to.
   Structure is [documented below](#nested_upstreams).
+
+* `schema` -
+  (Optional)
+  Type of the external application.
+  Possible values are: `PROXY_GATEWAY`, `API_GATEWAY`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -151,6 +240,16 @@ The following arguments are supported:
   Network to forward traffic to.
   Structure is [documented below](#nested_upstreams_upstreams_network).
 
+* `external` -
+  (Optional)
+  List of the external endpoints to forward traffic to.
+  Structure is [documented below](#nested_upstreams_upstreams_external).
+
+* `proxy_protocol` -
+  (Optional)
+  Shared proxy configuration for all apps.
+  Structure is [documented below](#nested_upstreams_upstreams_proxy_protocol).
+
 
 <a name="nested_upstreams_upstreams_egress_policy"></a>The `egress_policy` block supports:
 
@@ -164,6 +263,97 @@ The following arguments are supported:
   (Required)
   Required. Network name is of the format:
   `projects/{project}/global/networks/{network}`
+
+<a name="nested_upstreams_upstreams_external"></a>The `external` block supports:
+
+* `endpoints` -
+  (Required)
+  List of the endpoints to forward traffic to.
+  Structure is [documented below](#nested_upstreams_upstreams_external_endpoints).
+
+
+<a name="nested_upstreams_upstreams_external_endpoints"></a>The `endpoints` block supports:
+
+* `hostname` -
+  (Required)
+  Hostname of the endpoint.
+
+* `port` -
+  (Required)
+  Port of the endpoint.
+
+<a name="nested_upstreams_upstreams_proxy_protocol"></a>The `proxy_protocol` block supports:
+
+* `allowed_client_headers` -
+  (Optional)
+  The configuration for the proxy.
+
+* `contextual_headers` -
+  (Optional)
+  Configuration for the contextual headers.
+  Structure is [documented below](#nested_upstreams_upstreams_proxy_protocol_contextual_headers).
+
+* `metadata_headers` -
+  (Optional)
+  Custom resource specific headers along with the values.
+  The names should conform to RFC 9110:
+  > Field names SHOULD constrain themselves to alphanumeric characters, "-",
+    and ".", and SHOULD begin with a letter.
+  > Field values SHOULD contain only ASCII printable characters and tab.
+
+* `gateway_identity` -
+  (Optional)
+  Gateway identity configuration.
+  Possible values are: `RESOURCE_NAME`.
+
+* `client_ip` -
+  (Optional)
+  Client IP configuration. The client IP address is included if true.
+
+
+<a name="nested_upstreams_upstreams_proxy_protocol_contextual_headers"></a>The `contextual_headers` block supports:
+
+* `user_info` -
+  (Optional)
+  User info configuration.
+  Structure is [documented below](#nested_upstreams_upstreams_proxy_protocol_contextual_headers_user_info).
+
+* `group_info` -
+  (Optional)
+  Group info configuration.
+  Structure is [documented below](#nested_upstreams_upstreams_proxy_protocol_contextual_headers_group_info).
+
+* `device_info` -
+  (Optional)
+  Device info configuration.
+  Structure is [documented below](#nested_upstreams_upstreams_proxy_protocol_contextual_headers_device_info).
+
+* `output_type` -
+  (Optional)
+  Default output type for all enabled headers.
+  Possible values are: `PROTOBUF`, `JSON`, `NONE`.
+
+
+<a name="nested_upstreams_upstreams_proxy_protocol_contextual_headers_user_info"></a>The `user_info` block supports:
+
+* `output_type` -
+  (Optional)
+  The output type of the delegated user info.
+  Possible values are: `PROTOBUF`, `JSON`, `NONE`.
+
+<a name="nested_upstreams_upstreams_proxy_protocol_contextual_headers_group_info"></a>The `group_info` block supports:
+
+* `output_type` -
+  (Optional)
+  The output type of the delegated group info.
+  Possible values are: `PROTOBUF`, `JSON`, `NONE`.
+
+<a name="nested_upstreams_upstreams_proxy_protocol_contextual_headers_device_info"></a>The `device_info` block supports:
+
+* `output_type` -
+  (Optional)
+  The output type of the delegated device info.
+  Possible values are: `PROTOBUF`, `JSON`, `NONE`.
 
 ## Attributes Reference
 

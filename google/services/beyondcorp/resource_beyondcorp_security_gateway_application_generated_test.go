@@ -126,6 +126,130 @@ resource "google_beyondcorp_security_gateway_application" "example" {
 `, context)
 }
 
+func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaApiExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBeyondcorpSecurityGatewayApplicationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaApiExample(context),
+			},
+			{
+				ResourceName:            "google_beyondcorp_security_gateway_application.example-spa",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"application_id", "security_gateway_id"},
+			},
+		},
+	})
+}
+
+func testAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaApiExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_beyondcorp_security_gateway" "default" {
+  security_gateway_id = "tf-test-default-sg-spa-api%{random_suffix}"
+  display_name = "My SPA Security Gateway resource"
+}
+
+resource "google_beyondcorp_security_gateway_application" "example-spa" {
+  security_gateway_id = google_beyondcorp_security_gateway.default.security_gateway_id
+  application_id = "tf-test-app-discovery%{random_suffix}"
+  upstreams {
+    external {
+      endpoints {
+        hostname = "my.discovery.service.com"
+        port = 443
+      }
+    }
+    proxy_protocol {
+      allowed_client_headers= ["header"]
+    }
+  }
+  schema = "API_GATEWAY"
+}
+`, context)
+}
+
+func TestAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaProxyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBeyondcorpSecurityGatewayApplicationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaProxyExample(context),
+			},
+			{
+				ResourceName:            "google_beyondcorp_security_gateway_application.example-spa",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"application_id", "security_gateway_id"},
+			},
+		},
+	})
+}
+
+func testAccBeyondcorpSecurityGatewayApplication_beyondcorpSecurityGatewayApplicationSpaProxyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_beyondcorp_security_gateway" "default" {
+  security_gateway_id = "tf-test-default-sg-spa-proxy%{random_suffix}"
+  display_name = "My SPA Security Gateway resource"
+}
+
+resource "google_beyondcorp_security_gateway_application" "example-spa" {
+  security_gateway_id = google_beyondcorp_security_gateway.default.security_gateway_id
+  application_id = "tf-test-app-proxy%{random_suffix}"
+  endpoint_matchers {
+    hostname = "a.site.com"
+    ports = [443]
+  }
+  upstreams {
+    external {
+      endpoints {
+        hostname = "my.proxy.service.com"
+        port = 443
+      }
+    }
+    proxy_protocol {
+      allowed_client_headers = ["header1", "header2"]
+      contextual_headers {
+        user_info {
+          output_type = "PROTOBUF"
+        }
+        group_info {
+          output_type = "JSON"
+        }
+        device_info {
+          output_type = "NONE"
+        }
+        output_type = "JSON"
+      }
+      metadata_headers = {
+        metadata-header1 = "value1"
+        metadata-header2 = "value2"
+      }
+      gateway_identity = "RESOURCE_NAME"
+      client_ip = true
+    }
+  }
+  schema = "PROXY_GATEWAY"
+}
+`, context)
+}
+
 func testAccCheckBeyondcorpSecurityGatewayApplicationDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

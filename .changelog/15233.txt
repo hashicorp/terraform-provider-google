@@ -1,0 +1,7 @@
+```release-note:enhancement
+beyondcorp:  added `external`, `proxy_protocol`, and `schema` fields to `beyondcorp_security_gateway_application` resource 
+```
+
+```release-note:enhancement
+beyondcorp:  changed `endpoint_matchers` field to not be required anymore in the `beyondcorp_security_gateway_application` resource
+```
