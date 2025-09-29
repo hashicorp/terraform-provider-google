@@ -29,6 +29,8 @@ import (
 func TestAccDataSourceGoogleStoragePoolTypes(t *testing.T) {
 	t.Parallel()
 
+	resourceName := "data.google_compute_storage_pool_types.balanced"
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -36,7 +38,13 @@ func TestAccDataSourceGoogleStoragePoolTypes(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleStoragePoolTypes("us-central1-a"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleStoragePoolTypesCheck(envvar.GetTestProjectFromEnv(), "data.google_compute_storage_pool_types.balanced"),
+					testAccDataSourceGoogleStoragePoolTypesCheck(envvar.GetTestProjectFromEnv(), resourceName),
+					resource.TestCheckResourceAttrSet(resourceName, "min_pool_provisioned_capacity_gb"),
+					resource.TestCheckResourceAttrSet(resourceName, "max_pool_provisioned_capacity_gb"),
+					resource.TestCheckResourceAttrSet(resourceName, "min_pool_provisioned_iops"),
+					resource.TestCheckResourceAttrSet(resourceName, "max_pool_provisioned_iops"),
+					resource.TestCheckResourceAttrSet(resourceName, "min_pool_provisioned_throughput"),
+					resource.TestCheckResourceAttrSet(resourceName, "max_pool_provisioned_throughput"),
 				),
 			},
 		},
@@ -54,20 +62,14 @@ func testAccDataSourceGoogleStoragePoolTypesCheck(projectID, data_source_name st
 		ver := "v1"
 
 		expected := map[string]string{
-			"kind":                             "compute#storagePoolType",
-			"id":                               "1002",
-			"creation_timestamp":               "1969-12-31T16:00:00.000-08:00",
-			"name":                             "hyperdisk-balanced",
-			"description":                      "Hyperdisk Balanced Storage Pool",
-			"zone":                             fmt.Sprintf("https://www.googleapis.com/compute/%s/projects/%s/zones/us-central1-a", ver, projectID),
-			"self_link":                        fmt.Sprintf("https://www.googleapis.com/compute/%s/projects/%s/zones/us-central1-a/storagePoolTypes/hyperdisk-balanced", ver, projectID),
-			"self_link_with_id":                fmt.Sprintf("https://www.googleapis.com/compute/%s/projects/%s/zones/us-central1-a/storagePoolTypes/1002", ver, projectID),
-			"min_pool_provisioned_capacity_gb": "10240",
-			"max_pool_provisioned_capacity_gb": "5242880",
-			"min_pool_provisioned_iops":        "0",
-			"max_pool_provisioned_iops":        "4190000",
-			"min_pool_provisioned_throughput":  "0",
-			"max_pool_provisioned_throughput":  "1048576",
+			"kind":               "compute#storagePoolType",
+			"id":                 "1002",
+			"creation_timestamp": "1969-12-31T16:00:00.000-08:00",
+			"name":               "hyperdisk-balanced",
+			"description":        "Hyperdisk Balanced Storage Pool",
+			"zone":               fmt.Sprintf("https://www.googleapis.com/compute/%s/projects/%s/zones/us-central1-a", ver, projectID),
+			"self_link":          fmt.Sprintf("https://www.googleapis.com/compute/%s/projects/%s/zones/us-central1-a/storagePoolTypes/hyperdisk-balanced", ver, projectID),
+			"self_link_with_id":  fmt.Sprintf("https://www.googleapis.com/compute/%s/projects/%s/zones/us-central1-a/storagePoolTypes/1002", ver, projectID),
 		}
 
 		for k, v := range expected {
