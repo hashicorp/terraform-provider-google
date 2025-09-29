@@ -110,7 +110,7 @@ resource "google_dialogflow_conversation_profile" "recognition_result_notificati
   location = "global"
   new_recognition_result_notification_config {
     topic = google_pubsub_topic.recognition_result_notification_profile.id
-    message_format =  "JSON%{random_suffix}"
+    message_format =  "JSON"
   }
 }
 
