@@ -3353,7 +3353,7 @@ data "google_compute_image" "my_image" {
 resource "google_compute_region_instance_template" "foobar" {
   name         = "tf-test-instance-template-%s"
   region       = "us-central1"
-  machine_type = "c2-standard-2"
+  machine_type = "n2-standard-2"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
