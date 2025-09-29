@@ -1,0 +1,6 @@
+```release-note:enhancement
+networksecurity: added `ip_blocks`  field to `google_network_security_authz_policy` resource
+```
+```release-note:deprecation
+networksecurity: deprecated `ignore_case`, `exact`, `prefix`, `suffix` and `contains` on `google_network_security_authz_policy.http_rules.from.not_sources` and `google_network_security_authz_policy.http_rules.from.sources`. Use `location` instead.
+```

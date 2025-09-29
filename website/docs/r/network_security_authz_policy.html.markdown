@@ -237,8 +237,16 @@ resource "google_network_security_authz_policy" "default" {
   http_rules {
     from {
       not_sources {
+          ip_blocks {
+          length = 24
+          prefix = "10.1.5.0"
+        }
         principals {
-          exact = "dummy-principal"
+          principal_selector = "CLIENT_CERT_URI_SAN"
+          principal {
+            ignore_case = true
+            exact       = "exact"
+          }
         }
       }
     }
@@ -350,16 +358,21 @@ The following arguments are supported:
 
 * `sources` -
   (Optional)
-  Describes the properties of a request's sources. At least one of sources or notSources must be specified. Limited to 5 sources. A match occurs when ANY source (in sources or notSources) matches the request. Within a single source, the match follows AND semantics across fields and OR semantics within a single field, i.e. a match occurs when ANY principal matches AND ANY ipBlocks match.
+  Describes the properties of a request's sources. At least one of sources or notSources must be specified. Limited to 1 source. A match occurs when ANY source (in sources or notSources) matches the request. Within a single source, the match follows AND semantics across fields and OR semantics within a single field, i.e. a match occurs when ANY principal matches AND ANY ipBlocks match.
   Structure is [documented below](#nested_http_rules_http_rules_from_sources).
 
 * `not_sources` -
   (Optional)
-  Describes the properties of a request's sources. At least one of sources or notSources must be specified. Limited to 5 sources. A match occurs when ANY source (in sources or notSources) matches the request. Within a single source, the match follows AND semantics across fields and OR semantics within a single field, i.e. a match occurs when ANY principal matches AND ANY ipBlocks match.
+  Describes the negated properties of request sources. Matches requests from sources that do not match the criteria specified in this field. At least one of sources or notSources must be specified. Limited to 1 not_source.
   Structure is [documented below](#nested_http_rules_http_rules_from_not_sources).
 
 
 <a name="nested_http_rules_http_rules_from_sources"></a>The `sources` block supports:
+
+* `ip_blocks` -
+  (Optional)
+  A list of IP addresses or IP address ranges to match against the source IP address of the request. Limited to 10 ipBlocks per Authorization Policy
+  Structure is [documented below](#nested_http_rules_http_rules_from_sources_sources_ip_blocks).
 
 * `principals` -
   (Optional)
@@ -374,7 +387,70 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_from_sources_sources_resources).
 
 
+<a name="nested_http_rules_http_rules_from_sources_sources_ip_blocks"></a>The `ip_blocks` block supports:
+
+* `prefix` -
+  (Required)
+  The address prefix.
+
+* `length` -
+  (Required)
+  The length of the address range.
+
 <a name="nested_http_rules_http_rules_from_sources_sources_principals"></a>The `principals` block supports:
+
+* `principal_selector` -
+  (Optional)
+  An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN.
+  Default value is `CLIENT_CERT_URI_SAN`.
+  Possible values are: `PRINCIPAL_SELECTOR_UNSPECIFIED`, `CLIENT_CERT_URI_SAN`, `CLIENT_CERT_DNS_NAME_SAN`, `CLIENT_CERT_COMMON_NAME`.
+
+* `principal` -
+  (Optional)
+  Required. A non-empty string whose value is matched against the principal value based on the principalSelector.
+  Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SAN, CLIENT_CERT_COMMON_NAME selectors.
+  Structure is [documented below](#nested_http_rules_http_rules_from_sources_sources_principals_principals_principal).
+
+* `ignore_case` -
+  (Optional, Deprecated)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
+  ~> **Warning:** `principals.ignore_case` is deprecated and will be removed in a future major release. Use `principals.principal.ignore_case` instead.
+
+* `exact` -
+  (Optional, Deprecated)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+  ~> **Warning:** `principals.exact` is deprecated and will be removed in a future major release. Use `principals.principal.exact` instead.
+
+* `prefix` -
+  (Optional, Deprecated)
+  The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value abc.xyz
+
+  ~> **Warning:** `principals.prefix` is deprecated and will be removed in a future major release. Use `principals.principal.prefix` instead.
+
+* `suffix` -
+  (Optional, Deprecated)
+  The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc
+
+  ~> **Warning:** `principals.suffix` is deprecated and will be removed in a future major release. Use `principals.principal.suffix` instead.
+
+* `contains` -
+  (Optional, Deprecated)
+  The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc.def
+
+  ~> **Warning:** `principals.contains` is deprecated and will be removed in a future major release. Use `principals.principal.contains` instead.
+
+
+<a name="nested_http_rules_http_rules_from_sources_sources_principals_principals_principal"></a>The `principal` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -456,6 +532,11 @@ The following arguments are supported:
 
 <a name="nested_http_rules_http_rules_from_not_sources"></a>The `not_sources` block supports:
 
+* `ip_blocks` -
+  (Optional)
+  A list of IP addresses or IP address ranges to match against the source IP address of the request. Limited to 10 ipBlocks per Authorization Policy
+  Structure is [documented below](#nested_http_rules_http_rules_from_not_sources_not_sources_ip_blocks).
+
 * `principals` -
   (Optional)
   A list of identities derived from the client's certificate. This field will not match on a request unless mutual TLS is enabled for the Forwarding rule or Gateway. Each identity is a string whose value is matched against the URI SAN, or DNS SAN or the subject field in the client's certificate. The match can be exact, prefix, suffix or a substring match. One of exact, prefix, suffix or contains must be specified.
@@ -469,7 +550,70 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_rules_http_rules_from_not_sources_not_sources_resources).
 
 
+<a name="nested_http_rules_http_rules_from_not_sources_not_sources_ip_blocks"></a>The `ip_blocks` block supports:
+
+* `prefix` -
+  (Required)
+  The address prefix.
+
+* `length` -
+  (Required)
+  The length of the address range.
+
 <a name="nested_http_rules_http_rules_from_not_sources_not_sources_principals"></a>The `principals` block supports:
+
+* `principal_selector` -
+  (Optional)
+  An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN.
+  Default value is `CLIENT_CERT_URI_SAN`.
+  Possible values are: `PRINCIPAL_SELECTOR_UNSPECIFIED`, `CLIENT_CERT_URI_SAN`, `CLIENT_CERT_DNS_NAME_SAN`, `CLIENT_CERT_COMMON_NAME`.
+
+* `principal` -
+  (Optional)
+  Required. A non-empty string whose value is matched against the principal value based on the principalSelector.
+  Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SAN, CLIENT_CERT_COMMON_NAME selectors.
+  Structure is [documented below](#nested_http_rules_http_rules_from_not_sources_not_sources_principals_principals_principal).
+
+* `ignore_case` -
+  (Optional, Deprecated)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
+  ~> **Warning:** `principals.ignore_case` is deprecated and will be removed in a future major release. Use `principals.principal.ignore_case` instead.
+
+* `exact` -
+  (Optional, Deprecated)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+  ~> **Warning:** `principals.exact` is deprecated and will be removed in a future major release. Use `principals.principal.exact` instead.
+
+* `prefix` -
+  (Optional, Deprecated)
+  The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value abc.xyz
+
+  ~> **Warning:** `principals.prefix` is deprecated and will be removed in a future major release. Use `principals.principal.prefix` instead.
+
+* `suffix` -
+  (Optional, Deprecated)
+  The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc
+
+  ~> **Warning:** `principals.suffix` is deprecated and will be removed in a future major release. Use `principals.principal.suffix` instead.
+
+* `contains` -
+  (Optional, Deprecated)
+  The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc.def
+
+  ~> **Warning:** `principals.contains` is deprecated and will be removed in a future major release. Use `principals.principal.contains` instead.
+
+
+<a name="nested_http_rules_http_rules_from_not_sources_not_sources_principals_principals_principal"></a>The `principal` block supports:
 
 * `ignore_case` -
   (Optional)
@@ -553,12 +697,12 @@ The following arguments are supported:
 
 * `operations` -
   (Optional)
-  Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 5 operations. A match occurs when ANY operation (in operations or notOperations) matches. Within an operation, the match follows AND semantics across fields and OR semantics within a field, i.e. a match occurs when ANY path matches AND ANY header matches and ANY method matches.
+  Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 1 operation. A match occurs when ANY operation (in operations or notOperations) matches. Within an operation, the match follows AND semantics across fields and OR semantics within a field, i.e. a match occurs when ANY path matches AND ANY header matches and ANY method matches.
   Structure is [documented below](#nested_http_rules_http_rules_to_operations).
 
 * `not_operations` -
   (Optional)
-  Describes the negated properties of the targets of a request. Matches requests for operations that do not match the criteria specified in this field. At least one of operations or notOperations must be specified.
+  Describes the negated properties of the targets of a request. Matches requests for operations that do not match the criteria specified in this field. At least one of operations or notOperations must be specified. Limited to 1 not_operation.
   Structure is [documented below](#nested_http_rules_http_rules_to_not_operations).
 
 
@@ -572,13 +716,13 @@ The following arguments are supported:
 * `hosts` -
   (Optional)
   A list of HTTP Hosts to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
-  Limited to 5 matches.
+  Limited to 10 matches.
   Structure is [documented below](#nested_http_rules_http_rules_to_operations_operations_hosts).
 
 * `paths` -
   (Optional)
   A list of paths to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
-  Limited to 5 matches.
+  Limited to 10 matches.
   Note that this path match includes the query parameters. For gRPC services, this should be a fully-qualified name of the form /package.service/method.
   Structure is [documented below](#nested_http_rules_http_rules_to_operations_operations_paths).
 
@@ -591,7 +735,7 @@ The following arguments are supported:
 
 * `headers` -
   (Optional)
-  A list of headers to match against in http header. The match can be one of exact, prefix, suffix, or contains (substring match). The match follows AND semantics which means all the headers must match. Matches are always case sensitive unless the ignoreCase is set. Limited to 5 matches.
+  A list of headers to match against in http header. The match can be one of exact, prefix, suffix, or contains (substring match). The match follows AND semantics which means all the headers must match. Matches are always case sensitive unless the ignoreCase is set. Limited to 10 matches.
   Structure is [documented below](#nested_http_rules_http_rules_to_operations_operations_header_set_headers).
 
 
@@ -707,13 +851,13 @@ The following arguments are supported:
 * `hosts` -
   (Optional)
   A list of HTTP Hosts to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
-  Limited to 5 matches.
+  Limited to 10 matches.
   Structure is [documented below](#nested_http_rules_http_rules_to_not_operations_not_operations_hosts).
 
 * `paths` -
   (Optional)
   A list of paths to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
-  Limited to 5 matches.
+  Limited to 10 matches.
   Note that this path match includes the query parameters. For gRPC services, this should be a fully-qualified name of the form /package.service/method.
   Structure is [documented below](#nested_http_rules_http_rules_to_not_operations_not_operations_paths).
 
@@ -726,7 +870,7 @@ The following arguments are supported:
 
 * `headers` -
   (Optional)
-  A list of headers to match against in http header. The match can be one of exact, prefix, suffix, or contains (substring match). The match follows AND semantics which means all the headers must match. Matches are always case sensitive unless the ignoreCase is set. Limited to 5 matches.
+  A list of headers to match against in http header. The match can be one of exact, prefix, suffix, or contains (substring match). The match follows AND semantics which means all the headers must match. Matches are always case sensitive unless the ignoreCase is set. Limited to 10 matches.
   Structure is [documented below](#nested_http_rules_http_rules_to_not_operations_not_operations_header_set_headers).
 
 
