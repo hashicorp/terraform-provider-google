@@ -22,6 +22,7 @@ fields:
   - field: 'inspect_job.actions.publish_summary_to_cscc'
   - field: 'inspect_job.actions.publish_to_stackdriver'
   - field: 'inspect_job.actions.save_findings.output_config.output_schema'
+  - field: 'inspect_job.actions.save_findings.output_config.storage_path.path'
   - field: 'inspect_job.actions.save_findings.output_config.table.dataset_id'
   - field: 'inspect_job.actions.save_findings.output_config.table.project_id'
   - field: 'inspect_job.actions.save_findings.output_config.table.table_id'

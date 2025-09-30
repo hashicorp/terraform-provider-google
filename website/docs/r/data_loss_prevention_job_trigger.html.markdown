@@ -1513,9 +1513,18 @@ The following arguments are supported:
 <a name="nested_inspect_job_actions_actions_save_findings_output_config"></a>The `output_config` block supports:
 
 * `table` -
-  (Required)
+  (Optional)
   Information on the location of the target BigQuery Table.
   Structure is [documented below](#nested_inspect_job_actions_actions_save_findings_output_config_table).
+
+* `storage_path` -
+  (Optional)
+  Store findings in an existing Cloud Storage bucket. Files will be generated with the job ID and file part number
+  as the filename, and will contain findings in textproto format as SaveToGcsFindingsOutput. The file name will use
+  the naming convention <job_id>-<shard_number>, for example: my-job-id-2.
+  Supported for InspectJobs. The bucket must not be the same as the bucket being inspected. If storing findings to
+  Cloud Storage, the output schema field should not be set. If set, it will be ignored.
+  Structure is [documented below](#nested_inspect_job_actions_actions_save_findings_output_config_storage_path).
 
 * `output_schema` -
   (Optional)
@@ -1543,6 +1552,13 @@ The following arguments are supported:
   (Optional)
   Name of the table. If is not set a new one will be generated for you with the following format:
   `dlp_googleapis_yyyy_mm_dd_[dlp_job_id]`. Pacific timezone will be used for generating the date details.
+
+<a name="nested_inspect_job_actions_actions_save_findings_output_config_storage_path"></a>The `storage_path` block supports:
+
+* `path` -
+  (Required)
+  A URL representing a file or path (no wildcards) in Cloud Storage.
+  Example: `gs://[BUCKET_NAME]/dictionary.txt`
 
 <a name="nested_inspect_job_actions_actions_pub_sub"></a>The `pub_sub` block supports:
 
