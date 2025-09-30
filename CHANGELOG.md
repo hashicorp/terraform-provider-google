@@ -1,7 +1,7 @@
 ## 7.5.0 (Unreleased)
 
 BREAKING CHANGES:
-* netapp: changed `peerIpAddresses` field type from String to Array in `google_netapp_volume` resource, as it was unusable otherwise ([#24428](https://github.com/hashicorp/terraform-provider-google/pull/24428))
+* netapp: changed `peer_ip_addresses` field type from String to Array in `google_netapp_volume` resource, as it was unusable otherwise ([#24428](https://github.com/hashicorp/terraform-provider-google/pull/24428))
 
 FEATURES:
 * **New Data Source:** `google_artifact_registry_maven_artifacts` ([#24487](https://github.com/hashicorp/terraform-provider-google/pull/24487))
