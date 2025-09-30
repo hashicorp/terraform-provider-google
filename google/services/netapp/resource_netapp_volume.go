@@ -235,12 +235,23 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 							Optional:    true,
 							Description: `Optional. Description of the replication.`,
 						},
+						"hybrid_replication_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"MIGRATION", "CONTINUOUS_REPLICATION", "ONPREM_REPLICATION", "REVERSE_ONPREM_REPLICATION", ""}),
+							Description:  `Optional. Type of the volume's hybrid replication. Possible values: ["MIGRATION", "CONTINUOUS_REPLICATION", "ONPREM_REPLICATION", "REVERSE_ONPREM_REPLICATION"]`,
+						},
 						"labels": {
 							Type:     schema.TypeMap,
 							Optional: true,
 							Description: `Optional. Labels to be added to the replication as the key value pairs.
 An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+						"large_volume_constituent_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Optional. Constituent volume count for large volume.`,
 						},
 						"peer_cluster_name": {
 							Type:        schema.TypeString,
@@ -269,6 +280,12 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `Required. Desired name for the replication of this volume.`,
+						},
+						"replication_schedule": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"EVERY_10_MINUTES", "HOURLY", "DAILY", ""}),
+							Description:  `Optional. Replication Schedule for the replication created. Possible values: ["EVERY_10_MINUTES", "HOURLY", "DAILY"]`,
 						},
 					},
 				},
@@ -2018,6 +2035,12 @@ func flattenNetappVolumeHybridReplicationParameters(v interface{}, d *schema.Res
 		flattenNetappVolumeHybridReplicationParametersDescription(original["description"], d, config)
 	transformed["labels"] =
 		flattenNetappVolumeHybridReplicationParametersLabels(original["labels"], d, config)
+	transformed["replication_schedule"] =
+		flattenNetappVolumeHybridReplicationParametersReplicationSchedule(original["replicationSchedule"], d, config)
+	transformed["hybrid_replication_type"] =
+		flattenNetappVolumeHybridReplicationParametersHybridReplicationType(original["hybridReplicationType"], d, config)
+	transformed["large_volume_constituent_count"] =
+		flattenNetappVolumeHybridReplicationParametersLargeVolumeConstituentCount(original["largeVolumeConstituentCount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetappVolumeHybridReplicationParametersReplication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2050,6 +2073,31 @@ func flattenNetappVolumeHybridReplicationParametersDescription(v interface{}, d 
 
 func flattenNetappVolumeHybridReplicationParametersLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersReplicationSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersHybridReplicationType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeHybridReplicationParametersLargeVolumeConstituentCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenNetappVolumeThroughputMibps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2772,6 +2820,27 @@ func expandNetappVolumeHybridReplicationParameters(v interface{}, d tpgresource.
 		transformed["labels"] = transformedLabels
 	}
 
+	transformedReplicationSchedule, err := expandNetappVolumeHybridReplicationParametersReplicationSchedule(original["replication_schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReplicationSchedule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["replicationSchedule"] = transformedReplicationSchedule
+	}
+
+	transformedHybridReplicationType, err := expandNetappVolumeHybridReplicationParametersHybridReplicationType(original["hybrid_replication_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHybridReplicationType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hybridReplicationType"] = transformedHybridReplicationType
+	}
+
+	transformedLargeVolumeConstituentCount, err := expandNetappVolumeHybridReplicationParametersLargeVolumeConstituentCount(original["large_volume_constituent_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLargeVolumeConstituentCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["largeVolumeConstituentCount"] = transformedLargeVolumeConstituentCount
+	}
+
 	return transformed, nil
 }
 
@@ -2812,6 +2881,18 @@ func expandNetappVolumeHybridReplicationParametersLabels(v interface{}, d tpgres
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersReplicationSchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersHybridReplicationType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeHybridReplicationParametersLargeVolumeConstituentCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNetappVolumeThroughputMibps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
