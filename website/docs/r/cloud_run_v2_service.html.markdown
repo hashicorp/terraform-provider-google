@@ -769,7 +769,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_scaling).
 
 * `default_uri_disabled` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Disables public resolution of the default URI of this service.
 
 * `traffic` -
