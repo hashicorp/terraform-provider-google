@@ -670,9 +670,43 @@ is 1,024 characters.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
+															"output_schema": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS", ""}),
+																Description: `Schema used for writing the findings for Inspect jobs. This field is only used for
+Inspect and must be unspecified for Risk jobs. Columns are derived from the Finding
+object. If appending to an existing table, any columns from the predefined schema
+that are missing will be added. No columns in the existing table will be deleted.
+
+If unspecified, then all available columns will be used for a new table or an (existing)
+table with no schema, and no changes will be made to an existing table that has a schema.
+Only for use with external storage. Possible values: ["BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS"]`,
+															},
+															"storage_path": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `Store findings in an existing Cloud Storage bucket. Files will be generated with the job ID and file part number
+as the filename, and will contain findings in textproto format as SaveToGcsFindingsOutput. The file name will use
+the naming convention <job_id>-<shard_number>, for example: my-job-id-2.
+
+Supported for InspectJobs. The bucket must not be the same as the bucket being inspected. If storing findings to
+Cloud Storage, the output schema field should not be set. If set, it will be ignored.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"path": {
+																			Type:     schema.TypeString,
+																			Required: true,
+																			Description: `A URL representing a file or path (no wildcards) in Cloud Storage.
+Example: 'gs://[BUCKET_NAME]/dictionary.txt'`,
+																		},
+																	},
+																},
+															},
 															"table": {
 																Type:        schema.TypeList,
-																Required:    true,
+																Optional:    true,
 																Description: `Information on the location of the target BigQuery Table.`,
 																MaxItems:    1,
 																Elem: &schema.Resource{
@@ -695,19 +729,6 @@ is 1,024 characters.`,
 																		},
 																	},
 																},
-															},
-															"output_schema": {
-																Type:         schema.TypeString,
-																Optional:     true,
-																ValidateFunc: verify.ValidateEnum([]string{"BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS", ""}),
-																Description: `Schema used for writing the findings for Inspect jobs. This field is only used for
-Inspect and must be unspecified for Risk jobs. Columns are derived from the Finding
-object. If appending to an existing table, any columns from the predefined schema
-that are missing will be added. No columns in the existing table will be deleted.
-
-If unspecified, then all available columns will be used for a new table or an (existing)
-table with no schema, and no changes will be made to an existing table that has a schema.
-Only for use with external storage. Possible values: ["BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS"]`,
 															},
 														},
 													},
@@ -3245,6 +3266,8 @@ func flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfi
 	transformed := make(map[string]interface{})
 	transformed["table"] =
 		flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigTable(original["table"], d, config)
+	transformed["storage_path"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigStoragePath(original["storagePath"], d, config)
 	transformed["output_schema"] =
 		flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigOutputSchema(original["outputSchema"], d, config)
 	return []interface{}{transformed}
@@ -3275,6 +3298,23 @@ func flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfi
 }
 
 func flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigTableTableId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigStoragePath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["path"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigStoragePathPath(original["path"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigStoragePathPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5686,6 +5726,13 @@ func expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfig
 		transformed["table"] = transformedTable
 	}
 
+	transformedStoragePath, err := expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigStoragePath(original["storage_path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStoragePath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["storagePath"] = transformedStoragePath
+	}
+
 	transformedOutputSchema, err := expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigOutputSchema(original["output_schema"], d, config)
 	if err != nil {
 		return nil, err
@@ -5741,6 +5788,32 @@ func expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfig
 }
 
 func expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigTableTableId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigStoragePath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPath, err := expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigStoragePathPath(original["path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["path"] = transformedPath
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsSaveFindingsOutputConfigStoragePathPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
