@@ -904,6 +904,11 @@ For more information, see https://cloud.google.com/run/docs/configuring/custom-a
 					Type: schema.TypeString,
 				},
 			},
+			"default_uri_disabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Disables public resolution of the default URI of this service.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1393,6 +1398,12 @@ func resourceCloudRunV2ServiceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("scaling"); !tpgresource.IsEmptyValue(reflect.ValueOf(scalingProp)) && (ok || !reflect.DeepEqual(v, scalingProp)) {
 		obj["scaling"] = scalingProp
 	}
+	defaultUriDisabledProp, err := expandCloudRunV2ServiceDefaultUriDisabled(d.Get("default_uri_disabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_uri_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultUriDisabledProp)) && (ok || !reflect.DeepEqual(v, defaultUriDisabledProp)) {
+		obj["defaultUriDisabled"] = defaultUriDisabledProp
+	}
 	templateProp, err := expandCloudRunV2ServiceTemplate(d.Get("template"), d, config)
 	if err != nil {
 		return err
@@ -1593,6 +1604,9 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("scaling", flattenCloudRunV2ServiceScaling(res["scaling"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("default_uri_disabled", flattenCloudRunV2ServiceDefaultUriDisabled(res["defaultUriDisabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 	if err := d.Set("template", flattenCloudRunV2ServiceTemplate(res["template"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -1714,6 +1728,12 @@ func resourceCloudRunV2ServiceUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("scaling"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scalingProp)) {
 		obj["scaling"] = scalingProp
+	}
+	defaultUriDisabledProp, err := expandCloudRunV2ServiceDefaultUriDisabled(d.Get("default_uri_disabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_uri_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultUriDisabledProp)) {
+		obj["defaultUriDisabled"] = defaultUriDisabledProp
 	}
 	templateProp, err := expandCloudRunV2ServiceTemplate(d.Get("template"), d, config)
 	if err != nil {
@@ -2070,6 +2090,10 @@ func flattenCloudRunV2ServiceScalingManualInstanceCount(v interface{}, d *schema
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunV2ServiceDefaultUriDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCloudRunV2ServiceTemplate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3672,6 +3696,10 @@ func expandCloudRunV2ServiceScalingScalingMode(v interface{}, d tpgresource.Terr
 }
 
 func expandCloudRunV2ServiceScalingManualInstanceCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceDefaultUriDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
