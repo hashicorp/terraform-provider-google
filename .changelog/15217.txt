@@ -1,0 +1,6 @@
+```release-note:enhancement
+netapp: added additional fields `replication_schedule`, `hybrid_replication_type`, `large_volume_constituent_count`  to `hybrid_replication_parameters` field in `google_netapp_volume` resource
+```
+```release-note:enhancement
+netapp: added `hybrid_replication_user_commands` field  with subfield `commands` to `google_netapp_volume_replication` resource
+```

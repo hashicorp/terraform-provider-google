@@ -425,6 +425,20 @@ Possible values: DEFAULT, FORCE.
   Optional. Labels to be added to the replication as the key value pairs.
   An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
+* `replication_schedule` -
+  (Optional)
+  Optional. Replication Schedule for the replication created.
+  Possible values are: `EVERY_10_MINUTES`, `HOURLY`, `DAILY`.
+
+* `hybrid_replication_type` -
+  (Optional)
+  Optional. Type of the volume's hybrid replication.
+  Possible values are: `MIGRATION`, `CONTINUOUS_REPLICATION`, `ONPREM_REPLICATION`, `REVERSE_ONPREM_REPLICATION`.
+
+* `large_volume_constituent_count` -
+  (Optional)
+  Optional. Constituent volume count for large volume.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

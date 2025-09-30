@@ -29,6 +29,7 @@ fields:
   - field: 'hybrid_peering_details.peer_volume_name'
   - field: 'hybrid_peering_details.subnet_ip'
   - field: 'hybrid_replication_type'
+  - field: 'hybrid_replication_user_commands.commands'
   - field: 'labels'
   - field: 'location'
     provider_only: true
