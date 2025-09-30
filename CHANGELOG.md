@@ -30,10 +30,10 @@ IMPROVEMENTS:
 * pubsub: added support for `tags` field to `google_pubsub_topic` and `google_pubsub_subscription` resources ([#24442](https://github.com/hashicorp/terraform-provider-google/pull/24442))
 * sql: added `point_in_time_restore_context` field to `google_sql_database_instance` ([#24489](https://github.com/hashicorp/terraform-provider-google/pull/24489))
 * storage: added `force_destroy` field to `google_storage_insights_report_config` resource ([#24462](https://github.com/hashicorp/terraform-provider-google/pull/24462))
-* storageinsights: added `activityDataRetentionPeriodDays` fields to `google_storage_insights_dataset_config` resource ([#24459](https://github.com/hashicorp/terraform-provider-google/pull/24459))
+* storageinsights: added `activity_data_retention_period_days` field to `google_storage_insights_dataset_config` resource ([#24459](https://github.com/hashicorp/terraform-provider-google/pull/24459))
 * vertexai: added `endpoint_config.private_service_connect_config` block to `google_vertex_ai_endpoint_with_model_garden_deployment` resource ([#24425](https://github.com/hashicorp/terraform-provider-google/pull/24425))
-* vertexai: added `kmsKeyName` field to `google_vertex_ai_index_endpoint ` resource ([#24490](https://github.com/hashicorp/terraform-provider-google/pull/24490))
-* vertexai: added `kmsKeyName` field to `google_vertex_ai_index` resource ([#24441](https://github.com/hashicorp/terraform-provider-google/pull/24441))
+* vertexai: added `encryption_spec.kms_key_name` field to `google_vertex_ai_index_endpoint ` resource ([#24490](https://github.com/hashicorp/terraform-provider-google/pull/24490))
+* vertexai: added `encryption_spec.kms_key_name` field to `google_vertex_ai_index` resource ([#24441](https://github.com/hashicorp/terraform-provider-google/pull/24441))
 
 BUG FIXES:
 * apihub: fixed a permadiff on `config_template` in `google_apihub_plugin` resource ([#24429](https://github.com/hashicorp/terraform-provider-google/pull/24429))
