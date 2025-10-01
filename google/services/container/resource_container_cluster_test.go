@@ -6386,6 +6386,42 @@ func TestAccContainerCluster_additional_pod_ranges_config_on_update(t *testing.T
 	})
 }
 
+func TestAccContainerCluster_withCpuCfsQuotaPool(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-cluster-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withCpuCfsQuotaPool(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_kubelet_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config:   testAccContainerCluster_withCpuCfsQuotaPool2(clusterName, npName, networkName, subnetworkName),
+				PlanOnly: true,
+			},
+			{
+				ResourceName:            "google_container_cluster.with_kubelet_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func testAccContainerCluster_masterAuthorizedNetworksDisabled(t *testing.T, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource_name]
@@ -13982,4 +14018,68 @@ resource "google_container_cluster" "with_kubelet_config" {
   }
 }
 `, clusterName, networkName, subnetworkName, cpuManagerPolicy, memoryManagerPolicy, topologyManagerPolicy, topologyManagerScope)
+}
+
+func testAccContainerCluster_withCpuCfsQuotaPool(clusterName, npName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_kubelet_config" {
+  name               = %q
+  location           = "us-central1-a"
+  network            = %q
+  subnetwork         = %q
+  deletion_protection = false
+
+  node_pool {
+    name = "%s-1"
+    initial_node_count = 1
+    node_config {
+      kubelet_config {
+        # cpu_cfs_quota = true
+      }
+    }
+  }
+
+  node_pool {
+    name = "%s-2"
+    initial_node_count = 1
+    node_config {
+      kubelet_config {
+        cpu_cfs_quota = false
+      }
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName, npName, npName)
+}
+
+func testAccContainerCluster_withCpuCfsQuotaPool2(clusterName, npName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_kubelet_config" {
+  name               = %q
+  location           = "us-central1-a"
+  network            = %q
+  subnetwork         = %q
+  deletion_protection = false
+
+  node_pool {
+    name = "%s-1"
+    initial_node_count = 1
+    node_config {
+      kubelet_config {
+        cpu_cfs_quota = true
+      }
+    }
+  }
+
+  node_pool {
+    name = "%s-2"
+    initial_node_count = 1
+    node_config {
+      kubelet_config {
+        cpu_cfs_quota = false
+      }
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName, npName, npName)
 }
