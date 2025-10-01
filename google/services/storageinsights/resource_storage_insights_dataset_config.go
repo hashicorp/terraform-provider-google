@@ -96,11 +96,6 @@ func ResourceStorageInsightsDatasetConfig() *schema.Resource {
 				Required:    true,
 				Description: `Number of days of history that must be retained.`,
 			},
-			"activity_data_retention_period_days": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: `Number of days of activity data that must be retained. If not specified, retentionPeriodDays will be used. Set to 0 to turn off the activity data.`,
-			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -358,12 +353,6 @@ func resourceStorageInsightsDatasetConfigCreate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("retention_period_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(retentionPeriodDaysProp)) && (ok || !reflect.DeepEqual(v, retentionPeriodDaysProp)) {
 		obj["retentionPeriodDays"] = retentionPeriodDaysProp
 	}
-	activityDataRetentionPeriodDaysProp, err := expandStorageInsightsDatasetConfigActivityDataRetentionPeriodDays(d.Get("activity_data_retention_period_days"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("activity_data_retention_period_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(activityDataRetentionPeriodDaysProp)) && (ok || !reflect.DeepEqual(v, activityDataRetentionPeriodDaysProp)) {
-		obj["activityDataRetentionPeriodDays"] = activityDataRetentionPeriodDaysProp
-	}
 	identityProp, err := expandStorageInsightsDatasetConfigIdentity(d.Get("identity"), d, config)
 	if err != nil {
 		return err
@@ -578,9 +567,6 @@ func resourceStorageInsightsDatasetConfigRead(d *schema.ResourceData, meta inter
 	if err := d.Set("retention_period_days", flattenStorageInsightsDatasetConfigRetentionPeriodDays(res["retentionPeriodDays"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DatasetConfig: %s", err)
 	}
-	if err := d.Set("activity_data_retention_period_days", flattenStorageInsightsDatasetConfigActivityDataRetentionPeriodDays(res["activityDataRetentionPeriodDays"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DatasetConfig: %s", err)
-	}
 	if err := d.Set("link", flattenStorageInsightsDatasetConfigLink(res["link"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DatasetConfig: %s", err)
 	}
@@ -646,12 +632,6 @@ func resourceStorageInsightsDatasetConfigUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("retention_period_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retentionPeriodDaysProp)) {
 		obj["retentionPeriodDays"] = retentionPeriodDaysProp
 	}
-	activityDataRetentionPeriodDaysProp, err := expandStorageInsightsDatasetConfigActivityDataRetentionPeriodDays(d.Get("activity_data_retention_period_days"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("activity_data_retention_period_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, activityDataRetentionPeriodDaysProp)) {
-		obj["activityDataRetentionPeriodDays"] = activityDataRetentionPeriodDaysProp
-	}
 	descriptionProp, err := expandStorageInsightsDatasetConfigDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -716,10 +696,6 @@ func resourceStorageInsightsDatasetConfigUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("retention_period_days") {
 		updateMask = append(updateMask, "retentionPeriodDays")
-	}
-
-	if d.HasChange("activity_data_retention_period_days") {
-		updateMask = append(updateMask, "activityDataRetentionPeriodDays")
 	}
 
 	if d.HasChange("description") {
@@ -982,23 +958,6 @@ func flattenStorageInsightsDatasetConfigRetentionPeriodDays(v interface{}, d *sc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenStorageInsightsDatasetConfigActivityDataRetentionPeriodDays(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
 func flattenStorageInsightsDatasetConfigLink(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1214,10 +1173,6 @@ func expandStorageInsightsDatasetConfigIncludeNewlyCreatedBuckets(v interface{},
 }
 
 func expandStorageInsightsDatasetConfigRetentionPeriodDays(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandStorageInsightsDatasetConfigActivityDataRetentionPeriodDays(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
