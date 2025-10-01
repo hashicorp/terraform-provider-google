@@ -1,0 +1,3 @@
+```release-note:breaking-change
+storageinsights: removed `activity_data_retention_period_days` field from `google_storage_insights_dataset_config` resource due to a delayed launch. It will be readded when the feature launches.
+```
