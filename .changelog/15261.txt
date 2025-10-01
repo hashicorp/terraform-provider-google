@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added `SENSITIVITY_UNKNOWN` as possible enum value for `actions.tag_resources.tag_conditions.sensitivity_score.score` in `google_data_loss_prevention_discovery_config` resource
+```

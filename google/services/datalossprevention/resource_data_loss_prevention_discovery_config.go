@@ -219,8 +219,8 @@ func ResourceDataLossPreventionDiscoveryConfig() *schema.Resource {
 															"score": {
 																Type:         schema.TypeString,
 																Required:     true,
-																ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
-																Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+																ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH", "SENSITIVITY_UNKNOWN"}),
+																Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH", "SENSITIVITY_UNKNOWN"]`,
 															},
 														},
 													},

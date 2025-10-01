@@ -736,7 +736,7 @@ The following arguments are supported:
 * `score` -
   (Required)
   The sensitivity score applied to the resource.
-  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`, `SENSITIVITY_UNKNOWN`.
 
 <a name="nested_targets"></a>The `targets` block supports:
 
