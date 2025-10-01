@@ -1,0 +1,3 @@
+```release-note:enhancement
+secretmanager: ephemeral support for `google_secret_manager_secret_version`
+```
