@@ -319,7 +319,7 @@ The following arguments are supported:
   if this field is specified for other squashMode settings.
 
 * `network` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The source VPC network for `ip_ranges`.
   Required for instances using Private Service Connect, optional otherwise.
 
@@ -354,7 +354,7 @@ The following arguments are supported:
   Possible values are: `DIRECT_PEERING`, `PRIVATE_SERVICE_ACCESS`, `PRIVATE_SERVICE_CONNECT`.
 
 * `psc_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Private Service Connect configuration.
   Should only be set when connect_mode is PRIVATE_SERVICE_CONNECT.
   Structure is [documented below](#nested_networks_networks_psc_config).
