@@ -1,0 +1,7 @@
+```release-note:breaking-change
+container: `node_config` blocks that had set `kubelet_config` without explicitly setting `cpu_cfs_quota` implicitly set `cfu_cfs_quota` to `false` when unset. From this version onwards, an unset `cpu_cfs_quota` will instead match the API default of true `true`. Resources that are recreated will receive the new value; old resources are unaffected, and may change values by explicitly setting the intended one.
+```
+
+```release-note:bug
+container: Fixed the default for `node_config.kubelet_config.cpu_cfs_quota` on `google_container_cluster`, `google_container_node_pool`, `google_container_cluster.node_pool` to align with the API. Terraform will now send a `true` value when the field is unset on creation, and preserve any previously set value when unset. Explicitly set values will work as defined in configuration.
+```

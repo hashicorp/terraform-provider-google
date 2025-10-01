@@ -968,7 +968,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 	np := &container.NodePool{
 		Name:             name,
 		InitialNodeCount: int64(nodeCount),
-		Config:           expandNodeConfig(d.Get(prefix + "node_config")),
+		Config:           expandNodeConfig(d, prefix, d.Get(prefix+"node_config")),
 		Locations:        locations,
 		Version:          d.Get(prefix + "version").(string),
 		NetworkConfig:    expandNodeNetworkConfig(d.Get(prefix + "network_config")),

@@ -2675,7 +2675,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	} else {
 		// Node Configs have default values that are set in the expand function,
 		// but can only be set if node pools are unspecified.
-		cluster.NodeConfig = expandNodeConfig([]interface{}{})
+		cluster.NodeConfig = expandNodeConfig(d, "", []interface{}{})
 	}
 
 	if v, ok := d.GetOk("node_pool_defaults"); ok {
@@ -2683,7 +2683,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("node_config"); ok {
-		cluster.NodeConfig = expandNodeConfig(v)
+		cluster.NodeConfig = expandNodeConfig(d, "", v)
 	}
 
 	if v, ok := d.GetOk("authenticator_groups_config"); ok {
