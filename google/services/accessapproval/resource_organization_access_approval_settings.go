@@ -309,7 +309,7 @@ func resourceAccessApprovalOrganizationSettingsRead(d *schema.ResourceData, meta
 			}
 		}
 	} else {
-		fmt.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }

@@ -510,7 +510,7 @@ func resourceFirebaseAppHostingBackendRead(d *schema.ResourceData, meta interfac
 			}
 		}
 	} else {
-		fmt.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] identity not set: %s", err)
 	}
 	return nil
 }
