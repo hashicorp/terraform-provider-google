@@ -60,11 +60,6 @@ func ResourceContainerAwsCluster() *schema.Resource {
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
-					"project": {
-						Type:              schema.TypeString,
-						OptionalForImport: true,
-						Description:       "The project for the resource",
-					},
 					"name": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
@@ -74,6 +69,11 @@ func ResourceContainerAwsCluster() *schema.Resource {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 						Description:       "The location for the resource",
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+						Description:       "The project for the resource",
 					},
 				}
 			},
