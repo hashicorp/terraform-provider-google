@@ -1,0 +1,6 @@
+```release-note:enhancement
+sql: added `source_instance_deletion_time` field to `google_sql_database_instance` resource
+```
+```release-note:enhancement
+sql: added `source_instance_deletion_time` field to `google_sql_database_instance_latest_recovery_time` data source
+```

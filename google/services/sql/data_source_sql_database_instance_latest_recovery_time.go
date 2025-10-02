@@ -27,7 +27,6 @@ import (
 func DataSourceSqlDatabaseInstanceLatestRecoveryTime() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceSqlDatabaseInstanceLatestRecoveryTimeRead,
-
 		Schema: map[string]*schema.Schema{
 			"instance": {
 				Type:             schema.TypeString,
@@ -45,6 +44,11 @@ func DataSourceSqlDatabaseInstanceLatestRecoveryTime() *schema.Resource {
 				Computed:    true,
 				Description: `Timestamp, identifies the latest recovery time of the source instance.`,
 			},
+			"source_instance_deletion_time": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Timestamp, identifies when the source instance was deleted. If this instance is deleted, then you must set the timestamp.`,
+			},
 		},
 	}
 }
@@ -55,7 +59,6 @@ func dataSourceSqlDatabaseInstanceLatestRecoveryTimeRead(d *schema.ResourceData,
 	if err != nil {
 		return err
 	}
-
 	fv, err := tpgresource.ParseProjectFieldValue("instances", d.Get("instance").(string), "project", d, config, false)
 	if err != nil {
 		return err
@@ -63,15 +66,21 @@ func dataSourceSqlDatabaseInstanceLatestRecoveryTimeRead(d *schema.ResourceData,
 	project := fv.Project
 	instance := fv.Name
 
-	latestRecoveryTime, err := config.NewSqlAdminClient(userAgent).Projects.Instances.GetLatestRecoveryTime(project, instance).Do()
+	deletionTime := d.Get("source_instance_deletion_time").(string)
+
+	latestRecoveryTimeCall := config.NewSqlAdminClient(userAgent).Projects.Instances.GetLatestRecoveryTime(project, instance)
+
+	if deletionTime != "" {
+		latestRecoveryTimeCall = latestRecoveryTimeCall.SourceInstanceDeletionTime(deletionTime)
+	}
+
+	latestRecoveryTime, err := latestRecoveryTimeCall.Do()
 	if err != nil {
 		return err
 	}
-
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-
 	if err := d.Set("latest_recovery_time", latestRecoveryTime.LatestRecoveryTime); err != nil {
 		return fmt.Errorf("Error setting latest_recovery_time: %s", err)
 	}
