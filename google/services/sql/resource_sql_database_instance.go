@@ -1250,6 +1250,12 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Optional:    true,
 							Description: `The name of the allocated ip range for the private ip CloudSQL instance. For example: "google-managed-services-default". If set, the cloned instance ip will be created in the allocated range. The range name must comply with [RFC 1035](https://tools.ietf.org/html/rfc1035). Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.`,
 						},
+						"source_instance_deletion_time": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.TimestampDiffSuppress(time.RFC3339Nano),
+							Description:      `The timestamp of when the source instance was deleted for a clone from a deleted instance.`,
+						},
 					},
 				},
 			},
@@ -1666,10 +1672,11 @@ func expandCloneContext(configured []interface{}) (*sqladmin.CloneContext, strin
 	}
 
 	return &sqladmin.CloneContext{
-		PointInTime:      _cloneConfiguration["point_in_time"].(string),
-		PreferredZone:    _cloneConfiguration["preferred_zone"].(string),
-		DatabaseNames:    databaseNames,
-		AllocatedIpRange: _cloneConfiguration["allocated_ip_range"].(string),
+		PointInTime:                _cloneConfiguration["point_in_time"].(string),
+		PreferredZone:              _cloneConfiguration["preferred_zone"].(string),
+		DatabaseNames:              databaseNames,
+		AllocatedIpRange:           _cloneConfiguration["allocated_ip_range"].(string),
+		SourceInstanceDeletionTime: _cloneConfiguration["source_instance_deletion_time"].(string),
 	}, _cloneConfiguration["source_instance_name"].(string)
 }
 
