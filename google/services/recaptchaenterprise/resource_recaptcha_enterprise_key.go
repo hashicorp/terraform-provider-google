@@ -60,15 +60,15 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
-					"name": {
-						Type:              schema.TypeString,
-						RequiredForImport: true,
-						Description:       "The resource id for the Key, which is the same as the Site Key itself.",
-					},
 					"project": {
 						Type:              schema.TypeString,
 						OptionalForImport: true,
 						Description:       "The project for the resource",
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The resource id for the Key, which is the same as the Site Key itself.",
 					},
 				}
 			},
