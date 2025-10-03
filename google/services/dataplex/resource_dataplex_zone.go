@@ -60,25 +60,25 @@ func ResourceDataplexZone() *schema.Resource {
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
-					"location": {
+					"project": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
-						Description:       "The location for the resource",
-					},
-					"lake": {
-						Type:              schema.TypeString,
-						RequiredForImport: true,
-						Description:       "The lake for the resource",
+						OptionalForImport: true,
+						Description:       "The project for the resource",
 					},
 					"name": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 						Description:       "The name of the zone.",
 					},
-					"project": {
+					"lake": {
 						Type:              schema.TypeString,
-						OptionalForImport: true,
-						Description:       "The project for the resource",
+						RequiredForImport: true,
+						Description:       "The lake for the resource",
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "The location for the resource",
 					},
 				}
 			},

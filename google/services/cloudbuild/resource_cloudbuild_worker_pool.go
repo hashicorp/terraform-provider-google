@@ -60,11 +60,6 @@ func ResourceCloudbuildWorkerPool() *schema.Resource {
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
-					"name": {
-						Type:              schema.TypeString,
-						RequiredForImport: true,
-						Description:       "User-defined name of the `WorkerPool`.",
-					},
 					"project": {
 						Type:              schema.TypeString,
 						OptionalForImport: true,
@@ -74,6 +69,11 @@ func ResourceCloudbuildWorkerPool() *schema.Resource {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 						Description:       "The location for the resource",
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "User-defined name of the `WorkerPool`.",
 					},
 				}
 			},
