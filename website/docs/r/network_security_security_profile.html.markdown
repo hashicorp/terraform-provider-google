@@ -150,6 +150,35 @@ resource "google_network_security_security_profile" "default" {
   }
 }
 ```
+## Example Usage - Network Security Security Profile Url Filtering
+
+
+```hcl
+resource "google_network_security_security_profile" "default" {
+  provider    = google-beta
+  name        = "my-security-profile"
+  parent      = "organizations/123456789"
+  description = "my description"
+  type        = "URL_FILTERING"
+
+  url_filtering_profile {
+    url_filters {
+      priority = 1
+      filtering_action   = "ALLOW"
+      urls = ["*example.com", "*about.example.com", "*help.example.com"]
+    }
+    url_filters {
+      priority = 2
+      filtering_action   = "DENY"
+      urls = ["*restricted.example.com"]
+    }
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -159,7 +188,7 @@ The following arguments are supported:
 * `type` -
   (Required)
   The type of security profile.
-  Possible values are: `THREAT_PREVENTION`, `CUSTOM_MIRRORING`, `CUSTOM_INTERCEPT`.
+  Possible values are: `THREAT_PREVENTION`, `URL_FILTERING`, `CUSTOM_MIRRORING`, `CUSTOM_INTERCEPT`.
 
 * `name` -
   (Required)
@@ -181,6 +210,11 @@ The following arguments are supported:
   (Optional)
   The threat prevention configuration for the security profile.
   Structure is [documented below](#nested_threat_prevention_profile).
+
+* `url_filtering_profile` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The url filtering configuration for the security profile.
+  Structure is [documented below](#nested_url_filtering_profile).
 
 * `custom_mirroring_profile` -
   (Optional)
@@ -264,6 +298,34 @@ The following arguments are supported:
   (Required)
   Threat action override. For some threat types, only a subset of actions applies.
   Possible values are: `ALERT`, `ALLOW`, `DEFAULT_ACTION`, `DENY`.
+
+<a name="nested_url_filtering_profile"></a>The `url_filtering_profile` block supports:
+
+* `url_filters` -
+  (Optional)
+  The configuration for action to take based on domain name match.
+  A domain name would be checked for matching filters through the list in order of highest to lowest priority,
+  and the first filter that a domain name matches with is the one whose actions gets applied.
+  Structure is [documented below](#nested_url_filtering_profile_url_filters).
+
+
+<a name="nested_url_filtering_profile_url_filters"></a>The `url_filters` block supports:
+
+* `filtering_action` -
+  (Required)
+  The action to take when the filter is applied.
+  Possible values are: `ALLOW`, `DENY`.
+
+* `urls` -
+  (Optional)
+  A list of domain matcher strings that a domain name gets compared with to determine if the filter is applicable.
+  A domain name must match with at least one of the strings in the list for a filter to be applicable.
+
+* `priority` -
+  (Required)
+  The priority of the filter within the URL filtering profile.
+  Must be an integer from 0 and 2147483647, inclusive. Lower integers indicate higher priorities.
+  The priority of a filter must be unique within a URL filtering profile.
 
 <a name="nested_custom_mirroring_profile"></a>The `custom_mirroring_profile` block supports:
 
