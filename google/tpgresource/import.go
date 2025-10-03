@@ -132,6 +132,8 @@ func identityImport(re *regexp.Regexp, identity *schema.IdentityData, idFormat s
 		if identityValue, identityExists := identity.GetOk(group); identityExists && group != "" {
 			log.Printf("[DEBUG] identity Importing %s = %s", group, identityValue)
 			d.Set(group, identityValue)
+		} else if group == "" {
+			continue
 		} else {
 			return fmt.Errorf("[DEBUG] No value was found for %s during import", group)
 		}
