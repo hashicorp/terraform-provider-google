@@ -483,7 +483,7 @@ func validateParentSweepers(sweepers map[string]*Sweeper) error {
 	// If any validation errors were found, return them
 	if len(validationErrors) > 0 {
 		if len(validationErrors) == 1 {
-			return fmt.Errorf(validationErrors[0])
+			return fmt.Errorf("%s", validationErrors[0])
 		}
 		return fmt.Errorf("multiple parent validation issues: %s", strings.Join(validationErrors, "; "))
 	}

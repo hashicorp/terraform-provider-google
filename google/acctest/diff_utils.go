@@ -213,7 +213,7 @@ func writeOutputFileDeferFunction(tempOutputFile *os.File, failed bool) {
 			fmt.Fprintf(os.Stdout, "%s Breaking Change Detected] \n", diffTag)
 			fmt.Fprintf(diffFailureFile, "%s %s\n", diffTag, testOutput)
 		} else {
-			fmt.Fprintf(regularFailureFile, testOutput)
+			fmt.Fprintf(regularFailureFile, "%s", testOutput)
 			fmt.Fprintf(regularFailureFile, "FAILED --- %s\n", testOutput)
 		}
 	}

@@ -60,7 +60,7 @@ func (w *ContainerOperationWaiter) Error() error {
 	}
 
 	if w.Op.StatusMessage != "" {
-		return fmt.Errorf(w.Op.StatusMessage)
+		return fmt.Errorf("%s", w.Op.StatusMessage)
 	}
 
 	return nil
