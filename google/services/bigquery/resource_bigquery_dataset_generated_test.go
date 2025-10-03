@@ -52,6 +52,12 @@ func TestAccBigQueryDataset_bigqueryDatasetBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_bigquery_dataset.dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

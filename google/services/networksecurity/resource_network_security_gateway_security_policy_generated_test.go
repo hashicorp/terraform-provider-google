@@ -51,6 +51,12 @@ func TestAccNetworkSecurityGatewaySecurityPolicy_networkSecurityGatewaySecurityP
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name", "tls_inspection_policy"},
 			},
+			{
+				ResourceName:       "google_network_security_gateway_security_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

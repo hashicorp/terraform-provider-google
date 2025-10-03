@@ -53,6 +53,12 @@ func TestAccChronicleDataAccessLabel_chronicleDataaccesslabelBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_access_label_id", "instance", "location"},
 			},
+			{
+				ResourceName:       "google_chronicle_data_access_label.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -53,6 +53,12 @@ func TestAccLoggingLinkedDataset_loggingLinkedDatasetBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"bucket", "link_id", "location", "parent"},
 			},
+			{
+				ResourceName:       "google_logging_linked_dataset.logging_linked_dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

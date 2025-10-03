@@ -53,6 +53,12 @@ func TestAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGr
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_security_security_profile_group.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

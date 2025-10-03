@@ -51,6 +51,12 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ip_collection", "network", "params", "region", "reserved_internal_range"},
 			},
+			{
+				ResourceName:       "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

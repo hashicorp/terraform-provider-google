@@ -51,6 +51,12 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_notebooks_runtime.runtime",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

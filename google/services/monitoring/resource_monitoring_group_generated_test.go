@@ -50,6 +50,12 @@ func TestAccMonitoringGroup_monitoringGroupBasicExample(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_monitoring_group.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

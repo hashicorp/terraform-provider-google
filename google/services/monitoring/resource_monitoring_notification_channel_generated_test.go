@@ -51,6 +51,12 @@ func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"sensitive_labels"},
 			},
+			{
+				ResourceName:       "google_monitoring_notification_channel.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

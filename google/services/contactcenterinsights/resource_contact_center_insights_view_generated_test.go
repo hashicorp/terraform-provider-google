@@ -51,6 +51,12 @@ func TestAccContactCenterInsightsView_contactCenterInsightsViewBasicExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_contact_center_insights_view.basic_view",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

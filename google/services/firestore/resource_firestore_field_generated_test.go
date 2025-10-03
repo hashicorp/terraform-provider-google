@@ -55,6 +55,12 @@ func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
 			},
+			{
+				ResourceName:       "google_firestore_field.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

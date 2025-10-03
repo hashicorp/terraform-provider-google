@@ -51,6 +51,12 @@ func TestAccComputeInstantSnapshot_instantSnapshotBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "source_disk", "terraform_labels", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_instant_snapshot.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

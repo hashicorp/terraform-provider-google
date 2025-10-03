@@ -51,6 +51,12 @@ func TestAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"override_strategy", "ssl_settings.0.ssl_management_type"},
 			},
+			{
+				ResourceName:       "google_app_engine_domain_mapping.domain_mapping",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

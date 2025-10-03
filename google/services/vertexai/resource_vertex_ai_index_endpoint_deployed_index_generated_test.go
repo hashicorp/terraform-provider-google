@@ -53,6 +53,12 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"index_endpoint", "region"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_index_endpoint_deployed_index.basic_deployed_index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

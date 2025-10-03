@@ -51,6 +51,12 @@ func TestAccParameterManagerParameterVersion_parameterVersionBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parameter", "parameter_version_id"},
 			},
+			{
+				ResourceName:       "google_parameter_manager_parameter_version.parameter-version-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

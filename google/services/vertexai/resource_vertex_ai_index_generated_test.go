@@ -53,6 +53,12 @@ func TestAccVertexAIIndex_vertexAiIndexExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"etag", "labels", "metadata.0.config.0.feature_norm_type", "metadata.0.contents_delta_uri", "metadata.0.is_complete_overwrite", "region", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_index.index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

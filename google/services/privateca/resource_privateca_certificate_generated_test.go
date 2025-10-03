@@ -53,6 +53,12 @@ func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"certificate_authority", "labels", "location", "name", "pool", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_privateca_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

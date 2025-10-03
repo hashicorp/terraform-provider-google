@@ -51,6 +51,12 @@ func TestAccBiglakeTable_biglakeTableExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"database", "name"},
 			},
+			{
+				ResourceName:       "google_biglake_table.table",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

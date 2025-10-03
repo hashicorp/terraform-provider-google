@@ -53,6 +53,12 @@ func TestAccDataprocGdcServiceInstance_dataprocgdcServiceinstanceExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_instance_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_gdc_service_instance.service-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

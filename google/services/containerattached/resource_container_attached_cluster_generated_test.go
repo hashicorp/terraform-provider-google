@@ -51,6 +51,12 @@ func TestAccContainerAttachedCluster_containerAttachedClusterBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location"},
 			},
+			{
+				ResourceName:       "google_container_attached_cluster.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -53,6 +53,12 @@ func TestAccDataplexDatascan_dataplexDatascanBasicProfileExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataplex_datascan.basic_profile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

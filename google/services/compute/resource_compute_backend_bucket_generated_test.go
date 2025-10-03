@@ -52,6 +52,12 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_backend_bucket.image_backend",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

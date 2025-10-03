@@ -51,6 +51,12 @@ func TestAccDialogflowCXGenerator_dialogflowcxGeneratorBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"language_code", "parent", "prompt_text"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_generator.generator",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

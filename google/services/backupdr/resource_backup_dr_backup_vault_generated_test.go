@@ -53,6 +53,12 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultFullExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_retention_inheritance", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_backup_dr_backup_vault.backup-vault-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

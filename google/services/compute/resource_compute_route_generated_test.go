@@ -51,6 +51,12 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "next_hop_instance", "next_hop_vpn_tunnel", "params"},
 			},
+			{
+				ResourceName:       "google_compute_route.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

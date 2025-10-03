@@ -51,6 +51,12 @@ func TestAccAlloydbCluster_alloydbClusterBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "cluster_id", "initial_user", "labels", "location", "restore_backup_source", "restore_continuous_backup_source", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_alloydb_cluster.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -58,6 +58,12 @@ func TestAccApigeeInstance_apigeeInstanceBasicTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ip_range", "org_id"},
 			},
+			{
+				ResourceName:       "google_apigee_instance.apigee_instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

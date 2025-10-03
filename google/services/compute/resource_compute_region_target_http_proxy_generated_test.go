@@ -51,6 +51,12 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "url_map"},
 			},
+			{
+				ResourceName:       "google_compute_region_target_http_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

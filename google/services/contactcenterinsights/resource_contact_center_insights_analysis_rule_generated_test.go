@@ -52,6 +52,12 @@ func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleB
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_contact_center_insights_analysis_rule.analysis_rule_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

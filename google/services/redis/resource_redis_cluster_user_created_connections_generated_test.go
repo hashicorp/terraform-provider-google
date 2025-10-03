@@ -51,6 +51,12 @@ func TestAccRedisClusterUserCreatedConnections_redisClusterUserCreatedConnection
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "region"},
 			},
+			{
+				ResourceName:       "google_redis_cluster_user_created_connections.cluster-user-conn",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

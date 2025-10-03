@@ -52,6 +52,12 @@ func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeat
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"feature_online_store", "labels", "name", "region", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_feature_online_store_featureview.featureview",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

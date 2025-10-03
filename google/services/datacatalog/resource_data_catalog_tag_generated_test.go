@@ -52,6 +52,12 @@ func TestAccDataCatalogTag_dataCatalogEntryTagBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
+			{
+				ResourceName:       "google_data_catalog_tag.basic_tag",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

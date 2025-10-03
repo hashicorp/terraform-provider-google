@@ -53,6 +53,12 @@ func TestAccDataplexEntry_dataplexEntryBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"entry_group_id", "entry_id", "location"},
 			},
+			{
+				ResourceName:       "google_dataplex_entry.test_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -53,6 +53,12 @@ func TestAccModelArmorTemplate_modelarmorTemplateBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "template_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_model_armor_template.template-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

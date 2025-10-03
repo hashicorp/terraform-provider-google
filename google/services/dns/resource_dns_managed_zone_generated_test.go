@@ -53,6 +53,12 @@ func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_destroy", "labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dns_managed_zone.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

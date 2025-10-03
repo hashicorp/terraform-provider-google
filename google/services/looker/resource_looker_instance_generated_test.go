@@ -51,6 +51,12 @@ func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
 			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

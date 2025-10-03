@@ -52,6 +52,12 @@ func TestAccComputeReservation_reservationBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"delete_after_duration", "share_settings", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_reservation.gce_reservation",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

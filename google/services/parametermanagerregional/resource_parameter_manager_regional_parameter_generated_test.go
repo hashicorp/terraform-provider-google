@@ -51,6 +51,12 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

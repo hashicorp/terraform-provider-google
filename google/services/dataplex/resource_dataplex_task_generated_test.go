@@ -53,6 +53,12 @@ func TestAccDataplexTask_dataplexTaskBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "lake", "location", "task_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataplex_task.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -53,6 +53,12 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBa
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "provider_id", "workforce_pool_id"},
 			},
+			{
+				ResourceName:       "google_iam_workforce_pool_provider.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

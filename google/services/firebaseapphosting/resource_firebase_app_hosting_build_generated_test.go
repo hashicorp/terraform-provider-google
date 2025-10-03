@@ -48,6 +48,12 @@ func TestAccFirebaseAppHostingBuild_firebaseAppHostingBuildMinimalExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "backend", "build_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_firebase_app_hosting_build.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

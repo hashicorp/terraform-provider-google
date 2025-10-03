@@ -55,6 +55,12 @@ func TestAccDataprocBatch_dataprocBatchSparkExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"batch_id", "labels", "location", "runtime_config.0.properties", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_batch.example_batch_spark",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

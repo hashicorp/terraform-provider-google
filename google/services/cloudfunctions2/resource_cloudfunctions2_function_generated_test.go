@@ -55,6 +55,12 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"build_config.0.source.0.storage_source.0.bucket", "build_config.0.source.0.storage_source.0.object", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloudfunctions2_function.function",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -52,6 +52,12 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_network.vpc_network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

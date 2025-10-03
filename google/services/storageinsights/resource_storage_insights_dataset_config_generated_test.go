@@ -51,6 +51,12 @@ func TestAccStorageInsightsDatasetConfig_storageInsightsDatasetConfigIncludesExa
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"dataset_config_id", "location"},
 			},
+			{
+				ResourceName:       "google_storage_insights_dataset_config.config_includes",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

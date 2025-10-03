@@ -51,6 +51,12 @@ func TestAccDialogflowCXAgent_dialogflowcxAgentFullExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "advanced_settings.0.logging_settings", "answer_feedback_settings", "enable_stackdriver_logging", "enable_stackdriver_logging", "git_integration_settings.0.github_settings.0.access_token", "git_integration_settings.0.github_settings.0.access_token", "location", "start_playbook"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_agent.full_agent",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -51,6 +51,12 @@ func TestAccDataplexGlossaryTerm_dataplexGlossaryTermBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"glossary_id", "labels", "location", "term_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataplex_glossary_term.term_test_id",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

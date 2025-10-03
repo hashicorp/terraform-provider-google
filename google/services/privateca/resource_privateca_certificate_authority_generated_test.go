@@ -54,6 +54,12 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"certificate_authority_id", "deletion_protection", "ignore_active_certificates_on_deletion", "labels", "location", "pem_ca_certificate", "pool", "skip_grace_period", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_privateca_certificate_authority.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -51,6 +51,12 @@ func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_regional_endpoint.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

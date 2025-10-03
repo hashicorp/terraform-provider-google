@@ -51,6 +51,12 @@ func TestAccDocumentAIProcessor_documentaiProcessorExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_document_ai_processor.processor",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -51,6 +51,12 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGheExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "parent_connection"},
 			},
+			{
+				ResourceName:       "google_cloudbuildv2_repository.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

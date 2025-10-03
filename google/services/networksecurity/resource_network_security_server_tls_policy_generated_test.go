@@ -51,6 +51,12 @@ func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyBasicEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_security_server_tls_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

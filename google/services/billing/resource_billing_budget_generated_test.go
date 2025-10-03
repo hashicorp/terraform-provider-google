@@ -53,6 +53,12 @@ func TestAccBillingBudget_billingBudgetBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
+			{
+				ResourceName:       "google_billing_budget.budget",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

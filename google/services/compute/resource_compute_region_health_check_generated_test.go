@@ -51,6 +51,12 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckTcpExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
+			{
+				ResourceName:       "google_compute_region_health_check.tcp-region-health-check",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

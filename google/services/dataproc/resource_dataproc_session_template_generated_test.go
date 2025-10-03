@@ -55,6 +55,12 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "runtime_config.0.properties", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_session_template.example_session_templates_jupyter",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

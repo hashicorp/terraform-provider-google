@@ -51,6 +51,12 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

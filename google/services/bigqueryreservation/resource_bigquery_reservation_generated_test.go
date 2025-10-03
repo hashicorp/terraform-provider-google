@@ -51,6 +51,12 @@ func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name"},
 			},
+			{
+				ResourceName:       "google_bigquery_reservation.reservation",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

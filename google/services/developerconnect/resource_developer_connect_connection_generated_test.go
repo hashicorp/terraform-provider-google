@@ -52,6 +52,12 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionExistingCredent
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "connection_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_connection.my-connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

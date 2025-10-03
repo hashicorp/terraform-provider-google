@@ -41,6 +41,12 @@ func TestAccBackupDRServiceConfig_backupDrServiceConfigExample(t *testing.T) {
 			{
 				Config: testAccBackupDRServiceConfig_backupDrServiceConfigExample(context),
 			},
+			{
+				ResourceName:       "google_backup_dr_service_config.my-service-config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

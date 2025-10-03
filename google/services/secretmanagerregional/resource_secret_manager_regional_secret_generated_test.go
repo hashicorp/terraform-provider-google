@@ -51,6 +51,12 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretConfigBasicExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "secret_id", "tags", "terraform_labels", "ttl"},
 			},
+			{
+				ResourceName:       "google_secret_manager_regional_secret.regional-secret-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

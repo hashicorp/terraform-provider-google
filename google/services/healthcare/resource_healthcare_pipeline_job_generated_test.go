@@ -51,6 +51,12 @@ func TestAccHealthcarePipelineJob_healthcarePipelineJobReconciliationExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"dataset", "labels", "location", "self_link", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_healthcare_pipeline_job.example-pipeline",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

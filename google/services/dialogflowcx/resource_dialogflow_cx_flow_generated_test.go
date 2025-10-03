@@ -51,6 +51,12 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"advanced_settings.0.logging_settings", "advanced_settings.0.logging_settings", "knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_flow.basic_flow",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

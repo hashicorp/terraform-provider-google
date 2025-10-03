@@ -51,6 +51,12 @@ func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
+			{
+				ResourceName:       "google_compute_node_template.template",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

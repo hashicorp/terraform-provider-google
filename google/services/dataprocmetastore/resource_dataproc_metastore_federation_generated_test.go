@@ -51,6 +51,12 @@ func TestAccDataprocMetastoreFederation_dataprocMetastoreFederationBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "federation_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_federation.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

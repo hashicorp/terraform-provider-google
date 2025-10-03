@@ -52,6 +52,12 @@ func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
+			{
+				ResourceName:       "google_cloud_scheduler_job.job",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

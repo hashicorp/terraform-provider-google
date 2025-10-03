@@ -51,6 +51,12 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
+			{
+				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -51,6 +51,12 @@ func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVe
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "parameter", "parameter_version_id"},
 			},
+			{
+				ResourceName:       "google_parameter_manager_regional_parameter_version.regional-parameter-version-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

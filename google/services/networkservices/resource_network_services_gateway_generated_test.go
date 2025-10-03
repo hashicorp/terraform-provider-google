@@ -51,6 +51,12 @@ func TestAccNetworkServicesGateway_networkServicesGatewayBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_gateway.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

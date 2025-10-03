@@ -47,6 +47,12 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentBasicExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "location", "rule"},
 			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

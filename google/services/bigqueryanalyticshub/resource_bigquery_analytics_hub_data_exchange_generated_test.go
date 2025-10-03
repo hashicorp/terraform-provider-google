@@ -51,6 +51,12 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBas
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_exchange_id", "location"},
 			},
+			{
+				ResourceName:       "google_bigquery_analytics_hub_data_exchange.data_exchange",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

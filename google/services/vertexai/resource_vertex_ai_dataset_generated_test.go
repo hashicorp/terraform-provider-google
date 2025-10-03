@@ -45,6 +45,12 @@ func TestAccVertexAIDataset_vertexAiDatasetExample(t *testing.T) {
 			{
 				Config: testAccVertexAIDataset_vertexAiDatasetExample(context),
 			},
+			{
+				ResourceName:       "google_vertex_ai_dataset.dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

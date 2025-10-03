@@ -51,6 +51,12 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"dataset", "labels", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_healthcare_consent_store.my-consent",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

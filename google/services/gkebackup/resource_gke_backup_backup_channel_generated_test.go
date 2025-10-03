@@ -54,6 +54,12 @@ func TestAccGKEBackupBackupChannel_gkebackupBackupchannelBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_backup_channel.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -47,6 +47,12 @@ func TestAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"migrate_traffic", "split"},
 			},
+			{
+				ResourceName:       "google_app_engine_service_split_traffic.liveapp",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

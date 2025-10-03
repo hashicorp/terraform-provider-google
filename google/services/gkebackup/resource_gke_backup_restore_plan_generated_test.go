@@ -56,6 +56,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllNamespacesExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.all_ns",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

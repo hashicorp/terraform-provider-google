@@ -51,6 +51,12 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

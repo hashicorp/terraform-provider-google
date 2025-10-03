@@ -51,6 +51,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigAdvanceExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
 			},
+			{
+				ResourceName:       "google_integrations_auth_config.advance_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

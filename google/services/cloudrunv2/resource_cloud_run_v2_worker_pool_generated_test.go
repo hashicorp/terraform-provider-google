@@ -51,6 +51,12 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_cloud_run_v2_worker_pool.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -51,6 +51,12 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "create_without_validation", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_datastream_connection_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

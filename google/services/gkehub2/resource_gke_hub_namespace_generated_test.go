@@ -53,6 +53,12 @@ func TestAccGKEHub2Namespace_gkehubNamespaceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "scope", "scope", "scope_id", "scope_namespace_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_hub_namespace.namespace",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

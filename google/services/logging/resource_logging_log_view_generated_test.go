@@ -53,6 +53,12 @@ func TestAccLoggingLogView_loggingLogViewBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"bucket", "location", "name", "parent"},
 			},
+			{
+				ResourceName:       "google_logging_log_view.logging_log_view",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

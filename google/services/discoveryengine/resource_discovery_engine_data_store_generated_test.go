@@ -51,6 +51,12 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "kms_key_name", "location", "skip_default_schema_creation"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_data_store.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

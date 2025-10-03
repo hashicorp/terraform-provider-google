@@ -54,6 +54,12 @@ func TestAccApigeeAddonsConfig_apigeeAddonsTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org"},
 			},
+			{
+				ResourceName:       "google_apigee_addons_config.apigee_org_addons",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

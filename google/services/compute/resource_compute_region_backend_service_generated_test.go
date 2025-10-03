@@ -51,6 +51,12 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

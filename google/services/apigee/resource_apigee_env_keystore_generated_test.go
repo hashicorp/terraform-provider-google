@@ -57,6 +57,12 @@ func TestAccApigeeEnvKeystore_apigeeEnvironmentKeystoreTestExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"env_id"},
 			},
+			{
+				ResourceName:       "google_apigee_env_keystore.apigee_environment_keystore",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

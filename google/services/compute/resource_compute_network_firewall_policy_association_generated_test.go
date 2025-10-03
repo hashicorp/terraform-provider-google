@@ -53,6 +53,12 @@ func TestAccComputeNetworkFirewallPolicyAssociation_networkFirewallPolicyAssocia
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"firewall_policy"},
 			},
+			{
+				ResourceName:       "google_compute_network_firewall_policy_association.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

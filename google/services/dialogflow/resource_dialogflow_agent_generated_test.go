@@ -51,6 +51,12 @@ func TestAccDialogflowAgent_dialogflowAgentFullExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"avatar_uri", "tier"},
 			},
+			{
+				ResourceName:       "google_dialogflow_agent.full_agent",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

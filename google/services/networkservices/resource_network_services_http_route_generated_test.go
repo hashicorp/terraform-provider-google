@@ -51,6 +51,12 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_http_route.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

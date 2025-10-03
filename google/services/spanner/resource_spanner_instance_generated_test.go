@@ -52,6 +52,12 @@ func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"config", "labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_spanner_instance.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

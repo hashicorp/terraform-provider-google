@@ -53,6 +53,12 @@ func TestAccClouddeployAutomation_clouddeployAutomationBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "delivery_pipeline", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_clouddeploy_automation.b-automation",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -51,6 +51,12 @@ func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "snapshot_encryption_key.0.raw_key", "snapshot_encryption_key.0.rsa_encrypted_key", "source_disk", "source_disk_encryption_key", "terraform_labels", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_snapshot.snapshot",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

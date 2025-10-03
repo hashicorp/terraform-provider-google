@@ -51,6 +51,12 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_database_migration_service_migration_job.mysqltomysql",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

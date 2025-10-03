@@ -51,6 +51,12 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_cloudbuild_trigger.filename-trigger",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

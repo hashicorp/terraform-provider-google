@@ -52,6 +52,12 @@ func TestAccEventarcTrigger_eventarcTriggerWithCloudRunDestinationExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_eventarc_trigger.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

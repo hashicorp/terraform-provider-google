@@ -53,6 +53,12 @@ func TestAccSecurityCenterV2OrganizationMuteConfig_sccV2OrganizationMuteConfigBa
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "mute_config_id", "organization"},
 			},
+			{
+				ResourceName:       "google_scc_v2_organization_mute_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

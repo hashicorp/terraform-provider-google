@@ -53,6 +53,12 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_inspect_template.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

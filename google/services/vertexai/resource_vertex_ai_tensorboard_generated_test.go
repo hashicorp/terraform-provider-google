@@ -51,6 +51,12 @@ func TestAccVertexAITensorboard_vertexAiTensorboardExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "project", "region", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_tensorboard.tensorboard",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

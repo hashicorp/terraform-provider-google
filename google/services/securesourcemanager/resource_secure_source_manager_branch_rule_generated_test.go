@@ -52,6 +52,12 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"branch_rule_id", "location", "repository_id"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_branch_rule.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -52,6 +52,12 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "region", "reserved_ip_range", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_redis_instance.cache",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

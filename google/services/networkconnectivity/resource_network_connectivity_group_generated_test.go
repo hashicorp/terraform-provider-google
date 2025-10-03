@@ -51,6 +51,12 @@ func TestAccNetworkConnectivityGroup_networkConnectivityGroupBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_group.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

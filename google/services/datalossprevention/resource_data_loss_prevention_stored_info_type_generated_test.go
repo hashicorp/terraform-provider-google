@@ -53,6 +53,12 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "stored_info_type_id"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_stored_info_type.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

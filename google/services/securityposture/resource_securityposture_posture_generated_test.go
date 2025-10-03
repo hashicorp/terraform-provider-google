@@ -53,6 +53,12 @@ func TestAccSecurityposturePosture_securityposturePostureBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "parent", "posture_id"},
 			},
+			{
+				ResourceName:       "google_securityposture_posture.posture1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -52,6 +52,12 @@ func TestAccMemcacheInstance_memcacheInstanceBasicTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "region", "reserved_ip_range_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_memcache_instance.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

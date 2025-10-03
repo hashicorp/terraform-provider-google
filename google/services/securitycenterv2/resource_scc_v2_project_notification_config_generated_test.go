@@ -53,6 +53,12 @@ func TestAccSecurityCenterV2ProjectNotificationConfig_sccV2ProjectNotificationCo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"config_id", "location", "location", "project"},
 			},
+			{
+				ResourceName:       "google_scc_v2_project_notification_config.custom_notification_config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

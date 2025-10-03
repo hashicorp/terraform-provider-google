@@ -51,6 +51,12 @@ func TestAccSecretManagerSecretVersion_secretVersionBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"secret"},
 			},
+			{
+				ResourceName:       "google_secret_manager_secret_version.secret-version-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

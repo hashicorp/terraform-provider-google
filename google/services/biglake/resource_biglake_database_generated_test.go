@@ -51,6 +51,12 @@ func TestAccBiglakeDatabase_biglakeDatabaseExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"catalog", "name"},
 			},
+			{
+				ResourceName:       "google_biglake_database.database",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

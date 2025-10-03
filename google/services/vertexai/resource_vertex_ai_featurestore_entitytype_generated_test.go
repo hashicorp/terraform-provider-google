@@ -55,6 +55,12 @@ func TestAccVertexAIFeaturestoreEntitytype_vertexAiFeaturestoreEntitytypeExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"etag", "featurestore", "labels", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_featurestore_entitytype.entity",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -45,6 +45,12 @@ func TestAccChronicleRetrohunt_chronicleRetrohuntBasicExample(t *testing.T) {
 			{
 				Config: testAccChronicleRetrohunt_chronicleRetrohuntBasicExample(context),
 			},
+			{
+				ResourceName:       "google_chronicle_retrohunt.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

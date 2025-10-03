@@ -51,6 +51,12 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_metastore_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

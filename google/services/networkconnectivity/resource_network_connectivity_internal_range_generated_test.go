@@ -51,6 +51,12 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBa
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_internal_range.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

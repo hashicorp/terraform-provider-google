@@ -57,6 +57,12 @@ func TestAccFirestoreIndex_firestoreIndexBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database"},
 			},
+			{
+				ResourceName:       "google_firestore_index.my-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

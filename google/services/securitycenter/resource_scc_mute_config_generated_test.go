@@ -53,6 +53,12 @@ func TestAccSecurityCenterMuteConfig_sccMuteConfigExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"mute_config_id", "parent"},
 			},
+			{
+				ResourceName:       "google_scc_mute_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -53,6 +53,12 @@ func TestAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app_profile_id", "ignore_warnings", "ignore_warnings", "instance"},
 			},
+			{
+				ResourceName:       "google_bigtable_app_profile.ap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

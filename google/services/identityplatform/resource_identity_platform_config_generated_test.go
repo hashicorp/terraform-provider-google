@@ -51,6 +51,12 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client.0.api_key", "client.0.firebase_subdomain"},
 			},
+			{
+				ResourceName:       "google_identity_platform_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -53,6 +53,12 @@ func TestAccNetworkSecurityAddressGroup_networkSecurityAddressGroupsBasicExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_security_address_group.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

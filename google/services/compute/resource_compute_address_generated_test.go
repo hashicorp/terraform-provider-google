@@ -51,6 +51,12 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "network", "region", "subnetwork", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_compute_address.ip_address",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
