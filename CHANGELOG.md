@@ -1,7 +1,7 @@
 ## 7.6.0 (Unreleased)
 
 DEPRECATIONS:
-* networksecurity: deprecated `ignore_case`, `exact`, `prefix`, `suffix` and `contains` fields in `http_rules.from.not_sources.principals` and `http_rules.from.sources.principals` blocks in `google_network_security_authz_policy` resource. Use the equivalent field in `http_rules.from.not_sources.principals.principal` or `http_rules.from.sources.principals.principal` instead. ([#24543](https://github.com/hashicorp/terraform-provider-google/pull/24543))
+* networksecurity: deprecated `ignore_case`, `exact`, `prefix`, `suffix` and `contains` fields in `http_rules.from.not_sources.principals` and `http_rules.from.sources.principals` blocks in `google_network_security_authz_policy` resource. Use the equivalent fields in `http_rules.from.not_sources.principals.principal` or `http_rules.from.sources.principals.principal` instead. ([#24543](https://github.com/hashicorp/terraform-provider-google/pull/24543))
 
 BREAKING CHANGES:
 * container: `node_config` blocks that had set `kubelet_config` without explicitly setting `cpu_cfs_quota` implicitly set `cfu_cfs_quota` to `false` when unset. From this version onwards, an unset `cpu_cfs_quota` will instead match the API default of true `true`. Resources that are recreated will receive the new value; old resources are unaffected, and may change values by explicitly setting the intended one. ([#24569](https://github.com/hashicorp/terraform-provider-google/pull/24569))
