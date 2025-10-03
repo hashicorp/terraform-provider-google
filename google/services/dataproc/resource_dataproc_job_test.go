@@ -561,7 +561,7 @@ func testAccCheckDataprocJobAttrMatch(n, jobType string, job *dataproc.Job) reso
 
 		for _, attrs := range jobTests {
 			if c := checkMatch(attributes, attrs.tf_attr, attrs.gcp_attr); c != "" {
-				return fmt.Errorf(c)
+				return fmt.Errorf("%s", c)
 			}
 		}
 

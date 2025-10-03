@@ -72,7 +72,7 @@ func TestAccDataSourceGoogleServiceAccounts_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.google_service_accounts.with_regex", "accounts.0.email", fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa_1, project)),
 
 					// Check if the account_id matches the prefix
-					resource.TestCheckResourceAttr("data.google_service_accounts.with_prefix_and_regex", "accounts.0.account_id", fmt.Sprintf(sa_1)),
+					resource.TestCheckResourceAttr("data.google_service_accounts.with_prefix_and_regex", "accounts.0.account_id", sa_1),
 
 					// Check if the email matches the regex
 					resource.TestCheckResourceAttr("data.google_service_accounts.with_prefix_and_regex", "accounts.0.email", fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa_1, project)),
@@ -118,17 +118,19 @@ data "google_service_accounts" "with_prefix" {
 
 data "google_service_accounts" "with_regex" {
   project = local.project_id
-  regex   = ".*${google_service_account.sa_one.account_id}.*@.*\\.gserviceaccount\\.com"
+  regex   = ".*%s.*@.*\\.gserviceaccount\\.com"
 }
 
 data "google_service_accounts" "with_prefix_and_regex" {
   prefix  = google_service_account.sa_one.account_id
   project = local.project_id
-  regex   = ".*${google_service_account.sa_one.account_id}.*@.*\\.gserviceaccount\\.com"
+  regex   = ".*%s.*@.*\\.gserviceaccount\\.com"
 }
 `,
 		context["project"].(string),
 		context["sa_1"].(string),
 		context["sa_2"].(string),
+		context["sa_1"].(string),
+		context["sa_1"].(string),
 	)
 }
