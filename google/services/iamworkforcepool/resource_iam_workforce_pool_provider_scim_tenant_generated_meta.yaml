@@ -1,0 +1,20 @@
+resource: 'google_iam_workforce_pool_provider_scim_tenant'
+generation_type: 'mmv1'
+source_file: 'products/iamworkforcepool/WorkforcePoolProviderScimTenant.yaml'
+api_service_name: 'iam.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'WorkforcePoolProviderScimTenant'
+fields:
+  - field: 'base_uri'
+  - field: 'description'
+  - field: 'display_name'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'provider_id'
+    provider_only: true
+  - field: 'scim_tenant_id'
+    provider_only: true
+  - field: 'state'
+  - field: 'workforce_pool_id'
+    provider_only: true
