@@ -16,6 +16,7 @@ fields:
   - field: 'autoscaling_settings.cool_down_period'
   - field: 'autoscaling_settings.max_cluster_node_count'
   - field: 'autoscaling_settings.min_cluster_node_count'
+  - field: 'create_time'
   - field: 'management'
   - field: 'name'
     provider_only: true
@@ -25,3 +26,4 @@ fields:
     provider_only: true
   - field: 'state'
   - field: 'uid'
+  - field: 'update_time'

@@ -81,6 +81,19 @@ func ResourceVmwareengineNetwork() *schema.Resource {
 				Optional:    true,
 				Description: `User-provided description for this VMware Engine network.`,
 			},
+			"create_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Creation time of this resource.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
+			"etag": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Checksum that may be sent on update and delete requests to ensure that the user-provided value is up to date befor
+The server computes checksums based on the value of other fields in the request.`,
+			},
 			"state": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -90,6 +103,13 @@ func ResourceVmwareengineNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `System-generated unique identifier for the resource.`,
+			},
+			"update_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Last update time of this resource.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
 			"vpc_networks": {
 				Type:     schema.TypeList,
@@ -242,6 +262,12 @@ func resourceVmwareengineNetworkRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 
+	if err := d.Set("create_time", flattenVmwareengineNetworkCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err := d.Set("update_time", flattenVmwareengineNetworkUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
 	if err := d.Set("description", flattenVmwareengineNetworkDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
@@ -255,6 +281,9 @@ func resourceVmwareengineNetworkRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("uid", flattenVmwareengineNetworkUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err := d.Set("etag", flattenVmwareengineNetworkEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 
@@ -415,6 +444,14 @@ func resourceVmwareengineNetworkImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenVmwareengineNetworkCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineNetworkUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVmwareengineNetworkDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -455,6 +492,10 @@ func flattenVmwareengineNetworkType(v interface{}, d *schema.ResourceData, confi
 }
 
 func flattenVmwareengineNetworkUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineNetworkEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
