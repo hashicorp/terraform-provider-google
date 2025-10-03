@@ -5,7 +5,9 @@ api_service_name: 'vmwareengine.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'VmwareEngineNetwork'
 fields:
+  - field: 'create_time'
   - field: 'description'
+  - field: 'etag'
   - field: 'location'
     provider_only: true
   - field: 'name'
@@ -13,5 +15,6 @@ fields:
   - field: 'state'
   - field: 'type'
   - field: 'uid'
+  - field: 'update_time'
   - field: 'vpc_networks.network'
   - field: 'vpc_networks.type'

@@ -403,6 +403,27 @@ the form: projects/{project_number}/locations/{location}/vmwareEngineNetworks/{v
 				DiffSuppressFunc: vmwareenginePrivateCloudStandardTypeDiffSuppressFunc,
 				Description:      `Initial type of the private cloud. Possible values: ["STANDARD", "TIME_LIMITED", "STRETCHED"]`,
 			},
+			"create_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Creation time of this resource.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
+			"delete_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Time when the resource was scheduled for deletion.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
+			"expire_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Time when the resource will be irreversibly deleted.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
 			"hcx": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -472,6 +493,13 @@ the form: projects/{project_number}/locations/{location}/vmwareEngineNetworks/{v
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `System-generated unique identifier for the resource.`,
+			},
+			"update_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Last update time of this resource.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
 			"vcenter": {
 				Type:        schema.TypeList,
@@ -743,6 +771,18 @@ func resourceVmwareenginePrivateCloudRead(d *schema.ResourceData, meta interface
 	if err := d.Set("description", flattenVmwareenginePrivateCloudDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateCloud: %s", err)
 	}
+	if err := d.Set("create_time", flattenVmwareenginePrivateCloudCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err := d.Set("update_time", flattenVmwareenginePrivateCloudUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err := d.Set("delete_time", flattenVmwareenginePrivateCloudDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
+	if err := d.Set("expire_time", flattenVmwareenginePrivateCloudExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateCloud: %s", err)
+	}
 	if err := d.Set("uid", flattenVmwareenginePrivateCloudUid(res["uid"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateCloud: %s", err)
 	}
@@ -991,6 +1031,22 @@ func resourceVmwareenginePrivateCloudImport(d *schema.ResourceData, meta interfa
 }
 
 func flattenVmwareenginePrivateCloudDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareenginePrivateCloudCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareenginePrivateCloudUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareenginePrivateCloudDeleteTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareenginePrivateCloudExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
