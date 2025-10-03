@@ -51,6 +51,12 @@ func TestAccParameterManagerParameter_parameterConfigBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_parameter_manager_parameter.parameter-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

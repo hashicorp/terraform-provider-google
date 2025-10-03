@@ -57,6 +57,12 @@ func TestAccOSConfigV2PolicyOrchestratorForFolder_osconfigv2PolicyOrchestratorFo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"folder_id", "labels", "policy_orchestrator_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_os_config_v2_policy_orchestrator_for_folder.policy_orchestrator_for_folder",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

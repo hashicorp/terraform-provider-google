@@ -51,6 +51,12 @@ func TestAccNetworkSecurityInterceptDeployment_networkSecurityInterceptDeploymen
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"intercept_deployment_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_security_intercept_deployment.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

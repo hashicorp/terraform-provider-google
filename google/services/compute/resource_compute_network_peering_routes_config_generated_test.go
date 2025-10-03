@@ -45,6 +45,12 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExa
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network"},
 			},
+			{
+				ResourceName:       "google_compute_network_peering_routes_config.peering_primary_routes",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

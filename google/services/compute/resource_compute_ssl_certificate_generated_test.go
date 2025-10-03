@@ -52,6 +52,12 @@ func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name_prefix", "private_key"},
 			},
+			{
+				ResourceName:       "google_compute_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

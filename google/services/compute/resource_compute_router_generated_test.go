@@ -51,6 +51,12 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "region"},
 			},
+			{
+				ResourceName:       "google_compute_router.foobar",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

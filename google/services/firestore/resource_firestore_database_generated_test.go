@@ -54,6 +54,12 @@ func TestAccFirestoreDatabase_firestoreDatabaseExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
 			},
+			{
+				ResourceName:       "google_firestore_database.database",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

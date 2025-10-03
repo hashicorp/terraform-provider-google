@@ -51,6 +51,12 @@ func TestAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlP
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"bucket"},
 			},
+			{
+				ResourceName:       "google_storage_default_object_access_control.public_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

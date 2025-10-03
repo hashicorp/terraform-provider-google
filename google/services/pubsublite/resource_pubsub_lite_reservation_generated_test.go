@@ -51,6 +51,12 @@ func TestAccPubsubLiteReservation_pubsubLiteReservationBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "region"},
 			},
+			{
+				ResourceName:       "google_pubsub_lite_reservation.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

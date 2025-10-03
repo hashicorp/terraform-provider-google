@@ -47,6 +47,12 @@ func TestAccChronicleRule_chronicleRuleBasicExample(t *testing.T) {
 			{
 				Config: testAccChronicleRule_chronicleRuleBasicExample(context),
 			},
+			{
+				ResourceName:       "google_chronicle_rule.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

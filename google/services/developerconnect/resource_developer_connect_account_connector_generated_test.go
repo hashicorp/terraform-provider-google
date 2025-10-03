@@ -51,6 +51,12 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGit
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

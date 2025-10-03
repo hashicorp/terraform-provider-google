@@ -53,6 +53,12 @@ func TestAccEventarcPipeline_eventarcPipelineWithTopicDestinationExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "pipeline_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_eventarc_pipeline.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

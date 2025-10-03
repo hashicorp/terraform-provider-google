@@ -53,6 +53,12 @@ func TestAccApphubApplication_apphubApplicationBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "location"},
 			},
+			{
+				ResourceName:       "google_apphub_application.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

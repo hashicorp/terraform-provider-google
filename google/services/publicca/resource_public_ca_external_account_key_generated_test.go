@@ -41,6 +41,12 @@ func TestAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(t *test
 			{
 				Config: testAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(context),
 			},
+			{
+				ResourceName:       "google_public_ca_external_account_key.prod",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

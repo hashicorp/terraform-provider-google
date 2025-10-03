@@ -51,6 +51,12 @@ func TestAccComputeRegionDiskResourcePolicyAttachment_regionDiskResourcePolicyAt
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"disk", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_disk_resource_policy_attachment.attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

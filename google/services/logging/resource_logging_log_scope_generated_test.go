@@ -53,6 +53,12 @@ func TestAccLoggingLogScope_loggingLogScopeBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name", "parent"},
 			},
+			{
+				ResourceName:       "google_logging_log_scope.logging_log_scope",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

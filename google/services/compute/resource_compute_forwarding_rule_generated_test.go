@@ -53,6 +53,12 @@ func TestAccComputeForwardingRule_forwardingRuleExternallbByoipv6Example(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend_service", "labels", "network", "no_automate_dns_zone", "port_range", "region", "subnetwork", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_compute_forwarding_rule.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -46,6 +46,12 @@ func TestAccBigQueryJob_bigqueryJobQueryExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"etag", "labels", "status.0.state", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_bigquery_job.job",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

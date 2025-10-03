@@ -51,6 +51,12 @@ func TestAccStorageInsightsReportConfig_storageInsightsReportConfigExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_storage_insights_report_config.config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

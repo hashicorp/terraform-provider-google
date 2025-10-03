@@ -52,6 +52,12 @@ func TestAccNetappVolumeQuotaRule_netappVolumeQuotaRuleBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels", "volume_name"},
 			},
+			{
+				ResourceName:       "google_netapp_volume_quota_rule.test_quota_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

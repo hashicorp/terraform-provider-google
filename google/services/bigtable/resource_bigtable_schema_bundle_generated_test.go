@@ -52,6 +52,12 @@ func TestAccBigtableSchemaBundle_bigtableSchemaBundleExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ignore_warnings", "ignore_warnings", "instance", "schema_bundle_id", "table"},
 			},
+			{
+				ResourceName:       "google_bigtable_schema_bundle.schema_bundle",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

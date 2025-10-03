@@ -53,6 +53,12 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithLogtypeExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_access_scope_id", "instance", "location"},
 			},
+			{
+				ResourceName:       "google_chronicle_data_access_scope.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

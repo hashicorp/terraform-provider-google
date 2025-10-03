@@ -52,6 +52,12 @@ func TestAccNetappVolumeReplication_netappVolumeReplicationCreateExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"delete_destination_volume", "destination_volume_parameters", "force_stopping", "labels", "location", "name", "replication_enabled", "terraform_labels", "volume_name", "wait_for_mirror"},
 			},
+			{
+				ResourceName:       "google_netapp_volume_replication.test_replication",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

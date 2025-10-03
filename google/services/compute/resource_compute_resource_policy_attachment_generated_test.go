@@ -51,6 +51,12 @@ func TestAccComputeResourcePolicyAttachment_computeResourcePolicyAttachmentBasic
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_resource_policy_attachment.attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

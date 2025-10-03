@@ -53,6 +53,12 @@ func TestAccFirebaseDataConnectService_firebasedataconnectServiceBasicExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "service_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_firebase_data_connect_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

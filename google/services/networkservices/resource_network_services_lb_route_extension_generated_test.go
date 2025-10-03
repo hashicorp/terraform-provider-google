@@ -51,6 +51,12 @@ func TestAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionBasic
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "port_range", "target", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_lb_route_extension.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -52,6 +52,12 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

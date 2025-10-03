@@ -52,6 +52,12 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"initial_config", "location", "repository_id"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_repository.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

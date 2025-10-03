@@ -45,6 +45,12 @@ func TestAccWorkflowsWorkflow_workflowBasicExample(t *testing.T) {
 			{
 				Config: testAccWorkflowsWorkflow_workflowBasicExample(context),
 			},
+			{
+				ResourceName:       "google_workflows_workflow.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

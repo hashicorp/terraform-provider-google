@@ -58,6 +58,12 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicTestExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"project_id", "properties", "retention"},
 			},
+			{
+				ResourceName:       "google_apigee_organization.org",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -53,6 +53,12 @@ func TestAccSecurityCenterNotificationConfig_sccNotificationConfigBasicExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"config_id", "organization"},
 			},
+			{
+				ResourceName:       "google_scc_notification_config.custom_notification_config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

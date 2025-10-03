@@ -51,6 +51,12 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkBas
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_spoke.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

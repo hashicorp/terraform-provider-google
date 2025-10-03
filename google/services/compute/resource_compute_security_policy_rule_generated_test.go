@@ -51,6 +51,12 @@ func TestAccComputeSecurityPolicyRule_securityPolicyRuleBasicExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"security_policy"},
 			},
+			{
+				ResourceName:       "google_compute_security_policy_rule.policy_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

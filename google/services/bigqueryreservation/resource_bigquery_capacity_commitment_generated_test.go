@@ -55,6 +55,12 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"capacity_commitment_id", "enforce_single_admin_project_per_org", "location"},
 			},
+			{
+				ResourceName:       "google_bigquery_capacity_commitment.commitment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

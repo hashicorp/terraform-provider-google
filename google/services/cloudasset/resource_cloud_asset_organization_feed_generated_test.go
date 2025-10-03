@@ -54,6 +54,12 @@ func TestAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"billing_project", "feed_id", "org_id"},
 			},
+			{
+				ResourceName:       "google_cloud_asset_organization_feed.organization_feed",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

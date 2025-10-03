@@ -51,6 +51,12 @@ func TestAccSecretManagerRegionalRegionalSecretVersion_regionalSecretVersionBasi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "secret"},
 			},
+			{
+				ResourceName:       "google_secret_manager_regional_secret_version.regional_secret_version_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

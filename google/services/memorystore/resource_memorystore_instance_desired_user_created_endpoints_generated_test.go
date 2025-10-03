@@ -51,6 +51,12 @@ func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDe
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "region"},
 			},
+			{
+				ResourceName:       "google_memorystore_instance_desired_user_created_endpoints.instance-user-conn",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

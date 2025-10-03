@@ -51,6 +51,12 @@ func TestAccComputeTargetInstance_targetInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_target_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

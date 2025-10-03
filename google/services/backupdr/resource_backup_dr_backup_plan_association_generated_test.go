@@ -53,6 +53,12 @@ func TestAccBackupDRBackupPlanAssociation_backupDrBpaExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backup_plan_association_id", "location", "resource"},
 			},
+			{
+				ResourceName:       "google_backup_dr_backup_plan_association.my-backup-plan-association",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

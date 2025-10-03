@@ -52,6 +52,12 @@ func TestAccAlloydbUser_alloydbUserBuiltinTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cluster", "password", "password", "user_id"},
 			},
+			{
+				ResourceName:       "google_alloydb_user.user1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

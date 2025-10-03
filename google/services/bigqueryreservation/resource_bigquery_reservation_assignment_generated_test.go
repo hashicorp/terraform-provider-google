@@ -53,6 +53,12 @@ func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignme
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "reservation"},
 			},
+			{
+				ResourceName:       "google_bigquery_reservation_assignment.assignment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

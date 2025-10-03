@@ -55,6 +55,12 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigOrgFolderPausedE
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "parent"},
 			},
+			{
+				ResourceName:       "google_data_loss_prevention_discovery_config.org_folder_paused",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -51,6 +51,12 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryBasicExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_artifact_registry_repository.my-repo",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

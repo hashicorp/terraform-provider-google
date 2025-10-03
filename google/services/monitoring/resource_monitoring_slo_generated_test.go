@@ -52,6 +52,12 @@ func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"service"},
 			},
+			{
+				ResourceName:       "google_monitoring_slo.appeng_slo",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

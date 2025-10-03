@@ -51,6 +51,12 @@ func TestAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayBasicExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "security_gateway_id"},
 			},
+			{
+				ResourceName:       "google_beyondcorp_security_gateway.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

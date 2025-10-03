@@ -56,6 +56,12 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRu
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"firewall_policy", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_network_firewall_policy_rule.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

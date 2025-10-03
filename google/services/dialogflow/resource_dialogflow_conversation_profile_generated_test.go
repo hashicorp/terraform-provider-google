@@ -51,6 +51,12 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "logging_config"},
 			},
+			{
+				ResourceName:       "google_dialogflow_conversation_profile.basic_profile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

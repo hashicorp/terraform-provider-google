@@ -55,6 +55,12 @@ func TestAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "labels", "location", "odb_subnet_id", "odbnetwork", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_oracle_database_odb_subnet.my-odbsubnet",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

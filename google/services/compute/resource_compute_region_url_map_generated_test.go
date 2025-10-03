@@ -51,6 +51,12 @@ func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_url_map.regionurlmap",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

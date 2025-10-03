@@ -53,6 +53,12 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
+			{
+				ResourceName:       "google_monitoring_uptime_check_config.http",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

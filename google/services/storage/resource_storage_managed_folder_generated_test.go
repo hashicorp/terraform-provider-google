@@ -51,6 +51,12 @@ func TestAccStorageManagedFolder_storageManagedFolderBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"bucket", "force_destroy"},
 			},
+			{
+				ResourceName:       "google_storage_managed_folder.folder",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -53,6 +53,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "serviceinstance", "spark_application_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

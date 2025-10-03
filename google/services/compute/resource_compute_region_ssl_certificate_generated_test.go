@@ -52,6 +52,12 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name_prefix", "private_key", "region"},
 			},
+			{
+				ResourceName:       "google_compute_region_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

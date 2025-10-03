@@ -52,6 +52,12 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "psc_data.0.producer_port", "region", "subnetwork"},
 			},
+			{
+				ResourceName:       "google_compute_region_network_endpoint_group.function_neg",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

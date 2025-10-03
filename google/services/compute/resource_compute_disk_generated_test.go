@@ -51,6 +51,12 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"architecture", "labels", "params", "snapshot", "source_storage_object", "terraform_labels", "type", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_disk.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

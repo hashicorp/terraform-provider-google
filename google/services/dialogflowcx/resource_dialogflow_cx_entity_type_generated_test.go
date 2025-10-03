@@ -51,6 +51,12 @@ func TestAccDialogflowCXEntityType_dialogflowcxEntityTypeFullExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"language_code", "parent"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_entity_type.basic_entity_type",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -51,6 +51,12 @@ func TestAccIAMWorkforcePoolOauthClient_iamOauthClientFullExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "oauth_client_id"},
 			},
+			{
+				ResourceName:       "google_iam_oauth_client.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

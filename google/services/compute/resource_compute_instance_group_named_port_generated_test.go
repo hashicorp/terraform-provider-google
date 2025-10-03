@@ -53,6 +53,12 @@ func TestAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"group", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_instance_group_named_port.my_port",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

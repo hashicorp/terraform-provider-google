@@ -48,6 +48,12 @@ func TestAccLoggingFolderSettings_loggingFolderSettingsAllExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"folder"},
 			},
+			{
+				ResourceName:       "google_logging_folder_settings.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

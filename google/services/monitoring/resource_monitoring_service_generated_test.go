@@ -51,6 +51,12 @@ func TestAccMonitoringGenericService_monitoringServiceExampleExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"service_id"},
 			},
+			{
+				ResourceName:       "google_monitoring_service.my_service",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
