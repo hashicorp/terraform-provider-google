@@ -1,0 +1,9 @@
+```release-note:enhancement
+networksecurity: added `URL_FILTERING` option to enum field `type` for `google_network_security_security_profile` resource
+```
+```release-note:enhancement
+networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile` resource (beta)
+```
+```release-note:enhancement
+networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile_group` resource (beta)
+```
