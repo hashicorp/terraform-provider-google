@@ -109,6 +109,7 @@ fields:
   - field: 'template.encryption_key'
   - field: 'template.execution_environment'
   - field: 'template.gpu_zonal_redundancy_disabled'
+  - field: 'template.health_check_disabled'
   - field: 'template.labels'
   - field: 'template.max_instance_request_concurrency'
   - field: 'template.node_selector.accelerator'

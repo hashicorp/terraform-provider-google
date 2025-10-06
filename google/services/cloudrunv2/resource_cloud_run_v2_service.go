@@ -498,6 +498,11 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 							Optional:    true,
 							Description: `True if GPU zonal redundancy is disabled on this revision.`,
 						},
+						"health_check_disabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Disables health checking containers during deployment.`,
+						},
 						"labels": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -2135,6 +2140,8 @@ func flattenCloudRunV2ServiceTemplate(v interface{}, d *schema.ResourceData, con
 		flattenCloudRunV2ServiceTemplateNodeSelector(original["nodeSelector"], d, config)
 	transformed["gpu_zonal_redundancy_disabled"] =
 		flattenCloudRunV2ServiceTemplateGpuZonalRedundancyDisabled(original["gpuZonalRedundancyDisabled"], d, config)
+	transformed["health_check_disabled"] =
+		flattenCloudRunV2ServiceTemplateHealthCheckDisabled(original["healthCheckDisabled"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceTemplateRevision(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3204,6 +3211,10 @@ func flattenCloudRunV2ServiceTemplateGpuZonalRedundancyDisabled(v interface{}, d
 	return v
 }
 
+func flattenCloudRunV2ServiceTemplateHealthCheckDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudRunV2ServiceTraffic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3818,6 +3829,13 @@ func expandCloudRunV2ServiceTemplate(v interface{}, d tpgresource.TerraformResou
 		return nil, err
 	} else if val := reflect.ValueOf(transformedGpuZonalRedundancyDisabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["gpuZonalRedundancyDisabled"] = transformedGpuZonalRedundancyDisabled
+	}
+
+	transformedHealthCheckDisabled, err := expandCloudRunV2ServiceTemplateHealthCheckDisabled(original["health_check_disabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHealthCheckDisabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["healthCheckDisabled"] = transformedHealthCheckDisabled
 	}
 
 	return transformed, nil
@@ -5264,6 +5282,10 @@ func expandCloudRunV2ServiceTemplateNodeSelectorAccelerator(v interface{}, d tpg
 }
 
 func expandCloudRunV2ServiceTemplateGpuZonalRedundancyDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateHealthCheckDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
