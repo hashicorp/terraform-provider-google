@@ -1210,6 +1210,7 @@ resource "google_cloud_run_v2_service" "default" {
   }
   default_uri_disabled = true
   template {
+    health_check_disabled = true
     containers {
       name = "container-1"
       image = "us-docker.pkg.dev/cloudrun/container/hello"

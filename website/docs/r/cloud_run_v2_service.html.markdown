@@ -72,6 +72,7 @@ resource "google_cloud_run_v2_service" "default" {
   ingress = "INGRESS_TRAFFIC_ALL"
 
   template {
+    health_check_disabled = true
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
       resources {
@@ -887,6 +888,10 @@ When the field is set to false, deleting the service is allowed.
 * `gpu_zonal_redundancy_disabled` -
   (Optional)
   True if GPU zonal redundancy is disabled on this revision.
+
+* `health_check_disabled` -
+  (Optional)
+  Disables health checking containers during deployment.
 
 
 <a name="nested_template_scaling"></a>The `scaling` block supports:

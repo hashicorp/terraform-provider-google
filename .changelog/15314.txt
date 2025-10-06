@@ -1,0 +1,6 @@
+```release-note:enhancement
+cloudrunv2: added `health_check_disabled` field to `google_cloud_run_v2_service` resource.
+```
+```release-note:enhancement
+cloudrunv2: added `default_uri_disabled` field to `google_cloud_run_v2_service` resource. (GA promotion)
+```
