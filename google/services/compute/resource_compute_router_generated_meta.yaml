@@ -19,4 +19,5 @@ fields:
   - field: 'md5_authentication_keys.name'
   - field: 'name'
   - field: 'network'
+  - field: 'params.resource_manager_tags'
   - field: 'region'
