@@ -1,0 +1,3 @@
+```release-note:enhancement
+beyondcorp: added `proxy_protocol_config` and `service_discovery` fields to `google_beyondcorp_security_gateway` resource 
+```
