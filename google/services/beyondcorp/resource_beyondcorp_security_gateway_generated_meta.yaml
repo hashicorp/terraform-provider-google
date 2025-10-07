@@ -14,7 +14,16 @@ fields:
   - field: 'location'
     provider_only: true
   - field: 'name'
+  - field: 'proxy_protocol_config.allowed_client_headers'
+  - field: 'proxy_protocol_config.client_ip'
+  - field: 'proxy_protocol_config.contextual_headers.device_info.output_type'
+  - field: 'proxy_protocol_config.contextual_headers.group_info.output_type'
+  - field: 'proxy_protocol_config.contextual_headers.output_type'
+  - field: 'proxy_protocol_config.contextual_headers.user_info.output_type'
+  - field: 'proxy_protocol_config.gateway_identity'
+  - field: 'proxy_protocol_config.metadata_headers'
   - field: 'security_gateway_id'
     provider_only: true
+  - field: 'service_discovery.api_gateway.resource_override.path'
   - field: 'state'
   - field: 'update_time'

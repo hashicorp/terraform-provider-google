@@ -65,6 +65,68 @@ resource "google_beyondcorp_security_gateway" "example" {
 `, context)
 }
 
+func TestAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewaySpaExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBeyondcorpSecurityGatewayDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewaySpaExample(context),
+			},
+			{
+				ResourceName:            "google_beyondcorp_security_gateway.example-spa",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "security_gateway_id"},
+			},
+		},
+	})
+}
+
+func testAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewaySpaExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_beyondcorp_security_gateway" "example-spa" {
+  security_gateway_id = "tf-test-default-spa%{random_suffix}"
+  display_name = "My SPA Security Gateway resource"
+  proxy_protocol_config {
+    allowed_client_headers = ["header1", "header2"]
+    contextual_headers {
+      user_info {
+        output_type = "PROTOBUF"
+      }
+      group_info {
+        output_type = "JSON"
+      }
+      device_info {
+        output_type = "NONE"
+      }
+      output_type = "NONE"
+    }
+    metadata_headers = {
+      metadata-header1 = "value1"
+      metadata-header2 = "value2"
+    }
+    gateway_identity = "RESOURCE_NAME"
+    client_ip = true
+  }
+  service_discovery {
+    api_gateway {
+      resource_override {
+        path = "/api/v1/routes"
+       }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckBeyondcorpSecurityGatewayDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
