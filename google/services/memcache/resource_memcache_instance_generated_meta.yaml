@@ -7,6 +7,8 @@ api_resource_type_kind: 'Instance'
 fields:
   - field: 'authorized_network'
   - field: 'create_time'
+  - field: 'deletion_protection'
+    provider_only: true
   - field: 'discovery_endpoint'
   - field: 'display_name'
   - field: 'effective_labels'
