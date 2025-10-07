@@ -4689,6 +4689,9 @@ resource "google_sql_database_instance" "original-replica" {
   settings {
     tier              = "db-perf-optimized-N-2"
     edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      binary_log_enabled = true
+    }
   }
 }
 `, project, primaryName, project, replicaName)
@@ -4735,6 +4738,9 @@ resource "google_sql_database_instance" "original-replica" {
   settings {
     tier              = "db-perf-optimized-N-2"
     edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      binary_log_enabled = true
+    }
   }
 }
 `, project, primaryName, drReplicaName, project, replicaName, primaryName)
@@ -4776,6 +4782,9 @@ resource "google_sql_database_instance" "original-replica" {
   settings {
     tier              = "db-perf-optimized-N-2"
     edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      binary_log_enabled = true
+    }
   }
 }
 `, project, primaryName, project, replicaName, primaryName)
