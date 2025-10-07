@@ -90,7 +90,7 @@ resource "google_gkeonprem_vmware_cluster" "default-full" {
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"
-  on_prem_version = "1.13.1-gke.35"
+  on_prem_version = "1.33.0-gke.35"
   network_config {
     service_address_cidr_blocks = ["10.96.0.0/12"]
     pod_address_cidr_blocks = ["192.168.0.0/16"]
@@ -127,6 +127,7 @@ resource "google_gkeonprem_vmware_node_pool" "nodepool-full" {
   name = "my-nodepool"
   location = "us-west1"
   vmware_cluster = google_gkeonprem_vmware_cluster.default-full.name
+  on_prem_version = "1.33.0-gke.35"
   annotations = {}
   config {
     cpus = 4
@@ -211,6 +212,10 @@ The following arguments are supported:
   (Optional)
   Node Pool autoscaling config for the node pool.
   Structure is [documented below](#nested_node_pool_autoscaling).
+
+* `on_prem_version` -
+  (Optional)
+  Anthos version for the node pool. Defaults to the user cluster version.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -354,9 +359,6 @@ In addition to the arguments listed above, the following computed attributes are
   client has an up-to-date value before proceeding.
   Allows clients to perform consistent read-modify-writes
   through optimistic concurrency control.
-
-* `on_prem_version` -
-  Anthos version for the node pool. Defaults to the user cluster version.
 
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
