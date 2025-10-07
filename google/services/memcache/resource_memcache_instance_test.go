@@ -18,6 +18,7 @@ package memcache_test
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -112,4 +113,68 @@ data "google_compute_network" "memcache_network" {
   name = "%s"
 }
 `, name, network)
+}
+
+func TestAccMemcacheInstance_deletionprotection(t *testing.T) {
+	t.Parallel()
+
+	prefix := fmt.Sprintf("%d", acctest.RandInt(t))
+	name := fmt.Sprintf("tf-test-%s", prefix)
+	network := acctest.BootstrapSharedServiceNetworkingConnection(t, "memcache-instance-update-1")
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemcacheInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMemcacheInstanceConfig(prefix, name, network, "us-central1", true), // deletion_protection = true
+			},
+			{
+				ResourceName:            "google_memcache_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"reserved_ip_range_id", "deletion_protection"},
+			},
+			{
+				Config:      testAccMemcacheInstanceConfig(prefix, name, network, "us-west2", true), // deletion_protection = true
+				ExpectError: regexp.MustCompile("deletion_protection"),
+			},
+			{
+				Config: testAccMemcacheInstanceConfig(prefix, name, network, "us-central1", false), // deletion_protection = false
+			},
+			{
+				ResourceName:            "google_memcache_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"reserved_ip_range_id", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccMemcacheInstanceConfig(prefix, name, network, region string, deletionProtection bool) string {
+	return fmt.Sprintf(`
+resource "google_memcache_instance" "test" {
+  name = "%s"
+  region = "%s"
+  authorized_network = data.google_compute_network.memcache_network.id
+  deletion_protection = %t
+  node_config {
+    cpu_count      = 1
+    memory_size_mb = 1024
+  }
+  node_count = 1
+  memcache_parameters {
+    params = {
+      "listen-backlog" = "2048"
+      "max-item-size" = "8388608"
+    }
+  }
+  reserved_ip_range_id = ["tf-bootstrap-addr-memcache-instance-update-1"]
+}
+data "google_compute_network" "memcache_network" {
+  name = "%s"
+}
+`, name, region, deletionProtection, network)
 }

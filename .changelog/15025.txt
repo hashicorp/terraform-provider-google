@@ -1,0 +1,3 @@
+```release-note:enhancement
+memcache: added `deletion_protection` field to `memcache_instance` to make deleting them require an explicit intent. `memcache_instance` resources now cannot be destroyed unless `deletion_protection = false` is set for the resource.
+```
