@@ -49,7 +49,7 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_router.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "region"},
+				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "params", "region"},
 			},
 		},
 	})
@@ -99,7 +99,7 @@ func TestAccComputeRouter_computeRouterEncryptedInterconnectExample(t *testing.T
 				ResourceName:            "google_compute_router.encrypted-interconnect-router",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "region"},
+				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "params", "region"},
 			},
 		},
 	})
@@ -142,7 +142,7 @@ func TestAccComputeRouter_computeRouterMd5encryptedExample(t *testing.T) {
 				ResourceName:            "google_compute_router.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "region"},
+				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "params", "region"},
 			},
 		},
 	})

@@ -123,7 +123,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_md5_authentication_keys).
 
 * `params` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Additional params passed with the request, but not persisted as part of resource payload
   Structure is [documented below](#nested_params).
 
