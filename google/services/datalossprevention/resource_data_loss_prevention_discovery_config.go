@@ -182,10 +182,19 @@ func ResourceDataLossPreventionDiscoveryConfig() *schema.Resource {
 								},
 							},
 						},
+						"publish_to_dataplex_catalog": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Publish a portion of each profile to Dataplex Universal Catalog with the aspect type Sensitive Data Protection Profile.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+						},
 						"tag_resources": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Publish a message into the Pub/Sub topic.`,
+							Description: `Tag the profiled resources with the specified tag values.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -1773,9 +1782,10 @@ func flattenDataLossPreventionDiscoveryConfigActions(v interface{}, d *schema.Re
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"export_data":          flattenDataLossPreventionDiscoveryConfigActionsExportData(original["exportData"], d, config),
-			"pub_sub_notification": flattenDataLossPreventionDiscoveryConfigActionsPubSubNotification(original["pubSubNotification"], d, config),
-			"tag_resources":        flattenDataLossPreventionDiscoveryConfigActionsTagResources(original["tagResources"], d, config),
+			"export_data":                 flattenDataLossPreventionDiscoveryConfigActionsExportData(original["exportData"], d, config),
+			"pub_sub_notification":        flattenDataLossPreventionDiscoveryConfigActionsPubSubNotification(original["pubSubNotification"], d, config),
+			"tag_resources":               flattenDataLossPreventionDiscoveryConfigActionsTagResources(original["tagResources"], d, config),
+			"publish_to_dataplex_catalog": flattenDataLossPreventionDiscoveryConfigActionsPublishToDataplexCatalog(original["publishToDataplexCatalog"], d, config),
 		})
 	}
 	return transformed
@@ -1988,6 +1998,14 @@ func flattenDataLossPreventionDiscoveryConfigActionsTagResourcesProfileGeneratio
 
 func flattenDataLossPreventionDiscoveryConfigActionsTagResourcesLowerDataRiskToLow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenDataLossPreventionDiscoveryConfigActionsPublishToDataplexCatalog(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenDataLossPreventionDiscoveryConfigTargets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3303,6 +3321,13 @@ func expandDataLossPreventionDiscoveryConfigActions(v interface{}, d tpgresource
 			transformed["tagResources"] = transformedTagResources
 		}
 
+		transformedPublishToDataplexCatalog, err := expandDataLossPreventionDiscoveryConfigActionsPublishToDataplexCatalog(original["publish_to_dataplex_catalog"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["publishToDataplexCatalog"] = transformedPublishToDataplexCatalog
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -3654,6 +3679,24 @@ func expandDataLossPreventionDiscoveryConfigActionsTagResourcesProfileGeneration
 
 func expandDataLossPreventionDiscoveryConfigActionsTagResourcesLowerDataRiskToLow(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigActionsPublishToDataplexCatalog(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandDataLossPreventionDiscoveryConfigTargets(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

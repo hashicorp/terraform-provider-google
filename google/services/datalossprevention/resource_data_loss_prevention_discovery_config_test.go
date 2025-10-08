@@ -682,7 +682,7 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
 			detail_of_message = "TABLE_PROFILE"
 		}
     }
-	actions {
+    actions {
         tag_resources {
             tag_conditions {
                 tag {
@@ -703,6 +703,9 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
             profile_generations_to_tag = ["PROFILE_GENERATION_NEW", "PROFILE_GENERATION_UPDATE"]
             lower_data_risk_to_low = true
         }
+    }
+    actions {
+	publish_to_dataplex_catalog {}
     }
     inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
 	depends_on = [

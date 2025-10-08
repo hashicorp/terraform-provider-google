@@ -123,6 +123,9 @@ resource "google_data_loss_prevention_discovery_config" "actions" {
       lower_data_risk_to_low     = true
     }
   }
+  actions {
+    publish_to_dataplex_catalog {}
+  }
   inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
 }
 
@@ -614,8 +617,12 @@ The following arguments are supported:
 
 * `tag_resources` -
   (Optional)
-  Publish a message into the Pub/Sub topic.
+  Tag the profiled resources with the specified tag values.
   Structure is [documented below](#nested_actions_actions_tag_resources).
+
+* `publish_to_dataplex_catalog` -
+  (Optional)
+  Publish a portion of each profile to Dataplex Universal Catalog with the aspect type Sensitive Data Protection Profile.
 
 
 <a name="nested_actions_actions_export_data"></a>The `export_data` block supports:

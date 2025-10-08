@@ -14,6 +14,7 @@ fields:
   - field: 'actions.pub_sub_notification.pubsub_condition.expressions.conditions.minimum_sensitivity_score'
   - field: 'actions.pub_sub_notification.pubsub_condition.expressions.logical_operator'
   - field: 'actions.pub_sub_notification.topic'
+  - field: 'actions.publish_to_dataplex_catalog'
   - field: 'actions.tag_resources.lower_data_risk_to_low'
   - field: 'actions.tag_resources.profile_generations_to_tag'
   - field: 'actions.tag_resources.tag_conditions.sensitivity_score.score'
