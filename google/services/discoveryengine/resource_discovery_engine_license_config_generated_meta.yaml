@@ -1,0 +1,23 @@
+resource: 'google_discovery_engine_license_config'
+generation_type: 'mmv1'
+source_file: 'products/discoveryengine/LicenseConfig.yaml'
+api_service_name: 'discoveryengine.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'LicenseConfig'
+fields:
+  - field: 'auto_renew'
+  - field: 'end_date.day'
+  - field: 'end_date.month'
+  - field: 'end_date.year'
+  - field: 'free_trial'
+  - field: 'license_config_id'
+    provider_only: true
+  - field: 'license_count'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'start_date.day'
+  - field: 'start_date.month'
+  - field: 'start_date.year'
+  - field: 'subscription_term'
+  - field: 'subscription_tier'
