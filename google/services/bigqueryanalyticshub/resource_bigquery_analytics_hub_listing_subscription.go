@@ -382,6 +382,18 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryAnalyticsHubListingSubscription %q", d.Id()))
 	}
+	// Set data_exchange_id and listing_id from res["listing"]
+	listing := res["listing"].(string)
+	parts := strings.Split(listing, "/")
+	if len(parts) != 8 {
+		return fmt.Errorf("Listing name %q is not in the expected format projects/*/locations/*/dataExchanges/*/listings/*", listing)
+	}
+	if err := d.Set("data_exchange_id", parts[5]); err != nil {
+		return fmt.Errorf("Error reading ListingSubscription: %s", err)
+	}
+	if err := d.Set("listing_id", parts[7]); err != nil {
+		return fmt.Errorf("Error reading ListingSubscription: %s", err)
+	}
 
 	res, err = resourceBigqueryAnalyticsHubListingSubscriptionDecoder(d, meta, res)
 	if err != nil {
@@ -399,6 +411,9 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 		return fmt.Errorf("Error reading ListingSubscription: %s", err)
 	}
 
+	if err := d.Set("destination_dataset", flattenBigqueryAnalyticsHubListingSubscriptionDestinationDataset(res["destinationDataset"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ListingSubscription: %s", err)
+	}
 	if err := d.Set("name", flattenBigqueryAnalyticsHubListingSubscriptionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ListingSubscription: %s", err)
 	}
@@ -545,6 +560,73 @@ func resourceBigqueryAnalyticsHubListingSubscriptionImport(d *schema.ResourceDat
 	d.Set("name", id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDataset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["location"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLocation(original["location"], d, config)
+	transformed["dataset_reference"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDatasetReference(original["datasetReference"], d, config)
+	transformed["friendly_name"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetFriendlyName(original["friendlyName"], d, config)
+	transformed["description"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDescription(original["description"], d, config)
+	transformed["labels"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(original["labels"], d, config)
+	return []interface{}{transformed}
+}
+
+// Older Datasets in BigQuery have no Location set in the API response. This may be an issue when importing
+// datasets created before BigQuery was available in multiple zones. We can safely assume that these datasets
+// are in the US, as this was the default at the time.
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return "US"
+	}
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDatasetReference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dataset_id"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDatasetReferenceDatasetId(original["datasetId"], d, config)
+	transformed["project_id"] =
+		flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDatasetReferenceProjectId(original["projectId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDatasetReferenceDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDatasetReferenceProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetFriendlyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenBigqueryAnalyticsHubListingSubscriptionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
