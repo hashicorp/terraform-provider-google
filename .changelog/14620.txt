@@ -1,0 +1,3 @@
+```release-note:enhancement
+metastore: added `tags` field to `google_dataproc_metastore_service` and 'google_dataproc_metastore_federation' resources to allow setting tags for services and federation at creation time
+```

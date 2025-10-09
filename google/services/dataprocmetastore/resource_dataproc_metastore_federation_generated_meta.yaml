@@ -21,6 +21,7 @@ fields:
   - field: 'name'
   - field: 'state'
   - field: 'state_message'
+  - field: 'tags'
   - field: 'terraform_labels'
     provider_only: true
   - field: 'uid'
