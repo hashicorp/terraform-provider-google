@@ -206,9 +206,11 @@ resource "google_apigee_api_product" "full_api_product" {
   quota_counter_scope = "PROXY"
 
   environments = ["dev", "hom"]
+
+  # Set them in reverse order to test set
   scopes = [
-    "read:weather",
     "write:reports"
+    "read:weather",
   ]
 
   attributes {
