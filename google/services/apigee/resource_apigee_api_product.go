@@ -24,6 +24,8 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"slices"
+	"sort"
 	"strings"
 	"time"
 
@@ -1051,7 +1053,30 @@ func flattenApigeeApiProductProxies(v interface{}, d *schema.ResourceData, confi
 }
 
 func flattenApigeeApiProductScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	rawConfigValue := d.Get("scopes")
+	// Convert config value to []string
+	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return v
+	}
+	sortedConfigValue := append([]string{}, configValue...)
+	sort.Strings(sortedConfigValue)
+
+	// Convert v to []string
+	apiValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert API value: %s", err)
+		return v
+	}
+	sortedApiValue := append([]string{}, apiValue...)
+	sort.Strings(sortedApiValue)
+
+	if slices.Equal(sortedApiValue, sortedConfigValue) {
+		return configValue
+	}
+
+	return apiValue
 }
 
 func flattenApigeeApiProductQuota(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

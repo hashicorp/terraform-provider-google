@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_apigee_developer_app`
+```
+
+```release-note: enhancement
+apigee: updated the `scopes` argument in `google_apigee_api_product` resource to be order-insensitive.
+```
