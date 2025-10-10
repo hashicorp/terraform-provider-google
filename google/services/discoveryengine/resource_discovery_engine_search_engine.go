@@ -152,6 +152,17 @@ The supported values: 'APP_TYPE_UNSPECIFIED', 'APP_TYPE_INTRANET'.`,
 				Description:  `The industry vertical that the engine registers. The restriction of the Engine industry vertical is based on DataStore: If unspecified, default to GENERIC. Vertical on Engine has to match vertical of the DataStore liniked to the engine. Default value: "GENERIC" Possible values: ["GENERIC", "MEDIA", "HEALTHCARE_FHIR"]`,
 				Default:      "GENERIC",
 			},
+			"kms_key_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The KMS key to be used to protect this Engine at creation time.
+
+Must be set for requests that need to comply with CMEK Org Policy
+protections.
+
+If this field is set and processed successfully, the Engine will be
+protected by the KMS key, as indicated in the cmek_config field.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -230,6 +241,12 @@ func resourceDiscoveryEngineSearchEngineCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("features"); !tpgresource.IsEmptyValue(reflect.ValueOf(featuresProp)) && (ok || !reflect.DeepEqual(v, featuresProp)) {
 		obj["features"] = featuresProp
+	}
+	kmsKeyNameProp, err := expandDiscoveryEngineSearchEngineKmsKeyName(d.Get("kms_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
+		obj["kmsKeyName"] = kmsKeyNameProp
 	}
 
 	obj, err = resourceDiscoveryEngineSearchEngineEncoder(d, meta, obj)
@@ -409,6 +426,12 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("features"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, featuresProp)) {
 		obj["features"] = featuresProp
 	}
+	kmsKeyNameProp, err := expandDiscoveryEngineSearchEngineKmsKeyName(d.Get("kms_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
+		obj["kmsKeyName"] = kmsKeyNameProp
+	}
 
 	obj, err = resourceDiscoveryEngineSearchEngineEncoder(d, meta, obj)
 	if err != nil {
@@ -438,6 +461,10 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("features") {
 		updateMask = append(updateMask, "features")
+	}
+
+	if d.HasChange("kms_key_name") {
+		updateMask = append(updateMask, "kmsKeyName")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -711,6 +738,10 @@ func expandDiscoveryEngineSearchEngineFeatures(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandDiscoveryEngineSearchEngineKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func resourceDiscoveryEngineSearchEngineEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

@@ -35,43 +35,63 @@ To get more information about DataConnector, see:
     * [Introduction](https://cloud.google.com/agentspace/docs/introduction-to-connectors-and-data-stores)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_dataconnector_jira_basic&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_dataconnector_servicenow_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Discoveryengine Dataconnector Jira Basic
+## Example Usage - Discoveryengine Dataconnector Servicenow Basic
 
 
 ```hcl
-resource "google_discovery_engine_data_connector" "jira-basic" {
-  location                  = "global"
-  collection_id             = "collection-id"
-  collection_display_name   = "tf-test-dataconnector-jira"
-  data_source             = "jira"
+resource "google_discovery_engine_data_connector" "servicenow-basic" {
+  location                     = "global"
+  collection_id                = "collection-id"
+  collection_display_name      = "tf-test-dataconnector-servicenow"
+  data_source                  = "servicenow"
   params = {
-      instance_id         = "33db20a3-dc45-4305-a505-d70b68599840"
-      instance_uri        = "https://vaissptbots1.atlassian.net/"
-      client_secret       = "client-secret"
-      client_id           = "client-id"
-      refresh_token       = "fill-in-the-blank"
+    auth_type                  = "OAUTH_PASSWORD_GRANT"
+    instance_uri               = "https://gcpconnector1.service-now.com/"
+    client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
+    client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
+    static_ip_enabled          = "false"
+    user_account               = "connectorsuserqa@google.com"
+    password                   = "SECRET_MANAGER_RESOURCE_NAME"
   }
-  refresh_interval        = "86400s"
+  refresh_interval             = "86400s"
+  incremental_refresh_interval = "21600s"
   entities {
-      entity_name         = "project"
+    entity_name                = "catalog"
+    params                     = jsonencode({
+      "inclusion_filters": {
+        "knowledgeBaseSysId": [
+          "123"
+        ]
+      }
+    })
   }
   entities {
-      entity_name         = "issue"
+    entity_name                = "incident"
+    params                     = jsonencode({
+      "inclusion_filters": {
+        "knowledgeBaseSysId": [
+          "123"
+        ]
+      }
+    })
   }
   entities {
-      entity_name         = "attachment"
+    entity_name                = "knowledge_base"
+    params                     = jsonencode({
+      "inclusion_filters": {
+        "knowledgeBaseSysId": [
+          "123"
+        ]
+      }
+    })
   }
-  entities {
-      entity_name         = "comment"
-  }
-  entities {
-      entity_name         = "worklog"
-  }
-  static_ip_enabled       = true
+  static_ip_enabled            = false
+  connector_modes              = ["DATA_INGESTION"]
+  sync_mode                    = "PERIODIC"
 }
 ```
 
@@ -139,6 +159,34 @@ The following arguments are supported:
 * `static_ip_enabled` -
   (Optional)
   Whether customer has enabled static IP addresses for this connector.
+
+* `connector_modes` -
+  (Optional)
+  The modes enabled for this connector. The possible value can be:
+  'DATA_INGESTION', 'ACTIONS', 'FEDERATED'
+  'EUA', 'FEDERATED_AND_EUA'.
+
+* `sync_mode` -
+  (Optional)
+  The data synchronization mode supported by the data connector. The possible value can be:
+  'PERIODIC', 'STREAMING'.
+
+* `incremental_refresh_interval` -
+  (Optional)
+  The refresh interval specifically for incremental data syncs. If unset,
+  incremental syncs will use the default from env, set to 3hrs.
+  The minimum is 30 minutes and maximum is 7 days. Applicable to only 3P
+  connectors. When the refresh interval is
+  set to the same value as the incremental refresh interval, incremental
+  sync will be disabled.
+
+* `auto_run_disabled` -
+  (Optional)
+  Indicates whether full syncs are paused for this connector
+
+* `incremental_sync_disabled` -
+  (Optional)
+  Indicates whether incremental syncs are paused for this connector.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

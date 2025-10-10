@@ -49,7 +49,7 @@ func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample(
 				ResourceName:            "google_discovery_engine_search_engine.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"collection_id", "engine_id", "location"},
+				ImportStateVerifyIgnore: []string{"collection_id", "engine_id", "kms_key_name", "location"},
 			},
 		},
 	})
@@ -97,7 +97,7 @@ func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineAgentspaceBas
 				ResourceName:            "google_discovery_engine_search_engine.agentspace_basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"collection_id", "engine_id", "location"},
+				ImportStateVerifyIgnore: []string{"collection_id", "engine_id", "kms_key_name", "location"},
 			},
 		},
 	})
@@ -121,6 +121,7 @@ resource "google_discovery_engine_search_engine" "agentspace_basic" {
   display_name                = "tf-test-agentspace-search-engine"
   data_store_ids              = [google_discovery_engine_data_store.agentspace_basic.data_store_id]
   industry_vertical           = "GENERIC"
+  app_type                    = "APP_TYPE_INTRANET"
   search_engine_config {
   }
 }

@@ -16,6 +16,7 @@ fields:
     provider_only: true
   - field: 'features'
   - field: 'industry_vertical'
+  - field: 'kms_key_name'
   - field: 'location'
     provider_only: true
   - field: 'name'
