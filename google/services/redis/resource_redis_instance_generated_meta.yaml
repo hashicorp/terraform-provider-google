@@ -12,6 +12,8 @@ fields:
   - field: 'create_time'
   - field: 'current_location_id'
   - field: 'customer_managed_key'
+  - field: 'deletion_protection'
+    provider_only: true
   - field: 'display_name'
   - field: 'effective_labels'
     provider_only: true
