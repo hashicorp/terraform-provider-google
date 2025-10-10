@@ -30,12 +30,10 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraBasicExample(t *testing.T) {
+func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"client_id":     "tf-test-client-id",
-		"client_secret": "tf-test-client-secret",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -45,49 +43,69 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraBasicEx
 		CheckDestroy:             testAccCheckDiscoveryEngineDataConnectorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraBasicExample(context),
+				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowBasicExample(context),
 			},
 			{
-				ResourceName:            "google_discovery_engine_data_connector.jira-basic",
+				ResourceName:            "google_discovery_engine_data_connector.servicenow-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"collection_display_name", "collection_id", "json_params", "location", "params"},
+				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "sync_mode"},
 			},
 		},
 	})
 }
 
-func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraBasicExample(context map[string]interface{}) string {
+func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_discovery_engine_data_connector" "jira-basic" {
-  location                  = "global"
-  collection_id             = "tf-test-collection-id%{random_suffix}"
-  collection_display_name   = "tf-test-dataconnector-jira"
-  data_source             = "jira"
+resource "google_discovery_engine_data_connector" "servicenow-basic" {
+  location                     = "global"
+  collection_id                = "tf-test-collection-id%{random_suffix}"
+  collection_display_name      = "tf-test-dataconnector-servicenow"
+  data_source                  = "servicenow"
   params = {
-      instance_id         = "33db20a3-dc45-4305-a505-d70b68599840"
-      instance_uri        = "https://vaissptbots1.atlassian.net/"
-      client_secret       = "%{client_secret}"
-      client_id           = "%{client_id}"
-      refresh_token       = "fill-in-the-blank"
+    auth_type                  = "OAUTH_PASSWORD_GRANT"
+    instance_uri               = "https://gcpconnector1.service-now.com/"
+    client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
+    client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
+    static_ip_enabled          = "false"
+    user_account               = "connectorsuserqa@google.com"
+    password                   = "SECRET_MANAGER_RESOURCE_NAME"
   }
-  refresh_interval        = "86400s"
+  refresh_interval             = "86400s"
+  incremental_refresh_interval = "21600s"
   entities {
-      entity_name         = "project"
+    entity_name                = "catalog"
+    params                     = jsonencode({
+      "inclusion_filters": {
+        "knowledgeBaseSysId": [
+          "123"
+        ]
+      }
+    })
   }
   entities {
-      entity_name         = "issue"
+    entity_name                = "incident"
+    params                     = jsonencode({
+      "inclusion_filters": {
+        "knowledgeBaseSysId": [
+          "123"
+        ]
+      }
+    })
   }
   entities {
-      entity_name         = "attachment"
+    entity_name                = "knowledge_base"
+    params                     = jsonencode({
+      "inclusion_filters": {
+        "knowledgeBaseSysId": [
+          "123"
+        ]
+      }
+    })
   }
-  entities {
-      entity_name         = "comment"
-  }
-  entities {
-      entity_name         = "worklog"
-  }
-  static_ip_enabled       = true
+  static_ip_enabled            = false
+  connector_modes              = ["DATA_INGESTION"]
+  sync_mode                    = "PERIODIC"
 }
 `, context)
 }
