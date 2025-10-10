@@ -86,6 +86,51 @@ resource "google_compute_backend_service" "default" {
 	service_lb_policy     = "//networkservices.googleapis.com/${google_network_services_service_lb_policies.default.id}"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_service_lb_policies_beta&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Service Lb Policies Beta
+
+
+```hcl
+resource "google_network_services_service_lb_policies" "default" {
+  provider = google-beta
+
+  name                     = "my-lb-policy"
+  location                 = "global"
+  description              = "my description"
+  load_balancing_algorithm = "SPRAY_TO_REGION"
+
+  auto_capacity_drain {
+    enable = true
+  }
+
+  failover_config {
+    failover_health_threshold = 70
+  }
+
+  isolation_config {
+    isolation_granularity = "REGION"
+    isolation_mode = "NEAREST"
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  provider = google-beta
+
+	name                  = "my-lb-backend"
+	description           = "my description"
+	load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+	protocol              = "HTTP"
+	service_lb_policy     = "//networkservices.googleapis.com/${google_network_services_service_lb_policies.default.id}"
+}
+```
 
 ## Argument Reference
 
@@ -126,6 +171,11 @@ The following arguments are supported:
   Option to specify health based failover behavior. This is not related to Network load balancer FailoverPolicy.
   Structure is [documented below](#nested_failover_config).
 
+* `isolation_config` -
+  (Optional)
+  Configuration to provide isolation support for the associated Backend Service.
+  Structure is [documented below](#nested_isolation_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -142,6 +192,19 @@ The following arguments are supported:
 * `failover_health_threshold` -
   (Required)
   Optional. The percentage threshold that a load balancer will begin to send traffic to failover backends. If the percentage of endpoints in a MIG/NEG is smaller than this value, traffic would be sent to failover backends if possible. This field should be set to a value between 1 and 99. The default value is 50 for Global external HTTP(S) load balancer (classic) and Proxyless service mesh, and 70 for others.
+
+<a name="nested_isolation_config"></a>The `isolation_config` block supports:
+
+* `isolation_granularity` -
+  (Optional)
+  The isolation granularity of the load balancer.
+  Possible values are: `ISOLATION_GRANULARITY_UNSPECIFIED`, `REGION`.
+
+* `isolation_mode` -
+  (Optional)
+  The isolation mode of the load balancer.
+  Default value is `NEAREST`.
+  Possible values are: `ISOLATION_MODE_UNSPECIFIED`, `NEAREST`, `STRICT`.
 
 ## Attributes Reference
 
