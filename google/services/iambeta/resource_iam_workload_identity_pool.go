@@ -36,6 +36,7 @@ import (
 )
 
 const workloadIdentityPoolIdRegexp = `^[0-9a-z-]+$`
+const defaultWorkloadIdentityPoolIdSuffix = ".svc.id.goog"
 
 func ValidateWorkloadIdentityPoolId(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
@@ -45,9 +46,13 @@ func ValidateWorkloadIdentityPoolId(v interface{}, k string) (ws []string, error
 			"%q (%q) can not start with \"gcp-\"", k, value))
 	}
 
+	if strings.HasSuffix(value, defaultWorkloadIdentityPoolIdSuffix) {
+		value = strings.TrimRight(value, defaultWorkloadIdentityPoolIdSuffix)
+	}
+
 	if !regexp.MustCompile(workloadIdentityPoolIdRegexp).MatchString(value) {
 		errors = append(errors, fmt.Errorf(
-			"%q must contain only lowercase letters (a-z), numbers (0-9), or dashes (-)", k))
+			"%q must contain only lowercase letters (a-z), numbers (0-9), or dashes (-), or end in '.svc.id.goog'", k))
 	}
 
 	if len(value) < 4 {
