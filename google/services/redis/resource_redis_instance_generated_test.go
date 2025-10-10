@@ -50,7 +50,7 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_redis_instance.cache",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "region", "reserved_ip_range", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "labels", "region", "reserved_ip_range", "terraform_labels"},
 			},
 		},
 	})
@@ -61,6 +61,7 @@ func testAccRedisInstance_redisInstanceBasicExample(context map[string]interface
 resource "google_redis_instance" "cache" {
   name           = "tf-test-memory-cache%{random_suffix}"
   memory_size_gb = 1
+  deletion_protection = false
 
   lifecycle {
     prevent_destroy = %{prevent_destroy}

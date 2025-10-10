@@ -42,6 +42,7 @@ To get more information about Instance, see:
 resource "google_redis_instance" "cache" {
   name           = "memory-cache"
   memory_size_gb = 1
+  deletion_protection = false
 
   lifecycle {
     prevent_destroy = true
@@ -420,6 +421,13 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the instance.
+When a`terraform destroy` or `terraform apply` would delete the instance,
+the command will fail if this field is not set to false in Terraform state.
+When the field is set to true or unset in Terraform state, a `terraform apply`
+or `terraform destroy` that would delete the instance will fail.
+When the field is set to false, deleting the instance is allowed.
 
 
 
