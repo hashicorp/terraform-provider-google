@@ -1,0 +1,3 @@
+```release-note:enhancement
+iambeta: allowed GKE workload identity pool pattern in `workload_identity_pool_id` field of `google_iam_workload_identity_pool` resource.
+```
