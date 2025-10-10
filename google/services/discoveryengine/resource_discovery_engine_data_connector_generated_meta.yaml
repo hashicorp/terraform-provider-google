@@ -8,11 +8,13 @@ api_variant_patterns:
   - 'projects/{project}/locations/{location}/collections/{collection}/dataConnector'
 fields:
   - field: 'action_state'
+  - field: 'auto_run_disabled'
   - field: 'blocking_reasons'
   - field: 'collection_display_name'
     provider_only: true
   - field: 'collection_id'
     provider_only: true
+  - field: 'connector_modes'
   - field: 'connector_type'
   - field: 'create_time'
   - field: 'data_source'
@@ -20,8 +22,11 @@ fields:
   - field: 'entities.entity_name'
   - field: 'entities.key_property_mappings'
   - field: 'entities.params'
+    json: true
   - field: 'errors.code'
   - field: 'errors.message'
+  - field: 'incremental_refresh_interval'
+  - field: 'incremental_sync_disabled'
   - field: 'json_params'
   - field: 'kms_key_name'
   - field: 'last_sync_time'
@@ -36,4 +41,5 @@ fields:
   - field: 'state'
   - field: 'static_ip_addresses'
   - field: 'static_ip_enabled'
+  - field: 'sync_mode'
   - field: 'update_time'

@@ -20,6 +20,8 @@
 package discoveryengine
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -29,10 +31,16 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
+
+func DataConnectorEntitiesParamsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return (old == "" && new == "{}") || (old == "{}" && new == "")
+}
 
 func ResourceDiscoveryEngineDataConnector() *schema.Resource {
 	return &schema.Resource{
@@ -51,6 +59,15 @@ func ResourceDiscoveryEngineDataConnector() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceDiscoveryEngineDataConnectorResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceDiscoveryEngineDataConnectorUpgradeV0,
+				Version: 0,
+			},
+		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 		),
@@ -99,6 +116,21 @@ minimum is 30 minutes and maximum is 7 days. When the refresh interval is
 set to the same value as the incremental refresh interval, incremental
 sync will be disabled.`,
 			},
+			"auto_run_disabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether full syncs are paused for this connector`,
+			},
+			"connector_modes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The modes enabled for this connector. The possible value can be:
+'DATA_INGESTION', 'ACTIONS', 'FEDERATED'
+'EUA', 'FEDERATED_AND_EUA'.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"entities": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -128,10 +160,12 @@ Value: The key property to map a field to, such as 'title', and
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"params": {
-							Type:        schema.TypeMap,
-							Optional:    true,
-							Description: `The parameters for the entity to facilitate data ingestion.`,
-							Elem:        &schema.Schema{Type: schema.TypeString},
+							Type:             schema.TypeString,
+							Optional:         true,
+							ValidateFunc:     validation.StringIsJSON,
+							DiffSuppressFunc: DataConnectorEntitiesParamsDiffSuppress,
+							StateFunc:        func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+							Description:      `The parameters for the entity to facilitate data ingestion.`,
 						},
 						"data_store": {
 							Type:     schema.TypeString,
@@ -144,6 +178,21 @@ method, a DataStore is automatically created for each source entity.`,
 						},
 					},
 				},
+			},
+			"incremental_refresh_interval": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The refresh interval specifically for incremental data syncs. If unset,
+incremental syncs will use the default from env, set to 3hrs.
+The minimum is 30 minutes and maximum is 7 days. Applicable to only 3P
+connectors. When the refresh interval is
+set to the same value as the incremental refresh interval, incremental
+sync will be disabled.`,
+			},
+			"incremental_sync_disabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether incremental syncs are paused for this connector.`,
 			},
 			"json_params": {
 				Type:         schema.TypeString,
@@ -173,6 +222,12 @@ this connector will be protected by the KMS key.`,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Whether customer has enabled static IP addresses for this connector.`,
+			},
+			"sync_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The data synchronization mode supported by the data connector. The possible value can be:
+'PERIODIC', 'STREAMING'.`,
 			},
 			"action_state": {
 				Type:     schema.TypeString,
@@ -341,6 +396,36 @@ func resourceDiscoveryEngineDataConnectorCreate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("static_ip_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(staticIpEnabledProp)) && (ok || !reflect.DeepEqual(v, staticIpEnabledProp)) {
 		obj["staticIpEnabled"] = staticIpEnabledProp
 	}
+	connectorModesProp, err := expandDiscoveryEngineDataConnectorConnectorModes(d.Get("connector_modes"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("connector_modes"); !tpgresource.IsEmptyValue(reflect.ValueOf(connectorModesProp)) && (ok || !reflect.DeepEqual(v, connectorModesProp)) {
+		obj["connectorModes"] = connectorModesProp
+	}
+	syncModeProp, err := expandDiscoveryEngineDataConnectorSyncMode(d.Get("sync_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("sync_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(syncModeProp)) && (ok || !reflect.DeepEqual(v, syncModeProp)) {
+		obj["syncMode"] = syncModeProp
+	}
+	incrementalRefreshIntervalProp, err := expandDiscoveryEngineDataConnectorIncrementalRefreshInterval(d.Get("incremental_refresh_interval"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("incremental_refresh_interval"); !tpgresource.IsEmptyValue(reflect.ValueOf(incrementalRefreshIntervalProp)) && (ok || !reflect.DeepEqual(v, incrementalRefreshIntervalProp)) {
+		obj["incrementalRefreshInterval"] = incrementalRefreshIntervalProp
+	}
+	autoRunDisabledProp, err := expandDiscoveryEngineDataConnectorAutoRunDisabled(d.Get("auto_run_disabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("auto_run_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(autoRunDisabledProp)) && (ok || !reflect.DeepEqual(v, autoRunDisabledProp)) {
+		obj["autoRunDisabled"] = autoRunDisabledProp
+	}
+	incrementalSyncDisabledProp, err := expandDiscoveryEngineDataConnectorIncrementalSyncDisabled(d.Get("incremental_sync_disabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("incremental_sync_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(incrementalSyncDisabledProp)) && (ok || !reflect.DeepEqual(v, incrementalSyncDisabledProp)) {
+		obj["incrementalSyncDisabled"] = incrementalSyncDisabledProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}:setUpDataConnectorV2?collectionId={{collection_id}}&collectionDisplayName={{collection_display_name}}")
 	if err != nil {
@@ -494,6 +579,12 @@ func resourceDiscoveryEngineDataConnectorRead(d *schema.ResourceData, meta inter
 	if err := d.Set("realtime_state", flattenDiscoveryEngineDataConnectorRealtimeState(res["realtimeState"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
+	if err := d.Set("connector_modes", flattenDiscoveryEngineDataConnectorConnectorModes(res["connectorModes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err := d.Set("incremental_refresh_interval", flattenDiscoveryEngineDataConnectorIncrementalRefreshInterval(res["incrementalRefreshInterval"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
 
 	return nil
 }
@@ -532,6 +623,36 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("refresh_interval"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, refreshIntervalProp)) {
 		obj["refreshInterval"] = refreshIntervalProp
 	}
+	connectorModesProp, err := expandDiscoveryEngineDataConnectorConnectorModes(d.Get("connector_modes"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("connector_modes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, connectorModesProp)) {
+		obj["connectorModes"] = connectorModesProp
+	}
+	syncModeProp, err := expandDiscoveryEngineDataConnectorSyncMode(d.Get("sync_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("sync_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, syncModeProp)) {
+		obj["syncMode"] = syncModeProp
+	}
+	incrementalRefreshIntervalProp, err := expandDiscoveryEngineDataConnectorIncrementalRefreshInterval(d.Get("incremental_refresh_interval"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("incremental_refresh_interval"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, incrementalRefreshIntervalProp)) {
+		obj["incrementalRefreshInterval"] = incrementalRefreshIntervalProp
+	}
+	autoRunDisabledProp, err := expandDiscoveryEngineDataConnectorAutoRunDisabled(d.Get("auto_run_disabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("auto_run_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoRunDisabledProp)) {
+		obj["autoRunDisabled"] = autoRunDisabledProp
+	}
+	incrementalSyncDisabledProp, err := expandDiscoveryEngineDataConnectorIncrementalSyncDisabled(d.Get("incremental_sync_disabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("incremental_sync_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, incrementalSyncDisabledProp)) {
+		obj["incrementalSyncDisabled"] = incrementalSyncDisabledProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/dataConnector")
 	if err != nil {
@@ -552,6 +673,26 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("refresh_interval") {
 		updateMask = append(updateMask, "refreshInterval")
+	}
+
+	if d.HasChange("connector_modes") {
+		updateMask = append(updateMask, "connectorModes")
+	}
+
+	if d.HasChange("sync_mode") {
+		updateMask = append(updateMask, "syncMode")
+	}
+
+	if d.HasChange("incremental_refresh_interval") {
+		updateMask = append(updateMask, "incrementalRefreshInterval")
+	}
+
+	if d.HasChange("auto_run_disabled") {
+		updateMask = append(updateMask, "autoRunDisabled")
+	}
+
+	if d.HasChange("incremental_sync_disabled") {
+		updateMask = append(updateMask, "incrementalSyncDisabled")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -715,7 +856,15 @@ func flattenDiscoveryEngineDataConnectorEntitiesDataStore(v interface{}, d *sche
 }
 
 func flattenDiscoveryEngineDataConnectorEntitiesParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenDiscoveryEngineDataConnectorCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -803,6 +952,14 @@ func flattenDiscoveryEngineDataConnectorConnectorType(v interface{}, d *schema.R
 }
 
 func flattenDiscoveryEngineDataConnectorRealtimeState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorConnectorModes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorIncrementalRefreshInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -894,13 +1051,14 @@ func expandDiscoveryEngineDataConnectorEntitiesDataStore(v interface{}, d tpgres
 	return v, nil
 }
 
-func expandDiscoveryEngineDataConnectorEntitiesParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
+func expandDiscoveryEngineDataConnectorEntitiesParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, err
 	}
 	return m, nil
 }
@@ -911,4 +1069,324 @@ func expandDiscoveryEngineDataConnectorKmsKeyName(v interface{}, d tpgresource.T
 
 func expandDiscoveryEngineDataConnectorStaticIpEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorConnectorModes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorSyncMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorIncrementalRefreshInterval(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorAutoRunDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorIncrementalSyncDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func ResourceDiscoveryEngineDataConnectorUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+	// Version 0 had entities.params as KeyValuePairs; Version 1 makes it a json string.
+	entitiesRaw, ok := rawState["entities"]
+	if !ok {
+		return rawState, nil
+	}
+	entities, ok := entitiesRaw.([]interface{})
+	for _, entity := range entities {
+		entityMap, ok := entity.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if p, ok := entityMap["params"]; ok && p != nil {
+			p, err := json.Marshal(entityMap["params"])
+			if err != nil {
+				p = []byte(fmt.Sprintf("%v", entityMap["params"]))
+			}
+			entityMap["params"] = string(p)
+		}
+	}
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
+}
+
+func resourceDiscoveryEngineDataConnectorResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"collection_display_name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The display name of the Collection.
+Should be human readable, used to display collections in the Console
+Dashboard. UTF-8 encoded string with limit of 1024 characters.`,
+			},
+			"collection_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The ID to use for the Collection, which will become the final component
+of the Collection's resource name. A new Collection is created as
+part of the DataConnector setup. DataConnector is a singleton
+resource under Collection, managing all DataStores of the Collection.
+This field must conform to [RFC-1034](https://tools.ietf.org/html/rfc1034)
+standard with a length limit of 63 characters. Otherwise, an
+INVALID_ARGUMENT error is returned.`,
+			},
+			"data_source": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The name of the data source.
+Supported values: 'salesforce', 'jira', 'confluence', 'bigquery'.`,
+			},
+			"location": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The geographic location where the data store should reside. The value can
+only be one of "global", "us" and "eu".`,
+			},
+			"refresh_interval": {
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The refresh interval for data sync. If duration is set to 0, the data will
+be synced in real time. The streaming feature is not supported yet. The
+minimum is 30 minutes and maximum is 7 days. When the refresh interval is
+set to the same value as the incremental refresh interval, incremental
+sync will be disabled.`,
+			},
+			"auto_run_disabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether full syncs are paused for this connector`,
+			},
+			"connector_modes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The modes enabled for this connector. The possible value can be:
+'DATA_INGESTION', 'ACTIONS', 'FEDERATED'
+'EUA', 'FEDERATED_AND_EUA'.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"entities": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `List of entities from the connected data source to ingest.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"entity_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The name of the entity. Supported values by data source:
+* Salesforce: 'Lead', 'Opportunity', 'Contact', 'Account', 'Case', 'Contract', 'Campaign'
+* Jira: project, issue, attachment, comment, worklog
+* Confluence: 'Content', 'Space'`,
+						},
+						"key_property_mappings": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `Attributes for indexing.
+Key: Field name.
+Value: The key property to map a field to, such as 'title', and
+'description'. Supported key properties:
+* 'title': The title for data record. This would be displayed on search
+  results.
+* 'description': The description for data record. This would be displayed
+  on search results.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+						"params": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringIsJSON,
+							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+							Description:  `The parameters for the entity to facilitate data ingestion.`,
+						},
+						"data_store": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The full resource name of the associated data store for the source
+entity.
+Format: 'projects/*/locations/*/collections/*/dataStores/*'.
+When the connector is initialized by the DataConnectorService.SetUpDataConnector
+method, a DataStore is automatically created for each source entity.`,
+						},
+					},
+				},
+			},
+			"incremental_refresh_interval": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The refresh interval specifically for incremental data syncs. If unset,
+incremental syncs will use the default from env, set to 3hrs.
+The minimum is 30 minutes and maximum is 7 days. Applicable to only 3P
+connectors. When the refresh interval is
+set to the same value as the incremental refresh interval, incremental
+sync will be disabled.`,
+			},
+			"incremental_sync_disabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether incremental syncs are paused for this connector.`,
+			},
+			"json_params": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  `Params needed to access the source in the format of json string.`,
+				ExactlyOneOf: []string{"params", "json_params"},
+			},
+			"kms_key_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The KMS key to be used to protect the DataStores managed by this connector.
+Must be set for requests that need to comply with CMEK Org Policy
+protections.
+If this field is set and processed successfully, the DataStores created by
+this connector will be protected by the KMS key.`,
+			},
+			"params": {
+				Type:         schema.TypeMap,
+				Optional:     true,
+				Description:  `Params needed to access the source in the format of String-to-String (Key, Value) pairs.`,
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				ExactlyOneOf: []string{"params", "json_params"},
+			},
+			"static_ip_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Whether customer has enabled static IP addresses for this connector.`,
+			},
+			"sync_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The data synchronization mode supported by the data connector. The possible value can be:
+'PERIODIC', 'STREAMING'.`,
+			},
+			"action_state": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `State of the action connector. This reflects whether the action connector
+is initializing, active or has encountered errors. The possible value can be:
+'STATE_UNSPECIFIED', 'CREATING', 'ACTIVE', 'FAILED', 'RUNNING', 'WARNING',
+'INITIALIZATION_FAILED', 'UPDATING'.`,
+			},
+			"blocking_reasons": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Description: `User actions that must be completed before the connector can start syncing data.
+The possible values can be: 'ALLOWLIST_STATIC_IP', 'ALLOWLIST_IN_SERVICE_ATTACHMENT'.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"connector_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The type of connector. Each source can only map to one type.
+For example, salesforce, confluence and jira have THIRD_PARTY connector
+type. It is not mutable once set by system. The possible value can be:
+'CONNECTOR_TYPE_UNSPECIFIED', 'THIRD_PARTY', 'GCP_FHIR', 'BIG_QUERY',
+'GCS', 'GOOGLE_MAIL', 'GOOGLE_CALENDAR', 'GOOGLE_DRIVE',
+'NATIVE_CLOUD_IDENTITY', 'THIRD_PARTY_FEDERATED', 'THIRD_PARTY_EUA', 'GCNV'.`,
+			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Timestamp when the DataConnector was created.`,
+			},
+			"errors": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The errors from initialization or from the latest connector run.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status code, which should be an enum value of google.rpc.Code.`,
+						},
+						"message": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `A developer-facing error message, which should be in English.`,
+						},
+					},
+				},
+			},
+			"last_sync_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `For periodic connectors only, the last time a data sync was completed.`,
+			},
+			"latest_pause_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The most recent timestamp when this [DataConnector][] was paused,
+affecting all functionalities such as data synchronization.
+Pausing a connector has the following effects:
+  - All functionalities, including data synchronization, are halted.
+  - Any ongoing data synchronization job will be canceled.
+  - No future data synchronization runs will be scheduled nor can be
+triggered.`,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The full resource name of the Data Connector.
+Format: 'projects/*/locations/*/collections/*/dataConnector'.`,
+			},
+			"private_connectivity_project_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The tenant project ID associated with private connectivity connectors.
+This project must be allowlisted by in order for the connector to function.`,
+			},
+			"realtime_state": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The real-time sync state. The possible values can be:
+'STATE_UNSPECIFIED', 'CREATING', 'ACTIVE', 'FAILED', 'RUNNING', 'WARNING',
+'INITIALIZATION_FAILED', 'UPDATING'.`,
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The state of connector. The possible value can be:
+'STATE_UNSPECIFIED', 'CREATING', 'ACTIVE', 'FAILED', 'RUNNING', 'WARNING',
+'INITIALIZATION_FAILED', 'UPDATING'.`,
+			},
+			"static_ip_addresses": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The static IP addresses used by this connector.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Timestamp when the DataConnector was updated.`,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
 }
