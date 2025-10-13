@@ -61,6 +61,11 @@ func ResourceClouddeployTarget() *schema.Resource {
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+						Description:       "Name of the `Target`. Format is `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`.",
+					},
 					"location": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
@@ -70,11 +75,6 @@ func ResourceClouddeployTarget() *schema.Resource {
 						Type:              schema.TypeString,
 						OptionalForImport: true,
 						Description:       "The project for the resource",
-					},
-					"name": {
-						Type:              schema.TypeString,
-						RequiredForImport: true,
-						Description:       "Name of the `Target`. Format is `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`.",
 					},
 				}
 			},
