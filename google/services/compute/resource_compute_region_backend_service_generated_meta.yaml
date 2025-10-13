@@ -108,6 +108,7 @@ fields:
   - field: 'port_name'
   - field: 'protocol'
   - field: 'region'
+  - field: 'security_policy'
   - field: 'session_affinity'
   - field: 'strong_session_affinity_cookie.name'
   - field: 'strong_session_affinity_cookie.path'
