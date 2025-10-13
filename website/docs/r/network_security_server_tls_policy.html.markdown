@@ -27,6 +27,8 @@ ServerTlsPolicy is a resource that specifies how a server should authenticate in
 To get more information about ServerTlsPolicy, see:
 
 * [API documentation](https://cloud.google.com/traffic-director/docs/reference/network-security/rest/v1beta1/projects.locations.serverTlsPolicies)
+* How-to Guides
+    * [Use ServerTlsPolicy](https://cloud.google.com/load-balancing/docs/mtls)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_security_server_tls_policy_basic&open_in_editor=main.tf" target="_blank">
