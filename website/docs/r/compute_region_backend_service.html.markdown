@@ -851,7 +851,7 @@ The following arguments are supported:
   Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, `UDP`, `GRPC`, `UNSPECIFIED`, `H2C`.
 
 * `security_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The security policy associated with this backend service.
 
 * `session_affinity` -

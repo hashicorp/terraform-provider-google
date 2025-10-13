@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: promoted `security_policy` in `compute_region_backend_service` resource to GA
+```
