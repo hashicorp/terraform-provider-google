@@ -105,7 +105,6 @@ lowercase letter, or digit, except the last character, which cannot be a dash.`,
 			"requested_link_count": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Target number of physical links in the link bundle, as requested by the customer.`,
 			},
 			"admin_enabled": {
@@ -819,6 +818,12 @@ func resourceComputeInterconnectUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	requestedLinkCountProp, err := expandComputeInterconnectRequestedLinkCount(d.Get("requested_link_count"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("requested_link_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, requestedLinkCountProp)) {
+		obj["requestedLinkCount"] = requestedLinkCountProp
 	}
 	adminEnabledProp, err := expandComputeInterconnectAdminEnabled(d.Get("admin_enabled"), d, config)
 	if err != nil {

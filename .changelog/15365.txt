@@ -1,0 +1,3 @@
+```release-note:bug
+compute: allow `requested_link_count` to be updated in-place in `google_compute_interconnect` resource
+```
