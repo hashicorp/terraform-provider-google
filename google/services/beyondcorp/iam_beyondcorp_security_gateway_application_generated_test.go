@@ -343,6 +343,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 
@@ -369,6 +370,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 
@@ -410,6 +412,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 
@@ -438,6 +441,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 
@@ -464,6 +468,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 
@@ -490,6 +495,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 
@@ -521,6 +527,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 
@@ -574,6 +581,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 
@@ -605,6 +613,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 
@@ -658,6 +667,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 

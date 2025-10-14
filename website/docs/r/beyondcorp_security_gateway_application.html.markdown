@@ -45,6 +45,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "google-sga"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 ```
@@ -70,6 +71,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "my-vm-service2"
   endpoint_matchers {
     hostname = "my-vm-service.com"
+    ports = [80, 443]
   }
   upstreams {
     egress_policy {
