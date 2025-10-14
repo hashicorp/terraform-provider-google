@@ -42,8 +42,8 @@ func ParseImportId(idRegexes []string, d TerraformResourceData, config *transpor
 			return fmt.Errorf("Import is not supported. Invalid regex formats.")
 		}
 		identity, err := d.Identity()
-		if err != nil {
-			return err
+		if identity == nil {
+			log.Printf("[DEBUG] identity not set: %s", err)
 		}
 		if fieldValues := re.FindStringSubmatch(d.Id()); fieldValues != nil {
 			log.Printf("[DEBUG] matching ID %s to regex %s.", d.Id(), idFormat)
