@@ -1417,7 +1417,7 @@ partial URL.`,
 			"balancing_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"UTILIZATION", "RATE", "CONNECTION", "CUSTOM_METRICS", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"UTILIZATION", "RATE", "CONNECTION", "CUSTOM_METRICS", "IN_FLIGHT", ""}),
 				Description: `Specifies the balancing mode for this backend.
 
 For global HTTP(S) or TCP/SSL load balancing, the default is
@@ -1425,7 +1425,7 @@ UTILIZATION. Valid values are UTILIZATION, RATE (for HTTP(S)),
 CUSTOM_METRICS (for HTTP(s)) and CONNECTION (for TCP/SSL).
 
 See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
-for an explanation of load balancing modes. Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION", "CUSTOM_METRICS"]`,
+for an explanation of load balancing modes. Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION", "CUSTOM_METRICS", "IN_FLIGHT"]`,
 				Default: "UTILIZATION",
 			},
 			"capacity_scaler": {

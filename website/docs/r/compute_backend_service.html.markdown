@@ -379,6 +379,96 @@ resource "google_compute_backend_service" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_in_flight&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service In Flight
+
+
+```hcl
+resource "google_compute_network" "custom" {
+  provider              = google-beta
+  name                    = "custom-vpc"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider              = google-beta
+  name          = "custom-subnet"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.custom.id
+}
+
+resource "google_compute_instance_template" "default" {
+  provider              = google-beta
+  name                  = "instance-template"
+  machine_type          = "e2-micro"
+
+  disk {
+    source_image = "debian-cloud/debian-11"
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network    = google_compute_network.custom.id
+    subnetwork = google_compute_subnetwork.default.id
+  }
+
+  metadata = {
+    startup-script = <<-EOT
+      #!/bin/bash
+      echo "Hello World from MIG VM" > /var/www/html/index.html
+      apt-get update -y
+      apt-get install -y apache2
+      systemctl start apache2
+    EOT
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "foobar" {
+  provider              = google-beta
+  name               = "instance-group-manager"
+  base_instance_name = "vm"
+  region             = "us-central1"
+
+  version {
+    instance_template = google_compute_instance_template.default.id
+  }
+
+  target_size = 1
+}
+
+resource "google_compute_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backend-service"
+  description           = "Hello World 1234"
+  port_name             = "http"
+  protocol              = "TCP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  backend {
+    group                  = google_compute_region_instance_group_manager.foobar.instance_group
+    balancing_mode         = "IN_FLIGHT"
+    max_in_flight_requests = 1000
+    traffic_duration       = "LONG"
+  }
+
+  health_checks = [google_compute_health_check.default.self_link]
+}
+
+resource "google_compute_health_check" "default" {
+  provider              = google-beta
+  name = "health-check"
+
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_external_managed&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -970,7 +1060,7 @@ The following arguments are supported:
   See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
   for an explanation of load balancing modes.
   Default value is `UTILIZATION`.
-  Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`, `CUSTOM_METRICS`.
+  Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`, `CUSTOM_METRICS`, `IN_FLIGHT`.
 
 * `capacity_scaler` -
   (Optional)
