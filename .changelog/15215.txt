@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed the issue where `google_bigquery_table` detected an incorrect `schema` diff on tables with row access policies when the schema was unchanged.
+```
