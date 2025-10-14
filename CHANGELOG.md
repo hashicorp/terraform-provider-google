@@ -1,4 +1,36 @@
 ## 7.7.0 (Unreleased)
+BREAKING CHANGES:
+* discoveryengine: changed type of `google_discovery_engine_data_connector.entities.params`. Previously, it was a map of string keys to string values; now, it must be a [JSON-encoded](https://developer.hashicorp.com/terraform/language/functions/jsonencode) string containing an object. This change is being made in a minor release because the field wasn't usable as intended – specifically, all current valid uses require mapping strings to _lists_ of strings. ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
+
+FEATURES:
+* **New Data Source:** `google_network_management_connectivity_tests` ([#24635](https://github.com/hashicorp/terraform-provider-google/pull/24635))
+* **New Resource:** `google_apigee_developer_app` ([#24625](https://github.com/hashicorp/terraform-provider-google/pull/24625))
+* **New Resource:** `google_discovery_engine_license_config` ([#24619](https://github.com/hashicorp/terraform-provider-google/pull/24619))
+* **New Resource:** `google_iam_workforce_pool_provider_scim_tenant` ([#24587](https://github.com/hashicorp/terraform-provider-google/pull/24587))
+* **New Resource:** `google_kms_project_kaj_policy_config` ([#24622](https://github.com/hashicorp/terraform-provider-google/pull/24622))
+* **New Resource:** `google_saas_runtime_tenant` ([#24608](https://github.com/hashicorp/terraform-provider-google/pull/24608))
+
+IMPROVEMENTS:
+* apigee: updated the `scopes` argument in `google_apigee_api_product` resource to be order-insensitive. ([#24625](https://github.com/hashicorp/terraform-provider-google/pull/24625))
+* beyondcorp: added `proxy_protocol_config` and `service_discovery` fields to `google_beyondcorp_security_gateway` resource ([#24609](https://github.com/hashicorp/terraform-provider-google/pull/24609))
+* cloudrunv2: added `default_uri_disabled` field to `google_cloud_run_v2_service` resource. (GA promotion) ([#24602](https://github.com/hashicorp/terraform-provider-google/pull/24602))
+* cloudrunv2: added `health_check_disabled` field to `google_cloud_run_v2_service` resource. ([#24602](https://github.com/hashicorp/terraform-provider-google/pull/24602))
+* compute: added `params` field to `google_compute_router` resource (GA) ([#24611](https://github.com/hashicorp/terraform-provider-google/pull/24611))
+* discoveryengine: added `connector_modes`, `sync_mode`, `incremental_refresh_interval`, `auto_run_disabled`, and `incremental_sync_disabled` fields to `google_discovery_engine_data_connector` resource ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
+* discoveryengine: added `kms_key_name` field to `google_discovery_engine_search_engine` resource ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
+* dlp: added `publish_to_dataplex_catalog` field to `discovery_config` resource ([#24621](https://github.com/hashicorp/terraform-provider-google/pull/24621))
+* gkeonprem: made it possible to set the `on_prem_version` field on `google_gkeonprem_vmware_node_pool` (previously output-only) ([#24614](https://github.com/hashicorp/terraform-provider-google/pull/24614))
+* memcache: added `deletion_protection` field to `memcache_instance` to make deleting them require an explicit intent. `memcache_instance` resources now cannot be destroyed unless `deletion_protection = false` is set for the resource. ([#24613](https://github.com/hashicorp/terraform-provider-google/pull/24613))
+* metastore: added `tags` field to `google_dataproc_metastore_service` and 'google_dataproc_metastore_federation' resources to allow setting tags for services and federation at creation time ([#24633](https://github.com/hashicorp/terraform-provider-google/pull/24633))
+* networksecurity: added `URL_FILTERING` option to enum field `type` for `google_network_security_security_profile` resource ([#24583](https://github.com/hashicorp/terraform-provider-google/pull/24583))
+* networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile_group` resource (beta) ([#24583](https://github.com/hashicorp/terraform-provider-google/pull/24583))
+* networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile` resource (beta) ([#24583](https://github.com/hashicorp/terraform-provider-google/pull/24583))
+* sql: added `source_instance_deletion_time` field to `google_sql_database_instance_latest_recovery_time` data source ([#24576](https://github.com/hashicorp/terraform-provider-google/pull/24576))
+* sql: added `source_instance_deletion_time` field to `google_sql_database_instance` resource ([#24576](https://github.com/hashicorp/terraform-provider-google/pull/24576))
+
+BUG FIXES:
+* bigqueryanalyticshub: fixed `google_bigquery_analytics_hub_listing_subscription` import ([#24634](https://github.com/hashicorp/terraform-provider-google/pull/24634))
+* discoveryengine: fixed bug where it wasn't possible to specify values for `knowledgeBaseSysId` or `catalogSysId` in `google_discovery_engine_data_connector.entities.params`. ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
 
 ## 7.6.0 (October 7th, 2025)
 DEPRECATIONS:
