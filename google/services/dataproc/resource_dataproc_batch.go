@@ -2193,11 +2193,14 @@ func resourceDataprocBatchDecoder(d *schema.ResourceData, meta interface{}, res 
 
 					// Update properties back to original client set properties
 					originalPropertiesCopy := make(map[string]interface{})
-					originalProperties := d.Get("runtime_config.0.properties").(interface{}).(map[string]interface{})
-					for k, v := range originalProperties {
-						originalPropertiesCopy[k] = v
+					properties := d.Get("runtime_config.0.properties")
+					if properties != nil {
+						originalProperties := properties.(interface{}).(map[string]interface{})
+						for k, v := range originalProperties {
+							originalPropertiesCopy[k] = v
+						}
+						rconfig["properties"] = originalPropertiesCopy
 					}
-					rconfig["properties"] = originalPropertiesCopy
 					return res, nil
 				}
 			}
