@@ -1,0 +1,1 @@
+unknown: Add new field instanceLifecyclePolicy.onRepair.allowChangingZone to google_compute_region_instance_group_manager & google_compute_instance_group_manager
