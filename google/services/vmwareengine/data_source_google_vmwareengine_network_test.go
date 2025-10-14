@@ -44,7 +44,7 @@ func TestAccDataSourceVmwareEngineNetwork_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceVmwareEngineNetworkConfig(context),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_vmwareengine_network.ds", "google_vmwareengine_network.nw", map[string]struct{}{}),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_vmwareengine_network.ds", "google_vmwareengine_network.nw"),
 				),
 			},
 		},

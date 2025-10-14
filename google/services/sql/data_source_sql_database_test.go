@@ -41,9 +41,7 @@ func TestAccDataSourceSqlDatabase_basic(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_sql_database.qa",
 						"google_sql_database.db",
-						map[string]struct{}{
-							"deletion_policy": {},
-						},
+						[]string{"deletion_policy"},
 					),
 				),
 			},

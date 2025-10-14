@@ -39,7 +39,11 @@ func TestAccDataSourceGoogleStorageControlProjectIntelligenceConfig_basic(t *tes
 			{
 				Config: testAccDataSourceGoogleStorageControlProjectIntelligenceConfig_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceState("data.google_storage_control_project_intelligence_config.project_storage_intelligence", "google_storage_control_project_intelligence_config.project_storage_intelligence"),
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
+						"data.google_storage_control_project_intelligence_config.project_storage_intelligence",
+						"google_storage_control_project_intelligence_config.project_storage_intelligence",
+						[]string{"update_time"},
+					),
 				),
 			},
 		},

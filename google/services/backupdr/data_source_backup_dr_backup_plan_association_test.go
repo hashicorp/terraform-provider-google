@@ -39,8 +39,8 @@ func TestAccDataSourceGoogleBackupDRBackupPlanAssociation_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleBackupDRBackupPlanAssociation_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_backup_dr_backup_plan_association.bpa-test", "google_backup_dr_backup_plan_association.bpa", map[string]struct{}{
-						"resource": {},
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_backup_dr_backup_plan_association.bpa-test", "google_backup_dr_backup_plan_association.bpa", []string{
+						"resource",
 					},
 					),
 				),

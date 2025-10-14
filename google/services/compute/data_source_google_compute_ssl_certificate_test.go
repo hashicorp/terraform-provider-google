@@ -37,8 +37,8 @@ func TestAccDataSourceComputeSslCertificate(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_ssl_certificate.cert",
 						"google_compute_ssl_certificate.foobar",
-						map[string]struct{}{
-							"private_key": {},
+						[]string{
+							"private_key",
 						},
 					),
 				),
