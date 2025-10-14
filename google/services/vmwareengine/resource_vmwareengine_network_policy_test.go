@@ -48,7 +48,7 @@ func TestAccVmwareengineNetworkPolicy_update(t *testing.T) {
 			{
 				Config: testAccVmwareengineNetworkPolicy_config(context, "description1", "192.168.0.0/26", false, false),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_vmwareengine_network_policy.ds", "google_vmwareengine_network_policy.vmw-engine-network-policy", map[string]struct{}{}),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_vmwareengine_network_policy.ds", "google_vmwareengine_network_policy.vmw-engine-network-policy"),
 				),
 			},
 			{

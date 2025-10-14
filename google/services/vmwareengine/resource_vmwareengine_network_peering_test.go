@@ -46,7 +46,7 @@ func TestAccVmwareengineNetworkPeering_update(t *testing.T) {
 			{
 				Config: testAccVmwareengineNetworkPeering_config(context, "Sample description."),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_vmwareengine_network_peering.ds", "google_vmwareengine_network_peering.vmw-engine-network-peering", map[string]struct{}{}),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_vmwareengine_network_peering.ds", "google_vmwareengine_network_peering.vmw-engine-network-peering"),
 				),
 			},
 			{
