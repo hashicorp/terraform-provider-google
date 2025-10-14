@@ -611,6 +611,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Notebooks",
         "path" to "./google-beta/services/notebooks"
     ),
+    "observability" to mapOf(
+        "name" to "observability",
+        "displayName" to "Observability",
+        "path" to "./google-beta/services/observability"
+    ),
     "oracledatabase" to mapOf(
         "name" to "oracledatabase",
         "displayName" to "OracleDatabase",
