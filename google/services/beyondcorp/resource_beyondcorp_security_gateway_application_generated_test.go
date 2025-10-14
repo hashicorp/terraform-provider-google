@@ -68,6 +68,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-google-sga%{random_suffix}"
   endpoint_matchers {
     hostname = "google.com"
+    ports = [80, 443]
   }
 }
 `, context)
@@ -113,6 +114,7 @@ resource "google_beyondcorp_security_gateway_application" "example" {
   application_id = "tf-test-my-vm-service2%{random_suffix}"
   endpoint_matchers {
     hostname = "my-vm-service.com"
+    ports = [80, 443]
   }
   upstreams {
     egress_policy {
