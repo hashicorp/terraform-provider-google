@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -213,6 +214,10 @@ func resourceDiscoveryEngineTargetSiteCreate(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+
+	// Replace the location
+	location := d.Get("location").(string)
+	url = strings.Replace(url, "{{location}}", location, -1)
 
 	log.Printf("[DEBUG] Creating new TargetSite: %#v", obj)
 	billingProject := ""
@@ -526,7 +531,13 @@ func flattenDiscoveryEngineTargetSiteFailureReasonQuotaFailureTotalRequiredQuota
 }
 
 func expandDiscoveryEngineTargetSiteProvidedUriPattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	pattern := v.(string)
+
+	// Remove http:// or https:// from the URI pattern
+	pattern = strings.TrimPrefix(pattern, "http://")
+	pattern = strings.TrimPrefix(pattern, "https://")
+
+	return pattern, nil
 }
 
 func expandDiscoveryEngineTargetSiteType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
