@@ -18,10 +18,9 @@ package compute_test
 
 import (
 	"fmt"
-	"testing"
-
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"testing"
 )
 
 func TestAccComputePreviewFeature_update(t *testing.T) {
@@ -36,12 +35,12 @@ func TestAccComputePreviewFeature_update(t *testing.T) {
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
-			// Step 1: Disable the "alpha-api-access" feature and verify its attributes.
+			// Step 1: Unspecify the "alpha-api-access" feature and verify its attributes.
 			{
-				Config: testAccComputePreviewFeature_disable(featureName),
+				Config: testAccComputePreviewFeature_unspecify(featureName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", featureName),
-					resource.TestCheckResourceAttr(resourceName, "activation_status", "DISABLED"),
+					resource.TestCheckResourceAttr(resourceName, "activation_status", "ACTIVATION_STATE_UNSPECIFIED"),
 				),
 			},
 			// Step 2: Verify that the resource can be successfully imported.
@@ -55,11 +54,11 @@ func TestAccComputePreviewFeature_update(t *testing.T) {
 	})
 }
 
-func testAccComputePreviewFeature_disable(name string) string {
+func testAccComputePreviewFeature_unspecify(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_preview_feature" "acceptance" {
   name              = "%s"
-  activation_status = "DISABLED"
+  activation_status = "ACTIVATION_STATE_UNSPECIFIED"
   
   rollout_operation {
     rollout_input {
