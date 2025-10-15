@@ -3385,6 +3385,171 @@ func TestAccSqlDatabaseInstance_MysqlReadPoolEnableDisableSuccess(t *testing.T) 
 	})
 }
 
+// Read pool for MySQL. Enable and disable read pool auto scale
+func TestAccSqlDatabaseInstance_MysqlReadPoolAutoScaleEnableDisableSuccess(t *testing.T) {
+	t.Parallel()
+	primaryName := "tf-test-mysql-as-readpool-primary-" + acctest.RandString(t, 10)
+	readPoolName := "tf-test-mysql-as-readpool-" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType: "MYSQL_8_0",
+					ReplicaName:  readPoolName,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			// Enable auto scale
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "MYSQL_8_0",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        2,
+					MaxNodeCount:     2,
+					MinNodeCount:     2,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			// Disable auto scale
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "MYSQL_8_0",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: false,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+// Read pool for Postgres. Modify Node Count when auto scale enabled
+func TestAccSqlDatabaseInstance_PostgresReadPoolAutoScaleChangeNodeCount(t *testing.T) {
+	t.Parallel()
+	primaryName := "tf-test-postgreas-as-readpool-primary-" + acctest.RandString(t, 10)
+	readPoolName := "tf-test-postgres-as-readpool-" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Create with auto scale takes min node count as node count
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        2,
+					MinNodeCount:     1,
+					MaxNodeCount:     5,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 1, 1, 5),
+			},
+			// Change node count not respected
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        4,
+					MinNodeCount:     1,
+					MaxNodeCount:     5,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 1, 1, 5),
+					testGoogleSqlDatabaseInstanceChangeNodeCount(t, readPoolName, 3),
+				), // Simulate auto scale to 3 nodes.
+
+			},
+			// Change Min/Max (no change to node count)
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        4,
+					MinNodeCount:     2,
+					MaxNodeCount:     4,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 3, 2, 4),
+			},
+			// Change Min (higher than node count), sets node count
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        3,
+					MinNodeCount:     4,
+					MaxNodeCount:     5,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 4, 4, 5),
+			},
+			// Change Max (lower than node count), sets node count
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        5,
+					MinNodeCount:     3,
+					MaxNodeCount:     3,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 3, 3, 3),
+			},
+			// Disable auto scale, sets node count
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: false,
+					NodeCount:        2,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 2, 0, 0),
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_updateSslOptionsForPostgreSQL(t *testing.T) {
 	t.Parallel()
 
@@ -5237,6 +5402,11 @@ type ReadPoolConfig struct {
 	// ReplicaMachineType gives the machine type of the read pool nodes
 	// or read replica. It defaults to db-perf-optimized-N-2.
 	ReplicaMachineType string
+	// AutoScaleEnabled indicates if auto scaling should be enabled on
+	// the read pool.
+	AutoScaleEnabled bool
+	MinNodeCount     int64
+	MaxNodeCount     int64
 }
 
 func testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName string, rpconfig ReadPoolConfig) string {
@@ -5244,6 +5414,16 @@ func testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName 
 	if rpconfig.NodeCount > 0 {
 		nodeCountStr = fmt.Sprintf(`  node_count = %d
 `, rpconfig.NodeCount)
+	}
+	minNodeCountStr := ""
+	if rpconfig.MinNodeCount > 0 {
+		minNodeCountStr = fmt.Sprintf(`	min_node_count = %d
+`, rpconfig.MinNodeCount)
+	}
+	maxNodeCountStr := ""
+	if rpconfig.MaxNodeCount > 0 {
+		maxNodeCountStr = fmt.Sprintf(`	max_node_count = %d
+`, rpconfig.MaxNodeCount)
 	}
 
 	if rpconfig.InstanceType == "" {
@@ -5259,6 +5439,30 @@ func testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName 
 		primaryTxnLogs = "binary_log_enabled = true\n"
 	} else if strings.HasPrefix(rpconfig.DatabaseType, "POSTGRES") {
 		primaryTxnLogs = "point_in_time_recovery_enabled = true\n"
+	}
+	autoScaleConfigStr := ""
+	if rpconfig.AutoScaleEnabled {
+		cooldownSeconds := 180
+		autoScaleConfigStr = fmt.Sprintf(`
+	read_pool_auto_scale_config {
+		enabled = true
+%s
+%s
+		target_metrics {
+			metric = "AVERAGE_CPU_UTILIZATION"
+			target_value = 0.5
+		}
+		scale_in_cooldown_seconds = %d
+		scale_out_cooldown_seconds = %d
+		disable_scale_in = true
+	}
+`, minNodeCountStr, maxNodeCountStr, cooldownSeconds, cooldownSeconds)
+	} else {
+		autoScaleConfigStr = fmt.Sprintf(`
+	read_pool_auto_scale_config {
+		enabled = false
+	}
+`)
 	}
 
 	return fmt.Sprintf(`
@@ -5293,9 +5497,10 @@ resource "google_sql_database_instance" "original-read-pool" {
   settings {
     tier              = "%s"
     edition           = "ENTERPRISE_PLUS"
+    %s
   }
 }
-`, project, primaryName, rpconfig.DatabaseType, primaryTxnLogs, project, rpconfig.ReplicaName, rpconfig.DatabaseType, rpconfig.InstanceType, nodeCountStr, rpconfig.ReplicaMachineType)
+`, project, primaryName, rpconfig.DatabaseType, primaryTxnLogs, project, rpconfig.ReplicaName, rpconfig.DatabaseType, rpconfig.InstanceType, nodeCountStr, rpconfig.ReplicaMachineType, autoScaleConfigStr)
 }
 
 func testAccSqlDatabaseInstance_basicInstanceForPsc(instanceName string, projectId string, orgId string, billingAccount string) string {
@@ -7636,6 +7841,52 @@ func testGoogleSqlDatabaseInstanceCheckDiskSize(t *testing.T, instance string, s
 
 		if inst.Settings.DataDiskSizeGb != size {
 			return fmt.Errorf("Expected disk size %d, got %d", size, inst.Settings.DataDiskSizeGb)
+		}
+
+		return nil
+	}
+}
+
+func testGoogleSqlDatabaseInstanceChangeNodeCount(t *testing.T, instance string, newNodeCount int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+
+		operation, err := sqlAdminClient.Instances.Patch(config.Project, instance, &sqladmin.DatabaseInstance{
+			NodeCount: newNodeCount,
+		}).Do()
+		if err != nil {
+			return fmt.Errorf("Could not update database instance %q: %s", instance, err)
+		}
+
+		// Wait for the operation to complete
+		if err := sql.SqlAdminOperationWaitTime(config, operation, config.Project, "Waiting for scale op", config.UserAgent, 10*time.Minute); err != nil {
+			return fmt.Errorf("Could not wait for operation to complete: %s", err)
+		}
+
+		return nil
+	}
+}
+
+func testGoogleSqlDatabaseInstanceCheckNodeCount(t *testing.T, instance string, nodeCount, minNodeCount, maxNodeCount int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+
+		inst, err := sqlAdminClient.Instances.Get(config.Project, instance).Do()
+		if err != nil {
+			return fmt.Errorf("Could not get database instance %q: %s", instance, err)
+		}
+		if inst.NodeCount != nodeCount {
+			return fmt.Errorf("Expected nodeCount %d, got %d", nodeCount, inst.NodeCount)
+		}
+		if minNodeCount > 0 && inst.Settings.ReadPoolAutoScaleConfig.MinNodeCount != minNodeCount {
+			return fmt.Errorf("Expected min node count %d, got %d", minNodeCount, inst.Settings.ReadPoolAutoScaleConfig.MinNodeCount)
+		}
+		if maxNodeCount > 0 && inst.Settings.ReadPoolAutoScaleConfig.MaxNodeCount != maxNodeCount {
+			return fmt.Errorf("Expected max node count %d, got %d", maxNodeCount, inst.Settings.ReadPoolAutoScaleConfig.MaxNodeCount)
 		}
 
 		return nil

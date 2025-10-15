@@ -140,7 +140,44 @@ var (
 		"settings.0.sql_server_audit_config.0.retention_interval",
 		"settings.0.sql_server_audit_config.0.upload_interval",
 	}
+
+	readPoolAutoScaleConfigKeys = []string{
+		"settings.0.read_pool_auto_scale_config.0.enabled",
+		"settings.0.read_pool_auto_scale_config.0.min_node_count",
+		"settings.0.read_pool_auto_scale_config.0.max_node_count",
+		"settings.0.read_pool_auto_scale_config.0.target_metrics",
+		"settings.0.read_pool_auto_scale_config.0.disable_scale_in",
+		"settings.0.read_pool_auto_scale_config.0.scale_in_cooldown_seconds",
+		"settings.0.read_pool_auto_scale_config.0.scale_out_cooldown_seconds",
+	}
 )
+
+func nodeCountCustomDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	autoScaleEnabled := d.Get("settings.0.read_pool_auto_scale_config.0.enabled").(bool)
+
+	if !autoScaleEnabled {
+		// Keep the diff
+		return nil
+	}
+
+	currentNodeCountI, _ := d.GetChange("node_count")
+	currentNodeCount := currentNodeCountI.(int)
+	minNodeCount := d.Get("settings.0.read_pool_auto_scale_config.0.min_node_count").(int)
+	maxNodeCount := d.Get("settings.0.read_pool_auto_scale_config.0.max_node_count").(int)
+	if currentNodeCount < minNodeCount {
+		// Node count will only be less than min node count if min node count is being increased.
+		// Set node count to be new min node count.
+		return d.SetNew("node_count", minNodeCount)
+	}
+	if currentNodeCount > maxNodeCount {
+		// Node count will only be greater than max node count if max node count is being descreased.
+		// Set node count to be new max node count.
+		return d.SetNew("node_count", maxNodeCount)
+	}
+
+	// Otherwise when autoscaling is enabled, ignore the node count in config.
+	return d.Clear("node_count")
+}
 
 func diskSizeCutomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	key := "settings.0.disk_size"
@@ -206,6 +243,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 			customdiff.IfValueChange("instance_type", isReplicaPromoteRequested, checkPromoteConfigurationsAndUpdateDiff),
 			privateNetworkCustomizeDiff,
 			pitrSupportDbCustomizeDiff,
+			nodeCountCustomDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -854,6 +892,76 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							},
 							Description: `Config used to determine the final backup settings for the instance`,
 						},
+						"read_pool_auto_scale_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										Default:      false,
+										AtLeastOneOf: readPoolAutoScaleConfigKeys,
+										Description:  `True if Read Pool Auto Scale is enabled.`,
+									},
+									"max_node_count": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(1, 20),
+										AtLeastOneOf: readPoolAutoScaleConfigKeys,
+										Description:  `Maximum number of nodes in the read pool. If set to lower than current node count, node count will be updated.`,
+									},
+									"min_node_count": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(1, 20),
+										AtLeastOneOf: readPoolAutoScaleConfigKeys,
+										Description:  `Minimum number of nodes in the read pool. If set to higher than current node count, node count will be updated.`,
+									},
+									"target_metrics": {
+										Type:         schema.TypeSet,
+										Optional:     true,
+										AtLeastOneOf: readPoolAutoScaleConfigKeys,
+										Description:  `Target metrics for Read Pool Auto Scale.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"metric": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Metric name for Read Pool Auto Scale.`,
+												},
+												"target_value": {
+													Type:        schema.TypeFloat,
+													Optional:    true,
+													Description: `Target value for Read Pool Auto Scale.`,
+												},
+											},
+										},
+									},
+									"disable_scale_in": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: readPoolAutoScaleConfigKeys,
+										Description:  `True if auto scale in is disabled.`,
+									},
+									"scale_in_cooldown_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										AtLeastOneOf: readPoolAutoScaleConfigKeys,
+										Description:  `The cooldown period for scale in operations.`,
+									},
+									"scale_out_cooldown_seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										AtLeastOneOf: readPoolAutoScaleConfigKeys,
+										Description:  `The cooldown period for scale out operations.`,
+									},
+								},
+							},
+							Description: `Configuration of Read Pool Auto Scale.`,
+						},
 					},
 				},
 				Description: `The settings to use for the database. The configuration is detailed below.`,
@@ -972,9 +1080,8 @@ API (for read pools, effective_availability_type may differ from availability_ty
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
-				Description: `For a read pool instance, the number of nodes in the read pool.`,
+				Description: `For a read pool instance, the number of nodes in the read pool. For read pools with auto scaling enabled, this field is read only.`,
 			},
-
 			"replica_configuration": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -1622,6 +1729,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		InsightsConfig:            expandInsightsConfig(_settings["insights_config"].([]interface{})),
 		PasswordValidationPolicy:  expandPasswordValidationPolicy(_settings["password_validation_policy"].([]interface{})),
 		ConnectionPoolConfig:      expandConnectionPoolConfig(_settings["connection_pool_config"].(*schema.Set).List()),
+		ReadPoolAutoScaleConfig:   expandReadPoolAutoScaleConfig(_settings["read_pool_auto_scale_config"].([]interface{})),
 	}
 
 	resize := _settings["disk_autoresize"].(bool)
@@ -1967,6 +2075,50 @@ func expandPasswordValidationPolicy(configured []interface{}) *sqladmin.Password
 		PasswordChangeInterval:    _passwordValidationPolicy["password_change_interval"].(string),
 		EnablePasswordPolicy:      _passwordValidationPolicy["enable_password_policy"].(bool),
 	}
+}
+
+func expandTargetMetrics(configured []interface{}) []*sqladmin.TargetMetric {
+	targetMetrics := make([]*sqladmin.TargetMetric, 0, len(configured))
+	for _, _metric := range configured {
+		if _metric == nil {
+			continue
+		}
+		_entry := _metric.(map[string]interface{})
+
+		targetMetric := &sqladmin.TargetMetric{}
+
+		if v, ok := _entry["metric"]; ok && v != nil {
+			targetMetric.Metric = v.(string)
+		}
+
+		if v, ok := _entry["target_value"]; ok && v != nil {
+			targetMetric.TargetValue = v.(float64)
+		}
+
+		targetMetrics = append(targetMetrics, targetMetric)
+	}
+	return targetMetrics
+}
+
+func expandReadPoolAutoScaleConfig(configured []interface{}) *sqladmin.ReadPoolAutoScaleConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	_readPoolAutoScaleConfig := configured[0].(map[string]interface{})
+	if !_readPoolAutoScaleConfig["enabled"].(bool) {
+		return nil
+	}
+	return &sqladmin.ReadPoolAutoScaleConfig{
+		Enabled:                 _readPoolAutoScaleConfig["enabled"].(bool),
+		MaxNodeCount:            int64(_readPoolAutoScaleConfig["max_node_count"].(int)),
+		MinNodeCount:            int64(_readPoolAutoScaleConfig["min_node_count"].(int)),
+		TargetMetrics:           expandTargetMetrics(_readPoolAutoScaleConfig["target_metrics"].(*schema.Set).List()),
+		DisableScaleIn:          _readPoolAutoScaleConfig["disable_scale_in"].(bool),
+		ScaleInCooldownSeconds:  int64(_readPoolAutoScaleConfig["scale_in_cooldown_seconds"].(int)),
+		ScaleOutCooldownSeconds: int64(_readPoolAutoScaleConfig["scale_out_cooldown_seconds"].(int)),
+	}
+
 }
 
 func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) error {
@@ -2639,6 +2791,16 @@ func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.Resour
 		data["insights_config"] = flattenInsightsConfig(settings.InsightsConfig)
 	}
 
+	if settings.ReadPoolAutoScaleConfig != nil {
+		data["read_pool_auto_scale_config"] = flattenReadPoolAutoScaleConfig(settings.ReadPoolAutoScaleConfig)
+	} else {
+		data["read_pool_auto_scale_config"] = []map[string]interface{}{
+			{
+				"enabled": false,
+			},
+		}
+	}
+
 	data["disk_autoresize"] = settings.StorageAutoResize
 	data["disk_autoresize_limit"] = settings.StorageAutoResizeLimit
 
@@ -3014,6 +3176,36 @@ func flattenInsightsConfig(insightsConfig *sqladmin.InsightsConfig) interface{} 
 		"record_application_tags": insightsConfig.RecordApplicationTags,
 		"record_client_address":   insightsConfig.RecordClientAddress,
 		"query_plans_per_minute":  insightsConfig.QueryPlansPerMinute,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenTargetMetrics(targetMetrics []*sqladmin.TargetMetric) []interface{} {
+	if len(targetMetrics) == 0 { // Handles nil or empty slice
+		return make([]interface{}, 0) // Explicitly return empty slice
+	}
+
+	metrics := make([]interface{}, len(targetMetrics)) // Pre-allocate for efficiency
+	for i, metric := range targetMetrics {
+		data := map[string]interface{}{
+			"metric":       metric.Metric,
+			"target_value": metric.TargetValue,
+		}
+		metrics[i] = data
+	}
+	return metrics
+}
+
+func flattenReadPoolAutoScaleConfig(readPoolAutoScaleConfig *sqladmin.ReadPoolAutoScaleConfig) interface{} {
+	data := map[string]interface{}{
+		"enabled":                    readPoolAutoScaleConfig.Enabled,
+		"min_node_count":             readPoolAutoScaleConfig.MinNodeCount,
+		"max_node_count":             readPoolAutoScaleConfig.MaxNodeCount,
+		"target_metrics":             flattenTargetMetrics(readPoolAutoScaleConfig.TargetMetrics),
+		"disable_scale_in":           readPoolAutoScaleConfig.DisableScaleIn,
+		"scale_in_cooldown_seconds":  readPoolAutoScaleConfig.ScaleInCooldownSeconds,
+		"scale_out_cooldown_seconds": readPoolAutoScaleConfig.ScaleOutCooldownSeconds,
 	}
 
 	return []map[string]interface{}{data}
