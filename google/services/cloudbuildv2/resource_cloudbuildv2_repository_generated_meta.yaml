@@ -5,15 +5,15 @@ api_service_name: 'cloudbuild.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Repository'
 fields:
-  - field: 'annotations'
-  - field: 'create_time'
+  - api_field: 'annotations'
+  - api_field: 'createTime'
   - field: 'effective_annotations'
     provider_only: true
-  - field: 'etag'
+  - api_field: 'etag'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'parent_connection'
     provider_only: true
-  - field: 'remote_uri'
-  - field: 'update_time'
+  - api_field: 'remoteUri'
+  - api_field: 'updateTime'

@@ -5,5 +5,5 @@ api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'CacheConfig'
 fields:
-  - field: 'disable_cache'
-  - field: 'name'
+  - api_field: 'disableCache'
+  - api_field: 'name'

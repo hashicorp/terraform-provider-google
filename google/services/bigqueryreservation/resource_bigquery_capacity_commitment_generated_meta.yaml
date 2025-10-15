@@ -7,15 +7,15 @@ api_resource_type_kind: 'CapacityCommitment'
 fields:
   - field: 'capacity_commitment_id'
     provider_only: true
-  - field: 'commitment_end_time'
-  - field: 'commitment_start_time'
-  - field: 'edition'
+  - api_field: 'commitmentEndTime'
+  - api_field: 'commitmentStartTime'
+  - api_field: 'edition'
   - field: 'enforce_single_admin_project_per_org'
     provider_only: true
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'plan'
-  - field: 'renewal_plan'
-  - field: 'slot_count'
-  - field: 'state'
+  - api_field: 'name'
+  - api_field: 'plan'
+  - api_field: 'renewalPlan'
+  - api_field: 'slotCount'
+  - api_field: 'state'

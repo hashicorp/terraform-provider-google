@@ -9,15 +9,15 @@ api_variant_patterns:
 fields:
   - field: 'big_query_export_id'
     provider_only: true
-  - field: 'create_time'
-  - field: 'dataset'
-  - field: 'description'
-  - field: 'filter'
+  - api_field: 'createTime'
+  - api_field: 'dataset'
+  - api_field: 'description'
+  - api_field: 'filter'
   - field: 'location'
     provider_only: true
-  - field: 'most_recent_editor'
-  - field: 'name'
+  - api_field: 'mostRecentEditor'
+  - api_field: 'name'
   - field: 'organization'
     provider_only: true
-  - field: 'principal'
-  - field: 'update_time'
+  - api_field: 'principal'
+  - api_field: 'updateTime'

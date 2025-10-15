@@ -7,7 +7,7 @@ api_resource_type_kind: 'IdentityAwareProxyClient'
 fields:
   - field: 'brand'
     provider_only: true
-  - field: 'client_id'
-    api_field: 'name'
-  - field: 'display_name'
-  - field: 'secret'
+  - api_field: 'name'
+    field: 'client_id'
+  - api_field: 'displayName'
+  - api_field: 'secret'

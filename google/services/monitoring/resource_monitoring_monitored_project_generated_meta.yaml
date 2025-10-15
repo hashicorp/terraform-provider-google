@@ -5,7 +5,7 @@ api_service_name: 'monitoring.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'MonitoredProject'
 fields:
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'metrics_scope'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'

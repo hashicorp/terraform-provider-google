@@ -7,9 +7,9 @@ api_resource_type_kind: 'EnvironmentApiRevisionDeployment'
 fields:
   - field: 'api'
     provider_only: true
-  - field: 'basepaths'
-    api_field: 'base_path'
-  - field: 'deploy_start_time'
+  - api_field: 'basePath'
+    field: 'basepaths'
+  - api_field: 'deployStartTime'
   - field: 'environment'
     provider_only: true
   - field: 'org_id'
@@ -22,4 +22,4 @@ fields:
     provider_only: true
   - field: 'service_account'
     provider_only: true
-  - field: 'state'
+  - api_field: 'state'

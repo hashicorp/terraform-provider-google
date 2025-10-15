@@ -5,18 +5,18 @@ api_service_name: 'networksecurity.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BackendAuthenticationConfig'
 fields:
-  - field: 'client_certificate'
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'clientCertificate'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'trust_config'
-  - field: 'update_time'
-  - field: 'well_known_roots'
+  - api_field: 'trustConfig'
+  - api_field: 'updateTime'
+  - api_field: 'wellKnownRoots'

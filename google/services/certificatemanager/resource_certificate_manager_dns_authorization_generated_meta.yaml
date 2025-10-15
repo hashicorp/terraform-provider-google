@@ -5,18 +5,18 @@ api_service_name: 'certificatemanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'DnsAuthorization'
 fields:
-  - field: 'description'
-  - field: 'dns_resource_record.data'
-  - field: 'dns_resource_record.name'
-  - field: 'dns_resource_record.type'
-  - field: 'domain'
+  - api_field: 'description'
+  - api_field: 'dnsResourceRecord.data'
+  - api_field: 'dnsResourceRecord.name'
+  - api_field: 'dnsResourceRecord.type'
+  - api_field: 'domain'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'type'
+  - api_field: 'type'

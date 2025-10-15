@@ -5,11 +5,11 @@ api_service_name: 'pubsublite.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Subscription'
 fields:
-  - field: 'delivery_config.delivery_requirement'
+  - api_field: 'deliveryConfig.deliveryRequirement'
   - field: 'name'
     provider_only: true
   - field: 'region'
     provider_only: true
-  - field: 'topic'
+  - api_field: 'topic'
   - field: 'zone'
     provider_only: true

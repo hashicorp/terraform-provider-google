@@ -10,16 +10,16 @@ api_variant_patterns:
   - 'organizations/{organization}/locations/{location}/buckets/{bucket}/links/{link}'
   - 'projects/{project}/locations/{location}/buckets/{bucket}/links/{link}'
 fields:
-  - field: 'bigquery_dataset.dataset_id'
+  - api_field: 'bigqueryDataset.datasetId'
   - field: 'bucket'
     provider_only: true
-  - field: 'create_time'
-  - field: 'description'
-  - field: 'lifecycle_state'
+  - api_field: 'createTime'
+  - api_field: 'description'
+  - api_field: 'lifecycleState'
   - field: 'link_id'
     provider_only: true
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'parent'
     provider_only: true

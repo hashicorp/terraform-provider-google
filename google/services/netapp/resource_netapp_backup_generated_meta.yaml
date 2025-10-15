@@ -7,24 +7,24 @@ api_resource_type_kind: 'Backup'
 api_variant_patterns:
   - 'projects/{project}/locations/{location}/backupVaults/{backupVault}/backups/{backup}'
 fields:
-  - field: 'backup_region'
-  - field: 'backup_type'
-  - field: 'chain_storage_bytes'
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'backupRegion'
+  - api_field: 'backupType'
+  - api_field: 'chainStorageBytes'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
-  - field: 'source_snapshot'
-  - field: 'source_volume'
-  - field: 'state'
+  - api_field: 'sourceSnapshot'
+  - api_field: 'sourceVolume'
+  - api_field: 'state'
   - field: 'terraform_labels'
     provider_only: true
   - field: 'vault_name'
     provider_only: true
-  - field: 'volume_region'
-  - field: 'volume_usage_bytes'
+  - api_field: 'volumeRegion'
+  - api_field: 'volumeUsageBytes'

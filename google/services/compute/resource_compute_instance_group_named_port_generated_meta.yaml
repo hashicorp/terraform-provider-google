@@ -9,7 +9,7 @@ api_variant_patterns:
 fields:
   - field: 'group'
     provider_only: true
-  - field: 'name'
-  - field: 'port'
+  - api_field: 'name'
+  - api_field: 'port'
   - field: 'zone'
     provider_only: true

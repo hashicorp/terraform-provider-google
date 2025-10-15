@@ -5,12 +5,12 @@ api_service_name: 'apigee.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SecurityProfileV2'
 fields:
-  - field: 'create_time'
-  - field: 'description'
-  - field: 'name'
+  - api_field: 'createTime'
+  - api_field: 'description'
+  - api_field: 'name'
   - field: 'org_id'
     provider_only: true
-  - field: 'profile_assessment_configs.profile_assessment_config.weight'
+  - api_field: 'profileAssessmentConfigs.profileAssessmentConfig.weight'
   - field: 'profile_id'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

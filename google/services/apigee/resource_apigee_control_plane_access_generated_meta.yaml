@@ -5,7 +5,7 @@ api_service_name: 'apigee.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ControlPlaneAccess'
 fields:
-  - field: 'analytics_publisher_identities'
+  - api_field: 'analyticsPublisherIdentities'
   - field: 'name'
     provider_only: true
-  - field: 'synchronizer_identities'
+  - api_field: 'synchronizerIdentities'

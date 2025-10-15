@@ -8,11 +8,11 @@ autogen_status: true
 fields:
   - field: 'cluster'
     provider_only: true
-  - field: 'configs'
+  - api_field: 'configs'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'partition_count'
-  - field: 'replication_factor'
+  - api_field: 'name'
+  - api_field: 'partitionCount'
+  - api_field: 'replicationFactor'
   - field: 'topic_id'
     provider_only: true

@@ -7,14 +7,14 @@ api_resource_type_kind: 'AppProfile'
 fields:
   - field: 'app_profile_id'
     provider_only: true
-  - field: 'data_boost_isolation_read_only.compute_billing_owner'
-  - field: 'description'
+  - api_field: 'dataBoostIsolationReadOnly.computeBillingOwner'
+  - api_field: 'description'
   - field: 'ignore_warnings'
     provider_only: true
   - field: 'instance'
     provider_only: true
-  - field: 'multi_cluster_routing_use_any'
-  - field: 'name'
-  - field: 'single_cluster_routing.allow_transactional_writes'
-  - field: 'single_cluster_routing.cluster_id'
-  - field: 'standard_isolation.priority'
+  - api_field: 'multiClusterRoutingUseAny'
+  - api_field: 'name'
+  - api_field: 'singleClusterRouting.allowTransactionalWrites'
+  - api_field: 'singleClusterRouting.clusterId'
+  - api_field: 'standardIsolation.priority'

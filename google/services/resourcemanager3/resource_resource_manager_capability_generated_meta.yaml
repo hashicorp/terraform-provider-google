@@ -9,4 +9,4 @@ fields:
     provider_only: true
   - field: 'parent'
     provider_only: true
-  - field: 'value'
+  - api_field: 'value'

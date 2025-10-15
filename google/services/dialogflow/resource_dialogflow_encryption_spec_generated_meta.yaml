@@ -5,5 +5,5 @@ api_service_name: 'dialogflow.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'EncryptionSpec'
 fields:
-  - field: 'encryption_spec.kms_key'
-  - field: 'location'
+  - api_field: 'encryptionSpec.kmsKey'
+  - api_field: 'location'

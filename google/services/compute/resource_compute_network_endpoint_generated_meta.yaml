@@ -5,10 +5,10 @@ api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NetworkEndpointGroup'
 fields:
-  - field: 'instance'
-  - field: 'ip_address'
+  - api_field: 'instance'
+  - api_field: 'ipAddress'
   - field: 'network_endpoint_group'
     provider_only: true
-  - field: 'port'
+  - api_field: 'port'
   - field: 'zone'
     provider_only: true

@@ -5,16 +5,16 @@ api_service_name: 'iam.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'WorkforcePoolProviderScimTenant'
 fields:
-  - field: 'base_uri'
-  - field: 'description'
-  - field: 'display_name'
+  - api_field: 'baseURI'
+  - api_field: 'description'
+  - api_field: 'displayName'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'provider_id'
     provider_only: true
   - field: 'scim_tenant_id'
     provider_only: true
-  - field: 'state'
+  - api_field: 'state'
   - field: 'workforce_pool_id'
     provider_only: true

@@ -7,11 +7,11 @@ api_resource_type_kind: 'ManagementServer'
 fields:
   - field: 'location'
     provider_only: true
-  - field: 'management_uri.api'
-  - field: 'management_uri.web_ui'
+  - api_field: 'managementUri.api'
+  - api_field: 'managementUri.webUi'
   - field: 'name'
     provider_only: true
-  - field: 'networks.network'
-  - field: 'networks.peering_mode'
-  - field: 'oauth2_client_id'
-  - field: 'type'
+  - api_field: 'networks.network'
+  - api_field: 'networks.peeringMode'
+  - api_field: 'oauth2ClientId'
+  - api_field: 'type'

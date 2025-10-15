@@ -5,19 +5,19 @@ api_service_name: 'parametermanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Parameter'
 fields:
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'format'
-  - field: 'kms_key'
-  - field: 'labels'
+  - api_field: 'format'
+  - api_field: 'kmsKey'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'parameter_id'
     provider_only: true
-  - field: 'policy_member.iam_policy_name_principal'
-  - field: 'policy_member.iam_policy_uid_principal'
+  - api_field: 'policyMember.iamPolicyNamePrincipal'
+  - api_field: 'policyMember.iamPolicyUidPrincipal'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

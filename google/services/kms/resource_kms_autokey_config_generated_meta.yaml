@@ -5,7 +5,7 @@ api_service_name: 'cloudkms.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AutokeyConfig'
 fields:
-  - field: 'etag'
+  - api_field: 'etag'
   - field: 'folder'
     provider_only: true
-  - field: 'key_project'
+  - api_field: 'keyProject'

@@ -9,8 +9,8 @@ fields:
     provider_only: true
   - field: 'instance'
     provider_only: true
-  - field: 'name'
-  - field: 'proto_schema.proto_descriptors'
+  - api_field: 'name'
+  - api_field: 'protoSchema.protoDescriptors'
   - field: 'schema_bundle_id'
     provider_only: true
   - field: 'table'

@@ -12,12 +12,12 @@ api_variant_patterns:
 fields:
   - field: 'bucket'
     provider_only: true
-  - field: 'create_time'
-  - field: 'description'
-  - field: 'filter'
+  - api_field: 'createTime'
+  - api_field: 'description'
+  - api_field: 'filter'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'parent'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

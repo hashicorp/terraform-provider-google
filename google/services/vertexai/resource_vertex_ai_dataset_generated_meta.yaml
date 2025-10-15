@@ -7,16 +7,16 @@ api_resource_type_kind: 'Dataset'
 api_variant_patterns:
   - 'projects/{project}/locations/{location}/datasets/{dataset}'
 fields:
-  - field: 'create_time'
-  - field: 'display_name'
+  - api_field: 'createTime'
+  - api_field: 'displayName'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'encryption_spec.kms_key_name'
-  - field: 'labels'
-  - field: 'metadata_schema_uri'
-  - field: 'name'
+  - api_field: 'encryptionSpec.kmsKeyName'
+  - api_field: 'labels'
+  - api_field: 'metadataSchemaUri'
+  - api_field: 'name'
   - field: 'region'
     provider_only: true
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

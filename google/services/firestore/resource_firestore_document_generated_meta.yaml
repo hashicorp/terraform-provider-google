@@ -7,13 +7,13 @@ api_resource_type_kind: 'Document'
 fields:
   - field: 'collection'
     provider_only: true
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'database'
     provider_only: true
   - field: 'document_id'
     provider_only: true
-  - field: 'fields'
+  - api_field: 'fields'
     json: true
-  - field: 'name'
-  - field: 'path'
-  - field: 'update_time'
+  - api_field: 'name'
+  - api_field: 'path'
+  - api_field: 'updateTime'

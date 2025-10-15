@@ -5,16 +5,16 @@ api_service_name: 'gkebackup.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'BackupChannel'
 fields:
-  - field: 'description'
-  - field: 'destination_project'
-  - field: 'destination_project_id'
+  - api_field: 'description'
+  - api_field: 'destinationProject'
+  - api_field: 'destinationProjectId'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'etag'
-  - field: 'labels'
+  - api_field: 'etag'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'uid'
+  - api_field: 'uid'
