@@ -638,6 +638,15 @@ is 1,024 characters.`,
 											Schema: map[string]*schema.Schema{},
 										},
 									},
+									"publish_findings_to_dataplex_catalog": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Publish findings of a DlpJob as an aspect to Dataplex Universal Catalog.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+									},
 									"publish_summary_to_cscc": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -3234,6 +3243,7 @@ func flattenDataLossPreventionJobTriggerInspectJobActions(v interface{}, d *sche
 			"save_findings":                          flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindings(original["saveFindings"], d, config),
 			"pub_sub":                                flattenDataLossPreventionJobTriggerInspectJobActionsPubSub(original["pubSub"], d, config),
 			"publish_summary_to_cscc":                flattenDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(original["publishSummaryToCscc"], d, config),
+			"publish_findings_to_dataplex_catalog":   flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToDataplexCatalog(original["publishFindingsToDataplexCatalog"], d, config),
 			"publish_findings_to_cloud_data_catalog": flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(original["publishFindingsToCloudDataCatalog"], d, config),
 			"job_notification_emails":                flattenDataLossPreventionJobTriggerInspectJobActionsJobNotificationEmails(original["jobNotificationEmails"], d, config),
 			"deidentify":                             flattenDataLossPreventionJobTriggerInspectJobActionsDeidentify(original["deidentify"], d, config),
@@ -3340,6 +3350,14 @@ func flattenDataLossPreventionJobTriggerInspectJobActionsPubSubTopic(v interface
 }
 
 func flattenDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToDataplexCatalog(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5652,6 +5670,13 @@ func expandDataLossPreventionJobTriggerInspectJobActions(v interface{}, d tpgres
 			transformed["publishSummaryToCscc"] = transformedPublishSummaryToCscc
 		}
 
+		transformedPublishFindingsToDataplexCatalog, err := expandDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToDataplexCatalog(original["publish_findings_to_dataplex_catalog"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["publishFindingsToDataplexCatalog"] = transformedPublishFindingsToDataplexCatalog
+		}
+
 		transformedPublishFindingsToCloudDataCatalog, err := expandDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(original["publish_findings_to_cloud_data_catalog"], d, config)
 		if err != nil {
 			return nil, err
@@ -5848,6 +5873,24 @@ func expandDataLossPreventionJobTriggerInspectJobActionsPubSubTopic(v interface{
 }
 
 func expandDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToDataplexCatalog(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}

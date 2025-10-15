@@ -1484,6 +1484,10 @@ The following arguments are supported:
   (Optional)
   Publish the result summary of a DlpJob to the Cloud Security Command Center.
 
+* `publish_findings_to_dataplex_catalog` -
+  (Optional)
+  Publish findings of a DlpJob as an aspect to Dataplex Universal Catalog.
+
 * `publish_findings_to_cloud_data_catalog` -
   (Optional)
   Publish findings of a DlpJob to Data Catalog.
