@@ -5,19 +5,19 @@ api_service_name: 'beyondcorp.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AppGateway'
 fields:
-  - field: 'allocated_connections.ingress_port'
-  - field: 'allocated_connections.psc_uri'
-  - field: 'display_name'
+  - api_field: 'allocatedConnections.ingressPort'
+  - api_field: 'allocatedConnections.pscUri'
+  - api_field: 'displayName'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'host_type'
-  - field: 'labels'
+  - api_field: 'hostType'
+  - api_field: 'labels'
   - field: 'name'
     provider_only: true
   - field: 'region'
     provider_only: true
-  - field: 'state'
+  - api_field: 'state'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'type'
-  - field: 'uri'
+  - api_field: 'type'
+  - api_field: 'uri'

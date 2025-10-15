@@ -7,17 +7,17 @@ api_resource_type_kind: 'Feature'
 api_variant_patterns:
   - 'projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}/features/{feature}'
 fields:
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'effective_labels'
     provider_only: true
   - field: 'entitytype'
     provider_only: true
-  - field: 'etag'
-  - field: 'labels'
+  - api_field: 'etag'
+  - api_field: 'labels'
   - field: 'name'
     provider_only: true
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
-  - field: 'value_type'
+  - api_field: 'updateTime'
+  - api_field: 'valueType'

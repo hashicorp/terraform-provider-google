@@ -9,8 +9,8 @@ fields:
     provider_only: true
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
-  - field: 'name'
-  - field: 'settings.data_project_ids'
+  - api_field: 'labels'
+  - api_field: 'name'
+  - api_field: 'settings.dataProjectIds'
   - field: 'terraform_labels'
     provider_only: true

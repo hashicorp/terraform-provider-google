@@ -8,17 +8,17 @@ autogen_status: true
 fields:
   - field: 'code_tools_setting_id'
     provider_only: true
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'product'
+  - api_field: 'name'
+  - api_field: 'product'
   - field: 'setting_binding_id'
     provider_only: true
-  - field: 'target'
+  - api_field: 'target'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

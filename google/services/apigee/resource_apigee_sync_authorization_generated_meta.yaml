@@ -5,7 +5,7 @@ api_service_name: 'apigee.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Organization'
 fields:
-  - field: 'etag'
-  - field: 'identities'
+  - api_field: 'etag'
+  - api_field: 'identities'
   - field: 'name'
     provider_only: true

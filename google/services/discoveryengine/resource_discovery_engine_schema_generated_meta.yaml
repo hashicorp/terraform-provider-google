@@ -9,9 +9,9 @@ api_variant_patterns:
 fields:
   - field: 'data_store_id'
     provider_only: true
-  - field: 'json_schema'
+  - api_field: 'jsonSchema'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'schema_id'
     provider_only: true

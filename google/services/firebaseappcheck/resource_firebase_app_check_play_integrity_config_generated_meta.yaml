@@ -7,5 +7,5 @@ api_resource_type_kind: 'PlayIntegrityConfig'
 fields:
   - field: 'app_id'
     provider_only: true
-  - field: 'name'
-  - field: 'token_ttl'
+  - api_field: 'name'
+  - api_field: 'tokenTtl'

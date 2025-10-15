@@ -7,16 +7,16 @@ api_resource_type_kind: 'MuteConfig'
 api_variant_patterns:
   - 'folders/{folder}/locations/{location}/muteConfigs/{muteConfig}'
 fields:
-  - field: 'create_time'
-  - field: 'description'
-  - field: 'filter'
+  - api_field: 'createTime'
+  - api_field: 'description'
+  - api_field: 'filter'
   - field: 'folder'
     provider_only: true
   - field: 'location'
     provider_only: true
-  - field: 'most_recent_editor'
+  - api_field: 'mostRecentEditor'
   - field: 'mute_config_id'
     provider_only: true
-  - field: 'name'
-  - field: 'type'
-  - field: 'update_time'
+  - api_field: 'name'
+  - api_field: 'type'
+  - api_field: 'updateTime'

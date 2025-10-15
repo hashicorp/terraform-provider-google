@@ -8,19 +8,19 @@ autogen_status: true
 fields:
   - field: 'code_tools_setting_id'
     provider_only: true
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'enabled_tool.account_connector'
-  - field: 'enabled_tool.config.key'
-  - field: 'enabled_tool.config.value'
-  - field: 'enabled_tool.handle'
-  - field: 'enabled_tool.tool'
-  - field: 'enabled_tool.uri_override'
-  - field: 'labels'
+  - api_field: 'enabledTool.accountConnector'
+  - api_field: 'enabledTool.config.key'
+  - api_field: 'enabledTool.config.value'
+  - api_field: 'enabledTool.handle'
+  - api_field: 'enabledTool.tool'
+  - api_field: 'enabledTool.uriOverride'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

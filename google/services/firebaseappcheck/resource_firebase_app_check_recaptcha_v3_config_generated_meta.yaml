@@ -9,7 +9,7 @@ api_variant_patterns:
 fields:
   - field: 'app_id'
     provider_only: true
-  - field: 'name'
-  - field: 'site_secret'
-  - field: 'site_secret_set'
-  - field: 'token_ttl'
+  - api_field: 'name'
+  - api_field: 'siteSecret'
+  - api_field: 'siteSecretSet'
+  - api_field: 'tokenTtl'

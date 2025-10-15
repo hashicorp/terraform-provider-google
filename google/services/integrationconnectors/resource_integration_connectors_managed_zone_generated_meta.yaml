@@ -5,16 +5,16 @@ api_service_name: 'connectors.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ManagedZone'
 fields:
-  - field: 'create_time'
-  - field: 'description'
-  - field: 'dns'
+  - api_field: 'createTime'
+  - api_field: 'description'
+  - api_field: 'dns'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'name'
     provider_only: true
-  - field: 'target_project'
-  - field: 'target_vpc'
+  - api_field: 'targetProject'
+  - api_field: 'targetVpc'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

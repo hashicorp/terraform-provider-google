@@ -5,12 +5,12 @@ api_service_name: 'logging.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'LogScope'
 fields:
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'parent'
     provider_only: true
-  - field: 'resource_names'
-  - field: 'update_time'
+  - api_field: 'resourceNames'
+  - api_field: 'updateTime'

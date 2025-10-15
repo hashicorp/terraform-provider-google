@@ -9,9 +9,9 @@ api_variant_patterns:
   - 'organizations/{organization}/contacts/{contact}'
   - 'projects/{project}/contacts/{contact}'
 fields:
-  - field: 'email'
-  - field: 'language_tag'
-  - field: 'name'
-  - field: 'notification_category_subscriptions'
+  - api_field: 'email'
+  - api_field: 'languageTag'
+  - api_field: 'name'
+  - api_field: 'notificationCategorySubscriptions'
   - field: 'parent'
     provider_only: true

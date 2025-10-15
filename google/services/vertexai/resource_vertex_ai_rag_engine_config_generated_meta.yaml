@@ -5,9 +5,9 @@ api_service_name: 'aiplatform.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'RagEngineConfig'
 fields:
-  - field: 'name'
-  - field: 'rag_managed_db_config.basic'
-  - field: 'rag_managed_db_config.scaled'
-  - field: 'rag_managed_db_config.unprovisioned'
+  - api_field: 'name'
+  - api_field: 'ragManagedDbConfig.basic'
+  - api_field: 'ragManagedDbConfig.scaled'
+  - api_field: 'ragManagedDbConfig.unprovisioned'
   - field: 'region'
     provider_only: true

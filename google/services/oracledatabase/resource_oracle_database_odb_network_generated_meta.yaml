@@ -6,20 +6,20 @@ api_version: 'v1'
 api_resource_type_kind: 'OdbNetwork'
 autogen_status: true
 fields:
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'deletion_protection'
     provider_only: true
   - field: 'effective_labels'
     provider_only: true
-  - field: 'entitlement_id'
-  - field: 'gcp_oracle_zone'
-  - field: 'labels'
+  - api_field: 'entitlementId'
+  - api_field: 'gcpOracleZone'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'network'
+  - api_field: 'name'
+  - api_field: 'network'
   - field: 'odb_network_id'
     provider_only: true
-  - field: 'state'
+  - api_field: 'state'
   - field: 'terraform_labels'
     provider_only: true

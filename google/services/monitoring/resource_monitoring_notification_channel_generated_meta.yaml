@@ -5,19 +5,19 @@ api_service_name: 'monitoring.googleapis.com'
 api_version: 'v3'
 api_resource_type_kind: 'NotificationChannel'
 fields:
-  - field: 'description'
-  - field: 'display_name'
-  - field: 'enabled'
+  - api_field: 'description'
+  - api_field: 'displayName'
+  - api_field: 'enabled'
   - field: 'force_delete'
     provider_only: true
-  - field: 'labels'
-  - field: 'name'
+  - api_field: 'labels'
+  - api_field: 'name'
   - field: 'sensitive_labels.auth_token'
     provider_only: true
   - field: 'sensitive_labels.password'
     provider_only: true
   - field: 'sensitive_labels.service_key'
     provider_only: true
-  - field: 'type'
-  - field: 'user_labels'
-  - field: 'verification_status'
+  - api_field: 'type'
+  - api_field: 'userLabels'
+  - api_field: 'verificationStatus'

@@ -7,8 +7,8 @@ api_resource_type_kind: 'DeviceCheckConfig'
 fields:
   - field: 'app_id'
     provider_only: true
-  - field: 'key_id'
-  - field: 'name'
-  - field: 'private_key'
-  - field: 'private_key_set'
-  - field: 'token_ttl'
+  - api_field: 'keyId'
+  - api_field: 'name'
+  - api_field: 'privateKey'
+  - api_field: 'privateKeySet'
+  - api_field: 'tokenTtl'

@@ -5,9 +5,9 @@ api_service_name: 'oslogin.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SshPublicKey'
 fields:
-  - field: 'expiration_time_usec'
-  - field: 'fingerprint'
-  - field: 'key'
+  - api_field: 'expirationTimeUsec'
+  - api_field: 'fingerprint'
+  - api_field: 'key'
   - field: 'project'
     provider_only: true
   - field: 'user'

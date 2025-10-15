@@ -5,18 +5,18 @@ api_service_name: 'connectors.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'EndpointAttachment'
 fields:
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'endpoint_global_access'
-  - field: 'endpoint_ip'
-  - field: 'labels'
+  - api_field: 'endpointGlobalAccess'
+  - api_field: 'endpointIp'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
-  - field: 'service_attachment'
+  - api_field: 'serviceAttachment'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

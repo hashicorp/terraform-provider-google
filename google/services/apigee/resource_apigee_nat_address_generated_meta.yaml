@@ -5,9 +5,9 @@ api_service_name: 'apigee.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NatAddress'
 fields:
-  - field: 'activate'
+  - api_field: 'activate'
   - field: 'instance_id'
     provider_only: true
-  - field: 'ip_address'
-  - field: 'name'
-  - field: 'state'
+  - api_field: 'ipAddress'
+  - api_field: 'name'
+  - api_field: 'state'

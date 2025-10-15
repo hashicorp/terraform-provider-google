@@ -6,25 +6,25 @@ api_version: 'v1'
 api_resource_type_kind: 'ApplicationEnvironment'
 autogen_status: true
 fields:
-  - field: 'annotations'
+  - api_field: 'annotations'
   - field: 'application_environment_id'
     provider_only: true
-  - field: 'create_time'
-  - field: 'display_name'
+  - api_field: 'createTime'
+  - api_field: 'displayName'
   - field: 'effective_annotations'
     provider_only: true
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'namespace'
+  - api_field: 'name'
+  - api_field: 'namespace'
   - field: 'serviceinstance'
     provider_only: true
-  - field: 'spark_application_environment_config.default_properties'
-  - field: 'spark_application_environment_config.default_version'
+  - api_field: 'sparkApplicationEnvironmentConfig.defaultProperties'
+  - api_field: 'sparkApplicationEnvironmentConfig.defaultVersion'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'uid'
-  - field: 'update_time'
+  - api_field: 'uid'
+  - api_field: 'updateTime'

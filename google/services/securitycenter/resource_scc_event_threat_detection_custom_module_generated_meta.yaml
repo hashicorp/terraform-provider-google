@@ -7,13 +7,13 @@ api_resource_type_kind: 'EventThreatDetectionCustomModule'
 api_variant_patterns:
   - 'organizations/{organization}/eventThreatDetectionSettings/customModules/{customModule}'
 fields:
-  - field: 'config'
+  - api_field: 'config'
     json: true
-  - field: 'display_name'
-  - field: 'enablement_state'
-  - field: 'last_editor'
-  - field: 'name'
+  - api_field: 'displayName'
+  - api_field: 'enablementState'
+  - api_field: 'lastEditor'
+  - api_field: 'name'
   - field: 'organization'
     provider_only: true
-  - field: 'type'
-  - field: 'update_time'
+  - api_field: 'type'
+  - api_field: 'updateTime'

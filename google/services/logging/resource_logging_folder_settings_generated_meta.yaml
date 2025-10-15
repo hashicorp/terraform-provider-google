@@ -7,11 +7,11 @@ api_resource_type_kind: 'Settings'
 api_variant_patterns:
   - 'folders/{folder}/settings'
 fields:
-  - field: 'disable_default_sink'
+  - api_field: 'disableDefaultSink'
   - field: 'folder'
     provider_only: true
-  - field: 'kms_key_name'
-  - field: 'kms_service_account_id'
-  - field: 'logging_service_account_id'
-  - field: 'name'
-  - field: 'storage_location'
+  - api_field: 'kmsKeyName'
+  - api_field: 'kmsServiceAccountId'
+  - api_field: 'loggingServiceAccountId'
+  - api_field: 'name'
+  - api_field: 'storageLocation'

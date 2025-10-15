@@ -6,18 +6,18 @@ api_version: 'v1'
 api_resource_type_kind: 'ReferenceList'
 autogen_status: true
 fields:
-  - field: 'description'
-  - field: 'display_name'
-  - field: 'entries.value'
+  - api_field: 'description'
+  - api_field: 'displayName'
+  - api_field: 'entries.value'
   - field: 'instance'
     provider_only: true
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'reference_list_id'
     provider_only: true
-  - field: 'revision_create_time'
-  - field: 'rule_associations_count'
-  - field: 'rules'
-  - field: 'scope_info.reference_list_scope.scope_names'
-  - field: 'syntax_type'
+  - api_field: 'revisionCreateTime'
+  - api_field: 'ruleAssociationsCount'
+  - api_field: 'rules'
+  - api_field: 'scopeInfo.referenceListScope.scopeNames'
+  - api_field: 'syntaxType'

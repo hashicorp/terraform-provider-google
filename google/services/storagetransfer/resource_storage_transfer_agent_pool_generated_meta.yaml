@@ -5,8 +5,8 @@ api_service_name: 'storagetransfer.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'agentPools'
 fields:
-  - field: 'bandwidth_limit.limit_mbps'
-  - field: 'display_name'
+  - api_field: 'bandwidthLimit.limitMbps'
+  - api_field: 'displayName'
   - field: 'name'
     provider_only: true
-  - field: 'state'
+  - api_field: 'state'
