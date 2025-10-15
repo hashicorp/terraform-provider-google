@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: promoted the `google_compute_preview_feature` resource to GA.
+```
+
+```release-note:enhancement
+compute: the `activation_status` attribute within the `google_compute_preview_feature` resource now uses the `ACTIVATION_STATE_UNSPECIFIED` value instead of `DISABLED`. Support for `DISABLED` will be added in a future release.
+```
