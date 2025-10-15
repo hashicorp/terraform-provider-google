@@ -1394,6 +1394,57 @@ resource "google_datastream_stream" "default" {
     backfill_none {}
 }
 ```
+## Example Usage - Datastream Stream Mongodb
+
+
+```hcl
+resource "google_datastream_stream" "default" {
+    display_name = "Mongodb to BigQuery"
+    location     = "us-central1"
+    stream_id    = "mongodb-stream"
+
+    source_config {
+        source_connection_profile = "source-profile"
+        mongodb_source_config {
+            include_objects {
+                databases {
+                    database = "mydb"
+                    collections {
+                        collection = "mycollection1"
+                    }
+                    collections {
+                        collection = "mycollection2"
+                    }
+                }
+            }
+            excludee_objects {
+                databases {
+                    database = "mydb"
+                    collections {
+                        fields {
+                           field = "excludedField"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = "destination-profile"
+        bigquery_destination_config {
+            data_freshness = "900s"
+            source_hierarchy_datasets {
+                dataset_template {
+                    location = "us-central1"
+                }
+            }
+        }
+    }
+
+    backfill_none {}
+}
+```
 
 ## Argument Reference
 
@@ -1487,6 +1538,11 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   (Optional)
   Salesforce data source configuration.
   Structure is [documented below](#nested_source_config_salesforce_source_config).
+
+* `mongodb_source_config` -
+  (Optional)
+  MongoDB source configuration.
+  Structure is [documented below](#nested_source_config_mongodb_source_config).
 
 
 <a name="nested_source_config_mysql_source_config"></a>The `mysql_source_config` block supports:
@@ -2213,6 +2269,101 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   (Optional)
   Field name.
 
+<a name="nested_source_config_mongodb_source_config"></a>The `mongodb_source_config` block supports:
+
+* `include_objects` -
+  (Optional)
+  MongoDB collections to include in the stream.
+  Structure is [documented below](#nested_source_config_mongodb_source_config_include_objects).
+
+* `exclude_objects` -
+  (Optional)
+  MongoDB collections to include in the stream.
+  Structure is [documented below](#nested_source_config_mongodb_source_config_exclude_objects).
+
+* `max_concurrent_backfill_tasks` -
+  (Optional)
+  Optional. Maximum number of concurrent backfill tasks. The number
+  should be non-negative and less than or equal to 50. If not set
+  (or set to 0), the system''s default value is used
+
+
+<a name="nested_source_config_mongodb_source_config_include_objects"></a>The `include_objects` block supports:
+
+* `databases` -
+  (Optional)
+  MongoDB databases in the cluster.
+  Structure is [documented below](#nested_source_config_mongodb_source_config_include_objects_databases).
+
+
+<a name="nested_source_config_mongodb_source_config_include_objects_databases"></a>The `databases` block supports:
+
+* `database` -
+  (Optional)
+  Database name.
+
+* `collections` -
+  (Optional)
+  Collections in the database.
+  Structure is [documented below](#nested_source_config_mongodb_source_config_include_objects_databases_databases_collections).
+
+
+<a name="nested_source_config_mongodb_source_config_include_objects_databases_databases_collections"></a>The `collections` block supports:
+
+* `collection` -
+  (Optional)
+  Collection name.
+
+* `fields` -
+  (Optional)
+  Fields in the collection.
+  Structure is [documented below](#nested_source_config_mongodb_source_config_include_objects_databases_databases_collections_collections_fields).
+
+
+<a name="nested_source_config_mongodb_source_config_include_objects_databases_databases_collections_collections_fields"></a>The `fields` block supports:
+
+* `field` -
+  (Optional)
+  Field name.
+
+<a name="nested_source_config_mongodb_source_config_exclude_objects"></a>The `exclude_objects` block supports:
+
+* `databases` -
+  (Optional)
+  MongoDB databases in the cluster.
+  Structure is [documented below](#nested_source_config_mongodb_source_config_exclude_objects_databases).
+
+
+<a name="nested_source_config_mongodb_source_config_exclude_objects_databases"></a>The `databases` block supports:
+
+* `database` -
+  (Optional)
+  Database name.
+
+* `collections` -
+  (Optional)
+  Collections in the database.
+  Structure is [documented below](#nested_source_config_mongodb_source_config_exclude_objects_databases_databases_collections).
+
+
+<a name="nested_source_config_mongodb_source_config_exclude_objects_databases_databases_collections"></a>The `collections` block supports:
+
+* `collection` -
+  (Optional)
+  Collection name.
+
+* `fields` -
+  (Optional)
+  Fields in the collection.
+  Structure is [documented below](#nested_source_config_mongodb_source_config_exclude_objects_databases_databases_collections_collections_fields).
+
+
+<a name="nested_source_config_mongodb_source_config_exclude_objects_databases_databases_collections_collections_fields"></a>The `fields` block supports:
+
+* `field` -
+  (Optional)
+  Field name.
+
 <a name="nested_destination_config"></a>The `destination_config` block supports:
 
 * `destination_connection_profile` -
@@ -2390,6 +2541,11 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   (Optional)
   Salesforce objects to avoid backfilling.
   Structure is [documented below](#nested_backfill_all_salesforce_excluded_objects).
+
+* `mongodb_excluded_objects` -
+  (Optional)
+  MongoDB data source objects to avoid backfilling.
+  Structure is [documented below](#nested_backfill_all_mongodb_excluded_objects).
 
 
 <a name="nested_backfill_all_mysql_excluded_objects"></a>The `mysql_excluded_objects` block supports:
@@ -2683,6 +2839,44 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 <a name="nested_backfill_all_salesforce_excluded_objects_objects_objects_fields"></a>The `fields` block supports:
 
 * `name` -
+  (Optional)
+  Field name.
+
+<a name="nested_backfill_all_mongodb_excluded_objects"></a>The `mongodb_excluded_objects` block supports:
+
+* `databases` -
+  (Required)
+  MongoDB databases in the cluster.
+  Structure is [documented below](#nested_backfill_all_mongodb_excluded_objects_databases).
+
+
+<a name="nested_backfill_all_mongodb_excluded_objects_databases"></a>The `databases` block supports:
+
+* `database` -
+  (Required)
+  Database name.
+
+* `collections` -
+  (Optional)
+  Collections in the database.
+  Structure is [documented below](#nested_backfill_all_mongodb_excluded_objects_databases_databases_collections).
+
+
+<a name="nested_backfill_all_mongodb_excluded_objects_databases_databases_collections"></a>The `collections` block supports:
+
+* `collection` -
+  (Required)
+  Collection name.
+
+* `fields` -
+  (Optional)
+  Fields in the collection.
+  Structure is [documented below](#nested_backfill_all_mongodb_excluded_objects_databases_databases_collections_collections_fields).
+
+
+<a name="nested_backfill_all_mongodb_excluded_objects_databases_databases_collections_collections_fields"></a>The `fields` block supports:
+
+* `field` -
   (Optional)
   Field name.
 

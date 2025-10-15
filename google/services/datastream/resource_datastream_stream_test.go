@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
@@ -286,6 +287,318 @@ resource "google_datastream_stream" "gtid" {
     backfill_all {
     }
 	%{lifecycle_block}
+}
+`, context)
+}
+
+func TestAccDatastreamStream_mongoDb(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatastreamStreamDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatastreamStream_mongoDbBasicExample(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_datastream_stream.default", "state", "NOT_STARTED"),
+				),
+			},
+			{
+				ResourceName:            "google_datastream_stream.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"create_without_validation", "stream_id", "location", "desired_state"},
+			},
+			{
+				Config: testAccDatastreamStream_mongoDbUpdateExample(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_datastream_stream.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_datastream_stream.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"create_without_validation", "stream_id", "location", "desired_state"},
+			},
+		},
+	})
+}
+
+func testAccDatastreamStream_mongoDbBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_datastream_connection_profile" "mongo_source" {
+    display_name          = "tf-mongodb-profile"
+    location              = "us-central1"
+    connection_profile_id = "tf-test-mongo-source-profile%{random_suffix}"
+    create_without_validation = true
+
+    mongodb_profile {
+        host_addresses {
+          hostname = "1.1.1.1"
+          port = 27017
+        }
+        replica_set = "rs0"
+        username = "user"
+        password = "password"
+        standard_connection_format {}
+    }
+}
+
+resource "google_storage_bucket" "bucket" {
+  name                        = "tf-test-mongo-gcs-bucket%{random_suffix}"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+data "google_iam_policy" "datastream_service_agent" {
+    binding {
+        role = "roles/storage.objectViewer"
+        members = [
+            "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datastream.iam.gserviceaccount.com",
+        ]
+    }
+    binding {
+        role = "roles/storage.objectCreator"
+        members = [
+            "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datastream.iam.gserviceaccount.com",
+        ]
+    }
+    binding {
+        role = "roles/storage.legacyBucketReader"
+        members = [
+            "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datastream.iam.gserviceaccount.com",
+        ]
+    }
+}
+
+resource "google_datastream_connection_profile" "gcs_destination" {
+    display_name          = "GCS Destination Profile"
+    location              = "us-central1"
+    connection_profile_id = "tf-test-gcs-dest-profile%{random_suffix}"
+    create_without_validation = true
+
+    gcs_profile {
+        bucket  = google_storage_bucket.bucket.name
+        root_path = "/path"
+    }
+}
+
+resource "google_datastream_stream" "default" {
+    display_name = "tf-mongodb-gcs"
+    location     = "us-central1"
+    stream_id    = "tf-test-mongo-stream%{random_suffix}"
+    create_without_validation = true
+
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.mongo_source.id
+        mongodb_source_config {
+            max_concurrent_backfill_tasks = 14
+            include_objects {
+                databases {
+                    database = "test"
+                    collections {
+                        collection = "orders"
+												fields {
+                            field = "name"
+                        }
+                    }
+                    collections {
+                        collection = "users"
+                    }
+                }
+            }
+            exclude_objects {
+                databases {
+                    database = "test"
+                    collections {
+                        collection = "users"
+                        fields {
+                           field = "name"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.gcs_destination.id
+        gcs_destination_config {
+          path = "/mydata"
+          file_rotation_mb = 50
+          file_rotation_interval = "60s"
+          json_file_format {
+            schema_file_format = "NO_SCHEMA_FILE"
+            compression = "GZIP"
+          }
+        }
+    }
+
+    backfill_all {
+			  mongodb_excluded_objects {
+          databases {
+            collections {
+						  collection = "orders"
+						  fields {
+							  field = "name"
+              }
+					  }
+					 database = "test"
+				  }
+        }
+    }
+}
+`, context)
+}
+
+func testAccDatastreamStream_mongoDbUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_datastream_connection_profile" "mongo_source" {
+    display_name            = "tf-mongodb-profile"
+    location                = "us-central1"
+    connection_profile_id   = "tf-test-mongo-source-profile%{random_suffix}"
+    create_without_validation = true
+
+    mongodb_profile {
+        host_addresses {
+            hostname = "1.1.1.1"
+            port = 27017
+        }
+        replica_set = "rs0"
+        username = "user"
+        password = "password"
+        standard_connection_format {}
+    }
+}
+
+resource "google_storage_bucket" "bucket" {
+    name                        = "tf-test-mongo-gcs-bucket%{random_suffix}"
+    location                    = "US"
+    uniform_bucket_level_access = true
+}
+
+data "google_iam_policy" "datastream_service_agent" {
+    binding {
+        role = "roles/storage.objectViewer"
+        members = [
+            "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datastream.iam.gserviceaccount.com",
+        ]
+    }
+    binding {
+        role = "roles/storage.objectCreator"
+        members = [
+            "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datastream.iam.gserviceaccount.com",
+        ]
+    }
+    binding {
+        role = "roles/storage.legacyBucketReader"
+        members = [
+            "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datastream.iam.gserviceaccount.com",
+        ]
+    }
+}
+
+resource "google_datastream_connection_profile" "gcs_destination" {
+    display_name            = "GCS Destination Profile"
+    location                = "us-central1"
+    connection_profile_id   = "tf-test-gcs-dest-profile%{random_suffix}"
+    create_without_validation = true
+
+    gcs_profile {
+        bucket    = google_storage_bucket.bucket.name
+        root_path = "/path"
+    }
+}
+
+resource "google_datastream_stream" "default" {
+    display_name = "tf-mongodb-gcs"
+    location     = "us-central1"
+    stream_id    = "tf-test-mongo-stream%{random_suffix}"
+    create_without_validation = true
+
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.mongo_source.id
+        mongodb_source_config {
+            max_concurrent_backfill_tasks = 25
+            include_objects {
+                databases {
+                    database = "test"
+                    collections {
+                        collection = "orders"
+                        fields {
+                            field = "name"
+                        }
+                    }
+                    collections {
+                        collection = "users"
+                    }
+                    // ADDED: New collection to include
+                    collections {
+                        collection = "products"
+                    }
+                }
+            }
+            exclude_objects {
+                databases {
+                    database = "test"
+                    collections {
+                        collection = "users"
+                        fields {
+                           field = "name"
+                        }
+                        // ADDED: New field to exclude
+                        fields {
+                            field = "address"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.gcs_destination.id
+        gcs_destination_config {
+            path = "/mydata"
+            file_rotation_mb = 50
+            file_rotation_interval = "60s"
+            json_file_format {
+                schema_file_format = "NO_SCHEMA_FILE"
+                compression = "GZIP"
+            }
+        }
+    }
+
+    backfill_all {
+        mongodb_excluded_objects {
+            databases {
+                database = "test"
+                collections {
+                    collection = "orders"
+                    fields {
+                        field = "name"
+                    }
+                }
+                // ADDED: New collection to exclude from backfill
+                collections {
+                    collection = "inventory"
+                }
+            }
+        }
+    }
 }
 `, context)
 }

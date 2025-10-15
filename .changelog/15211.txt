@@ -1,0 +1,7 @@
+```release-note:enhancement
+datastream: added `mongodb_profile` field to `google_datastream_connection_profile`
+```
+
+```release-note:enhancement
+datastream: added `backfill_all.mongodb_excluded_objects` and  `source_config.mongodb_source_config` fields to `google_datastream_stream`
+```
