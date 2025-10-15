@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
@@ -524,6 +525,227 @@ EOT
          create = "10m"
 	}
     %{lifecycle_block}
+}
+`, context)
+}
+
+func TestAccDatastreamConnectionProfile_mongoDb(t *testing.T) {
+	t.Parallel()
+
+	// Context to provide a unique suffix for resource names, preventing collisions.
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatastreamConnectionProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatastreamConnectionProfile_mongoDbBasicExample(context),
+			},
+			{
+				ResourceName:      "google_datastream_connection_profile.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"create_without_validation",
+					"mongodb_profile.0.ssl_config.0.ca_certificate",
+					"mongodb_profile.0.ssl_config.0.client_certificate",
+					"mongodb_profile.0.ssl_config.0.secret_manager_stored_client_key",
+				},
+			},
+			{
+				Config: testAccDatastreamConnectionProfile_mongoDbUpdateExample(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_datastream_connection_profile.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_datastream_connection_profile.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"create_without_validation",
+					"mongodb_profile.0.ssl_config.0.ca_certificate",
+					"mongodb_profile.0.ssl_config.0.client_certificate",
+					"mongodb_profile.0.ssl_config.0.secret_manager_stored_client_key",
+				},
+			},
+			{
+				Config: testAccDatastreamConnectionProfile_mongoDbBasic2Example(context),
+			},
+			{
+				ResourceName:      "google_datastream_connection_profile.default2",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"create_without_validation",
+					"mongodb_profile.0.ssl_config.0.client_key",
+					"mongodb_profile.0.ssl_config.0.ca_certificate",
+					"mongodb_profile.0.ssl_config.0.client_certificate",
+				},
+			},
+		},
+	})
+}
+
+// Terraform configuration for the initial creation of the MongoDB connection profile.
+func testAccDatastreamConnectionProfile_mongoDbBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "password_secret" {
+  project   = data.google_project.project.project_id
+  secret_id = "tf-mongo-pw-secret-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "password_secret_version" {
+  secret      = google_secret_manager_secret.password_secret.id
+  secret_data = "my-secret-password"
+}
+
+resource "google_secret_manager_secret" "client_key_secret" {
+  project   = data.google_project.project.project_id
+  secret_id = "tf-mongo-key-secret-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "client_key_secret_version" {
+  secret      = google_secret_manager_secret.client_key_secret.id
+  secret_data = file("text-fixtures/private-key.pem") 
+}
+
+
+resource "google_datastream_connection_profile" "default" {
+  project                 = data.google_project.project.project_id
+  display_name            = "tf-mongodb-profile"
+  location                = "us-central1"
+  connection_profile_id   = "tf-mongo-cp-%{random_suffix}"
+  create_without_validation = true // Set to true for tests to bypass actual connectivity checks.
+
+  mongodb_profile {
+    host_addresses {
+      hostname = "1.1.1.1"
+      port     = 27017
+    }
+    replica_set               = "rs0"
+    username                  = "user"
+    secret_manager_stored_password = google_secret_manager_secret_version.password_secret_version.id
+    ssl_config {
+      ca_certificate               = file("text-fixtures/ca-cert.pem")
+      client_certificate           = file("text-fixtures/cert.pem")
+      secret_manager_stored_client_key = google_secret_manager_secret_version.client_key_secret_version.id
+    }
+    standard_connection_format {
+      direct_connection = true
+    }
+  }
+
+  depends_on = [
+    google_secret_manager_secret_version.password_secret_version,
+    google_secret_manager_secret_version.client_key_secret_version,
+  ]
+}
+`, context)
+}
+
+func testAccDatastreamConnectionProfile_mongoDbBasic2Example(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_datastream_connection_profile" "default2" {
+	project                 = data.google_project.project.project_id
+	display_name            = "tf-mongodb-profile"
+	location                = "us-central1"
+	connection_profile_id   = "tf-mongo-cp-%{random_suffix}-2"
+	create_without_validation = true // Set to true for tests to bypass actual connectivity checks.
+
+	mongodb_profile {
+		host_addresses {
+			hostname = "1.1.1.1"
+		}
+		username               = "user"
+		password               = "password"
+		ssl_config {
+      client_key                       = file("text-fixtures/private-key.pem")
+			ca_certificate                   = file("text-fixtures/ca-cert.pem")
+			client_certificate               = file("text-fixtures/cert.pem")
+		}
+		srv_connection_format {}
+	}
+}
+`, context)
+}
+
+func testAccDatastreamConnectionProfile_mongoDbUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "password_secret" {
+  project   = data.google_project.project.project_id
+  secret_id = "tf-mongo-pw-secret-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "password_secret_version" {
+  secret      = google_secret_manager_secret.password_secret.id
+  secret_data = "my-secret-password"
+}
+
+resource "google_secret_manager_secret" "client_key_secret" {
+  project   = data.google_project.project.project_id
+  secret_id = "tf-mongo-key-secret-%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "client_key_secret_version" {
+  secret      = google_secret_manager_secret.client_key_secret.id
+  secret_data = file("text-fixtures/private-key.pem") 
+}
+
+
+resource "google_datastream_connection_profile" "default" {
+  project                 = data.google_project.project.project_id
+  display_name            = "tf-mongodb-profile-updated" // <-- Changed
+  location                = "us-central1"
+  connection_profile_id   = "tf-mongo-cp-%{random_suffix}"
+  create_without_validation = true // Set to true for tests to bypass actual connectivity checks.
+
+  mongodb_profile {
+    host_addresses {
+      hostname = "1.1.1.1"
+      port     = 27017
+    }
+    replica_set               = "rs0"
+    username                  = "newuser"  // <-- Changed
+    secret_manager_stored_password = google_secret_manager_secret_version.password_secret_version.id
+    ssl_config {
+      ca_certificate               = file("text-fixtures/ca-cert.pem")
+      client_certificate           = file("text-fixtures/cert.pem")
+      secret_manager_stored_client_key = google_secret_manager_secret_version.client_key_secret_version.id
+    }
+    standard_connection_format {
+      direct_connection = true
+    }
+  }
+
+  depends_on = [
+    google_secret_manager_secret_version.password_secret_version,
+    google_secret_manager_secret_version.client_key_secret_version,
+  ]
 }
 `, context)
 }
