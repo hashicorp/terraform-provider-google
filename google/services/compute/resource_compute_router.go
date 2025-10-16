@@ -88,13 +88,6 @@ which means the first character must be a lowercase letter, and all
 following characters must be a dash, lowercase letter, or digit,
 except the last character, which cannot be a dash.`,
 			},
-			"network": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      `A reference to the network to which this router belongs.`,
-			},
 			"bgp": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -203,6 +196,14 @@ Must be referenced by exactly one bgpPeer. Must comply with RFC1035.`,
 						},
 					},
 				},
+			},
+			"network": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `A reference to the network to which this router belongs.`,
+				ConflictsWith:    []string{},
 			},
 			"params": {
 				Type:        schema.TypeList,

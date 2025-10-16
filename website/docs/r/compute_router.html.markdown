@@ -83,6 +83,75 @@ resource "google_compute_network" "network" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=router_ncc_gw&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Router Ncc Gw
+
+
+```hcl
+resource "google_compute_network" "network" {
+  provider = google-beta
+  name        = "net-spoke"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  provider = google-beta
+  name          = "tf-test-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/28"
+  region        = "us-central1"
+  network       = google_compute_network.network.self_link
+}
+
+resource "google_network_connectivity_hub" "basic_hub" {
+  provider = google-beta
+  name        = "hub"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+  preset_topology = "HYBRID_INSPECTION"
+}
+
+resource "google_network_connectivity_spoke" "primary" {
+  provider = google-beta
+  name        = "my-ncc-gw"
+  location = "us-central1"
+  description = "A sample spoke of type Gateway"
+  labels = {
+    label-one = "value-one"
+  }
+  hub =  google_network_connectivity_hub.basic_hub.id
+  gateway {
+    ip_range_reservations {
+      ip_range = "10.0.0.0/23"
+    }
+    capacity = "CAPACITY_1_GBPS"
+  }
+  group = "gateways"
+}
+
+
+resource "google_compute_router" "foobar" {
+  provider = google-beta
+  name    = "my-router"
+  bgp {
+    asn               = 64514
+    advertise_mode    = "CUSTOM"
+    advertised_groups = ["ALL_SUBNETS"]
+    advertised_ip_ranges {
+      range = "1.2.3.4"
+    }
+    advertised_ip_ranges {
+      range = "6.7.0.0/16"
+    }
+  }
+  ncc_gateway = google_network_connectivity_spoke.primary.id
+}
+```
 
 ## Argument Reference
 
@@ -98,14 +167,14 @@ The following arguments are supported:
   following characters must be a dash, lowercase letter, or digit,
   except the last character, which cannot be a dash.
 
-* `network` -
-  (Required)
-  A reference to the network to which this router belongs.
-
 
 * `description` -
   (Optional)
   An optional description of this resource.
+
+* `network` -
+  (Optional)
+  A reference to the network to which this router belongs.
 
 * `bgp` -
   (Optional)
@@ -121,6 +190,10 @@ The following arguments are supported:
   (Optional)
   Keys used for MD5 authentication.
   Structure is [documented below](#nested_md5_authentication_keys).
+
+* `ncc_gateway` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A URI of an NCC Gateway spoke
 
 * `params` -
   (Optional)

@@ -1,6 +1,6 @@
 resource: 'google_network_connectivity_internal_range'
 generation_type: 'mmv1'
-source_file: 'products/networkconnectivity/InternalRange.yaml'
+source_file: 'products/networkconnectivityv1/InternalRange.yaml'
 api_service_name: 'networkconnectivity.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'InternalRange'

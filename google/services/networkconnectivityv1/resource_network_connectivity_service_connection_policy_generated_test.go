@@ -15,7 +15,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package networkconnectivity_test
+package networkconnectivityv1_test
 
 import (
 	"fmt"
@@ -30,7 +30,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccNetworkConnectivityServiceConnectionPolicy_networkConnectivityPolicyBasicExample(t *testing.T) {
+func TestAccNetworkConnectivityv1ServiceConnectionPolicy_networkConnectivityPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -41,10 +41,10 @@ func TestAccNetworkConnectivityServiceConnectionPolicy_networkConnectivityPolicy
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetworkConnectivityServiceConnectionPolicyDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityv1ServiceConnectionPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkConnectivityServiceConnectionPolicy_networkConnectivityPolicyBasicExample(context),
+				Config: testAccNetworkConnectivityv1ServiceConnectionPolicy_networkConnectivityPolicyBasicExample(context),
 			},
 			{
 				ResourceName:            "google_network_connectivity_service_connection_policy.default",
@@ -56,7 +56,7 @@ func TestAccNetworkConnectivityServiceConnectionPolicy_networkConnectivityPolicy
 	})
 }
 
-func testAccNetworkConnectivityServiceConnectionPolicy_networkConnectivityPolicyBasicExample(context map[string]interface{}) string {
+func testAccNetworkConnectivityv1ServiceConnectionPolicy_networkConnectivityPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "producer_net" {
   name                    = "tf-test-producer-net%{random_suffix}"
@@ -84,7 +84,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 `, context)
 }
 
-func testAccCheckNetworkConnectivityServiceConnectionPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckNetworkConnectivityv1ServiceConnectionPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
 			if rs.Type != "google_network_connectivity_service_connection_policy" {
@@ -96,7 +96,7 @@ func testAccCheckNetworkConnectivityServiceConnectionPolicyDestroyProducer(t *te
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/{{location}}/serviceConnectionPolicies/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{NetworkConnectivityv1BasePath}}projects/{{project}}/locations/{{location}}/serviceConnectionPolicies/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -115,7 +115,7 @@ func testAccCheckNetworkConnectivityServiceConnectionPolicyDestroyProducer(t *te
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("NetworkConnectivityServiceConnectionPolicy still exists at %s", url)
+				return fmt.Errorf("NetworkConnectivityv1ServiceConnectionPolicy still exists at %s", url)
 			}
 		}
 
