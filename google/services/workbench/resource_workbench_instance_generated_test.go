@@ -50,7 +50,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -84,7 +84,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicContainerExample(t *testing.
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -125,7 +125,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicGpuExample(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gce_setup.0.vm_image", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"gce_setup.0.vm_image", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -199,7 +199,7 @@ func TestAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(t *testing.T
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"desired_state", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"desired_state", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -419,7 +419,7 @@ func TestAccWorkbenchInstance_workbenchInstanceConfidentialComputeExample(t *tes
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -474,7 +474,7 @@ func TestAccWorkbenchInstance_workbenchInstanceEucExample(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 		},
 	})
