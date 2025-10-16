@@ -1,0 +1,20 @@
+resource: 'google_dataplex_entry_link'
+generation_type: 'mmv1'
+source_file: 'products/dataplex/EntryLink.yaml'
+api_service_name: 'dataplex.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'EntryLink'
+fields:
+  - api_field: 'createTime'
+  - field: 'entry_group_id'
+    provider_only: true
+  - field: 'entry_link_id'
+    provider_only: true
+  - api_field: 'entryLinkType'
+  - api_field: 'entryReferences.name'
+  - api_field: 'entryReferences.path'
+  - api_field: 'entryReferences.type'
+  - field: 'location'
+    provider_only: true
+  - api_field: 'name'
+  - api_field: 'updateTime'
