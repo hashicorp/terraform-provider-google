@@ -1,0 +1,11 @@
+```release-note:enhancement
+networkconnectivity: added `gateway` field to `google_network_connectivity_spoke` resource (beta)
+```
+
+```release-note:enhancement
+networkconnectivity: added `HYBRID_INSPECTION` enum value to `preset_topology` field in `google_network_connectivity_hub` resource (ga)
+```
+
+```release-note:enhancement
+compute: added `ncc_gateway` field to `google_compute_router` resource (beta)
+```

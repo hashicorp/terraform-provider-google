@@ -83,11 +83,12 @@ func ResourceNetworkConnectivitySpoke() *schema.Resource {
 				Description: `An optional description of the spoke.`,
 			},
 			"group": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The name of the group that this spoke is associated with.`,
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `The name of the group that this spoke is associated with.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,

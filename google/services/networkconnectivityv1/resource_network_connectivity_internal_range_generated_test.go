@@ -15,7 +15,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package networkconnectivity_test
+package networkconnectivityv1_test
 
 import (
 	"fmt"
@@ -30,7 +30,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBasicExample(t *testing.T) {
+func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -40,10 +40,10 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBa
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBasicExample(context),
+				Config: testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesBasicExample(context),
 			},
 			{
 				ResourceName:            "google_network_connectivity_internal_range.default",
@@ -55,7 +55,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBa
 	})
 }
 
-func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBasicExample(context map[string]interface{}) string {
+func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
   name    = "basic%{random_suffix}"
@@ -77,7 +77,7 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
-func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAutomaticReservationExample(t *testing.T) {
+func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAutomaticReservationExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -87,10 +87,10 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAu
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAutomaticReservationExample(context),
+				Config: testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAutomaticReservationExample(context),
 			},
 			{
 				ResourceName:            "google_network_connectivity_internal_range.default",
@@ -102,7 +102,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAu
 	})
 }
 
-func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAutomaticReservationExample(context map[string]interface{}) string {
+func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAutomaticReservationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
   name    = "tf-test-automatic-reservation%{random_suffix}"
@@ -122,7 +122,7 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
-func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesExternalRangesExample(t *testing.T) {
+func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesExternalRangesExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -132,10 +132,10 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesEx
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesExternalRangesExample(context),
+				Config: testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesExternalRangesExample(context),
 			},
 			{
 				ResourceName:            "google_network_connectivity_internal_range.default",
@@ -147,7 +147,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesEx
 	})
 }
 
-func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesExternalRangesExample(context map[string]interface{}) string {
+func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesExternalRangesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
   name    = "tf-test-external-ranges%{random_suffix}"
@@ -168,7 +168,7 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
-func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesReserveWithOverlapExample(t *testing.T) {
+func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesReserveWithOverlapExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -178,10 +178,10 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesRe
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesReserveWithOverlapExample(context),
+				Config: testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesReserveWithOverlapExample(context),
 			},
 			{
 				ResourceName:            "google_network_connectivity_internal_range.default",
@@ -193,7 +193,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesRe
 	})
 }
 
-func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesReserveWithOverlapExample(context map[string]interface{}) string {
+func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesReserveWithOverlapExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
   name    = "tf-test-overlap-range%{random_suffix}"
@@ -226,7 +226,7 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
-func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesMigrationExample(t *testing.T) {
+func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesMigrationExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -236,10 +236,10 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesMi
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesMigrationExample(context),
+				Config: testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesMigrationExample(context),
 			},
 			{
 				ResourceName:            "google_network_connectivity_internal_range.default",
@@ -251,7 +251,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesMi
 	})
 }
 
-func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesMigrationExample(context map[string]interface{}) string {
+func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesMigrationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
   name          = "migration%{random_suffix}"
@@ -283,7 +283,7 @@ data "google_project" "target_project" {
 `, context)
 }
 
-func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(t *testing.T) {
+func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -293,10 +293,10 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAl
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(context),
+				Config: testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(context),
 			},
 			{
 				ResourceName:            "google_network_connectivity_internal_range.default",
@@ -308,7 +308,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAl
 	})
 }
 
-func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(context map[string]interface{}) string {
+func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
   name    = "tf-test-allocation-algorithms%{random_suffix}"
@@ -331,7 +331,7 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
-func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(t *testing.T) {
+func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -341,10 +341,10 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAl
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(context),
+				Config: testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(context),
 			},
 			{
 				ResourceName:            "google_network_connectivity_internal_range.default",
@@ -356,7 +356,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAl
 	})
 }
 
-func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(context map[string]interface{}) string {
+func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesAllocationAlgoritmsRandomFirstNExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
   name    = "tf-test-allocation-algorithms-random-first-n%{random_suffix}"
@@ -380,7 +380,7 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
-func testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
 			if rs.Type != "google_network_connectivity_internal_range" {
@@ -392,7 +392,7 @@ func testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t *testing.T) f
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{NetworkConnectivityBasePath}}projects/{{project}}/locations/global/internalRanges/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{NetworkConnectivityv1BasePath}}projects/{{project}}/locations/global/internalRanges/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -411,7 +411,7 @@ func testAccCheckNetworkConnectivityInternalRangeDestroyProducer(t *testing.T) f
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("NetworkConnectivityInternalRange still exists at %s", url)
+				return fmt.Errorf("NetworkConnectivityv1InternalRange still exists at %s", url)
 			}
 		}
 

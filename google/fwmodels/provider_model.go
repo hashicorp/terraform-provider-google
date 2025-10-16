@@ -153,6 +153,7 @@ type ProviderModel struct {
 	MonitoringCustomEndpoint               types.String `tfsdk:"monitoring_custom_endpoint"`
 	NetappCustomEndpoint                   types.String `tfsdk:"netapp_custom_endpoint"`
 	NetworkConnectivityCustomEndpoint      types.String `tfsdk:"network_connectivity_custom_endpoint"`
+	NetworkConnectivityv1CustomEndpoint    types.String `tfsdk:"network_connectivityv1_custom_endpoint"`
 	NetworkManagementCustomEndpoint        types.String `tfsdk:"network_management_custom_endpoint"`
 	NetworkSecurityCustomEndpoint          types.String `tfsdk:"network_security_custom_endpoint"`
 	NetworkServicesCustomEndpoint          types.String `tfsdk:"network_services_custom_endpoint"`

@@ -99,8 +99,8 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"MESH", "STAR", ""}),
-				Description:  `Optional. The topology implemented in this hub. Currently, this field is only used when policyMode = PRESET. The available preset topologies are MESH and STAR. If presetTopology is unspecified and policyMode = PRESET, the presetTopology defaults to MESH. When policyMode = CUSTOM, the presetTopology is set to PRESET_TOPOLOGY_UNSPECIFIED. Possible values: ["MESH", "STAR"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"MESH", "STAR", "HYBRID_INSPECTION", ""}),
+				Description:  `Optional. The topology implemented in this hub. Currently, this field is only used when policyMode = PRESET. The available preset topologies are MESH and STAR. If presetTopology is unspecified and policyMode = PRESET, the presetTopology defaults to MESH. When policyMode = CUSTOM, the presetTopology is set to PRESET_TOPOLOGY_UNSPECIFIED. Possible values: ["MESH", "STAR", "HYBRID_INSPECTION"]`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
