@@ -564,6 +564,14 @@ Ignored for MULTI_ZONE mode.`,
 					},
 				},
 			},
+			"available_maintenance_versions": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `This field is used to determine the available maintenance versions for the self service update.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"backup_collection": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -1266,6 +1274,9 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("effective_maintenance_version", flattenMemorystoreInstanceEffectiveMaintenanceVersion(res["effectiveMaintenanceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("available_maintenance_versions", flattenMemorystoreInstanceAvailableMaintenanceVersions(res["availableMaintenanceVersions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("engine_version", flattenMemorystoreInstanceEngineVersion(res["engineVersion"], d, config)); err != nil {
@@ -2091,6 +2102,10 @@ func flattenMemorystoreInstanceMaintenanceVersion(v interface{}, d *schema.Resou
 }
 
 func flattenMemorystoreInstanceEffectiveMaintenanceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceAvailableMaintenanceVersions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

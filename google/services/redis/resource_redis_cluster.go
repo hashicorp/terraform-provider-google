@@ -548,6 +548,14 @@ If not provided, MULTI_ZONE will be used as default Possible values: ["MULTI_ZON
 					},
 				},
 			},
+			"available_maintenance_versions": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `This field is used to determine the available maintenance versions for the self service update.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"backup_collection": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -1076,6 +1084,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("effective_maintenance_version", flattenRedisClusterEffectiveMaintenanceVersion(res["effectiveMaintenanceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("available_maintenance_versions", flattenRedisClusterAvailableMaintenanceVersions(res["availableMaintenanceVersions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("cross_cluster_replication_config", flattenRedisClusterCrossClusterReplicationConfig(res["crossClusterReplicationConfig"], d, config)); err != nil {
@@ -1938,6 +1949,10 @@ func flattenRedisClusterMaintenanceVersion(v interface{}, d *schema.ResourceData
 }
 
 func flattenRedisClusterEffectiveMaintenanceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterAvailableMaintenanceVersions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

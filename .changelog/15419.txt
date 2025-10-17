@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: added `available_maintenance_versions` field to `google_redis_cluster` resource
+```
+
+```release-note:enhancement
+memorystore: added `available_maintenance_versions` field to `google_memorystore_instance` resource
+```
