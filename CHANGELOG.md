@@ -24,6 +24,7 @@ IMPROVEMENTS:
 * dlp: added `publish_findings_to_dataplex_catalog` field to `google_data_loss_prevention_job_trigger ` ([#24722](https://github.com/hashicorp/terraform-provider-google/pull/24722))
 * iambeta: allowed GKE workload identity pool pattern in `workload_identity_pool_id` field of `google_iam_workload_identity_pool` resource. ([#24656](https://github.com/hashicorp/terraform-provider-google/pull/24656))
 * memorystore: added `maintenance_version` field to `google_memorystore_instance` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
+* memorystore: added `available_maintenance_versions` field to `google_memorystore_instance` resource ([#24745](https://github.com/hashicorp/terraform-provider-google/pull/24745))
 * networkconnectivity: added `HYBRID_INSPECTION` enum value to `preset_topology` field in `google_network_connectivity_hub` resource (ga) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
 * networkconnectivity: added `gateway` field to `google_network_connectivity_spoke` resource (beta) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
 * networkservices: added `isolationConfig` on `google_network_services_service_lb_policies` resource ([#24652](https://github.com/hashicorp/terraform-provider-google/pull/24652))
