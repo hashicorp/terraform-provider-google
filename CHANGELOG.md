@@ -1,5 +1,42 @@
 ## 7.8.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_artifact_registry_packages` ([#24696](https://github.com/hashicorp/terraform-provider-google/pull/24696))
+* **New Data Source:** `google_network_management_connectivity_tests` ([#24635](https://github.com/hashicorp/terraform-provider-google/pull/24635))
+* **New Resource:** `google_apigee_environment_api_revision_deployment` ([#24657](https://github.com/hashicorp/terraform-provider-google/pull/24657))
+* **New Resource:** `google_dataplex_entry_links` ([#24737](https://github.com/hashicorp/terraform-provider-google/pull/24737))
+* **New Resource:** `google_discovery_engine_assisstant` ([#24724](https://github.com/hashicorp/terraform-provider-google/pull/24724))
+* **New Resource:** `google_oracle_database_db_system` ([#24733](https://github.com/hashicorp/terraform-provider-google/pull/24733))
+* **New Resource:** `google_saas_runtime_unit` ([#24692](https://github.com/hashicorp/terraform-provider-google/pull/24692))
+
+IMPROVEMENTS:
+* compute: added `IN_FLIGHT` to `balancing_mode` on `google_compute_backend_service` resource ([#24710](https://github.com/hashicorp/terraform-provider-google/pull/24710))
+* compute: added `maintenance_version` field to `google_redis_cluster` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
+* compute: added `ncc_gateway` field to `google_compute_router` resource (beta) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
+* compute: added new field `instance_lifecycle_policy.on_repair.allow_changing_zone` to `google_compute_region_instance_group_manager` & `google_compute_instance_group_manager` ([#24706](https://github.com/hashicorp/terraform-provider-google/pull/24706))
+* compute: promoted `security_policy` in `compute_region_backend_service` resource to GA ([#24693](https://github.com/hashicorp/terraform-provider-google/pull/24693))
+* compute: promoted the `google_compute_preview_feature` resource to GA. ([#24725](https://github.com/hashicorp/terraform-provider-google/pull/24725))
+* compute: the `activation_status` attribute within the `google_compute_preview_feature` resource now uses the `ACTIVATION_STATE_UNSPECIFIED` value instead of `DISABLED`. Support for `DISABLED` will be added in a future release. ([#24725](https://github.com/hashicorp/terraform-provider-google/pull/24725))
+* datastream: added `backfill_all.mongodb_excluded_objects` and  `source_config.mongodb_source_config` fields to `google_datastream_stream` ([#24727](https://github.com/hashicorp/terraform-provider-google/pull/24727))
+* datastream: added `mongodb_profile` field to `google_datastream_connection_profile` ([#24727](https://github.com/hashicorp/terraform-provider-google/pull/24727))
+* discoveryengine: added `connector_modes`, `sync_mode`, `incremental_refresh_interval`, `auto_run_disabled`, and `incremental_sync_disabled` fields to `google_discovery_engine_data_connector` resource ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
+* discoveryengine: added `kms_key_name` field to `google_discovery_engine_search_engine` resource ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
+* discoveryengine: added in-place update support for `entities.params` and `entities.key_property_mappings` in `google_discovery_engine_data_connector` ([#24739](https://github.com/hashicorp/terraform-provider-google/pull/24739))
+* dlp: added `publish_findings_to_dataplex_catalog` field to `google_data_loss_prevention_job_trigger ` ([#24722](https://github.com/hashicorp/terraform-provider-google/pull/24722))
+* iambeta: allowed GKE workload identity pool pattern in `workload_identity_pool_id` field of `google_iam_workload_identity_pool` resource. ([#24656](https://github.com/hashicorp/terraform-provider-google/pull/24656))
+* memorystore: added `maintenance_version` field to `google_memorystore_instance` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
+* networkconnectivity: added `HYBRID_INSPECTION` enum value to `preset_topology` field in `google_network_connectivity_hub` resource (ga) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
+* networkconnectivity: added `gateway` field to `google_network_connectivity_spoke` resource (beta) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
+* networkservices: added `isolationConfig` on `google_network_services_service_lb_policies` resource ([#24652](https://github.com/hashicorp/terraform-provider-google/pull/24652))
+* redis: added `deletion_protection` field to `redis_instance` to make deleting them require an explicit intent. `redis_instance` resources now cannot be destroyed unless `deletion_protection = false` is set for the resource. ([#24654](https://github.com/hashicorp/terraform-provider-google/pull/24654))
+* saas_runtime: added `default_release` field to `google_saas_runtime_unit_kind` resource ([#24726](https://github.com/hashicorp/terraform-provider-google/pull/24726))
+* sql: added `read_pool_auto_scale_config` support to `sql_database_instance` resource ([#24723](https://github.com/hashicorp/terraform-provider-google/pull/24723))
+
+BUG FIXES:
+* bigquery: fixed the issue where `google_bigquery_table` detected an incorrect `schema` diff on tables with row access policies when the schema was unchanged. ([#24711](https://github.com/hashicorp/terraform-provider-google/pull/24711))
+* compute: allow `requested_link_count` to be updated in-place in `google_compute_interconnect` resource ([#24705](https://github.com/hashicorp/terraform-provider-google/pull/24705))
+* discoveryengine: fixed bug where it wasn't possible to specify values for `knowledgeBaseSysId` or `catalogSysId` in `google_discovery_engine_data_connector.entities.params`. ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
+
 ## 7.7.0 (October 14th, 2025)
 BREAKING CHANGES:
 * discoveryengine: changed type of `google_discovery_engine_data_connector.entities.params`. Previously, it was a map of string keys to string values; now, it must be a [JSON-encoded](https://developer.hashicorp.com/terraform/language/functions/jsonencode) string containing an object. This change is being made in a minor release because the field wasn't usable as intended – specifically, all current valid uses require mapping strings to _lists_ of strings. ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
