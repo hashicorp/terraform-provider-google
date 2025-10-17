@@ -47,8 +47,6 @@ resource "google_project_service" "project" {
     create = "30m"
     update = "40m"
   }
-
-  disable_on_destroy = false
 }
 ```
 
@@ -61,11 +59,10 @@ The following arguments are supported:
 * `project` - (Optional) The project ID. If not provided, the provider project
 is used.
 
-* `disable_on_destroy` - (Optional) If `true` or unset, disable the service when the
-Terraform resource is destroyed. If `false`, the service will be left enabled when
-the Terraform resource is destroyed. Defaults to `true`. Most configurations should
-set this to `false`; it should generally only be `true` or unset in configurations
-that manage the `google_project` resource itself.
+* `disable_on_destroy` - (Optional) If `true`, disable the service when the
+Terraform resource is destroyed. If `false` or unset, the service will be left enabled when
+the Terraform resource is destroyed. It should generally only 
+be `true` or unset in configurations that manage the `google_project` resource itself.
 
 * `disable_dependent_services` - (Optional) If `true`, services that are enabled
 and which depend on this service should also be disabled when this service is
@@ -76,7 +73,6 @@ services depend on this service when attempting to destroy it.
 [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)
 If `true`, the usage of the service to be disabled will be checked and an error
 will be returned if the service to be disabled has usage in last 30 days.
-Defaults to `false`.
 
 ## Attributes Reference
 

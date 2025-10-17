@@ -420,13 +420,6 @@ func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testin
 	if err := json.Unmarshal([]byte(testcase.jsonNew), &new); err != nil {
 		t.Fatalf("unable to unmarshal json - %v", err)
 	}
-	changeable, err := resourceBigQueryTableSchemaIsChangeable(old, new, testcase.isExternalTable, true)
-	if err != nil {
-		t.Errorf("%s failed unexpectedly: %s", testcase.name, err)
-	}
-	if changeable != testcase.changeable {
-		t.Errorf("expected changeable result of %v but got %v for testcase %s", testcase.changeable, changeable, testcase.name)
-	}
 
 	d := &tpgresource.ResourceDiffMock{
 		Before: map[string]interface{}{},
@@ -441,7 +434,19 @@ func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testin
 		d.After["external_data_configuration"] = ""
 	}
 
-	err = resourceBigQueryTableSchemaCustomizeDiffFunc(d)
+	hasRowAccessPolicyFunc := func() (bool, error) {
+		return false, nil
+	}
+
+	changeable, err := resourceBigQueryTableSchemaIsChangeable(old, new, testcase.isExternalTable, true, hasRowAccessPolicyFunc)
+	if err != nil {
+		t.Errorf("%s failed unexpectedly: %s", testcase.name, err)
+	}
+	if changeable != testcase.changeable {
+		t.Errorf("expected changeable result of %v but got %v for testcase %s", testcase.changeable, changeable, testcase.name)
+	}
+
+	err = resourceBigQueryTableSchemaCustomizeDiffFunc(d, hasRowAccessPolicyFunc)
 	if err != nil {
 		t.Errorf("error on testcase %s - %v", testcase.name, err)
 	}

@@ -111,6 +111,64 @@ except the last character, which cannot be a dash.`,
 				Description: `Specifies the mode of this IPv6 PDP. MODE must be one of: DELEGATION,
 EXTERNAL_IPV6_FORWARDING_RULE_CREATION and EXTERNAL_IPV6_SUBNETWORK_CREATION. Possible values: ["DELEGATION", "EXTERNAL_IPV6_FORWARDING_RULE_CREATION", "EXTERNAL_IPV6_SUBNETWORK_CREATION"]`,
 			},
+			"public_delegated_sub_prefixs": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Description: `List of sub public delegated fixes for BYO IP functionality.
+Each item in this array represents a sub prefix that can be
+used to create addresses or further allocations.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allocatable_prefix_length": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `The allocatable prefix length supported by this PublicDelegatedSubPrefix.`,
+						},
+						"delegatee_project": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Name of the project scoping this PublicDelegatedSubPrefix.`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `An optional description of this sub public delegated prefix.`,
+						},
+						"ip_cidr_range": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The IP address range in the CIDR format represented by this sub prefix.`,
+						},
+						"is_address": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Whether the sub prefix is delegated for address creation.`,
+						},
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DELEGATION", "EXTERNAL_IPV6_FORWARDING_RULE_CREATION", "EXTERNAL_IPV6_SUBNETWORK_CREATION", ""}),
+							Description:  `The PublicDelegatedSubPrefix mode for IPv6 only. Possible values: ["DELEGATION", "EXTERNAL_IPV6_FORWARDING_RULE_CREATION", "EXTERNAL_IPV6_SUBNETWORK_CREATION"]`,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The name of the sub public delegated prefix.`,
+						},
+						"region": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Output-only. The region of the sub public delegated prefix if it is regional. If absent, the sub prefix is global.`,
+						},
+						"status": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"INITIALIZING", "READY_TO_ANNOUNCE", "ANNOUNCED", "DELETING", ""}),
+							Description:  `The status of the sub public delegated prefix. Possible values: ["INITIALIZING", "READY_TO_ANNOUNCE", "ANNOUNCED", "DELETING"]`,
+						},
+					},
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -296,6 +354,9 @@ func resourceComputePublicDelegatedPrefixRead(d *schema.ResourceData, meta inter
 	if err := d.Set("ip_cidr_range", flattenComputePublicDelegatedPrefixIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
 	}
+	if err := d.Set("public_delegated_sub_prefixs", flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixs(res["publicDelegatedSubPrefixs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
 	}
@@ -418,6 +479,81 @@ func flattenComputePublicDelegatedPrefixAllocatablePrefixLength(v interface{}, d
 }
 
 func flattenComputePublicDelegatedPrefixIpCidrRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":                      flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsName(original["name"], d, config),
+			"description":               flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsDescription(original["description"], d, config),
+			"region":                    flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsRegion(original["region"], d, config),
+			"status":                    flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsStatus(original["status"], d, config),
+			"ip_cidr_range":             flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsIpCidrRange(original["ipCidrRange"], d, config),
+			"is_address":                flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsIsAddress(original["isAddress"], d, config),
+			"mode":                      flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsMode(original["mode"], d, config),
+			"allocatable_prefix_length": flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsAllocatablePrefixLength(original["allocatablePrefixLength"], d, config),
+			"delegatee_project":         flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsDelegateeProject(original["delegatee_project"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsIpCidrRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsIsAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsAllocatablePrefixLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsDelegateeProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

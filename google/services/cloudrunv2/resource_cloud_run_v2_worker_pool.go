@@ -116,14 +116,6 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 											Type: schema.TypeString,
 										},
 									},
-									"depends_on": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `Containers which should be started before this container. If specified the container will wait to start until all containers with the listed names are healthy.`,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
 									"env": {
 										Type:        schema.TypeSet,
 										Optional:    true,
@@ -169,6 +161,11 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 													Type:        schema.TypeString,
 													Required:    true,
 													Description: `This must match the Name of a Volume.`,
+												},
+												"sub_path": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Path within the volume from which the container's volume should be mounted.`,
 												},
 											},
 										},
@@ -391,6 +388,11 @@ All system labels in v1 now have a corresponding field in v2 WorkerPoolRevisionT
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"connector": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `VPC Access connector name. Format: projects/{project}/locations/{location}/connectors/{connector}, where {project} can be project id or number.`,
+									},
 									"egress": {
 										Type:         schema.TypeString,
 										Computed:     true,
@@ -930,17 +932,17 @@ func resourceCloudRunV2WorkerPoolCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("instance_splits"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceSplitsProp)) && (ok || !reflect.DeepEqual(v, instanceSplitsProp)) {
 		obj["instanceSplits"] = instanceSplitsProp
 	}
-	labelsProp, err := expandCloudRunV2WorkerPoolEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandCloudRunV2WorkerPoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandCloudRunV2WorkerPoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandCloudRunV2WorkerPoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/workerPools?workerPoolId={{name}}")
@@ -1210,17 +1212,17 @@ func resourceCloudRunV2WorkerPoolUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("instance_splits"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceSplitsProp)) {
 		obj["instanceSplits"] = instanceSplitsProp
 	}
-	labelsProp, err := expandCloudRunV2WorkerPoolEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandCloudRunV2WorkerPoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandCloudRunV2WorkerPoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandCloudRunV2WorkerPoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/workerPools/{{name}}")
@@ -1589,12 +1591,18 @@ func flattenCloudRunV2WorkerPoolTemplateVpcAccess(v interface{}, d *schema.Resou
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["connector"] =
+		flattenCloudRunV2WorkerPoolTemplateVpcAccessConnector(original["connector"], d, config)
 	transformed["egress"] =
 		flattenCloudRunV2WorkerPoolTemplateVpcAccessEgress(original["egress"], d, config)
 	transformed["network_interfaces"] =
 		flattenCloudRunV2WorkerPoolTemplateVpcAccessNetworkInterfaces(original["networkInterfaces"], d, config)
 	return []interface{}{transformed}
 }
+func flattenCloudRunV2WorkerPoolTemplateVpcAccessConnector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudRunV2WorkerPoolTemplateVpcAccessEgress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1656,7 +1664,6 @@ func flattenCloudRunV2WorkerPoolTemplateContainers(v interface{}, d *schema.Reso
 			"resources":     flattenCloudRunV2WorkerPoolTemplateContainersResources(original["resources"], d, config),
 			"volume_mounts": flattenCloudRunV2WorkerPoolTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
 			"working_dir":   flattenCloudRunV2WorkerPoolTemplateContainersWorkingDir(original["workingDir"], d, config),
-			"depends_on":    flattenCloudRunV2WorkerPoolTemplateContainersDependsOn(original["dependsOn"], d, config),
 		})
 	}
 	return transformed
@@ -1773,6 +1780,7 @@ func flattenCloudRunV2WorkerPoolTemplateContainersVolumeMounts(v interface{}, d 
 		transformed = append(transformed, map[string]interface{}{
 			"name":       flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsName(original["name"], d, config),
 			"mount_path": flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsMountPath(original["mountPath"], d, config),
+			"sub_path":   flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsSubPath(original["subPath"], d, config),
 		})
 	}
 	return transformed
@@ -1785,11 +1793,11 @@ func flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsMountPath(v interf
 	return v
 }
 
-func flattenCloudRunV2WorkerPoolTemplateContainersWorkingDir(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenCloudRunV2WorkerPoolTemplateContainersVolumeMountsSubPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudRunV2WorkerPoolTemplateContainersDependsOn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenCloudRunV2WorkerPoolTemplateContainersWorkingDir(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2532,6 +2540,13 @@ func expandCloudRunV2WorkerPoolTemplateVpcAccess(v interface{}, d tpgresource.Te
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedConnector, err := expandCloudRunV2WorkerPoolTemplateVpcAccessConnector(original["connector"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConnector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["connector"] = transformedConnector
+	}
+
 	transformedEgress, err := expandCloudRunV2WorkerPoolTemplateVpcAccessEgress(original["egress"], d, config)
 	if err != nil {
 		return nil, err
@@ -2547,6 +2562,10 @@ func expandCloudRunV2WorkerPoolTemplateVpcAccess(v interface{}, d tpgresource.Te
 	}
 
 	return transformed, nil
+}
+
+func expandCloudRunV2WorkerPoolTemplateVpcAccessConnector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCloudRunV2WorkerPoolTemplateVpcAccessEgress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2669,13 +2688,6 @@ func expandCloudRunV2WorkerPoolTemplateContainers(v interface{}, d tpgresource.T
 			return nil, err
 		} else if val := reflect.ValueOf(transformedWorkingDir); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["workingDir"] = transformedWorkingDir
-		}
-
-		transformedDependsOn, err := expandCloudRunV2WorkerPoolTemplateContainersDependsOn(original["depends_on"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedDependsOn); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["dependsOn"] = transformedDependsOn
 		}
 
 		req = append(req, transformed)
@@ -2851,6 +2863,13 @@ func expandCloudRunV2WorkerPoolTemplateContainersVolumeMounts(v interface{}, d t
 			transformed["mountPath"] = transformedMountPath
 		}
 
+		transformedSubPath, err := expandCloudRunV2WorkerPoolTemplateContainersVolumeMountsSubPath(original["sub_path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subPath"] = transformedSubPath
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2864,11 +2883,11 @@ func expandCloudRunV2WorkerPoolTemplateContainersVolumeMountsMountPath(v interfa
 	return v, nil
 }
 
-func expandCloudRunV2WorkerPoolTemplateContainersWorkingDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudRunV2WorkerPoolTemplateContainersVolumeMountsSubPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudRunV2WorkerPoolTemplateContainersDependsOn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudRunV2WorkerPoolTemplateContainersWorkingDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

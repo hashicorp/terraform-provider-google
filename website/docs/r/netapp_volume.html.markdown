@@ -177,6 +177,10 @@ The following arguments are supported:
   The Hybrid Replication parameters for the volume.
   Structure is [documented below](#nested_hybrid_replication_parameters).
 
+* `throughput_mibps` -
+  (Optional)
+  Optional. Custom Performance Total Throughput of the pool (in MiB/s).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -241,6 +245,15 @@ Possible values: DEFAULT, FORCE.
 * `kerberos5p_read_write` -
   (Optional)
   If enabled (true) the rule defines read and write access for clients matching the 'allowedClients' specification. It enables nfs clients to mount using 'privacy' kerberos security mode. The 'kerberos5pReadOnly' value is ignored if this is enabled.
+
+* `squash_mode` -
+  (Optional)
+  SquashMode defines how remote user privileges are restricted when accessing an NFS export. It controls how the user identities (like root) are mapped to anonymous users to limit access and enforce security.
+  Possible values are: `NO_ROOT_SQUASH`, `ROOT_SQUASH`, `ALL_SQUASH`.
+
+* `anon_uid` -
+  (Optional)
+  An integer representing the anonymous user ID. Range is 0 to 4294967295. Required when `squash_mode` is `ROOT_SQUASH` or `ALL_SQUASH`.
 
 <a name="nested_restore_parameters"></a>The `restore_parameters` block supports:
 

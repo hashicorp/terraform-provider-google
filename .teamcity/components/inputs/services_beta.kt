@@ -111,6 +111,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Bigquerydatapolicy",
         "path" to "./google-beta/services/bigquerydatapolicy"
     ),
+    "bigquerydatapolicyv2" to mapOf(
+        "name" to "bigquerydatapolicyv2",
+        "displayName" to "Bigquerydatapolicyv2",
+        "path" to "./google-beta/services/bigquerydatapolicyv2"
+    ),
     "bigquerydatatransfer" to mapOf(
         "name" to "bigquerydatatransfer",
         "displayName" to "Bigquerydatatransfer",
@@ -815,11 +820,6 @@ var ServicesListBeta = mapOf(
         "name" to "tags",
         "displayName" to "Tags",
         "path" to "./google-beta/services/tags"
-    ),
-    "tpu" to mapOf(
-        "name" to "tpu",
-        "displayName" to "Tpu",
-        "path" to "./google-beta/services/tpu"
     ),
     "tpuv2" to mapOf(
         "name" to "tpuv2",

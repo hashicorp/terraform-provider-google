@@ -308,7 +308,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
 
   template {
     containers {

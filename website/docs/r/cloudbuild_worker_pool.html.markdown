@@ -41,7 +41,6 @@ resource "google_cloudbuild_worker_pool" "pool" {
 ```hcl
 resource "google_project_service" "servicenetworking" {
   service = "servicenetworking.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_compute_network" "network" {
@@ -121,7 +120,11 @@ The following arguments are supported:
   Immutable. Subnet IP range within the peered network. This is specified in CIDR notation with a slash and the subnet prefix size. You can optionally specify an IP address before the subnet prefix value. e.g. `192.168.0.0/29` would specify an IP range starting at 192.168.0.0 with a prefix size of 29 bits. `/16` would specify a prefix size of 16 bits, with an automatically determined IP within the peered VPC. If unspecified, a value of `/24` will be used.
     
 <a name="nested_worker_config"></a>The `worker_config` block supports:
-    
+
+* `enable_nested_virtualization` -
+  (Optional)
+  Enable nested virtualization on the worker, if supported by the machine type. See [Worker pool config file](https://cloud.google.com/build/docs/private-pools/worker-pool-config-file-schema). If left blank, Cloud Build will set this to false.
+
 * `disk_size_gb` -
   (Optional)
   Size of the disk attached to the worker, in GB. See [diskSizeGb](https://cloud.google.com/build/docs/private-pools/private-pool-config-file-schema#disksizegb). Specify a value of up to 1000. If `0` is specified, Cloud Build will use a standard disk size.

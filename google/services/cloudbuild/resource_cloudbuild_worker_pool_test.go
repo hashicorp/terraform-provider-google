@@ -147,8 +147,9 @@ resource "google_cloudbuild_worker_pool" "pool" {
 	location = "europe-west1"
 	worker_config {
 		disk_size_gb = 101
-		machine_type = "e2-standard-4"
+		machine_type = "c3-standard-4"
 		no_external_ip = false
+		enable_nested_virtualization = true
 	}
 
 	annotations = {

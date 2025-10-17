@@ -205,12 +205,17 @@ fun ParametrizedWithType.configureGoogleSpecificTestParameters(config: AccTestCo
 
 // ParametrizedWithType.acceptanceTestBuildParams sets build params that affect how commands to run
 //  acceptance tests are templated
-fun ParametrizedWithType.acceptanceTestBuildParams(parallelism: Int, prefix: String, timeout: String, releaseDiffTest: String) {
+fun ParametrizedWithType.acceptanceTestBuildParams(parallelism: Int, prefix: String, timeout: String, releaseDiffTest: Boolean) {
     hiddenVariable("env.TF_ACC", "1", "Set to a value to run the Acceptance Tests")
     text("PARALLELISM", "%d".format(parallelism))
     text("TEST_PREFIX", prefix)
     text("TIMEOUT", timeout)
-    text("RELEASE_DIFF", "true")
+    if (releaseDiffTest) {
+        text("env.RELEASE_DIFF", "true")
+    } else {
+        // Use an empty string for backwards-compatibility with pre-7.X release diff behavior.
+        text("env.RELEASE_DIFF", "")
+    }
 }
 
 // ParametrizedWithType.sweeperParameters sets build parameters that affect how sweepers are run

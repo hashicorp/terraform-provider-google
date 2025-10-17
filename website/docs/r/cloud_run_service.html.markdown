@@ -732,6 +732,10 @@ this field is set to false, the revision name will still autogenerate.)
   Path within the container at which the volume should be mounted.  Must
   not contain ':'.
 
+* `sub_path` -
+  (Optional)
+  Path within the volume from which the container's volume should be mounted.
+
 * `name` -
   (Required)
   This must match the Name of a Volume.

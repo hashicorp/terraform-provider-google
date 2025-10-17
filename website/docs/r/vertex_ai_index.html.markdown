@@ -127,17 +127,17 @@ The following arguments are supported:
   (Required)
   The display name of the Index. The name can be up to 128 characters long and can consist of any UTF-8 characters.
 
-
-* `description` -
-  (Optional)
-  The description of the Index.
-
 * `metadata` -
-  (Optional)
+  (Required)
   Additional information about the Index.
   Although this field is not marked as required in the API specification, it is currently required when creating an Index and must be provided.
   Attempts to create an Index without this field will result in an API error.
   Structure is [documented below](#nested_metadata).
+
+
+* `description` -
+  (Optional)
+  The description of the Index.
 
 * `labels` -
   (Optional)
@@ -177,7 +177,7 @@ The following arguments are supported:
   then existing content of the Index will be replaced by the data from the contentsDeltaUri.
 
 * `config` -
-  (Optional)
+  (Required)
   The configuration of the Matching Engine Index.
   Structure is [documented below](#nested_metadata_config).
 
@@ -219,7 +219,7 @@ The following arguments are supported:
 
 * `algorithm_config` -
   (Optional)
-  The configuration with regard to the algorithms used for efficient search.
+  The configuration with regard to the algorithms used for efficient search. This field may be required based on your configuration.
   Structure is [documented below](#nested_metadata_config_algorithm_config).
 
 

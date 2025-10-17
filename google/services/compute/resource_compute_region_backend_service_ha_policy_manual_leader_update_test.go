@@ -144,21 +144,28 @@ resource "google_compute_region_backend_service" "default" {
   protocol              			= "UDP"
   load_balancing_scheme 			= "EXTERNAL"
   network               			= google_compute_network.default.id
-	backend {
-		group				= google_compute_network_endpoint_group.neg.self_link
-		balancing_mode			= "CONNECTION"
-	}
-	ha_policy	{
-		fast_ip_move			= "GARP_RA"
-		leader {
-			backend_group		= google_compute_network_endpoint_group.neg.self_link
-			network_endpoint {
-  				instance	= google_compute_instance.endpoint-instance1.name
-			}
-		}
-	}
-	// Must explicitly disable connection draining to override default value.
-	connection_draining_timeout_sec		= 0
+  backend {
+  	group				= google_compute_network_endpoint_group.neg.self_link
+  	balancing_mode			= "CONNECTION"
+  }
+  ha_policy	{
+  	fast_ip_move			= "GARP_RA"
+  	leader {
+  		backend_group		= google_compute_network_endpoint_group.neg.self_link
+  		network_endpoint {
+  			instance	= google_compute_instance.endpoint-instance1.name
+  		}
+  	}
+  }
+  // Must explicitly disable connection draining to override default value.
+  connection_draining_timeout_sec		= 0
+  // Explicitly depend on the endpoints to prevent test flakes due to creating
+  // the BackendService before the endpoints have been added to the NEG.
+  depends_on = [
+  	google_compute_network_endpoint_group.neg,
+	google_compute_network_endpoint.endpoint1,
+	google_compute_network_endpoint.endpoint2
+  ]
 }
 `, context)
 }
@@ -244,21 +251,28 @@ resource "google_compute_region_backend_service" "default" {
   protocol              			= "UDP"
   load_balancing_scheme 			= "EXTERNAL"
   network               			= google_compute_network.default.id
-	backend {
-		group				= google_compute_network_endpoint_group.neg.self_link
-		balancing_mode			= "CONNECTION"
-	}
-	ha_policy	{
-		fast_ip_move			= "GARP_RA"
-		leader {
-			backend_group		= google_compute_network_endpoint_group.neg.self_link
-			network_endpoint {
-  				instance	= google_compute_instance.endpoint-instance2.name
-			}
-		}
-	}
-	// Must explicitly disable connection draining to override default value.
-	connection_draining_timeout_sec		= 0
+  backend {
+  	group				= google_compute_network_endpoint_group.neg.self_link
+  	balancing_mode			= "CONNECTION"
+  }
+  ha_policy	{
+  	fast_ip_move			= "GARP_RA"
+  	leader {
+  		backend_group		= google_compute_network_endpoint_group.neg.self_link
+  		network_endpoint {
+  			instance	= google_compute_instance.endpoint-instance2.name
+  		}
+  	}
+  }
+  // Must explicitly disable connection draining to override default value.
+  connection_draining_timeout_sec		= 0
+  // Explicitly depend on the endpoints to prevent test flakes due to creating
+  // the BackendService before the endpoints have been added to the NEG.
+  depends_on = [
+  	google_compute_network_endpoint_group.neg,
+	google_compute_network_endpoint.endpoint1,
+	google_compute_network_endpoint.endpoint2
+  ]
 }
 `, context)
 }

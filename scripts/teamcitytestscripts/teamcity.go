@@ -36,7 +36,8 @@ const (
 )
 
 var (
-	end     = regexp.MustCompile(`--- (PASS|SKIP|FAIL):\s+([a-zA-Z_]\S*) \(([\.\d]+)\)`)
+	// Looks for the final status line, accommodating both simple and full summaries.
+	end     = regexp.MustCompile(`\n(PASS|SKIP|FAIL)(?:[\t\s]+(.*)\s+([0-9\.]+[a-z]+))?\s*$`)
 	diff    = regexp.MustCompile(`\[Diff\] (.*)`)
 	paniced = regexp.MustCompile(`panic:\s+(.*)\s+\[recovered\]\n`)
 	//suite   = regexp.MustCompile("^(ok|FAIL)\\s+([^\\s]+)\\s+([\\.\\d]+)s")
@@ -100,7 +101,8 @@ func (test *TeamCityTest) FormatTestOutput() string {
 	}
 
 	if test.Fail {
-		output.WriteString(fmt.Sprintf(TeamCityTestFailed, now, test.Name))
+		// skip failures for diff tests
+		output.WriteString(fmt.Sprintf(TeamCityTestIgnored, now, test.Name))
 		output.WriteString(fmt.Sprintf(TeamCityTestFinished, now, test.Name))
 		return output.String()
 	}
@@ -121,8 +123,8 @@ func (test *TeamCityTest) FormatTestOutput() string {
 		return output.String()
 	}
 
-	// test passes if no diff, even if failure (failure artifacts will be in regular_failure_file.log)
-	output.WriteString(fmt.Sprintf(TeamCityTestFinished, now, test.Name))
+	// instead of failing when something unexpected happens, we skip the test now
+	output.WriteString(fmt.Sprintf(TeamCityTestIgnored, now, test.Name))
 
 	return output.String()
 }

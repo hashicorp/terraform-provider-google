@@ -1165,7 +1165,7 @@ The following arguments are supported:
 <a name="nested_service_config"></a>The `service_config` block supports:
 
 * `service` -
-  (Optional)
+  (Output)
   Name of the service associated with a Function.
 
 * `timeout_seconds` -
@@ -1310,7 +1310,7 @@ The following arguments are supported:
   region. If not provided, defaults to the same region as the function.
 
 * `event_type` -
-  (Optional)
+  (Required)
   Required. The type of event to observe.
 
 * `event_filters` -

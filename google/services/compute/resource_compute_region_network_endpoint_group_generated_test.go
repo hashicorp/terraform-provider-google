@@ -424,7 +424,6 @@ resource "google_compute_region_network_endpoint_group" "psc_neg_service_attachm
   psc_data {
     producer_port = "88"
   }
-  network               = google_compute_network.default.self_link
   subnetwork            = google_compute_subnetwork.default.self_link
 }
 `, context)

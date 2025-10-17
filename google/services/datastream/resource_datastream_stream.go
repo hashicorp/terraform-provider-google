@@ -274,6 +274,11 @@ See https://cloud.google.com/bigquery/docs/customer-managed-encryption for more 
 														},
 													},
 												},
+												"project_id": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Optional. The project id of the BigQuery dataset. If not specified, the project will be inferred from the stream resource.`,
+												},
 											},
 										},
 										ExactlyOneOf: []string{"destination_config.0.bigquery_destination_config.0.single_target_dataset", "destination_config.0.bigquery_destination_config.0.source_hierarchy_datasets"},
@@ -1906,11 +1911,11 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("customer_managed_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(customerManagedEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, customerManagedEncryptionKeyProp)) {
 		obj["customerManagedEncryptionKey"] = customerManagedEncryptionKeyProp
 	}
-	labelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceDatastreamStreamEncoder(d, meta, obj)
@@ -2116,11 +2121,11 @@ func resourceDatastreamStreamUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("backfill_none"); ok || !reflect.DeepEqual(v, backfillNoneProp) {
 		obj["backfillNone"] = backfillNoneProp
 	}
-	labelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceDatastreamStreamEncoder(d, meta, obj)
@@ -4199,6 +4204,8 @@ func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHier
 	transformed := make(map[string]interface{})
 	transformed["dataset_template"] =
 		flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplate(original["datasetTemplate"], d, config)
+	transformed["project_id"] =
+		flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsProjectId(original["projectId"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4227,6 +4234,10 @@ func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHier
 }
 
 func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -7414,6 +7425,13 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHiera
 		transformed["datasetTemplate"] = transformedDatasetTemplate
 	}
 
+	transformedProjectId, err := expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
 	return transformed, nil
 }
 
@@ -7459,6 +7477,10 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHiera
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

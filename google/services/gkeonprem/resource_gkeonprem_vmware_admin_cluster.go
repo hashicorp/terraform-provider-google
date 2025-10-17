@@ -702,6 +702,27 @@ indicate real problems requiring user intervention.`,
 					},
 				},
 			},
+			"proxy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for proxy.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"url": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The proxy url.`,
+						},
+						"no_proxy": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `A comma-separated list of IP addresses, IP address ranges,
+host names, and domain names that should not go through the proxy server.`,
+						},
+					},
+				},
+			},
 			"vcenter": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -994,11 +1015,17 @@ func resourceGkeonpremVmwareAdminClusterCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("private_registry_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(privateRegistryConfigProp)) && (ok || !reflect.DeepEqual(v, privateRegistryConfigProp)) {
 		obj["privateRegistryConfig"] = privateRegistryConfigProp
 	}
-	annotationsProp, err := expandGkeonpremVmwareAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	proxyProp, err := expandGkeonpremVmwareAdminClusterProxy(d.Get("proxy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("proxy"); !tpgresource.IsEmptyValue(reflect.ValueOf(proxyProp)) && (ok || !reflect.DeepEqual(v, proxyProp)) {
+		obj["proxy"] = proxyProp
+	}
+	effectiveAnnotationsProp, err := expandGkeonpremVmwareAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/vmwareAdminClusters?vmware_admin_cluster_id={{name}}")
@@ -1176,6 +1203,9 @@ func resourceGkeonpremVmwareAdminClusterRead(d *schema.ResourceData, meta interf
 	if err := d.Set("private_registry_config", flattenGkeonpremVmwareAdminClusterPrivateRegistryConfig(res["privateRegistryConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
 	}
+	if err := d.Set("proxy", flattenGkeonpremVmwareAdminClusterProxy(res["proxy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
+	}
 	if err := d.Set("effective_annotations", flattenGkeonpremVmwareAdminClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VmwareAdminCluster: %s", err)
 	}
@@ -1289,11 +1319,17 @@ func resourceGkeonpremVmwareAdminClusterUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("private_registry_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateRegistryConfigProp)) {
 		obj["privateRegistryConfig"] = privateRegistryConfigProp
 	}
-	annotationsProp, err := expandGkeonpremVmwareAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	proxyProp, err := expandGkeonpremVmwareAdminClusterProxy(d.Get("proxy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("proxy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, proxyProp)) {
+		obj["proxy"] = proxyProp
+	}
+	effectiveAnnotationsProp, err := expandGkeonpremVmwareAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/vmwareAdminClusters/{{name}}")
@@ -1363,6 +1399,10 @@ func resourceGkeonpremVmwareAdminClusterUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("private_registry_config") {
 		updateMask = append(updateMask, "privateRegistryConfig")
+	}
+
+	if d.HasChange("proxy") {
+		updateMask = append(updateMask, "proxy")
 	}
 
 	if d.HasChange("effective_annotations") {
@@ -2419,6 +2459,29 @@ func flattenGkeonpremVmwareAdminClusterPrivateRegistryConfigAddress(v interface{
 }
 
 func flattenGkeonpremVmwareAdminClusterPrivateRegistryConfigCaCert(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGkeonpremVmwareAdminClusterProxy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["url"] =
+		flattenGkeonpremVmwareAdminClusterProxyUrl(original["url"], d, config)
+	transformed["no_proxy"] =
+		flattenGkeonpremVmwareAdminClusterProxyNoProxy(original["noProxy"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGkeonpremVmwareAdminClusterProxyUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGkeonpremVmwareAdminClusterProxyNoProxy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3594,6 +3657,40 @@ func expandGkeonpremVmwareAdminClusterPrivateRegistryConfigAddress(v interface{}
 }
 
 func expandGkeonpremVmwareAdminClusterPrivateRegistryConfigCaCert(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGkeonpremVmwareAdminClusterProxy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUrl, err := expandGkeonpremVmwareAdminClusterProxyUrl(original["url"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["url"] = transformedUrl
+	}
+
+	transformedNoProxy, err := expandGkeonpremVmwareAdminClusterProxyNoProxy(original["no_proxy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNoProxy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["noProxy"] = transformedNoProxy
+	}
+
+	return transformed, nil
+}
+
+func expandGkeonpremVmwareAdminClusterProxyUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGkeonpremVmwareAdminClusterProxyNoProxy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

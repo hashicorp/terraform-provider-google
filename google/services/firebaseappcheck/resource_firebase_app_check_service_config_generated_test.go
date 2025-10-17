@@ -63,7 +63,6 @@ func testAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigOffExampl
 resource "google_project_service" "appcheck" {
   project = "%{project_id}"
   service = "firebaseappcheck.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_firebase_app_check_service_config" "default" {
@@ -107,7 +106,6 @@ func testAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigEnforcedE
 resource "google_project_service" "appcheck" {
   project = "%{project_id}"
   service = "firebaseappcheck.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_firebase_app_check_service_config" "default" {
@@ -152,7 +150,6 @@ func testAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigUnenforce
 resource "google_project_service" "appcheck" {
   project = "%{project_id}"
   service = "firebaseappcheck.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_firebase_app_check_service_config" "default" {

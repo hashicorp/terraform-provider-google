@@ -78,6 +78,55 @@ resource "google_discovery_engine_search_engine" "basic" {
 `, context)
 }
 
+func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineAgentspaceBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDiscoveryEngineSearchEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineSearchEngine_discoveryengineSearchengineAgentspaceBasicExample(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_search_engine.agentspace_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection_id", "engine_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineSearchEngine_discoveryengineSearchengineAgentspaceBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "agentspace_basic" {
+  location                    = "global"
+  data_store_id               = "tf-test-example-datastore-id%{random_suffix}"
+  display_name                = "tf-test-structured-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "NO_CONTENT"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+}
+resource "google_discovery_engine_search_engine" "agentspace_basic" {
+  engine_id                   = "tf-test-example-engine-id%{random_suffix}"
+  collection_id               = "default_collection"
+  location                    = google_discovery_engine_data_store.agentspace_basic.location
+  display_name                = "tf-test-agentspace-search-engine"
+  data_store_ids              = [google_discovery_engine_data_store.agentspace_basic.data_store_id]
+  industry_vertical           = "GENERIC"
+  search_engine_config {
+  }
+}
+`, context)
+}
+
 func testAccCheckDiscoveryEngineSearchEngineDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

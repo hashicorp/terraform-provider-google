@@ -306,7 +306,7 @@ func ValidateBase64String(i interface{}, val string) ([]string, []error) {
 }
 
 func ValidateBase64URLString(i interface{}, val string) ([]string, []error) {
-	_, err := base64.URLEncoding.DecodeString(i.(string))
+	_, err := base64.RawURLEncoding.DecodeString(i.(string))
 	if err != nil {
 		return nil, []error{fmt.Errorf("could not decode %q as a valid base64URL value.", val)}
 	}

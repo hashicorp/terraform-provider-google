@@ -51,7 +51,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 				ResourceName:            "google_monitoring_uptime_check_config.http",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo"},
+				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
 		},
 	})
@@ -121,7 +121,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpPasswordWoExample(t
 				ResourceName:            "google_monitoring_uptime_check_config.http",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo"},
+				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
 		},
 	})
@@ -195,7 +195,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigStatusCodeExample(t *te
 				ResourceName:            "google_monitoring_uptime_check_config.status_code",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo"},
+				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
 		},
 	})
@@ -267,7 +267,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(t *testing
 				ResourceName:            "google_monitoring_uptime_check_config.https",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo"},
+				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
 		},
 	})
@@ -328,7 +328,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 				ResourceName:            "google_monitoring_uptime_check_config.tcp_group",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo"},
+				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
 		},
 	})
@@ -381,7 +381,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample
 				ResourceName:            "google_monitoring_uptime_check_config.synthetic_monitor",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo"},
+				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
 		},
 	})

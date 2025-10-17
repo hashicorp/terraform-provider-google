@@ -956,7 +956,6 @@ The following arguments are supported:
 * `public_repository` -
   (Optional)
   Address of the remote repository.
-  Default value is `DOCKER_HUB`.
   Possible values are: `DOCKER_HUB`.
 
 * `custom_repository` -
@@ -976,7 +975,6 @@ The following arguments are supported:
 * `public_repository` -
   (Optional)
   Address of the remote repository.
-  Default value is `MAVEN_CENTRAL`.
   Possible values are: `MAVEN_CENTRAL`.
 
 * `custom_repository` -
@@ -996,7 +994,6 @@ The following arguments are supported:
 * `public_repository` -
   (Optional)
   Address of the remote repository.
-  Default value is `NPMJS`.
   Possible values are: `NPMJS`.
 
 * `custom_repository` -
@@ -1016,7 +1013,6 @@ The following arguments are supported:
 * `public_repository` -
   (Optional)
   Address of the remote repository.
-  Default value is `PYPI`.
   Possible values are: `PYPI`.
 
 * `custom_repository` -
@@ -1103,6 +1099,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `name` -
   The name of the repository, for example:
   "repo1"
+
+* `registry_uri` -
+  The repository endpoint, for example: us-docker.pkg.dev/my-proj/my-repo.
 
 * `create_time` -
   The time when the repository was created.

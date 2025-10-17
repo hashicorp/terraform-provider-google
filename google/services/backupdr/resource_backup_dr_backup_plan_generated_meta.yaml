@@ -28,4 +28,5 @@ fields:
   - field: 'log_retention_days'
   - field: 'name'
   - field: 'resource_type'
+  - field: 'supported_resource_types'
   - field: 'update_time'

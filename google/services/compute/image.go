@@ -124,7 +124,6 @@ func ResolveImage(c *transport_tpg.Config, project, name, userAgent string) (str
 			break
 		}
 	}
-
 	switch {
 	case resolveImageLink.MatchString(name): // https://www.googleapis.com/compute/v1/projects/xyz/global/images/xyz
 		return name, nil

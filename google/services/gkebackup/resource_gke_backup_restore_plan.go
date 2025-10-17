@@ -592,11 +592,11 @@ func resourceGKEBackupRestorePlanCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("restore_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(restoreConfigProp)) && (ok || !reflect.DeepEqual(v, restoreConfigProp)) {
 		obj["restoreConfig"] = restoreConfigProp
 	}
-	labelsProp, err := expandGKEBackupRestorePlanEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGKEBackupRestorePlanEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/restorePlans?restorePlanId={{name}}")
@@ -762,11 +762,11 @@ func resourceGKEBackupRestorePlanUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("restore_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, restoreConfigProp)) {
 		obj["restoreConfig"] = restoreConfigProp
 	}
-	labelsProp, err := expandGKEBackupRestorePlanEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandGKEBackupRestorePlanEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/restorePlans/{{name}}")

@@ -181,6 +181,15 @@ At least one forwarding rule is required. There can be only one LBTrafficExtensi
 					Type: schema.TypeString,
 				},
 			},
+			"load_balancing_scheme": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED"}),
+				Description: `All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
+For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
+[Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs). Possible values: ["INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
+			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -206,15 +215,6 @@ At least one forwarding rule is required. There can be only one LBTrafficExtensi
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
-			},
-			"load_balancing_scheme": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED", ""}),
-				Description: `All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
-For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
-[Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs). Possible values: ["INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -272,11 +272,11 @@ func resourceNetworkServicesLbTrafficExtensionCreate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !tpgresource.IsEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
-	labelsProp, err := expandNetworkServicesLbTrafficExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkServicesLbTrafficExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbTrafficExtensions?lbTrafficExtensionId={{name}}")
@@ -436,11 +436,11 @@ func resourceNetworkServicesLbTrafficExtensionUpdate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("extension_chains"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, extensionChainsProp)) {
 		obj["extensionChains"] = extensionChainsProp
 	}
-	labelsProp, err := expandNetworkServicesLbTrafficExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandNetworkServicesLbTrafficExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}")

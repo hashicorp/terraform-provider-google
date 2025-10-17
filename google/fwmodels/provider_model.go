@@ -68,6 +68,7 @@ type ProviderModel struct {
 	BigqueryAnalyticsHubCustomEndpoint     types.String `tfsdk:"bigquery_analytics_hub_custom_endpoint"`
 	BigqueryConnectionCustomEndpoint       types.String `tfsdk:"bigquery_connection_custom_endpoint"`
 	BigqueryDatapolicyCustomEndpoint       types.String `tfsdk:"bigquery_datapolicy_custom_endpoint"`
+	BigqueryDatapolicyv2CustomEndpoint     types.String `tfsdk:"bigquery_datapolicyv2_custom_endpoint"`
 	BigqueryDataTransferCustomEndpoint     types.String `tfsdk:"bigquery_data_transfer_custom_endpoint"`
 	BigqueryReservationCustomEndpoint      types.String `tfsdk:"bigquery_reservation_custom_endpoint"`
 	BigtableCustomEndpoint                 types.String `tfsdk:"bigtable_custom_endpoint"`
@@ -191,7 +192,6 @@ type ProviderModel struct {
 	StorageInsightsCustomEndpoint          types.String `tfsdk:"storage_insights_custom_endpoint"`
 	StorageTransferCustomEndpoint          types.String `tfsdk:"storage_transfer_custom_endpoint"`
 	TagsCustomEndpoint                     types.String `tfsdk:"tags_custom_endpoint"`
-	TPUCustomEndpoint                      types.String `tfsdk:"tpu_custom_endpoint"`
 	TranscoderCustomEndpoint               types.String `tfsdk:"transcoder_custom_endpoint"`
 	VertexAICustomEndpoint                 types.String `tfsdk:"vertex_ai_custom_endpoint"`
 	VmwareengineCustomEndpoint             types.String `tfsdk:"vmwareengine_custom_endpoint"`

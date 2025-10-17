@@ -447,6 +447,11 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 													Required:    true,
 													Description: `This must match the Name of a Volume.`,
 												},
+												"sub_path": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Path within the volume from which the container's volume should be mounted.`,
+												},
 											},
 										},
 									},
@@ -930,6 +935,29 @@ If no value is specified, GA is assumed. Set the launch stage to a preview stage
 
 For example, if ALPHA is provided as input, but only BETA and GA-level features are used, this field will be BETA on output. Possible values: ["UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED"]`,
 			},
+			"multi_region_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for creating a Multi-Region Service. Make sure to use region = 'global' when using them. For more information, visit https://cloud.google.com/run/docs/multiple-regions#deploy`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"regions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The list of regions to deploy the multi-region Service.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"multi_region_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `System-generated unique id for the multi-region Service.`,
+						},
+					},
+				},
+			},
 			"scaling": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1380,17 +1408,23 @@ func resourceCloudRunV2ServiceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("build_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(buildConfigProp)) && (ok || !reflect.DeepEqual(v, buildConfigProp)) {
 		obj["buildConfig"] = buildConfigProp
 	}
-	labelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
+	multiRegionSettingsProp, err := expandCloudRunV2ServiceMultiRegionSettings(d.Get("multi_region_settings"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("multi_region_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(multiRegionSettingsProp)) && (ok || !reflect.DeepEqual(v, multiRegionSettingsProp)) {
+		obj["multiRegionSettings"] = multiRegionSettingsProp
 	}
-	annotationsProp, err := expandCloudRunV2ServiceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveLabelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
+	effectiveAnnotationsProp, err := expandCloudRunV2ServiceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/services?serviceId={{name}}")
@@ -1586,6 +1620,9 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("build_config", flattenCloudRunV2ServiceBuildConfig(res["buildConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("multi_region_settings", flattenCloudRunV2ServiceMultiRegionSettings(res["multiRegionSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 	if err := d.Set("reconciling", flattenCloudRunV2ServiceReconciling(res["reconciling"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -1693,17 +1730,23 @@ func resourceCloudRunV2ServiceUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("build_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, buildConfigProp)) {
 		obj["buildConfig"] = buildConfigProp
 	}
-	labelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
+	multiRegionSettingsProp, err := expandCloudRunV2ServiceMultiRegionSettings(d.Get("multi_region_settings"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("multi_region_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, multiRegionSettingsProp)) {
+		obj["multiRegionSettings"] = multiRegionSettingsProp
 	}
-	annotationsProp, err := expandCloudRunV2ServiceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveLabelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
+	effectiveAnnotationsProp, err := expandCloudRunV2ServiceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/services/{{name}}")
@@ -2382,6 +2425,7 @@ func flattenCloudRunV2ServiceTemplateContainersVolumeMounts(v interface{}, d *sc
 		transformed = append(transformed, map[string]interface{}{
 			"name":       flattenCloudRunV2ServiceTemplateContainersVolumeMountsName(original["name"], d, config),
 			"mount_path": flattenCloudRunV2ServiceTemplateContainersVolumeMountsMountPath(original["mountPath"], d, config),
+			"sub_path":   flattenCloudRunV2ServiceTemplateContainersVolumeMountsSubPath(original["subPath"], d, config),
 		})
 	}
 	return transformed
@@ -2391,6 +2435,10 @@ func flattenCloudRunV2ServiceTemplateContainersVolumeMountsName(v interface{}, d
 }
 
 func flattenCloudRunV2ServiceTemplateContainersVolumeMountsMountPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateContainersVolumeMountsSubPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3427,6 +3475,29 @@ func flattenCloudRunV2ServiceBuildConfigServiceAccount(v interface{}, d *schema.
 	return v
 }
 
+func flattenCloudRunV2ServiceMultiRegionSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["regions"] =
+		flattenCloudRunV2ServiceMultiRegionSettingsRegions(original["regions"], d, config)
+	transformed["multi_region_id"] =
+		flattenCloudRunV2ServiceMultiRegionSettingsMultiRegionId(original["multiRegionId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunV2ServiceMultiRegionSettingsRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceMultiRegionSettingsMultiRegionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudRunV2ServiceReconciling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -4197,6 +4268,13 @@ func expandCloudRunV2ServiceTemplateContainersVolumeMounts(v interface{}, d tpgr
 			transformed["mountPath"] = transformedMountPath
 		}
 
+		transformedSubPath, err := expandCloudRunV2ServiceTemplateContainersVolumeMountsSubPath(original["sub_path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subPath"] = transformedSubPath
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -4207,6 +4285,10 @@ func expandCloudRunV2ServiceTemplateContainersVolumeMountsName(v interface{}, d 
 }
 
 func expandCloudRunV2ServiceTemplateContainersVolumeMountsMountPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateContainersVolumeMountsSubPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -5213,6 +5295,40 @@ func expandCloudRunV2ServiceBuildConfigEnvironmentVariables(v interface{}, d tpg
 }
 
 func expandCloudRunV2ServiceBuildConfigServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceMultiRegionSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRegions, err := expandCloudRunV2ServiceMultiRegionSettingsRegions(original["regions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRegions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["regions"] = transformedRegions
+	}
+
+	transformedMultiRegionId, err := expandCloudRunV2ServiceMultiRegionSettingsMultiRegionId(original["multi_region_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMultiRegionId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["multiRegionId"] = transformedMultiRegionId
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunV2ServiceMultiRegionSettingsRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceMultiRegionSettingsMultiRegionId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

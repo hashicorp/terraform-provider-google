@@ -90,7 +90,6 @@ resource "google_project" "project" {
 resource "google_project_service" "analyticshub" {
 	project  = google_project.project.project_id
 	service  = "analyticshub.googleapis.com"
-	disable_on_destroy = false # Need it enabled in the project when the test disables services in post-test cleanup
 }
 
 resource "google_bigquery_analytics_hub_data_exchange" "subscription" {

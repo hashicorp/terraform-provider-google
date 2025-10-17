@@ -171,6 +171,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-full" {
     address = "test-address"
     ca_cert = "test-ca-cert"
   }
+  proxy {
+    url = "http://my-proxy.example.local:80"
+    no_proxy = "10.151.222.0/24,my-host.example.local,10.151.2.1"
+  }
 }
 ```
 ## Example Usage - Gkeonprem Vmware Admin Cluster Metallb
@@ -218,6 +222,10 @@ resource "google_gkeonprem_vmware_admin_cluster" "admin-cluster-metallb" {
   private_registry_config {
     address = "test-address"
     ca_cert = "test-ca-cert"
+  }
+  proxy {
+    url = "http://my-proxy.example.local:80"
+    no_proxy = "10.151.222.0/24,my-host.example.local,10.151.2.1"
   }
 }
 ```
@@ -320,6 +328,11 @@ The following arguments are supported:
   (Optional)
   Configuration for private registry.
   Structure is [documented below](#nested_private_registry_config).
+
+* `proxy` -
+  (Optional)
+  Configuration for proxy.
+  Structure is [documented below](#nested_proxy).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -754,6 +767,17 @@ The following arguments are supported:
 * `ca_cert` -
   (Optional)
   The CA certificate public key for private registry.
+
+<a name="nested_proxy"></a>The `proxy` block supports:
+
+* `url` -
+  (Required)
+  The proxy url.
+
+* `no_proxy` -
+  (Optional)
+  A comma-separated list of IP addresses, IP address ranges,
+  host names, and domain names that should not go through the proxy server.
 
 ## Attributes Reference
 

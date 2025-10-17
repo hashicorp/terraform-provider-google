@@ -91,7 +91,6 @@ data "google_project" "project" {}
 
 resource "google_project_service" "servicenetworking" {
   service = "servicenetworking.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_compute_network" "vpc_network" {

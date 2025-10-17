@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -210,6 +211,18 @@ func ComputeInstanceMinCpuPlatformEmptyOrAutomaticDiffSuppress(k, old, new strin
 	new = strings.ToLower(new)
 	defaultVal := "automatic"
 	return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
+}
+
+func ValidateInstanceMetadata(i interface{}, k string) ([]string, []error) {
+	metadata, ok := i.(map[string]interface{})
+	if !ok {
+		return nil, []error{fmt.Errorf("expected %q to be a map, got %T", k, i)}
+	}
+	var warnings []string
+	if _, ok := metadata["gce-container-declaration"]; ok {
+		warnings = append(warnings, "The option to deploy a container during VM creation using the container startup agent is deprecated. Use alternative services to run containers on your VMs. Learn more at https://cloud.google.com/compute/docs/containers/migrate-containers.")
+	}
+	return warnings, nil
 }
 
 func ResourceComputeInstance() *schema.Resource {
@@ -476,7 +489,6 @@ func ResourceComputeInstance() *schema.Resource {
 										Optional:     true,
 										AtLeastOneOf: initializeParamsKeys,
 										Computed:     true,
-										ForceNew:     true,
 										Description:  `A set of key/value label pairs assigned to the disk.`,
 									},
 
@@ -976,10 +988,11 @@ func ResourceComputeInstance() *schema.Resource {
 			},
 
 			"metadata": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Metadata key/value pairs made available within the instance.`,
+				Type:         schema.TypeMap,
+				Optional:     true,
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				Description:  `Metadata key/value pairs made available within the instance.`,
+				ValidateFunc: ValidateInstanceMetadata,
 			},
 
 			"metadata_startup_script": {
@@ -2537,6 +2550,31 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
+	if d.HasChange("boot_disk") {
+		//default behavior for the disk is to have the same name as the instance
+		diskName := instance.Name
+		if v := tpgresource.GetResourceNameFromSelfLink(d.Get("boot_disk.0.source").(string)); v != diskName {
+			diskName = v
+		}
+
+		disk, err := config.NewComputeClient(userAgent).Disks.Get(project, zone, diskName).Do()
+		if err != nil {
+			return fmt.Errorf("Error getting boot disk: %s", err)
+		}
+
+		obj := make(map[string]interface{})
+
+		if d.HasChange("boot_disk.0.initialize_params.0.labels") {
+			obj["labels"] = tpgresource.ConvertStringMap(d.Get("boot_disk.0.initialize_params.0.labels").(map[string]interface{}))
+			obj["labelFingerprint"] = disk.LabelFingerprint
+			url := "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels"
+			err := updateDisk(d, config, userAgent, project, url, obj)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	if d.HasChange("attached_disk") {
 		o, n := d.GetChange("attached_disk")
 
@@ -3228,9 +3266,9 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -3624,4 +3662,37 @@ func CheckForCommonAliasIp(old, new *compute.NetworkInterface) []*compute.AliasI
 		}
 	}
 	return resultAliasIpRanges
+}
+
+func updateDisk(d *schema.ResourceData, config *transport_tpg.Config, userAgent, project, patchUrl string, obj map[string]interface{}) error {
+	billingProject := project
+	url, err := tpgresource.ReplaceVars(d, config, patchUrl)
+	if err != nil {
+		return err
+	}
+	headers := make(http.Header)
+	if bp, err := tpgresource.GetBillingProject(d, config); err != nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+	if err != nil {
+		return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
+	}
+	err = ComputeOperationWaitTime(
+		config, res, project, "Updating Disk", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -158,11 +158,11 @@ func resourceBeyondcorpAppConnectorCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("principal_info"); !tpgresource.IsEmptyValue(reflect.ValueOf(principalInfoProp)) && (ok || !reflect.DeepEqual(v, principalInfoProp)) {
 		obj["principalInfo"] = principalInfoProp
 	}
-	labelsProp, err := expandBeyondcorpAppConnectorEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandBeyondcorpAppConnectorEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnectors?app_connector_id={{name}}")
@@ -313,11 +313,11 @@ func resourceBeyondcorpAppConnectorUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("principal_info"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, principalInfoProp)) {
 		obj["principalInfo"] = principalInfoProp
 	}
-	labelsProp, err := expandBeyondcorpAppConnectorEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandBeyondcorpAppConnectorEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnectors/{{name}}")

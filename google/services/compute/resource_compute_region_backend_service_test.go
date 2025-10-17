@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeRegionBackendService_basic(t *testing.T) {
@@ -365,6 +366,286 @@ func TestAccComputeRegionBackendService_withLogConfig(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionBackendService_zonalILB(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-ilb-bs-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-ilb-hc-%s", acctest.RandString(t, 10))
+	checkName2 := fmt.Sprintf("tf-test-ilb-hc2-%s", acctest.RandString(t, 10))
+	negName := fmt.Sprintf("tf-test-ilb-neg-%s", acctest.RandString(t, 10))
+	negName2 := fmt.Sprintf("tf-test-ilb-neg2-%s", acctest.RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-ilb-vm-%s", acctest.RandString(t, 10))
+	instanceName2 := fmt.Sprintf("tf-test-ilb-vm2-%s", acctest.RandString(t, 10))
+
+	// subnetwork with random suffix
+	subnetName := fmt.Sprintf("tf-test-subnet-%s", acctest.RandString(t, 8))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// STEP 1: base (self-link v1)
+			{
+				Config: testAccComputeRegionBackendService_zonalILB_withGroup(
+					testAccComputeRegionBackendService_common(checkName, negName, instanceName, subnetName),
+					serviceName,
+					"google_compute_network_endpoint_group.neg.id",
+				),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			// STEP 2: same NEG with /compute/beta/ (apply OK)
+			{
+				Config: fmt.Sprintf(`
+%s
+
+locals {
+  neg_beta = replace(google_compute_network_endpoint_group.neg.id, "/compute/v1/", "/compute/beta/")
+}
+
+%s
+`, testAccComputeRegionBackendService_common(checkName, negName, instanceName, subnetName),
+					testAccComputeRegionBackendService_zonalILB_withGroup("", serviceName, "local.neg_beta"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			// STEP 3: Invalid variation for API (UPPERCASE + "/") — tested only in PLAN
+			{
+				PlanOnly: true, // does not call the API; only exercises diff/canonicalization
+				Config: fmt.Sprintf(`
+%s
+
+locals {
+  neg_slash_upper = "${google_compute_network_endpoint_group.neg.id}"
+}
+
+%s
+`, testAccComputeRegionBackendService_common(checkName, negName, instanceName, subnetName),
+					testAccComputeRegionBackendService_zonalILB_withGroup("", serviceName, "local.neg_slash_upper"),
+				),
+			},
+
+			// STEP 4: Modified scenario (changes NEG/HC/VM) — continues validating real updates
+			{
+				Config: testAccComputeRegionBackendService_zonalILBModified(serviceName, checkName, negName, instanceName, checkName2, negName2, instanceName2, subnetName),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_common(checkName, negName, instanceName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name                    = "tf-test-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%s"
+  ip_cidr_range = "10.10.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_region_health_check" "hc1" {
+  name   = "%s"
+  region = "us-central1"
+  http_health_check {
+    port         = 8080
+    request_path = "/status"
+  }
+}
+
+resource "google_compute_instance" "default" {
+  name         = "%s"
+  zone         = "us-central1-a"
+  machine_type = "e2-micro"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {}
+  }
+}
+
+resource "google_compute_network_endpoint_group" "neg" {
+  name                  = "%s"
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+  zone                  = "us-central1-a"
+  network_endpoint_type = "GCE_VM_IP_PORT"
+}
+
+resource "google_compute_network_endpoint" "endpoint" {
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+  zone                   = "us-central1-a"
+  instance               = google_compute_instance.default.name
+  ip_address             = google_compute_instance.default.network_interface[0].network_ip
+  port                   = 8080
+}
+`, subnetworkName, checkName, instanceName, negName)
+}
+
+func testAccComputeRegionBackendService_zonalILB_withGroup(commonHCL string, serviceName string, groupExpr string) string {
+	header := commonHCL
+	return fmt.Sprintf(`
+%s
+resource "google_compute_region_backend_service" "default" {
+  name                  = "%s"
+  region                = "us-central1"
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  health_checks         = [google_compute_region_health_check.hc1.id]
+
+  backend {
+    group                 = %s
+    balancing_mode        = "RATE"
+    max_rate_per_endpoint = 100
+    capacity_scaler       = 1.0
+  }
+
+  session_affinity   = "CLIENT_IP"
+  locality_lb_policy = "ROUND_ROBIN"
+}
+`, header, serviceName, groupExpr)
+}
+
+func testAccComputeRegionBackendService_zonalILBModified(serviceName, checkName, negName, instanceName, checkName2, negName2, instanceName2, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name  = "tf-test-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%s"
+  ip_cidr_range = "10.10.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_region_health_check" "hc1" {
+  name   = "%s"
+  region = "us-central1"
+  http_health_check {
+    port         = 8080
+    request_path = "/status"
+  }
+}
+
+resource "google_compute_instance" "default" {
+  name         = "%s"
+  zone         = "us-central1-a"
+  machine_type = "e2-micro"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {}
+  }
+}
+
+resource "google_compute_network_endpoint_group" "neg" {
+  name                  = "%s"
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+  zone                  = "us-central1-a"
+  network_endpoint_type = "GCE_VM_IP_PORT"
+}
+
+resource "google_compute_network_endpoint" "endpoint" {
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+  zone                   = "us-central1-a"
+  instance               = google_compute_instance.default.name
+  ip_address             = google_compute_instance.default.network_interface[0].network_ip
+  port                   = 8080
+}
+
+resource "google_compute_instance" "instance2" {
+  name         = "%s"
+  zone         = "us-central1-a"
+  machine_type = "e2-micro"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {}
+  }
+}
+
+resource "google_compute_region_health_check" "hc2" {
+  name   = "%s"
+  region = "us-central1"
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_network_endpoint_group" "neg2" {
+  name                  = "%s"
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+  zone                  = "us-central1-a"
+  network_endpoint_type = "GCE_VM_IP_PORT"
+}
+
+resource "google_compute_network_endpoint" "endpoint2" {
+  network_endpoint_group = google_compute_network_endpoint_group.neg2.name
+  zone                   = "us-central1-a"
+  instance               = google_compute_instance.instance2.name
+  ip_address             = google_compute_instance.instance2.network_interface[0].network_ip
+  port                   = 8080
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name                  = "%s"
+  region                = "us-central1"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  health_checks         = [google_compute_region_health_check.hc2.id]
+
+  backend {
+    group                 = google_compute_network_endpoint_group.neg2.id
+    balancing_mode        = "RATE"
+    max_rate_per_endpoint = 200
+    capacity_scaler       = 0.5
+  }
+}
+`, subnetworkName, checkName, instanceName, negName, instanceName2, checkName2, negName2, serviceName)
+}
+
 func TestAccComputeRegionBackendService_withDynamicBackendCount(t *testing.T) {
 	t.Parallel()
 
@@ -403,6 +684,35 @@ func TestAccComputeRegionBackendService_withDynamicBackendCount(t *testing.T) {
 				ResourceName:      "google_compute_region_backend_service.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeRegionBackendService_withTags(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-rbs-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
+	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-rbs-tagvalue", sharedTagkey, org)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_withTags(serviceName, checkName, tagKeyResult["name"], tagValueResult["name"]),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -1139,4 +1449,29 @@ resource "google_compute_region_health_check" "health_check" {
   }
 }
 `, serviceName, checkName)
+}
+
+func testAccComputeRegionBackendService_withTags(serviceName, checkName string, tagKey string, tagValue string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_health_check.zero.self_link]
+  region        = "us-central1"
+  params {
+    resource_manager_tags = {
+      "%s" = "%s"
+    }
+  }
+}
+
+resource "google_compute_health_check" "zero" {
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+`, serviceName, tagKey, tagValue, checkName)
 }

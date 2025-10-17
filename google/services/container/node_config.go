@@ -585,6 +585,47 @@ func schemaNodeConfig() *schema.Schema {
 								ValidateFunc: validation.StringInSlice([]string{"static", "none", ""}, false),
 								Description:  `Control the CPU management policy on the node.`,
 							},
+							"memory_manager": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								MaxItems:    1,
+								Description: `Configuration for the Memory Manager on the node. The memory manager optimizes memory and hugepages allocation for pods, especially those in the Guaranteed QoS class, by influencing NUMA affinity.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"policy": {
+											Type:         schema.TypeString,
+											Optional:     true,
+											Computed:     true,
+											Description:  `The Memory Manager policy to use. This policy guides how memory and hugepages are allocated and managed for pods on the node, influencing NUMA affinity.`,
+											ValidateFunc: validation.StringInSlice([]string{"None", "Static", ""}, false),
+										},
+									},
+								},
+							},
+							"topology_manager": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								MaxItems:    1,
+								Description: `Configuration for the Topology Manager on the node. The Topology Manager aligns CPU, memory, and device resources on a node to optimize performance, especially for NUMA-aware workloads, by ensuring resource co-location.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"policy": {
+											Type:         schema.TypeString,
+											Optional:     true,
+											Computed:     true,
+											Description:  `The Topology Manager policy to use. This policy dictates how resource alignment is handled on the node.`,
+											ValidateFunc: validation.StringInSlice([]string{"none", "restricted", "single-numa-node", "best-effort", ""}, false),
+										},
+										"scope": {
+											Type:         schema.TypeString,
+											Optional:     true,
+											Computed:     true,
+											Description:  `The Topology Manager scope, defining the granularity at which policy decisions are applied. Valid values are "container" (resources are aligned per container within a pod) or "pod" (resources are aligned for the entire pod).`,
+											ValidateFunc: validation.StringInSlice([]string{"container", "pod", ""}, false),
+										},
+									},
+								},
+							},
 							"cpu_cfs_quota": {
 								Type:        schema.TypeBool,
 								Optional:    true,
@@ -1614,6 +1655,14 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 		}
 		kConfig.EvictionSoft = evictionSoft
 	}
+
+	if v, ok := cfg["memory_manager"]; ok {
+		kConfig.MemoryManager = expandMemoryManager(v)
+	}
+	if v, ok := cfg["topology_manager"]; ok {
+		kConfig.TopologyManager = expandTopologyManager(v)
+	}
+
 	if v, ok := cfg["eviction_soft_grace_period"]; ok && len(v.([]interface{})) > 0 {
 		es := v.([]interface{})[0].(map[string]interface{})
 		periods := &container.EvictionGracePeriod{}
@@ -1661,6 +1710,54 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 		kConfig.EvictionMinimumReclaim = reclaim
 	}
 	return kConfig
+}
+
+func expandTopologyManager(v interface{}) *container.TopologyManager {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.TopologyManager{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	topologyManager := &container.TopologyManager{}
+
+	if v, ok := cfg["policy"]; ok {
+		topologyManager.Policy = v.(string)
+	}
+
+	if v, ok := cfg["scope"]; ok {
+		topologyManager.Scope = v.(string)
+	}
+
+	return topologyManager
+}
+
+func expandMemoryManager(v interface{}) *container.MemoryManager {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.MemoryManager{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	memoryManager := &container.MemoryManager{}
+
+	if v, ok := cfg["policy"]; ok {
+		memoryManager.Policy = v.(string)
+	}
+
+	return memoryManager
 }
 
 func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
@@ -2215,6 +2312,8 @@ func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface
 			"cpu_cfs_quota":                          c.CpuCfsQuota,
 			"cpu_cfs_quota_period":                   c.CpuCfsQuotaPeriod,
 			"cpu_manager_policy":                     c.CpuManagerPolicy,
+			"memory_manager":                         flattenMemoryManager(c.MemoryManager),
+			"topology_manager":                       flattenTopologyManager(c.TopologyManager),
 			"insecure_kubelet_readonly_port_enabled": flattenInsecureKubeletReadonlyPortEnabled(c),
 			"pod_pids_limit":                         c.PodPidsLimit,
 			"container_log_max_size":                 c.ContainerLogMaxSize,
@@ -2230,6 +2329,27 @@ func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface
 			"eviction_soft":                          flattenEvictionSignals(c.EvictionSoft),
 			"eviction_soft_grace_period":             flattenEvictionGracePeriod(c.EvictionSoftGracePeriod),
 			"eviction_minimum_reclaim":               flattenEvictionMinimumReclaim(c.EvictionMinimumReclaim),
+		})
+	}
+	return result
+}
+
+func flattenTopologyManager(c *container.TopologyManager) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"policy": c.Policy,
+			"scope":  c.Scope,
+		})
+	}
+	return result
+}
+
+func flattenMemoryManager(c *container.MemoryManager) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"policy": c.Policy,
 		})
 	}
 	return result

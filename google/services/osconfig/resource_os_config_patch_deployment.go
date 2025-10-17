@@ -2358,7 +2358,7 @@ func expandOSConfigPatchDeploymentPatchConfigYum(v interface{}, d tpgresource.Te
 	transformedMinimal, err := expandOSConfigPatchDeploymentPatchConfigYumMinimal(original["minimal"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMinimal); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["minimal"] = transformedMinimal
 	}
 
@@ -3381,6 +3381,14 @@ func resourceOSConfigPatchDeploymentDecoder(d *schema.ResourceData, meta interfa
 		if patchConfig["goo"] != nil {
 			patchConfig["goo"].(map[string]interface{})["enabled"] = true
 			res["patchConfig"] = patchConfig
+		}
+
+		if patchConfig["yum"] != nil {
+			patchConfigYum := patchConfig["yum"].(map[string]interface{})
+			if _, ok := patchConfigYum["minimal"]; !ok {
+				patchConfigYum["minimal"] = false
+			}
+			patchConfig["yum"] = patchConfigYum
 		}
 	}
 

@@ -286,11 +286,11 @@ func resourceBlockchainNodeEngineBlockchainNodesCreate(d *schema.ResourceData, m
 	} else if v, ok := d.GetOkExists("blockchain_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(blockchainTypeProp)) && (ok || !reflect.DeepEqual(v, blockchainTypeProp)) {
 		obj["blockchainType"] = blockchainTypeProp
 	}
-	labelsProp, err := expandBlockchainNodeEngineBlockchainNodesEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandBlockchainNodeEngineBlockchainNodesEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BlockchainNodeEngineBasePath}}projects/{{project}}/locations/{{location}}/blockchainNodes?blockchain_node_id={{blockchain_node_id}}")
@@ -450,11 +450,11 @@ func resourceBlockchainNodeEngineBlockchainNodesUpdate(d *schema.ResourceData, m
 	} else if v, ok := d.GetOkExists("blockchain_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, blockchainTypeProp)) {
 		obj["blockchainType"] = blockchainTypeProp
 	}
-	labelsProp, err := expandBlockchainNodeEngineBlockchainNodesEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandBlockchainNodeEngineBlockchainNodesEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BlockchainNodeEngineBasePath}}projects/{{project}}/locations/{{location}}/blockchainNodes/{{blockchain_node_id}}")

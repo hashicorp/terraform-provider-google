@@ -49,7 +49,7 @@ func ResourceLoggingOrganizationSink() *schema.Resource {
 		Type:        schema.TypeBool,
 		Optional:    true,
 		Default:     false,
-		Description: `Whether or not to include children organizations in the sink export. If true, logs associated with child projects are also exported; otherwise only logs relating to the provided organization are included.`,
+		Description: `Whether or not to include child folders or projects in the sink export. If true, logs associated with child projects are also exported; otherwise only logs relating to the provided organization are included.`,
 	}
 	schm.Schema["intercept_children"] = &schema.Schema{
 		Type:        schema.TypeBool,

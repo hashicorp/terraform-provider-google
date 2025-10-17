@@ -72,15 +72,6 @@ projects/{projectId}/locations/{locationId}/clusters/{clusterId}`,
 				Required:    true,
 				Description: `Required. Number of shards for the Redis cluster.`,
 			},
-			"allow_fewer_zones_deployment": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Description: `Allows customers to specify if they are okay with deploying a multi-zone
-cluster in less than 3 zones. Once set, if there is a zonal outage during
-the cluster creation, the cluster will only be deployed in 2 zones, and
-stay within the 2 zones for its lifecycle.`,
-			},
 			"authorization_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -823,12 +814,6 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("zone_distribution_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(zoneDistributionConfigProp)) && (ok || !reflect.DeepEqual(v, zoneDistributionConfigProp)) {
 		obj["zoneDistributionConfig"] = zoneDistributionConfigProp
 	}
-	allowFewerZonesDeploymentProp, err := expandRedisClusterAllowFewerZonesDeployment(d.Get("allow_fewer_zones_deployment"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("allow_fewer_zones_deployment"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowFewerZonesDeploymentProp)) && (ok || !reflect.DeepEqual(v, allowFewerZonesDeploymentProp)) {
-		obj["allowFewerZonesDeployment"] = allowFewerZonesDeploymentProp
-	}
 	pscConfigsProp, err := expandRedisClusterPscConfigs(d.Get("psc_configs"), d, config)
 	if err != nil {
 		return err
@@ -1032,9 +1017,6 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("zone_distribution_config", flattenRedisClusterZoneDistributionConfig(res["zoneDistributionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
-	if err := d.Set("allow_fewer_zones_deployment", flattenRedisClusterAllowFewerZonesDeployment(res["allowFewerZonesDeployment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("discovery_endpoints", flattenRedisClusterDiscoveryEndpoints(res["discoveryEndpoints"], d, config)); err != nil {
@@ -1463,10 +1445,6 @@ func flattenRedisClusterZoneDistributionConfigMode(v interface{}, d *schema.Reso
 }
 
 func flattenRedisClusterZoneDistributionConfigZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenRedisClusterAllowFewerZonesDeployment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2301,10 +2279,6 @@ func expandRedisClusterZoneDistributionConfigMode(v interface{}, d tpgresource.T
 }
 
 func expandRedisClusterZoneDistributionConfigZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandRedisClusterAllowFewerZonesDeployment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

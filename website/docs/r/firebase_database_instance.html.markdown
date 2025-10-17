@@ -75,8 +75,6 @@ resource "google_project_service" "firebase" {
   provider = google-beta
   project  = google_project.default.project_id
   service  = "firebase.googleapis.com"
-
-  disable_on_destroy = false
 }
 
 resource "google_firebase_project" "default" {
@@ -90,8 +88,6 @@ resource "google_project_service" "firebase_database" {
   provider = google-beta
   project  = google_firebase_project.default.project
   service  = "firebasedatabase.googleapis.com"
-
-  disable_on_destroy = false
 }
 
 resource "time_sleep" "wait_60_seconds" {

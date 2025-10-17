@@ -78,7 +78,7 @@ The following arguments are supported:
 
 * `disabled` - (Optional) If set to True, then this sink is disabled and it does not export any log entries.
 
-* `include_children` - (Optional) Whether or not to include children organizations in the sink export. If true, logs
+* `include_children` - (Optional) Whether or not to include child folders or projects in the sink export. If true, logs
     associated with child projects are also exported; otherwise only logs relating to the provided organization are included.
 
 * `intercept_children` - (Optional) Whether or not to intercept logs from child projects. If true, matching logs will not

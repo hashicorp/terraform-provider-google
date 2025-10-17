@@ -343,11 +343,11 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	eventFiltersProp, err := expandEventarcTriggerMatchingCriteria(d.Get("matching_criteria"), d, config)
+	matchingCriteriaProp, err := expandEventarcTriggerMatchingCriteria(d.Get("matching_criteria"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("matching_criteria"); !tpgresource.IsEmptyValue(reflect.ValueOf(eventFiltersProp)) && (ok || !reflect.DeepEqual(v, eventFiltersProp)) {
-		obj["eventFilters"] = eventFiltersProp
+	} else if v, ok := d.GetOkExists("matching_criteria"); !tpgresource.IsEmptyValue(reflect.ValueOf(matchingCriteriaProp)) && (ok || !reflect.DeepEqual(v, matchingCriteriaProp)) {
+		obj["eventFilters"] = matchingCriteriaProp
 	}
 	serviceAccountProp, err := expandEventarcTriggerServiceAccount(d.Get("service_account"), d, config)
 	if err != nil {
@@ -379,11 +379,11 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("event_data_content_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(eventDataContentTypeProp)) && (ok || !reflect.DeepEqual(v, eventDataContentTypeProp)) {
 		obj["eventDataContentType"] = eventDataContentTypeProp
 	}
-	labelsProp, err := expandEventarcTriggerEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEventarcTriggerEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVarsForId(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/triggers?triggerId={{name}}")
@@ -549,11 +549,11 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 	billingProject = strings.TrimPrefix(project, "projects/")
 
 	obj := make(map[string]interface{})
-	eventFiltersProp, err := expandEventarcTriggerMatchingCriteria(d.Get("matching_criteria"), d, config)
+	matchingCriteriaProp, err := expandEventarcTriggerMatchingCriteria(d.Get("matching_criteria"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("matching_criteria"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, eventFiltersProp)) {
-		obj["eventFilters"] = eventFiltersProp
+	} else if v, ok := d.GetOkExists("matching_criteria"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, matchingCriteriaProp)) {
+		obj["eventFilters"] = matchingCriteriaProp
 	}
 	serviceAccountProp, err := expandEventarcTriggerServiceAccount(d.Get("service_account"), d, config)
 	if err != nil {
@@ -573,11 +573,11 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("event_data_content_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, eventDataContentTypeProp)) {
 		obj["eventDataContentType"] = eventDataContentTypeProp
 	}
-	labelsProp, err := expandEventarcTriggerEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandEventarcTriggerEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVarsForId(d, config, "{{EventarcBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{name}}")

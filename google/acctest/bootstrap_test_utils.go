@@ -42,6 +42,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
+	backupdr "google.golang.org/api/backupdr/v1"
 	"google.golang.org/api/cloudbilling/v1"
 	cloudkms "google.golang.org/api/cloudkms/v1"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
@@ -1173,6 +1174,93 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 	}
 
 	return bootstrapInstance.Name
+}
+
+// waitForBackupdrOperation polls the operation until it is done or times out.
+func waitForBackupdrOperation(ctx context.Context, t *testing.T, backupdrService *backupdr.Service, op *backupdr.Operation) (*backupdr.Operation, error) {
+	t.Helper()
+	opService := backupdr.NewProjectsLocationsOperationsService(backupdrService)
+	ticker := time.NewTicker(5 * time.Second) // Poll every 5 seconds
+	defer ticker.Stop()
+
+	const timeout = 5 * time.Minute // Maximum time to wait
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, fmt.Errorf("timed out waiting for operation %s to complete", op.Name)
+		case <-ticker.C:
+			latestOp, err := opService.Get(op.Name).Context(ctx).Do()
+			if err != nil {
+				// Retry on transient errors if necessary, fail on others.
+				return nil, fmt.Errorf("error getting operation %s: %w", op.Name, err)
+			}
+			op = latestOp
+			t.Logf("Operation %s status: Done=%v", op.Name, op.Done)
+
+			if op.Done {
+				if op.Error != nil {
+					return op, fmt.Errorf("operation %s failed: %v (code %d)", op.Name, op.Error.Message, op.Error.Code)
+				}
+				t.Logf("Operation %s completed successfully.", op.Name)
+				return op, nil
+			}
+		}
+	}
+}
+
+// BootstrapBackupDRVault creates or gets a BackupDR backup vault for testing.
+func BootstrapBackupDRVault(t *testing.T, vaultID, location string) string {
+	ctx := context.Background()
+	project := envvar.GetTestProjectFromEnv()
+	config := BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap config.")
+	}
+
+	// Create a backupdr client and check if the vault exists, if not create a vault
+	// backupdrClient := config.NewBackupDRClient(config.UserAgent)
+	vaultName := fmt.Sprintf("projects/%s/locations/%s/backupVaults/%s", project, location, vaultID)
+	projectAndLocation := fmt.Sprintf("projects/%s/locations/%s", project, location)
+
+	log.Printf("[DEBUG] Getting BackupDR vault %q", vaultName)
+	backupdrService := config.NewBackupDRClient(config.UserAgent)
+	_, err := backupdrService.Projects.Locations.BackupVaults.Get(vaultName).Do()
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] BackupDR vault %q not found, bootstrapping", vaultName)
+		// Prepare the request body for BackupVault creation
+		enforcedRetentionDays := 1
+		effectiveDays := 1
+
+		retentionDuration := time.Duration(enforcedRetentionDays) * 24 * time.Hour
+		effectiveTime := time.Now().Add(time.Duration(effectiveDays) * 24 * time.Hour)
+
+		backupVault := &backupdr.BackupVault{
+			BackupMinimumEnforcedRetentionDuration: fmt.Sprintf("%ds", int(retentionDuration.Seconds())),
+			EffectiveTime:                          effectiveTime.Format(time.RFC3339),
+			Description:                            "Created by BootstrapBackupDRVault function",
+		}
+
+		createCall := backupdrService.Projects.Locations.BackupVaults.Create(projectAndLocation, backupVault)
+		createCall.BackupVaultId(vaultID) // *** This is REQUIRED for the query parameter ***
+		// createCall.ValidateOnly(false) // Optional: explicit validate only flag
+		op, err := createCall.Do()
+		if err != nil {
+			t.Fatalf("Error calling Create BackupDR vault %q: %s", vaultName, err)
+		}
+		fmt.Printf("Successfully initiated creation of BackupDR vault %q (Operation: %s)\n", vaultName, op.Name)
+
+		// *** WAIT FOR COMPLETION ***
+		if _, err := waitForBackupdrOperation(ctx, t, backupdrService, op); err != nil {
+			t.Fatalf("Create operation for %s failed: %v", vaultName, err)
+		}
+		fmt.Printf("Successfully created BackupDR vault %q\n", vaultName)
+
+	}
+
+	return vaultName
 }
 
 func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {

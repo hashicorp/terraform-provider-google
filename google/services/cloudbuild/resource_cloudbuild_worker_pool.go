@@ -212,6 +212,12 @@ func CloudbuildWorkerPoolWorkerConfigSchema() *schema.Resource {
 				Description: "Size of the disk attached to the worker, in GB. See [Worker pool config file](https://cloud.google.com/cloud-build/docs/custom-workers/worker-pool-config-file). Specify a value of up to 1000. If `0` is specified, Cloud Build will use a standard disk size.",
 			},
 
+			"enable_nested_virtualization": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Enable nested virtualization on the worker, if supported by the machine type. See [Worker pool config file](https://cloud.google.com/build/docs/private-pools/worker-pool-config-file-schema). If left blank, Cloud Build will set this to false.",
+			},
+
 			"machine_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -548,9 +554,10 @@ func expandCloudbuildWorkerPoolWorkerConfig(o interface{}) *cloudbuild.WorkerPoo
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &cloudbuild.WorkerPoolWorkerConfig{
-		DiskSizeGb:   dcl.Int64(int64(obj["disk_size_gb"].(int))),
-		MachineType:  dcl.String(obj["machine_type"].(string)),
-		NoExternalIP: dcl.Bool(obj["no_external_ip"].(bool)),
+		DiskSizeGb:                 dcl.Int64(int64(obj["disk_size_gb"].(int))),
+		EnableNestedVirtualization: dcl.Bool(obj["enable_nested_virtualization"].(bool)),
+		MachineType:                dcl.String(obj["machine_type"].(string)),
+		NoExternalIP:               dcl.Bool(obj["no_external_ip"].(bool)),
 	}
 }
 
@@ -559,9 +566,10 @@ func flattenCloudbuildWorkerPoolWorkerConfig(obj *cloudbuild.WorkerPoolWorkerCon
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"disk_size_gb":   obj.DiskSizeGb,
-		"machine_type":   obj.MachineType,
-		"no_external_ip": obj.NoExternalIP,
+		"disk_size_gb":                 obj.DiskSizeGb,
+		"enable_nested_virtualization": obj.EnableNestedVirtualization,
+		"machine_type":                 obj.MachineType,
+		"no_external_ip":               obj.NoExternalIP,
 	}
 
 	return []interface{}{transformed}

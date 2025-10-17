@@ -38,32 +38,10 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-var WorkbenchInstanceProvidedLabels = []string{
-	"consumer-project-id",
-	"consumer-project-number",
-	"notebooks-product",
-	"resource-name",
-}
-
-func WorkbenchInstanceLabelsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// Suppress diffs for the labels
-	for _, label := range WorkbenchInstanceProvidedLabels {
-		if strings.Contains(k, label) && new == "" {
-			return true
-		}
-	}
-
-	// Let diff be determined by labels (above)
-	if strings.Contains(k, "labels.%") {
-		return true
-	}
-
-	// For other keys, don't suppress diff.
-	return false
-}
-
 var WorkbenchInstanceSettableUnmodifiableDefaultMetadata = []string{
+	"install-monitoring-agent",
 	"serial-port-logging-enable",
+	"report-notebook-metrics",
 }
 
 var WorkbenchInstanceEUCProvidedAdditionalMetadata = []string{
@@ -106,7 +84,6 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"generate-diagnostics-options",
 	"google-logging-enabled",
 	"image-url",
-	"install-monitoring-agent",
 	"install-nvidia-driver",
 	"installed-extensions",
 	"instance-region",
@@ -123,7 +100,6 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"proxy-user-mail",
 	"report-container-health",
 	"report-event-url",
-	"report-notebook-metrics",
 	"report-system-health",
 	"report-system-status",
 	"resource-url",
@@ -834,9 +810,8 @@ https://cloud.google.com/vertex-ai/docs/workbench/instances/manage-access-jupyte
 				},
 			},
 			"labels": {
-				Type:             schema.TypeMap,
-				Optional:         true,
-				DiffSuppressFunc: WorkbenchInstanceLabelsDiffSuppress,
+				Type:     schema.TypeMap,
+				Optional: true,
 				Description: `Optional. Labels to apply to this instance. These can be later modified
 by the UpdateInstance method.
 
@@ -1010,11 +985,11 @@ func resourceWorkbenchInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("enable_managed_euc"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableManagedEucProp)) && (ok || !reflect.DeepEqual(v, enableManagedEucProp)) {
 		obj["enableManagedEuc"] = enableManagedEucProp
 	}
-	labelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
@@ -1218,11 +1193,11 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("enable_managed_euc"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableManagedEucProp)) {
 		obj["enableManagedEuc"] = enableManagedEucProp
 	}
-	labelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")

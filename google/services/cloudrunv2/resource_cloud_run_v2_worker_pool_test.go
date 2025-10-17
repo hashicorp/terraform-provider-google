@@ -251,6 +251,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
       volume_mounts {
         name = "gcs"
         mount_path = "/mnt/landsat"
+        sub_path = "/LM01"
       }
       resources {
         limits = {

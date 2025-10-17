@@ -191,6 +191,12 @@ The following arguments are supported:
   Flag indicating that the hot-tier threshold will be auto-increased by 10% of the hot-tier when it hits 100%. Default is true.
   The increment will kick in only if the new size after increment is still less than or equal to storage pool size.
 
+* `qos_type` -
+  (Optional)
+  QoS (Quality of Service) type of the storage pool.
+  Possible values are: AUTO, MANUAL.
+  Possible values are: `QOS_TYPE_UNSPECIFIED`, `AUTO`, `MANUAL`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -210,6 +216,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `encryption_type` -
   Reports if volumes in the pool are encrypted using a Google-managed encryption key or CMEK.
+
+* `available_throughput_mibps` -
+  Available throughput of the storage pool (in MiB/s).
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

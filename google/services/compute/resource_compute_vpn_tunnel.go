@@ -180,6 +180,109 @@ except the last character, which cannot be a dash.`,
 gateway and the peer VPN gateway.`,
 				Sensitive: true,
 			},
+			"cipher_suite": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `User specified list of ciphers to use for the phase 1 and phase 2 of the IKE protocol.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"phase1": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Cipher configuration for phase 1 of the IKE protocol.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"dh": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Diffie-Hellman groups.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+									"encryption": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Encryption algorithms.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+									"integrity": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Integrity algorithms.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+									"prf": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Pseudo-random functions.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+								},
+							},
+						},
+						"phase2": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Cipher configuration for phase 2 of the IKE protocol.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"encryption": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Encryption algorithms.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+									"integrity": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Integrity algorithms.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+									"pfs": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Perfect forward secrecy groups.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -455,11 +558,17 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
 		obj["labelFingerprint"] = labelFingerprintProp
 	}
-	labelsProp, err := expandComputeVpnTunnelEffectiveLabels(d.Get("effective_labels"), d, config)
+	cipherSuiteProp, err := expandComputeVpnTunnelCipherSuite(d.Get("cipher_suite"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("cipher_suite"); !tpgresource.IsEmptyValue(reflect.ValueOf(cipherSuiteProp)) && (ok || !reflect.DeepEqual(v, cipherSuiteProp)) {
+		obj["cipherSuite"] = cipherSuiteProp
+	}
+	effectiveLabelsProp, err := expandComputeVpnTunnelEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 	regionProp, err := expandComputeVpnTunnelRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -524,8 +633,8 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error waiting to create VpnTunnel: %s", err)
 	}
 
-	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		labels := d.Get("labels")
+	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		userLabels := d.Get("labels")
 		terraformLables := d.Get("terraform_labels")
 
 		// Labels cannot be set in a create.  We'll have to set them here.
@@ -569,7 +678,7 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		// Set back the labels field, as it is needed to decide the value of "labels" in the state in the read function.
-		if err := d.Set("labels", labels); err != nil {
+		if err := d.Set("labels", userLabels); err != nil {
 			return fmt.Errorf("Error setting back labels: %s", err)
 		}
 
@@ -686,6 +795,9 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
 	if err := d.Set("detailed_status", flattenComputeVpnTunnelDetailedStatus(res["detailedStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("cipher_suite", flattenComputeVpnTunnelCipherSuite(res["cipherSuite"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenComputeVpnTunnelTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1002,6 +1114,106 @@ func flattenComputeVpnTunnelDetailedStatus(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenComputeVpnTunnelCipherSuite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["phase1"] =
+		flattenComputeVpnTunnelCipherSuitePhase1(original["phase1"], d, config)
+	transformed["phase2"] =
+		flattenComputeVpnTunnelCipherSuitePhase2(original["phase2"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeVpnTunnelCipherSuitePhase1(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["encryption"] =
+		flattenComputeVpnTunnelCipherSuitePhase1Encryption(original["encryption"], d, config)
+	transformed["integrity"] =
+		flattenComputeVpnTunnelCipherSuitePhase1Integrity(original["integrity"], d, config)
+	transformed["prf"] =
+		flattenComputeVpnTunnelCipherSuitePhase1Prf(original["prf"], d, config)
+	transformed["dh"] =
+		flattenComputeVpnTunnelCipherSuitePhase1Dh(original["dh"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeVpnTunnelCipherSuitePhase1Encryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeVpnTunnelCipherSuitePhase1Integrity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeVpnTunnelCipherSuitePhase1Prf(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeVpnTunnelCipherSuitePhase1Dh(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeVpnTunnelCipherSuitePhase2(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["encryption"] =
+		flattenComputeVpnTunnelCipherSuitePhase2Encryption(original["encryption"], d, config)
+	transformed["integrity"] =
+		flattenComputeVpnTunnelCipherSuitePhase2Integrity(original["integrity"], d, config)
+	transformed["pfs"] =
+		flattenComputeVpnTunnelCipherSuitePhase2Pfs(original["pfs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeVpnTunnelCipherSuitePhase2Encryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeVpnTunnelCipherSuitePhase2Integrity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeVpnTunnelCipherSuitePhase2Pfs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
 func flattenComputeVpnTunnelTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1116,6 +1328,140 @@ func expandComputeVpnTunnelRemoteTrafficSelector(v interface{}, d tpgresource.Te
 }
 
 func expandComputeVpnTunnelLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeVpnTunnelCipherSuite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPhase1, err := expandComputeVpnTunnelCipherSuitePhase1(original["phase1"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPhase1); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["phase1"] = transformedPhase1
+	}
+
+	transformedPhase2, err := expandComputeVpnTunnelCipherSuitePhase2(original["phase2"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPhase2); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["phase2"] = transformedPhase2
+	}
+
+	return transformed, nil
+}
+
+func expandComputeVpnTunnelCipherSuitePhase1(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEncryption, err := expandComputeVpnTunnelCipherSuitePhase1Encryption(original["encryption"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEncryption); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["encryption"] = transformedEncryption
+	}
+
+	transformedIntegrity, err := expandComputeVpnTunnelCipherSuitePhase1Integrity(original["integrity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntegrity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["integrity"] = transformedIntegrity
+	}
+
+	transformedPrf, err := expandComputeVpnTunnelCipherSuitePhase1Prf(original["prf"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrf); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["prf"] = transformedPrf
+	}
+
+	transformedDh, err := expandComputeVpnTunnelCipherSuitePhase1Dh(original["dh"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDh); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dh"] = transformedDh
+	}
+
+	return transformed, nil
+}
+
+func expandComputeVpnTunnelCipherSuitePhase1Encryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeVpnTunnelCipherSuitePhase1Integrity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeVpnTunnelCipherSuitePhase1Prf(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeVpnTunnelCipherSuitePhase1Dh(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeVpnTunnelCipherSuitePhase2(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEncryption, err := expandComputeVpnTunnelCipherSuitePhase2Encryption(original["encryption"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEncryption); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["encryption"] = transformedEncryption
+	}
+
+	transformedIntegrity, err := expandComputeVpnTunnelCipherSuitePhase2Integrity(original["integrity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntegrity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["integrity"] = transformedIntegrity
+	}
+
+	transformedPfs, err := expandComputeVpnTunnelCipherSuitePhase2Pfs(original["pfs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPfs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pfs"] = transformedPfs
+	}
+
+	return transformed, nil
+}
+
+func expandComputeVpnTunnelCipherSuitePhase2Encryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeVpnTunnelCipherSuitePhase2Integrity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeVpnTunnelCipherSuitePhase2Pfs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 

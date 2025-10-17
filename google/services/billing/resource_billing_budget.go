@@ -220,13 +220,10 @@ Exactly one of 'calendar_period', 'custom_period' must be provided. Possible val
 						},
 						"credit_types": {
 							Type:     schema.TypeList,
-							Computed: true,
 							Optional: true,
 							Description: `Optional. If creditTypesTreatment is INCLUDE_SPECIFIED_CREDITS,
 this is a list of credit types to be subtracted from gross cost to determine the spend for threshold calculations. See a list of acceptable credit type values.
-If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be empty.
-
-**Note:** If the field has a value in the config and needs to be removed, the field has to be an empty array in the config.`,
+If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be empty.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -365,16 +362,13 @@ https://cloud.google.com/billing/v1/how-tos/catalog-api.`,
 						},
 						"subaccounts": {
 							Type:     schema.TypeList,
-							Computed: true,
 							Optional: true,
 							Description: `A set of subaccounts of the form billingAccounts/{account_id},
 specifying that usage from only this set of subaccounts should
 be included in the budget. If a subaccount is set to the name of
 the parent account, usage from the parent account will be included.
 If the field is omitted, the report will include usage from the parent
-account and all subaccounts, if they exist.
-
-**Note:** If the field has a value in the config and needs to be removed, the field has to be an empty array in the config.`,
+account and all subaccounts, if they exist.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -464,11 +458,11 @@ func resourceBillingBudgetCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("threshold_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(thresholdRulesProp)) && (ok || !reflect.DeepEqual(v, thresholdRulesProp)) {
 		obj["thresholdRules"] = thresholdRulesProp
 	}
-	notificationsRuleProp, err := expandBillingBudgetAllUpdatesRule(d.Get("all_updates_rule"), d, config)
+	allUpdatesRuleProp, err := expandBillingBudgetAllUpdatesRule(d.Get("all_updates_rule"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("all_updates_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(notificationsRuleProp)) && (ok || !reflect.DeepEqual(v, notificationsRuleProp)) {
-		obj["notificationsRule"] = notificationsRuleProp
+	} else if v, ok := d.GetOkExists("all_updates_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(allUpdatesRuleProp)) && (ok || !reflect.DeepEqual(v, allUpdatesRuleProp)) {
+		obj["notificationsRule"] = allUpdatesRuleProp
 	}
 	ownershipScopeProp, err := expandBillingBudgetOwnershipScope(d.Get("ownership_scope"), d, config)
 	if err != nil {
@@ -614,11 +608,11 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("threshold_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, thresholdRulesProp)) {
 		obj["thresholdRules"] = thresholdRulesProp
 	}
-	notificationsRuleProp, err := expandBillingBudgetAllUpdatesRule(d.Get("all_updates_rule"), d, config)
+	allUpdatesRuleProp, err := expandBillingBudgetAllUpdatesRule(d.Get("all_updates_rule"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("all_updates_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notificationsRuleProp)) {
-		obj["notificationsRule"] = notificationsRuleProp
+	} else if v, ok := d.GetOkExists("all_updates_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, allUpdatesRuleProp)) {
+		obj["notificationsRule"] = allUpdatesRuleProp
 	}
 	ownershipScopeProp, err := expandBillingBudgetOwnershipScope(d.Get("ownership_scope"), d, config)
 	if err != nil {

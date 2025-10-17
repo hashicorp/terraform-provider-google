@@ -432,10 +432,11 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 			},
 
 			"metadata": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Metadata key/value pairs to make available from within instances created from this template.`,
+				Type:         schema.TypeMap,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `Metadata key/value pairs to make available from within instances created from this template.`,
+				ValidateFunc: ValidateInstanceMetadata,
 			},
 
 			"metadata_startup_script": {
@@ -1290,9 +1291,6 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 
 		// Build the disk
 		var disk compute.AttachedDisk
-		disk.Type = "PERSISTENT"
-		disk.Mode = "READ_WRITE"
-		disk.Interface = "SCSI"
 		disk.Boot = i == 0
 		disk.AutoDelete = d.Get(prefix + ".auto_delete").(bool)
 
@@ -1734,10 +1732,6 @@ func reorderDisks(configDisks []interface{}, apiDisks []map[string]interface{}) 
 			disksByDeviceName[v.(string)] = i
 		} else if v := disk["type"]; v.(string) == "SCRATCH" {
 			iface := disk["interface"].(string)
-			if iface == "" {
-				// apply-time default
-				iface = "SCSI"
-			}
 			scratchDisksByInterface[iface] = append(scratchDisksByInterface[iface], i)
 		} else if v := disk["source"]; v.(string) != "" {
 			attachedDisksBySource[v.(string)] = i

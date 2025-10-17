@@ -154,6 +154,8 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it
 	is not provided, the provider project is used.
 
+* `service_account` - (Optional) The user-managed service account to run the job. If this field is specified, the given service account is granted the necessary permissions to all applicable resources (e.g. GCS buckets) required by the job.
+
 * `status` - (Optional) Status of the job. Default: `ENABLED`. **NOTE: The effect of the new job status takes place during a subsequent job run. For example, if you change the job status from ENABLED to DISABLED, and an operation spawned by the transfer is running, the status change would not affect the current operation.**
 
 * `notification_config` - (Optional) Notification configuration. This is not supported for transfers involving PosixFilesystem. Structure [documented below](#nested_notification_config).
@@ -185,6 +187,8 @@ The following arguments are supported:
 * `azure_blob_storage_data_source` - (Optional) An Azure Blob Storage data source. Structure [documented below](#nested_azure_blob_storage_data_source).
 
 * `hdfs_data_source` - (Optional) An HDFS data source. Structure [documented below](#nested_hdfs_data_source).
+
+* `aws_s3_compatible_data_source` - (Optional) An AWS S3 Compatible data source. Structure [documented below](#nested_aws_s3_compatible_data_source).
 
 <a name="nested_replication_spec"></a>The `replication_spec` block supports:
 
@@ -264,6 +268,29 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 * `path` - (Required) Root directory path to the filesystem.
 
+<a name="nested_aws_s3_compatible_data_source"></a>The `aws_s3_compatible_data_source` block supports:
+
+* `bucket_name` - (Required) Name of the bucket.
+
+* `path` - (Optional) Specifies the path to transfer objects.
+
+* `endpoint` - (Required) Endpoint of the storage service.
+
+* `region` - (Optional) Specifies the region to sign requests with. This can be left blank if requests should be signed with an empty region.
+
+* `s3_metadata` - (Optional) S3 compatible metadata. [documented below](#nested_s3_metadata).
+
+<a name="nested_s3_metadata"></a>The `s3_metadata` block supports:
+
+* `auth_method` - (Optional) Authentication and authorization method used by the storage service. When not specified, Transfer Service will attempt to determine right auth method to use.
+
+* `request_model` - (Optional) API request model used to call the storage service. When not specified, the default value of RequestModel REQUEST_MODEL_VIRTUAL_HOSTED_STYLE is used.
+
+* `protocol` - (Optional) The network protocol of the agent. When not specified, the default value of NetworkProtocol NETWORK_PROTOCOL_HTTPS is used.
+
+* `list_api` - (Optional) The Listing API to use for discovering objects. When not specified, Transfer Service will attempt to determine the right API to use.
+
+
 <a name="nested_aws_s3_data_source"></a>The `aws_s3_data_source` block supports:
 
 * `bucket_name` - (Required) S3 Bucket name.
@@ -277,6 +304,8 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 * `managed_private_network` - (Optional) Egress bytes over a Google-managed private network. This network is shared between other users of Storage Transfer Service.
 
 * `cloudfront_domain` - (Optional) The CloudFront distribution domain name pointing to this bucket, to use when fetching. See [Transfer from S3 via CloudFront](https://cloud.google.com/storage-transfer/docs/s3-cloudfront) for more information. Format: `https://{id}.cloudfront.net` or any valid custom domain. Must begin with `https://`.
+
+* `credentials_secret` - (Optional)  The Resource name of a secret in Secret Manager. AWS credentials must be stored in Secret Manager in JSON format. If credentials_secret is specified, do not specify role_arn or aws_access_key. Format: `projects/{projectNumber}/secrets/{secret_name}`.
 
 The `aws_access_key` block supports:
 
@@ -340,13 +369,13 @@ The `azure_credentials` block supports:
 
 <a name="nested_logging_config"></a>The `loggin_config` block supports:
 
-* `log_actions` - (Optional) A list of actions to be logged. If empty, no logs are generated. Not supported for transfers with PosixFilesystem data sources; use enableOnpremGcsTransferLogs instead. 
+* `log_actions` - (Optional) A list of actions to be logged. If empty, no logs are generated. Not supported for transfers with PosixFilesystem data sources; use enableOnpremGcsTransferLogs instead.
 Each action may be one of `FIND`, `DELETE`, and `COPY`.
 
 * `log_action_states` - (Optional) A list of loggable action states. If empty, no logs are generated. Not supported for transfers with PosixFilesystem data sources; use enableOnpremGcsTransferLogs instead.
 Each action state may be one of `SUCCEEDED`, and `FAILED`.
 
-* `enable_on_prem_gcs_transfer` - (Optional) For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer. 
+* `enable_on_prem_gcs_transfer` - (Optional) For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer.
 Defaults to false.
 
 ## Attributes Reference

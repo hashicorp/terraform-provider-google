@@ -137,6 +137,8 @@ fields:
     api_field: 'spec.template.spec.containers.volume_mounts.mount_path'
   - field: 'template.spec.containers.volume_mounts.name'
     api_field: 'spec.template.spec.containers.volume_mounts.name'
+  - field: 'template.spec.containers.volume_mounts.sub_path'
+    api_field: 'spec.template.spec.containers.volume_mounts.sub_path'
   - field: 'template.spec.containers.working_dir'
     api_field: 'spec.template.spec.containers.working_dir'
   - field: 'template.spec.node_selector'
