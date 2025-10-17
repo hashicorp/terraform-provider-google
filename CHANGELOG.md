@@ -11,7 +11,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * compute: added `IN_FLIGHT` to `balancing_mode` on `google_compute_backend_service` resource ([#24710](https://github.com/hashicorp/terraform-provider-google/pull/24710))
-* compute: added `maintenance_version` field to `google_redis_cluster` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
 * compute: added `ncc_gateway` field to `google_compute_router` resource (beta) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
 * compute: added new field `instance_lifecycle_policy.on_repair.allow_changing_zone` to `google_compute_region_instance_group_manager` & `google_compute_instance_group_manager` ([#24706](https://github.com/hashicorp/terraform-provider-google/pull/24706))
 * compute: promoted `security_policy` in `compute_region_backend_service` resource to GA ([#24693](https://github.com/hashicorp/terraform-provider-google/pull/24693))
