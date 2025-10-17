@@ -928,7 +928,7 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100ms", networkName, subnetworkName, "TRUE", "100Mi", "1m", "10m", true, true, 2048, 10, 10, 85),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "None", "best-effort", "pod", "100ms", networkName, subnetworkName, "TRUE", "100Mi", "1m", "10m", true, true, 2048, 10, 10, 85),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						acctest.ExpectNoDelete(),
@@ -955,6 +955,12 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 						"node_config.0.kubelet_config.0.image_minimum_gc_age", "1m"),
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.image_maximum_gc_age", "10m"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.memory_manager.0.policy", "None"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.policy", "best-effort"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.scope", "pod"),
 					// resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 					//      "node_config.0.kubelet_config.0.allowed_unsafe_sysctls.0", "kernel.shm*"),
 				),
@@ -965,7 +971,7 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "", networkName, subnetworkName, "FALSE", "200Mi", "30s", "", false, true, 1024, 5, 50, 80),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "Static", "single-numa-node", "container", "", networkName, subnetworkName, "FALSE", "200Mi", "30s", "", false, true, 1024, 5, 50, 80),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						acctest.ExpectNoDelete(),
@@ -976,6 +982,13 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 						"node_config.0.kubelet_config.0.cpu_cfs_quota", "false"),
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.insecure_kubelet_readonly_port_enabled", "FALSE"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.memory_manager.0.policy", "Static"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.policy", "single-numa-node"),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.scope", "container"),
 				),
 			},
 			{
@@ -1003,7 +1016,7 @@ func TestAccContainerNodePool_withInvalidKubeletCpuManagerPolicy(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", networkName, subnetworkName, "TRUE", "", "", "", false, true, 1024, 2, 70, 75),
+				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "", "", "", "100us", networkName, subnetworkName, "TRUE", "", "", "", false, true, 1024, 2, 70, 75),
 				ExpectError: regexp.MustCompile(`.*to be one of \["?static"? "?none"? "?"?\].*`),
 			},
 		},
@@ -3697,7 +3710,7 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
 `, projectID, cluster, networkName, subnetworkName, np)
 }
 
-func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled, containerLogMaxSize, imageMinimumGcAge, imageMaximumGcAge string, quota, singleProcessOomKill bool, podPidsLimit, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent int) string {
+func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, memoryManagerPolicy, topologyManagerPolicy, topologyManagerScope, period, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled, containerLogMaxSize, imageMinimumGcAge, imageMaximumGcAge string, quota, singleProcessOomKill bool, podPidsLimit, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent int) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-central1-a"
@@ -3721,9 +3734,17 @@ resource "google_container_node_pool" "with_kubelet_config" {
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 1
   node_config {
+    machine_type       = "c4-standard-2"
     image_type = "COS_CONTAINERD"
     kubelet_config {
       cpu_manager_policy                     = %q
+	  memory_manager  {
+	    policy = %q
+	  }
+	  topology_manager {
+	    policy = %q
+	    scope = %q
+	  }
       cpu_cfs_quota                          = %v
       cpu_cfs_quota_period                   = %q
       insecure_kubelet_readonly_port_enabled = "%s"
@@ -3770,7 +3791,7 @@ resource "google_container_node_pool" "with_kubelet_config" {
     logging_variant = "DEFAULT"
   }
 }
-`, cluster, networkName, subnetworkName, np, policy, quota, period, insecureKubeletReadonlyPortEnabled, podPidsLimit, containerLogMaxSize, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent, imageMinimumGcAge, imageMaximumGcAge, singleProcessOomKill)
+`, cluster, networkName, subnetworkName, np, policy, memoryManagerPolicy, topologyManagerPolicy, topologyManagerScope, quota, period, insecureKubeletReadonlyPortEnabled, podPidsLimit, containerLogMaxSize, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent, imageMinimumGcAge, imageMaximumGcAge, singleProcessOomKill)
 }
 
 func testAccContainerNodePool_withLinuxNodeConfig(cluster, np, tcpMem, networkName, subnetworkName string) string {
@@ -3941,7 +3962,8 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 
 resource "google_container_cluster" "cluster" {
   name               = "%s"
-  location           = "us-central1"
+  # Zonal rather than regional to reduce setup time and node count per zone.
+  location           = "us-central1-c"
   initial_node_count = 1
 
   network    = google_compute_network.container_network.name
@@ -3951,82 +3973,82 @@ resource "google_container_cluster" "cluster" {
     services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
   }
   release_channel {
-	channel = "RAPID"
+    channel = "RAPID"
   }
   deletion_protection = false
 }
 
 resource "google_container_node_pool" "with_manual_pod_cidr" {
-  name               = "%s-manual"
-  location           = "us-central1"
-  cluster            = google_container_cluster.cluster.name
+  name       = "%s-manual"
+  location   = google_container_cluster.cluster.location
+  cluster    = google_container_cluster.cluster.name
   node_count = 1
   network_config {
     create_pod_range = false
-    pod_range = google_compute_subnetwork.container_subnetwork.secondary_ip_range[2].range_name
+    pod_range        = google_compute_subnetwork.container_subnetwork.secondary_ip_range[2].range_name
   }
   node_config {
-	oauth_scopes = [
-	  "https://www.googleapis.com/auth/cloud-platform",
-	]
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
   }
 }
 
 resource "google_container_node_pool" "with_auto_pod_cidr" {
-  name               = "%s-auto"
-  location           = "us-central1"
-  cluster            = google_container_cluster.cluster.name
+  name       = "%s-auto"
+  location   = google_container_cluster.cluster.location
+  cluster    = google_container_cluster.cluster.name
   node_count = 1
   network_config {
-	create_pod_range    = true
-	pod_range           = "auto-pod-range"
-	pod_ipv4_cidr_block = "10.2.0.0/20"
+    create_pod_range    = true
+    pod_range           = "auto-pod-range"
+    pod_ipv4_cidr_block = "10.2.0.0/20"
   }
   node_config {
-	oauth_scopes = [
-	  "https://www.googleapis.com/auth/cloud-platform",
-	]
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
   }
 }
 
 resource "google_container_node_pool" "with_pco_disabled" {
-  name               = "%s-pco"
-  location           = "us-central1"
-  cluster            = google_container_cluster.cluster.name
+  name       = "%s-pco"
+  location   = google_container_cluster.cluster.location
+  cluster    = google_container_cluster.cluster.name
   node_count = 1
   network_config {
-	pod_cidr_overprovision_config {
-		disabled = true
-	}
+    pod_cidr_overprovision_config {
+      disabled = true
+    }
   }
   node_config {
-	oauth_scopes = [
-	  "https://www.googleapis.com/auth/cloud-platform",
-	]
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
   }
 }
 
 resource "google_container_node_pool" "with_tier1_net" {
-  name               = "%s-tier1"
-  location           = "us-central1"
-  cluster            = google_container_cluster.cluster.name
+  name       = "%s-tier1"
+  location   = google_container_cluster.cluster.location
+  cluster    = google_container_cluster.cluster.name
   node_count = 1
   node_locations = [
-	"us-central1-a",
+    "us-central1-c",
   ]
   network_config {
-	network_performance_config {
-		total_egress_bandwidth_tier = "%s"
-	}
+    network_performance_config {
+      total_egress_bandwidth_tier = "%s"
+    }
   }
   node_config {
-	machine_type = "n2-standard-32"
-	gvnic {
-		enabled = true
-	}
-	oauth_scopes = [
-		"https://www.googleapis.com/auth/cloud-platform",
-	]
+    machine_type = "n2-standard-32"
+    gvnic {
+      enabled = true
+    }
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
   }
 }
 
@@ -5293,7 +5315,6 @@ resource "google_container_node_pool" "primary_nodes" {
   node_count = 1
 
   node_config {
-    machine_type = "n1-standard-1" // can't be e2 because of local-ssd
     disk_size_gb = 15
 
     resource_manager_tags = {
@@ -5340,12 +5361,11 @@ resource "google_container_node_pool" "primary_nodes" {
   node_count = 1
 
   node_config {
-    machine_type = "n1-standard-1" // can't be e2 because of local-ssd
     disk_size_gb = 15
 
     resource_manager_tags = {
       "%{pid}/%{tagKey1}" = "%{tagValue1}"
-	  "%{pid}/%{tagKey2}" = "%{tagValue2}"
+      "%{pid}/%{tagKey2}" = "%{tagValue2}"
     }
   }
 }
@@ -5388,7 +5408,6 @@ resource "google_container_node_pool" "primary_nodes" {
   node_count = 1
 
   node_config {
-    machine_type = "n1-standard-1" // can't be e2 because of local-ssd
     disk_size_gb = 15
   }
 }

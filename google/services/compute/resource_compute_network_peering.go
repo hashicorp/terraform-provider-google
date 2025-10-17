@@ -125,6 +125,14 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 				Description:  `Which IP version(s) of traffic and routes are allowed to be imported or exported between peer networks. The default value is IPV4_ONLY. Possible values: ["IPV4_ONLY", "IPV4_IPV6"]`,
 				Default:      "IPV4_ONLY",
 			},
+
+			"update_strategy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"INDEPENDENT", "CONSENSUS"}),
+				Description:  `The update strategy determines the semantics for updates and deletes to the peering connection configuration. The default value is INDEPENDENT. Possible values: ["INDEPENDENT", "CONSENSUS"]`,
+				Default:      "INDEPENDENT",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -223,6 +231,10 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 	}
 	if err := d.Set("stack_type", flattenNetworkPeeringStackType(peering.StackType, d, config)); err != nil {
 		return fmt.Errorf("Error setting stack_type: %s", err)
+	}
+
+	if err := d.Set("update_strategy", flattenNetworkPeeringUpdateStrategy(peering.UpdateStrategy, d, config)); err != nil {
+		return fmt.Errorf("Error setting update_strategy: %s", err)
 	}
 
 	return nil
@@ -324,7 +336,6 @@ func findPeeringFromNetwork(network *compute.Network, peeringName string) *compu
 	return nil
 }
 func expandNetworkPeering(d *schema.ResourceData) *compute.NetworkPeering {
-
 	return &compute.NetworkPeering{
 		ExchangeSubnetRoutes:           true,
 		Name:                           d.Get("name").(string),
@@ -334,9 +345,9 @@ func expandNetworkPeering(d *schema.ResourceData) *compute.NetworkPeering {
 		ExportSubnetRoutesWithPublicIp: d.Get("export_subnet_routes_with_public_ip").(bool),
 		ImportSubnetRoutesWithPublicIp: d.Get("import_subnet_routes_with_public_ip").(bool),
 		StackType:                      d.Get("stack_type").(string),
+		UpdateStrategy:                 d.Get("update_strategy").(string),
 		ForceSendFields:                []string{"ExportSubnetRoutesWithPublicIp", "ImportCustomRoutes", "ExportCustomRoutes"},
 	}
-
 }
 
 func flattenNetworkPeeringStackType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

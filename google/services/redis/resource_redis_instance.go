@@ -723,11 +723,11 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("customer_managed_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(customerManagedKeyProp)) && (ok || !reflect.DeepEqual(v, customerManagedKeyProp)) {
 		obj["customerManagedKey"] = customerManagedKeyProp
 	}
-	labelsProp, err := expandRedisInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandRedisInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceRedisInstanceEncoder(d, meta, obj)
@@ -1032,11 +1032,11 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("secondary_ip_range"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, secondaryIpRangeProp)) {
 		obj["secondaryIpRange"] = secondaryIpRangeProp
 	}
-	labelsProp, err := expandRedisInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandRedisInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceRedisInstanceEncoder(d, meta, obj)

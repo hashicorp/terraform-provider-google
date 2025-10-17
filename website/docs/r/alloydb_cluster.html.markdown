@@ -60,6 +60,8 @@ resource "google_alloydb_cluster" "default" {
   network_config {
     network = google_compute_network.default.id
   }
+
+  deletion_protection = false
 }
 
 data "google_project" "project" {}
@@ -99,6 +101,8 @@ resource "google_alloydb_cluster" "default" {
   initial_user {
     password = "alloydb-cluster"
   }
+
+  deletion_protection = false
 }
 
 data "google_compute_network" "default" {
@@ -136,6 +140,8 @@ resource "google_alloydb_cluster" "default" {
   initial_user {
     password = "alloydb-cluster"
   }
+
+  deletion_protection = false
 }
 
 data "google_compute_network" "default" {
@@ -197,6 +203,8 @@ resource "google_alloydb_cluster" "full" {
   labels = {
     test = "alloydb-cluster-full"
   }
+
+  deletion_protection = false
 }
 
 data "google_project" "project" {}
@@ -217,6 +225,8 @@ resource "google_alloydb_cluster" "source" {
   initial_user {
     password = "alloydb-source-cluster"
   }
+
+  deletion_protection = false
 }
 
 resource "google_alloydb_instance" "source" {
@@ -248,6 +258,8 @@ resource "google_alloydb_cluster" "restored_from_backup" {
   restore_backup_source {
     backup_name = google_alloydb_backup.source.name
   }
+
+  deletion_protection = false
 }
 
 resource "google_alloydb_cluster" "restored_via_pitr" {
@@ -260,6 +272,8 @@ resource "google_alloydb_cluster" "restored_via_pitr" {
     cluster = google_alloydb_cluster.source.name
     point_in_time = "2023-08-03T19:19:00.094Z"
   }
+
+  deletion_protection = false
 }
 
 data "google_project" "project" {}
@@ -292,6 +306,8 @@ resource "google_alloydb_cluster" "primary" {
   network_config {
     network = google_compute_network.default.id
   }
+
+  deletion_protection = false
 }
 
 resource "google_alloydb_instance" "primary" {
@@ -322,6 +338,7 @@ resource "google_alloydb_cluster" "secondary" {
     primary_cluster_name = google_alloydb_cluster.primary.name
   }
 
+  deletion_protection = false
   depends_on = [google_alloydb_instance.primary]
 }
 
@@ -456,6 +473,11 @@ The following arguments are supported:
 Deleting a cluster forcefully, deletes the cluster and all its associated instances within the cluster.
 Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion_policy = "FORCE" otherwise an error is returned. This is needed as there is no support to delete just the secondary instance, and the only way to delete secondary instance is to delete the associated secondary cluster forcefully which also deletes the secondary instance.
 Possible values: DEFAULT, FORCE
+
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the cluster.
+When the field is set to true or unset in Terraform state, a `terraform apply`
+or `terraform destroy` that would delete the cluster will fail.
+When the field is set to false, deleting the cluster is allowed.
 
 * `skip_await_major_version_upgrade` - (Optional) Set to true to skip awaiting on the major version upgrade of the cluster.
 Possible values: true, false

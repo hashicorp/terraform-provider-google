@@ -239,6 +239,43 @@ resource "google_firestore_index" "my-index" {
 	}
 }
 ```
+## Example Usage - Firestore Index Unique
+
+
+```hcl
+resource "google_firestore_database" "database" {
+	project                  = "my-project-name"
+	name                     = "database-id-unique"
+	location_id              = "nam5"
+	type                     = "FIRESTORE_NATIVE"
+	database_edition         = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project    = "my-project-name"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	api_scope   = "MONGODB_COMPATIBLE_API"
+	query_scope = "COLLECTION_GROUP"
+	multikey    = true
+	density     = "DENSE"
+	unique      = true
+
+	fields {
+		field_path = "name"
+		order      = "ASCENDING"
+	}
+
+	fields {
+		field_path = "description"
+		order      = "DESCENDING"
+	}
+}
+```
 
 ## Argument Reference
 
@@ -284,6 +321,10 @@ The following arguments are supported:
 * `multikey` -
   (Optional)
   Optional. Whether the index is multikey. By default, the index is not multikey. For non-multikey indexes, none of the paths in the index definition reach or traverse an array, except via an explicit array index. For multikey indexes, at most one of the paths in the index definition reach or traverse an array, except via an explicit array index. Violations will result in errors. Note this field only applies to indexes with MONGODB_COMPATIBLE_API ApiScope.
+
+* `unique` -
+  (Optional)
+  Whether it is an unique index. Unique index ensures all values for the indexed field(s) are unique across documents.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

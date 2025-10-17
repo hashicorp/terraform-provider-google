@@ -85,15 +85,6 @@ This value is subject to the following restrictions:
 				Required:    true,
 				Description: `Required. Number of shards for the instance.`,
 			},
-			"allow_fewer_zones_deployment": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Description: `Allows customers to specify if they are okay with deploying a multi-zone
-instance in less than 3 zones. Once set, if there is a zonal outage during
-the instance creation, the instance will only be deployed in 2 zones, and
-stay within the 2 zones for its lifecycle.`,
-			},
 			"authorization_mode": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -917,9 +908,9 @@ DELETING`,
 			"desired_psc_auto_connections": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Deprecated:  "`desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead.",
+				Deprecated:  "`desired_psc_auto_connections` is deprecated. Use `desired_auto_created_endpoints` instead. `terraform import` will only work with desired_auto_created_endpoints`.",
 				ForceNew:    true,
-				Description: `'desired_psc_auto_connections' is deprecated  Use 'desired_auto_created_endpoints' instead.`,
+				Description: `'desired_psc_auto_connections' is deprecated  Use 'desired_auto_created_endpoints' instead 'terraform import' will only work with desired_auto_created_endpoints'.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": {
@@ -1044,12 +1035,6 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("zone_distribution_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(zoneDistributionConfigProp)) && (ok || !reflect.DeepEqual(v, zoneDistributionConfigProp)) {
 		obj["zoneDistributionConfig"] = zoneDistributionConfigProp
 	}
-	allowFewerZonesDeploymentProp, err := expandMemorystoreInstanceAllowFewerZonesDeployment(d.Get("allow_fewer_zones_deployment"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("allow_fewer_zones_deployment"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowFewerZonesDeploymentProp)) && (ok || !reflect.DeepEqual(v, allowFewerZonesDeploymentProp)) {
-		obj["allowFewerZonesDeployment"] = allowFewerZonesDeploymentProp
-	}
 	deletionProtectionEnabledProp, err := expandMemorystoreInstanceDeletionProtectionEnabled(d.Get("deletion_protection_enabled"), d, config)
 	if err != nil {
 		return err
@@ -1086,11 +1071,11 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
 	}
-	labelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceMemorystoreInstanceEncoder(d, meta, obj)
@@ -1272,9 +1257,6 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("zone_distribution_config", flattenMemorystoreInstanceZoneDistributionConfig(res["zoneDistributionConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("allow_fewer_zones_deployment", flattenMemorystoreInstanceAllowFewerZonesDeployment(res["allowFewerZonesDeployment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
 	if err := d.Set("deletion_protection_enabled", flattenMemorystoreInstanceDeletionProtectionEnabled(res["deletionProtectionEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -1388,11 +1370,11 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("cross_instance_replication_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, crossInstanceReplicationConfigProp)) {
 		obj["crossInstanceReplicationConfig"] = crossInstanceReplicationConfigProp
 	}
-	labelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	obj, err = resourceMemorystoreInstanceEncoder(d, meta, obj)
@@ -2116,10 +2098,6 @@ func flattenMemorystoreInstanceZoneDistributionConfigZone(v interface{}, d *sche
 }
 
 func flattenMemorystoreInstanceZoneDistributionConfigMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenMemorystoreInstanceAllowFewerZonesDeployment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2936,10 +2914,6 @@ func expandMemorystoreInstanceZoneDistributionConfigMode(v interface{}, d tpgres
 	return v, nil
 }
 
-func expandMemorystoreInstanceAllowFewerZonesDeployment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
 func expandMemorystoreInstanceDeletionProtectionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -3397,10 +3371,28 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 					}
 				}
 			}
+			// We want to make these fields detect API-side drift, so if the API returns a value for them and they're set in config, we set them in state.
+			// On import, we only set `desired_auto_created_endpoints` because that's the non-deprecated field.
 			if len(transformed) > 0 {
-				d.Set("desired_auto_created_endpoints", transformed)
-				log.Printf("[DEBUG] Setting desired_auto_created_endpoints in decoder for %#v", transformed)
-
+				_, okEndpoint := d.GetOk("desired_auto_created_endpoints")
+				_, okPsc := d.GetOk("desired_psc_auto_connections")
+				if okEndpoint {
+					d.Set("desired_auto_created_endpoints", transformed)
+					log.Printf("[DEBUG] Setting desired_auto_created_endpoints in decoder within endpoints for %#v", transformed)
+				} else if okPsc {
+					d.Set("desired_auto_created_endpoints", []interface{}{})
+				}
+				if okPsc {
+					d.Set("desired_psc_auto_connections", transformed)
+					log.Printf("[DEBUG] Setting desired_psc_auto_connections in decoder within endpoints for %#v", transformed)
+				} else if okEndpoint {
+					d.Set("desired_psc_auto_connections", []interface{}{})
+				}
+				// Set preferred field on import
+				if !okPsc && !okEndpoint {
+					d.Set("desired_auto_created_endpoints", transformed)
+					log.Printf("[DEBUG] Setting desired_auto_created_endpoints in decoder within endpoints for %#v", transformed)
+				}
 			}
 		}
 

@@ -208,6 +208,7 @@ you create the resource.`,
 			},
 			"network": {
 				Type:             schema.TypeString,
+				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,

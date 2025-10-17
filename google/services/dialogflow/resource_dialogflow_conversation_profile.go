@@ -976,6 +976,18 @@ func resourceDialogflowConversationProfileCreate(d *schema.ResourceData, meta in
 	}
 
 	headers := make(http.Header)
+	location := d.Get("location").(string)
+	universeDomain := config.UniverseDomain
+
+	if universeDomain != "" && universeDomain != "googleapis.com" {
+		url = strings.Replace(url, "googleapis.com", universeDomain, 1)
+	}
+
+	if strings.HasPrefix(url, "https://dialogflow") {
+		if location != "" && location != "global" {
+			url = strings.Replace(url, "https://dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+		}
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -1052,6 +1064,18 @@ func resourceDialogflowConversationProfileRead(d *schema.ResourceData, meta inte
 	}
 
 	headers := make(http.Header)
+	location := d.Get("location").(string)
+	universeDomain := config.UniverseDomain
+
+	if universeDomain != "" && universeDomain != "googleapis.com" {
+		url = strings.Replace(url, "googleapis.com", universeDomain, 1)
+	}
+
+	if strings.HasPrefix(url, "https://dialogflow") {
+		if location != "" && location != "global" {
+			url = strings.Replace(url, "https://dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+		}
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -1259,6 +1283,18 @@ func resourceDialogflowConversationProfileUpdate(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
+	location := d.Get("location").(string)
+	universeDomain := config.UniverseDomain
+
+	if universeDomain != "" && universeDomain != "googleapis.com" {
+		url = strings.Replace(url, "googleapis.com", universeDomain, 1)
+	}
+
+	if strings.HasPrefix(url, "https://dialogflow") {
+		if location != "" && location != "global" {
+			url = strings.Replace(url, "https://dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+		}
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -1317,6 +1353,18 @@ func resourceDialogflowConversationProfileDelete(d *schema.ResourceData, meta in
 	}
 
 	headers := make(http.Header)
+	location := d.Get("location").(string)
+	universeDomain := config.UniverseDomain
+
+	if universeDomain != "" && universeDomain != "googleapis.com" {
+		url = strings.Replace(url, "googleapis.com", universeDomain, 1)
+	}
+
+	if strings.HasPrefix(url, "https://dialogflow") {
+		if location != "" && location != "global" {
+			url = strings.Replace(url, "https://dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+		}
+	}
 
 	log.Printf("[DEBUG] Deleting ConversationProfile %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1357,6 +1405,21 @@ func resourceDialogflowConversationProfileImport(d *schema.ResourceData, meta in
 	if err := d.Set("project", stringParts[1]); err != nil {
 		return nil, fmt.Errorf("Error setting project: %s", err)
 	}
+
+	var location string
+	for i, part := range stringParts {
+		if part == "locations" && i+1 < len(stringParts) {
+			location = stringParts[i+1]
+			break
+		}
+	}
+	if location == "" {
+		return nil, fmt.Errorf("Could not extract location from name: %s", d.Get("name"))
+	}
+	if err := d.Set("location", location); err != nil {
+		return nil, fmt.Errorf("Error setting location: %s", err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 

@@ -27,7 +27,7 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithField
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"prevent_destroy": false,
+		"deletion_policy": "DELETE",
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -62,20 +62,18 @@ func testAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithField
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
     instance_id = "tf-test-my-initial-instance%{random_suffix}"
+
     # Prevent accidental deletions.
-    lifecycle {
-        prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
     repository_id = "tf-test-my-initial-repository%{random_suffix}"
     instance = google_secure_source_manager_instance.instance.name
     location = google_secure_source_manager_instance.instance.location
+
     # Prevent accidental deletions.
-    lifecycle {
-        prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_branch_rule" "default" {
@@ -99,20 +97,18 @@ func testAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithField
 resource "google_secure_source_manager_instance" "instance" {
 	location = "us-central1"
 	instance_id = "tf-test-my-initial-instance%{random_suffix}"
-	# Prevent accidental deletions.
-	lifecycle {
-		prevent_destroy = "%{prevent_destroy}"
-	}
+
+    # Prevent accidental deletions.
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
     repository_id = "tf-test-my-initial-repository%{random_suffix}"
     instance = google_secure_source_manager_instance.instance.name
     location = google_secure_source_manager_instance.instance.location
+
     # Prevent accidental deletions.
-    lifecycle {
-        prevent_destroy = "%{prevent_destroy}"
-    }
+    deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_secure_source_manager_branch_rule" "default" {

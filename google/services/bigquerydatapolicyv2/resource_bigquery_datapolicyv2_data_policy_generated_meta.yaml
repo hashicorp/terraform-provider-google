@@ -1,0 +1,18 @@
+resource: 'google_bigquery_datapolicyv2_data_policy'
+generation_type: 'mmv1'
+source_file: 'products/bigquerydatapolicyv2/DataPolicy.yaml'
+api_service_name: 'bigquerydatapolicy.googleapis.com'
+api_version: 'v2'
+api_resource_type_kind: 'DataPolicy'
+fields:
+  - field: 'data_masking_policy.predefined_expression'
+  - field: 'data_masking_policy.routine'
+  - field: 'data_policy_id'
+  - field: 'data_policy_type'
+  - field: 'etag'
+  - field: 'grantees'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+  - field: 'policy_tag'
+  - field: 'version'

@@ -30,4 +30,9 @@ fields:
   - field: 'stream_configs.resource_types'
   - field: 'terraform_labels'
     provider_only: true
+  - field: 'validation_config.disable_fhirpath_validation'
+  - field: 'validation_config.disable_profile_validation'
+  - field: 'validation_config.disable_reference_type_validation'
+  - field: 'validation_config.disable_required_field_validation'
+  - field: 'validation_config.enabled_implementation_guides'
   - field: 'version'

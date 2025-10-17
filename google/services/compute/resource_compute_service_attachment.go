@@ -239,6 +239,25 @@ this service attachment.`,
 				Description: `Fingerprint of this resource. This field is used internally during
 updates of this resource.`,
 			},
+			"psc_service_attachment_id": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `An 128-bit global unique ID of the PSC service attachment.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"high": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The high 64 bits of the PSC service attachment ID.`,
+						},
+						"low": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The low 64 bits of the PSC service attachment ID.`,
+						},
+					},
+				},
+			},
 			"send_propagated_connection_limit_if_zero": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -502,6 +521,9 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 	if err := d.Set("fingerprint", flattenComputeServiceAttachmentFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
+	if err := d.Set("psc_service_attachment_id", flattenComputeServiceAttachmentPscServiceAttachmentId(res["pscServiceAttachmentId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
 	if err := d.Set("connection_preference", flattenComputeServiceAttachmentConnectionPreference(res["connectionPreference"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
@@ -747,6 +769,29 @@ func flattenComputeServiceAttachmentDescription(v interface{}, d *schema.Resourc
 }
 
 func flattenComputeServiceAttachmentFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeServiceAttachmentPscServiceAttachmentId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["high"] =
+		flattenComputeServiceAttachmentPscServiceAttachmentIdHigh(original["high"], d, config)
+	transformed["low"] =
+		flattenComputeServiceAttachmentPscServiceAttachmentIdLow(original["low"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeServiceAttachmentPscServiceAttachmentIdHigh(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeServiceAttachmentPscServiceAttachmentIdLow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

@@ -164,6 +164,109 @@ resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=healthcare_fhir_store_consent_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Healthcare Fhir Store Consent Config
+
+
+```hcl
+resource "google_healthcare_fhir_store" "default" {
+  name    = "example-fhir-store"
+  dataset = google_healthcare_dataset.dataset.id
+  version = "R4"
+  complex_data_type_reference_parsing = "DISABLED"
+
+  enable_update_create           = false
+  disable_referential_integrity  = false
+  disable_resource_versioning    = false
+  enable_history_import          = false
+  default_search_handling_strict = false
+
+  notification_configs {
+    pubsub_topic = google_pubsub_topic.topic.id
+  }
+
+  labels = {
+    label1 = "labelvalue1"
+  }
+
+  consent_config {
+    version = "V1"
+    access_enforced = true
+    consent_header_handling {
+        profile = "REQUIRED_ON_READ"
+    }
+    access_determination_log_config {
+        log_level = "VERBOSE"
+    }
+  }
+
+  provider = google-beta
+}
+
+resource "google_pubsub_topic" "topic" {
+  name     = "fhir-notifications"
+
+  provider = google-beta
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  name     = "example-dataset"
+  location = "us-central1"
+
+  provider = google-beta
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=healthcare_fhir_store_validation_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Healthcare Fhir Store Validation Config
+
+
+```hcl
+resource "google_healthcare_fhir_store" "default" {
+  name    = "example-fhir-store"
+  dataset = google_healthcare_dataset.dataset.id
+  version = "R4"
+  complex_data_type_reference_parsing = "DISABLED"
+
+  enable_update_create           = false
+  disable_referential_integrity  = false
+  disable_resource_versioning    = false
+  enable_history_import          = false
+  default_search_handling_strict = false
+
+  notification_configs {
+    pubsub_topic = google_pubsub_topic.topic.id
+  }
+
+  labels = {
+    label1 = "labelvalue1"
+  }
+
+  validation_config {
+    disable_profile_validation = true
+    enabled_implementation_guides = []
+    disable_required_field_validation = true
+    disable_reference_type_validation = true
+    disable_fhirpath_validation = true
+  }
+}
+
+resource "google_pubsub_topic" "topic" {
+  name     = "fhir-notifications"
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  name     = "example-dataset"
+  location = "us-central1"
+}
+```
 
 ## Argument Reference
 
@@ -186,6 +289,16 @@ The following arguments are supported:
   The FHIR specification version.
   Default value is `STU3`.
   Possible values are: `DSTU2`, `STU3`, `R4`.
+
+* `consent_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies whether this store has consent enforcement. Not available for DSTU2 FHIR version due to absence of Consent resources. Not supported for R5 FHIR version.
+  Structure is [documented below](#nested_consent_config).
+
+* `validation_config` -
+  (Optional)
+  Configuration for how to validate incoming FHIR resources against configured profiles.
+  Structure is [documented below](#nested_validation_config).
 
 * `complex_data_type_reference_parsing` -
   (Optional)
@@ -276,6 +389,80 @@ The following arguments are supported:
   Structure is [documented below](#nested_notification_configs).
 
 
+
+<a name="nested_consent_config"></a>The `consent_config` block supports:
+
+* `version` -
+  (Required)
+  Specifies which consent enforcement version is being used for this FHIR store. This field can only be set once by either [fhirStores.create][] or [fhirStores.patch][]. After that, you must call [fhirStores.applyConsents][] to change the version.
+  Possible values are: `CONSENT_ENFORCEMENT_VERSION_UNSPECIFIED`, `V1`.
+
+* `access_enforced` -
+  (Optional)
+  The default value is false. If set to true, when accessing FHIR resources, the consent headers will be verified against consents given by patients. See the ConsentEnforcementVersion for the supported consent headers.
+
+* `consent_header_handling` -
+  (Optional)
+  Different options to configure the behaviour of the server when handling the X-Consent-Scope header.
+  Structure is [documented below](#nested_consent_config_consent_header_handling).
+
+* `access_determination_log_config` -
+  (Optional)
+  Specifies how the server logs the consent-aware requests. If not specified, the AccessDeterminationLogConfig.LogLevel.MINIMUM option is used.
+  Structure is [documented below](#nested_consent_config_access_determination_log_config).
+
+* `enforced_admin_consents` -
+  (Output)
+  The versioned names of the enforced admin Consent resource(s), in the format projects/{projectId}/locations/{location}/datasets/{datasetId}/fhirStores/{fhirStoreId}/fhir/Consent/{resourceId}/_history/{version_id}. For FHIR stores with disableResourceVersioning=true, the format is projects/{projectId}/locations/{location}/datasets/{datasetId}/fhirStores/{fhirStoreId}/fhir/Consent/{resourceId}. This field can only be updated using [fhirStores.applyAdminConsents][].
+
+
+<a name="nested_consent_config_consent_header_handling"></a>The `consent_header_handling` block supports:
+
+* `profile` -
+  (Optional)
+  Specifies the default server behavior when the header is empty. If not specified, the ScopeProfile.PERMIT_EMPTY_SCOPE option is used.
+  Default value is `PERMIT_EMPTY_SCOPE`.
+  Possible values are: `SCOPE_PROFILE_UNSPECIFIED`, `PERMIT_EMPTY_SCOPE`, `REQUIRED_ON_READ`.
+
+<a name="nested_consent_config_access_determination_log_config"></a>The `access_determination_log_config` block supports:
+
+* `log_level` -
+  (Optional)
+  Controls the amount of detail to include as part of the audit logs.
+  Default value is `MINIMUM`.
+  Possible values are: `LOG_LEVEL_UNSPECIFIED`, `DISABLED`, `MINIMUM`, `VERBOSE`.
+
+<a name="nested_validation_config"></a>The `validation_config` block supports:
+
+* `disable_profile_validation` -
+  (Optional)
+  Whether to disable profile validation for this FHIR store. The default value is false. Set this to true to disable checking incoming resources for conformance against structure definitions in this FHIR store.
+
+* `enabled_implementation_guides` -
+  (Optional)
+  A list of implementation guide URLs in this FHIR store that are used to configure the profiles to use for validation.
+  When a URL cannot be resolved (for example, in a type assertion), the server does not return an error.
+  For example, to use the US Core profiles for validation, set enabledImplementationGuides to ["http://hl7.org/fhir/us/core/ImplementationGuide/ig"]. If enabledImplementationGuides is empty or omitted, then incoming resources are only required to conform to the base FHIR profiles. Otherwise, a resource must conform to at least one profile listed in the global property of one of the enabled ImplementationGuides.
+  The Cloud Healthcare API does not currently enforce all of the rules in a StructureDefinition. The following rules are supported:
+  - min/max
+  - minValue/maxValue
+  - maxLength
+  - type
+  - fixed[x]
+  - pattern[x] on simple types
+  - slicing, when using "value" as the discriminator type
+
+* `disable_required_field_validation` -
+  (Optional)
+  Whether to disable required fields validation for incoming resources. The default value is false. Set this to true to disable checking incoming resources for conformance against required fields requirement defined in the FHIR specification. This property only affects resource types that do not have profiles configured for them, any rules in enabled implementation guides will still be enforced.
+
+* `disable_reference_type_validation` -
+  (Optional)
+  Whether to disable reference type validation for incoming resources. The default value is false. Set this to true to disable checking incoming resources for conformance against reference type requirement defined in the FHIR specification. This property only affects resource types that do not have profiles configured for them, any rules in enabled implementation guides will still be enforced.
+
+* `disable_fhirpath_validation` -
+  (Optional)
+  Whether to disable FHIRPath validation for incoming resources. The default value is false. Set this to true to disable checking incoming resources for conformance against FHIRPath requirement defined in the FHIR specification. This property only affects resource types that do not have profiles configured for them, any rules in enabled implementation guides will still be enforced.
 
 <a name="nested_notification_config"></a>The `notification_config` block supports:
 

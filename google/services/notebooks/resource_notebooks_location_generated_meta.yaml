@@ -1,8 +1,0 @@
-resource: 'google_notebooks_location'
-generation_type: 'mmv1'
-source_file: 'products/notebooks/Location.yaml'
-api_service_name: 'notebooks.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Location'
-fields:
-  - field: 'name'

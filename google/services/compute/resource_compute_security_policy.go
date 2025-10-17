@@ -77,6 +77,7 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
 			rulesCustomizeDiff,
 		),
 
@@ -672,8 +673,36 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 					},
 				},
 			},
-		},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Description: `Labels to apply to this address.  A list of key->value pairs.
 
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"label_fingerprint": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique fingerprint of the labels.`,
+			},
+		},
 		UseJSONNumber: true,
 	}
 }
@@ -776,6 +805,48 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	if effectiveLabels := tpgresource.ExpandEffectiveLabels(d); effectiveLabels != nil {
+		userLabels := d.Get("labels")
+		terraformLabels := d.Get("terraform_labels")
+
+		// Labels cannot be set in a create.  We'll have to set them here.
+		err = resourceComputeSecurityPolicyRead(d, meta)
+		if err != nil {
+			return err
+		}
+
+		// Now we can set the labels
+		setLabels := &compute.GlobalSetLabelsRequest{
+			Labels:           effectiveLabels,
+			LabelFingerprint: d.Get("label_fingerprint").(string),
+		}
+
+		op, err = client.SecurityPolicies.SetLabels(project, sp, setLabels).Do()
+		if err != nil {
+			return err
+		}
+
+		err = ComputeOperationWaitTime(config, op, project, fmt.Sprintf("Creating SecurityPolicy.Labels %q", sp), userAgent, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+
+		// Set back the labels field, as it is needed to decide the value of "labels" in the state in the read function.
+		if err := d.Set("labels", userLabels); err != nil {
+			return fmt.Errorf("Error setting back labels: %s", err)
+		}
+
+		// Set back the terraform_labels field, as it is needed to decide the value of "terraform_labels" in the state in the read function.
+		if err := d.Set("terraform_labels", terraformLabels); err != nil {
+			return fmt.Errorf("Error setting back terraform_labels: %s", err)
+		}
+
+		// Set back the effective_labels field, as it is needed to decide the value of "effective_labels" in the state in the read function.
+		if err := d.Set("effective_labels", effectiveLabels); err != nil {
+			return fmt.Errorf("Error setting back effective_labels: %s", err)
+		}
+	}
+
 	return resourceComputeSecurityPolicyRead(d, meta)
 }
 
@@ -833,6 +904,22 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error setting recaptcha_options_config: %s", err)
 	}
 
+	if err := tpgresource.SetLabels(securityPolicy.Labels, d, "labels"); err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetLabels(securityPolicy.Labels, d, "terraform_labels"); err != nil {
+		return err
+	}
+
+	if err := d.Set("effective_labels", securityPolicy.Labels); err != nil {
+		return err
+	}
+
+	if err := d.Set("label_fingerprint", securityPolicy.LabelFingerprint); err != nil {
+		return fmt.Errorf("Error setting label_fingerprint: %s", err)
+	}
+
 	return nil
 }
 
@@ -885,6 +972,22 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("recaptcha_options_config") {
 		securityPolicy.RecaptchaOptionsConfig = expandSecurityPolicyRecaptchaOptionsConfig(d.Get("recaptcha_options_config").([]interface{}), d)
 		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "RecaptchaOptionsConfig")
+	}
+
+	if d.HasChange("effective_labels") {
+		labels := tpgresource.ExpandEffectiveLabels(d)
+		labelFingerprint := d.Get("label_fingerprint").(string)
+		req := compute.GlobalSetLabelsRequest{Labels: labels, LabelFingerprint: labelFingerprint}
+
+		op, err := config.NewComputeClient(userAgent).SecurityPolicies.SetLabels(project, sp, &req).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating labels: %s", err)
+		}
+
+		opErr := ComputeOperationWaitTime(config, op, project, "labels to update", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if opErr != nil {
+			return opErr
+		}
 	}
 
 	if len(securityPolicy.ForceSendFields) > 0 {
@@ -1233,7 +1336,14 @@ func flattenMatchExprOptions(exprOptions *compute.SecurityPolicyRuleMatcherExprO
 		return nil
 	}
 
-	// We check if the API is returning a empty non-null value then we find the current value for this field in the rule config and check if its empty
+	// The API can return an explicit entry `exprOptions` object, causing evaluation of the `recaptcha_options` settings to fail as it's nil: https://github.com/hashicorp/terraform-provider-google/issues/24334
+	// Explicitly check it's available and exit early if not.
+	if exprOptions.RecaptchaOptions == nil {
+		return nil
+	}
+
+	// The API can return an explicit empty rule causing an issue: https://github.com/hashicorp/terraform-provider-google/issues/16882#issuecomment-2474528447
+	// We check if the API is returning a empty non-null value then we find the current value for this field in the rule config and check if its empty.
 	if (tpgresource.IsEmptyValue(reflect.ValueOf(exprOptions.RecaptchaOptions.ActionTokenSiteKeys)) &&
 		tpgresource.IsEmptyValue(reflect.ValueOf(exprOptions.RecaptchaOptions.SessionTokenSiteKeys))) &&
 		verifyRulePriorityCompareEmptyValues(d, rulePriority, "recaptcha_options") {
@@ -1241,7 +1351,9 @@ func flattenMatchExprOptions(exprOptions *compute.SecurityPolicyRuleMatcherExprO
 	}
 
 	data := map[string]interface{}{
+		// NOTE: when adding new entries, the recaptcha_options rule above will need to be revised
 		"recaptcha_options": flattenMatchExprOptionsRecaptchaOptions(exprOptions.RecaptchaOptions),
+		// NOTE: when adding new entries, the recaptcha_options rule above will need to be revised
 	}
 
 	return []map[string]interface{}{data}

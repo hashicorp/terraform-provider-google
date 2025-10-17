@@ -315,6 +315,11 @@ Must be smaller than periodSeconds.`,
 																Required:    true,
 																Description: `This must match the Name of a Volume.`,
 															},
+															"sub_path": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Path within the volume from which the container's volume should be mounted.`,
+															},
 														},
 													},
 												},
@@ -1014,17 +1019,17 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("template"); !tpgresource.IsEmptyValue(reflect.ValueOf(templateProp)) && (ok || !reflect.DeepEqual(v, templateProp)) {
 		obj["template"] = templateProp
 	}
-	labelsProp, err := expandCloudRunV2JobEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandCloudRunV2JobEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandCloudRunV2JobEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandCloudRunV2JobEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs?jobId={{name}}")
@@ -1255,17 +1260,17 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("template"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, templateProp)) {
 		obj["template"] = templateProp
 	}
-	labelsProp, err := expandCloudRunV2JobEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandCloudRunV2JobEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
-	annotationsProp, err := expandCloudRunV2JobEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandCloudRunV2JobEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs/{{name}}")
@@ -1770,6 +1775,7 @@ func flattenCloudRunV2JobTemplateTemplateContainersVolumeMounts(v interface{}, d
 		transformed = append(transformed, map[string]interface{}{
 			"name":       flattenCloudRunV2JobTemplateTemplateContainersVolumeMountsName(original["name"], d, config),
 			"mount_path": flattenCloudRunV2JobTemplateTemplateContainersVolumeMountsMountPath(original["mountPath"], d, config),
+			"sub_path":   flattenCloudRunV2JobTemplateTemplateContainersVolumeMountsSubPath(original["subPath"], d, config),
 		})
 	}
 	return transformed
@@ -1779,6 +1785,10 @@ func flattenCloudRunV2JobTemplateTemplateContainersVolumeMountsName(v interface{
 }
 
 func flattenCloudRunV2JobTemplateTemplateContainersVolumeMountsMountPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobTemplateTemplateContainersVolumeMountsSubPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3028,6 +3038,13 @@ func expandCloudRunV2JobTemplateTemplateContainersVolumeMounts(v interface{}, d 
 			transformed["mountPath"] = transformedMountPath
 		}
 
+		transformedSubPath, err := expandCloudRunV2JobTemplateTemplateContainersVolumeMountsSubPath(original["sub_path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subPath"] = transformedSubPath
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -3038,6 +3055,10 @@ func expandCloudRunV2JobTemplateTemplateContainersVolumeMountsName(v interface{}
 }
 
 func expandCloudRunV2JobTemplateTemplateContainersVolumeMountsMountPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobTemplateTemplateContainersVolumeMountsSubPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

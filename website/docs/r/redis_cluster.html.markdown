@@ -494,7 +494,6 @@ resource "google_redis_cluster" "cluster-aof" {
     maxmemory-policy	= "volatile-ttl"
   }
   deletion_protection_enabled = true
-  allow_fewer_zones_deployment = true
   zone_distribution_config {
     mode = "MULTI_ZONE"
   }
@@ -647,13 +646,6 @@ The following arguments are supported:
   (Optional)
   Immutable. Zone distribution config for Memorystore Redis cluster.
   Structure is [documented below](#nested_zone_distribution_config).
-
-* `allow_fewer_zones_deployment` -
-  (Optional)
-  Allows customers to specify if they are okay with deploying a multi-zone
-  cluster in less than 3 zones. Once set, if there is a zonal outage during
-  the cluster creation, the cluster will only be deployed in 2 zones, and
-  stay within the 2 zones for its lifecycle.
 
 * `psc_configs` -
   (Optional)

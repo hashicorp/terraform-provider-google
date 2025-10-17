@@ -439,7 +439,10 @@ The following arguments are supported:
 * `query` - (Required) A query that BigQuery executes when the view is referenced.
 
 * `use_legacy_sql` - (Optional) Specifies whether to use BigQuery's legacy SQL for this view.
-    The default value is true. If set to false, the view will use BigQuery's standard SQL.
+    If set to `false`, the view will use BigQuery's standard SQL. If set to
+    `true`, the view will use BigQuery's legacy SQL. If unset, the API will
+    interpret it as a `true` and assumes the legacy SQL dialect for its query
+    according to the [API documentation](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#ViewDefinition).
     -> **Note**: Starting in provider version `7.0.0`, no default value is
     provided for this field unless explicitly set in the configuration.
 

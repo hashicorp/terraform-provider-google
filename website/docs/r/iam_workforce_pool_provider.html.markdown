@@ -267,6 +267,93 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+## Example Usage - Iam Workforce Pool Provider Extended Attributes Oauth2 Config Client Basic
+
+
+```hcl
+resource "google_iam_workforce_pool" "pool" {
+  workforce_pool_id = "example-pool"
+  parent            = "organizations/123456789"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "example" {
+  workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
+  location           = google_iam_workforce_pool.pool.location
+  provider_id        = "example-prvdr"
+  attribute_mapping  = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri        = "https://login.microsoftonline.com/826602fe-2101-470c-9d71-ee1343668989/v2.0"
+    client_id         = "https://analysis.windows.net/powerbi/connector/GoogleBigQuery"
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+    }
+    client_secret {
+        value {
+          plain_text = "client-secret"
+        }
+      }
+  }
+  extended_attributes_oauth2_client {
+    issuer_uri       = "https://login.microsoftonline.com/826602fe-2101-470c-9d71-ee1343668989/v2.0"
+    client_id        = "client-id"
+    client_secret {
+        value {
+          plain_text = "client-secret"
+        }
+      }
+    attributes_type = "AZURE_AD_GROUPS_ID"
+  }
+}
+```
+## Example Usage - Iam Workforce Pool Provider Extended Attributes Oauth2 Config Client Full
+
+
+```hcl
+resource "google_iam_workforce_pool" "pool" {
+  workforce_pool_id = "example-pool"
+  parent            = "organizations/123456789"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "example" {
+  workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
+  location           = google_iam_workforce_pool.pool.location
+  provider_id        = "example-prvdr"
+  attribute_mapping  = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri        = "https://login.microsoftonline.com/826602fe-2101-470c-9d71-ee1343668989/v2.0"
+    client_id         = "https://analysis.windows.net/powerbi/connector/GoogleBigQuery"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+    }
+  }
+  extended_attributes_oauth2_client {
+    issuer_uri       = "https://login.microsoftonline.com/826602fe-2101-470c-9d71-ee1343668989/v2.0"
+    client_id        = "client-id"
+    client_secret {
+        value {
+          plain_text = "client-secret"
+        }
+      }
+    attributes_type = "AZURE_AD_GROUPS_ID"
+    query_parameters {
+        filter      = "mail:gcp"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -384,6 +471,20 @@ The following arguments are supported:
   in authentication credentials. Currently this configuration is only
   supported with SAML and OIDC protocol.
   Structure is [documented below](#nested_extra_attributes_oauth2_client).
+
+* `extended_attributes_oauth2_client` -
+  (Optional)
+  The configuration for OAuth 2.0 client used to get the extended group
+  memberships for user identities. Only the `AZURE_AD_GROUPS_ID` attribute
+  type is supported. Extended groups supports a subset of Google Cloud
+  services. When the user accesses these services, extended group memberships
+  override the mapped `google.groups` attribute. Extended group memberships
+  cannot be used in attribute mapping or attribute condition expressions.
+  To keep extended group memberships up to date, extended groups are
+  retrieved when the user signs in and at regular intervals during the user's
+  active session. Each user identity in the workforce identity pool must map
+  to a unique Microsoft Entra ID user.
+  Structure is [documented below](#nested_extended_attributes_oauth2_client).
 
 
 
@@ -554,6 +655,66 @@ The following arguments are supported:
 * `filter` -
   (Optional)
   The filter used to request specific records from IdP. In case of attributes type as AZURE_AD_GROUPS_MAIL and AZURE_AD_GROUPS_ID, it represents the
+  filter used to request specific groups for users from IdP. By default, all of the groups associated with the user are fetched. The
+  groups should be security enabled. See https://learn.microsoft.com/en-us/graph/search-query-parameter for more details.
+
+<a name="nested_extended_attributes_oauth2_client"></a>The `extended_attributes_oauth2_client` block supports:
+
+* `issuer_uri` -
+  (Required)
+  The OIDC identity provider's issuer URI. Must be a valid URI using the `https` scheme. Required to get the OIDC discovery document.
+
+* `client_id` -
+  (Required)
+  The OAuth 2.0 client ID for retrieving extended attributes from the identity provider. Required to get the Access Token using client credentials grant flow.
+
+* `client_secret` -
+  (Required)
+  The OAuth 2.0 client secret for retrieving extended attributes from the identity provider. Required to get the Access Token using client credentials grant flow.
+  Structure is [documented below](#nested_extended_attributes_oauth2_client_client_secret).
+
+* `attributes_type` -
+  (Required)
+  Represents the IdP and type of claims that should be fetched.
+  * AZURE_AD_GROUPS_ID:  Used to get the user's group claims from the Azure AD identity provider
+  using configuration provided in ExtendedAttributesOAuth2Client and `id`
+  property of the `microsoft.graph.group` object is used for claim mapping. See
+  https://learn.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#properties
+  for more details on `microsoft.graph.group` properties. The
+  group IDs obtained from Azure AD are present in `assertion.groups` for
+  OIDC providers and `assertion.attributes.groups` for SAML providers for
+  attribute mapping.
+  Possible values are: `AZURE_AD_GROUPS_ID`.
+
+* `query_parameters` -
+  (Optional)
+  Represents the parameters to control which claims are fetched from an IdP.
+  Structure is [documented below](#nested_extended_attributes_oauth2_client_query_parameters).
+
+
+<a name="nested_extended_attributes_oauth2_client_client_secret"></a>The `client_secret` block supports:
+
+* `value` -
+  (Optional)
+  The value of the client secret.
+  Structure is [documented below](#nested_extended_attributes_oauth2_client_client_secret_value).
+
+
+<a name="nested_extended_attributes_oauth2_client_client_secret_value"></a>The `value` block supports:
+
+* `plain_text` -
+  (Required)
+  The plain text of the client secret value.
+
+* `thumbprint` -
+  (Output)
+  A thumbprint to represent the current client secret value.
+
+<a name="nested_extended_attributes_oauth2_client_query_parameters"></a>The `query_parameters` block supports:
+
+* `filter` -
+  (Optional)
+  The filter used to request specific records from IdP. In case of attributes type as AZURE_AD_GROUPS_ID, it represents the
   filter used to request specific groups for users from IdP. By default, all of the groups associated with the user are fetched. The
   groups should be security enabled. See https://learn.microsoft.com/en-us/graph/search-query-parameter for more details.
 

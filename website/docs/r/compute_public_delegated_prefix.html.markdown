@@ -166,8 +166,54 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes/{{name}}`
+
+* `public_delegated_sub_prefixs` -
+  List of sub public delegated fixes for BYO IP functionality.
+  Each item in this array represents a sub prefix that can be
+  used to create addresses or further allocations.
+  Structure is [documented below](#nested_public_delegated_sub_prefixs).
 * `self_link` - The URI of the created resource.
 
+
+<a name="nested_public_delegated_sub_prefixs"></a>The `public_delegated_sub_prefixs` block contains:
+
+* `name` -
+  (Optional)
+  The name of the sub public delegated prefix.
+
+* `description` -
+  (Optional)
+  An optional description of this sub public delegated prefix.
+
+* `region` -
+  (Optional)
+  Output-only. The region of the sub public delegated prefix if it is regional. If absent, the sub prefix is global.
+
+* `status` -
+  (Optional)
+  The status of the sub public delegated prefix.
+  Possible values are: `INITIALIZING`, `READY_TO_ANNOUNCE`, `ANNOUNCED`, `DELETING`.
+
+* `ip_cidr_range` -
+  (Optional)
+  The IP address range in the CIDR format represented by this sub prefix.
+
+* `is_address` -
+  (Optional)
+  Whether the sub prefix is delegated for address creation.
+
+* `mode` -
+  (Optional)
+  The PublicDelegatedSubPrefix mode for IPv6 only.
+  Possible values are: `DELEGATION`, `EXTERNAL_IPV6_FORWARDING_RULE_CREATION`, `EXTERNAL_IPV6_SUBNETWORK_CREATION`.
+
+* `allocatable_prefix_length` -
+  (Optional)
+  The allocatable prefix length supported by this PublicDelegatedSubPrefix.
+
+* `delegatee_project` -
+  (Optional)
+  Name of the project scoping this PublicDelegatedSubPrefix.
 
 ## Timeouts
 

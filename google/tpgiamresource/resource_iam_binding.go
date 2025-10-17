@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -81,8 +82,9 @@ var iamBindingSchema = map[string]*schema.Schema{
 
 func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc NewResourceIamUpdaterFunc, resourceIdParser ResourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
 	settings := NewIamSettings(options...)
+	createTimeOut := time.Duration(settings.CreateTimeOut) * time.Minute
 
-	return &schema.Resource{
+	resource := &schema.Resource{
 		Create: resourceIamBindingCreateUpdate(newUpdaterFunc, settings.EnableBatching),
 		Read:   resourceIamBindingRead(newUpdaterFunc),
 		Update: resourceIamBindingCreateUpdate(newUpdaterFunc, settings.EnableBatching),
@@ -91,13 +93,20 @@ func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdat
 		// if non-empty, this will be used to send a deprecation message when the
 		// resource is used.
 		DeprecationMessage: settings.DeprecationMessage,
-
-		Schema: tpgresource.MergeSchemas(iamBindingSchema, parentSpecificSchema),
+		Schema:             tpgresource.MergeSchemas(iamBindingSchema, parentSpecificSchema),
+		SchemaVersion:      settings.SchemaVersion,
+		StateUpgraders:     settings.StateUpgraders,
 		Importer: &schema.ResourceImporter{
 			State: iamBindingImport(newUpdaterFunc, resourceIdParser),
 		},
 		UseJSONNumber: true,
 	}
+	if createTimeOut > 0 {
+		resource.Timeouts = &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(createTimeOut),
+		}
+	}
+	return resource
 }
 
 func resourceIamBindingCreateUpdate(newUpdaterFunc NewResourceIamUpdaterFunc, enableBatching bool) func(*schema.ResourceData, interface{}) error {

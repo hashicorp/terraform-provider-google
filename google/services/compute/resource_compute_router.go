@@ -41,7 +41,7 @@ func resourceComputeRouterCustomDiff(_ context.Context, diff *schema.ResourceDif
 	block := diff.Get("bgp.0").(map[string]interface{})
 	advertiseMode := block["advertise_mode"]
 	advertisedGroups := block["advertised_groups"].([]interface{})
-	advertisedIPRanges := block["advertised_ip_ranges"].([]interface{})
+	advertisedIPRanges := block["advertised_ip_ranges"].(*schema.Set).List()
 
 	if advertiseMode == "DEFAULT" && len(advertisedGroups) != 0 {
 		return fmt.Errorf("Error in bgp: advertised_groups cannot be specified when using advertise_mode DEFAULT")
@@ -133,28 +133,15 @@ This enum field has the one valid value: ALL_SUBNETS`,
 							},
 						},
 						"advertised_ip_ranges": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Description: `User-specified list of individual IP ranges to advertise in
 custom mode. This field can only be populated if advertiseMode
 is CUSTOM and is advertised to all peers of the router. These IP
 ranges will be advertised in addition to any specified groups.
 Leave this field blank to advertise no custom IP ranges.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"range": {
-										Type:     schema.TypeString,
-										Required: true,
-										Description: `The IP range to advertise. The value must be a
-CIDR-formatted string.`,
-									},
-									"description": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `User-specified description for the IP range.`,
-									},
-								},
-							},
+							Elem: computeRouterBgpAdvertisedIpRangesSchema(),
+							// Default schema.HashSchema is used.
 						},
 						"identifier_range": {
 							Type:     schema.TypeString,
@@ -242,6 +229,24 @@ Must be referenced by exactly one bgpPeer. Must comply with RFC1035.`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func computeRouterBgpAdvertisedIpRangesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"range": {
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The IP range to advertise. The value must be a
+CIDR-formatted string.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `User-specified description for the IP range.`,
+			},
+		},
 	}
 }
 
@@ -668,30 +673,26 @@ func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.Resource
 		return v
 	}
 	l := v.([]interface{})
-	apiData := make([]map[string]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(computeRouterBgpAdvertisedIpRangesSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		apiData = append(apiData, map[string]interface{}{
-			"description": original["description"],
-			"range":       original["range"],
+		transformed.Add(map[string]interface{}{
+			"range":       flattenComputeRouterBgpAdvertisedIpRangesRange(original["range"], d, config),
+			"description": flattenComputeRouterBgpAdvertisedIpRangesDescription(original["description"], d, config),
 		})
 	}
-	configData := []map[string]interface{}{}
-	if v, ok := d.GetOk("bgp.0.advertised_ip_ranges"); ok {
-		for _, item := range v.([]interface{}) {
-			configData = append(configData, item.(map[string]interface{}))
-		}
-	}
-	sorted, err := tpgresource.SortMapsByConfigOrder(configData, apiData, "range")
-	if err != nil {
-		log.Printf("[ERROR] Could not support API response for advertisedIpRanges.0.range: %s", err)
-		return apiData
-	}
-	return sorted
+	return transformed
+}
+func flattenComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeRouterBgpKeepaliveInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -809,6 +810,7 @@ func expandComputeRouterBgpAdvertisedGroups(v interface{}, d tpgresource.Terrafo
 }
 
 func expandComputeRouterBgpAdvertisedIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

@@ -47,6 +47,7 @@ func dataSourceStorageControlFolderIntelligenceConfigRead(d *schema.ResourceData
 	if err != nil {
 		return err
 	}
+
 	d.SetId(id)
 
 	err = resourceStorageControlFolderIntelligenceConfigRead(d, meta)

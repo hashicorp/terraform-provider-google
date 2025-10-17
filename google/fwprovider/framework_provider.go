@@ -36,7 +36,10 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/functions"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/fwvalidators"
+	"github.com/hashicorp/terraform-provider-google/google/services/apigee"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+
+	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/version"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -265,6 +268,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				},
 			},
 			"bigquery_datapolicy_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
+			"bigquery_datapolicyv2_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
 					transport_tpg.CustomEndpointValidator(),
@@ -1008,12 +1017,6 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					transport_tpg.CustomEndpointValidator(),
 				},
 			},
-			"tpu_custom_endpoint": &schema.StringAttribute{
-				Optional: true,
-				Validators: []validator.String{
-					transport_tpg.CustomEndpointValidator(),
-				},
-			},
 			"transcoder_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
@@ -1222,7 +1225,10 @@ func (p *FrameworkProvider) DataSources(_ context.Context) []func() datasource.D
 
 // Resources defines the resources implemented in the provider.
 func (p *FrameworkProvider) Resources(_ context.Context) []func() resource.Resource {
-	return nil
+	return []func() resource.Resource{
+		apigee.NewApigeeKeystoresAliasesKeyCertFileResource,
+		storage.NewStorageNotificationResource,
+	}
 }
 
 // Functions defines the provider functions implemented in the provider.

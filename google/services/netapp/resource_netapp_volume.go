@@ -154,6 +154,11 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 										Optional:    true,
 										Description: `Defines the client ingress specification (allowed clients) as a comma separated list with IPv4 CIDRs or IPv4 host addresses.`,
 									},
+									"anon_uid": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `An integer representing the anonymous user ID. Range is 0 to 4294967295. Required when 'squash_mode' is 'ROOT_SQUASH' or 'ALL_SQUASH'.`,
+									},
 									"has_root_access": {
 										Type:        schema.TypeString,
 										Optional:    true,
@@ -198,6 +203,12 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: `Enable to apply the export rule to NFSV4.1 clients.`,
+									},
+									"squash_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH", ""}),
+										Description:  `SquashMode defines how remote user privileges are restricted when accessing an NFS export. It controls how the user identities (like root) are mapped to anonymous users to limit access and enforce security. Possible values: ["NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH"]`,
 									},
 								},
 							},
@@ -479,6 +490,12 @@ To disable automatic snapshot creation you have to remove the whole snapshot_pol
 						},
 					},
 				},
+			},
+			"throughput_mibps": {
+				Type:        schema.TypeFloat,
+				Computed:    true,
+				Optional:    true,
+				Description: `Optional. Custom Performance Total Throughput of the pool (in MiB/s).`,
 			},
 			"tiering_policy": {
 				Type:        schema.TypeList,
@@ -772,11 +789,17 @@ func resourceNetappVolumeCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("hybrid_replication_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(hybridReplicationParametersProp)) && (ok || !reflect.DeepEqual(v, hybridReplicationParametersProp)) {
 		obj["hybridReplicationParameters"] = hybridReplicationParametersProp
 	}
-	labelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
+	throughputMibpsProp, err := expandNetappVolumeThroughputMibps(d.Get("throughput_mibps"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("throughput_mibps"); !tpgresource.IsEmptyValue(reflect.ValueOf(throughputMibpsProp)) && (ok || !reflect.DeepEqual(v, throughputMibpsProp)) {
+		obj["throughputMibps"] = throughputMibpsProp
+	}
+	effectiveLabelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes?volumeId={{name}}")
@@ -988,6 +1011,9 @@ func resourceNetappVolumeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("hybrid_replication_parameters", flattenNetappVolumeHybridReplicationParameters(res["hybridReplicationParameters"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
+	if err := d.Set("throughput_mibps", flattenNetappVolumeThroughputMibps(res["throughputMibps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappVolumeTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
@@ -1092,11 +1118,17 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("hybrid_replication_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hybridReplicationParametersProp)) {
 		obj["hybridReplicationParameters"] = hybridReplicationParametersProp
 	}
-	labelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
+	throughputMibpsProp, err := expandNetappVolumeThroughputMibps(d.Get("throughput_mibps"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("throughput_mibps"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, throughputMibpsProp)) {
+		obj["throughputMibps"] = throughputMibpsProp
+	}
+	effectiveLabelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{name}}")
@@ -1162,6 +1194,10 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("hybrid_replication_parameters") {
 		updateMask = append(updateMask, "hybridReplicationParameters")
+	}
+
+	if d.HasChange("throughput_mibps") {
+		updateMask = append(updateMask, "throughputMibps")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1368,6 +1404,8 @@ func flattenNetappVolumeExportPolicyRules(v interface{}, d *schema.ResourceData,
 			"kerberos5i_read_write": flattenNetappVolumeExportPolicyRulesKerberos5iReadWrite(original["kerberos5iReadWrite"], d, config),
 			"kerberos5p_read_only":  flattenNetappVolumeExportPolicyRulesKerberos5pReadOnly(original["kerberos5pReadOnly"], d, config),
 			"kerberos5p_read_write": flattenNetappVolumeExportPolicyRulesKerberos5pReadWrite(original["kerberos5pReadWrite"], d, config),
+			"squash_mode":           flattenNetappVolumeExportPolicyRulesSquashMode(original["squashMode"], d, config),
+			"anon_uid":              flattenNetappVolumeExportPolicyRulesAnonUid(original["anonUid"], d, config),
 		})
 	}
 	return transformed
@@ -1414,6 +1452,27 @@ func flattenNetappVolumeExportPolicyRulesKerberos5pReadOnly(v interface{}, d *sc
 
 func flattenNetappVolumeExportPolicyRulesKerberos5pReadWrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenNetappVolumeExportPolicyRulesSquashMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeExportPolicyRulesAnonUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenNetappVolumeProtocols(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1958,6 +2017,10 @@ func flattenNetappVolumeHybridReplicationParametersLabels(v interface{}, d *sche
 	return v
 }
 
+func flattenNetappVolumeThroughputMibps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappVolumeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2095,6 +2158,20 @@ func expandNetappVolumeExportPolicyRules(v interface{}, d tpgresource.TerraformR
 			transformed["kerberos5pReadWrite"] = transformedKerberos5pReadWrite
 		}
 
+		transformedSquashMode, err := expandNetappVolumeExportPolicyRulesSquashMode(original["squash_mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSquashMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["squashMode"] = transformedSquashMode
+		}
+
+		transformedAnonUid, err := expandNetappVolumeExportPolicyRulesAnonUid(original["anon_uid"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAnonUid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["anonUid"] = transformedAnonUid
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2141,6 +2218,14 @@ func expandNetappVolumeExportPolicyRulesKerberos5pReadOnly(v interface{}, d tpgr
 }
 
 func expandNetappVolumeExportPolicyRulesKerberos5pReadWrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeExportPolicyRulesSquashMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeExportPolicyRulesAnonUid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2644,6 +2729,10 @@ func expandNetappVolumeHybridReplicationParametersLabels(v interface{}, d tpgres
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandNetappVolumeThroughputMibps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNetappVolumeEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

@@ -1546,6 +1546,14 @@ The following arguments are supported:
   defaultRouteAction has no effect when the URL map is bound to a target gRPC proxy that has the validateForProxyless field set to true.
   Structure is [documented below](#nested_default_route_action).
 
+* `header_action` -
+  (Optional)
+  Specifies changes to request and response headers that need to take effect for the selected backendService.
+  headerAction specified here take effect before headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
+  headerAction is not supported for load balancers that have their loadBalancingScheme set to EXTERNAL.
+  Not supported when the URL map is bound to a target gRPC proxy that has validateForProxyless field set to true.
+  Structure is [documented below](#nested_header_action).
+
 * `region` -
   (Optional)
   The Region in which the url map should reside.
@@ -1576,6 +1584,14 @@ The following arguments are supported:
   the URL if the hostRule matches the URL's host portion.
 
 <a name="nested_path_matcher"></a>The `path_matcher` block supports:
+
+* `header_action` -
+  (Optional)
+  Specifies changes to request and response headers that need to take effect for the selected backendService.
+  headerAction specified here take effect before headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
+  headerAction is not supported for load balancers that have their loadBalancingScheme set to EXTERNAL.
+  Not supported when the URL map is bound to a target gRPC proxy that has validateForProxyless field set to true.
+  Structure is [documented below](#nested_path_matcher_path_matcher_header_action).
 
 * `default_service` -
   (Optional)
@@ -1627,6 +1643,57 @@ The following arguments are supported:
   Only one of defaultRouteAction or defaultUrlRedirect must be set.
   Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action).
 
+
+<a name="nested_path_matcher_path_matcher_header_action"></a>The `header_action` block supports:
+
+* `request_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the request before forwarding the request to the backendService.
+
+* `request_headers_to_add` -
+  (Optional)
+  Headers to add to a matching request before forwarding the request to the backendService.
+  Structure is [documented below](#nested_path_matcher_path_matcher_header_action_request_headers_to_add).
+
+* `response_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the response before sending the response back to the client.
+
+* `response_headers_to_add` -
+  (Optional)
+  Headers to add the response before sending the response back to the client.
+  Structure is [documented below](#nested_path_matcher_path_matcher_header_action_response_headers_to_add).
+
+
+<a name="nested_path_matcher_path_matcher_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header. If true, headerValue is set for the header, discarding any values that were set for that header.
+  The default value is false.
+
+<a name="nested_path_matcher_path_matcher_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header. If true, headerValue is set for the header, discarding any values that were set for that header.
+  The default value is false.
 
 <a name="nested_path_matcher_path_matcher_route_rules"></a>The `route_rules` block supports:
 
@@ -3474,6 +3541,57 @@ The following arguments are supported:
   (Optional)
   The percentage of traffic (connections/operations/requests) which will be aborted as part of fault injection.
   The value must be between 0.0 and 100.0 inclusive.
+
+<a name="nested_header_action"></a>The `header_action` block supports:
+
+* `request_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the request before forwarding the request to the backendService.
+
+* `request_headers_to_add` -
+  (Optional)
+  Headers to add to a matching request before forwarding the request to the backendService.
+  Structure is [documented below](#nested_header_action_request_headers_to_add).
+
+* `response_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the response before sending the response back to the client.
+
+* `response_headers_to_add` -
+  (Optional)
+  Headers to add the response before sending the response back to the client.
+  Structure is [documented below](#nested_header_action_response_headers_to_add).
+
+
+<a name="nested_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header. If true, headerValue is set for the header, discarding any values that were set for that header.
+  The default value is false.
+
+<a name="nested_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header. If true, headerValue is set for the header, discarding any values that were set for that header.
+  The default value is false.
 
 ## Attributes Reference
 

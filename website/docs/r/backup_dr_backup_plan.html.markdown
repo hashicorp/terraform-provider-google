@@ -268,7 +268,6 @@ In addition to the arguments listed above, the following computed attributes are
   The Google Cloud Platform Service Account to be used by the BackupVault for taking backups.
 
 * `supported_resource_types` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The list of all resource types to which the `BackupPlan` can be applied.
 
 * `create_time` -

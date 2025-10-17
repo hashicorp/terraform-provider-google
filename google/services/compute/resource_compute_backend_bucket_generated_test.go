@@ -47,9 +47,10 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -87,9 +88,10 @@ func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend_full",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend_full",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -138,9 +140,10 @@ func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T
 				Config: testAccComputeBackendBucket_backendBucketSecurityPolicyExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -185,9 +188,10 @@ func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *tes
 				Config: testAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -230,9 +234,10 @@ func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testi
 				Config: testAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -275,9 +280,10 @@ func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testin
 				Config: testAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -405,9 +411,10 @@ func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketBypassCacheExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -450,9 +457,10 @@ func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketCoalescingExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.image_backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.image_backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -478,6 +486,7 @@ resource "google_storage_bucket" "image_bucket" {
 }
 
 func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -495,9 +504,10 @@ func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
 				Config: testAccComputeBackendBucket_backendBucketGlobalIlbExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_bucket.global-ilb-backend",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_bucket.global-ilb-backend",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
@@ -505,6 +515,10 @@ func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
 
 func testAccComputeBackendBucket_backendBucketGlobalIlbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+# Note: This example must be run in a project without Cloud Armor tier configured,
+# as it may cause conflicts with the INTERNAL_MANAGED load balancing scheme.
+# This test is skipped in VCR mode due to non-determinism in project creation and resource management.
+
 resource "google_project" "unarmored" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -521,7 +535,7 @@ resource "google_project_service" "project" {
 
 resource "google_compute_backend_bucket" "global-ilb-backend" {
   name                  = "tf-test-global-ilb-backend-bucket%{random_suffix}"
-  project               = google_project.unarmored.name
+  project               = google_project.unarmored.number
   bucket_name           = google_storage_bucket.global-ilb-backend.name
   load_balancing_scheme = "INTERNAL_MANAGED"
 

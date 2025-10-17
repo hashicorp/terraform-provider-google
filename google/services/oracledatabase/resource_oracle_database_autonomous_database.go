@@ -903,6 +903,7 @@ Format: projects/{project}/global/networks/{network}`,
 			},
 			"odb_network": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `The name of the OdbNetwork associated with the Autonomous Database.
@@ -913,6 +914,7 @@ the odb_subnet and backup_odb_subnet.`,
 			},
 			"odb_subnet": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `The name of the OdbSubnet associated with the Autonomous Database for
@@ -1023,11 +1025,11 @@ func resourceOracleDatabaseAutonomousDatabaseCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("odb_subnet"); !tpgresource.IsEmptyValue(reflect.ValueOf(odbSubnetProp)) && (ok || !reflect.DeepEqual(v, odbSubnetProp)) {
 		obj["odbSubnet"] = odbSubnetProp
 	}
-	labelsProp, err := expandOracleDatabaseAutonomousDatabaseEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandOracleDatabaseAutonomousDatabaseEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{OracleDatabaseBasePath}}projects/{{project}}/locations/{{location}}/autonomousDatabases?autonomousDatabaseId={{autonomous_database_id}}")

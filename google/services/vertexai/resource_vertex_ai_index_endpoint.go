@@ -213,11 +213,11 @@ func resourceVertexAIIndexEndpointCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("public_endpoint_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(publicEndpointEnabledProp)) && (ok || !reflect.DeepEqual(v, publicEndpointEnabledProp)) {
 		obj["publicEndpointEnabled"] = publicEndpointEnabledProp
 	}
-	labelsProp, err := expandVertexAIIndexEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandVertexAIIndexEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexEndpoints")
@@ -397,11 +397,11 @@ func resourceVertexAIIndexEndpointUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandVertexAIIndexEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandVertexAIIndexEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexEndpoints/{{name}}")

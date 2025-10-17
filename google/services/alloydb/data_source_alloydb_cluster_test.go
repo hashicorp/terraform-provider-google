@@ -54,6 +54,8 @@ resource "google_alloydb_cluster" "default" {
   initial_user {
     password = "tf-test-alloydb-cluster%{random_suffix}"
   }
+
+  deletion_protection = false
 }
 
 data "google_compute_network" "default" {

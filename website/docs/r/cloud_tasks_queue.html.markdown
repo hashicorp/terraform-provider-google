@@ -228,6 +228,11 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `desired_state` - (Optional) The desired state of the queue. Use this to pause and resume the queue.
+
+* RUNNING: The queue is running. Tasks can be dispatched.
+* PAUSED: The queue is paused. Tasks are not dispatched but can be added to the queue.
+
 
 
 <a name="nested_app_engine_routing_override"></a>The `app_engine_routing_override` block supports:
@@ -466,6 +471,9 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/queues/{{name}}`
+
+* `state` -
+  The current state of the queue.
 
 
 ## Timeouts

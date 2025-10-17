@@ -34,15 +34,32 @@ To get more information about ReferenceList, see:
 
 
 ```hcl
+resource "google_chronicle_data_access_scope" "test_scope" {
+  location = "us"
+  instance = "00000000-0000-0000-0000-000000000000"
+  data_access_scope_id = "scope-id"
+  description = "test scope description"
+  allowed_data_access_labels {
+    log_type = "GCP_CLOUDAUDIT"
+  }
+}
+
 resource "google_chronicle_reference_list" "example" {
- location = "us"
- instance = "00000000-0000-0000-0000-000000000000"
- reference_list_id = "reference_list_id"
- description = "referencelist-description"
- entries {
-  value = "referencelist-entry-value"
- }
- syntax_type = "REFERENCE_LIST_SYNTAX_TYPE_PLAIN_TEXT_STRING"
+  location = "us"
+  instance = "00000000-0000-0000-0000-000000000000"
+  reference_list_id = "reference_list_id"
+  description = "referencelist-description"
+  entries {
+    value = "referencelist-entry-value"
+  }
+  syntax_type = "REFERENCE_LIST_SYNTAX_TYPE_PLAIN_TEXT_STRING"
+  scope_info {
+    reference_list_scope {
+      scope_names = [
+        google_chronicle_data_access_scope.test_scope.name
+      ]
+    }
+  }
 }
 ```
 
@@ -89,6 +106,11 @@ The following arguments are supported:
   - Must be unique.
 
 
+* `scope_info` -
+  (Optional)
+  ScopeInfo specifies the scope info of the reference list.
+  Structure is [documented below](#nested_scope_info).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -100,6 +122,22 @@ The following arguments are supported:
   (Required)
   Required. The value of the entry. Maximum length is 512 characters.
 
+<a name="nested_scope_info"></a>The `scope_info` block supports:
+
+* `reference_list_scope` -
+  (Optional)
+  ReferenceListScope specifies the list of scope names of the reference list.
+  Structure is [documented below](#nested_scope_info_reference_list_scope).
+
+
+<a name="nested_scope_info_reference_list_scope"></a>The `reference_list_scope` block supports:
+
+* `scope_names` -
+  (Optional)
+  Optional. The list of scope names of the reference list. The scope names should be
+  full resource names and should be of the format:
+  "projects/{project}/locations/{location}/instances/{instance}/dataAccessScopes/{scope_name}".
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -110,10 +148,6 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. The resource name of the reference list.
   Format:
   projects/{project}/locations/{location}/instances/{instance}/referenceLists/{reference_list}
-
-* `scope_info` -
-  ScopeInfo specifies the scope info of the reference list.
-  Structure is [documented below](#nested_scope_info).
 
 * `display_name` -
   Output only. The unique display name of the reference list.
@@ -129,22 +163,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `rule_associations_count` -
   Output only. The count of self-authored rules using the reference list.
 
-
-<a name="nested_scope_info"></a>The `scope_info` block contains:
-
-* `reference_list_scope` -
-  (Required)
-  ReferenceListScope specifies the list of scope names of the reference list.
-  Structure is [documented below](#nested_scope_info_reference_list_scope).
-
-
-<a name="nested_scope_info_reference_list_scope"></a>The `reference_list_scope` block supports:
-
-* `scope_names` -
-  (Optional)
-  Optional. The list of scope names of the reference list. The scope names should be
-  full resource names and should be of the format:
-  "projects/{project}/locations/{location}/instances/{instance}/dataAccessScopes/{scope_name}".
 
 ## Timeouts
 

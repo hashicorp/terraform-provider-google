@@ -1,0 +1,12 @@
+resource: 'google_discovery_engine_acl_config'
+generation_type: 'mmv1'
+source_file: 'products/discoveryengine/AclConfig.yaml'
+api_service_name: 'discoveryengine.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'AclConfig'
+fields:
+  - field: 'idp_config.external_idp_config.workforce_pool_name'
+  - field: 'idp_config.idp_type'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'

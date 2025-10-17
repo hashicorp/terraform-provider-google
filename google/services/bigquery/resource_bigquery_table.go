@@ -30,6 +30,7 @@ import (
 
 	"golang.org/x/exp/slices"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
@@ -286,9 +287,38 @@ func bigQueryTableNormalizePolicyTags(val interface{}) interface{} {
 	return val
 }
 
+func bigQueryTableHasRowAccessPolicy(config *transport_tpg.Config, project, datasetId, tableId string) (bool, error) {
+	url := fmt.Sprintf("https://bigquery.googleapis.com/bigquery/v2/projects/%s/datasets/%s/tables/%s/rowAccessPolicies", project, datasetId, tableId)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		RawURL:    url,
+		UserAgent: config.UserAgent,
+	})
+
+	if err != nil {
+		return false, err
+	}
+
+	if policies, ok := res["rowAccessPolicies"]; ok {
+		if policiesList, ok := policies.([]interface{}); ok && len(policiesList) > 0 {
+			log.Printf("[INFO] Table has row access policies, schema change detected dropped columns and will force the table to recreate.")
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func bigQueryTableHasRowAccessPolicyFunc(config *transport_tpg.Config, project, datasetId, tableId string) func() (bool, error) {
+	return func() (bool, error) {
+		return bigQueryTableHasRowAccessPolicy(config, project, datasetId, tableId)
+	}
+}
+
 // Compares two existing schema implementations and decides if
 // it is changeable.. pairs with a force new on not changeable
-func resourceBigQueryTableSchemaIsChangeable(old, new interface{}, isExternalTable bool, topLevel bool) (bool, error) {
+func resourceBigQueryTableSchemaIsChangeable(old, new interface{}, isExternalTable bool, topLevel bool, hasRowAccessPolicyFunc func() (bool, error)) (bool, error) {
 	switch old.(type) {
 	case []interface{}:
 		arrayOld := old.([]interface{})
@@ -329,7 +359,7 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}, isExternalTab
 				continue
 			}
 
-			isChangable, err := resourceBigQueryTableSchemaIsChangeable(mapOld[key], mapNew[key], isExternalTable, false)
+			isChangable, err := resourceBigQueryTableSchemaIsChangeable(mapOld[key], mapNew[key], isExternalTable, false, hasRowAccessPolicyFunc)
 			if err != nil || !isChangable {
 				return false, err
 			} else if isChangable && topLevel {
@@ -340,7 +370,18 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}, isExternalTab
 		// in-place column dropping alongside column additions is not allowed
 		// as of now because user intention can be ambiguous (e.g. column renaming)
 		newColumns := len(arrayNew) - sameNameColumns
-		return (droppedColumns == 0) || (newColumns == 0), nil
+		isSchemaChangeable := (droppedColumns == 0) || (newColumns == 0)
+		if isSchemaChangeable && topLevel {
+			hasRowAccessPolicy, err := hasRowAccessPolicyFunc()
+			if err != nil {
+				// Default behavior when we can't get row access policies data.
+				return isSchemaChangeable, nil
+			}
+			if hasRowAccessPolicy {
+				isSchemaChangeable = false
+			}
+		}
+		return isSchemaChangeable, nil
 	case map[string]interface{}:
 		objectOld := old.(map[string]interface{})
 		objectNew, ok := new.(map[string]interface{})
@@ -386,7 +427,7 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}, isExternalTab
 					return false, nil
 				}
 			case "fields":
-				return resourceBigQueryTableSchemaIsChangeable(valOld, valNew, isExternalTable, false)
+				return resourceBigQueryTableSchemaIsChangeable(valOld, valNew, isExternalTable, false, hasRowAccessPolicyFunc)
 
 				// other parameters: description, policyTags and
 				// policyTags.names[] are changeable
@@ -403,7 +444,7 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}, isExternalTab
 	}
 }
 
-func resourceBigQueryTableSchemaCustomizeDiffFunc(d tpgresource.TerraformResourceDiff) error {
+func resourceBigQueryTableSchemaCustomizeDiffFunc(d tpgresource.TerraformResourceDiff, hasRowAccessPolicyFunc func() (bool, error)) error {
 	if _, hasSchema := d.GetOk("schema"); hasSchema {
 		oldSchema, newSchema := d.GetChange("schema")
 		oldSchemaText := oldSchema.(string)
@@ -426,7 +467,7 @@ func resourceBigQueryTableSchemaCustomizeDiffFunc(d tpgresource.TerraformResourc
 			log.Printf("[DEBUG] unable to unmarshal json customized diff - %v", err)
 		}
 		_, isExternalTable := d.GetOk("external_data_configuration")
-		isChangeable, err := resourceBigQueryTableSchemaIsChangeable(old, new, isExternalTable, true)
+		isChangeable, err := resourceBigQueryTableSchemaIsChangeable(old, new, isExternalTable, true, hasRowAccessPolicyFunc)
 		if err != nil {
 			return err
 		}
@@ -441,7 +482,15 @@ func resourceBigQueryTableSchemaCustomizeDiffFunc(d tpgresource.TerraformResourc
 }
 
 func resourceBigQueryTableSchemaCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
-	return resourceBigQueryTableSchemaCustomizeDiffFunc(d)
+	config := meta.(*transport_tpg.Config)
+	project, err := tpgresource.GetProjectFromDiff(d, config)
+	if err != nil {
+		return err
+	}
+	datasetId := d.Get("dataset_id").(string)
+	tableId := d.Get("table_id").(string)
+	hasRowAccessPolicyFunc := bigQueryTableHasRowAccessPolicyFunc(config, project, datasetId, tableId)
+	return resourceBigQueryTableSchemaCustomizeDiffFunc(d, hasRowAccessPolicyFunc)
 }
 
 func validateBigQueryTableSchema(v interface{}, k string) (warnings []string, errs []error) {
@@ -1067,13 +1116,13 @@ func ResourceBigQueryTable() *schema.Resource {
 						},
 
 						// UseLegacySQL: [Optional] Specifies whether to use BigQuery's
-						// legacy SQL for this view. The default value is true. If set to
-						// false, the view will use BigQuery's standard SQL:
+						// legacy SQL for this view. If set to false, the view will use
+						// BigQuery's standard SQL:
 						"use_legacy_sql": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Default:     true,
-							Description: `Specifies whether to use BigQuery's legacy SQL for this view. The default value is true. If set to false, the view will use BigQuery's standard SQL`,
+							Computed:    true,
+							Description: `Specifies whether to use BigQuery's legacy SQL for this view. If set to false, the view will use BigQuery's standard SQL`,
 						},
 					},
 				},
@@ -1684,8 +1733,8 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		},
 	}
 
-	if v, ok := d.GetOk("view"); ok {
-		table.View = expandView(v)
+	if _, ok := d.GetOk("view"); ok {
+		table.View = expandView(d)
 	}
 
 	if v, ok := d.GetOk("materialized_view"); ok {
@@ -3067,12 +3116,15 @@ func flattenRangePartitioning(rp *bigquery.RangePartitioning) []map[string]inter
 	return []map[string]interface{}{result}
 }
 
-func expandView(configured interface{}) *bigquery.ViewDefinition {
-	raw := configured.([]interface{})[0].(map[string]interface{})
+func expandView(d *schema.ResourceData) *bigquery.ViewDefinition {
+	v, _ := d.GetOk("view")
+	raw := v.([]interface{})[0].(map[string]interface{})
 	vd := &bigquery.ViewDefinition{Query: raw["query"].(string)}
 
-	if v, ok := raw["use_legacy_sql"]; ok {
-		vd.UseLegacySql = v.(bool)
+	configValue := d.GetRawConfig().GetAttr("view").Index(cty.NumberIntVal(0)).AsValueMap()
+	useLegacySQLValue := configValue["use_legacy_sql"]
+	if !useLegacySQLValue.IsNull() {
+		vd.UseLegacySql = useLegacySQLValue.RawEquals(cty.True)
 		vd.ForceSendFields = append(vd.ForceSendFields, "UseLegacySql")
 	}
 
@@ -3517,9 +3569,9 @@ func flattenSerDeInfo(si *bigquery.SerDeInfo) []map[string]interface{} {
 func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)",
-		"(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)$",
+		"^(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

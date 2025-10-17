@@ -63,9 +63,19 @@ resource "google_privateca_ca_pool" "default" {
 
 
 ```hcl
+resource "google_project_service_identity" "privateca_sa" {
+  service = "privateca.googleapis.com"
+}
+
+resource "google_kms_crypto_key_iam_member" "privateca_sa_keyuser_encrypterdecrypter" {
+  crypto_key_id = "projects/keys-project/locations/asia-east1/keyRings/key-ring/cryptoKeys/crypto-key"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member = google_project_service_identity.privateca_sa.member
+}
+
 resource "google_privateca_ca_pool" "default" {
   name = "my-pool"
-  location = "us-central1"
+  location = "asia-east1"
   tier = "ENTERPRISE"
   publishing_options {
     publish_ca_cert = false
@@ -74,6 +84,9 @@ resource "google_privateca_ca_pool" "default" {
   }
   labels = {
     foo = "bar"
+  }
+  encryption_spec {
+    cloud_kms_key = "projects/keys-project/locations/asia-east1/keyRings/key-ring/cryptoKeys/crypto-key"
   }
   issuance_policy {
     allowed_key_types {
@@ -152,6 +165,10 @@ resource "google_privateca_ca_pool" "default" {
       }
     }
   }
+
+  depends_on = [
+    google_kms_crypto_key_iam_member.privateca_sa_keyuser_encrypterdecrypter,
+  ]
 }
 ```
 
@@ -193,6 +210,13 @@ The following arguments are supported:
 
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `encryption_spec` -
+  (Optional)
+  Used when customer would like to encrypt data at rest. The customer-provided key will be used
+  to encrypt the Subject, SubjectAltNames and PEM-encoded certificate fields. When unspecified,
+  customer data will remain unencrypted.
+  Structure is [documented below](#nested_encryption_spec).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -575,6 +599,13 @@ The following arguments are supported:
   certificate and CRLs. If this is omitted, CA certificates and CRLs
   will be published in PEM.
   Possible values are: `PEM`, `DER`.
+
+<a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
+
+* `cloud_kms_key` -
+  (Optional)
+  The resource name for an existing Cloud KMS key in the format
+  `projects/*/locations/*/keyRings/*/cryptoKeys/*`.
 
 ## Attributes Reference
 

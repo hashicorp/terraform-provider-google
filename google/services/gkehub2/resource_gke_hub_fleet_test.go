@@ -140,14 +140,12 @@ resource "google_project" "project" {
 resource "google_project_service" "gkehub" {
   project = google_project.project.project_id
   service = "gkehub.googleapis.com"
-  disable_on_destroy = false
   depends_on = [google_project_service.anthos]
 }
 
 resource "google_project_service" "anthos" {
   project = google_project.project.project_id
   service = "anthos.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "time_sleep" "wait_for_gkehub_enablement" {

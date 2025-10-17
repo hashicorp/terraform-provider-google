@@ -53,15 +53,32 @@ func TestAccChronicleReferenceList_chronicleReferencelistBasicExample(t *testing
 
 func testAccChronicleReferenceList_chronicleReferencelistBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_chronicle_data_access_scope" "test_scope" {
+  location = "us"
+  instance = "%{chronicle_id}"
+  data_access_scope_id = "tf-test-scope-id%{random_suffix}"
+  description = "test scope description"
+  allowed_data_access_labels {
+    log_type = "GCP_CLOUDAUDIT"
+  }
+}
+
 resource "google_chronicle_reference_list" "example" {
- location = "us"
- instance = "%{chronicle_id}"
- reference_list_id = "tf_test_reference_list_id%{random_suffix}"
- description = "referencelist-description"
- entries {
-  value = "referencelist-entry-value"
- }
- syntax_type = "REFERENCE_LIST_SYNTAX_TYPE_PLAIN_TEXT_STRING"
+  location = "us"
+  instance = "%{chronicle_id}"
+  reference_list_id = "tf_test_reference_list_id%{random_suffix}"
+  description = "referencelist-description"
+  entries {
+    value = "referencelist-entry-value"
+  }
+  syntax_type = "REFERENCE_LIST_SYNTAX_TYPE_PLAIN_TEXT_STRING"
+  scope_info {
+    reference_list_scope {
+      scope_names = [
+        google_chronicle_data_access_scope.test_scope.name
+      ]
+    }
+  }
 }
 `, context)
 }

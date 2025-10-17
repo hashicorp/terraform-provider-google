@@ -224,11 +224,11 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("per_unit_storage_throughput"); !tpgresource.IsEmptyValue(reflect.ValueOf(perUnitStorageThroughputProp)) && (ok || !reflect.DeepEqual(v, perUnitStorageThroughputProp)) {
 		obj["perUnitStorageThroughput"] = perUnitStorageThroughputProp
 	}
-	labelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{LustreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{instance_id}}")
@@ -409,11 +409,11 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{LustreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")

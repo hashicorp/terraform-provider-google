@@ -27,7 +27,7 @@ class VcrDetails(private val providerName: String, private val buildId: String, 
         val testTimeout = "12"
         val parallelism = DefaultParallelism
         val buildTimeout: Int = DefaultBuildTimeoutDuration
-        val releaseDiffTest = "false"
+        val releaseDiffTest = false
 
         // Path is just ./google(-beta) here, whereas nightly test builds use paths like ./google/something/specific
         // This helps VCR testing builds to run tests across multiple packages

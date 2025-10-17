@@ -95,6 +95,39 @@ func TestAccContainerCluster_basic(t *testing.T) {
 	})
 }
 
+// This is to ensure that updates don't get trigerred with incorrect interpration of
+// nil serviceAccount keys as empty array.
+func TestAccContainerCluster_basic_noCpaUpgrade(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_basic(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "services_ipv4_cidr"),
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "self_link"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "networking_mode", "VPC_NATIVE"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_basic(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionNoop),
+					},
+				},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_resourceManagerTags(t *testing.T) {
 	t.Parallel()
 
@@ -1958,6 +1991,68 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withKubeletConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withKubeletConfig(clusterName, networkName, subnetworkName, "none", "None", "best-effort", "pod"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.cpu_manager_policy", "none"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.memory_manager.0.policy", "None"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.policy", "best-effort"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.scope", "pod"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_kubelet_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withKubeletConfig(clusterName, networkName, subnetworkName, "static", "Static", "single-numa-node", "pod"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.cpu_manager_policy", "static"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.memory_manager.0.policy", "Static"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.policy", "single-numa-node"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.scope", "pod"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_kubelet_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -7981,50 +8076,50 @@ resource "google_container_cluster" "with_node_config_kubelet_config_settings_in
   node_pool {
     name               = "%s"
     initial_node_count = 1
-    machine_type = "n1-standard-1"
     node_config {
+      machine_type = "n1-standard-1"
       kubelet_config {
         max_parallel_image_pulls               = 5
-	eviction_max_pod_grace_period_seconds  = 200
-	eviction_soft {
-	  memory_available = "200Mi"
-	  nodefs_available = "10%%"
-	  nodefs_inodes_free = "20%%"
-	  imagefs_available = "30%%"
-	  imagefs_inodes_free = "40%%"
-	  pid_available = "50%%"
-	}
-	eviction_soft_grace_period {
-	  memory_available = "1m"
-	  nodefs_available = "2s"
-	  nodefs_inodes_free = "3m"
-	  imagefs_available = "100s"
-	  imagefs_inodes_free = "2m"
-	  pid_available = "3m2.6s"
-	}
-	eviction_minimum_reclaim {
-	  memory_available = "10%%"
-	  nodefs_available = "8.5%%"
-	  nodefs_inodes_free = "5.0%%"
-	  imagefs_available = "3%%"
-	  imagefs_inodes_free = "9%%"
-	  pid_available = "5%%"
-	}
+        eviction_max_pod_grace_period_seconds  = 200
+        eviction_soft {
+          memory_available = "200Mi"
+          nodefs_available = "10%%"
+          nodefs_inodes_free = "20%%"
+          imagefs_available = "30%%"
+          imagefs_inodes_free = "40%%"
+          pid_available = "50%%"
+        }
+        eviction_soft_grace_period {
+          memory_available = "1m"
+          nodefs_available = "2s"
+          nodefs_inodes_free = "3m"
+          imagefs_available = "100s"
+          imagefs_inodes_free = "2m"
+          pid_available = "3m2.6s"
+        }
+        eviction_minimum_reclaim {
+          memory_available = "10%%"
+          nodefs_available = "8.5%%"
+          nodefs_inodes_free = "5.0%%"
+          imagefs_available = "3%%"
+          imagefs_inodes_free = "9%%"
+          pid_available = "5%%"
+        }
       }
       disk_size_gb = 15
       disk_type    = "pd-ssd"
       node_group   = google_compute_node_group.group.name
       sole_tenant_config {
         node_affinity {
-	  key      = "compute.googleapis.com/node-group-name"
-	  operator = "IN"
-	  values   = [google_compute_node_group.group.name]
-	}
-	min_node_cpus = 1
+          key      = "compute.googleapis.com/node-group-name"
+          operator = "IN"
+          values   = [google_compute_node_group.group.name]
+        }
+        min_node_cpus = 1
       }
       linux_node_config {
-        transparent_hugepage_defrag  = %s
-	transparent_hugepage_enabled = %s
+        transparent_hugepage_defrag  = "%s"
+        transparent_hugepage_enabled = "%s"
       }
     }
   }
@@ -8413,12 +8508,10 @@ func testAccContainerCluster_withNodeConfigReservationAffinitySpecific(reservati
 
 resource "google_project_service" "compute" {
   service = "compute.googleapis.com"
-  disable_on_destroy = false
 }
 
 resource "google_project_service" "container" {
   service = "container.googleapis.com"
-  disable_on_destroy = false
   depends_on = [google_project_service.compute]
 }
 
@@ -10896,6 +10989,10 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
   secret_manager_config {
     enabled = true
+  rotation_config {
+    enabled = true
+    rotation_interval = "300s"
+    }
   }
   deletion_protection = false
   network    = "%s"
@@ -10918,6 +11015,10 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
   secret_manager_config {
     enabled = true
+  rotation_config {
+    enabled = true
+    rotation_interval = "120s"
+    }
   }
   deletion_protection = false
   network    = "%s"
@@ -10940,6 +11041,10 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
   secret_manager_config {
     enabled = true
+  rotation_config {
+    enabled = false
+    rotation_interval = "120s"
+    }
   }
   deletion_protection = false
   network    = "%s"
@@ -13317,8 +13422,75 @@ resource "google_container_cluster" "primary" {
 `, name, networkName, subnetworkName, config)
 }
 
+type subnetRangeInfo struct {
+	SubnetName string
+	RangeNames []string
+}
+
+func bootstrapAdditionalIpRangesNetworkConfig(t *testing.T, name string, additionalSubnetCount int, secondaryRangeCount int) (string, []subnetRangeInfo) {
+	sri := []subnetRangeInfo{}
+
+	// We create our network to ensure no range collisions.
+	networkName := acctest.BootstrapSharedTestNetwork(t, fmt.Sprintf("%s-network", name))
+	mainSubnet := acctest.BootstrapSubnetWithOverrides(t, fmt.Sprintf("%s-subnet-main", name), networkName, map[string]interface{}{
+		"ipCidrRange": "10.2.0.0/24",
+		"secondaryIpRanges": []map[string]interface{}{
+			{
+				"rangeName":   "pods",
+				"ipCidrRange": "10.3.0.0/16",
+			},
+			{
+				"rangeName":   "services",
+				"ipCidrRange": "10.4.0.0/16",
+			},
+		},
+	})
+
+	si := subnetRangeInfo{
+		SubnetName: mainSubnet,
+		RangeNames: []string{"pods"},
+	}
+	sri = append(sri, si)
+
+	cumulativeRangeIndex := 0
+	for subnetIndex := 0; subnetIndex < additionalSubnetCount; subnetIndex++ {
+		ranges := []map[string]interface{}{}
+		rangeNames := []string{}
+		for rangeIndex := 0; rangeIndex < secondaryRangeCount; rangeIndex++ {
+			rangeName := fmt.Sprintf("range-%d", cumulativeRangeIndex)
+			r := map[string]interface{}{
+				"rangeName":   rangeName,
+				"ipCidrRange": fmt.Sprintf("10.0.%d.0/24", cumulativeRangeIndex),
+			}
+			rangeNames = append(rangeNames, rangeName)
+			ranges = append(ranges, r)
+			cumulativeRangeIndex++
+		}
+
+		subnetOverrides := map[string]interface{}{
+			"ipCidrRange":       fmt.Sprintf("10.1.%d.0/24", subnetIndex),
+			"secondaryIpRanges": ranges,
+		}
+
+		subnetName := fmt.Sprintf("%s-subnet-add-%d", name, subnetIndex)
+		acctest.BootstrapSubnetWithOverrides(t, subnetName, networkName, subnetOverrides)
+
+		si := subnetRangeInfo{
+			SubnetName: subnetName,
+			RangeNames: rangeNames,
+		}
+
+		sri = append(sri, si)
+	}
+
+	return networkName, sri
+}
+
 func TestAccContainerCluster_additional_ip_ranges_config_on_create(t *testing.T) {
 	t.Parallel()
+
+	testName := "gke-msc"
+	network, sri := bootstrapAdditionalIpRangesNetworkConfig(t, testName, 2, 2)
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
@@ -13327,7 +13499,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_create(t *testing.T)
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 2, 2),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13343,6 +13515,9 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_create(t *testing.T)
 func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T) {
 	t.Parallel()
 
+	testName := "gke-msc-update"
+	network, sri := bootstrapAdditionalIpRangesNetworkConfig(t, testName, 2, 2)
+
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -13350,7 +13525,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 0, 0),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13360,7 +13535,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 				Check:                   resource.TestCheckResourceAttrSet("google_container_cluster.primary", "node_pool.0.network_config.subnetwork"),
 			},
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 1, 1),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri[:len(sri)-1]),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13369,7 +13544,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 0, 0),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri[:1]),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13378,7 +13553,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 2, 2),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13387,7 +13562,7 @@ func TestAccContainerCluster_additional_ip_ranges_config_on_update(t *testing.T)
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, 0, 0),
+				Config: testAccContainerCluster_additional_ip_ranges_config(clusterName, network, sri[:1]),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -13439,76 +13614,31 @@ func TestAccContainerCluster_withAnonymousAuthenticationConfig(t *testing.T) {
 	})
 }
 
-func testAccContainerCluster_additional_ip_ranges_config(name string, additionalSubnetCount int, secondaryRangeCount int) string {
-	var subnetStr string
+func testAccContainerCluster_additional_ip_ranges_config(clusterName string, networkName string, sri []subnetRangeInfo) string {
 	var additionalIpRangesStr string
-	cumulativeRangeIndex := 0
-	for subnetIndex := 0; subnetIndex < additionalSubnetCount; subnetIndex++ {
-		var secondaryRangeStr string
-		var podIpv4RangeStr string
-		for rangeIndex := 0; rangeIndex < secondaryRangeCount; rangeIndex++ {
-			secondaryRangeStr += fmt.Sprintf(`
-                            secondary_ip_range {
-                              range_name = "range-%d"
-                              ip_cidr_range = "10.0.%d.0/24"
-                            }
-                          `, cumulativeRangeIndex, cumulativeRangeIndex)
 
-			podIpv4RangeStr += fmt.Sprintf("google_compute_subnetwork.extra_%d.secondary_ip_range[%d].range_name", subnetIndex, rangeIndex)
-			if rangeIndex != secondaryRangeCount-1 {
+	for _, si := range sri[1:] {
+		var podIpv4RangeStr string
+		for i, rn := range si.RangeNames {
+			podIpv4RangeStr += fmt.Sprintf("\"%s\"", rn)
+			if i != len(si.RangeNames)-1 {
 				podIpv4RangeStr += ", "
 			}
-			cumulativeRangeIndex++
 		}
-
-		subnetStr += fmt.Sprintf(`
-                           resource "google_compute_subnetwork" "extra_%d" {
-                             ip_cidr_range = "10.1.%d.0/24"
-                             name = "tf-test-subnet-%d"
-                             network = google_compute_network.main.self_link
-                             region = "us-central1"
-                             %s
-                           }
-                         `, subnetIndex, subnetIndex, subnetIndex, secondaryRangeStr)
-
 		additionalIpRangesStr += fmt.Sprintf(`
 			additional_ip_ranges_config {
-				subnetwork  = google_compute_subnetwork.extra_%d.id
+				subnetwork  = "%s"
 				pod_ipv4_range_names = [%s]
 			}
-		`, subnetIndex, podIpv4RangeStr)
+		`, si.SubnetName, podIpv4RangeStr)
 	}
 
 	return fmt.Sprintf(`
-	resource "google_compute_network" "main" {
-	  name                    = "%s"
-	  auto_create_subnetworks = false
-	}
-
-	resource "google_compute_subnetwork" "main" {
-	  ip_cidr_range = "10.2.0.0/24"
-	  name          = "%s"
-	  network       = google_compute_network.main.self_link
-	  region        = "us-central1"
-
-	  secondary_ip_range {
-	    range_name    = "services"
-	    ip_cidr_range = "10.3.0.0/16"
-	  }
-
-	  secondary_ip_range {
-	    range_name    = "pods"
-	    ip_cidr_range = "10.4.0.0/16"
-	  }
-	}
-
-        %s
-
 	resource "google_container_cluster" "primary" {
 	  name     = "%s"
 	  location = "us-central1-a"
-	  network    = google_compute_network.main.name
-	  subnetwork = google_compute_subnetwork.main.name
+	  network    = "%s"
+	  subnetwork = "%s"
           initial_node_count = 1
 
 	  ip_allocation_policy {
@@ -13519,7 +13649,7 @@ func testAccContainerCluster_additional_ip_ranges_config(name string, additional
 
 	  deletion_protection = false
 	}
-	`, name, name, subnetStr, name, additionalIpRangesStr)
+	`, clusterName, networkName, sri[0].SubnetName, additionalIpRangesStr)
 }
 
 func testAccContainerCluster_withAnonymousAuthenticationConfig(name, networkName, subnetworkName string, mode string) string {
@@ -13734,4 +13864,93 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 }
 `, clusterName, networkName, subnetworkName, unauthenticated, authenticated)
+}
+
+func TestAccContainerCluster_withKubeletResourceManagerConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withKubeletConfig(clusterName, networkName, subnetworkName, "none", "None", "best-effort", "container"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.cpu_manager_policy", "none"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.memory_manager.0.policy", "None"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.policy", "best-effort"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.scope", "container"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_kubelet_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withKubeletConfig(clusterName, networkName, subnetworkName, "static", "Static", "single-numa-node", "container"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.cpu_manager_policy", "static"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.memory_manager.0.policy", "Static"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.policy", "single-numa-node"),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_kubelet_config",
+						"node_config.0.kubelet_config.0.topology_manager.0.scope", "container"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_kubelet_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withKubeletConfig(clusterName, networkName, subnetworkName, cpuManagerPolicy, memoryManagerPolicy, topologyManagerPolicy, topologyManagerScope string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_kubelet_config" {
+  name               = %q
+  location           = "us-central1-a"
+  initial_node_count = 1
+  network            = %q
+  subnetwork         = %q
+  deletion_protection = false
+
+  node_config {
+    machine_type = "c4-standard-2"
+    kubelet_config {
+      cpu_manager_policy = %q
+	  memory_manager  {
+	    policy = %q
+	  }
+	  topology_manager {
+	    policy = %q
+	    scope = %q
+	  }
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName, cpuManagerPolicy, memoryManagerPolicy, topologyManagerPolicy, topologyManagerScope)
 }

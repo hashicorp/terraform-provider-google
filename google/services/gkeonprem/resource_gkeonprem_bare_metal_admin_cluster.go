@@ -805,11 +805,11 @@ func resourceGkeonpremBareMetalAdminClusterCreate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("security_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(securityConfigProp)) && (ok || !reflect.DeepEqual(v, securityConfigProp)) {
 		obj["securityConfig"] = securityConfigProp
 	}
-	annotationsProp, err := expandGkeonpremBareMetalAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandGkeonpremBareMetalAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveAnnotationsProp)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/bareMetalAdminClusters?bare_metal_admin_cluster_id={{name}}")
@@ -1079,11 +1079,11 @@ func resourceGkeonpremBareMetalAdminClusterUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("security_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, securityConfigProp)) {
 		obj["securityConfig"] = securityConfigProp
 	}
-	annotationsProp, err := expandGkeonpremBareMetalAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	effectiveAnnotationsProp, err := expandGkeonpremBareMetalAdminClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveAnnotationsProp)) {
+		obj["annotations"] = effectiveAnnotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GkeonpremBasePath}}projects/{{project}}/locations/{{location}}/bareMetalAdminClusters/{{name}}")

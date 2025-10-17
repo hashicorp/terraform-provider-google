@@ -18,8 +18,9 @@ package cloudtasks_test
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
@@ -189,6 +190,37 @@ func TestAccCloudTasksQueue_HttpTargetOAuth_update(t *testing.T) {
 	})
 }
 
+func TestAccCloudTasksQueue_paused(t *testing.T) {
+	t.Parallel()
+
+	name := "cloudtasksqueuetest-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudTasksQueue_full(name),
+			},
+			{
+				ResourceName:            "google_cloud_tasks_queue.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_engine_routing_override.0.service", "app_engine_routing_override.0.version", "app_engine_routing_override.0.instance"},
+			},
+			{
+				Config: testAccCloudTasksQueue_paused(name),
+			},
+			{
+				ResourceName:            "google_cloud_tasks_queue.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_engine_routing_override.0.service", "app_engine_routing_override.0.version", "app_engine_routing_override.0.instance", "desired_state"},
+			},
+		},
+	})
+}
+
 func testAccCloudTasksQueue_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloud_tasks_queue" "default" {
@@ -208,6 +240,7 @@ func testAccCloudTasksQueue_full(name string) string {
 resource "google_cloud_tasks_queue" "default" {
   name = "%s"
   location = "us-central1"
+  desired_state = "RUNNING"
 
   app_engine_routing_override {
     service = "worker"
@@ -393,4 +426,37 @@ resource "google_service_account" "test" {
 }
 
 `, name, serviceAccountID)
+}
+
+func testAccCloudTasksQueue_paused(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_tasks_queue" "default" {
+  name = "%s"
+  location = "us-central1"
+  desired_state = "PAUSED"
+
+  app_engine_routing_override {
+    service = "main"
+    version = "2.0"
+    instance = "beta"
+  }
+
+  rate_limits {
+    max_concurrent_dispatches = 4
+    max_dispatches_per_second = 3
+  }
+
+  retry_config {
+    max_attempts = 6
+    max_retry_duration = "5s"
+    max_backoff = "4s"
+    min_backoff = "3s"
+    max_doublings = 2
+	}
+
+	stackdriver_logging_config {
+		sampling_ratio = 0.1
+	}
+}
+`, name)
 }

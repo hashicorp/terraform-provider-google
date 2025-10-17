@@ -435,7 +435,7 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
   Configuration for [direct-path (via ALTS) with workload identity.](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#workloadaltsconfig). Structure is [documented below](#nested_workload_alts_config).
 
 * `enterprise_config` - (Optional)
-  Configuration for [Enterprise edition].(https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/gke-editions). Structure is [documented below](#nested_enterprise_config).
+  (DEPRECATED) Configuration for [Enterprise edition].(https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/gke-editions). Structure is [documented below](#nested_enterprise_config). Deprecated as GKE Enterprise features are now available without an Enterprise tier. See https://cloud.google.com/blog/products/containers-kubernetes/gke-gets-new-pricing-and-capabilities-on-10th-birthday for the announcement of this change.
 
 * `anonymous_authentication_config` - (Optional)
   Configuration for [anonymous authentication restrictions](https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#restrict-anon-access). Structure is [documented below](#anonymous_authentication_config).
@@ -904,7 +904,7 @@ The `master_authorized_networks_config.cidr_blocks` block supports:
     Prefer configuring `boot_disk`.
 
 * `disk_type` - (Optional) Type of the disk attached to each node
-    (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced' This is being migrated to `boot_disk.disk_type`, and must match if specified in both places. Prefer configuring `boot_disk`.
+    (e.g. 'pd-standard', 'pd-balanced', 'pd-ssd', or 'hyperdisk-balanced'). Defaults to `hyperdisk-balanced` if `hyperdisk-balanced` is supported and `pd-balanced` is not supported for the machine type; otherwise defaults to `pd-balanced`. This is being migrated to `boot_disk.disk_type`, and must match if specified in both places. Prefer configuring `boot_disk`.
 
 * `enable_confidential_storage` - (Optional) Enabling Confidential Storage will create boot disk with confidential mode. It is disabled by default.
 
@@ -1099,7 +1099,7 @@ sole_tenant_config {
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB. This is being migrated from `node_config.disk_size_gb`, and must match if specified in both places. Prefer using this field.
 
 * `disk_type` - (Optional) Type of the disk attached to each node
-    (e.g. 'pd-standard', 'pd-balanced', 'pd-ssd', 'hyperdisk-balanced'). If unspecified, the default disk type is 'pd-balanced' This is being migrated from `node_config.disk_type`, and must match if specified in both places. Prefer using this field.
+    (e.g. 'pd-standard', 'pd-balanced', 'pd-ssd', or 'hyperdisk-balanced'). Defaults to `hyperdisk-balanced` if `hyperdisk-balanced` is supported and `pd-balanced` is not supported for the machine type; otherwise defaults to `pd-balanced`. This is being migrated from `node_config.disk_type`, and must match if specified in both places. Prefer using this field.
 
 * `provisioned_iops` - (Optional) Configure disk IOPs. This is only valid if the `disk_type` is 'hyperdisk-balanced'. See [performance limit documention](https://cloud.google.com/compute/docs/disks/hyperdisk-perf-limits) for more information about valid values.
 
@@ -1226,7 +1226,7 @@ Structure is [documented below](#nested_node_kubelet_config).
 <a name="nested_node_kubelet_config"></a>The `node_kubelet_config` block supports:
 
 * `insecure_kubelet_readonly_port_enabled` - (Optional) Controls whether the kubelet read-only port is enabled. It is strongly recommended to set this to `FALSE`. Possible values: `TRUE`, `FALSE`.
-
+  
 <a name="nested_network_tags"></a>The `network_tags` block supports:
 
 * `tags` (Optional) - List of network tags applied to auto-provisioned node pools.
@@ -1299,7 +1299,7 @@ notification_config {
 <a name="nested_secret_manager_config"></a>The `secret_manager_config` block supports:
 
 * `enabled` (Required) - Enable the Secret Manager add-on for this cluster.
-* `rotation_config` (Optional, Beta) - config for secret manager auto rotation. Structure is [docuemented below](#rotation_config)
+* `rotation_config` (Optional) - config for secret manager auto rotation. Structure is [docuemented below](#rotation_config)
 
 <a name="rotation_config"></a>The `rotation_config` block supports:
 
@@ -1507,6 +1507,12 @@ such as `"300ms"`. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m",
 
 * `single_process_oom_kill` - (Optional) Defines whether to enable single process OOM killer. If true, the processes in the container will be OOM killed individually instead of as a group.
 
+* `topology_manager` - (Optional) These settings control the kubelet's [Topology Manager policy](https://kubernetes.io/docs/tasks/administer-cluster/topology-manager/#topology-manager-policies), which coordinates the set of components responsible for performance optimizations related to CPU isolation, memory, and device locality. Structure is [documented below](#nested_topology_manager).
+
+* `memory_manager` - (Optional) Configuration for the [memory manager](https://kubernetes.io/docs/tasks/administer-cluster/memory-manager/) on the node.
+The memory manager optimizes memory and hugepages allocation for pods, especially
+those in the Guaranteed QoS class, by influencing NUMA affinity. Structure is [documented below](#nested_memory_manager).
+
 * `max_parallel_image_pulls` - (Optional) Set the maximum number of image pulls in parallel. The integer must be between 2 and 5, inclusive.
 
 * `eviction_max_pod_grace_period_seconds` - (Optional) Defines the maximum allowed grace period (in seconds) to use when terminating pods in response to a soft eviction threshold being met. The integer must be positive and not exceed 300.
@@ -1543,6 +1549,19 @@ such as `"300ms"`. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m",
 * `imagefs_available` - (Optional) Defines percentage of minimum reclaim for imagefs.available. The value must be a percentage no more than `"10%"`, such as `"5%"`.
 * `imagefs_inodes_free` - (Optional) Defines percentage of minimum reclaim for imagefs.inodesFree. The value must be a percentage no more than `"10%"`, such as `"5%"`.
 * `pid_available` - (Optional) Defines percentage of minimum reclaim for pid.available. The value must be a percentage no more than `"10%"`, such as `"5%"`.
+
+<a name="nested_topology_manager"></a>The `topology_manager` block supports:
+
+* `policy` - (Optional) The Topology Manager policy controls resource alignment on the node and can be set to one of the following: none (default), best-effort, restricted, or single-numa-node.  If unset (or set to the empty string `""`), the API will treat the field as if set to "none".
+* `scope` - (Optional) The Topology Manager scope, defining the granularity at which
+  policy decisions are applied. Valid values are "container" (resources are aligned
+  per container within a pod which is set by default) or "pod" (resources are aligned for the entire pod).  If unset (or set to the empty string `""`), the API will treat the field as if set to "container".
+  
+<a name="nested_memory_manager"></a>The `memory_manager` block supports:
+
+* `policy` - (Optional) The [Memory
+  Manager](https://kubernetes.io/docs/tasks/administer-cluster/memory-manager/)
+  policy can be set to None (default) or Static. This policy dictates how memory alignment is handled on the node.  If unset (or set to the empty string `""`), the API will treat the field as if set to "None".  
 
 <a name="nested_linux_node_config"></a>The `linux_node_config` block supports:
 
@@ -1657,7 +1676,7 @@ linux_node_config {
 
 <a name="nested_enterprise_config"></a>The `enterprise_config` block supports:
 
-* `desired_tier` - (Optional) Sets the tier of the cluster. Available options include `STANDARD` and `ENTERPRISE`.
+* `desired_tier` - (Optional) (DEPRECATED) Sets the tier of the cluster. Available options include `STANDARD` and `ENTERPRISE`. Deprecated as GKE Enterprise features are now available without an Enterprise tier. See https://cloud.google.com/blog/products/containers-kubernetes/gke-gets-new-pricing-and-capabilities-on-10th-birthday for the announcement of this change.
 
 <a name="anonymous_authentication_config"></a>The `anonymous_authentication_config` block supports:
 

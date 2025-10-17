@@ -290,6 +290,73 @@ resource "google_healthcare_dataset" "dataset" {
 `, context)
 }
 
+func TestAccHealthcareFhirStore_healthcareFhirStoreValidationConfigExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckHealthcareFhirStoreDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccHealthcareFhirStore_healthcareFhirStoreValidationConfigExample(context),
+			},
+			{
+				ResourceName:            "google_healthcare_fhir_store.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"dataset", "labels", "self_link", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccHealthcareFhirStore_healthcareFhirStoreValidationConfigExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_healthcare_fhir_store" "default" {
+  name    = "tf-test-example-fhir-store%{random_suffix}"
+  dataset = google_healthcare_dataset.dataset.id
+  version = "R4"
+  complex_data_type_reference_parsing = "DISABLED"
+
+  enable_update_create           = false
+  disable_referential_integrity  = false
+  disable_resource_versioning    = false
+  enable_history_import          = false
+  default_search_handling_strict = false
+
+  notification_configs {
+    pubsub_topic = google_pubsub_topic.topic.id
+  }
+
+  labels = {
+    label1 = "labelvalue1"
+  }
+
+  validation_config {
+    disable_profile_validation = true
+    enabled_implementation_guides = []
+    disable_required_field_validation = true
+    disable_reference_type_validation = true
+    disable_fhirpath_validation = true
+  }
+}
+
+resource "google_pubsub_topic" "topic" {
+  name     = "tf-test-fhir-notifications%{random_suffix}"
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  name     = "tf-test-example-dataset%{random_suffix}"
+  location = "us-central1"
+}
+`, context)
+}
+
 func testAccCheckHealthcareFhirStoreDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

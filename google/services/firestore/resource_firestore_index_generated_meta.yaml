@@ -17,3 +17,4 @@ fields:
   - field: 'multikey'
   - field: 'name'
   - field: 'query_scope'
+  - field: 'unique'

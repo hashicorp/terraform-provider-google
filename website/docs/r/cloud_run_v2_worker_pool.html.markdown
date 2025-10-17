@@ -209,7 +209,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "cloudrun-worker-pool"
   location = "us-central1"
   deletion_protection = false
-  launch_stage = "ALPHA"
+  launch_stage = "BETA"
 
   template {
     containers {
@@ -604,6 +604,10 @@ When the field is set to false, deleting the WorkerPool is allowed.
 
 <a name="nested_template_vpc_access"></a>The `vpc_access` block supports:
 
+* `connector` -
+  (Optional)
+  VPC Access connector name. Format: projects/{project}/locations/{location}/connectors/{connector}, where {project} can be project id or number.
+
 * `egress` -
   (Optional)
   Traffic VPC egress settings.
@@ -670,10 +674,6 @@ When the field is set to false, deleting the WorkerPool is allowed.
   (Optional)
   Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.
 
-* `depends_on` -
-  (Optional)
-  Containers which should be started before this container. If specified the container will wait to start until all containers with the listed names are healthy.
-
 
 <a name="nested_template_containers_containers_env"></a>The `env` block supports:
 
@@ -724,6 +724,10 @@ When the field is set to false, deleting the WorkerPool is allowed.
 * `mount_path` -
   (Required)
   Path within the container at which the volume should be mounted. Must not contain ':'. For Cloud SQL volumes, it can be left empty, or must otherwise be /cloudsql. All instances defined in the Volume will be available as /cloudsql/[instance]. For more information on Cloud SQL volumes, visit https://cloud.google.com/sql/docs/mysql/connect-run
+
+* `sub_path` -
+  (Optional)
+  Path within the volume from which the container's volume should be mounted.
 
 <a name="nested_template_volumes"></a>The `volumes` block supports:
 

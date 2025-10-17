@@ -204,6 +204,13 @@ with the same dimension.`,
 				Description:  `The scope at which a query is run. Default value: "COLLECTION" Possible values: ["COLLECTION", "COLLECTION_GROUP", "COLLECTION_RECURSIVE"]`,
 				Default:      "COLLECTION",
 			},
+			"unique": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Whether it is an unique index. Unique index ensures all values for the indexed field(s) are unique across documents.`,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -264,6 +271,12 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("multikey"); !tpgresource.IsEmptyValue(reflect.ValueOf(multikeyProp)) && (ok || !reflect.DeepEqual(v, multikeyProp)) {
 		obj["multikey"] = multikeyProp
+	}
+	uniqueProp, err := expandFirestoreIndexUnique(d.Get("unique"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("unique"); !tpgresource.IsEmptyValue(reflect.ValueOf(uniqueProp)) && (ok || !reflect.DeepEqual(v, uniqueProp)) {
+		obj["unique"] = uniqueProp
 	}
 	fieldsProp, err := expandFirestoreIndexFields(d.Get("fields"), d, config)
 	if err != nil {
@@ -406,6 +419,9 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("multikey", flattenFirestoreIndexMultikey(res["multikey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
+	if err := d.Set("unique", flattenFirestoreIndexUnique(res["unique"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
 	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
@@ -524,6 +540,10 @@ func flattenFirestoreIndexMultikey(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
+func flattenFirestoreIndexUnique(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -618,6 +638,10 @@ func expandFirestoreIndexDensity(v interface{}, d tpgresource.TerraformResourceD
 }
 
 func expandFirestoreIndexMultikey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreIndexUnique(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

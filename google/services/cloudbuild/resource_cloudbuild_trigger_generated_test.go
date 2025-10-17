@@ -113,8 +113,8 @@ resource "google_cloudbuild_trigger" "build-trigger" {
 
   build {
     step {
-      name = "gcr.io/cloud-builders/gsutil"
-      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      name = "gcr.io/cloud-builders/gcloud"
+      args = ["storage", "cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
       timeout = "120s"
       secret_env = ["MY_SECRET"]
     }

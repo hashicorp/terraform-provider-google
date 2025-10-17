@@ -33,7 +33,7 @@ fun googleSubProjectBeta(allConfig: AllContextParameters): Project {
         description = "Subproject containing builds for testing the Beta version of the Google provider"
 
         // Nightly Test project that uses hashicorp/terraform-provider-google-beta
-        subProject(nightlyTests(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration(daysOfWeek="1-3,5-7"))) // All nights except Wednesday (4) for Beta; feature branch testing happens on Wednesdays and TeamCity numbers days Sun=1...Sat=7
+        subProject(nightlyTests(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration()))
 
         // MM Upstream project that uses modular-magician/terraform-provider-google-beta
         subProject(mmUpstream(betaId, ProviderNameBeta, ModularMagicianVCSRootBeta, HashiCorpVCSRootBeta, vcrConfig, NightlyTriggerConfiguration()))
@@ -43,7 +43,7 @@ fun googleSubProjectBeta(allConfig: AllContextParameters): Project {
         subProject(vcrRecording(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, ModularMagicianVCSRootBeta, vcrConfig))
 
         // Beta Diff Test project that uses hashicorp/terraform-provider-google-beta-diff-test
-        subProject(weeklyDiffTests(betaId + "_DIFF_TEST", ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration(daysOfWeek = "SAT", nightlyTestsEnabled = false)))
+        subProject(weeklyDiffTests(betaId + "_DIFF_TEST", ProviderNameBeta, ModularMagicianVCSRootBeta, betaConfig, NightlyTriggerConfiguration(daysOfWeek = "SAT", nightlyTestsEnabled = false)))
 
         params {
             readOnlySettings()

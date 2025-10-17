@@ -7,6 +7,7 @@ api_resource_type_kind: 'CaPool'
 fields:
   - field: 'effective_labels'
     provider_only: true
+  - field: 'encryption_spec.cloud_kms_key'
   - field: 'issuance_policy.allowed_issuance_modes.allow_config_based_issuance'
   - field: 'issuance_policy.allowed_issuance_modes.allow_csr_based_issuance'
   - field: 'issuance_policy.allowed_key_types.elliptic_curve.signature_algorithm'

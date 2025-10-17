@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -98,6 +99,7 @@ var (
 		"transfer_spec.0.azure_blob_storage_data_source",
 		"transfer_spec.0.posix_data_source",
 		"transfer_spec.0.hdfs_data_source",
+		"transfer_spec.0.aws_s3_compatible_data_source",
 	}
 	transferSpecDataSinkKeys = []string{
 		"transfer_spec.0.gcs_data_sink",
@@ -114,6 +116,7 @@ var (
 	awsS3AuthKeys = []string{
 		"transfer_spec.0.aws_s3_data_source.0.aws_access_key",
 		"transfer_spec.0.aws_s3_data_source.0.role_arn",
+		"transfer_spec.0.aws_s3_data_source.0.credentials_secret",
 	}
 	azureOptionCredentials = []string{
 		"transfer_spec.0.azure_blob_storage_data_source.0.azure_credentials",
@@ -155,6 +158,11 @@ func ResourceStorageTransferJob() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `The project in which the resource belongs. If it is not provided, the provider project is used.`,
+			},
+			"service_account": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The user-managed service account to run the job. If this field is specified, the given service account is granted the necessary permissions to all applicable resources (e.g. GCS buckets) required by the job.`,
 			},
 			"event_stream": {
 				Type:             schema.TypeList,
@@ -301,6 +309,14 @@ func ResourceStorageTransferJob() *schema.Resource {
 							Elem:         hdfsDataSchema(),
 							ExactlyOneOf: transferSpecDataSourceKeys,
 							Description:  `An HDFS Storage data source.`,
+						},
+						"aws_s3_compatible_data_source": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							MaxItems:     1,
+							Elem:         awsS3CompatibleDataSchema(),
+							ExactlyOneOf: transferSpecDataSourceKeys,
+							Description:  `An AWS S3 Compatible data source.`,
 						},
 					},
 				},
@@ -709,13 +725,24 @@ func gcsDataSchema() *schema.Resource {
 				Description: `Google Cloud Storage bucket name.`,
 			},
 			"path": {
-				Optional:    true,
-				Computed:    true,
-				Type:        schema.TypeString,
-				Description: `Google Cloud Storage path in bucket to transfer`,
+				Optional:     true,
+				Type:         schema.TypeString,
+				Description:  `Google Cloud Storage path in bucket to transfer. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should not begin with a '/'.`,
+				ValidateFunc: validateGCSDataPath,
 			},
 		},
 	}
+}
+
+func validateGCSDataPath(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	value = strings.TrimSpace(value)
+	// checks if path not started with "/"
+	regex, err := regexp.Compile("^/+")
+	if err == nil && len(value) > 0 && regex.Match([]byte(value)) {
+		errors = append(errors, fmt.Errorf("%q cannot start with /", k))
+	}
+	return
 }
 
 func awsS3DataSchema() *schema.Resource {
@@ -769,6 +796,12 @@ func awsS3DataSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The CloudFront distribution domain name pointing to this bucket, to use when fetching. See [Transfer from S3 via CloudFront](https://cloud.google.com/storage-transfer/docs/s3-cloudfront) for more information. Format: https://{id}.cloudfront.net or any valid custom domain. Must begin with https://.`,
+			},
+			"credentials_secret": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: awsS3AuthKeys,
+				Description:  `The Resource name of a secret in Secret Manager. AWS credentials must be stored in Secret Manager in JSON format. If credentials_secret is specified, do not specify role_arn or aws_access_key. Format: projects/{projectNumber}/secrets/{secret_name}.`,
 			},
 		},
 	}
@@ -879,6 +912,69 @@ func azureBlobStorageDataSchema() *schema.Resource {
 	}
 }
 
+func awsS3CompatibleDataSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bucket_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Name of the bucket.`,
+			},
+			"path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the path to transfer objects.`,
+			},
+			"endpoint": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Endpoint of the storage service.`,
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the region to sign requests with. This can be left blank if requests should be signed with an empty region.`,
+			},
+			"s3_metadata": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `S3 compatible metadata.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auth_method": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"AUTH_METHOD_UNSPECIFIED", "AUTH_METHOD_AWS_SIGNATURE_V4", "AUTH_METHOD_AWS_SIGNATURE_V2"}),
+							Description:  `Authentication and authorization method used by the storage service. When not specified, Transfer Service will attempt to determine right auth method to use.`,
+						},
+						"request_model": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "REQUEST_MODEL_VIRTUAL_HOSTED_STYLE",
+							ValidateFunc: verify.ValidateEnum([]string{"REQUEST_MODEL_VIRTUAL_HOSTED_STYLE", "REQUEST_MODEL_UNSPECIFIED", "REQUEST_MODEL_PATH_STYLE"}),
+							Description:  `API request model used to call the storage service. When not specified, the default value of RequestModel REQUEST_MODEL_VIRTUAL_HOSTED_STYLE is used.`,
+						},
+						"protocol": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "NETWORK_PROTOCOL_HTTPS",
+							ValidateFunc: verify.ValidateEnum([]string{"NETWORK_PROTOCOL_UNSPECIFIED", "NETWORK_PROTOCOL_HTTPS", "NETWORK_PROTOCOL_HTTP"}),
+							Description:  `The network protocol of the agent. When not specified, the default value of NetworkProtocol NETWORK_PROTOCOL_HTTPS is used.`,
+						},
+						"list_api": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"LIST_API_UNSPECIFIED", "LIST_OBJECTS_V2", "LIST_OBJECTS"}),
+							Description:  `The Listing API to use for discovering objects. When not specified, Transfer Service will attempt to determine the right API to use.`,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func diffSuppressEmptyStartTimeOfDay(k, old, new string, d *schema.ResourceData) bool {
 	return k == "schedule.0.start_time_of_day.#" && old == "1" && new == "0"
 }
@@ -906,6 +1002,7 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 		ReplicationSpec:    expandReplicationSpecs(d.Get("replication_spec").([]interface{})),
 		LoggingConfig:      expandTransferJobLoggingConfig(d.Get("logging_config").([]interface{})),
 		NotificationConfig: expandTransferJobNotificationConfig(d.Get("notification_config").([]interface{})),
+		ServiceAccount:     d.Get("service_account").(string),
 	}
 
 	var res *storagetransfer.TransferJob
@@ -972,6 +1069,9 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 	}
 	if err := d.Set("deletion_time", res.DeletionTime); err != nil {
 		return fmt.Errorf("Error setting deletion_time: %s", err)
+	}
+	if err := d.Set("service_account", res.ServiceAccount); err != nil {
+		return fmt.Errorf("Error setting service_account: %s", err)
 	}
 
 	err = d.Set("schedule", flattenTransferSchedule(res.Schedule))
@@ -1079,6 +1179,13 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 			transferJob.LoggingConfig = expandTransferJobLoggingConfig(v.([]interface{}))
 		} else {
 			transferJob.LoggingConfig = nil
+		}
+	}
+
+	if d.HasChange("service_account") {
+		fieldMask = append(fieldMask, "service_account")
+		if v, ok := d.GetOk("service_account"); ok {
+			transferJob.ServiceAccount = v.(string)
 		}
 	}
 
@@ -1382,10 +1489,11 @@ func expandAwsS3Data(awsS3Datas []interface{}) *storagetransfer.AwsS3Data {
 
 	awsS3Data := awsS3Datas[0].(map[string]interface{})
 	result := &storagetransfer.AwsS3Data{
-		BucketName:   awsS3Data["bucket_name"].(string),
-		AwsAccessKey: expandAwsAccessKeys(awsS3Data["aws_access_key"].([]interface{})),
-		RoleArn:      awsS3Data["role_arn"].(string),
-		Path:         awsS3Data["path"].(string),
+		BucketName:        awsS3Data["bucket_name"].(string),
+		AwsAccessKey:      expandAwsAccessKeys(awsS3Data["aws_access_key"].([]interface{})),
+		RoleArn:           awsS3Data["role_arn"].(string),
+		CredentialsSecret: awsS3Data["credentials_secret"].(string),
+		Path:              awsS3Data["path"].(string),
 	}
 
 	if v, ok := awsS3Data["managed_private_network"]; ok {
@@ -1415,6 +1523,10 @@ func flattenAwsS3Data(awsS3Data *storagetransfer.AwsS3Data, d *schema.ResourceDa
 
 	if awsS3Data.CloudfrontDomain != "" {
 		data["cloudfront_domain"] = awsS3Data.CloudfrontDomain
+	}
+
+	if awsS3Data.CredentialsSecret != "" {
+		data["credentials_secret"] = awsS3Data.CredentialsSecret
 	}
 
 	return []map[string]interface{}{data}
@@ -1475,6 +1587,73 @@ func flattenHdfsData(hdfsData *storagetransfer.HdfsData) []map[string]interface{
 	}
 
 	return []map[string]interface{}{data}
+}
+
+func expandAwsS3CompatibleData(awsS3CompatibleDataSchema []interface{}) *storagetransfer.AwsS3CompatibleData {
+	if len(awsS3CompatibleDataSchema) == 0 || awsS3CompatibleDataSchema[0] == nil {
+		return nil
+	}
+
+	awsS3CompatibleData := awsS3CompatibleDataSchema[0].(map[string]interface{})
+	result := &storagetransfer.AwsS3CompatibleData{
+		BucketName: awsS3CompatibleData["bucket_name"].(string),
+		Path:       awsS3CompatibleData["path"].(string),
+		Endpoint:   awsS3CompatibleData["endpoint"].(string),
+		Region:     awsS3CompatibleData["region"].(string),
+	}
+
+	if v, ok := awsS3CompatibleData["s3_metadata"].([]interface{}); ok {
+		result.S3Metadata = expandS3Metadata(v)
+	}
+	return result
+}
+
+func expandS3Metadata(s3Metadata []interface{}) *storagetransfer.S3CompatibleMetadata {
+	if len(s3Metadata) == 0 || s3Metadata[0] == nil {
+		return nil
+	}
+	metadata := s3Metadata[0].(map[string]interface{})
+	data := &storagetransfer.S3CompatibleMetadata{
+		AuthMethod:   metadata["auth_method"].(string),
+		ListApi:      metadata["list_api"].(string),
+		RequestModel: metadata["request_model"].(string),
+		Protocol:     metadata["protocol"].(string),
+	}
+	return data
+}
+
+func flattenAwsS3CompatibleData(awsS3CompatibleData *storagetransfer.AwsS3CompatibleData, d *schema.ResourceData) []map[string]interface{} {
+	data := map[string]interface{}{
+		"bucket_name": awsS3CompatibleData.BucketName,
+		"path":        awsS3CompatibleData.Path,
+		"endpoint":    awsS3CompatibleData.Endpoint,
+		"region":      awsS3CompatibleData.Region,
+	}
+	if awsS3CompatibleData.S3Metadata != nil {
+		data["s3_metadata"] = flattenS3MetaData(awsS3CompatibleData.S3Metadata, d)
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenS3MetaData(s3MetaData *storagetransfer.S3CompatibleMetadata, d *schema.ResourceData) []map[string]interface{} {
+	s3Metadata := map[string]interface{}{
+		"protocol":      s3MetaData.Protocol,
+		"request_model": s3MetaData.RequestModel,
+	}
+	if d.Get("transfer_spec.0.aws_s3_compatible_data_source.0.s3_metadata.0.auth_method") == "AUTH_METHOD_UNSPECIFIED" {
+		s3Metadata["auth_method"] = d.Get("transfer_spec.0.aws_s3_compatible_data_source.0.s3_metadata.0.auth_method")
+	} else {
+		s3Metadata["auth_method"] = s3MetaData.AuthMethod
+	}
+
+	if d.Get("transfer_spec.0.aws_s3_compatible_data_source.0.s3_metadata.0.list_api") == "LIST_API_UNSPECIFIED" {
+		s3Metadata["list_api"] = d.Get("transfer_spec.0.aws_s3_compatible_data_source.0.s3_metadata.0.list_api")
+	} else {
+		s3Metadata["list_api"] = s3MetaData.ListApi
+	}
+
+	return []map[string]interface{}{s3Metadata}
 }
 
 func expandAzureCredentials(azureCredentials []interface{}) *storagetransfer.AzureCredentials {
@@ -1641,6 +1820,7 @@ func expandTransferSpecs(transferSpecs []interface{}) *storagetransfer.TransferS
 		AzureBlobStorageDataSource: expandAzureBlobStorageData(transferSpec["azure_blob_storage_data_source"].([]interface{})),
 		PosixDataSource:            expandPosixData(transferSpec["posix_data_source"].([]interface{})),
 		HdfsDataSource:             expandHdfsData(transferSpec["hdfs_data_source"].([]interface{})),
+		AwsS3CompatibleDataSource:  expandAwsS3CompatibleData(transferSpec["aws_s3_compatible_data_source"].([]interface{})),
 	}
 }
 
@@ -1681,6 +1861,8 @@ func flattenTransferSpec(transferSpec *storagetransfer.TransferSpec, d *schema.R
 		data["posix_data_source"] = flattenPosixData(transferSpec.PosixDataSource)
 	} else if transferSpec.HdfsDataSource != nil {
 		data["hdfs_data_source"] = flattenHdfsData(transferSpec.HdfsDataSource)
+	} else if transferSpec.AwsS3CompatibleDataSource != nil {
+		data["aws_s3_compatible_data_source"] = flattenAwsS3CompatibleData(transferSpec.AwsS3CompatibleDataSource, d)
 	}
 
 	return []map[string]interface{}{data}
