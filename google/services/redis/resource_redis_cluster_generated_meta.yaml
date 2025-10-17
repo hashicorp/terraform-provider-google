@@ -8,6 +8,7 @@ fields:
   - api_field: 'authorizationMode'
   - api_field: 'automatedBackupConfig.fixedFrequencySchedule.startTime.hours'
   - api_field: 'automatedBackupConfig.retention'
+  - api_field: 'availableMaintenanceVersions'
   - api_field: 'backupCollection'
   - api_field: 'createTime'
   - api_field: 'crossClusterReplicationConfig.clusterRole'

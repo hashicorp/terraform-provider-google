@@ -816,6 +816,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_maintenance_version` -
   This field represents the actual maintenance version of the cluster.
 
+* `available_maintenance_versions` -
+  This field is used to determine the available maintenance versions for the self service update.
+
 * `node_config` -
   Represents configuration for nodes of the instance.
   Structure is [documented below](#nested_node_config).

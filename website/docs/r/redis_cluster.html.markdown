@@ -1015,6 +1015,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_maintenance_version` -
   This field represents the actual maintenance version of the cluster.
 
+* `available_maintenance_versions` -
+  This field is used to determine the available maintenance versions for the self service update.
+
 * `psc_service_attachments` -
   Service attachment details to configure Psc connections.
   Structure is [documented below](#nested_psc_service_attachments).
