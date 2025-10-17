@@ -38,7 +38,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func DataConnectorEntitiesParamsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func DataConnectorEntitiesFieldsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return (old == "" && new == "{}") || (old == "{}" && new == "")
 }
 
@@ -134,21 +134,22 @@ sync will be disabled.`,
 			"entities": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `List of entities from the connected data source to ingest.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"entity_name": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 							Description: `The name of the entity. Supported values by data source:
 * Salesforce: 'Lead', 'Opportunity', 'Contact', 'Account', 'Case', 'Contract', 'Campaign'
 * Jira: project, issue, attachment, comment, worklog
 * Confluence: 'Content', 'Space'`,
 						},
 						"key_property_mappings": {
-							Type:     schema.TypeMap,
-							Optional: true,
+							Type:             schema.TypeMap,
+							Optional:         true,
+							DiffSuppressFunc: DataConnectorEntitiesFieldsDiffSuppress,
 							Description: `Attributes for indexing.
 Key: Field name.
 Value: The key property to map a field to, such as 'title', and
@@ -163,7 +164,7 @@ Value: The key property to map a field to, such as 'title', and
 							Type:             schema.TypeString,
 							Optional:         true,
 							ValidateFunc:     validation.StringIsJSON,
-							DiffSuppressFunc: DataConnectorEntitiesParamsDiffSuppress,
+							DiffSuppressFunc: DataConnectorEntitiesFieldsDiffSuppress,
 							StateFunc:        func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 							Description:      `The parameters for the entity to facilitate data ingestion.`,
 						},
@@ -623,6 +624,12 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("refresh_interval"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, refreshIntervalProp)) {
 		obj["refreshInterval"] = refreshIntervalProp
 	}
+	entitiesProp, err := expandDiscoveryEngineDataConnectorEntities(d.Get("entities"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("entities"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entitiesProp)) {
+		obj["entities"] = entitiesProp
+	}
 	connectorModesProp, err := expandDiscoveryEngineDataConnectorConnectorModes(d.Get("connector_modes"), d, config)
 	if err != nil {
 		return err
@@ -673,6 +680,11 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("refresh_interval") {
 		updateMask = append(updateMask, "refreshInterval")
+	}
+
+	if d.HasChange("entities") {
+		updateMask = append(updateMask, "entities.params",
+			"entities.keyPropertyMappings")
 	}
 
 	if d.HasChange("connector_modes") {
