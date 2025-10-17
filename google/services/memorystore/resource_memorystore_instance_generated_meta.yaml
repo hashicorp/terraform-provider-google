@@ -35,6 +35,7 @@ fields:
   - api_field: 'discoveryEndpoints.port'
   - field: 'effective_labels'
     provider_only: true
+  - api_field: 'effectiveMaintenanceVersion'
   - api_field: 'endpoints.connections.pscAutoConnection.connectionType'
   - api_field: 'endpoints.connections.pscAutoConnection.forwardingRule'
   - api_field: 'endpoints.connections.pscAutoConnection.ipAddress'
@@ -63,6 +64,7 @@ fields:
   - api_field: 'maintenanceSchedule.endTime'
   - api_field: 'maintenanceSchedule.scheduleDeadlineTime'
   - api_field: 'maintenanceSchedule.startTime'
+  - api_field: 'maintenanceVersion'
   - api_field: 'managedBackupSource.backup'
   - api_field: 'managedServerCa.caCerts.certificates'
   - api_field: 'mode'

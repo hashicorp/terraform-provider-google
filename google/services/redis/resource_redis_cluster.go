@@ -369,6 +369,12 @@ resolution and up to nine fractional digits.`,
 					},
 				},
 			},
+			"maintenance_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `This field can be used to trigger self service update to indicate the desired maintenance version. The input to this field can be determined by the available_maintenance_versions field.
+*Note*: This field can only be specified when updating an existing cluster to a newer version. Downgrades are currently not supported!`,
+			},
 			"managed_backup_source": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -593,6 +599,11 @@ projects/{network_project_id}/global/networks/{network_id}.`,
 						},
 					},
 				},
+			},
+			"effective_maintenance_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `This field represents the actual maintenance version of the cluster.`,
 			},
 			"maintenance_schedule": {
 				Type:        schema.TypeList,
@@ -856,6 +867,12 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
+	maintenanceVersionProp, err := expandRedisClusterMaintenanceVersion(d.Get("maintenance_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenanceVersionProp)) && (ok || !reflect.DeepEqual(v, maintenanceVersionProp)) {
+		obj["maintenanceVersion"] = maintenanceVersionProp
+	}
 	crossClusterReplicationConfigProp, err := expandRedisClusterCrossClusterReplicationConfig(d.Get("cross_cluster_replication_config"), d, config)
 	if err != nil {
 		return err
@@ -1055,6 +1072,12 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("maintenance_schedule", flattenRedisClusterMaintenanceSchedule(res["maintenanceSchedule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("maintenance_version", flattenRedisClusterMaintenanceVersion(res["maintenanceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("effective_maintenance_version", flattenRedisClusterEffectiveMaintenanceVersion(res["effectiveMaintenanceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("cross_cluster_replication_config", flattenRedisClusterCrossClusterReplicationConfig(res["crossClusterReplicationConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1141,6 +1164,12 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
+	maintenanceVersionProp, err := expandRedisClusterMaintenanceVersion(d.Get("maintenance_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenanceVersionProp)) {
+		obj["maintenanceVersion"] = maintenanceVersionProp
+	}
 	crossClusterReplicationConfigProp, err := expandRedisClusterCrossClusterReplicationConfig(d.Get("cross_cluster_replication_config"), d, config)
 	if err != nil {
 		return err
@@ -1202,6 +1231,10 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("maintenance_policy") {
 		updateMask = append(updateMask, "maintenancePolicy")
+	}
+
+	if d.HasChange("maintenance_version") {
+		updateMask = append(updateMask, "maintenanceVersion")
 	}
 
 	if d.HasChange("cross_cluster_replication_config") {
@@ -1897,6 +1930,14 @@ func flattenRedisClusterMaintenanceScheduleEndTime(v interface{}, d *schema.Reso
 }
 
 func flattenRedisClusterMaintenanceScheduleScheduleDeadlineTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterMaintenanceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterEffectiveMaintenanceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2598,6 +2639,10 @@ func expandRedisClusterMaintenancePolicyWeeklyMaintenanceWindowStartTimeSeconds(
 }
 
 func expandRedisClusterMaintenancePolicyWeeklyMaintenanceWindowStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisClusterMaintenanceVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
