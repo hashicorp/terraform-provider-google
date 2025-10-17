@@ -400,6 +400,12 @@ resolution and up to nine fractional digits.`,
 					},
 				},
 			},
+			"maintenance_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `This field can be used to trigger self service update to indicate the desired maintenance version. The input to this field can be determined by the available_maintenance_versions field.
+*Note*: This field can only be specified when updating an existing cluster to a newer version. Downgrades are currently not supported!`,
+			},
 			"managed_backup_source": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -601,6 +607,11 @@ projects/{network_project}/global/networks/{network_id}.`,
 				Computed:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_maintenance_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `This field represents the actual maintenance version of the cluster.`,
 			},
 			"endpoints": {
 				Type:        schema.TypeList,
@@ -1017,6 +1028,12 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
+	maintenanceVersionProp, err := expandMemorystoreInstanceMaintenanceVersion(d.Get("maintenance_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenanceVersionProp)) && (ok || !reflect.DeepEqual(v, maintenanceVersionProp)) {
+		obj["maintenanceVersion"] = maintenanceVersionProp
+	}
 	engineVersionProp, err := expandMemorystoreInstanceEngineVersion(d.Get("engine_version"), d, config)
 	if err != nil {
 		return err
@@ -1245,6 +1262,12 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("maintenance_schedule", flattenMemorystoreInstanceMaintenanceSchedule(res["maintenanceSchedule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("maintenance_version", flattenMemorystoreInstanceMaintenanceVersion(res["maintenanceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("effective_maintenance_version", flattenMemorystoreInstanceEffectiveMaintenanceVersion(res["effectiveMaintenanceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("engine_version", flattenMemorystoreInstanceEngineVersion(res["engineVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -1346,6 +1369,12 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
+	maintenanceVersionProp, err := expandMemorystoreInstanceMaintenanceVersion(d.Get("maintenance_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenanceVersionProp)) {
+		obj["maintenanceVersion"] = maintenanceVersionProp
+	}
 	engineVersionProp, err := expandMemorystoreInstanceEngineVersion(d.Get("engine_version"), d, config)
 	if err != nil {
 		return err
@@ -1413,6 +1442,10 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("maintenance_policy") {
 		updateMask = append(updateMask, "maintenancePolicy")
+	}
+
+	if d.HasChange("maintenance_version") {
+		updateMask = append(updateMask, "maintenanceVersion")
 	}
 
 	if d.HasChange("engine_version") {
@@ -2050,6 +2083,14 @@ func flattenMemorystoreInstanceMaintenanceScheduleEndTime(v interface{}, d *sche
 }
 
 func flattenMemorystoreInstanceMaintenanceScheduleScheduleDeadlineTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceMaintenanceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceEffectiveMaintenanceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2880,6 +2921,10 @@ func expandMemorystoreInstanceMaintenancePolicyWeeklyMaintenanceWindowStartTimeS
 }
 
 func expandMemorystoreInstanceMaintenancePolicyWeeklyMaintenanceWindowStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMemorystoreInstanceMaintenanceVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
