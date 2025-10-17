@@ -29,6 +29,8 @@ IMPROVEMENTS:
 * networkconnectivity: added `gateway` field to `google_network_connectivity_spoke` resource (beta) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
 * networkservices: added `isolationConfig` on `google_network_services_service_lb_policies` resource ([#24652](https://github.com/hashicorp/terraform-provider-google/pull/24652))
 * redis: added `deletion_protection` field to `redis_instance` to make deleting them require an explicit intent. `redis_instance` resources now cannot be destroyed unless `deletion_protection = false` is set for the resource. ([#24654](https://github.com/hashicorp/terraform-provider-google/pull/24654))
+* redis: added `maintenance_version` field to `google_redis_cluster` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
+* redis: added `available_maintenance_versions` field to `google_redis_cluster` resource ([#24745](https://github.com/hashicorp/terraform-provider-google/pull/24745))
 * saas_runtime: added `default_release` field to `google_saas_runtime_unit_kind` resource ([#24726](https://github.com/hashicorp/terraform-provider-google/pull/24726))
 * sql: added `read_pool_auto_scale_config` support to `sql_database_instance` resource ([#24723](https://github.com/hashicorp/terraform-provider-google/pull/24723))
 
