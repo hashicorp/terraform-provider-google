@@ -318,6 +318,13 @@ func ResourceStorageTransferJob() *schema.Resource {
 							ExactlyOneOf: transferSpecDataSourceKeys,
 							Description:  `An AWS S3 Compatible data source.`,
 						},
+						"transfer_manifest": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Elem:        transferManifest(),
+							Description: `A manifest file listing specific objects to transfer.`,
+						},
 					},
 				},
 				Description: `Transfer specification.`,
@@ -838,6 +845,19 @@ func hdfsDataSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Directory path to the filesystem.`,
+			},
+		},
+	}
+}
+
+func transferManifest() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  `Cloud Storage path to the manifest CSV.`,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^gs://[^/]+/.+`), "must be a Cloud path like gs://BUCKET/path/manifest.csv"),
 			},
 		},
 	}
@@ -1633,6 +1653,26 @@ func flattenHdfsData(hdfsData *storagetransfer.HdfsData) []map[string]interface{
 	return []map[string]interface{}{data}
 }
 
+func expandTransferManifest(manifest []interface{}) *storagetransfer.TransferManifest {
+	if len(manifest) == 0 || manifest[0] == nil {
+		return nil
+	}
+
+	manifestFile := manifest[0].(map[string]interface{})
+	return &storagetransfer.TransferManifest{
+		Location: manifestFile["location"].(string),
+	}
+}
+
+func flattenTransferManifest(manifest *storagetransfer.TransferManifest) []map[string]interface{} {
+
+	return []map[string]interface{}{
+		{
+			"location": manifest.Location,
+		},
+	}
+}
+
 func expandAwsS3CompatibleData(awsS3CompatibleDataSchema []interface{}) *storagetransfer.AwsS3CompatibleData {
 	if len(awsS3CompatibleDataSchema) == 0 || awsS3CompatibleDataSchema[0] == nil {
 		return nil
@@ -1865,6 +1905,7 @@ func expandTransferSpecs(transferSpecs []interface{}) *storagetransfer.TransferS
 		PosixDataSource:            expandPosixData(transferSpec["posix_data_source"].([]interface{})),
 		HdfsDataSource:             expandHdfsData(transferSpec["hdfs_data_source"].([]interface{})),
 		AwsS3CompatibleDataSource:  expandAwsS3CompatibleData(transferSpec["aws_s3_compatible_data_source"].([]interface{})),
+		TransferManifest:           expandTransferManifest(transferSpec["transfer_manifest"].([]interface{})),
 	}
 }
 
@@ -1907,6 +1948,9 @@ func flattenTransferSpec(transferSpec *storagetransfer.TransferSpec, d *schema.R
 		data["hdfs_data_source"] = flattenHdfsData(transferSpec.HdfsDataSource)
 	} else if transferSpec.AwsS3CompatibleDataSource != nil {
 		data["aws_s3_compatible_data_source"] = flattenAwsS3CompatibleData(transferSpec.AwsS3CompatibleDataSource, d)
+	}
+	if transferSpec.TransferManifest != nil && transferSpec.TransferManifest.Location != "" {
+		data["transfer_manifest"] = flattenTransferManifest(transferSpec.TransferManifest)
 	}
 
 	return []map[string]interface{}{data}
