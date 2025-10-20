@@ -64,6 +64,41 @@ resource "google_compute_region_network_firewall_policy" "policy" {
 `, context)
 }
 
+func TestAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyRoceExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkFirewallPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyRoceExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_firewall_policy.policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyRoceExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_network_firewall_policy" "policy" {
+  name = "tf-test-rnf-policy%{random_suffix}"
+  description = "Terraform test"
+  policy_type = "RDMA_ROCE_POLICY"
+}
+`, context)
+}
+
 func testAccCheckComputeRegionNetworkFirewallPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -55,7 +55,7 @@ The following arguments are supported:
   An optional description of this resource. Provide this property when you create the resource.
 
 * `policy_type` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Policy type is used to determine which resources (networks) the policy can be associated with.
   A policy can be associated with a network only if the network has the matching policyType in its network profile.
   Different policy types may support some of the Firewall Rules features.
