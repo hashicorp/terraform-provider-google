@@ -81,6 +81,7 @@ fields:
   - field: 'transfer_spec.posix_data_source.root_directory'
   - field: 'transfer_spec.sink_agent_pool_name'
   - field: 'transfer_spec.source_agent_pool_name'
+  - field: 'transfer_spec.transfer_manifest.location'
   - field: 'transfer_spec.transfer_options.delete_objects_from_source_after_transfer'
   - field: 'transfer_spec.transfer_options.delete_objects_unique_in_sink'
   - field: 'transfer_spec.transfer_options.overwrite_objects_already_existing_in_sink'

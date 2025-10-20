@@ -190,6 +190,8 @@ The following arguments are supported:
 
 * `aws_s3_compatible_data_source` - (Optional) An AWS S3 Compatible data source. Structure [documented below](#nested_aws_s3_compatible_data_source).
 
+* `transfer_manifest` - (Optional) Use a manifest file to limit which object are transferred. See [Storage Transfer Service manifest file format](https://cloud.google.com/storage-transfer/docs/manifest). Structure [documented below](#nested_transfer_manifest).
+
 <a name="nested_replication_spec"></a>The `replication_spec` block supports:
 
 * `gcs_data_sink` - (Optional) A Google Cloud Storage data sink. Structure [documented below](#nested_gcs_data_sink).
@@ -306,6 +308,10 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 * `cloudfront_domain` - (Optional) The CloudFront distribution domain name pointing to this bucket, to use when fetching. See [Transfer from S3 via CloudFront](https://cloud.google.com/storage-transfer/docs/s3-cloudfront) for more information. Format: `https://{id}.cloudfront.net` or any valid custom domain. Must begin with `https://`.
 
 * `credentials_secret` - (Optional)  The Resource name of a secret in Secret Manager. AWS credentials must be stored in Secret Manager in JSON format. If credentials_secret is specified, do not specify role_arn or aws_access_key. Format: `projects/{projectNumber}/secrets/{secret_name}`.
+
+<a name="nested_transfer_manifest"></a>The `transfer_manifest` block supports:
+
+* `location` - (Required) The **GCS URI** to the manifest file (CSV or line-delimited). Example: `gs://my-bucket/manifest.csv`
 
 The `aws_access_key` block supports:
 
