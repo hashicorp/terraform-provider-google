@@ -11,6 +11,7 @@ fields:
   - api_field: 'name'
   - api_field: 'id'
     field: 'network_firewall_policy_id'
+  - api_field: 'policyType'
   - api_field: 'ruleTupleCount'
   - api_field: 'selfLink'
   - api_field: 'selfLinkWithId'
