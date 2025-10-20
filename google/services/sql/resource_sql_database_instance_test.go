@@ -1166,9 +1166,9 @@ func TestAccSqlDatabaseInstance_withPscEnabled_withNetworkAttachmentUri_thenRemo
 	instanceName := "tf-test-" + random_suffix
 	projectId := envvar.GetTestProjectFromEnv()
 	region := "us-central1"
-	networkNameStr := "tf-test-cloud-sql-network-" + random_suffix
-	subnetworkNameStr := "tf-test-cloud-sql-subnetwork-" + random_suffix
-	networkAttachmentNameStr := "tf-test-cloud-sql-update-na-" + random_suffix
+	networkNameStr := "tf-test-cloud-sql-network-psc-1"
+	subnetworkNameStr := "tf-test-cloud-sql-subnetwork-psc-1"
+	networkAttachmentNameStr := "tf-test-cloud-sql-update-na-psc-1"
 	networkName := acctest.BootstrapSharedTestNetwork(t, networkNameStr)
 	subnetworkName := acctest.BootstrapSubnet(t, subnetworkNameStr, networkName)
 	networkAttachmentName := acctest.BootstrapNetworkAttachment(t, networkAttachmentNameStr, subnetworkName)
@@ -1216,9 +1216,9 @@ func TestAccSqlDatabaseInstance_withPscEnabled_withNetworkAttachmentUriOnCreate(
 	instanceName := "tf-test-" + random_suffix
 	projectId := envvar.GetTestProjectFromEnv()
 	region := "us-central1"
-	networkNameStr := "tf-test-cloud-sql-network-" + random_suffix
-	subnetworkNameStr := "tf-test-cloud-sql-subnetwork-" + random_suffix
-	networkAttachmentNameStr := "tf-test-cloud-sql-update-na-" + random_suffix
+	networkNameStr := "tf-test-cloud-sql-network-psc-2"
+	subnetworkNameStr := "tf-test-cloud-sql-subnetwork-psc-2"
+	networkAttachmentNameStr := "tf-test-cloud-sql-update-na-psc-2"
 	networkName := acctest.BootstrapSharedTestNetwork(t, networkNameStr)
 	subnetworkName := acctest.BootstrapSubnet(t, subnetworkNameStr, networkName)
 	networkAttachmentName := acctest.BootstrapNetworkAttachment(t, networkAttachmentNameStr, subnetworkName)
