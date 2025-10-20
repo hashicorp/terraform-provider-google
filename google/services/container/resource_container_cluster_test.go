@@ -5516,6 +5516,15 @@ func TestAccContainerCluster_withFleetConfig(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
+			{
+				Config: testAccContainerCluster_withFleetConfigLightweightMembership(clusterName, projectID, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
 		},
 	})
 }
@@ -5570,6 +5579,26 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 }
 `, resource_name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withFleetConfigLightweightMembership(name, projectID, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  fleet {
+    project = "%s"
+	membership_type = "LIGHTWEIGHT"
+  }
+
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, name, projectID, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withIncompatibleMasterVersionNodeVersion(name, networkName, subnetworkName string) string {
