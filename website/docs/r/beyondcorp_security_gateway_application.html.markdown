@@ -227,7 +227,7 @@ The following arguments are supported:
   Required. Hostname of the application.
 
 * `ports` -
-  (Optional)
+  (Required)
   Optional. Ports of the application.
 
 <a name="nested_upstreams"></a>The `upstreams` block supports:

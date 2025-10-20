@@ -1,0 +1,3 @@
+```release-note:breaking-change
+beyondcorp: made the `ports` field in `endpointMatchers` required in response to a change in the API surface.
+```
