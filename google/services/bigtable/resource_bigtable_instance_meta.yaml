@@ -16,13 +16,13 @@ fields:
   - field: 'cluster.storage_type'
   - field: 'cluster.zone'
   - field: 'deletion_protection'
-  - field: 'display_name'
+  - api_field: 'displayName'
   - field: 'effective_labels'
     provider_only: true
   - field: 'force_destroy'
   - field: 'instance_type'
-  - field: 'labels'
-  - field: 'name'
+  - api_field: 'labels'
+  - api_field: 'name'
   - field: 'project'
   - field: 'terraform_labels'
     provider_only: true
