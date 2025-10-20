@@ -102,7 +102,7 @@ Hostname and Ports - ("abc.com" and "22"), ("abc.com" and "22,33") etc`,
 						},
 						"ports": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Required:    true,
 							Description: `Optional. Ports of the application.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeInt,
