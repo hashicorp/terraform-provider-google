@@ -2284,6 +2284,12 @@ func ResourceContainerCluster() *schema.Resource {
 							Computed:    true,
 							Description: `Location of the fleet membership, for example "us-central1".`,
 						},
+						"membership_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"LIGHTWEIGHT"}, false),
+							Description:  `The type of the cluster's fleet membership.`,
+						},
 					},
 				},
 			},
@@ -6148,7 +6154,8 @@ func expandFleet(configured interface{}) *container.Fleet {
 
 	config := l[0].(map[string]interface{})
 	return &container.Fleet{
-		Project: config["project"].(string),
+		Project:        config["project"].(string),
+		MembershipType: config["membership_type"].(string),
 	}
 }
 
@@ -7179,6 +7186,7 @@ func flattenFleet(c *container.Fleet) []map[string]interface{} {
 			"membership_id":       membership_id,
 			"membership_location": membership_location,
 			"pre_registered":      c.PreRegistered,
+			"membership_type":     c.MembershipType,
 		},
 	}
 }
