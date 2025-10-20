@@ -2431,10 +2431,16 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-t4", 1),
 				),
 			},
+			{
+				Config: testAccComputeInstance_guestAccelerator(instanceName, 0),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-t4", 0),
+				),
+			},
 			computeInstanceImportStep("us-east1-d", instanceName, []string{"metadata.baz", "metadata.foo"}),
 		},
 	})
-
 }
 
 func TestAccComputeInstance_guestAcceleratorSkip(t *testing.T) {
@@ -4976,6 +4982,9 @@ func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource
 func testAccCheckComputeInstanceHasGuestAccelerator(instance *compute.Instance, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(instance.GuestAccelerators) != 1 {
+			if int(acceleratorCount) == 0 && len(instance.GuestAccelerators) == 0 {
+				return nil
+			}
 			return fmt.Errorf("Expected only one guest accelerator")
 		}
 
