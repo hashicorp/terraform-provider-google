@@ -1,0 +1,3 @@
+```release-note:bug
+cloudquotas: resolved permadiff for `preferred_value` in `google_cloud_quotas_quota_preference`
+```
