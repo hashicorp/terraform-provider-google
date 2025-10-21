@@ -19,4 +19,4 @@ fields:
   - field: 'openapi_config'
   - field: 'project'
   - field: 'protoc_output_base64'
-  - field: 'service_name'
+  - api_field: 'serviceName'

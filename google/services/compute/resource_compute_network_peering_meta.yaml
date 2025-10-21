@@ -8,7 +8,7 @@ fields:
   - field: 'export_subnet_routes_with_public_ip'
   - field: 'import_custom_routes'
   - field: 'import_subnet_routes_with_public_ip'
-  - field: 'name'
+  - api_field: 'name'
   - field: 'network'
   - field: 'peer_network'
   - field: 'stack_type'

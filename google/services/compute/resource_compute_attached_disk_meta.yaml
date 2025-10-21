@@ -10,4 +10,4 @@ fields:
   - field: 'interface'
   - field: 'mode'
   - field: 'project'
-  - field: 'zone'
+  - api_field: 'zone'
