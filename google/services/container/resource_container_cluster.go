@@ -1776,6 +1776,16 @@ func ResourceContainerCluster() *schema.Resource {
 										Optional:    true,
 										Description: `Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.`,
 									},
+									"enable_k8s_tokens_via_dns": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Controls whether the k8s token auth is allowed via dns.`,
+									},
+									"enable_k8s_certs_via_dns": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Controls whether the k8s certs auth is allowed via dns.`,
+									},
 								},
 							},
 						},
@@ -5858,6 +5868,16 @@ func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.Contro
 		dns.ForceSendFields = []string{"AllowExternalTraffic"}
 	}
 
+	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_tokens_via_dns"); v != nil {
+		dns.EnableK8sTokensViaDns = v.(bool)
+		dns.ForceSendFields = []string{"EnableK8sTokensViaDns"}
+	}
+
+	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_certs_via_dns"); v != nil {
+		dns.EnableK8sCertsViaDns = v.(bool)
+		dns.ForceSendFields = []string{"EnableK8sCertsViaDns"}
+	}
+
 	ip := &container.IPEndpointsConfig{
 		Enabled:         true,
 		ForceSendFields: []string{"Enabled"},
@@ -6610,8 +6630,10 @@ func flattenDnsEndpointConfig(dns *container.DNSEndpointConfig) []map[string]int
 	}
 	return []map[string]interface{}{
 		{
-			"endpoint":               dns.Endpoint,
-			"allow_external_traffic": dns.AllowExternalTraffic,
+			"endpoint":                  dns.Endpoint,
+			"allow_external_traffic":    dns.AllowExternalTraffic,
+			"enable_k8s_tokens_via_dns": dns.EnableK8sTokensViaDns,
+			"enable_k8s_certs_via_dns":  dns.EnableK8sCertsViaDns,
 		},
 	}
 }

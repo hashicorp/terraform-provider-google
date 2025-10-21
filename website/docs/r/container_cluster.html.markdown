@@ -1334,6 +1334,10 @@ The `control_plane_endpoints_config.dns_endpoint_config` block supports:
 
 * `allow_external_traffic` - (Optional) Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.
 
+* `enable_k8s_tokens_via_dns` - (Optional) Controls whether the k8s token auth is allowed via Dns.
+
+* `enable_k8s_certs_via_dns` - (Optional) Controls whether the k8s certs auth is allowed via Dns.
+
 The `control_plane_endpoints_config.ip_endpoints_config` block supports:
 
 * `enabled` - (Optional) Controls whether to allow direct IP access. Defaults to `true`.
