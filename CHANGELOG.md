@@ -37,7 +37,6 @@ IMPROVEMENTS:
 BUG FIXES:
 * bigquery: fixed the issue where `google_bigquery_table` detected an incorrect `schema` diff on tables with row access policies when the schema was unchanged. ([#24711](https://github.com/hashicorp/terraform-provider-google/pull/24711))
 * compute: allow `requested_link_count` to be updated in-place in `google_compute_interconnect` resource ([#24705](https://github.com/hashicorp/terraform-provider-google/pull/24705))
-* discoveryengine: fixed bug where it wasn't possible to specify values for `knowledgeBaseSysId` or `catalogSysId` in `google_discovery_engine_data_connector.entities.params`. ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
 
 ## 7.7.0 (October 14th, 2025)
 BREAKING CHANGES:
