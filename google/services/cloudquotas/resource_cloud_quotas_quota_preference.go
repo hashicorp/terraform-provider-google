@@ -34,6 +34,15 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+func QuotaPreferredValueDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	o, n := d.GetChange(k)
+
+	oldEmpty := o == nil || o == ""
+	newEmpty := n == nil || n == ""
+
+	return (oldEmpty && n == "0") || (o == "0" && newEmpty)
+}
+
 func ResourceCloudQuotasQuotaPreference() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudQuotasQuotaPreferenceCreate,
@@ -67,9 +76,10 @@ func ResourceCloudQuotasQuotaPreference() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"preferred_value": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The preferred value. Must be greater than or equal to -1. If set to -1, it means the value is "unlimited".`,
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: QuotaPreferredValueDiffSuppress,
+							Description:      `The preferred value. Must be greater than or equal to -1. If set to -1, it means the value is "unlimited".`,
 						},
 						"annotations": {
 							Type:     schema.TypeMap,
