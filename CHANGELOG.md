@@ -11,7 +11,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * compute: added `IN_FLIGHT` to `balancing_mode` on `google_compute_backend_service` resource ([#24710](https://github.com/hashicorp/terraform-provider-google/pull/24710))
-* compute: added `ncc_gateway` field to `google_compute_router` resource (beta) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
 * compute: added new field `instance_lifecycle_policy.on_repair.allow_changing_zone` to `google_compute_region_instance_group_manager` & `google_compute_instance_group_manager` ([#24706](https://github.com/hashicorp/terraform-provider-google/pull/24706))
 * compute: promoted `security_policy` in `compute_region_backend_service` resource to GA ([#24693](https://github.com/hashicorp/terraform-provider-google/pull/24693))
 * compute: promoted the `google_compute_preview_feature` resource to GA. ([#24725](https://github.com/hashicorp/terraform-provider-google/pull/24725))
@@ -25,8 +24,7 @@ IMPROVEMENTS:
 * iambeta: allowed GKE workload identity pool pattern in `workload_identity_pool_id` field of `google_iam_workload_identity_pool` resource. ([#24656](https://github.com/hashicorp/terraform-provider-google/pull/24656))
 * memorystore: added `maintenance_version` field to `google_memorystore_instance` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
 * memorystore: added `available_maintenance_versions` field to `google_memorystore_instance` resource ([#24745](https://github.com/hashicorp/terraform-provider-google/pull/24745))
-* networkconnectivity: added `HYBRID_INSPECTION` enum value to `preset_topology` field in `google_network_connectivity_hub` resource (ga) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
-* networkconnectivity: added `gateway` field to `google_network_connectivity_spoke` resource (beta) ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
+* networkconnectivity: added `HYBRID_INSPECTION` enum value to `preset_topology` field in `google_network_connectivity_hub` resource ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
 * networkservices: added `isolationConfig` on `google_network_services_service_lb_policies` resource ([#24652](https://github.com/hashicorp/terraform-provider-google/pull/24652))
 * redis: added `deletion_protection` field to `redis_instance` to make deleting them require an explicit intent. `redis_instance` resources now cannot be destroyed unless `deletion_protection = false` is set for the resource. ([#24654](https://github.com/hashicorp/terraform-provider-google/pull/24654))
 * redis: added `maintenance_version` field to `google_redis_cluster` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
