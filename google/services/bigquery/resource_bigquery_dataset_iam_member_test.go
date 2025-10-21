@@ -30,6 +30,15 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+const (
+	condTitle2050 = "Expire access on 2050-12-31"
+	condExpr2050  = "request.time < timestamp('2050-12-31T23:59:59Z')"
+	condDesc2050  = "This condition will automatically remove access after 2050-12-31"
+	condTitle2040 = "Expire access on 2040-12-31"
+	condExpr2040  = "request.time < timestamp('2040-12-31T23:59:59Z')"
+	condDesc2040  = "This condition will automatically remove access after 2040-12-31"
+)
+
 func TestAccBigqueryDatasetIamMember_afterDatasetCreation(t *testing.T) {
 	t.Parallel()
 
@@ -121,6 +130,36 @@ func TestAccBigqueryDatasetIamMember_serviceAccount(t *testing.T) {
 				// Destroy step instead of CheckDestroy so we can check the access is removed without deleting the dataset
 				Config: testAccBigqueryDatasetIamMember_destroy(datasetID),
 				Check:  testAccCheckBigQueryDatasetIamMemberAbsent(t, "google_bigquery_dataset.dataset", expected),
+			},
+		},
+	})
+}
+
+func TestAccBigqueryDatasetIamMember_iamMemberWithIAMCondition(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	wifIDs := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDatasetIamMember_withServiceAccountAndIAMCondition(datasetID, wifIDs),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_member.access", "condition.0.title", condTitle2050),
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_member.access", "condition.0.expression", condExpr2050),
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_member.access", "condition.0.description", condDesc2050),
+				),
+			},
+			{
+				Config: testAccBigqueryDatasetIamMember_withServiceAccountAndIAMCondition_update(datasetID, wifIDs),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_member.access", "condition.0.title", condTitle2040),
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_member.access", "condition.0.expression", condExpr2040),
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_member.access", "condition.0.description", ""),
+				),
 			},
 		},
 	})
@@ -420,4 +459,51 @@ resource "google_bigquery_dataset_iam_member" "access" {
   member     = "serviceAccount:%s"
 }
 `, datasetID, serviceAccountEmail)
+}
+
+func testAccBigqueryDatasetIamMember_withServiceAccountAndIAMCondition(datasetID, serviceAccountID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "%s"
+}
+
+resource "google_service_account" "sa" {
+  account_id = "%s"
+}
+
+resource "google_bigquery_dataset_iam_member" "access" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/bigquery.dataViewer"
+  member     = "serviceAccount:${google_service_account.sa.email}"
+
+  condition {
+    title       = "%s"
+    description = "%s"
+    expression  = "%s"
+  }
+}
+`, datasetID, serviceAccountID, condTitle2050, condDesc2050, condExpr2050)
+}
+
+func testAccBigqueryDatasetIamMember_withServiceAccountAndIAMCondition_update(datasetID, serviceAccountID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "%s"
+}
+
+resource "google_service_account" "sa" {
+  account_id = "%s"
+}
+
+resource "google_bigquery_dataset_iam_member" "access" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/bigquery.dataViewer"
+  member     = "serviceAccount:${google_service_account.sa.email}"
+
+  condition {
+    title       = "%s"
+    expression  = "%s"
+  }
+}
+`, datasetID, serviceAccountID, condTitle2040, condExpr2040)
 }

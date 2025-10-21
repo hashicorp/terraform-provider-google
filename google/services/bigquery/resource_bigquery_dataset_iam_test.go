@@ -133,6 +133,58 @@ func TestAccBigqueryDatasetIamPolicy(t *testing.T) {
 	})
 }
 
+func TestAccBigqueryDatasetIamBindingWithIAMCondition(t *testing.T) {
+	t.Parallel()
+
+	dataset := "tf_test_dataset_iam_" + acctest.RandString(t, 10)
+	account := "tf-test-bq-iam-" + acctest.RandString(t, 10)
+	role := "roles/bigquery.dataViewer"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDatasetIamBindingWithIAMCondition(dataset, account, role),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_binding.binding", "condition.0.title", condTitle2050),
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_binding.binding", "condition.0.description", condDesc2050),
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_binding.binding", "condition.0.expression", condExpr2050),
+				),
+			},
+			{
+				Config: testAccBigqueryDatasetIamBindingWithIAMCondition_update(dataset, account, role),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_bigquery_dataset_iam_binding.binding", "members.1"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_binding.binding", "condition.0.title", condTitle2040),
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_binding.binding", "condition.0.description", condDesc2040),
+					resource.TestCheckResourceAttr("google_bigquery_dataset_iam_binding.binding", "condition.0.expression", condExpr2040),
+				),
+			},
+		},
+	})
+}
+
+func TestAccBigqueryDatasetIamPolicyWithIAMCondition(t *testing.T) {
+	t.Parallel()
+
+	owner := "tf-test-" + acctest.RandString(t, 10)
+	dataset := "tf_test_dataset_iam_" + acctest.RandString(t, 10)
+	account := "tf-test-bq-iam-" + acctest.RandString(t, 10)
+	role := "roles/bigquery.dataViewer"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDatasetIamPolicyWithIAMCondition(dataset, owner, account, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_bigquery_dataset_iam_policy.policy", "policy_data"),
+			},
+		},
+	})
+}
+
 func testAccBigqueryDatasetIamBinding_basic(dataset, account, role string) string {
 	return fmt.Sprintf(testBigqueryDatasetIam+`
 resource "google_service_account" "test-account1" {
@@ -223,3 +275,101 @@ resource "google_bigquery_dataset" "dataset" {
   dataset_id = "%s"
 }
 `
+
+func testAccBigqueryDatasetIamBindingWithIAMCondition(dataset, account, role string) string {
+	return fmt.Sprintf(testBigqueryDatasetIam+`
+resource "google_service_account" "test-account1" {
+  account_id   = "%s-1"
+  display_name = "Bigquery Dataset IAM Testing Account"
+}
+
+resource "google_service_account" "test-account2" {
+  account_id   = "%s-2"
+  display_name = "Bigquery Dataset Iam Testing Account"
+}
+
+resource "google_bigquery_dataset_iam_binding" "binding" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role     = "%s"
+  members = [
+    "serviceAccount:${google_service_account.test-account1.email}",
+  ]
+
+  condition {
+    title       = "%s"
+    description = "%s"
+    expression  = "%s"
+  }
+}
+`, dataset, account, account, role, condTitle2050, condDesc2050, condExpr2050)
+}
+
+func testAccBigqueryDatasetIamBindingWithIAMCondition_update(dataset, account, role string) string {
+	return fmt.Sprintf(testBigqueryDatasetIam+`
+resource "google_service_account" "test-account1" {
+  account_id   = "%s-1"
+  display_name = "Bigquery Dataset IAM Testing Account"
+}
+
+resource "google_service_account" "test-account2" {
+  account_id   = "%s-2"
+  display_name = "Bigquery Dataset Iam Testing Account"
+}
+
+resource "google_bigquery_dataset_iam_binding" "binding" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role     = "%s"
+  members = [
+    "serviceAccount:${google_service_account.test-account1.email}",
+    "serviceAccount:${google_service_account.test-account2.email}",
+  ]
+
+  condition {
+    title       = "%s"
+    description = "%s"
+    expression  = "%s"
+  }
+}
+`, dataset, account, account, role, condTitle2040, condDesc2040, condExpr2040)
+}
+
+func testAccBigqueryDatasetIamPolicyWithIAMCondition(dataset, owner, account, role string) string {
+	return fmt.Sprintf(testBigqueryDatasetIam+`
+resource "google_service_account" "owner" {
+  account_id   = "%s"
+  display_name = "Bigquery Dataset IAM Testing Account"
+}
+
+resource "google_service_account" "test-account" {
+  account_id   = "%s"
+  display_name = "Bigquery Dataset IAM Testing Account"
+}
+
+data "google_iam_policy" "policy" {
+  binding {
+    role    = "roles/bigquery.dataOwner"
+    members = ["serviceAccount:${google_service_account.owner.email}"]
+  }
+
+  binding {
+    role    = "%s"
+    members = ["serviceAccount:${google_service_account.test-account.email}"]
+
+    condition {
+      title       = "%s"
+      description = "%s"
+      expression  = "%s"
+    }
+  }
+}
+
+resource "google_bigquery_dataset_iam_policy" "policy" {
+  dataset_id  = google_bigquery_dataset.dataset.dataset_id
+  policy_data = data.google_iam_policy.policy.policy_data
+}
+
+data "google_bigquery_dataset_iam_policy" "policy" {
+  dataset_id  = google_bigquery_dataset.dataset.dataset_id
+}
+`, dataset, owner, account, role, condTitle2050, condDesc2050, condExpr2050)
+}
