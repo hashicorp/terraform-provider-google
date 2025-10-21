@@ -1,0 +1,55 @@
+```release-note:enhancement
+bigquery: supported for IAM conditions in all `google_bigquery_dataset_iam_*` resources
+```
+
+**Local test execution:**
+```console
+➜ make testacc TEST=./google/services/bigquery TESTARGS='-run=TestAccBigqueryDatasetIam -parallel 3'
+
+sh -c "'/Users/ramon/go/src/github.com/hashicorp/terraform-provider-google/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/bigquery -v -run=TestAccBigqueryDatasetIam -parallel 3 -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccBigqueryDatasetIamMember_afterDatasetCreation
+=== PAUSE TestAccBigqueryDatasetIamMember_afterDatasetCreation
+=== RUN   TestAccBigqueryDatasetIamMember_serviceAccount
+=== PAUSE TestAccBigqueryDatasetIamMember_serviceAccount
+=== RUN   TestAccBigqueryDatasetIamMember_iamMemberWithIAMCondition
+=== PAUSE TestAccBigqueryDatasetIamMember_iamMemberWithIAMCondition
+=== RUN   TestAccBigqueryDatasetIamMember_iamMember
+=== PAUSE TestAccBigqueryDatasetIamMember_iamMember
+=== RUN   TestAccBigqueryDatasetIamMember_withDeletedServiceAccount
+=== PAUSE TestAccBigqueryDatasetIamMember_withDeletedServiceAccount
+=== RUN   TestAccBigqueryDatasetIamBinding
+=== PAUSE TestAccBigqueryDatasetIamBinding
+=== RUN   TestAccBigqueryDatasetIamMember
+=== PAUSE TestAccBigqueryDatasetIamMember
+=== RUN   TestAccBigqueryDatasetIamPolicy
+=== PAUSE TestAccBigqueryDatasetIamPolicy
+=== RUN   TestAccBigqueryDatasetIamBindingWithIAMCondition
+=== PAUSE TestAccBigqueryDatasetIamBindingWithIAMCondition
+=== RUN   TestAccBigqueryDatasetIamPolicyWithIAMCondition
+=== PAUSE TestAccBigqueryDatasetIamPolicyWithIAMCondition
+=== CONT  TestAccBigqueryDatasetIamMember_afterDatasetCreation
+=== CONT  TestAccBigqueryDatasetIamBinding
+=== CONT  TestAccBigqueryDatasetIamMember_iamMember
+--- PASS: TestAccBigqueryDatasetIamMember_afterDatasetCreation (45.90s)
+=== CONT  TestAccBigqueryDatasetIamMember_withDeletedServiceAccount
+--- PASS: TestAccBigqueryDatasetIamBinding (49.72s)
+=== CONT  TestAccBigqueryDatasetIamBindingWithIAMCondition
+--- PASS: TestAccBigqueryDatasetIamMember_iamMember (53.58s)
+=== CONT  TestAccBigqueryDatasetIamPolicyWithIAMCondition
+--- PASS: TestAccBigqueryDatasetIamPolicyWithIAMCondition (27.04s)
+=== CONT  TestAccBigqueryDatasetIamMember_iamMemberWithIAMCondition
+--- PASS: TestAccBigqueryDatasetIamMember_withDeletedServiceAccount (36.13s)
+=== CONT  TestAccBigqueryDatasetIamMember_serviceAccount
+--- PASS: TestAccBigqueryDatasetIamBindingWithIAMCondition (63.05s)
+=== CONT  TestAccBigqueryDatasetIamPolicy
+--- PASS: TestAccBigqueryDatasetIamPolicy (30.21s)
+=== CONT  TestAccBigqueryDatasetIamMember
+--- PASS: TestAccBigqueryDatasetIamMember (28.03s)
+--- PASS: TestAccBigqueryDatasetIamMember_serviceAccount (94.86s)
+--- PASS: TestAccBigqueryDatasetIamMember_iamMemberWithIAMCondition (106.98s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/bigquery 188.391s
+```
