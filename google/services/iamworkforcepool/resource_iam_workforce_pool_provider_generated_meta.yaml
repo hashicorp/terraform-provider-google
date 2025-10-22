@@ -36,6 +36,7 @@ fields:
   - field: 'provider_id'
     provider_only: true
   - api_field: 'saml.idpMetadataXml'
+  - api_field: 'scimUsage'
   - api_field: 'state'
   - field: 'workforce_pool_id'
     provider_only: true

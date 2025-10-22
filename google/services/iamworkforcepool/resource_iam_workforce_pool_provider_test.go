@@ -479,6 +479,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
   description         = "A sample OIDC workforce pool provider with updated description."
   disabled            = true
   attribute_condition = "false"
+  scim_usage          = "ENABLED_FOR_GROUPS"
 }
 `, context)
 }
@@ -595,6 +596,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
   description         = "A sample SAML workforce pool provider with updated description."
   disabled            = true
   attribute_condition = "false"
+  scim_usage          = "ENABLED_FOR_GROUPS"
 }
 `, context)
 }

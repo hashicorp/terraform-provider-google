@@ -486,6 +486,19 @@ The following arguments are supported:
   to a unique Microsoft Entra ID user.
   Structure is [documented below](#nested_extended_attributes_oauth2_client).
 
+* `scim_usage` -
+  (Optional)
+  Agentspace only. Specifies whether the workforce identity pool
+  provider uses SCIM-managed groups instead of the `google.groups`
+  attribute mapping for authorization checks.
+  The `scimUsage` and `extendedAttributesOauth2Client` fields are
+  mutually exclusive. A request that enables both fields on the same
+  workforce identity pool provider will produce an error.
+  * SCIM_USAGE_UNSPECIFIED: Default behaviour
+  * ENABLED_FOR_GROUPS: Use SCIM-managed groups instead of the `google.groups`
+    attribute mapping for authorization checks
+  Possible values are: `SCIM_USAGE_UNSPECIFIED`, `ENABLED_FOR_GROUPS`.
+
 
 
 <a name="nested_saml"></a>The `saml` block supports:
