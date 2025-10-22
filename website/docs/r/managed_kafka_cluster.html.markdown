@@ -127,7 +127,7 @@ resource "google_managed_kafka_cluster" "example" {
         subnet = "projects/${data.google_project.project.number}/regions/us-central1/subnetworks/default"
       }
     }
-    kms_key = google_kms_crypto_key.key.id
+    kms_key = "example-key"
   }
 
   provider = google-beta
@@ -136,31 +136,6 @@ resource "google_managed_kafka_cluster" "example" {
 resource "google_project_service_identity" "kafka_service_identity" {
   project  = data.google_project.project.project_id
   service  = "managedkafka.googleapis.com"
-
-  provider = google-beta
-}
-
-resource "google_kms_crypto_key" "key" {
-  name     = "example-key"
-  key_ring = google_kms_key_ring.key_ring.id
-
-  provider = google-beta
-}
-
-resource "google_kms_key_ring" "key_ring" {
-  name     = "example-key-ring"
-  location = "us-central1"
-
-  provider = google-beta
-}
-
-resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
-  crypto_key_id = google_kms_crypto_key.key.id
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-managedkafka.iam.gserviceaccount.com",
-  ]
 
   provider = google-beta
 }
