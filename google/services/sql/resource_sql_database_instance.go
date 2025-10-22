@@ -2503,8 +2503,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		Settings: expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{}), databaseVersion),
 	}
 
-	// If there is no change detected in disk size, no need to try and update the disk size, send 0 always
-	instance.Settings.DataDiskSizeGb = 0
 	if d.HasChange("settings.0.disk_size") {
 		autoResize := true
 		_, autoResizeI := d.GetChange("settings.0.disk_autoresize")
