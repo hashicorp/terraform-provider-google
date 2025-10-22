@@ -118,19 +118,17 @@ data "google_service_accounts" "with_prefix" {
 
 data "google_service_accounts" "with_regex" {
   project = local.project_id
-  regex   = ".*%s.*@.*\\.gserviceaccount\\.com"
+  regex   = ".*${google_service_account.sa_one.account_id}.*@.*\\.gserviceaccount\\.com"
 }
 
 data "google_service_accounts" "with_prefix_and_regex" {
   prefix  = google_service_account.sa_one.account_id
   project = local.project_id
-  regex   = ".*%s.*@.*\\.gserviceaccount\\.com"
+  regex   = ".*${google_service_account.sa_one.account_id}.*@.*\\.gserviceaccount\\.com"
 }
 `,
 		context["project"].(string),
 		context["sa_1"].(string),
 		context["sa_2"].(string),
-		context["sa_1"].(string),
-		context["sa_1"].(string),
 	)
 }
