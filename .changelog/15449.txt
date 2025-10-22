@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed an issue where `dataDiskSize` was unintentionally null instead of set to the current value in API requests, triggering unrelated errors
+```
