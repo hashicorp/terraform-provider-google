@@ -67,6 +67,8 @@ The following arguments are supported:
 
 * `serving_status` - (Optional) The serving status of the app.
 
+* `ssl_policy` - (Optional) A list of the SSL policy that will be applied. Each block has a `SSL_POLICY_UNSPECIFIED`, `DEFAULT`, and `MODERN` field.
+
 * `feature_settings` - (Optional) A block of optional settings to configure specific App Engine features:
 
   * `split_health_checks` - (Required) Set to false to use the legacy health check instead of the readiness
