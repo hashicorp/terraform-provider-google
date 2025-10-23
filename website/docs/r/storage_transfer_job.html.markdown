@@ -246,6 +246,9 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 * `overwrite_when` - (Optional) When to overwrite objects that already exist in the sink. If not set, overwrite behavior is determined by `overwrite_objects_already_existing_in_sink`. Possible values: ALWAYS, DIFFERENT, NEVER.
 
+* `metadata_options` - (Optional) Specifies the metadata options for running a transfer. Structure [documented below](#nested_metadata_options).
+
+
 <a name="nested_gcs_data_sink"></a>The `gcs_data_sink` block supports:
 
 * `bucket_name` - (Required) Google Cloud Storage bucket name.
@@ -383,6 +386,26 @@ Each action state may be one of `SUCCEEDED`, and `FAILED`.
 
 * `enable_on_prem_gcs_transfer` - (Optional) For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer.
 Defaults to false.
+
+<a name="nested_metadata_options"></a>The `metadata_options` block supports:
+
+* `symlink` - (Optional) Specifies how symlinks should be handled by the transfer.
+
+* `mode` - (Optional) Specifies how each file's mode attribute should be handled by the transfer.
+
+* `gid` - (Required) Specifies how each file's POSIX group ID (GID) attribute should be handled by the transfer.
+
+* `uid` - (Optional) Specifies how each file's POSIX user ID (UID) attribute should be handled by the transfer.
+
+* `acl` - (Optional) Specifies how each object's ACLs should be preserved for transfers between Google Cloud Storage buckets.
+
+* `storage_class` - (Optional) Specifies the storage class to set on objects being transferred to Google Cloud Storage buckets.
+
+* `temporary_hold` - (Optional) Specifies how each object's temporary hold status should be preserved for transfers between Google Cloud Storage buckets.
+
+* `kms_key` - (Optional) Specifies how each object's Cloud KMS customer-managed encryption key (CMEK) is preserved for transfers between Google Cloud Storage buckets.
+
+* `time_created` - (Optional) Specifies how each object's timeCreated metadata is preserved for transfers.
 
 ## Attributes Reference
 
