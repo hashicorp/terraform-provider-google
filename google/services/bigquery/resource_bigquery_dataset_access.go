@@ -32,6 +32,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 var bigqueryAccessRoleToPrimitiveMap = map[string]string{
@@ -258,7 +259,8 @@ This can be used e.g. in UIs which allow to enter the expression.`,
 							Description: `Which resources in the dataset this entry applies to. Currently, only views are supported,
 but additional target types may be added in the future. Possible values: VIEWS`,
 							Elem: &schema.Schema{
-								Type: schema.TypeString,
+								Type:         schema.TypeString,
+								ValidateFunc: verify.ValidateRegexp(`^[A-Z_]+$`),
 							},
 						},
 					},

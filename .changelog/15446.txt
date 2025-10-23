@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: added validation for `target_types` in `google_bigquery_dataset_access`
+```
