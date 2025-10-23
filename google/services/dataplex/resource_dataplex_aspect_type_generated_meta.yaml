@@ -8,6 +8,7 @@ fields:
   - field: 'aspect_type_id'
     provider_only: true
   - api_field: 'createTime'
+  - api_field: 'dataClassification'
   - api_field: 'description'
   - api_field: 'displayName'
   - field: 'effective_labels'
