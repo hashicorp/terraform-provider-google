@@ -4,5 +4,6 @@ api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Project'
 fields:
-  - field: 'network_tier'
+  - api_field: 'defaultNetworkTier'
+    field: 'network_tier'
   - field: 'project'
