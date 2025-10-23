@@ -6,9 +6,9 @@ api_resource_type_kind: 'InstanceGroupManager'
 api_variant_patterns:
   - 'projects/{project}/zones/{zone}/instanceGroupManagers/{instanceGroupManager}'
 fields:
-  - api_field: 'allInstancesConfig.properties.labels
+  - api_field: 'allInstancesConfig.properties.labels'
     field: 'all_instances_config.labels'
-  - api_field: 'allInstancesConfig.properties.metadata
+  - api_field: 'allInstancesConfig.properties.metadata'
     field: 'all_instances_config.metadata'
   - api_field: 'autoHealingPolicies.healthCheck'
   - api_field: 'autoHealingPolicies.initialDelaySec'
