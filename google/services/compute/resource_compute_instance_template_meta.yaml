@@ -24,7 +24,6 @@ fields:
     api_field: 'properties.confidentialInstanceConfig.enableConfidentialCompute'
   - api_field: 'creationTimestamp'
   - api_field: 'description'
-    api_field: 'properties.description'
   - field: 'disk.auto_delete'
     api_field: 'properties.disks.autoDelete'
   - field: 'disk.boot'
