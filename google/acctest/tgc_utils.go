@@ -37,6 +37,7 @@ type ResourceMetadata struct {
 	ResourceAddress string         `json:"resource_address"`
 	ImportMetadata  ImportMetadata `json:"import_metadata,omitempty"`
 	Service         string         `json:"service"`
+	CaiContentType  string         `json:"cai_content_type,omitempty"`
 }
 
 type ImportMetadata struct {
@@ -99,6 +100,14 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 
 		// Process each resource to get CAI asset names and resolve auto IDs
 		for address, metadata := range tgcPayload.ResourceMetadata {
+			// https://cloud.google.com/asset-inventory/docs/reference/rest/v1/feeds#ContentType
+			isIamResource := IsIamResource(metadata.ResourceType)
+			if isIamResource {
+				metadata.CaiContentType = "IAM_POLICY"
+			} else {
+				metadata.CaiContentType = "RESOURCE"
+			}
+
 			// If there is import metadata update our primary resource
 			if metadata.ImportMetadata.Id != "" {
 				tgcPayload.PrimaryResource = address
@@ -130,6 +139,10 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 
 					if _, ok := serviceWithProjectNumber[metadata.Service]; ok {
 						rName = strings.Replace(rName, projectId, projectNumber, 1)
+					}
+
+					if isIamResource {
+						rName = getIamResourceId(metadata.ResourceType, rName)
 					}
 
 					metadata.CaiAssetNames = []string{fmt.Sprintf("//%s/%s", apiServiceName, rName)}
@@ -335,4 +348,27 @@ func extendWithTGCData(t *testing.T, c resource.TestCase) resource.TestCase {
 
 	c.Steps = updatedSteps
 	return c
+}
+
+// Gets IAM resource Id by removing the IAM role and member binding information from id
+// id "projects/local-mediator-361721/zones/us-central1-a/instances/tf-test-my-instancev8xqssrek2/roles/compute.osLogin/user:admin@example.com"
+// will become "projects/local-mediator-361721/zones/us-central1-a/instances/tf-test-my-instancev8xqssrek2"
+func getIamResourceId(resourceType, id string) string {
+	parts := strings.Split(id, "/roles/")
+
+	if len(parts) > 0 {
+		return parts[0]
+	}
+
+	return id
+}
+
+// Checks if a resource is an IAM resource
+func IsIamResource(resourceType string) bool {
+	for _, suffix := range iamSuffixes {
+		if strings.HasSuffix(resourceType, suffix) {
+			return true
+		}
+	}
+	return false
 }

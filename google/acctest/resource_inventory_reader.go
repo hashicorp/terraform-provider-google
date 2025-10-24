@@ -46,6 +46,12 @@ var (
 	cachePopulated = false
 	// Mutex to protect cache access
 	cacheMutex sync.RWMutex
+
+	iamSuffixes = []string{
+		"_iam_member",
+		"_iam_binding",
+		"_iam_policy",
+	}
 )
 
 // PopulateMetadataCache walks through all metadata files once and populates
@@ -93,14 +99,25 @@ func PopulateMetadataCache() error {
 				return nil
 			}
 
+			iamResources := make([]string, 0)
+			for _, suffix := range iamSuffixes {
+				iamResources = append(iamResources, fmt.Sprintf("%s%s", metadata.Resource, suffix))
+			}
+
 			// Store API service name in cache
 			if metadata.ApiServiceName != "" {
 				ApiServiceNameCache.Set(metadata.Resource, metadata.ApiServiceName)
+				for _, iamResource := range iamResources {
+					ApiServiceNameCache.Set(iamResource, metadata.ApiServiceName)
+				}
 				apiNameCount++
 			}
 
 			if metadata.CaiAssetNameFormat != "" {
 				CaiAssetNameFormatCache.Set(metadata.Resource, metadata.CaiAssetNameFormat)
+				for _, iamResource := range iamResources {
+					CaiAssetNameFormatCache.Set(iamResource, metadata.CaiAssetNameFormat)
+				}
 			}
 
 			// Extract and store service package in cache
@@ -116,6 +133,9 @@ func PopulateMetadataCache() error {
 			if servicesIndex >= 0 && len(pathParts) > servicesIndex+1 {
 				servicePackage := pathParts[servicesIndex+1] // The part after "services"
 				ServicePackageCache.Set(metadata.Resource, servicePackage)
+				for _, iamResource := range iamResources {
+					ServicePackageCache.Set(iamResource, servicePackage)
+				}
 				servicePkgCount++
 			}
 		}
