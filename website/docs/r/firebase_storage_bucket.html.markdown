@@ -47,7 +47,7 @@ resource "google_storage_bucket" "default" {
 resource "google_firebase_storage_bucket" "default" {
   provider  = google-beta
   project   = "my-project-name"
-  bucket_id = google_storage_bucket.default.id
+  bucket_id = google_storage_bucket.default.name
 }
 ```
 
