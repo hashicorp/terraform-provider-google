@@ -20,3 +20,4 @@ fields:
   - field: 'terraform_labels'
     provider_only: true
   - api_field: 'zone'
+  - api_field: 'selfLink'

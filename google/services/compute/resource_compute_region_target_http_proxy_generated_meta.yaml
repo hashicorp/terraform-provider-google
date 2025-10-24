@@ -13,3 +13,4 @@ fields:
     field: 'proxy_id'
   - api_field: 'region'
   - api_field: 'urlMap'
+  - api_field: 'selfLink'

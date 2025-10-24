@@ -16,3 +16,4 @@ fields:
     field: 'proxy_id'
   - api_field: 'sslCertificates'
   - api_field: 'sslPolicy'
+  - api_field: 'selfLink'

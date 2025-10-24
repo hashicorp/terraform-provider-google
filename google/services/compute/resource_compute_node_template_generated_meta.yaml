@@ -21,3 +21,4 @@ fields:
   - api_field: 'nodeTypeFlexibility.memory'
   - api_field: 'region'
   - api_field: 'serverBinding.type'
+  - api_field: 'selfLink'

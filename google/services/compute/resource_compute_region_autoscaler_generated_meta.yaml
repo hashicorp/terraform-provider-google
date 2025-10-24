@@ -43,3 +43,4 @@ fields:
   - api_field: 'name'
   - api_field: 'region'
   - api_field: 'target'
+  - api_field: 'selfLink'

@@ -21,3 +21,4 @@ fields:
   - api_field: 'sslPolicy'
   - api_field: 'tlsEarlyData'
   - api_field: 'urlMap'
+  - api_field: 'selfLink'

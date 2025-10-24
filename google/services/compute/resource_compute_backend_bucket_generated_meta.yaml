@@ -28,3 +28,4 @@ fields:
   - api_field: 'loadBalancingScheme'
   - api_field: 'name'
   - api_field: 'params.resourceManagerTags'
+  - api_field: 'selfLink'

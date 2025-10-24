@@ -29,3 +29,4 @@ fields:
   - field: 'send_propagated_connection_limit_if_zero'
     provider_only: true
   - api_field: 'targetService'
+  - api_field: 'selfLink'

@@ -11,3 +11,4 @@ fields:
     provider_only: true
   - api_field: 'instance'
   - api_field: 'name'
+  - api_field: 'selfLink'

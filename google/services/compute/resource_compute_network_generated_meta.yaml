@@ -29,3 +29,4 @@ fields:
   - api_field: 'params.resourceManagerTags'
   - api_field: 'routingConfig.routingMode'
     field: 'routing_mode'
+  - api_field: 'selfLink'

@@ -26,3 +26,4 @@ fields:
   - api_field: 'status'
   - api_field: 'statusMessage'
   - api_field: 'type'
+  - api_field: 'selfLink'

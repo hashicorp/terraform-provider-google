@@ -15,3 +15,4 @@ fields:
   - api_field: 'size'
   - api_field: 'subnetwork'
   - api_field: 'zone'
+  - api_field: 'selfLink'

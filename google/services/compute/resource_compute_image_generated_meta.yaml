@@ -55,3 +55,4 @@ fields:
   - api_field: 'storageLocations'
   - field: 'terraform_labels'
     provider_only: true
+  - api_field: 'selfLink'
