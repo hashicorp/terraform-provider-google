@@ -41,3 +41,4 @@ fields:
   - api_field: 'state'
   - api_field: 'id'
     field: 'subnetwork_id'
+  - api_field: 'selfLink'

@@ -11,3 +11,4 @@ fields:
   - api_field: 'name'
   - api_field: 'pdpScope'
   - api_field: 'sharedSecret'
+  - api_field: 'selfLink'

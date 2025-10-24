@@ -17,3 +17,4 @@ fields:
   - api_field: 'sslCertificates'
   - api_field: 'sslPolicy'
   - api_field: 'urlMap'
+  - api_field: 'selfLink'

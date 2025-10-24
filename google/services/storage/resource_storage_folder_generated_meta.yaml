@@ -13,3 +13,4 @@ fields:
   - api_field: 'metageneration'
   - api_field: 'name'
   - api_field: 'updateTime'
+  - api_field: 'selfLink'

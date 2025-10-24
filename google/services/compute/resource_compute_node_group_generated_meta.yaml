@@ -20,3 +20,4 @@ fields:
   - api_field: 'shareSettings.shareType'
   - api_field: 'size'
   - api_field: 'zone'
+  - api_field: 'selfLink'

@@ -133,3 +133,4 @@ fields:
   - api_field: 'tlsSettings.sni'
   - api_field: 'tlsSettings.subjectAltNames.dnsName'
   - api_field: 'tlsSettings.subjectAltNames.uniformResourceIdentifier'
+  - api_field: 'selfLink'

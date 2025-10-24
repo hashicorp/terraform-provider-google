@@ -13,3 +13,4 @@ fields:
   - api_field: 'expireTime'
   - api_field: 'name'
   - api_field: 'privateKey'
+  - api_field: 'selfLink'

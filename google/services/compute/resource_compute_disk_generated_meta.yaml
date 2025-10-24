@@ -65,3 +65,4 @@ fields:
   - api_field: 'type'
   - api_field: 'users'
   - api_field: 'zone'
+  - api_field: 'selfLink'

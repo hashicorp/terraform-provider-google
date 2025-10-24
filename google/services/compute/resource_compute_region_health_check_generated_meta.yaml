@@ -56,3 +56,4 @@ fields:
   - api_field: 'timeoutSec'
   - api_field: 'type'
   - api_field: 'unhealthyThreshold'
+  - api_field: 'selfLink'

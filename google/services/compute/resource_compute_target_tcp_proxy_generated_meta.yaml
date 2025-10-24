@@ -14,3 +14,4 @@ fields:
   - api_field: 'proxyHeader'
   - api_field: 'id'
     field: 'proxy_id'
+  - api_field: 'selfLink'

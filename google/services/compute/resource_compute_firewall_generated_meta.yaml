@@ -28,3 +28,4 @@ fields:
   - api_field: 'sourceTags'
   - api_field: 'targetServiceAccounts'
   - api_field: 'targetTags'
+  - api_field: 'selfLink'

@@ -9,3 +9,4 @@ fields:
   - api_field: 'description'
   - api_field: 'name'
   - api_field: 'networkEndpointType'
+  - api_field: 'selfLink'

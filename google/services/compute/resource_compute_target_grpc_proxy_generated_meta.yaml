@@ -12,3 +12,4 @@ fields:
   - api_field: 'selfLinkWithId'
   - api_field: 'urlMap'
   - api_field: 'validateForProxyless'
+  - api_field: 'selfLink'

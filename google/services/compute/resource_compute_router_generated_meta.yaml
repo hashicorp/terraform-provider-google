@@ -21,3 +21,4 @@ fields:
   - api_field: 'network'
   - api_field: 'params.resourceManagerTags'
   - api_field: 'region'
+  - api_field: 'selfLink'

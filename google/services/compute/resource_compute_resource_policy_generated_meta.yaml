@@ -33,3 +33,4 @@ fields:
   - api_field: 'workloadPolicy.acceleratorTopology'
   - api_field: 'workloadPolicy.maxTopologyDistance'
   - api_field: 'workloadPolicy.type'
+  - api_field: 'selfLink'
