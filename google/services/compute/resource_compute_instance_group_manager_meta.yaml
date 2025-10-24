@@ -30,6 +30,7 @@ fields:
   - field: 'operation'
     provider_only: true
   - field: 'project'
+  - api_field: 'resourcePolicies.workloadPolicy'
   - api_field: 'selfLink'
   - api_field: 'standbyPolicy.initialDelaySec'
   - api_field: 'standbyPolicy.mode'
