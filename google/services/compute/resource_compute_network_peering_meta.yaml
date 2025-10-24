@@ -23,3 +23,5 @@ fields:
     field: 'state'
   - api_field: 'peerings.stateDetails'
     field: 'state_details'
+  - api_field: 'peerings.updateStrategy'
+    field: 'update_strategy'
