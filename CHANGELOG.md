@@ -10,7 +10,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * appengine: added `ssl_policy` to `application` on `google_app_engine_application` resource ([#24786](https://github.com/hashicorp/terraform-provider-google/pull/24786))
-* bigquery: supported for IAM conditions in all `google_bigquery_dataset_iam_*` resources ([#24778](https://github.com/hashicorp/terraform-provider-google/pull/24778))
+* bigquery: added support for IAM conditions in `google_bigquery_dataset_iam_*` ([#24778](https://github.com/hashicorp/terraform-provider-google/pull/24778))
 * compute: promoted `policy_type` to GA in `google_compute_network_firewall_policy`, `google_compute_network_firewall_policy_with_rules`, `google_compute_region_network_firewall_policy`, `google_compute_region_network_firewall_policy_with_rules`. ([#24769](https://github.com/hashicorp/terraform-provider-google/pull/24769))
 * container: added `dns_endpoint_confg.enable_k8s_tokens_via_dns` and  `dns_endpoint_config.enable_k8s_certs_via_dns` fields to `google_container_cluster` resource ([#24774](https://github.com/hashicorp/terraform-provider-google/pull/24774))
 * container: added `fleet.membership_type` field to `google_container_cluster` resource ([#24759](https://github.com/hashicorp/terraform-provider-google/pull/24759))
@@ -26,7 +26,6 @@ BUG FIXES:
 * bigquery: added validation for `target_types` in `google_bigquery_dataset_access` ([#24810](https://github.com/hashicorp/terraform-provider-google/pull/24810))
 * cloudquotas: resolved permadiff for `preferred_value` in `google_cloud_quotas_quota_preference` ([#24776](https://github.com/hashicorp/terraform-provider-google/pull/24776))
 * compute: fixed scenario where `google_compute_instance` would not be staged for recreation if `guest_accelerator.count` was updated to 0 from non-zero value ([#24762](https://github.com/hashicorp/terraform-provider-google/pull/24762))
-* managedkafka: fix the order of cluster creation and IAM binding in CMEK test. ([#24789](https://github.com/hashicorp/terraform-provider-google/pull/24789))
 * sql: fixed an issue where `dataDiskSize` was unintentionally null instead of set to the current value in API requests, triggering unrelated errors ([#24790](https://github.com/hashicorp/terraform-provider-google/pull/24790))
 
 ## 7.8.0 (October 21st, 2025)
