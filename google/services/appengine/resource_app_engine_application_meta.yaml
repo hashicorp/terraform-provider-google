@@ -21,7 +21,7 @@ fields:
   - api_field: 'name'
   - field: 'project'
   - api_field: 'servingStatus'
-  - api_field: 'ssl_policy'
+  - api_field: 'sslPolicy'
   - field: 'url_dispatch_rule.domain'
   - field: 'url_dispatch_rule.path'
   - field: 'url_dispatch_rule.service'
