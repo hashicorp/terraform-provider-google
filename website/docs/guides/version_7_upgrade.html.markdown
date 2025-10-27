@@ -132,7 +132,7 @@ This resource has been migrated from SDKv2 to the more modern [plugin framework 
 
 ### `certs_info` is now output-only
 
-Previously the `certis_info` field was set as an optional value, but the configured value was never used by the API. It is now correctly marked as output-only. If set in your configuration, simply remove it and the API value will continue to be used.
+Previously the `certs_info` field was set as an optional value, but the configured value was never used by the API. It is now correctly marked as output-only. If set in your configuration, simply remove it and the API value will continue to be used.
 
 ## Resource: `google_artifact_registry_repository`
 
