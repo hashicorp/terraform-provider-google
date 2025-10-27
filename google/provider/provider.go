@@ -378,11 +378,6 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
-			"cloud_security_compliance_custom_endpoint": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
-			},
 			"cloud_tasks_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1173,7 +1168,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.CloudRunBasePath = d.Get("cloud_run_custom_endpoint").(string)
 	config.CloudRunV2BasePath = d.Get("cloud_run_v2_custom_endpoint").(string)
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
-	config.CloudSecurityComplianceBasePath = d.Get("cloud_security_compliance_custom_endpoint").(string)
 	config.CloudTasksBasePath = d.Get("cloud_tasks_custom_endpoint").(string)
 	config.ColabBasePath = d.Get("colab_custom_endpoint").(string)
 	config.ComposerBasePath = d.Get("composer_custom_endpoint").(string)
