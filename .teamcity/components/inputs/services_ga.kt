@@ -151,6 +151,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Certificatemanager",
         "path" to "./google/services/certificatemanager"
     ),
+    "ces" to mapOf(
+        "name" to "ces",
+        "displayName" to "Customerengagementsuite",
+        "path" to "./google/services/ces"
+    ),
     "chronicle" to mapOf(
         "name" to "chronicle",
         "displayName" to "Chronicle",
