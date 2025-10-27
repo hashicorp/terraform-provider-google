@@ -8,11 +8,16 @@ fields:
   - api_field: 'activationToken'
   - api_field: 'createTime'
   - api_field: 'cryptoKeyName'
+  - field: 'effective_labels'
+    provider_only: true
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
   - api_field: 'name'
   - api_field: 'pubsubTopic'
   - api_field: 'state'
+  - field: 'terraform_labels'
+    provider_only: true
   - api_field: 'provider'
     field: 'third_party_provider'
   - api_field: 'uid'
