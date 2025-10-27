@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed a conversion error in `google_storage_bucket` state migration
+```
