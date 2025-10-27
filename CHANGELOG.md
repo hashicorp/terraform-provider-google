@@ -1,4 +1,71 @@
-## 7.8.0 (Unreleased)
+## 7.9.0 (Unreleased)
+
+BREAKING CHANGES:
+* beyondcorp: made the `ports` field in `endpoint_matchers` required in response to a change in the API surface. ([#24770](https://github.com/hashicorp/terraform-provider-google/pull/24770))
+
+FEATURES:
+* **New Resource:** `google_cloud_security_compliance_cloud_control` ([#24779](https://github.com/hashicorp/terraform-provider-google/pull/24779))
+* **New Resource:** `google_firestore_user_creds` ([#24794](https://github.com/hashicorp/terraform-provider-google/pull/24794))
+* **New Resource:** `google_network_security_dns_threat_detector` ([#24744](https://github.com/hashicorp/terraform-provider-google/pull/24744))
+
+IMPROVEMENTS:
+* appengine: added `ssl_policy` to `application` on `google_app_engine_application` resource ([#24786](https://github.com/hashicorp/terraform-provider-google/pull/24786))
+* bigquery: supported for IAM conditions in all `google_bigquery_dataset_iam_*` resources ([#24778](https://github.com/hashicorp/terraform-provider-google/pull/24778))
+* compute: promoted `policy_type` to GA in `google_compute_network_firewall_policy`, `google_compute_network_firewall_policy_with_rules`, `google_compute_region_network_firewall_policy`, `google_compute_region_network_firewall_policy_with_rules`. ([#24769](https://github.com/hashicorp/terraform-provider-google/pull/24769))
+* container: added `dns_endpoint_confg.enable_k8s_tokens_via_dns` and  `dns_endpoint_config.enable_k8s_certs_via_dns` fields to `google_container_cluster` resource ([#24774](https://github.com/hashicorp/terraform-provider-google/pull/24774))
+* container: added `fleet.membership_type` field to `google_container_cluster` resource ([#24759](https://github.com/hashicorp/terraform-provider-google/pull/24759))
+* dataplex: added `data_classification` field to `google_dataplex_aspect_type` resource ([#24807](https://github.com/hashicorp/terraform-provider-google/pull/24807))
+* iamworkforcepool: added `scim_usage` field to `workforce_pool_provider` resource ([#24787](https://github.com/hashicorp/terraform-provider-google/pull/24787))
+* memorystore: added `available_maintenance_versions` field to `google_memorystore_instance` resource ([#24745](https://github.com/hashicorp/terraform-provider-google/pull/24745))
+* memorystore: added `maintenance_version` field to `google_memorystore_instance` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
+* redis: added `available_maintenance_versions` field to `google_redis_cluster` resource ([#24745](https://github.com/hashicorp/terraform-provider-google/pull/24745))
+* redis: added `maintenance_version` field to `google_redis_cluster` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
+* storagetransfer: added `transfer_manifest` field to `google_storage_transfer_job` resource ([#24768](https://github.com/hashicorp/terraform-provider-google/pull/24768))
+
+BUG FIXES:
+* bigquery: added validation for `target_types` in `google_bigquery_dataset_access` ([#24810](https://github.com/hashicorp/terraform-provider-google/pull/24810))
+* cloudquotas: resolved permadiff for `preferred_value` in `google_cloud_quotas_quota_preference` ([#24776](https://github.com/hashicorp/terraform-provider-google/pull/24776))
+* compute: fixed scenario where `google_compute_instance` would not be staged for recreation if `guest_accelerator.count` was updated to 0 from non-zero value ([#24762](https://github.com/hashicorp/terraform-provider-google/pull/24762))
+* managedkafka: fix the order of cluster creation and IAM binding in CMEK test. ([#24789](https://github.com/hashicorp/terraform-provider-google/pull/24789))
+* sql: fixed an issue where `dataDiskSize` was unintentionally null instead of set to the current value in API requests, triggering unrelated errors ([#24790](https://github.com/hashicorp/terraform-provider-google/pull/24790))
+
+## 7.8.0 (October 21st, 2025)
+
+FEATURES:
+* **New Data Source:** `google_artifact_registry_packages` ([#24696](https://github.com/hashicorp/terraform-provider-google/pull/24696))
+* **New Data Source:** `google_network_management_connectivity_tests` ([#24635](https://github.com/hashicorp/terraform-provider-google/pull/24635))
+* **New Resource:** `google_apigee_environment_api_revision_deployment` ([#24657](https://github.com/hashicorp/terraform-provider-google/pull/24657))
+* **New Resource:** `google_dataplex_entry_links` ([#24737](https://github.com/hashicorp/terraform-provider-google/pull/24737))
+* **New Resource:** `google_discovery_engine_assisstant` ([#24724](https://github.com/hashicorp/terraform-provider-google/pull/24724))
+* **New Resource:** `google_oracle_database_db_system` ([#24733](https://github.com/hashicorp/terraform-provider-google/pull/24733))
+* **New Resource:** `google_saas_runtime_unit` ([#24692](https://github.com/hashicorp/terraform-provider-google/pull/24692))
+
+IMPROVEMENTS:
+* compute: added `IN_FLIGHT` to `balancing_mode` on `google_compute_backend_service` resource ([#24710](https://github.com/hashicorp/terraform-provider-google/pull/24710))
+* compute: added new field `instance_lifecycle_policy.on_repair.allow_changing_zone` to `google_compute_region_instance_group_manager` & `google_compute_instance_group_manager` ([#24706](https://github.com/hashicorp/terraform-provider-google/pull/24706))
+* compute: promoted `security_policy` in `compute_region_backend_service` resource to GA ([#24693](https://github.com/hashicorp/terraform-provider-google/pull/24693))
+* compute: promoted the `google_compute_preview_feature` resource to GA. ([#24725](https://github.com/hashicorp/terraform-provider-google/pull/24725))
+* compute: the `activation_status` attribute within the `google_compute_preview_feature` resource now uses the `ACTIVATION_STATE_UNSPECIFIED` value instead of `DISABLED`. Support for `DISABLED` will be added in a future release. ([#24725](https://github.com/hashicorp/terraform-provider-google/pull/24725))
+* datastream: added `backfill_all.mongodb_excluded_objects` and  `source_config.mongodb_source_config` fields to `google_datastream_stream` ([#24727](https://github.com/hashicorp/terraform-provider-google/pull/24727))
+* datastream: added `mongodb_profile` field to `google_datastream_connection_profile` ([#24727](https://github.com/hashicorp/terraform-provider-google/pull/24727))
+* discoveryengine: added `connector_modes`, `sync_mode`, `incremental_refresh_interval`, `auto_run_disabled`, and `incremental_sync_disabled` fields to `google_discovery_engine_data_connector` resource ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
+* discoveryengine: added `kms_key_name` field to `google_discovery_engine_search_engine` resource ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
+* discoveryengine: added in-place update support for `entities.params` and `entities.key_property_mappings` in `google_discovery_engine_data_connector` ([#24739](https://github.com/hashicorp/terraform-provider-google/pull/24739))
+* dlp: added `publish_findings_to_dataplex_catalog` field to `google_data_loss_prevention_job_trigger ` ([#24722](https://github.com/hashicorp/terraform-provider-google/pull/24722))
+* iambeta: allowed GKE workload identity pool pattern in `workload_identity_pool_id` field of `google_iam_workload_identity_pool` resource. ([#24656](https://github.com/hashicorp/terraform-provider-google/pull/24656))
+* memorystore: added `maintenance_version` field to `google_memorystore_instance` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
+* memorystore: added `available_maintenance_versions` field to `google_memorystore_instance` resource ([#24745](https://github.com/hashicorp/terraform-provider-google/pull/24745))
+* networkconnectivity: added `HYBRID_INSPECTION` enum value to `preset_topology` field in `google_network_connectivity_hub` resource ([#24738](https://github.com/hashicorp/terraform-provider-google/pull/24738))
+* networkservices: added `isolationConfig` on `google_network_services_service_lb_policies` resource ([#24652](https://github.com/hashicorp/terraform-provider-google/pull/24652))
+* redis: added `deletion_protection` field to `redis_instance` to make deleting them require an explicit intent. `redis_instance` resources now cannot be destroyed unless `deletion_protection = false` is set for the resource. ([#24654](https://github.com/hashicorp/terraform-provider-google/pull/24654))
+* redis: added `maintenance_version` field to `google_redis_cluster` resource ([#24740](https://github.com/hashicorp/terraform-provider-google/pull/24740))
+* redis: added `available_maintenance_versions` field to `google_redis_cluster` resource ([#24745](https://github.com/hashicorp/terraform-provider-google/pull/24745))
+* saas_runtime: added `default_release` field to `google_saas_runtime_unit_kind` resource ([#24726](https://github.com/hashicorp/terraform-provider-google/pull/24726))
+* sql: added `read_pool_auto_scale_config` support to `sql_database_instance` resource ([#24723](https://github.com/hashicorp/terraform-provider-google/pull/24723))
+
+BUG FIXES:
+* bigquery: fixed the issue where `google_bigquery_table` detected an incorrect `schema` diff on tables with row access policies when the schema was unchanged. ([#24711](https://github.com/hashicorp/terraform-provider-google/pull/24711))
+* compute: allow `requested_link_count` to be updated in-place in `google_compute_interconnect` resource ([#24705](https://github.com/hashicorp/terraform-provider-google/pull/24705))
 
 ## 7.7.0 (October 14th, 2025)
 BREAKING CHANGES:
