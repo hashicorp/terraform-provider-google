@@ -4,7 +4,6 @@ BREAKING CHANGES:
 * beyondcorp: made the `ports` field in `endpoint_matchers` required in response to a change in the API surface. ([#24770](https://github.com/hashicorp/terraform-provider-google/pull/24770))
 
 FEATURES:
-* **New Resource:** `google_cloud_security_compliance_cloud_control` ([#24779](https://github.com/hashicorp/terraform-provider-google/pull/24779))
 * **New Resource:** `google_firestore_user_creds` ([#24794](https://github.com/hashicorp/terraform-provider-google/pull/24794))
 * **New Resource:** `google_network_security_dns_threat_detector` ([#24744](https://github.com/hashicorp/terraform-provider-google/pull/24744))
 
