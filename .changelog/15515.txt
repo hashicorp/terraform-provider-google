@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `psc_automation_configs` field to `google_vertex_ai_endpoint` resource
+```

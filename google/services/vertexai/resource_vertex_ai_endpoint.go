@@ -177,6 +177,45 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 								Type: schema.TypeString,
 							},
 						},
+						"psc_automation_configs": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `List of projects and networks where the PSC endpoints will be created. This field is used by Online Inference(Prediction) only.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"network": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The full name of the Google Compute Engine [network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/get): projects/{project}/global/networks/{network}.`,
+									},
+									"project_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Project id used to create forwarding rule.`,
+									},
+									"error_message": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Error message if the PSC service automation failed.`,
+									},
+									"forwarding_rule": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Forwarding rule created by the PSC service automation.`,
+									},
+									"ip_address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `IP address rule created by the PSC service automation.`,
+									},
+									"state": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The state of the PSC service automation.`,
+									},
+								},
+							},
+						},
 					},
 				},
 				ConflictsWith: []string{"network", "dedicated_endpoint_enabled"},
@@ -1195,6 +1234,8 @@ func flattenVertexAIEndpointPrivateServiceConnectConfig(v interface{}, d *schema
 		flattenVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enablePrivateServiceConnect"], d, config)
 	transformed["project_allowlist"] =
 		flattenVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(original["projectAllowlist"], d, config)
+	transformed["psc_automation_configs"] =
+		flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigs(original["pscAutomationConfigs"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1202,6 +1243,53 @@ func flattenVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConne
 }
 
 func flattenVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"project_id":      flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsProjectId(original["projectId"], d, config),
+			"network":         flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsNetwork(original["network"], d, config),
+			"ip_address":      flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsIpAddress(original["ipAddress"], d, config),
+			"forwarding_rule": flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(original["forwardingRule"], d, config),
+			"state":           flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsState(original["state"], d, config),
+			"error_message":   flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(original["errorMessage"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1354,6 +1442,13 @@ func expandVertexAIEndpointPrivateServiceConnectConfig(v interface{}, d tpgresou
 		transformed["projectAllowlist"] = transformedProjectAllowlist
 	}
 
+	transformedPscAutomationConfigs, err := expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigs(original["psc_automation_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPscAutomationConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pscAutomationConfigs"] = transformedPscAutomationConfigs
+	}
+
 	return transformed, nil
 }
 
@@ -1362,6 +1457,90 @@ func expandVertexAIEndpointPrivateServiceConnectConfigEnablePrivateServiceConnec
 }
 
 func expandVertexAIEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedProjectId, err := expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsProjectId(original["project_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["projectId"] = transformedProjectId
+		}
+
+		transformedNetwork, err := expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsNetwork(original["network"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["network"] = transformedNetwork
+		}
+
+		transformedIpAddress, err := expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsIpAddress(original["ip_address"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipAddress"] = transformedIpAddress
+		}
+
+		transformedForwardingRule, err := expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(original["forwarding_rule"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedForwardingRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["forwardingRule"] = transformedForwardingRule
+		}
+
+		transformedState, err := expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsState(original["state"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["state"] = transformedState
+		}
+
+		transformedErrorMessage, err := expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(original["error_message"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedErrorMessage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["errorMessage"] = transformedErrorMessage
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIEndpointPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
