@@ -538,6 +538,89 @@ resource "google_compute_health_check" "grpc-health-check" {
 `, context)
 }
 
+func TestAccComputeHealthCheck_healthCheckGrpcWithTlsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckGrpcWithTlsExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.grpc-with-tls-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckGrpcWithTlsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_health_check" "grpc-with-tls-health-check" {
+  name = "tf-test-grpc-with-tls-health-check%{random_suffix}"
+
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  grpc_tls_health_check {
+    port = "443"
+  }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckGrpcWithTlsFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckGrpcWithTlsFullExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.grpc-with-tls-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckGrpcWithTlsFullExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_health_check" "grpc-with-tls-health-check" {
+  name        = "tf-test-grpc-with-tls-health-check%{random_suffix}"
+  description = "Health check via grpc with TLS"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  grpc_tls_health_check {
+    port_specification = "USE_FIXED_PORT"
+    port = "443"
+    grpc_service_name  = "testservice"
+  }
+}
+`, context)
+}
+
 func TestAccComputeHealthCheck_computeHealthCheckHttpSourceRegionsExample(t *testing.T) {
 	t.Parallel()
 
