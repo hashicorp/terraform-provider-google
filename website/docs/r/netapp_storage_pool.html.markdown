@@ -197,6 +197,13 @@ The following arguments are supported:
   Possible values are: AUTO, MANUAL.
   Possible values are: `QOS_TYPE_UNSPECIFIED`, `AUTO`, `MANUAL`.
 
+* `type` -
+  (Optional)
+  Type of the storage pool.
+  This field is used to control whether the pool supports FILE based volumes only or UNIFIED (both FILE and BLOCK) volumes.
+  If not specified during creation, it defaults to FILE.
+  Possible values are: `STORAGE_POOL_TYPE_UNSPECIFIED`, `FILE`, `UNIFIED`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -240,8 +247,8 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 45 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `update` - Default is 60 minutes.
+- `delete` - Default is 45 minutes.
 
 ## Import
 
