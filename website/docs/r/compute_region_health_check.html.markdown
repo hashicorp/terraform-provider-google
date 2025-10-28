@@ -356,8 +356,6 @@ resource "google_compute_region_health_check" "grpc-region-health-check" {
 
 ```hcl
 resource "google_compute_region_health_check" "grpc-with-tls-region-health-check" {
-  provider = google-beta
-  
   name = "grpc-with-tls-region-health-check"
 
   timeout_sec        = 1
@@ -378,8 +376,6 @@ resource "google_compute_region_health_check" "grpc-with-tls-region-health-check
 
 ```hcl
 resource "google_compute_region_health_check" "grpc-with-tls-region-health-check" {
-  provider = google-beta
-  
   name = "grpc-with-tls-region-health-check"
   description = "regional health check via GRPC with TLS"
 
@@ -469,7 +465,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_grpc_health_check).
 
 * `grpc_tls_health_check` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A nested object resource.
   Structure is [documented below](#nested_grpc_tls_health_check).
 

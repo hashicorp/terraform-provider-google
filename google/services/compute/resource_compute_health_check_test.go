@@ -55,6 +55,58 @@ func TestAccComputeHealthCheck_tcp_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeHealthCheck_grpcWithTls_create(t *testing.T) {
+	t.Parallel()
+
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_grpcWithTls(hckName),
+			},
+			{
+				ResourceName:      "google_compute_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeHealthCheck_grpcWithTls_update(t *testing.T) {
+	t.Parallel()
+
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_grpcWithTls(hckName),
+			},
+			{
+				ResourceName:      "google_compute_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeHealthCheck_grpcWithTls_update(hckName),
+			},
+			{
+				ResourceName:      "google_compute_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeHealthCheck_ssl_port_spec(t *testing.T) {
 	t.Parallel()
 
@@ -177,6 +229,37 @@ resource "google_compute_health_check" "foobar" {
   timeout_sec         = 2
   unhealthy_threshold = 10
   tcp_health_check {
+    port = "8080"
+  }
+}
+`, hckName)
+}
+
+func testAccComputeHealthCheck_grpcWithTls(hckName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_health_check" "foobar" {
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "tf-test-health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  grpc_tls_health_check {
+    port = "443"
+  }
+}
+`, hckName)
+}
+
+func testAccComputeHealthCheck_grpcWithTls_update(hckName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_health_check" "foobar" {
+  check_interval_sec  = 3
+  healthy_threshold   = 10
+  name                = "tf-test-health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 10
+  grpc_tls_health_check {
     port = "8080"
   }
 }
