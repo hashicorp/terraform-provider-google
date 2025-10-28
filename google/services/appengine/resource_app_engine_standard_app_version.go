@@ -1501,6 +1501,9 @@ func expandAppEngineStandardAppVersionRuntimeApiVersion(v interface{}, d tpgreso
 }
 
 func expandAppEngineStandardAppVersionHandlers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1585,6 +1588,9 @@ func expandAppEngineStandardAppVersionHandlersRedirectHttpResponseCode(v interfa
 }
 
 func expandAppEngineStandardAppVersionHandlersScript(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1608,6 +1614,9 @@ func expandAppEngineStandardAppVersionHandlersScriptScriptPath(v interface{}, d 
 }
 
 func expandAppEngineStandardAppVersionHandlersStaticFiles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1704,6 +1713,9 @@ func expandAppEngineStandardAppVersionHandlersStaticFilesApplicationReadable(v i
 }
 
 func expandAppEngineStandardAppVersionLibraries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1752,6 +1764,9 @@ func expandAppEngineStandardAppVersionEnvVariables(v interface{}, d tpgresource.
 }
 
 func expandAppEngineStandardAppVersionDeployment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1778,6 +1793,9 @@ func expandAppEngineStandardAppVersionDeployment(v interface{}, d tpgresource.Te
 }
 
 func expandAppEngineStandardAppVersionDeploymentZip(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1852,6 +1870,9 @@ func expandAppEngineStandardAppVersionDeploymentFilesSourceUrl(v interface{}, d 
 }
 
 func expandAppEngineStandardAppVersionEntrypoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1875,6 +1896,9 @@ func expandAppEngineStandardAppVersionEntrypointShell(v interface{}, d tpgresour
 }
 
 func expandAppEngineStandardAppVersionVpcAccessConnector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1918,6 +1942,9 @@ func expandAppEngineStandardAppVersionInstanceClass(v interface{}, d tpgresource
 }
 
 func expandAppEngineStandardAppVersionAutomaticScaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1992,6 +2019,9 @@ func expandAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(v interf
 }
 
 func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2048,6 +2078,9 @@ func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsM
 }
 
 func expandAppEngineStandardAppVersionBasicScaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2082,6 +2115,9 @@ func expandAppEngineStandardAppVersionBasicScalingMaxInstances(v interface{}, d 
 }
 
 func expandAppEngineStandardAppVersionManualScaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

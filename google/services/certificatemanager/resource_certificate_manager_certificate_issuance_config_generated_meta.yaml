@@ -5,19 +5,19 @@ api_service_name: 'certificatemanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'CertificateIssuanceConfig'
 fields:
-  - field: 'certificate_authority_config.certificate_authority_service_config.ca_pool'
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'certificateAuthorityConfig.certificateAuthorityServiceConfig.caPool'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'key_algorithm'
-  - field: 'labels'
-  - field: 'lifetime'
+  - api_field: 'keyAlgorithm'
+  - api_field: 'labels'
+  - api_field: 'lifetime'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
-  - field: 'rotation_window_percentage'
+  - api_field: 'rotationWindowPercentage'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

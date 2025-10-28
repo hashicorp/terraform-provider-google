@@ -671,6 +671,9 @@ func expandChronicleWatchlistDescription(v interface{}, d tpgresource.TerraformR
 }
 
 func expandChronicleWatchlistEntityPopulationMechanism(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -690,6 +693,9 @@ func expandChronicleWatchlistEntityPopulationMechanism(v interface{}, d tpgresou
 }
 
 func expandChronicleWatchlistEntityPopulationMechanismManual(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -705,6 +711,9 @@ func expandChronicleWatchlistEntityPopulationMechanismManual(v interface{}, d tp
 }
 
 func expandChronicleWatchlistWatchlistUserPreferences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

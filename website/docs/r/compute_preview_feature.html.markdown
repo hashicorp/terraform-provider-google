@@ -16,19 +16,17 @@
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
 description: |-
-  Represents a single Google Compute Engine preview feature such as Alpha API access, which can be enabled or disabled for a project.
+  Represents a single Google Compute Engine preview feature such as Alpha API access, which can be enabled or unspecified for a project.
 ---
 
 # google_compute_preview_feature
 
-Represents a single Google Compute Engine preview feature such as Alpha API access, which can be enabled or disabled for a project.
+Represents a single Google Compute Engine preview feature such as Alpha API access, which can be enabled or unspecified for a project.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about PreviewFeature, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/PreviewFeatures)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/previewFeatures)
 * How-to Guides
     * [Use the Compute Engine alpha API](https://cloud.google.com/compute/docs/reference/rest/alpha)
 
@@ -42,9 +40,8 @@ To get more information about PreviewFeature, see:
 
 ```hcl
 resource "google_compute_preview_feature" "gce_preview_feature" {
-  provider          = google-beta
   name              = "alpha-api-access"
-  activation_status = "DISABLED"
+  activation_status = "ACTIVATION_STATE_UNSPECIFIED"
   rollout_operation {
     rollout_input {
       predefined_rollout_plan = "ROLLOUT_PLAN_FAST_ROLLOUT"
@@ -61,7 +58,7 @@ The following arguments are supported:
 * `activation_status` -
   (Required)
   The activation status of the preview feature.
-  Possible values are: `ENABLED`, `DISABLED`.
+  Possible values are: `ENABLED`, `ACTIVATION_STATE_UNSPECIFIED`.
 
 * `name` -
   (Required)

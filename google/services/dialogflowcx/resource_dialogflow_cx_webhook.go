@@ -1181,6 +1181,9 @@ func expandDialogflowCXWebhookDisabled(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandDialogflowCXWebhookGenericWebService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1278,6 +1281,9 @@ func expandDialogflowCXWebhookGenericWebServiceHttpMethod(v interface{}, d tpgre
 }
 
 func expandDialogflowCXWebhookGenericWebServiceOauthConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1416,6 +1422,9 @@ func expandDialogflowCXWebhookGenericWebServiceWebhookType(v interface{}, d tpgr
 }
 
 func expandDialogflowCXWebhookServiceDirectory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1446,6 +1455,9 @@ func expandDialogflowCXWebhookServiceDirectoryService(v interface{}, d tpgresour
 }
 
 func expandDialogflowCXWebhookServiceDirectoryGenericWebService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1543,6 +1555,9 @@ func expandDialogflowCXWebhookServiceDirectoryGenericWebServiceHttpMethod(v inte
 }
 
 func expandDialogflowCXWebhookServiceDirectoryGenericWebServiceOauthConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

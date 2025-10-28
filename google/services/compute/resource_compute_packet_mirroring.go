@@ -767,6 +767,9 @@ func expandComputePacketMirroringRegion(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandComputePacketMirroringNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -798,6 +801,9 @@ func expandComputePacketMirroringPriority(v interface{}, d tpgresource.Terraform
 }
 
 func expandComputePacketMirroringCollectorIlb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -825,6 +831,9 @@ func expandComputePacketMirroringCollectorIlbUrl(v interface{}, d tpgresource.Te
 }
 
 func expandComputePacketMirroringFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -870,6 +879,9 @@ func expandComputePacketMirroringFilterDirection(v interface{}, d tpgresource.Te
 }
 
 func expandComputePacketMirroringMirroredResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -904,6 +916,9 @@ func expandComputePacketMirroringMirroredResources(v interface{}, d tpgresource.
 
 func expandComputePacketMirroringMirroredResourcesSubnetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -935,6 +950,9 @@ func expandComputePacketMirroringMirroredResourcesSubnetworksUrl(v interface{}, 
 
 func expandComputePacketMirroringMirroredResourcesInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

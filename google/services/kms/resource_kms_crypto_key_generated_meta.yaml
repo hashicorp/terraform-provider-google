@@ -5,23 +5,23 @@ api_service_name: 'cloudkms.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'CryptoKey'
 fields:
-  - field: 'crypto_key_backend'
-  - field: 'destroy_scheduled_duration'
+  - api_field: 'cryptoKeyBackend'
+  - api_field: 'destroyScheduledDuration'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'import_only'
+  - api_field: 'importOnly'
   - field: 'key_ring'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'name'
     provider_only: true
-  - field: 'primary.name'
-  - field: 'primary.state'
-  - field: 'purpose'
-  - field: 'rotation_period'
+  - api_field: 'primary.name'
+  - api_field: 'primary.state'
+  - api_field: 'purpose'
+  - api_field: 'rotationPeriod'
   - field: 'skip_initial_version_creation'
     provider_only: true
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'version_template.algorithm'
-  - field: 'version_template.protection_level'
+  - api_field: 'versionTemplate.algorithm'
+  - api_field: 'versionTemplate.protectionLevel'

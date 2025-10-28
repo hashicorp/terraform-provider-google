@@ -579,6 +579,9 @@ func flattenGKEHubMembershipEffectiveLabels(v interface{}, d *schema.ResourceDat
 }
 
 func expandGKEHubMembershipEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -598,6 +601,9 @@ func expandGKEHubMembershipEndpoint(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandGKEHubMembershipEndpointGkeCluster(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -626,6 +632,9 @@ func expandGKEHubMembershipEndpointGkeClusterResourceLink(v interface{}, d tpgre
 }
 
 func expandGKEHubMembershipAuthority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

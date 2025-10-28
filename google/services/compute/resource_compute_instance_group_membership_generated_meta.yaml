@@ -7,7 +7,7 @@ api_resource_type_kind: 'InstanceGroup'
 api_variant_patterns:
   - 'projects/{project}/zones/{zone}/instanceGroups/{instanceGroup}'
 fields:
-  - field: 'instance'
+  - api_field: 'instance'
   - field: 'instance_group'
     provider_only: true
   - field: 'zone'

@@ -9,10 +9,10 @@ api_variant_patterns:
 fields:
   - field: 'config_id'
     provider_only: true
-  - field: 'description'
+  - api_field: 'description'
   - field: 'folder'
     provider_only: true
-  - field: 'name'
-  - field: 'pubsub_topic'
-  - field: 'service_account'
-  - field: 'streaming_config.filter'
+  - api_field: 'name'
+  - api_field: 'pubsubTopic'
+  - api_field: 'serviceAccount'
+  - api_field: 'streamingConfig.filter'

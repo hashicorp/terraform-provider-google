@@ -1612,6 +1612,9 @@ func expandDialogflowCXTestCaseNotes(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandDialogflowCXTestCaseTestConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1657,6 +1660,9 @@ func expandDialogflowCXTestCaseTestConfigPage(v interface{}, d tpgresource.Terra
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1686,6 +1692,9 @@ func expandDialogflowCXTestCaseTestCaseConversationTurns(v interface{}, d tpgres
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1726,6 +1735,9 @@ func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInput(v interface{},
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInputInput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1770,6 +1782,9 @@ func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInputInputLanguageCo
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInputInputText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1793,6 +1808,9 @@ func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInputInputTextText(v
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInputInputEvent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1816,6 +1834,9 @@ func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInputInputEventEvent
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInputInputDtmf(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1870,6 +1891,9 @@ func expandDialogflowCXTestCaseTestCaseConversationTurnsUserInputEnableSentiment
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurnsVirtualAgentOutput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1922,6 +1946,9 @@ func expandDialogflowCXTestCaseTestCaseConversationTurnsVirtualAgentOutputSessio
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurnsVirtualAgentOutputTriggeredIntent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1956,6 +1983,9 @@ func expandDialogflowCXTestCaseTestCaseConversationTurnsVirtualAgentOutputTrigge
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurnsVirtualAgentOutputCurrentPage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1990,6 +2020,9 @@ func expandDialogflowCXTestCaseTestCaseConversationTurnsVirtualAgentOutputCurren
 }
 
 func expandDialogflowCXTestCaseTestCaseConversationTurnsVirtualAgentOutputTextResponses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

@@ -37,10 +37,10 @@ func TestAccVPCAccessConnectorDatasource_basic(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_vpc_access_connector.connector",
 						"google_vpc_access_connector.connector",
-						map[string]struct{}{
+						[]string{
 							// Ignore fields not returned in response
-							"self_link": {},
-							"region":    {},
+							"self_link",
+							"region",
 						},
 					),
 				),

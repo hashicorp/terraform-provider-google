@@ -207,6 +207,7 @@ fun ParametrizedWithType.configureGoogleSpecificTestParameters(config: AccTestCo
 //  acceptance tests are templated
 fun ParametrizedWithType.acceptanceTestBuildParams(parallelism: Int, prefix: String, timeout: String, releaseDiffTest: Boolean) {
     hiddenVariable("env.TF_ACC", "1", "Set to a value to run the Acceptance Tests")
+    hiddenVariable("env.TF_ACC_REFRESH_AFTER_APPLY", "1", "Set to a value to refresh the state after apply")
     text("PARALLELISM", "%d".format(parallelism))
     text("TEST_PREFIX", prefix)
     text("TIMEOUT", timeout)

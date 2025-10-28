@@ -1068,6 +1068,9 @@ func flattenDataprocGdcSparkApplicationEffectiveAnnotations(v interface{}, d *sc
 }
 
 func expandDataprocGdcSparkApplicationPysparkApplicationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1146,6 +1149,9 @@ func expandDataprocGdcSparkApplicationPysparkApplicationConfigArchiveUris(v inte
 }
 
 func expandDataprocGdcSparkApplicationSparkApplicationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1224,6 +1230,9 @@ func expandDataprocGdcSparkApplicationSparkApplicationConfigArchiveUris(v interf
 }
 
 func expandDataprocGdcSparkApplicationSparkRApplicationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1280,6 +1289,9 @@ func expandDataprocGdcSparkApplicationSparkRApplicationConfigArchiveUris(v inter
 }
 
 func expandDataprocGdcSparkApplicationSparkSqlApplicationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1324,6 +1336,9 @@ func expandDataprocGdcSparkApplicationSparkSqlApplicationConfigQueryFileUri(v in
 }
 
 func expandDataprocGdcSparkApplicationSparkSqlApplicationConfigQueryList(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

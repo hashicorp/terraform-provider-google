@@ -583,6 +583,9 @@ func flattenGeminiCodeToolsSettingEffectiveLabels(v interface{}, d *schema.Resou
 }
 
 func expandGeminiCodeToolsSettingEnabledTool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -645,6 +648,9 @@ func expandGeminiCodeToolsSettingEnabledToolTool(v interface{}, d tpgresource.Te
 }
 
 func expandGeminiCodeToolsSettingEnabledToolConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

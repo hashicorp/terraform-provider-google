@@ -567,6 +567,9 @@ func expandStorageControlFolderIntelligenceConfigEditionConfig(v interface{}, d 
 }
 
 func expandStorageControlFolderIntelligenceConfigFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -607,6 +610,9 @@ func expandStorageControlFolderIntelligenceConfigFilter(v interface{}, d tpgreso
 }
 
 func expandStorageControlFolderIntelligenceConfigFilterExcludedCloudStorageBuckets(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -630,6 +636,9 @@ func expandStorageControlFolderIntelligenceConfigFilterExcludedCloudStorageBucke
 }
 
 func expandStorageControlFolderIntelligenceConfigFilterIncludedCloudStorageBuckets(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -653,6 +662,9 @@ func expandStorageControlFolderIntelligenceConfigFilterIncludedCloudStorageBucke
 }
 
 func expandStorageControlFolderIntelligenceConfigFilterExcludedCloudStorageLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -676,6 +688,9 @@ func expandStorageControlFolderIntelligenceConfigFilterExcludedCloudStorageLocat
 }
 
 func expandStorageControlFolderIntelligenceConfigFilterIncludedCloudStorageLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

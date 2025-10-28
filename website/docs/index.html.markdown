@@ -69,8 +69,9 @@ for release notes and additional information.
 Per [Terraform Provider Versioning](https://www.hashicorp.com/blog/hashicorp-terraform-provider-versioning),
 the Google Cloud provider follows [semantic versioning](https://semver.org/).
 
-In practice, patch / bugfix-only releases of the provider are infrequent. Most
-provider releases are either minor or major releases.
+New versions of the provider are released monotonically, building on top of the last release. In exceptional
+cases, individual changes may be backported to the final release of the last major release. These are generally
+patch releases, but may be new minor releases if the backported change is a new feature.
 
 ### Minor Releases
 

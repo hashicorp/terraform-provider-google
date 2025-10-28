@@ -28,21 +28,30 @@ import (
 
 // ResourceYAMLMetadata represents the structure of the metadata files
 type ResourceYAMLMetadata struct {
-	Resource       string `yaml:"resource"`
-	ApiServiceName string `yaml:"api_service_name"`
-	SourceFile     string `yaml:"source_file"`
+	Resource           string `yaml:"resource"`
+	ApiServiceName     string `yaml:"api_service_name"`
+	CaiAssetNameFormat string `yaml:"cai_asset_name_format"`
+	SourceFile         string `yaml:"source_file"`
 }
 
 // Cache structures to avoid repeated file system operations
 var (
 	// Cache for API service names (resourceName -> apiServiceName)
-	apiServiceNameCache = make(map[string]string)
+	ApiServiceNameCache = NewGenericCache("unknown")
+	// Cache for CAI resource name format (resourceName -> CaiAssetNameFormat)
+	CaiAssetNameFormatCache = NewGenericCache("")
 	// Cache for service packages (resourceType -> servicePackage)
-	servicePackageCache = make(map[string]string)
+	ServicePackageCache = NewGenericCache("unknown")
 	// Flag to track if cache has been populated
 	cachePopulated = false
 	// Mutex to protect cache access
 	cacheMutex sync.RWMutex
+
+	iamSuffixes = []string{
+		"_iam_member",
+		"_iam_binding",
+		"_iam_policy",
+	}
 )
 
 // PopulateMetadataCache walks through all metadata files once and populates
@@ -90,10 +99,25 @@ func PopulateMetadataCache() error {
 				return nil
 			}
 
+			iamResources := make([]string, 0)
+			for _, suffix := range iamSuffixes {
+				iamResources = append(iamResources, fmt.Sprintf("%s%s", metadata.Resource, suffix))
+			}
+
 			// Store API service name in cache
 			if metadata.ApiServiceName != "" {
-				apiServiceNameCache[metadata.Resource] = metadata.ApiServiceName
+				ApiServiceNameCache.Set(metadata.Resource, metadata.ApiServiceName)
+				for _, iamResource := range iamResources {
+					ApiServiceNameCache.Set(iamResource, metadata.ApiServiceName)
+				}
 				apiNameCount++
+			}
+
+			if metadata.CaiAssetNameFormat != "" {
+				CaiAssetNameFormatCache.Set(metadata.Resource, metadata.CaiAssetNameFormat)
+				for _, iamResource := range iamResources {
+					CaiAssetNameFormatCache.Set(iamResource, metadata.CaiAssetNameFormat)
+				}
 			}
 
 			// Extract and store service package in cache
@@ -108,7 +132,10 @@ func PopulateMetadataCache() error {
 
 			if servicesIndex >= 0 && len(pathParts) > servicesIndex+1 {
 				servicePackage := pathParts[servicesIndex+1] // The part after "services"
-				servicePackageCache[metadata.Resource] = servicePackage
+				ServicePackageCache.Set(metadata.Resource, servicePackage)
+				for _, iamResource := range iamResources {
+					ServicePackageCache.Set(iamResource, servicePackage)
+				}
 				servicePkgCount++
 			}
 		}
@@ -125,31 +152,22 @@ func PopulateMetadataCache() error {
 	return nil
 }
 
-// GetAPIServiceNameForResource finds the api_service_name for a given resource name
-// If projectRoot is empty, it will attempt to find the project root automatically
-func GetAPIServiceNameForResource(resourceName string) string {
-	// Make sure cache is populated
-	if !cachePopulated {
-		if err := PopulateMetadataCache(); err != nil {
-			return "failed_to_populate_metadata_cache"
-		}
-	}
-
-	// Check cache
-	cacheMutex.RLock()
-	apiServiceName, found := apiServiceNameCache[resourceName]
-	cacheMutex.RUnlock()
-
-	if !found {
-		return "unknown"
-	}
-
-	return apiServiceName
+type GenericCache struct {
+	mu           sync.RWMutex
+	data         map[string]string
+	defaultValue string
 }
 
-// GetServicePackageForResourceType finds the service package for a given resource type
-// If projectRoot is empty, it will attempt to find the project root automatically
-func GetServicePackageForResourceType(resourceType string) string {
+// NewGenericCache initializes a new GenericCache with a default value.
+func NewGenericCache(defaultValue string) *GenericCache {
+	return &GenericCache{
+		data:         make(map[string]string),
+		defaultValue: defaultValue,
+	}
+}
+
+// Get retrieves a value from the cache, returning the default if not found.
+func (c *GenericCache) Get(key string) string {
 	// Make sure cache is populated
 	if !cachePopulated {
 		if err := PopulateMetadataCache(); err != nil {
@@ -157,16 +175,19 @@ func GetServicePackageForResourceType(resourceType string) string {
 		}
 	}
 
-	// Check cache
-	cacheMutex.RLock()
-	servicePackage, found := servicePackageCache[resourceType]
-	cacheMutex.RUnlock()
-
-	if !found {
-		return "unknown"
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	value, ok := c.data[key]
+	if !ok {
+		return c.defaultValue
 	}
+	return value
+}
 
-	return servicePackage
+func (c *GenericCache) Set(key, value string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.data[key] = value
 }
 
 // getServicesDir returns the path to the services directory

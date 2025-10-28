@@ -520,6 +520,9 @@ func expandVertexAIDeploymentResourcePoolName(v interface{}, d tpgresource.Terra
 }
 
 func expandVertexAIDeploymentResourcePoolDedicatedResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -560,6 +563,9 @@ func expandVertexAIDeploymentResourcePoolDedicatedResources(v interface{}, d tpg
 }
 
 func expandVertexAIDeploymentResourcePoolDedicatedResourcesMachineSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -613,6 +619,9 @@ func expandVertexAIDeploymentResourcePoolDedicatedResourcesMaxReplicaCount(v int
 }
 
 func expandVertexAIDeploymentResourcePoolDedicatedResourcesAutoscalingMetricSpecs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

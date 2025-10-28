@@ -7,6 +7,6 @@ api_resource_type_kind: 'Instance'
 fields:
   - field: 'instance'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'zone'
     provider_only: true

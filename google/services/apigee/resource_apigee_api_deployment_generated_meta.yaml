@@ -1,0 +1,16 @@
+resource: 'google_apigee_api_deployment'
+generation_type: 'mmv1'
+source_file: 'products/apigee/ApiDeployment.yaml'
+api_service_name: 'apigee.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'ApiDeployment'
+fields:
+  - field: 'environment'
+    provider_only: true
+  - api_field: 'id'
+  - field: 'org_id'
+    provider_only: true
+  - field: 'proxy_id'
+    provider_only: true
+  - field: 'revision'
+    provider_only: true

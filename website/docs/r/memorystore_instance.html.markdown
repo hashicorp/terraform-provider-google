@@ -454,6 +454,11 @@ The following arguments are supported:
   Maintenance policy for a cluster
   Structure is [documented below](#nested_maintenance_policy).
 
+* `maintenance_version` -
+  (Optional)
+  This field can be used to trigger self service update to indicate the desired maintenance version. The input to this field can be determined by the available_maintenance_versions field.
+  *Note*: This field can only be specified when updating an existing cluster to a newer version. Downgrades are currently not supported!
+
 * `engine_version` -
   (Optional)
   Optional. Engine version of the instance.
@@ -807,6 +812,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `maintenance_schedule` -
   Upcoming maintenance schedule.
   Structure is [documented below](#nested_maintenance_schedule).
+
+* `effective_maintenance_version` -
+  This field represents the actual maintenance version of the cluster.
+
+* `available_maintenance_versions` -
+  This field is used to determine the available maintenance versions for the self service update.
 
 * `node_config` -
   Represents configuration for nodes of the instance.

@@ -450,6 +450,77 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_worker_pool_startup_liveness_probe&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Worker Pool Startup Liveness Probe
+
+
+```hcl
+resource "google_compute_network" "custom_test" {
+  name                    = "wp-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "custom_test" {
+  name          = "wp-subnet"
+  ip_cidr_range = "10.2.0.0/28"
+  region        = "us-central1"
+  network       = google_compute_network.custom_test.id
+}
+
+resource "google_cloud_run_v2_worker_pool" "default" {
+  name                = "cloudrun-worker-pool"
+  location            = "us-central1"
+  launch_stage        = "BETA"
+  deletion_protection = false
+
+  template {
+    annotations = {}
+    labels      = {}
+
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+
+      command    = []
+      args       = []
+
+      startup_probe {
+        initial_delay_seconds = 0
+        timeout_seconds       = 1
+        period_seconds        = 3
+        failure_threshold     = 3
+
+        tcp_socket {
+          port = 8080
+        }
+      }
+
+      liveness_probe {
+        initial_delay_seconds = 0
+        timeout_seconds       = 1
+        period_seconds        = 10
+        failure_threshold     = 3
+
+        http_get {
+          path = "/"
+          port = 8080
+        }
+      }
+    }
+
+    vpc_access {
+      network_interfaces {
+        network    = google_compute_network.custom_test.id
+        subnetwork = google_compute_subnetwork.custom_test.id
+        tags       = []
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -674,6 +745,16 @@ When the field is set to false, deleting the WorkerPool is allowed.
   (Optional)
   Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.
 
+* `liveness_probe` -
+  (Optional)
+  Periodic probe of container liveness. Container will be restarted if the probe fails.
+  Structure is [documented below](#nested_template_containers_containers_liveness_probe).
+
+* `startup_probe` -
+  (Optional)
+  Startup probe of application within the container. All other probes are disabled if a startup probe is provided, until it succeeds. Container will not be added to service endpoints if the probe fails.
+  Structure is [documented below](#nested_template_containers_containers_startup_probe).
+
 
 <a name="nested_template_containers_containers_env"></a>The `env` block supports:
 
@@ -713,7 +794,7 @@ When the field is set to false, deleting the WorkerPool is allowed.
 
 * `limits` -
   (Optional)
-  Only memory, CPU, and nvidia.com/gpu are supported. Use key `cpu` for CPU limit, `memory` for memory limit, `nvidia.com/gpu` for gpu limit. Note: The only supported values for CPU are '1', '2', '4', and '8'. Setting 4 CPU requires at least 2Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
+  Only memory, CPU, and nvidia.com/gpu are supported. Use key `cpu` for CPU limit, `memory` for memory limit, `nvidia.com/gpu` for gpu limit. Note: The only supported values for CPU are '1', '2', '4', '6', and '8'. Setting 4 CPU requires at least 2Gi of memory, setting 6 or more CPU requires at least 4Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
 
 <a name="nested_template_containers_containers_volume_mounts"></a>The `volume_mounts` block supports:
 
@@ -728,6 +809,158 @@ When the field is set to false, deleting the WorkerPool is allowed.
 * `sub_path` -
   (Optional)
   Path within the volume from which the container's volume should be mounted.
+
+<a name="nested_template_containers_containers_liveness_probe"></a>The `liveness_probe` block supports:
+
+* `initial_delay_seconds` -
+  (Optional)
+  Optional. Number of seconds after the container has started before the probe is initiated. Defaults to 0 seconds. Minimum value is 0. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240.
+
+* `timeout_seconds` -
+  (Optional)
+  Optional. Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. Maximum value is 3600. Must be smaller than period_seconds.
+
+* `period_seconds` -
+  (Optional)
+  Optional. How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. Must be greater or equal than timeout_seconds.
+
+* `failure_threshold` -
+  (Optional)
+  Optional. Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+
+* `http_get` -
+  (Optional)
+  Optional. HTTPGet specifies the http request to perform. Exactly one of httpGet, tcpSocket, or grpc must be specified.
+  Structure is [documented below](#nested_template_containers_containers_liveness_probe_http_get).
+
+* `tcp_socket` -
+  (Optional)
+  Optional. TCPSocket specifies an action involving a TCP port. Exactly one of httpGet, tcpSocket, or grpc must be specified.
+  Structure is [documented below](#nested_template_containers_containers_liveness_probe_tcp_socket).
+
+* `grpc` -
+  (Optional)
+  Optional. GRPC specifies an action involving a gRPC port. Exactly one of httpGet, tcpSocket, or grpc must be specified.
+  Structure is [documented below](#nested_template_containers_containers_liveness_probe_grpc).
+
+
+<a name="nested_template_containers_containers_liveness_probe_http_get"></a>The `http_get` block supports:
+
+* `path` -
+  (Optional)
+  Optional. Path to access on the HTTP server. Defaults to '/'.
+
+* `port` -
+  (Optional)
+  Optional. Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to the exposed port of the container, which is the value of container.ports[0].containerPort.
+
+* `http_headers` -
+  (Optional)
+  Optional. Custom headers to set in the request. HTTP allows repeated headers.
+  Structure is [documented below](#nested_template_containers_containers_liveness_probe_http_get_http_headers).
+
+
+<a name="nested_template_containers_containers_liveness_probe_http_get_http_headers"></a>The `http_headers` block supports:
+
+* `port` -
+  (Required)
+  Required. The header field name
+
+* `value` -
+  (Optional)
+  Optional. The header field value
+
+<a name="nested_template_containers_containers_liveness_probe_tcp_socket"></a>The `tcp_socket` block supports:
+
+* `port` -
+  (Optional)
+  Optional. Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to the exposed port of the container, which is the value of container.ports[0].containerPort.
+
+<a name="nested_template_containers_containers_liveness_probe_grpc"></a>The `grpc` block supports:
+
+* `port` -
+  (Optional)
+  Optional. Port number of the gRPC service. Number must be in the range 1 to 65535. If not specified, defaults to the exposed port of the container, which is the value of container.ports[0].containerPort.
+
+* `service` -
+  (Optional)
+  Optional. Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md ). If this is not specified, the default behavior is defined by gRPC
+
+<a name="nested_template_containers_containers_startup_probe"></a>The `startup_probe` block supports:
+
+* `initial_delay_seconds` -
+  (Optional)
+  Optional. Number of seconds after the container has started before the probe is initiated. Defaults to 0 seconds. Minimum value is 0. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240.
+
+* `timeout_seconds` -
+  (Optional)
+  Optional. Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. Maximum value is 3600. Must be smaller than period_seconds.
+
+* `period_seconds` -
+  (Optional)
+  Optional. How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. Must be greater or equal than timeout_seconds.
+
+* `failure_threshold` -
+  (Optional)
+  Optional. Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+
+* `http_get` -
+  (Optional)
+  Optional. HTTPGet specifies the http request to perform. Exactly one of httpGet, tcpSocket, or grpc must be specified.
+  Structure is [documented below](#nested_template_containers_containers_startup_probe_http_get).
+
+* `tcp_socket` -
+  (Optional)
+  Optional. TCPSocket specifies an action involving a TCP port. Exactly one of httpGet, tcpSocket, or grpc must be specified.
+  Structure is [documented below](#nested_template_containers_containers_startup_probe_tcp_socket).
+
+* `grpc` -
+  (Optional)
+  Optional. GRPC specifies an action involving a gRPC port. Exactly one of httpGet, tcpSocket, or grpc must be specified.
+  Structure is [documented below](#nested_template_containers_containers_startup_probe_grpc).
+
+
+<a name="nested_template_containers_containers_startup_probe_http_get"></a>The `http_get` block supports:
+
+* `path` -
+  (Optional)
+  Optional. Path to access on the HTTP server. Defaults to '/'.
+
+* `port` -
+  (Optional)
+  Optional. Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to the exposed port of the container, which is the value of container.ports[0].containerPort.
+
+* `http_headers` -
+  (Optional)
+  Optional. Custom headers to set in the request. HTTP allows repeated headers.
+  Structure is [documented below](#nested_template_containers_containers_startup_probe_http_get_http_headers).
+
+
+<a name="nested_template_containers_containers_startup_probe_http_get_http_headers"></a>The `http_headers` block supports:
+
+* `port` -
+  (Required)
+  Required. The header field name
+
+* `value` -
+  (Optional)
+  Optional. The header field value
+
+<a name="nested_template_containers_containers_startup_probe_tcp_socket"></a>The `tcp_socket` block supports:
+
+* `port` -
+  (Optional)
+  Optional. Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to the exposed port of the container, which is the value of container.ports[0].containerPort.
+
+<a name="nested_template_containers_containers_startup_probe_grpc"></a>The `grpc` block supports:
+
+* `port` -
+  (Optional)
+  Optional. Port number of the gRPC service. Number must be in the range 1 to 65535. If not specified, defaults to the exposed port of the container, which is the value of container.ports[0].containerPort.
+
+* `service` -
+  (Optional)
+  Optional. Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md ). If this is not specified, the default behavior is defined by gRPC
 
 <a name="nested_template_volumes"></a>The `volumes` block supports:
 
@@ -820,7 +1053,7 @@ When the field is set to false, deleting the WorkerPool is allowed.
   If true, mount the GCS bucket as read-only
 
 * `mount_options` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A list of flags to pass to the gcsfuse command for configuring this volume.
   Flags should be passed without leading dashes.
 

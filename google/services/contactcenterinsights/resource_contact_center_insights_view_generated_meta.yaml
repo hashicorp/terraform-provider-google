@@ -6,10 +6,10 @@ api_version: 'v1'
 api_resource_type_kind: 'View'
 autogen_status: true
 fields:
-  - field: 'create_time'
-  - field: 'display_name'
+  - api_field: 'createTime'
+  - api_field: 'displayName'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'update_time'
-  - field: 'value'
+  - api_field: 'name'
+  - api_field: 'updateTime'
+  - api_field: 'value'

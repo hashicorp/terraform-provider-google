@@ -263,6 +263,10 @@ In addition to the arguments listed above, the following computed attributes are
   HybridPeeringDetails contains details about the hybrid peering.
   Structure is [documented below](#nested_hybrid_peering_details).
 
+* `hybrid_replication_user_commands` -
+  Copy pastable snapmirror commands to be executed on onprem cluster by the customer.
+  Structure is [documented below](#nested_hybrid_replication_user_commands).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -337,6 +341,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `peer_svm_name` -
   (Output)
   Optional. Name of the user's local source vserver svm to be peered with the destination vserver svm.
+
+<a name="nested_hybrid_replication_user_commands"></a>The `hybrid_replication_user_commands` block contains:
+
+* `commands` -
+  (Output)
+  List of commands to be executed by the customer.
 
 ## Timeouts
 

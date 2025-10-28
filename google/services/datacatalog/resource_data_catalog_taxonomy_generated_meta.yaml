@@ -5,9 +5,9 @@ api_service_name: 'datacatalog.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Taxonomy'
 fields:
-  - field: 'activated_policy_types'
-  - field: 'description'
-  - field: 'display_name'
-  - field: 'name'
+  - api_field: 'activatedPolicyTypes'
+  - api_field: 'description'
+  - api_field: 'displayName'
+  - api_field: 'name'
   - field: 'region'
     provider_only: true

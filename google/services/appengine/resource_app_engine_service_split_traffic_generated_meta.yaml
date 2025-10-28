@@ -7,7 +7,7 @@ api_resource_type_kind: 'Service'
 fields:
   - field: 'migrate_traffic'
     provider_only: true
-  - field: 'service'
-    api_field: 'id'
-  - field: 'split.allocations'
-  - field: 'split.shard_by'
+  - api_field: 'id'
+    field: 'service'
+  - api_field: 'split.allocations'
+  - api_field: 'split.shardBy'

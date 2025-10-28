@@ -40,7 +40,7 @@ func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_container_cluster.kubes",
 						"google_container_cluster.kubes",
-						map[string]struct{}{"deletion_protection": {}},
+						[]string{"deletion_protection"},
 					),
 				),
 			},
@@ -64,9 +64,9 @@ func TestAccContainerClusterDatasource_regional(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_container_cluster.kubes",
 						"google_container_cluster.kubes",
-						map[string]struct{}{
-							"deletion_protection": {},
-							"resource_labels.%":   {},
+						[]string{
+							"deletion_protection",
+							"resource_labels.%",
 						},
 					),
 				),

@@ -7,13 +7,13 @@ api_resource_type_kind: 'Topic'
 fields:
   - field: 'name'
     provider_only: true
-  - field: 'partition_config.capacity.publish_mib_per_sec'
-  - field: 'partition_config.capacity.subscribe_mib_per_sec'
-  - field: 'partition_config.count'
+  - api_field: 'partitionConfig.capacity.publishMibPerSec'
+  - api_field: 'partitionConfig.capacity.subscribeMibPerSec'
+  - api_field: 'partitionConfig.count'
   - field: 'region'
     provider_only: true
-  - field: 'reservation_config.throughput_reservation'
-  - field: 'retention_config.per_partition_bytes'
-  - field: 'retention_config.period'
+  - api_field: 'reservationConfig.throughputReservation'
+  - api_field: 'retentionConfig.perPartitionBytes'
+  - api_field: 'retentionConfig.period'
   - field: 'zone'
     provider_only: true

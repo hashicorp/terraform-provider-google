@@ -110,6 +110,7 @@ resource "google_cloud_run_v2_service" "default" {
   ingress = "INGRESS_TRAFFIC_ALL"
 
   template {
+    health_check_disabled = true
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
       resources {

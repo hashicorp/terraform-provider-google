@@ -139,6 +139,7 @@ func TestAccDataSourceSqlDatabaseInstances_tierFilter(t *testing.T) {
 						map[string]struct{}{
 							"deletion_protection": {},
 							"id":                  {},
+							"settings.0.version":  {},
 						},
 					),
 				),

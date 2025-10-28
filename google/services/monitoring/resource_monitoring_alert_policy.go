@@ -2589,6 +2589,9 @@ func expandMonitoringAlertPolicyEnabled(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandMonitoringAlertPolicyConditions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2660,6 +2663,9 @@ func expandMonitoringAlertPolicyConditions(v interface{}, d tpgresource.Terrafor
 }
 
 func expandMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2700,6 +2706,9 @@ func expandMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d tpgre
 }
 
 func expandMonitoringAlertPolicyConditionsConditionAbsentAggregations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2759,6 +2768,9 @@ func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsCrossSeries
 }
 
 func expandMonitoringAlertPolicyConditionsConditionAbsentTrigger(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2805,6 +2817,9 @@ func expandMonitoringAlertPolicyConditionsName(v interface{}, d tpgresource.Terr
 }
 
 func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2853,6 +2868,9 @@ func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDurati
 }
 
 func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2891,6 +2909,9 @@ func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageEvalua
 }
 
 func expandMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2981,6 +3002,9 @@ func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorFilter(v 
 }
 
 func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3044,6 +3068,9 @@ func expandMonitoringAlertPolicyConditionsConditionThresholdDuration(v interface
 }
 
 func expandMonitoringAlertPolicyConditionsConditionThresholdForecastOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3071,6 +3098,9 @@ func expandMonitoringAlertPolicyConditionsConditionThresholdComparison(v interfa
 }
 
 func expandMonitoringAlertPolicyConditionsConditionThresholdTrigger(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3105,6 +3135,9 @@ func expandMonitoringAlertPolicyConditionsConditionThresholdTriggerCount(v inter
 }
 
 func expandMonitoringAlertPolicyConditionsConditionThresholdAggregations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3176,6 +3209,9 @@ func expandMonitoringAlertPolicyConditionsDisplayName(v interface{}, d tpgresour
 }
 
 func expandMonitoringAlertPolicyConditionsConditionMatchedLog(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3217,6 +3253,9 @@ func expandMonitoringAlertPolicyConditionsConditionMatchedLogLabelExtractors(v i
 }
 
 func expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3313,6 +3352,9 @@ func expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageDisabl
 }
 
 func expandMonitoringAlertPolicyConditionsConditionSql(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3371,6 +3413,9 @@ func expandMonitoringAlertPolicyConditionsConditionSqlQuery(v interface{}, d tpg
 }
 
 func expandMonitoringAlertPolicyConditionsConditionSqlMinutes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3394,6 +3439,9 @@ func expandMonitoringAlertPolicyConditionsConditionSqlMinutesPeriodicity(v inter
 }
 
 func expandMonitoringAlertPolicyConditionsConditionSqlHourly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3428,6 +3476,9 @@ func expandMonitoringAlertPolicyConditionsConditionSqlHourlyMinuteOffset(v inter
 }
 
 func expandMonitoringAlertPolicyConditionsConditionSqlDaily(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3458,6 +3509,9 @@ func expandMonitoringAlertPolicyConditionsConditionSqlDailyPeriodicity(v interfa
 }
 
 func expandMonitoringAlertPolicyConditionsConditionSqlDailyExecutionTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3514,6 +3568,9 @@ func expandMonitoringAlertPolicyConditionsConditionSqlDailyExecutionTimeNanos(v 
 }
 
 func expandMonitoringAlertPolicyConditionsConditionSqlRowCountTest(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3548,6 +3605,9 @@ func expandMonitoringAlertPolicyConditionsConditionSqlRowCountTestThreshold(v in
 }
 
 func expandMonitoringAlertPolicyConditionsConditionSqlBooleanTest(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3575,6 +3635,9 @@ func expandMonitoringAlertPolicyNotificationChannels(v interface{}, d tpgresourc
 }
 
 func expandMonitoringAlertPolicyAlertStrategy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3615,6 +3678,9 @@ func expandMonitoringAlertPolicyAlertStrategy(v interface{}, d tpgresource.Terra
 }
 
 func expandMonitoringAlertPolicyAlertStrategyNotificationRateLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3646,6 +3712,9 @@ func expandMonitoringAlertPolicyAlertStrategyNotificationPrompts(v interface{}, 
 }
 
 func expandMonitoringAlertPolicyAlertStrategyNotificationChannelStrategy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3698,6 +3767,9 @@ func expandMonitoringAlertPolicySeverity(v interface{}, d tpgresource.TerraformR
 }
 
 func expandMonitoringAlertPolicyDocumentation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3750,6 +3822,9 @@ func expandMonitoringAlertPolicyDocumentationSubject(v interface{}, d tpgresourc
 }
 
 func expandMonitoringAlertPolicyDocumentationLinks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

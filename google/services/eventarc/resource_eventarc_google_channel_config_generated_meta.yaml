@@ -5,8 +5,8 @@ api_service_name: 'eventarc.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'GoogleChannelConfig'
 fields:
-  - field: 'crypto_key_name'
+  - api_field: 'cryptoKeyName'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'update_time'
+  - api_field: 'name'
+  - api_field: 'updateTime'

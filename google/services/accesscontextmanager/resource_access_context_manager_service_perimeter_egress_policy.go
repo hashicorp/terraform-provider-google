@@ -783,6 +783,9 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEtag(v interfa
 }
 
 func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -831,6 +834,9 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdent
 }
 
 func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -872,6 +878,9 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourc
 }
 
 func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -924,6 +933,9 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToRoles(v
 }
 
 func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -957,6 +969,9 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperati
 }
 
 func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

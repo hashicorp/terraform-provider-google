@@ -7,7 +7,7 @@ api_variant_patterns:
   - 'billingAccounts/{billingAccount}/exclusions/{exclusion}'
 fields:
   - field: 'billing_account'
-  - field: 'description'
-  - field: 'disabled'
-  - field: 'filter'
-  - field: 'name'
+  - api_field: 'description'
+  - api_field: 'disabled'
+  - api_field: 'filter'
+  - api_field: 'name'

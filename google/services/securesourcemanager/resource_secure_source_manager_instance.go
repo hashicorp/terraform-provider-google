@@ -648,6 +648,9 @@ func expandSecureSourceManagerInstanceKmsKey(v interface{}, d tpgresource.Terraf
 }
 
 func expandSecureSourceManagerInstancePrivateConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -704,6 +707,9 @@ func expandSecureSourceManagerInstancePrivateConfigSshServiceAttachment(v interf
 }
 
 func expandSecureSourceManagerInstanceWorkforceIdentityFederationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

@@ -586,6 +586,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Networkconnectivity",
         "path" to "./google/services/networkconnectivity"
     ),
+    "networkconnectivityv1" to mapOf(
+        "name" to "networkconnectivityv1",
+        "displayName" to "Networkconnectivityv1",
+        "path" to "./google/services/networkconnectivityv1"
+    ),
     "networkmanagement" to mapOf(
         "name" to "networkmanagement",
         "displayName" to "Networkmanagement",
@@ -605,6 +610,11 @@ var ServicesListGa = mapOf(
         "name" to "notebooks",
         "displayName" to "Notebooks",
         "path" to "./google/services/notebooks"
+    ),
+    "observability" to mapOf(
+        "name" to "observability",
+        "displayName" to "Observability",
+        "path" to "./google/services/observability"
     ),
     "oracledatabase" to mapOf(
         "name" to "oracledatabase",

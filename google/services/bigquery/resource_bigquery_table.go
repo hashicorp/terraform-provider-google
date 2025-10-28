@@ -466,6 +466,11 @@ func resourceBigQueryTableSchemaCustomizeDiffFunc(d tpgresource.TerraformResourc
 			// same as above
 			log.Printf("[DEBUG] unable to unmarshal json customized diff - %v", err)
 		}
+
+		// no is schema changeable check needed, if new schema is old schema
+		if reflect.DeepEqual(old, new) {
+			return nil
+		}
 		_, isExternalTable := d.GetOk("external_data_configuration")
 		isChangeable, err := resourceBigQueryTableSchemaIsChangeable(old, new, isExternalTable, true, hasRowAccessPolicyFunc)
 		if err != nil {

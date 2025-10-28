@@ -57,6 +57,7 @@ resource "google_compute_wire_group" "example-test-wire-group" {
   wire_properties {
     bandwidth_unmetered = 10
     fault_response =  "NONE"
+    bandwidth_allocation = "ALLOCATE_PER_WIRE"
   }
   wire_group_properties {
     type = "WIRE"
@@ -151,6 +152,13 @@ The following arguments are supported:
   Response when a fault is detected in a pseudowire:
   NONE: default.
   DISABLE_PORT: set the port line protocol down when inline probes detect a fault. This setting is only permitted on port mode pseudowires.
+
+* `bandwidth_allocation` -
+  (Required)
+  The configuration of a wire's bandwidth allocation.
+  ALLOCATE_PER_WIRE: configures a separate unmetered bandwidth allocation (and associated charges) for each wire in the group.
+  SHARED_WITH_WIRE_GROUP: this is the default behavior, which configures one unmetered bandwidth allocation for the wire group. The unmetered bandwidth is divided equally across each wire in the group, but dynamic
+  throttling reallocates unused unmetered bandwidth from unused or underused wires to other wires in the group.
 
 ## Attributes Reference
 

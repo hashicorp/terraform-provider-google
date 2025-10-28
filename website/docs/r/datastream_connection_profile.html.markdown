@@ -31,7 +31,7 @@ To get more information about ConnectionProfile, see:
     * [Official Documentation](https://cloud.google.com/datastream/docs/create-connection-profiles)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `oracle_profile.password`, `mysql_profile.password`, `mysql_profile.ssl_config.client_key`, `mysql_profile.ssl_config.client_certificate`, `mysql_profile.ssl_config.ca_certificate`, `postgresql_profile.password`, `sql_server_profile.password`, `forward_ssh_connectivity.password`, `forward_ssh_connectivity.private_key`.
+values will be stored in the raw state as plain text: `oracle_profile.password`, `mysql_profile.password`, `mysql_profile.ssl_config.client_key`, `mysql_profile.ssl_config.client_certificate`, `mysql_profile.ssl_config.ca_certificate`, `postgresql_profile.password`, `sql_server_profile.password`, `mongodb_profile.password`, `mongodb_profile.ssl_config.client_key`, `mongodb_profile.ssl_config.client_certificate`, `mongodb_profile.ssl_config.ca_certificate`, `mongodb_profile.ssl_config.secret_manager_stored_client_key`, `forward_ssh_connectivity.password`, `forward_ssh_connectivity.private_key`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -403,6 +403,32 @@ resource "google_datastream_connection_profile" "default" {
     }
 }
 ```
+## Example Usage - Datastream Connection Profile Mongodb
+
+
+```hcl
+resource "google_datastream_connection_profile" "default" {
+    display_name          = "Mongodb Source"
+    location              = "us-central1"
+    connection_profile_id = "source-profile"
+
+    mongodb_profile {
+        host_addresses = [
+          {
+            hostname = "mongodb-primary.example.com"
+            port     = 27017
+          }
+        ]
+
+        replica_set = "myReplicaSet"
+        username    = "mongoUser"
+        password    = "mongoPassword"
+        database    = "myDatabase"
+
+        standard_connection_format = {}
+    }
+}
+```
 
 ## Argument Reference
 
@@ -461,6 +487,11 @@ The following arguments are supported:
   (Optional)
   SQL Server database profile.
   Structure is [documented below](#nested_sql_server_profile).
+
+* `mongodb_profile` -
+  (Optional)
+  Configuration for connecting to a MongoDB database.
+  Structure is [documented below](#nested_mongodb_profile).
 
 * `forward_ssh_connectivity` -
   (Optional)
@@ -692,6 +723,107 @@ The following arguments are supported:
 * `database` -
   (Required)
   Database for the SQL Server connection.
+
+<a name="nested_mongodb_profile"></a>The `mongodb_profile` block supports:
+
+* `host_addresses` -
+  (Required)
+  List of host addresses for a MongoDB cluster.
+  Structure is [documented below](#nested_mongodb_profile_host_addresses).
+
+* `replica_set` -
+  (Optional)
+  Name of the replica set.
+
+* `username` -
+  (Required)
+  Username for the MongoDB connection.
+
+* `password` -
+  (Optional)
+  Password for the MongoDB connection. Mutually exclusive with
+  secretManagerStoredPassword.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `secret_manager_stored_password` -
+  (Optional)
+  A reference to a Secret Manager resource name storing the MongoDB
+  connection password. Mutually exclusive with password.
+
+* `ssl_config` -
+  (Optional)
+  SSL configuration for the MongoDB connection.
+  Structure is [documented below](#nested_mongodb_profile_ssl_config).
+
+* `srv_connection_format` -
+  (Optional)
+  Srv connection format. Mutually exclusive with
+  standard_connection_Format.
+
+* `standard_connection_format` -
+  (Optional)
+  Standard connection format. Mutually exclusive with
+  srv_connection_format.
+  Structure is [documented below](#nested_mongodb_profile_standard_connection_format).
+
+
+<a name="nested_mongodb_profile_host_addresses"></a>The `host_addresses` block supports:
+
+* `hostname` -
+  (Required)
+  Hostname for the connection.
+
+* `port` -
+  (Optional)
+  Port for the connection.
+
+<a name="nested_mongodb_profile_ssl_config"></a>The `ssl_config` block supports:
+
+* `client_key` -
+  (Optional)
+  PEM-encoded private key associated with the Client Certificate.
+  If this field is used then the 'client_certificate' and the
+  'ca_certificate' fields are mandatory.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `client_key_set` -
+  (Output)
+  Indicates whether the clientKey field is set.
+
+* `client_certificate` -
+  (Optional)
+  PEM-encoded certificate that will be used by the replica to
+  authenticate against the source database server. If this field
+  is used then the 'clientKey' and the 'caCertificate' fields are
+  mandatory.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `client_certificate_set` -
+  (Output)
+  Indicates whether the clientCertificate field is set.
+
+* `ca_certificate` -
+  (Optional)
+  PEM-encoded certificate of the CA that signed the source database
+  server's certificate.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `ca_certificate_set` -
+  (Output)
+  Indicates whether the clientKey field is set.
+
+* `secret_manager_stored_client_key` -
+  (Optional)
+  A reference to a Secret Manager resource name storing the
+  PEM-encoded private key. Mutually exclusive with clientKey.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_mongodb_profile_standard_connection_format"></a>The `standard_connection_format` block supports:
+
+* `direct_connection` -
+  (Optional)
+  Specifies whether the client connects directly to the
+  host[:port] in the connection URI.
 
 <a name="nested_forward_ssh_connectivity"></a>The `forward_ssh_connectivity` block supports:
 

@@ -169,7 +169,7 @@ func TestRequestBatcher_errInSend(t *testing.T) {
 		log.Printf("[DEBUG] sendBatch body: %+v", body)
 		for _, v := range body.([]int) {
 			if v == failIdx {
-				return nil, fmt.Errorf(expectedErrMsg)
+				return nil, fmt.Errorf("%s", expectedErrMsg)
 			}
 		}
 		return nil, nil

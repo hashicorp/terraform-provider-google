@@ -5,5 +5,5 @@ api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'SnapshotSettings'
 fields:
-  - field: 'storage_location.locations.location.name'
-  - field: 'storage_location.policy'
+  - api_field: 'storageLocation.locations.location.name'
+  - api_field: 'storageLocation.policy'

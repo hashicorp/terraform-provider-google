@@ -64,18 +64,21 @@ resource "google_privateca_ca_pool" "default" {
 
 ```hcl
 resource "google_project_service_identity" "privateca_sa" {
+  provider = google-beta
   service = "privateca.googleapis.com"
 }
 
 resource "google_kms_crypto_key_iam_member" "privateca_sa_keyuser_encrypterdecrypter" {
-  crypto_key_id = "projects/keys-project/locations/asia-east1/keyRings/key-ring/cryptoKeys/crypto-key"
+  provider = google-beta
+  crypto_key_id = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member = google_project_service_identity.privateca_sa.member
 }
 
 resource "google_privateca_ca_pool" "default" {
+  provider = google-beta
   name = "my-pool"
-  location = "asia-east1"
+  location = "us-central1"
   tier = "ENTERPRISE"
   publishing_options {
     publish_ca_cert = false
@@ -86,7 +89,7 @@ resource "google_privateca_ca_pool" "default" {
     foo = "bar"
   }
   encryption_spec {
-    cloud_kms_key = "projects/keys-project/locations/asia-east1/keyRings/key-ring/cryptoKeys/crypto-key"
+    cloud_kms_key = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key"
   }
   issuance_policy {
     allowed_key_types {

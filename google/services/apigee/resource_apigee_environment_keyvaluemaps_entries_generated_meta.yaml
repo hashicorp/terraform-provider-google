@@ -7,5 +7,5 @@ api_resource_type_kind: 'KeyValueEntry'
 fields:
   - field: 'env_keyvaluemap_id'
     provider_only: true
-  - field: 'name'
-  - field: 'value'
+  - api_field: 'name'
+  - api_field: 'value'

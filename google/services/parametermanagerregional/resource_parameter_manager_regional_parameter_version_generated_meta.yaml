@@ -5,16 +5,16 @@ api_service_name: 'parametermanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ParameterVersion'
 fields:
-  - field: 'create_time'
-  - field: 'disabled'
-  - field: 'kms_key_version'
+  - api_field: 'createTime'
+  - api_field: 'disabled'
+  - api_field: 'kmsKeyVersion'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'parameter'
     provider_only: true
-  - field: 'parameter_data'
-    api_field: 'payload.data'
+  - api_field: 'payload.data'
+    field: 'parameter_data'
   - field: 'parameter_version_id'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

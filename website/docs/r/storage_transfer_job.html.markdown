@@ -190,6 +190,8 @@ The following arguments are supported:
 
 * `aws_s3_compatible_data_source` - (Optional) An AWS S3 Compatible data source. Structure [documented below](#nested_aws_s3_compatible_data_source).
 
+* `transfer_manifest` - (Optional) Use a manifest file to limit which object are transferred. See [Storage Transfer Service manifest file format](https://cloud.google.com/storage-transfer/docs/manifest). Structure [documented below](#nested_transfer_manifest).
+
 <a name="nested_replication_spec"></a>The `replication_spec` block supports:
 
 * `gcs_data_sink` - (Optional) A Google Cloud Storage data sink. Structure [documented below](#nested_gcs_data_sink).
@@ -243,6 +245,9 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 * `delete_objects_from_source_after_transfer` - (Optional) Whether objects should be deleted from the source after they are transferred to the sink. Note that this option and `delete_objects_unique_in_sink` are mutually exclusive.
 
 * `overwrite_when` - (Optional) When to overwrite objects that already exist in the sink. If not set, overwrite behavior is determined by `overwrite_objects_already_existing_in_sink`. Possible values: ALWAYS, DIFFERENT, NEVER.
+
+* `metadata_options` - (Optional) Specifies the metadata options for running a transfer. Structure [documented below](#nested_metadata_options).
+
 
 <a name="nested_gcs_data_sink"></a>The `gcs_data_sink` block supports:
 
@@ -306,6 +311,10 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 * `cloudfront_domain` - (Optional) The CloudFront distribution domain name pointing to this bucket, to use when fetching. See [Transfer from S3 via CloudFront](https://cloud.google.com/storage-transfer/docs/s3-cloudfront) for more information. Format: `https://{id}.cloudfront.net` or any valid custom domain. Must begin with `https://`.
 
 * `credentials_secret` - (Optional)  The Resource name of a secret in Secret Manager. AWS credentials must be stored in Secret Manager in JSON format. If credentials_secret is specified, do not specify role_arn or aws_access_key. Format: `projects/{projectNumber}/secrets/{secret_name}`.
+
+<a name="nested_transfer_manifest"></a>The `transfer_manifest` block supports:
+
+* `location` - (Required) The **GCS URI** to the manifest file (CSV or line-delimited). Example: `gs://my-bucket/manifest.csv`
 
 The `aws_access_key` block supports:
 
@@ -377,6 +386,26 @@ Each action state may be one of `SUCCEEDED`, and `FAILED`.
 
 * `enable_on_prem_gcs_transfer` - (Optional) For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer.
 Defaults to false.
+
+<a name="nested_metadata_options"></a>The `metadata_options` block supports:
+
+* `symlink` - (Optional) Specifies how symlinks should be handled by the transfer.
+
+* `mode` - (Optional) Specifies how each file's mode attribute should be handled by the transfer.
+
+* `gid` - (Required) Specifies how each file's POSIX group ID (GID) attribute should be handled by the transfer.
+
+* `uid` - (Optional) Specifies how each file's POSIX user ID (UID) attribute should be handled by the transfer.
+
+* `acl` - (Optional) Specifies how each object's ACLs should be preserved for transfers between Google Cloud Storage buckets.
+
+* `storage_class` - (Optional) Specifies the storage class to set on objects being transferred to Google Cloud Storage buckets.
+
+* `temporary_hold` - (Optional) Specifies how each object's temporary hold status should be preserved for transfers between Google Cloud Storage buckets.
+
+* `kms_key` - (Optional) Specifies how each object's Cloud KMS customer-managed encryption key (CMEK) is preserved for transfers between Google Cloud Storage buckets.
+
+* `time_created` - (Optional) Specifies how each object's timeCreated metadata is preserved for transfers.
 
 ## Attributes Reference
 

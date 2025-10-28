@@ -17,10 +17,13 @@
 package container
 
 import (
+	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -628,6 +631,7 @@ func schemaNodeConfig() *schema.Schema {
 							},
 							"cpu_cfs_quota": {
 								Type:        schema.TypeBool,
+								Computed:    true,
 								Optional:    true,
 								Description: `Enable CPU CFS quota enforcement for containers that specify CPU limits.`,
 							},
@@ -1181,7 +1185,7 @@ func expandNodeConfigDefaults(configured interface{}) *container.NodeConfigDefau
 	return nodeConfigDefaults
 }
 
-func expandNodeConfig(v interface{}) *container.NodeConfig {
+func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *container.NodeConfig {
 	nodeConfigs := v.([]interface{})
 	nc := &container.NodeConfig{
 		// Defaults can't be set on a list/set in the schema, so set the default on create here.
@@ -1448,6 +1452,34 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 
 	if v, ok := nodeConfig["kubelet_config"]; ok {
 		nc.KubeletConfig = expandKubeletConfig(v)
+
+		// start cpu_cfs_quota fix https://github.com/hashicorp/terraform-provider-google/issues/15767
+		// this makes the field conditional on appearance in configuration. This allows the API `true` default
+		// to override null, where currently we force-send null as false, which is wrong.
+		rawConfigNPRoot := d.GetRawConfig()
+		// if we have a prefix, we're in `node_pool.N.` in GKE Cluster. Traverse the RawConfig object to reach that
+		// root, at which point local references work going forwards.
+		if prefix != "" {
+			parts := strings.Split(prefix, ".") // "node_pool.N." -> ["node_pool" "N", ""]
+			npIndex, err := strconv.Atoi(parts[1])
+			if err != nil { // no error return from expander
+				panic(fmt.Errorf("unexpected format for node pool path prefix: %w. value: %v", err, prefix))
+			}
+
+			rawConfigNPRoot = rawConfigNPRoot.GetAttr("node_pool").Index(cty.NumberIntVal(int64(npIndex)))
+		}
+
+		if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
+			if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
+				v := vKC.Index(cty.NumberIntVal(0)).GetAttr("cpu_cfs_quota")
+				if v == cty.NullVal(cty.Bool) {
+					nc.KubeletConfig.CpuCfsQuota = true
+				} else if v.False() { // force-send explicit false to API
+					nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "CpuCfsQuota")
+				}
+			}
+		}
+		// end cpu_cfs_quota fix
 	}
 
 	if v, ok := nodeConfig["linux_node_config"]; ok {
@@ -1586,7 +1618,6 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 	}
 	if cpuCfsQuota, ok := cfg["cpu_cfs_quota"]; ok {
 		kConfig.CpuCfsQuota = cpuCfsQuota.(bool)
-		kConfig.ForceSendFields = append(kConfig.ForceSendFields, "CpuCfsQuota")
 	}
 	if cpuCfsQuotaPeriod, ok := cfg["cpu_cfs_quota_period"]; ok {
 		kConfig.CpuCfsQuotaPeriod = cpuCfsQuotaPeriod.(string)

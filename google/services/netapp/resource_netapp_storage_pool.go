@@ -112,6 +112,18 @@ Auto-tiering can be enabled after storage pool creation but it can't be disabled
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"enable_hot_tier_auto_resize": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Flag indicating that the hot-tier threshold will be auto-increased by 10% of the hot-tier when it hits 100%. Default is true.
+The increment will kick in only if the new size after increment is still less than or equal to storage pool size.`,
+			},
+			"hot_tier_size_gib": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Total hot tier capacity for the Storage Pool. It is applicable only to Flex service level.
+It should be less than the minimum storage pool size and cannot be more than the current storage pool size. It cannot be decreased once set.`,
+			},
 			"kms_config": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -138,6 +150,7 @@ using security identifiers for NFSv4.1 or principal names for kerberized NFSv4.1
 			},
 			"qos_type": {
 				Type:         schema.TypeString,
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"QOS_TYPE_UNSPECIFIED", "AUTO", "MANUAL", ""}),
 				Description: `QoS (Quality of Service) type of the storage pool.
@@ -174,6 +187,11 @@ If you want to create a zonal Flex pool, specify a zone name for 'location' and 
 				Computed:    true,
 				Description: `Available throughput of the storage pool (in MiB/s).`,
 			},
+			"cold_tier_size_used_gib": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Total cold tier data rounded down to the nearest GiB used by the storage pool.`,
+			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -184,6 +202,11 @@ If you want to create a zonal Flex pool, specify a zone name for 'location' and 
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Reports if volumes in the pool are encrypted using a Google-managed encryption key or CMEK.`,
+			},
+			"hot_tier_size_used_gib": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Total hot tier data rounded down to the nearest GiB used by the storage pool.`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -298,6 +321,18 @@ func resourceNetappStoragePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("total_iops"); !tpgresource.IsEmptyValue(reflect.ValueOf(totalIopsProp)) && (ok || !reflect.DeepEqual(v, totalIopsProp)) {
 		obj["totalIops"] = totalIopsProp
+	}
+	hotTierSizeGibProp, err := expandNetappStoragePoolHotTierSizeGib(d.Get("hot_tier_size_gib"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("hot_tier_size_gib"); !tpgresource.IsEmptyValue(reflect.ValueOf(hotTierSizeGibProp)) && (ok || !reflect.DeepEqual(v, hotTierSizeGibProp)) {
+		obj["hotTierSizeGib"] = hotTierSizeGibProp
+	}
+	enableHotTierAutoResizeProp, err := expandNetappStoragePoolEnableHotTierAutoResize(d.Get("enable_hot_tier_auto_resize"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_hot_tier_auto_resize"); ok || !reflect.DeepEqual(v, enableHotTierAutoResizeProp) {
+		obj["enableHotTierAutoResize"] = enableHotTierAutoResizeProp
 	}
 	qosTypeProp, err := expandNetappStoragePoolQosType(d.Get("qos_type"), d, config)
 	if err != nil {
@@ -461,10 +496,19 @@ func resourceNetappStoragePoolRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("total_iops", flattenNetappStoragePoolTotalIops(res["totalIops"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
+	if err := d.Set("hot_tier_size_gib", flattenNetappStoragePoolHotTierSizeGib(res["hotTierSizeGib"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
 	if err := d.Set("qos_type", flattenNetappStoragePoolQosType(res["qosType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 	if err := d.Set("available_throughput_mibps", flattenNetappStoragePoolAvailableThroughputMibps(res["availableThroughputMibps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err := d.Set("cold_tier_size_used_gib", flattenNetappStoragePoolColdTierSizeUsedGib(res["coldTierSizeUsedGib"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err := d.Set("hot_tier_size_used_gib", flattenNetappStoragePoolHotTierSizeUsedGib(res["hotTierSizeUsedGib"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetappStoragePoolTerraformLabels(res["labels"], d, config)); err != nil {
@@ -541,6 +585,18 @@ func resourceNetappStoragePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("total_iops"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, totalIopsProp)) {
 		obj["totalIops"] = totalIopsProp
 	}
+	hotTierSizeGibProp, err := expandNetappStoragePoolHotTierSizeGib(d.Get("hot_tier_size_gib"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("hot_tier_size_gib"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hotTierSizeGibProp)) {
+		obj["hotTierSizeGib"] = hotTierSizeGibProp
+	}
+	enableHotTierAutoResizeProp, err := expandNetappStoragePoolEnableHotTierAutoResize(d.Get("enable_hot_tier_auto_resize"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_hot_tier_auto_resize"); ok || !reflect.DeepEqual(v, enableHotTierAutoResizeProp) {
+		obj["enableHotTierAutoResize"] = enableHotTierAutoResizeProp
+	}
 	qosTypeProp, err := expandNetappStoragePoolQosType(d.Get("qos_type"), d, config)
 	if err != nil {
 		return err
@@ -593,6 +649,14 @@ func resourceNetappStoragePoolUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("total_iops") {
 		updateMask = append(updateMask, "totalIops")
+	}
+
+	if d.HasChange("hot_tier_size_gib") {
+		updateMask = append(updateMask, "hotTierSizeGib")
+	}
+
+	if d.HasChange("enable_hot_tier_auto_resize") {
+		updateMask = append(updateMask, "enableHotTierAutoResize")
 	}
 
 	if d.HasChange("qos_type") {
@@ -878,11 +942,23 @@ func flattenNetappStoragePoolTotalIops(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
+func flattenNetappStoragePoolHotTierSizeGib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappStoragePoolQosType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 func flattenNetappStoragePoolAvailableThroughputMibps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappStoragePoolColdTierSizeUsedGib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappStoragePoolHotTierSizeUsedGib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -954,6 +1030,14 @@ func expandNetappStoragePoolTotalThroughputMibps(v interface{}, d tpgresource.Te
 }
 
 func expandNetappStoragePoolTotalIops(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappStoragePoolHotTierSizeGib(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappStoragePoolEnableHotTierAutoResize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

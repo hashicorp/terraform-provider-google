@@ -1678,6 +1678,9 @@ func expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d 
 
 func expandNestedComputeRouterNatSubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1737,6 +1740,9 @@ func expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat64(v interface{}, 
 
 func expandNestedComputeRouterNatNat64Subnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1799,6 +1805,9 @@ func expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d tpgresou
 }
 
 func expandNestedComputeRouterNatLogConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1838,6 +1847,9 @@ func expandNestedComputeRouterNatEndpointTypes(v interface{}, d tpgresource.Terr
 
 func expandNestedComputeRouterNatRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1893,6 +1905,9 @@ func expandNestedComputeRouterNatRulesMatch(v interface{}, d tpgresource.Terrafo
 }
 
 func expandNestedComputeRouterNatRulesAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

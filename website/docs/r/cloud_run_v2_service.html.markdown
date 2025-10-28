@@ -72,6 +72,7 @@ resource "google_cloud_run_v2_service" "default" {
   ingress = "INGRESS_TRAFFIC_ALL"
 
   template {
+    health_check_disabled = true
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
       resources {
@@ -769,7 +770,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_scaling).
 
 * `default_uri_disabled` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Disables public resolution of the default URI of this service.
 
 * `traffic` -
@@ -887,6 +888,10 @@ When the field is set to false, deleting the service is allowed.
 * `gpu_zonal_redundancy_disabled` -
   (Optional)
   True if GPU zonal redundancy is disabled on this revision.
+
+* `health_check_disabled` -
+  (Optional)
+  Disables health checking containers during deployment.
 
 
 <a name="nested_template_scaling"></a>The `scaling` block supports:
@@ -1040,7 +1045,7 @@ When the field is set to false, deleting the service is allowed.
 
 * `limits` -
   (Optional)
-  Only memory, CPU, and nvidia.com/gpu are supported. Use key `cpu` for CPU limit, `memory` for memory limit, `nvidia.com/gpu` for gpu limit. Note: The only supported values for CPU are '1', '2', '4', and '8'. Setting 4 CPU requires at least 2Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
+  Only memory, CPU, and nvidia.com/gpu are supported. Use key `cpu` for CPU limit, `memory` for memory limit, `nvidia.com/gpu` for gpu limit. Note: The only supported values for CPU are '1', '2', '4', '6' and '8'. Setting 4 CPU requires at least 2Gi of memory, setting 6 or more CPU requires at least 4Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
 
 * `cpu_idle` -
   (Optional)
@@ -1339,7 +1344,7 @@ When the field is set to false, deleting the service is allowed.
   If true, mount the GCS bucket as read-only
 
 * `mount_options` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A list of flags to pass to the gcsfuse command for configuring this volume.
   Flags should be passed without leading dashes.
 

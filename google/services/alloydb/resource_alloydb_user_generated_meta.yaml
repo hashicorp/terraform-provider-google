@@ -7,9 +7,9 @@ api_resource_type_kind: 'User'
 fields:
   - field: 'cluster'
     provider_only: true
-  - field: 'database_roles'
-  - field: 'name'
-  - field: 'password'
+  - api_field: 'databaseRoles'
+  - api_field: 'name'
+  - api_field: 'password'
   - field: 'user_id'
     provider_only: true
-  - field: 'user_type'
+  - api_field: 'userType'

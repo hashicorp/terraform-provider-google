@@ -218,6 +218,13 @@ Once the customer is created then corecount cannot be changed.`,
 					},
 				},
 			},
+			"create_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Creation time of this resource.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and
+up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
 			"management": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -233,6 +240,13 @@ There can only be one management cluster in a private cloud and it has to be the
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `System-generated unique identifier for the resource.`,
+			},
+			"update_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Last updated time of this resource.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
+fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
 		},
 		UseJSONNumber: true,
@@ -345,6 +359,12 @@ func resourceVmwareengineClusterRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VmwareengineCluster %q", d.Id()))
 	}
 
+	if err := d.Set("create_time", flattenVmwareengineClusterCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("update_time", flattenVmwareengineClusterUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("management", flattenVmwareengineClusterManagement(res["management"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -516,6 +536,14 @@ func resourceVmwareengineClusterImport(d *schema.ResourceData, meta interface{})
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenVmwareengineClusterCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineClusterUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenVmwareengineClusterManagement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -865,6 +893,9 @@ func expandVmwareengineClusterNodeTypeConfigsCustomCoreCount(v interface{}, d tp
 }
 
 func expandVmwareengineClusterAutoscalingSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -966,6 +997,9 @@ func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesScaleOutSize
 }
 
 func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesCpuThresholds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1000,6 +1034,9 @@ func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesCpuThreshold
 }
 
 func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesConsumedMemoryThresholds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1034,6 +1071,9 @@ func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesConsumedMemo
 }
 
 func expandVmwareengineClusterAutoscalingSettingsAutoscalingPoliciesStorageThresholds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

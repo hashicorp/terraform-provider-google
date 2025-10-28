@@ -5,8 +5,8 @@ api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NetworkEndpointGroup'
 fields:
-  - field: 'fqdn'
+  - api_field: 'fqdn'
   - field: 'global_network_endpoint_group'
     provider_only: true
-  - field: 'ip_address'
-  - field: 'port'
+  - api_field: 'ipAddress'
+  - api_field: 'port'

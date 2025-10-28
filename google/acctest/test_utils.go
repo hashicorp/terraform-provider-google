@@ -40,11 +40,16 @@ import (
 )
 
 func CheckDataSourceStateMatchesResourceState(dataSourceName, resourceName string) func(*terraform.State) error {
-	return CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourceName, map[string]struct{}{})
+	return CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourceName, []string{})
 }
 
-func CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourceName string, ignoreFields map[string]struct{}) func(*terraform.State) error {
+func CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourceName string, fieldsToIgnore []string) func(*terraform.State) error {
 	return func(s *terraform.State) error {
+		ignoreFields := make(map[string]struct{}, len(fieldsToIgnore))
+		for _, field := range fieldsToIgnore {
+			ignoreFields[field] = struct{}{}
+		}
+
 		ds, ok := s.RootModule().Resources[dataSourceName]
 		if !ok {
 			return fmt.Errorf("can't find %s in state", dataSourceName)
@@ -58,15 +63,17 @@ func CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 		dsAttr := ds.Primary.Attributes
 		rsAttr := rs.Primary.Attributes
 
-		errMsg := ""
+		var errMsg strings.Builder
+
 		// Data sources are often derived from resources, so iterate over the resource fields to
 		// make sure all fields are accounted for in the data source.
 		// If a field exists in the data source but not in the resource, its expected value should
 		// be checked separately.
 		for k := range rsAttr {
-			if _, ok := ignoreFields[k]; ok {
+			if _, ignored := ignoreFields[k]; ignored {
 				continue
 			}
+
 			if strings.HasPrefix(k, "labels.") || strings.HasPrefix(k, "terraform_labels.") || strings.HasPrefix(k, "effective_labels.") {
 				continue
 			}
@@ -75,15 +82,15 @@ func CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 			}
 			if dsAttr[k] != rsAttr[k] {
 				// ignore data sources where an empty list is being compared against a null list.
-				if k[len(k)-1:] == "#" && (dsAttr[k] == "" || dsAttr[k] == "0") && (rsAttr[k] == "" || rsAttr[k] == "0") {
+				if strings.HasSuffix(k, "#") && (dsAttr[k] == "" || dsAttr[k] == "0") && (rsAttr[k] == "" || rsAttr[k] == "0") {
 					continue
 				}
-				errMsg += fmt.Sprintf("%s is %s; want %s\n", k, dsAttr[k], rsAttr[k])
+				errMsg.WriteString(fmt.Sprintf("%s is %s; want %s\n", k, dsAttr[k], rsAttr[k]))
 			}
 		}
 
-		if errMsg != "" {
-			return errors.New(errMsg)
+		if errMsg.Len() > 0 {
+			return errors.New(errMsg.String())
 		}
 
 		return nil

@@ -50,14 +50,14 @@ func TestResourceInventoryMetadataFound(t *testing.T) {
 		// t.Logf("Checking metadata for resource: %s", resourceType)
 
 		// Check for service package
-		servicePackage := acctest.GetServicePackageForResourceType(resourceType)
+		servicePackage := acctest.ServicePackageCache.Get(resourceType)
 		if servicePackage == "unknown" {
 			// t.Logf("WARNING: Could not find service package for resource %s: %v", resourceType)
 			missingServicePkg++
 			missingServicePkgResources[resourceType] = true
 		}
 
-		apiServiceName := acctest.GetAPIServiceNameForResource(resourceType)
+		apiServiceName := acctest.ApiServiceNameCache.Get(resourceType)
 		// Check for API service name
 		if apiServiceName == "unknown" {
 			// t.Logf("WARNING: Could not find API service name for resource %s: %v", resourceType)

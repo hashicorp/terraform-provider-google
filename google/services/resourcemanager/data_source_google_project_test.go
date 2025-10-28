@@ -40,11 +40,11 @@ func TestAccDataSourceGoogleProject_basic(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_project.project",
 						"google_project.project",
-						map[string]struct{}{
+						[]string{
 							// Virtual fields
-							"auto_create_network": {},
-							"skip_delete":         {},
-							"deletion_policy":     {},
+							"auto_create_network",
+							"skip_delete",
+							"deletion_policy",
 						}),
 				),
 			},

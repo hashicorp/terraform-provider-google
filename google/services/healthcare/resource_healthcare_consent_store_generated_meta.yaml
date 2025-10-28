@@ -7,11 +7,11 @@ api_resource_type_kind: 'ConsentStore'
 fields:
   - field: 'dataset'
     provider_only: true
-  - field: 'default_consent_ttl'
+  - api_field: 'defaultConsentTtl'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'enable_consent_create_on_update'
-  - field: 'labels'
+  - api_field: 'enableConsentCreateOnUpdate'
+  - api_field: 'labels'
   - field: 'name'
     provider_only: true
   - field: 'terraform_labels'

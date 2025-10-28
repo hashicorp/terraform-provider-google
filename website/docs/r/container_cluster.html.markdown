@@ -843,6 +843,12 @@ secondary Pod IP address assignment to node pools isn't needed. Structure is [do
 * `additional_ip_ranges_config` - (Optional) The configuration for individual additional subnetworks attached to the cluster.
 Structure is [documented below](#nested_additional_ip_ranges_config).
 
+* `auto_ipam_config` - (Optional) All the information related to Auto IPAM. Structure is [documented below](#nested_auto_ipam_config)
+
+<a name="nested_auto_ipam_config"></a>The auto ipam config supports:
+
+* `enabled` - (Required) The flag that enables Auto IPAM on this cluster.
+
 
 <a name="nested_additional_pod_ranges_config"></a>The `additional_pod_ranges_config` block supports:
 
@@ -1328,6 +1334,10 @@ The `control_plane_endpoints_config.dns_endpoint_config` block supports:
 
 * `allow_external_traffic` - (Optional) Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.
 
+* `enable_k8s_tokens_via_dns` - (Optional) Controls whether the k8s token auth is allowed via Dns.
+
+* `enable_k8s_certs_via_dns` - (Optional) Controls whether the k8s certs auth is allowed via Dns.
+
 The `control_plane_endpoints_config.ip_endpoints_config` block supports:
 
 * `enabled` - (Optional) Controls whether to allow direct IP access. Defaults to `true`.
@@ -1669,6 +1679,8 @@ linux_node_config {
 <a name="nested_fleet"></a>The `fleet` block supports:
 
 * `project` - (Optional) The name of the Fleet host project where this cluster will be registered.
+
+* `membership_type` - (Optional) Sets the membership type of the cluster.  Available option is `LIGHTWEIGHT` to support only lightweight compatible features.  If unspecified, the membership_type will be a regular membership that supports all features.
 
 <a name="nested_workload_alts_config"></a>The `workload_alts_config` block supports:
 

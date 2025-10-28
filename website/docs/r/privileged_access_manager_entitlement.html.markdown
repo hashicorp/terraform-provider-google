@@ -180,6 +180,10 @@ The following arguments are supported:
   The expression field of the IAM condition to be associated with the role. If specified, a user with an active grant for this entitlement would be able to access the resource only if this condition evaluates to true for their request.
   https://cloud.google.com/iam/docs/conditions-overview#attributes.
 
+* `id` -
+  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Output Only. The ID corresponding to this role binding in the policy binding. This will be unique within an entitlement across time. Gets re-generated each time the entitlement is updated.
+
 <a name="nested_requester_justification_config"></a>The `requester_justification_config` block supports:
 
 * `not_mandatory` -
@@ -212,7 +216,7 @@ The following arguments are supported:
 
 * `steps` -
   (Required)
-  List of approval steps in this workflow. These steps would be followed in the specified order sequentially.  1 step is supported for now.
+  List of approval steps in this workflow. These steps would be followed in the specified order sequentially.
   Structure is [documented below](#nested_approval_workflow_manual_approvals_steps).
 
 
@@ -233,6 +237,10 @@ The following arguments are supported:
 * `approver_email_recipients` -
   (Optional)
   Optional. Additional email addresses to be notified when a grant is pending approval.
+
+* `id` -
+  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Output Only. The ID of the approval step.
 
 
 <a name="nested_approval_workflow_manual_approvals_steps_steps_approvers"></a>The `approvers` block supports:

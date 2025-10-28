@@ -34,6 +34,7 @@ resource "google_dataplex_aspect_type" "test_aspect_type_basic" {
   project = "my-project-name"
   location = "us-central1"
 
+  data_classification = "DATA_CLASSIFICATION_UNSPECIFIED"
   metadata_template = <<EOF
 {
   "name": "tf-test-template",
@@ -73,7 +74,8 @@ resource "google_dataplex_aspect_type" "test_aspect_type_full" {
 
   labels = { "tag": "test-tf" }
   display_name = "terraform aspect type"
-  description = "aspect type created by Terraform"
+  description = "data aspect type created by Terraform"
+  data_classification = "METADATA_AND_DATA"
   metadata_template = <<EOF
 {
   "type": "record",
@@ -231,6 +233,14 @@ The following arguments are supported:
 * `metadata_template` -
   (Optional)
   MetadataTemplate of the Aspect.
+
+* `data_classification` -
+  (Optional)
+  Classifies the data stored by the aspect.
+  `DATA_CLASSIFICATION_UNSPECIFIED` denotes that the aspect contains only metadata
+  while `METADATA_AND_DATA` indicates data derived content.
+  <br><br>
+  Possible values are: `DATA_CLASSIFICATION_UNSPECIFIED`, `METADATA_AND_DATA`.
 
 * `location` -
   (Optional)

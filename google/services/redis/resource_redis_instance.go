@@ -578,6 +578,16 @@ Write requests should target 'port'.`,
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance.
+When a'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is not set to false in Terraform state.
+When the field is set to true or unset in Terraform state, a 'terraform apply'
+or 'terraform destroy' that would delete the instance will fail.
+When the field is set to false, deleting the instance is allowed.`,
+			},
 			"auth_string": {
 				Type:        schema.TypeString,
 				Description: "AUTH String set on the instance. This field will only be populated if auth_enabled is true.",
@@ -841,6 +851,7 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -1216,6 +1227,9 @@ func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy redis instance without setting deletion_protection=false and running `terraform apply`")
+	}
 
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1261,6 +1275,8 @@ func resourceRedisInstanceImport(d *schema.ResourceData, meta interface{}) ([]*s
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -1774,6 +1790,9 @@ func expandRedisInstanceName(v interface{}, d tpgresource.TerraformResourceData,
 }
 
 func expandRedisInstancePersistenceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1830,6 +1849,9 @@ func expandRedisInstancePersistenceConfigRdbSnapshotStartTime(v interface{}, d t
 }
 
 func expandRedisInstanceMaintenancePolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1882,6 +1904,9 @@ func expandRedisInstanceMaintenancePolicyDescription(v interface{}, d tpgresourc
 }
 
 func expandRedisInstanceMaintenancePolicyWeeklyMaintenanceWindow(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1926,6 +1951,9 @@ func expandRedisInstanceMaintenancePolicyWeeklyMaintenanceWindowDuration(v inter
 }
 
 func expandRedisInstanceMaintenancePolicyWeeklyMaintenanceWindowStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil

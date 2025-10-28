@@ -1,3 +1,3 @@
 module github.com/hashicorp/terraform-provider-google/scripts
 
-go 1.23
+go 1.24

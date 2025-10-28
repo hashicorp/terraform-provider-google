@@ -22,26 +22,23 @@ description: |-
 
 Get information about a specific Backup and DR data source reference.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
-
 ## Example Usage
 
 This example shows how to get the details of a specific data source reference by its ID. The ID is often obtained from the `google_backup_dr_data_source_references` data source.
 
 ```hcl
-data "google_backup_dr_data_source_references" "all_sql_references" {
+data "google_backup_dr_data_source_references" "all_csql_references" {
   location      = "us-central1"
   resource_type = "sqladmin.googleapis.com/Instance"
 }
 
 data "google_backup_dr_data_source_reference" "my_reference" {
   location                 = "us-central1"
-  data_source_reference_id = element(split("/", data.google_backup_dr_data_source_references.all_sql_references.data_source_references[0].name), 5)
+  data_source_reference_id = element(split("/", data.google_backup_dr_data_source_references.all_csql_references.data_source_references[0].name), 5)
 }
 
-output "specific_reference_gcp_resource_name" {
-  value = data.google_backup_dr_data_source_reference.my_reference.gcp_resource_name
+output "my_data_source_reference" {
+  value = data.google_backup_dr_data_source_reference.my_reference
 }
 ```
 

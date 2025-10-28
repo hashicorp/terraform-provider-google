@@ -61,6 +61,35 @@ resource "google_bigquery_dataset" "dataset" {
 }
 ```
 
+## With IAM condition
+
+```hcl
+data "google_iam_policy" "owner" {
+  binding {
+    role = "roles/bigquery.dataOwner"
+
+    members = [
+      "user:jane@example.com",
+    ]
+
+    condition {
+      title       = "expires_after_2029_12_31"
+      description = "Expiring at midnight of 2029-12-31"
+      expression  = "request.time < timestamp(\"2030-01-01T00:00:00Z\")"
+    }
+  }
+}
+
+resource "google_bigquery_dataset_iam_policy" "dataset" {
+  dataset_id  = google_bigquery_dataset.dataset.dataset_id
+  policy_data = data.google_iam_policy.owner.policy_data
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "example_dataset"
+}
+```
+
 ## google_bigquery_dataset_iam_binding
 
 ```hcl
@@ -78,6 +107,29 @@ resource "google_bigquery_dataset" "dataset" {
 }
 ```
 
+## With IAM condition
+
+```hcl
+resource "google_bigquery_dataset_iam_binding" "reader" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/bigquery.dataViewer"
+
+  members = [
+    "user:jane@example.com",
+  ]
+
+  condition {
+    title       = "expires_after_2029_12_31"
+    description = "Expiring at midnight of 2029-12-31"
+    expression  = "request.time < timestamp(\"2030-01-01T00:00:00Z\")"
+  }
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "example_dataset"
+}
+```
+
 ## google_bigquery_dataset_iam_member
 
 ```hcl
@@ -85,6 +137,26 @@ resource "google_bigquery_dataset_iam_member" "editor" {
   dataset_id = google_bigquery_dataset.dataset.dataset_id
   role       = "roles/bigquery.dataEditor"
   member     = "user:jane@example.com"
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "example_dataset"
+}
+```
+
+## With IAM condition
+
+```hcl
+resource "google_bigquery_dataset_iam_member" "editor" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/bigquery.dataEditor"
+  member     = "user:jane@example.com"
+
+  condition {
+    title       = "expires_after_2029_12_31"
+    description = "Expiring at midnight of 2029-12-31"
+    expression  = "request.time < timestamp(\"2030-01-01T00:00:00Z\")"
+  }
 }
 
 resource "google_bigquery_dataset" "dataset" {
@@ -120,6 +192,23 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
+  Structure is documented below.
+
+---
+
+The `condition` block supports:
+
+* `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
+
+* `title` - (Optional) A title for the expression, i.e. a short string describing its purpose.
+
+* `description` - (Optional) An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
+
+~> **Warning:** Terraform considers the `role` and condition contents (`title`+`description`+`expression`) as the
+  identifier for the binding. This means that if any part of the condition is changed out-of-band, Terraform will
+  consider it to be an entirely different resource and will treat it as such.
 
 ## Attributes Reference
 

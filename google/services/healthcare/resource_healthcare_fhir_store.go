@@ -1072,6 +1072,9 @@ func expandHealthcareFhirStoreVersion(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandHealthcareFhirStoreValidationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1159,6 +1162,9 @@ func expandHealthcareFhirStoreEnableHistoryImport(v interface{}, d tpgresource.T
 }
 
 func expandHealthcareFhirStoreNotificationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1182,6 +1188,9 @@ func expandHealthcareFhirStoreNotificationConfigPubsubTopic(v interface{}, d tpg
 }
 
 func expandHealthcareFhirStoreStreamConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1215,6 +1224,9 @@ func expandHealthcareFhirStoreStreamConfigsResourceTypes(v interface{}, d tpgres
 }
 
 func expandHealthcareFhirStoreStreamConfigsBigqueryDestination(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1245,6 +1257,9 @@ func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationDatasetUri(v inter
 }
 
 func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1286,6 +1301,9 @@ func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigRecurs
 }
 
 func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1324,6 +1342,9 @@ func expandHealthcareFhirStoreDefaultSearchHandlingStrict(v interface{}, d tpgre
 }
 
 func expandHealthcareFhirStoreNotificationConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

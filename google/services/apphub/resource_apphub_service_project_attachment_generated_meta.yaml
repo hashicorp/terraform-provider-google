@@ -6,10 +6,10 @@ api_version: 'v1'
 api_resource_type_kind: 'ServiceProjectAttachment'
 autogen_status: true
 fields:
-  - field: 'create_time'
-  - field: 'name'
-  - field: 'service_project'
+  - api_field: 'createTime'
+  - api_field: 'name'
+  - api_field: 'serviceProject'
   - field: 'service_project_attachment_id'
     provider_only: true
-  - field: 'state'
-  - field: 'uid'
+  - api_field: 'state'
+  - api_field: 'uid'

@@ -476,6 +476,7 @@ this field is set to false, the revision name will still autogenerate.)
     See https://cloud.google.com/sdk/gcloud/reference/run/deploy#--vpc-egress.
   - `run.googleapis.com/gpu-zonal-redundancy-disabled` sets
     [GPU zonal redundancy](https://cloud.google.com/run/docs/configuring/services/gpu-zonal-redundancy) for the Revision.
+  - `run.googleapis.com/health-check-disabled` disabled health checking containers during deployment.
 
 * `name` -
   (Optional)
@@ -714,6 +715,10 @@ this field is set to false, the revision name will still autogenerate.)
 * `limits` -
   (Optional)
   Limits describes the maximum amount of compute resources allowed.
+  CPU Limit details:
+  - For fractional CPU values (e.g. `0.5`, `0.75`, min `0.08`) are also supported.
+  - CPU allocation must comply with memory limits and concurrency rules described in:
+    https://cloud.google.com/run/docs/configuring/services/cpu
   The values of the map is string form of the 'quantity' k8s type:
   https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
 

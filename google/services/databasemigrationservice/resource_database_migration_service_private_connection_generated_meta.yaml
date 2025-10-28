@@ -7,19 +7,19 @@ api_resource_type_kind: 'PrivateConnection'
 fields:
   - field: 'create_without_validation'
     provider_only: true
-  - field: 'display_name'
+  - api_field: 'displayName'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'error.details'
-  - field: 'error.message'
-  - field: 'labels'
+  - api_field: 'error.details'
+  - api_field: 'error.message'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'private_connection_id'
     provider_only: true
-  - field: 'state'
+  - api_field: 'state'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'vpc_peering_config.subnet'
-  - field: 'vpc_peering_config.vpc_name'
+  - api_field: 'vpcPeeringConfig.subnet'
+  - api_field: 'vpcPeeringConfig.vpcName'

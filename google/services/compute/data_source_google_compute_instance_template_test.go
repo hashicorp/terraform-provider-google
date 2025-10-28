@@ -34,10 +34,9 @@ func TestAccInstanceTemplateDatasource_name(t *testing.T) {
 			{
 				Config: testAccInstanceTemplate_name(envvar.GetTestProjectFromEnv(), acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
+					acctest.CheckDataSourceStateMatchesResourceState(
 						"data.google_compute_instance_template.default",
 						"google_compute_instance_template.default",
-						map[string]struct{}{},
 					),
 				),
 			},
@@ -55,13 +54,11 @@ func TestAccInstanceTemplateDatasource_filter(t *testing.T) {
 			{
 				Config: testAccInstanceTemplate_filter(envvar.GetTestProjectFromEnv(), acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
+					acctest.CheckDataSourceStateMatchesResourceState(
 						"data.google_compute_instance_template.default",
 						"google_compute_instance_template.c",
-						map[string]struct{}{},
 					),
-				),
-			},
+				)},
 		},
 	})
 }
@@ -76,10 +73,9 @@ func TestAccInstanceTemplateDatasource_filter_mostRecent(t *testing.T) {
 			{
 				Config: testAccInstanceTemplate_filter_mostRecent(envvar.GetTestProjectFromEnv(), acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
+					acctest.CheckDataSourceStateMatchesResourceState(
 						"data.google_compute_instance_template.default",
 						"google_compute_instance_template.c",
-						map[string]struct{}{},
 					),
 				),
 			},
@@ -102,8 +98,8 @@ func TestAccInstanceTemplateDatasource_self_link_unique(t *testing.T) {
 						"google_compute_instance_template.default",
 						// we don't compare the id here as we start this test from a self_link_unique url
 						// and the resource's ID will have the standard format project/projectname/global/instanceTemplates/tf-test-template-random
-						map[string]struct{}{
-							"id": {},
+						[]string{
+							"id",
 						},
 					),
 				),

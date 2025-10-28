@@ -2266,6 +2266,9 @@ func expandAccessContextManagerServicePerimeterPerimeterType(v interface{}, d tp
 }
 
 func expandAccessContextManagerServicePerimeterStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2335,6 +2338,9 @@ func expandAccessContextManagerServicePerimeterStatusRestrictedServices(v interf
 }
 
 func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServices(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2370,6 +2376,9 @@ func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowe
 }
 
 func expandAccessContextManagerServicePerimeterStatusIngressPolicies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2406,6 +2415,9 @@ func expandAccessContextManagerServicePerimeterStatusIngressPolicies(v interface
 }
 
 func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2448,6 +2460,9 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromI
 }
 
 func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2485,6 +2500,9 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromS
 }
 
 func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2527,6 +2545,9 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToRol
 }
 
 func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2560,6 +2581,9 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOpe
 }
 
 func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2601,6 +2625,9 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesTitle(v inte
 }
 
 func expandAccessContextManagerServicePerimeterStatusEgressPolicies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2637,6 +2664,9 @@ func expandAccessContextManagerServicePerimeterStatusEgressPolicies(v interface{
 }
 
 func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2681,6 +2711,9 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIde
 }
 
 func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2727,6 +2760,9 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIde
 }
 
 func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2781,6 +2817,9 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToRoles
 }
 
 func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2814,6 +2853,9 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOpera
 }
 
 func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2855,6 +2897,9 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesTitle(v inter
 }
 
 func expandAccessContextManagerServicePerimeterSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2924,6 +2969,9 @@ func expandAccessContextManagerServicePerimeterSpecRestrictedServices(v interfac
 }
 
 func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServices(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2959,6 +3007,9 @@ func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedS
 }
 
 func expandAccessContextManagerServicePerimeterSpecIngressPolicies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2995,6 +3046,9 @@ func expandAccessContextManagerServicePerimeterSpecIngressPolicies(v interface{}
 }
 
 func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3037,6 +3091,9 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromIde
 }
 
 func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3074,6 +3131,9 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSou
 }
 
 func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3116,6 +3176,9 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToRoles
 }
 
 func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3149,6 +3212,9 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOpera
 }
 
 func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3190,6 +3256,9 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesTitle(v interf
 }
 
 func expandAccessContextManagerServicePerimeterSpecEgressPolicies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3226,6 +3295,9 @@ func expandAccessContextManagerServicePerimeterSpecEgressPolicies(v interface{},
 }
 
 func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3270,6 +3342,9 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdent
 }
 
 func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3316,6 +3391,9 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdent
 }
 
 func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3370,6 +3448,9 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToRoles(v
 }
 
 func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3403,6 +3484,9 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperati
 }
 
 func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

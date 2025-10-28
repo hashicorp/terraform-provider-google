@@ -7,6 +7,6 @@ api_resource_type_kind: 'RecaptchaEnterpriseConfig'
 fields:
   - field: 'app_id'
     provider_only: true
-  - field: 'name'
-  - field: 'site_key'
-  - field: 'token_ttl'
+  - api_field: 'name'
+  - api_field: 'siteKey'
+  - api_field: 'tokenTtl'

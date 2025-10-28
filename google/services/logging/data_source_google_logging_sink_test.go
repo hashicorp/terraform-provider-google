@@ -44,9 +44,9 @@ func TestAccDataSourceGoogleLoggingSink_basic(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_logging_sink.basic",
 						"google_logging_project_sink.basic",
-						map[string]struct{}{
-							"project":                {},
-							"unique_writer_identity": {},
+						[]string{
+							"project",
+							"unique_writer_identity",
 						},
 					),
 				),

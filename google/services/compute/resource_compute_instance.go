@@ -3161,12 +3161,23 @@ func suppressEmptyGuestAcceleratorDiff(_ context.Context, d *schema.ResourceDiff
 		return nil
 	}
 
-	firstAccel, ok := new[0].(map[string]interface{})
+	// Check if old had a non-zero count
+	if len(old) > 0 {
+		if apiAccel, ok := old[0].(map[string]interface{}); ok {
+			if oldCount, ok := apiAccel["count"].(int); ok && oldCount != 0 {
+				// Old count wasn't 0, so don't clear the diff
+				return nil
+			}
+		}
+	}
+
+	// Check new accelerator configuration
+	configAccel, ok := new[0].(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("Unable to type assert guest accelerator")
 	}
 
-	if firstAccel["count"].(int) == 0 {
+	if configAccel["count"].(int) == 0 {
 		if err := d.Clear("guest_accelerator"); err != nil {
 			return err
 		}

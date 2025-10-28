@@ -826,6 +826,9 @@ func expandClouddeployCustomTargetTypeDescription(v interface{}, d tpgresource.T
 }
 
 func expandClouddeployCustomTargetTypeCustomActions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -867,6 +870,9 @@ func expandClouddeployCustomTargetTypeCustomActionsDeployAction(v interface{}, d
 }
 
 func expandClouddeployCustomTargetTypeCustomActionsIncludeSkaffoldModules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -914,6 +920,9 @@ func expandClouddeployCustomTargetTypeCustomActionsIncludeSkaffoldModulesConfigs
 }
 
 func expandClouddeployCustomTargetTypeCustomActionsIncludeSkaffoldModulesGit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -959,6 +968,9 @@ func expandClouddeployCustomTargetTypeCustomActionsIncludeSkaffoldModulesGitRef(
 }
 
 func expandClouddeployCustomTargetTypeCustomActionsIncludeSkaffoldModulesGoogleCloudStorage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -993,6 +1005,9 @@ func expandClouddeployCustomTargetTypeCustomActionsIncludeSkaffoldModulesGoogleC
 }
 
 func expandClouddeployCustomTargetTypeCustomActionsIncludeSkaffoldModulesGoogleCloudBuildRepo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

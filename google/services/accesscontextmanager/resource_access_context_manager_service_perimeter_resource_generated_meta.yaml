@@ -5,8 +5,8 @@ api_service_name: 'accesscontextmanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ServicePerimeter'
 fields:
-  - field: 'access_policy_id'
-  - field: 'etag'
+  - api_field: 'accessPolicyId'
+  - api_field: 'etag'
   - field: 'perimeter_name'
     provider_only: true
-  - field: 'resource'
+  - api_field: 'resource'

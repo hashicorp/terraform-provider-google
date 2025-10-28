@@ -581,6 +581,9 @@ func expandVmwareengineNetworkPolicyVmwareEngineNetwork(v interface{}, d tpgreso
 }
 
 func expandVmwareengineNetworkPolicyInternetAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -615,6 +618,9 @@ func expandVmwareengineNetworkPolicyInternetAccessState(v interface{}, d tpgreso
 }
 
 func expandVmwareengineNetworkPolicyExternalIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

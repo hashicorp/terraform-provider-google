@@ -653,6 +653,97 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 `, context)
 }
 
+func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2WorkerPoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_worker_pool.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "custom_test" {
+  name                    = "tf-test-wp-net%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "custom_test" {
+  name          = "tf-test-wp-subnet%{random_suffix}"
+  ip_cidr_range = "10.2.0.0/28"
+  region        = "us-central1"
+  network       = google_compute_network.custom_test.id
+}
+
+resource "google_cloud_run_v2_worker_pool" "default" {
+  name                = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  location            = "us-central1"
+  launch_stage        = "BETA"
+  deletion_protection = false
+
+  template {
+    annotations = {}
+    labels      = {}
+
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+
+      command    = []
+      args       = []
+
+      startup_probe {
+        initial_delay_seconds = 0
+        timeout_seconds       = 1
+        period_seconds        = 3
+        failure_threshold     = 3
+
+        tcp_socket {
+          port = 8080
+        }
+      }
+
+      liveness_probe {
+        initial_delay_seconds = 0
+        timeout_seconds       = 1
+        period_seconds        = 10
+        failure_threshold     = 3
+
+        http_get {
+          path = "/"
+          port = 8080
+        }
+      }
+    }
+
+    vpc_access {
+      network_interfaces {
+        network    = google_compute_network.custom_test.id
+        subnetwork = google_compute_subnetwork.custom_test.id
+        tags       = []
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckCloudRunV2WorkerPoolDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

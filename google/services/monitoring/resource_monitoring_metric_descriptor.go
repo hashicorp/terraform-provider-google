@@ -687,6 +687,9 @@ func expandMonitoringMetricDescriptorType(v interface{}, d tpgresource.Terraform
 
 func expandMonitoringMetricDescriptorLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -755,6 +758,9 @@ func expandMonitoringMetricDescriptorDisplayName(v interface{}, d tpgresource.Te
 }
 
 func expandMonitoringMetricDescriptorMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

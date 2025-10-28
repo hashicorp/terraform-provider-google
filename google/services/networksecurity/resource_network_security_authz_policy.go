@@ -174,9 +174,28 @@ Limited to 5 rules.`,
 									"not_sources": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Describes the properties of a request's sources. At least one of sources or notSources must be specified. Limited to 5 sources. A match occurs when ANY source (in sources or notSources) matches the request. Within a single source, the match follows AND semantics across fields and OR semantics within a single field, i.e. a match occurs when ANY principal matches AND ANY ipBlocks match.`,
+										Description: `Describes the negated properties of request sources. Matches requests from sources that do not match the criteria specified in this field. At least one of sources or notSources must be specified. Limited to 1 not_source.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"ip_blocks": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `A list of IP addresses or IP address ranges to match against the source IP address of the request. Limited to 10 ipBlocks per Authorization Policy`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"length": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: `The length of the address range.`,
+															},
+															"prefix": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The address prefix.`,
+															},
+														},
+													},
+												},
 												"principals": {
 													Type:     schema.TypeList,
 													Optional: true,
@@ -185,15 +204,17 @@ Limited to 5 principals.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"contains": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:       schema.TypeString,
+																Optional:   true,
+																Deprecated: "`principals.contains` is deprecated and will be removed in a future major release. Use `principals.principal.contains` instead.",
 																Description: `The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
 Examples:
 * abc matches the value xyz.abc.def`,
 															},
 															"exact": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:       schema.TypeString,
+																Optional:   true,
+																Deprecated: "`principals.exact` is deprecated and will be removed in a future major release. Use `principals.principal.exact` instead.",
 																Description: `The input string must match exactly the string specified here.
 Examples:
 * abc only matches the value abc.`,
@@ -201,18 +222,72 @@ Examples:
 															"ignore_case": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																Deprecated:  "`principals.ignore_case` is deprecated and will be removed in a future major release. Use `principals.principal.ignore_case` instead.",
 																Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
 															},
 															"prefix": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:       schema.TypeString,
+																Optional:   true,
+																Deprecated: "`principals.prefix` is deprecated and will be removed in a future major release. Use `principals.principal.prefix` instead.",
 																Description: `The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
 Examples:
 * abc matches the value abc.xyz`,
 															},
-															"suffix": {
-																Type:     schema.TypeString,
+															"principal": {
+																Type:     schema.TypeList,
 																Optional: true,
+																Description: `Required. A non-empty string whose value is matched against the principal value based on the principalSelector.
+Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SAN, CLIENT_CERT_COMMON_NAME selectors.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"contains": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc.def`,
+																		},
+																		"exact": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must match exactly the string specified here.
+Examples:
+* abc only matches the value abc.`,
+																		},
+																		"ignore_case": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
+																		},
+																		"prefix": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value abc.xyz`,
+																		},
+																		"suffix": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc`,
+																		},
+																	},
+																},
+															},
+															"principal_selector": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME", ""}),
+																Description:  `An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN. Default value: "CLIENT_CERT_URI_SAN" Possible values: ["PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME"]`,
+																Default:      "CLIENT_CERT_URI_SAN",
+															},
+															"suffix": {
+																Type:       schema.TypeString,
+																Optional:   true,
+																Deprecated: "`principals.suffix` is deprecated and will be removed in a future major release. Use `principals.principal.suffix` instead.",
 																Description: `The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
 Examples:
 * abc matches the value xyz.abc`,
@@ -298,9 +373,28 @@ Limited to 5 matches.`,
 									"sources": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Describes the properties of a request's sources. At least one of sources or notSources must be specified. Limited to 5 sources. A match occurs when ANY source (in sources or notSources) matches the request. Within a single source, the match follows AND semantics across fields and OR semantics within a single field, i.e. a match occurs when ANY principal matches AND ANY ipBlocks match.`,
+										Description: `Describes the properties of a request's sources. At least one of sources or notSources must be specified. Limited to 1 source. A match occurs when ANY source (in sources or notSources) matches the request. Within a single source, the match follows AND semantics across fields and OR semantics within a single field, i.e. a match occurs when ANY principal matches AND ANY ipBlocks match.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"ip_blocks": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `A list of IP addresses or IP address ranges to match against the source IP address of the request. Limited to 10 ipBlocks per Authorization Policy`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"length": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: `The length of the address range.`,
+															},
+															"prefix": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The address prefix.`,
+															},
+														},
+													},
+												},
 												"principals": {
 													Type:     schema.TypeList,
 													Optional: true,
@@ -309,15 +403,17 @@ Limited to 5 principals.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"contains": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:       schema.TypeString,
+																Optional:   true,
+																Deprecated: "`principals.contains` is deprecated and will be removed in a future major release. Use `principals.principal.contains` instead.",
 																Description: `The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
 Examples:
 * abc matches the value xyz.abc.def`,
 															},
 															"exact": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:       schema.TypeString,
+																Optional:   true,
+																Deprecated: "`principals.exact` is deprecated and will be removed in a future major release. Use `principals.principal.exact` instead.",
 																Description: `The input string must match exactly the string specified here.
 Examples:
 * abc only matches the value abc.`,
@@ -325,18 +421,72 @@ Examples:
 															"ignore_case": {
 																Type:        schema.TypeBool,
 																Optional:    true,
+																Deprecated:  "`principals.ignore_case` is deprecated and will be removed in a future major release. Use `principals.principal.ignore_case` instead.",
 																Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
 															},
 															"prefix": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:       schema.TypeString,
+																Optional:   true,
+																Deprecated: "`principals.prefix` is deprecated and will be removed in a future major release. Use `principals.principal.prefix` instead.",
 																Description: `The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
 Examples:
 * abc matches the value abc.xyz`,
 															},
-															"suffix": {
-																Type:     schema.TypeString,
+															"principal": {
+																Type:     schema.TypeList,
 																Optional: true,
+																Description: `Required. A non-empty string whose value is matched against the principal value based on the principalSelector.
+Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SAN, CLIENT_CERT_COMMON_NAME selectors.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"contains": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc.def`,
+																		},
+																		"exact": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must match exactly the string specified here.
+Examples:
+* abc only matches the value abc.`,
+																		},
+																		"ignore_case": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
+																		},
+																		"prefix": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value abc.xyz`,
+																		},
+																		"suffix": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc`,
+																		},
+																	},
+																},
+															},
+															"principal_selector": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME", ""}),
+																Description:  `An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN. Default value: "CLIENT_CERT_URI_SAN" Possible values: ["PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME"]`,
+																Default:      "CLIENT_CERT_URI_SAN",
+															},
+															"suffix": {
+																Type:       schema.TypeString,
+																Optional:   true,
+																Deprecated: "`principals.suffix` is deprecated and will be removed in a future major release. Use `principals.principal.suffix` instead.",
 																Description: `The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
 Examples:
 * abc matches the value xyz.abc`,
@@ -432,7 +582,7 @@ Limited to 5 matches.`,
 									"not_operations": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Describes the negated properties of the targets of a request. Matches requests for operations that do not match the criteria specified in this field. At least one of operations or notOperations must be specified.`,
+										Description: `Describes the negated properties of the targets of a request. Matches requests for operations that do not match the criteria specified in this field. At least one of operations or notOperations must be specified. Limited to 1 not_operation.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"header_set": {
@@ -445,7 +595,7 @@ Limited to 5 matches.`,
 															"headers": {
 																Type:        schema.TypeList,
 																Optional:    true,
-																Description: `A list of headers to match against in http header. The match can be one of exact, prefix, suffix, or contains (substring match). The match follows AND semantics which means all the headers must match. Matches are always case sensitive unless the ignoreCase is set. Limited to 5 matches.`,
+																Description: `A list of headers to match against in http header. The match can be one of exact, prefix, suffix, or contains (substring match). The match follows AND semantics which means all the headers must match. Matches are always case sensitive unless the ignoreCase is set. Limited to 10 matches.`,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"name": {
@@ -506,7 +656,7 @@ Examples:
 													Type:     schema.TypeList,
 													Optional: true,
 													Description: `A list of HTTP Hosts to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
-Limited to 5 matches.`,
+Limited to 10 matches.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"contains": {
@@ -557,7 +707,7 @@ Examples:
 													Type:     schema.TypeList,
 													Optional: true,
 													Description: `A list of paths to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
-Limited to 5 matches.
+Limited to 10 matches.
 Note that this path match includes the query parameters. For gRPC services, this should be a fully-qualified name of the form /package.service/method.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -603,7 +753,7 @@ Examples:
 									"operations": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 5 operations. A match occurs when ANY operation (in operations or notOperations) matches. Within an operation, the match follows AND semantics across fields and OR semantics within a field, i.e. a match occurs when ANY path matches AND ANY header matches and ANY method matches.`,
+										Description: `Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 1 operation. A match occurs when ANY operation (in operations or notOperations) matches. Within an operation, the match follows AND semantics across fields and OR semantics within a field, i.e. a match occurs when ANY path matches AND ANY header matches and ANY method matches.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"header_set": {
@@ -616,7 +766,7 @@ Examples:
 															"headers": {
 																Type:        schema.TypeList,
 																Optional:    true,
-																Description: `A list of headers to match against in http header. The match can be one of exact, prefix, suffix, or contains (substring match). The match follows AND semantics which means all the headers must match. Matches are always case sensitive unless the ignoreCase is set. Limited to 5 matches.`,
+																Description: `A list of headers to match against in http header. The match can be one of exact, prefix, suffix, or contains (substring match). The match follows AND semantics which means all the headers must match. Matches are always case sensitive unless the ignoreCase is set. Limited to 10 matches.`,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"name": {
@@ -677,7 +827,7 @@ Examples:
 													Type:     schema.TypeList,
 													Optional: true,
 													Description: `A list of HTTP Hosts to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
-Limited to 5 matches.`,
+Limited to 10 matches.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"contains": {
@@ -728,7 +878,7 @@ Examples:
 													Type:     schema.TypeList,
 													Optional: true,
 													Description: `A list of paths to match against. The match can be one of exact, prefix, suffix, or contains (substring match). Matches are always case sensitive unless the ignoreCase is set.
-Limited to 5 matches.
+Limited to 10 matches.
 Note that this path match includes the query parameters. For gRPC services, this should be a fully-qualified name of the form /package.service/method.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -1325,12 +1475,53 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromSources(v interface{}, d *sch
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
+			"ip_blocks":  flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocks(original["ipBlocks"], d, config),
 			"principals": flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipals(original["principals"], d, config),
 			"resources":  flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesResources(original["resources"], d, config),
 		})
 	}
 	return transformed
 }
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"prefix": flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocksPrefix(original["prefix"], d, config),
+			"length": flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocksLength(original["length"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocksPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocksLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipals(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1344,15 +1535,62 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipals(v interface
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"ignore_case": flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsIgnoreCase(original["ignoreCase"], d, config),
-			"exact":       flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsExact(original["exact"], d, config),
-			"prefix":      flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrefix(original["prefix"], d, config),
-			"suffix":      flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsSuffix(original["suffix"], d, config),
-			"contains":    flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsContains(original["contains"], d, config),
+			"principal_selector": flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalSelector(original["principalSelector"], d, config),
+			"principal":          flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipal(original["principal"], d, config),
+			"ignore_case":        flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsIgnoreCase(original["ignoreCase"], d, config),
+			"exact":              flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsExact(original["exact"], d, config),
+			"prefix":             flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrefix(original["prefix"], d, config),
+			"suffix":             flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsSuffix(original["suffix"], d, config),
+			"contains":           flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsContains(original["contains"], d, config),
 		})
 	}
 	return transformed
 }
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalSelector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ignore_case"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalIgnoreCase(original["ignoreCase"], d, config)
+	transformed["exact"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalExact(original["exact"], d, config)
+	transformed["prefix"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalPrefix(original["prefix"], d, config)
+	transformed["suffix"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalSuffix(original["suffix"], d, config)
+	transformed["contains"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalContains(original["contains"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalSuffix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalContains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1463,12 +1701,53 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSources(v interface{}, d *
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
+			"ip_blocks":  flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocks(original["ipBlocks"], d, config),
 			"principals": flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipals(original["principals"], d, config),
 			"resources":  flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesResources(original["resources"], d, config),
 		})
 	}
 	return transformed
 }
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"prefix": flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocksPrefix(original["prefix"], d, config),
+			"length": flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocksLength(original["length"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocksPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocksLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipals(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1482,15 +1761,62 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipals(v interf
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"ignore_case": flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsIgnoreCase(original["ignoreCase"], d, config),
-			"exact":       flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsExact(original["exact"], d, config),
-			"prefix":      flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrefix(original["prefix"], d, config),
-			"suffix":      flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsSuffix(original["suffix"], d, config),
-			"contains":    flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsContains(original["contains"], d, config),
+			"principal_selector": flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalSelector(original["principalSelector"], d, config),
+			"principal":          flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipal(original["principal"], d, config),
+			"ignore_case":        flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsIgnoreCase(original["ignoreCase"], d, config),
+			"exact":              flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsExact(original["exact"], d, config),
+			"prefix":             flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrefix(original["prefix"], d, config),
+			"suffix":             flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsSuffix(original["suffix"], d, config),
+			"contains":           flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsContains(original["contains"], d, config),
 		})
 	}
 	return transformed
 }
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalSelector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ignore_case"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalIgnoreCase(original["ignoreCase"], d, config)
+	transformed["exact"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalExact(original["exact"], d, config)
+	transformed["prefix"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalPrefix(original["prefix"], d, config)
+	transformed["suffix"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalSuffix(original["suffix"], d, config)
+	transformed["contains"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalContains(original["contains"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalSuffix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalContains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2055,6 +2381,9 @@ func expandNetworkSecurityAuthzPolicyDescription(v interface{}, d tpgresource.Te
 }
 
 func expandNetworkSecurityAuthzPolicyTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2089,6 +2418,9 @@ func expandNetworkSecurityAuthzPolicyTargetResources(v interface{}, d tpgresourc
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2125,6 +2457,9 @@ func expandNetworkSecurityAuthzPolicyHttpRules(v interface{}, d tpgresource.Terr
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2151,6 +2486,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFrom(v interface{}, d tpgresource.
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2159,6 +2497,13 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromSources(v interface{}, d tpgre
 		}
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
+
+		transformedIpBlocks, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocks(original["ip_blocks"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpBlocks); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipBlocks"] = transformedIpBlocks
+		}
 
 		transformedPrincipals, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipals(original["principals"], d, config)
 		if err != nil {
@@ -2179,7 +2524,10 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromSources(v interface{}, d tpgre
 	return req, nil
 }
 
-func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipals(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2188,6 +2536,60 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipals(v interface{
 		}
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
+
+		transformedPrefix, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocksPrefix(original["prefix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["prefix"] = transformedPrefix
+		}
+
+		transformedLength, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocksLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocksPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocksLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipals(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPrincipalSelector, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalSelector(original["principal_selector"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipalSelector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principalSelector"] = transformedPrincipalSelector
+		}
+
+		transformedPrincipal, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipal(original["principal"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipal); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principal"] = transformedPrincipal
+		}
 
 		transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsIgnoreCase(original["ignore_case"], d, config)
 		if err != nil {
@@ -2229,6 +2631,80 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipals(v interface{
 	return req, nil
 }
 
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipal(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalIgnoreCase(original["ignore_case"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ignoreCase"] = transformedIgnoreCase
+	}
+
+	transformedExact, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalExact(original["exact"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exact"] = transformedExact
+	}
+
+	transformedPrefix, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalPrefix(original["prefix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["prefix"] = transformedPrefix
+	}
+
+	transformedSuffix, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalSuffix(original["suffix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSuffix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["suffix"] = transformedSuffix
+	}
+
+	transformedContains, err := expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalContains(original["contains"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["contains"] = transformedContains
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalSuffix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsPrincipalContains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2250,6 +2726,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipalsContains(v in
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2279,6 +2758,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesResources(v interface{}
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesResourcesTagValueIdSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2302,6 +2784,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesResourcesTagValueIdSetI
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesResourcesIamServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2369,6 +2854,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromSourcesResourcesIamServiceAcco
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2377,6 +2865,13 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSources(v interface{}, d tp
 		}
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
+
+		transformedIpBlocks, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocks(original["ip_blocks"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpBlocks); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipBlocks"] = transformedIpBlocks
+		}
 
 		transformedPrincipals, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipals(original["principals"], d, config)
 		if err != nil {
@@ -2397,7 +2892,10 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSources(v interface{}, d tp
 	return req, nil
 }
 
-func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipals(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2406,6 +2904,60 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipals(v interfa
 		}
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
+
+		transformedPrefix, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocksPrefix(original["prefix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["prefix"] = transformedPrefix
+		}
+
+		transformedLength, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocksLength(original["length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLength); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["length"] = transformedLength
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocksPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocksLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipals(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPrincipalSelector, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalSelector(original["principal_selector"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipalSelector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principalSelector"] = transformedPrincipalSelector
+		}
+
+		transformedPrincipal, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipal(original["principal"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrincipal); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["principal"] = transformedPrincipal
+		}
 
 		transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsIgnoreCase(original["ignore_case"], d, config)
 		if err != nil {
@@ -2447,6 +2999,80 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipals(v interfa
 	return req, nil
 }
 
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipal(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalIgnoreCase(original["ignore_case"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ignoreCase"] = transformedIgnoreCase
+	}
+
+	transformedExact, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalExact(original["exact"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exact"] = transformedExact
+	}
+
+	transformedPrefix, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalPrefix(original["prefix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["prefix"] = transformedPrefix
+	}
+
+	transformedSuffix, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalSuffix(original["suffix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSuffix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["suffix"] = transformedSuffix
+	}
+
+	transformedContains, err := expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalContains(original["contains"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["contains"] = transformedContains
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalSuffix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsPrincipalContains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2468,6 +3094,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipalsContains(v
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2497,6 +3126,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesResources(v interfac
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesResourcesTagValueIdSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2520,6 +3152,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesResourcesTagValueIdS
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesResourcesIamServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2587,6 +3222,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesResourcesIamServiceA
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2613,6 +3251,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesTo(v interface{}, d tpgresource.Te
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2656,6 +3297,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToOperations(v interface{}, d tpgr
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsHeaderSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2675,6 +3319,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsHeaderSet(v interface{
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsHeaderSetHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2708,6 +3355,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsHeaderSetHeadersName(v
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsHeaderSetHeadersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2775,6 +3425,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsHeaderSetHeadersValueC
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsHosts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2845,6 +3498,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsHostsContains(v interf
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsPaths(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2919,6 +3575,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMethods(v interface{},
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2962,6 +3621,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperations(v interface{}, d t
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHeaderSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2981,6 +3643,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHeaderSet(v interfa
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHeaderSetHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3014,6 +3679,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHeaderSetHeadersNam
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHeaderSetHeadersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3081,6 +3749,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHeaderSetHeadersVal
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHosts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3151,6 +3822,9 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHostsContains(v int
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToNotOperationsPaths(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3233,6 +3907,9 @@ func expandNetworkSecurityAuthzPolicyAction(v interface{}, d tpgresource.Terrafo
 }
 
 func expandNetworkSecurityAuthzPolicyCustomProvider(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3276,6 +3953,9 @@ func expandNetworkSecurityAuthzPolicyCustomProviderCloudIap(v interface{}, d tpg
 }
 
 func expandNetworkSecurityAuthzPolicyCustomProviderAuthzExtension(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

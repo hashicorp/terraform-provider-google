@@ -78,6 +78,48 @@ resource "google_dialogflow_conversation_profile" "basic_profile" {
 `, context)
 }
 
+func TestAccDialogflowConversationProfile_dialogflowConversationProfileRecognitionResultNotificationExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowConversationProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowConversationProfile_dialogflowConversationProfileRecognitionResultNotificationExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_conversation_profile.recognition_result_notification_profile",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "logging_config"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowConversationProfile_dialogflowConversationProfileRecognitionResultNotificationExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_conversation_profile" "recognition_result_notification_profile" {
+  display_name = "tf-test-dialogflow-profile%{random_suffix}"
+  location = "global"
+  new_recognition_result_notification_config {
+    topic = google_pubsub_topic.recognition_result_notification_profile.id
+    message_format =  "JSON"
+  }
+}
+
+resource "google_pubsub_topic" "recognition_result_notification_profile" {
+  name = "tf-test-recognition-result-notification%{random_suffix}"
+}
+`, context)
+}
+
 func testAccCheckDialogflowConversationProfileDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

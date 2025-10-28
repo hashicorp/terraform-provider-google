@@ -8,10 +8,10 @@ api_variant_patterns:
   - 'projects/{project}/locations/{location}/hostProjectRegistrations/{hostproject}'
 autogen_status: true
 fields:
-  - field: 'create_time'
-  - field: 'gcp_project'
+  - api_field: 'createTime'
+  - api_field: 'gcpProject'
   - field: 'host_project_registration_id'
     provider_only: true
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'

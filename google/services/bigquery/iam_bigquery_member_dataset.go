@@ -81,8 +81,12 @@ func NewBigqueryDatasetIamMemberUpdater(d tpgresource.TerraformResourceData, con
 	}, nil
 }
 
+func (u *BigqueryDatasetIamMemberUpdater) policyURL() string {
+	return fmt.Sprintf("%s%s?accessPolicyVersion=3", u.Config.BigQueryBasePath, u.GetResourceId())
+}
+
 func (u *BigqueryDatasetIamMemberUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := fmt.Sprintf("%s%s", u.Config.BigQueryBasePath, u.GetResourceId())
+	url := u.policyURL()
 
 	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
@@ -108,7 +112,7 @@ func (u *BigqueryDatasetIamMemberUpdater) GetResourceIamPolicy() (*cloudresource
 }
 
 func GetCurrentResourceAccess(u *BigqueryDatasetIamMemberUpdater) ([]interface{}, error) {
-	url := fmt.Sprintf("%s%s", u.Config.BigQueryBasePath, u.GetResourceId())
+	url := u.policyURL()
 
 	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
@@ -157,7 +161,7 @@ func mergeAccess(newAccess []map[string]interface{}, currAccess []interface{}) [
 }
 
 func (u *BigqueryDatasetIamMemberUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
-	url := fmt.Sprintf("%s%s", u.Config.BigQueryBasePath, u.GetResourceId())
+	url := u.policyURL()
 
 	newAccess, err := policyToAccessForIamMember(policy)
 	if err != nil {
@@ -199,7 +203,7 @@ func accessToPolicyForIamMember(access interface{}) (*cloudresourcemanager.Polic
 	if access == nil {
 		return nil, nil
 	}
-	roleToBinding := make(map[string]*cloudresourcemanager.Binding)
+	roleToBinding := make(map[iamBindingKey]*cloudresourcemanager.Binding)
 
 	accessArr := access.([]interface{})
 	for _, v := range accessArr {
@@ -219,16 +223,29 @@ func accessToPolicyForIamMember(access interface{}) (*cloudresourcemanager.Polic
 		if err != nil {
 			return nil, err
 		}
-		// We have to combine bindings manually
-		binding, ok := roleToBinding[role]
+
+		var condition *cloudresourcemanager.Expr
+		if rawCondition, ok := memberRole["condition"]; ok {
+			conditionMap := rawCondition.(map[string]interface{})
+			expr := conditionMap["expression"].(string)
+			condition = &cloudresourcemanager.Expr{Expression: expr}
+			if title, ok := conditionMap["title"].(string); ok {
+				condition.Title = title
+			}
+			if desc, ok := conditionMap["description"].(string); ok {
+				condition.Description = desc
+			}
+		}
+
+		key := iamBindingKey{Role: role, Condition: conditionKeyFromCondition(condition)}
+		binding, ok := roleToBinding[key]
 		if !ok {
-			binding = &cloudresourcemanager.Binding{Role: role, Members: []string{}}
+			binding = &cloudresourcemanager.Binding{Role: role, Members: []string{}, Condition: condition}
 		}
 		binding.Members = append(binding.Members, member)
-
-		roleToBinding[role] = binding
+		roleToBinding[key] = binding
 	}
-	bindings := make([]*cloudresourcemanager.Binding, 0)
+	bindings := make([]*cloudresourcemanager.Binding, 0, len(roleToBinding))
 	for _, v := range roleToBinding {
 		bindings = append(bindings, v)
 	}
@@ -242,9 +259,6 @@ func policyToAccessForIamMember(policy *cloudresourcemanager.Policy) ([]map[stri
 		return nil, errors.New("Access policies not allowed on BigQuery Dataset IAM policies")
 	}
 	for _, binding := range policy.Bindings {
-		if binding.Condition != nil {
-			return nil, errors.New("IAM conditions not allowed on BigQuery Dataset IAM")
-		}
 		if fullRole, ok := bigqueryIamMemberAccessPrimitiveToRoleMap[binding.Role]; ok {
 			return nil, fmt.Errorf("BigQuery Dataset legacy role %s is not allowed when using google_bigquery_dataset_iam resources. Please use the full form: %s", binding.Role, fullRole)
 		}
@@ -255,6 +269,9 @@ func policyToAccessForIamMember(policy *cloudresourcemanager.Policy) ([]map[stri
 			}
 			access := map[string]interface{}{
 				"role": binding.Role,
+			}
+			if binding.Condition != nil {
+				access["condition"] = binding.Condition
 			}
 			memberType, member, err := iamMemberToAccessForIamMember(member)
 			if err != nil {
@@ -324,11 +341,14 @@ func accessToIamMemberForIamMember(access map[string]interface{}) (string, error
 		return "", fmt.Errorf("Failed to convert BigQuery Dataset access to IAM member. To use views with a dataset, please use dataset_access")
 	}
 	if member, ok := access["userByEmail"]; ok {
-		// service accounts have "gservice" in their email. This is best guess due to lost information
-		if strings.Contains(member.(string), "gserviceaccount") {
-			return fmt.Sprintf("serviceAccount:%s", member.(string)), nil
+		ms := member.(string)
+		if strings.HasPrefix(ms, "deleted:") || strings.Contains(ms, "?uid=") {
+			return ms, nil
 		}
-		return fmt.Sprintf("user:%s", member.(string)), nil
+		if strings.Contains(ms, "gserviceaccount") {
+			return fmt.Sprintf("serviceAccount:%s", ms), nil
+		}
+		return fmt.Sprintf("user:%s", ms), nil
 	}
 	return "", fmt.Errorf("Failed to identify IAM member from BigQuery Dataset access: %v", access)
 }

@@ -39,7 +39,7 @@ func TestAccDataSourceGoogleStorageBucket_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleStorageBucketConfig(context),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_storage_bucket.bar", "google_storage_bucket.foo", map[string]struct{}{"force_destroy": {}}),
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_storage_bucket.bar", "google_storage_bucket.foo", []string{"force_destroy"}),
 				),
 			},
 		},
@@ -71,7 +71,7 @@ func TestAccDataSourceGoogleStorageBucket_avoidComputeAPI(t *testing.T) {
 				Config: testAccDataSourceGoogleStorageBucketConfig_setProjectInConfig(context),
 				Check: resource.ComposeTestCheckFunc(
 					// We ignore project to show that the project argument on the data source is retained and isn't impacted
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_storage_bucket.bar", "google_storage_bucket.foo", map[string]struct{}{"force_destroy": {}, "project": {}}),
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_storage_bucket.bar", "google_storage_bucket.foo", []string{"force_destroy", "project"}),
 
 					resource.TestCheckResourceAttrSet(
 						"google_storage_bucket.foo", "project_number"),

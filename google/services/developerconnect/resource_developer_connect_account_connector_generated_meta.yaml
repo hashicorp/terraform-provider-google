@@ -8,19 +8,19 @@ autogen_status: true
 fields:
   - field: 'account_connector_id'
     provider_only: true
-  - field: 'annotations'
-  - field: 'create_time'
+  - api_field: 'annotations'
+  - api_field: 'createTime'
   - field: 'effective_annotations'
     provider_only: true
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'oauth_start_uri'
-  - field: 'provider_oauth_config.scopes'
-  - field: 'provider_oauth_config.system_provider_id'
+  - api_field: 'name'
+  - api_field: 'oauthStartUri'
+  - api_field: 'providerOauthConfig.scopes'
+  - api_field: 'providerOauthConfig.systemProviderId'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

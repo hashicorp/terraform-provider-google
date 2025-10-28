@@ -7,22 +7,22 @@ api_resource_type_kind: 'NodePool'
 fields:
   - field: 'cluster'
     provider_only: true
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
-  - field: 'local_disk_encryption.kms_key'
-  - field: 'local_disk_encryption.kms_key_active_version'
-  - field: 'local_disk_encryption.kms_key_state'
+  - api_field: 'labels'
+  - api_field: 'localDiskEncryption.kmsKey'
+  - api_field: 'localDiskEncryption.kmsKeyActiveVersion'
+  - api_field: 'localDiskEncryption.kmsKeyState'
   - field: 'location'
     provider_only: true
-  - field: 'machine_filter'
+  - api_field: 'machineFilter'
   - field: 'name'
     provider_only: true
-  - field: 'node_config.labels'
-  - field: 'node_count'
-  - field: 'node_location'
-  - field: 'node_version'
+  - api_field: 'nodeConfig.labels'
+  - api_field: 'nodeCount'
+  - api_field: 'nodeLocation'
+  - api_field: 'nodeVersion'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

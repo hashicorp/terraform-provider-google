@@ -7,15 +7,15 @@ api_resource_type_kind: 'CmekConfig'
 fields:
   - field: 'cmek_config_id'
     provider_only: true
-  - field: 'is_default'
-  - field: 'kms_key'
-  - field: 'kms_key_version'
-  - field: 'last_rotation_timestamp_micros'
+  - api_field: 'isDefault'
+  - api_field: 'kmsKey'
+  - api_field: 'kmsKeyVersion'
+  - api_field: 'lastRotationTimestampMicros'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'notebooklm_state'
+  - api_field: 'name'
+  - api_field: 'notebooklmState'
   - field: 'set_default'
     provider_only: true
-  - field: 'single_region_keys.kms_key'
-  - field: 'state'
+  - api_field: 'singleRegionKeys.kmsKey'
+  - api_field: 'state'

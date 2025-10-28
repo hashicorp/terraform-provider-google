@@ -84,6 +84,17 @@ func ResourceAppEngineApplication() *schema.Resource {
 				Computed:    true,
 				Description: `The serving status of the app.`,
 			},
+			"ssl_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"SSL_POLICY_UNSPECIFIED",
+					"DEFAULT",
+					"MODERN",
+				}, false),
+				Computed:    true,
+				Description: `The SSL policy that will be applied to the application. If set to Modern it will restrict traffic with TLS \u003c 1.2 and allow only Modern Ciphers suite`,
+			},
 			"database_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -296,6 +307,9 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("serving_status", app.ServingStatus); err != nil {
 		return fmt.Errorf("Error setting serving_status: %s", err)
 	}
+	if err := d.Set("ssl_policy", app.SslPolicy); err != nil {
+		return fmt.Errorf("Error setting ssl_policy: %s", err)
+	}
 	if err := d.Set("gcr_domain", app.GcrDomain); err != nil {
 		return fmt.Errorf("Error setting gcr_domain: %s", err)
 	}
@@ -380,6 +394,7 @@ func expandAppEngineApplication(d *schema.ResourceData, project string) (*appeng
 		GcrDomain:     d.Get("gcr_domain").(string),
 		DatabaseType:  d.Get("database_type").(string),
 		ServingStatus: d.Get("serving_status").(string),
+		SslPolicy:     d.Get("ssl_policy").(string),
 	}
 	featureSettings, err := expandAppEngineApplicationFeatureSettings(d)
 	if err != nil {

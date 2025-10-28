@@ -695,6 +695,7 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
 
   instance_lifecycle_policy {
     force_update_on_repair = "YES"
+
     default_action_on_failure = "DO_NOTHING"
   }
 }
@@ -780,6 +781,9 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
   region                         = "us-central1"
   target_size                    = 3
   list_managed_instances_results = "PAGINATED"
+
+  distribution_policy_target_shape = "ANY"
+
   named_port {
     name = "customhttp"
     port = 8080
@@ -799,8 +803,8 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
   }
 
   instance_lifecycle_policy {
-    force_update_on_repair = "NO"
     default_action_on_failure = "REPAIR"
+    force_update_on_repair = "NO"
 
   }
 }

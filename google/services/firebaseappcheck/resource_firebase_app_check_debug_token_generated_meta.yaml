@@ -7,7 +7,7 @@ api_resource_type_kind: 'DebugToken'
 fields:
   - field: 'app_id'
     provider_only: true
-  - field: 'debug_token_id'
-    api_field: 'name'
-  - field: 'display_name'
-  - field: 'token'
+  - api_field: 'name'
+    field: 'debug_token_id'
+  - api_field: 'displayName'
+  - api_field: 'token'

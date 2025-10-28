@@ -674,6 +674,9 @@ func expandIAM3FoldersPolicyBindingDisplayName(v interface{}, d tpgresource.Terr
 }
 
 func expandIAM3FoldersPolicyBindingTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -705,6 +708,9 @@ func expandIAM3FoldersPolicyBindingPolicy(v interface{}, d tpgresource.Terraform
 }
 
 func expandIAM3FoldersPolicyBindingCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

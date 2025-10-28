@@ -611,6 +611,9 @@ func expandDatastreamPrivateConnectionDisplayName(v interface{}, d tpgresource.T
 }
 
 func expandDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -645,6 +648,9 @@ func expandDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d tp
 }
 
 func expandDatastreamPrivateConnectionPscInterfaceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

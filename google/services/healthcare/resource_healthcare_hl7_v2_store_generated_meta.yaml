@@ -9,17 +9,17 @@ fields:
     provider_only: true
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
-  - field: 'name'
-  - field: 'notification_config.pubsub_topic'
-  - field: 'notification_configs.filter'
-  - field: 'notification_configs.pubsub_topic'
-  - field: 'parser_config.allow_null_header'
-  - field: 'parser_config.schema'
+  - api_field: 'labels'
+  - api_field: 'name'
+  - api_field: 'notificationConfig.pubsubTopic'
+  - api_field: 'notificationConfigs.filter'
+  - api_field: 'notificationConfigs.pubsubTopic'
+  - api_field: 'parserConfig.allowNullHeader'
+  - api_field: 'parserConfig.schema'
     json: true
-  - field: 'parser_config.segment_terminator'
-  - field: 'parser_config.version'
-  - field: 'reject_duplicate_message'
-  - field: 'self_link'
+  - api_field: 'parserConfig.segmentTerminator'
+  - api_field: 'parserConfig.version'
+  - api_field: 'rejectDuplicateMessage'
+  - api_field: 'selfLink'
   - field: 'terraform_labels'
     provider_only: true

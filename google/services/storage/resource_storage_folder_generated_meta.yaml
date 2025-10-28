@@ -7,9 +7,10 @@ api_resource_type_kind: 'Folder'
 fields:
   - field: 'bucket'
     provider_only: true
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'force_destroy'
     provider_only: true
-  - field: 'metageneration'
-  - field: 'name'
-  - field: 'update_time'
+  - api_field: 'metageneration'
+  - api_field: 'name'
+  - api_field: 'updateTime'
+  - api_field: 'selfLink'

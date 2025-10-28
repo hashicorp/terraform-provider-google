@@ -105,7 +105,6 @@ lowercase letter, or digit, except the last character, which cannot be a dash.`,
 			"requested_link_count": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Target number of physical links in the link bundle, as requested by the customer.`,
 			},
 			"admin_enabled": {
@@ -820,6 +819,12 @@ func resourceComputeInterconnectUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	requestedLinkCountProp, err := expandComputeInterconnectRequestedLinkCount(d.Get("requested_link_count"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("requested_link_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, requestedLinkCountProp)) {
+		obj["requestedLinkCount"] = requestedLinkCountProp
+	}
 	adminEnabledProp, err := expandComputeInterconnectAdminEnabled(d.Get("admin_enabled"), d, config)
 	if err != nil {
 		return err
@@ -1360,6 +1365,9 @@ func expandComputeInterconnectLabelFingerprint(v interface{}, d tpgresource.Terr
 }
 
 func expandComputeInterconnectMacsec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1386,6 +1394,9 @@ func expandComputeInterconnectMacsec(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandComputeInterconnectMacsecPreSharedKeys(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

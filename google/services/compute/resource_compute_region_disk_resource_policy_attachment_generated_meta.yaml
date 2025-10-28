@@ -7,6 +7,6 @@ api_resource_type_kind: 'Disk'
 fields:
   - field: 'disk'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'region'
     provider_only: true

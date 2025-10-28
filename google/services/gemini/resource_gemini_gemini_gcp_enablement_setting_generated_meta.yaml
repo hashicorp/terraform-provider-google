@@ -6,18 +6,18 @@ api_version: 'v1'
 api_resource_type_kind: 'GeminiGcpEnablementSetting'
 autogen_status: true
 fields:
-  - field: 'create_time'
-  - field: 'disable_web_grounding'
+  - api_field: 'createTime'
+  - api_field: 'disableWebGrounding'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'enable_customer_data_sharing'
+  - api_field: 'enableCustomerDataSharing'
   - field: 'gemini_gcp_enablement_setting_id'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
-  - field: 'web_grounding_type'
+  - api_field: 'updateTime'
+  - api_field: 'webGroundingType'

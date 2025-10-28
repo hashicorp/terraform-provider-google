@@ -6,17 +6,17 @@ api_version: 'v1'
 api_resource_type_kind: 'DataSharingWithGoogleSetting'
 autogen_status: true
 fields:
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'data_sharing_with_google_setting_id'
     provider_only: true
   - field: 'effective_labels'
     provider_only: true
-  - field: 'enable_data_sharing'
-  - field: 'enable_preview_data_sharing'
-  - field: 'labels'
+  - api_field: 'enableDataSharing'
+  - api_field: 'enablePreviewDataSharing'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

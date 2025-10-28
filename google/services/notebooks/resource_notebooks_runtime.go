@@ -1646,6 +1646,9 @@ func flattenNotebooksRuntimeEffectiveLabels(v interface{}, d *schema.ResourceDat
 }
 
 func expandNotebooksRuntimeVirtualMachine(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1687,6 +1690,9 @@ func expandNotebooksRuntimeVirtualMachineInstanceId(v interface{}, d tpgresource
 }
 
 func expandNotebooksRuntimeVirtualMachineVirtualMachineConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1819,6 +1825,9 @@ func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigMachineType(v inter
 }
 
 func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDisk(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1935,6 +1944,9 @@ func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskIndex(v int
 }
 
 func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskInitializeParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2033,6 +2045,9 @@ func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigDataDiskType(v inte
 }
 
 func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigContainerImages(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2070,6 +2085,9 @@ func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigContainerImagesTag(
 }
 
 func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigEncryptionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2093,6 +2111,9 @@ func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigEncryptionConfigKms
 }
 
 func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigShieldedInstanceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2138,6 +2159,9 @@ func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigShieldedInstanceCon
 }
 
 func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigAcceleratorConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2229,6 +2253,9 @@ func expandNotebooksRuntimeVirtualMachineVirtualMachineConfigReservedIpRange(v i
 }
 
 func expandNotebooksRuntimeAccessConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2274,6 +2301,9 @@ func expandNotebooksRuntimeAccessConfigProxyUri(v interface{}, d tpgresource.Ter
 }
 
 func expandNotebooksRuntimeSoftwareConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2392,6 +2422,9 @@ func expandNotebooksRuntimeSoftwareConfigPostStartupScriptBehavior(v interface{}
 }
 
 func expandNotebooksRuntimeSoftwareConfigKernels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

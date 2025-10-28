@@ -128,7 +128,7 @@ type kmsCryptoKeyVersionId struct {
 }
 
 func (s *kmsCryptoKeyVersionId) cryptoKeyVersionId() string {
-	return fmt.Sprintf(s.Name)
+	return s.Name
 }
 
 func (s *kmsCryptoKeyVersionId) TerraformId() string {

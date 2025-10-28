@@ -155,6 +155,31 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPubsub(t *testing.T) {
 	})
 }
 
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDataplexCatalog(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_publishFindingsToDataplexCatalog(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.actions",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -529,6 +554,41 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerCreateWithTimespanConfigBi
 	})
 }
 
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerSaveToCloudStorage(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_inspectUpdateSaveToCloudStorage(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+			{
+				Config: testAccDataLossPreventionJobTrigger_inspectUpdateSaveToCloudStorageUpdate(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBasic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "basic" {
@@ -892,6 +952,43 @@ resource "google_data_loss_prevention_job_trigger" "pubsub" {
 			cloud_storage_options {
 				file_set {
 					url = "gs://mybucket/directory/"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_publishFindingsToDataplexCatalog(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "actions" {
+	parent = "projects/%{project}"
+	description = "Starting description"
+	display_name = "display"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			publish_findings_to_dataplex_catalog {}
+		}
+		storage_config {
+			big_query_options {
+				table_reference {
+					project_id = "project"
+					dataset_id = "dataset"
+					table_id = "table_to_scan"
+				}
+				rows_limit = 1000
+				sample_method = "RANDOM_START"
+				identifying_fields {
+					name = "field"
 				}
 			}
 		}
@@ -2837,6 +2934,80 @@ resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit_timespan"
 						dataset_id = "output"
 					}
 				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_inspectUpdateSaveToCloudStorage(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "basic" {
+	parent = "projects/%{project}"
+	description = "Starting description"
+	display_name = "display"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			save_findings {
+				output_config {
+					storage_path {
+						path = "gs://mybucket/save-path/"
+					}
+				}
+			}
+		}
+		storage_config {
+			cloud_storage_options {
+				file_set {
+					url = "gs://mybucket/directory/"
+				}
+				file_types = ["POWERPOINT", "EXCEL", "CSV", "TSV"]
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_inspectUpdateSaveToCloudStorageUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "basic" {
+	parent = "projects/%{project}"
+	description = "Starting description"
+	display_name = "display"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			save_findings {
+				output_config {
+					storage_path {
+						path = "gs://mybucket/save-path-updated/"
+					}
+				}
+			}
+		}
+		storage_config {
+			cloud_storage_options {
+				file_set {
+					url = "gs://mybucket/directory/"
+				}
+				file_types = ["POWERPOINT", "EXCEL", "CSV", "TSV"]
 			}
 		}
 	}
