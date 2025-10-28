@@ -503,7 +503,7 @@ func flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixs(v interface{},
 			"is_address":                flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsIsAddress(original["isAddress"], d, config),
 			"mode":                      flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsMode(original["mode"], d, config),
 			"allocatable_prefix_length": flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsAllocatablePrefixLength(original["allocatablePrefixLength"], d, config),
-			"delegatee_project":         flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsDelegateeProject(original["delegatee_project"], d, config),
+			"delegatee_project":         flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixsDelegateeProject(original["delegateeProject"], d, config),
 		})
 	}
 	return transformed
