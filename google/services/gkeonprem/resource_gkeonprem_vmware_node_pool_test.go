@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
@@ -46,6 +47,11 @@ func TestAccGkeonpremVmwareNodePool_vmwareNodePoolUpdate(t *testing.T) {
 			},
 			{
 				Config: testAccGkeonpremVmwareNodePool_vmwareNodePoolUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_gkeonprem_vmware_node_pool.nodepool", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_gkeonprem_vmware_node_pool.nodepool",
@@ -65,7 +71,7 @@ func testAccGkeonpremVmwareNodePool_vmwareNodePoolUpdateStart(context map[string
     location = "us-west1"
     admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
     description = "test cluster"
-    on_prem_version = "1.13.1-gke.35"
+    on_prem_version = "1.33.1-gke.35"
     annotations = {}
     network_config {
       service_address_cidr_blocks = ["10.96.0.0/12"]
@@ -105,6 +111,7 @@ func testAccGkeonpremVmwareNodePool_vmwareNodePoolUpdateStart(context map[string
     name = "tf-test-nodepool-%{random_suffix}"
     location = "us-west1"
     vmware_cluster = google_gkeonprem_vmware_cluster.cluster.name
+    on_prem_version = "1.33.1-gke.35"
     annotations = {
       env = "test"
     }
@@ -150,7 +157,7 @@ func testAccGkeonpremVmwareNodePool_vmwareNodePoolUpdate(context map[string]inte
     location = "us-west1"
     admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
     description = "test cluster"
-    on_prem_version = "1.13.1-gke.35"
+    on_prem_version = "1.33.1-gke.35"
     annotations = {}
     network_config {
       service_address_cidr_blocks = ["10.96.0.0/12"]

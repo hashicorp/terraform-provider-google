@@ -59,7 +59,7 @@ func TestAccEventarcChannel_eventarcChannelWithCmekExample(t *testing.T) {
 				ResourceName:            "google_eventarc_channel.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -95,7 +95,7 @@ func TestAccEventarcChannel_eventarcChannelExample(t *testing.T) {
 				ResourceName:            "google_eventarc_channel.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
 		},
 	})

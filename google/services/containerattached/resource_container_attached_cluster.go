@@ -1337,6 +1337,9 @@ func expandContainerAttachedClusterDescription(v interface{}, d tpgresource.Terr
 }
 
 func expandContainerAttachedClusterOidcConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1379,6 +1382,9 @@ func expandContainerAttachedClusterDistribution(v interface{}, d tpgresource.Ter
 }
 
 func expandContainerAttachedClusterFleet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1518,6 +1524,9 @@ func expandContainerAttachedClusterAuthorization(v interface{}, d tpgresource.Te
 }
 
 func expandContainerAttachedClusterMonitoringConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1542,6 +1551,9 @@ func expandContainerAttachedClusterMonitoringConfig(v interface{}, d tpgresource
 }
 
 func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1570,6 +1582,9 @@ func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnable
 }
 
 func expandContainerAttachedClusterBinaryAuthorization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1598,6 +1613,9 @@ func expandContainerAttachedClusterBinaryAuthorizationEvaluationMode(v interface
 }
 
 func expandContainerAttachedClusterProxyConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1617,6 +1635,9 @@ func expandContainerAttachedClusterProxyConfig(v interface{}, d tpgresource.Terr
 }
 
 func expandContainerAttachedClusterProxyConfigKubernetesSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1651,6 +1672,9 @@ func expandContainerAttachedClusterProxyConfigKubernetesSecretNamespace(v interf
 }
 
 func expandContainerAttachedClusterSecurityPostureConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

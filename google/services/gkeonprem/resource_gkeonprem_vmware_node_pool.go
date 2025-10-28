@@ -248,6 +248,11 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 					},
 				},
 			},
+			"on_prem_version": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Anthos version for the node pool. Defaults to the user cluster version.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -272,11 +277,6 @@ fields, and may be sent on update and delete requests to ensure the
 client has an up-to-date value before proceeding.
 Allows clients to perform consistent read-modify-writes
 through optimistic concurrency control.`,
-			},
-			"on_prem_version": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Anthos version for the node pool. Defaults to the user cluster version.`,
 			},
 			"reconciling": {
 				Type:        schema.TypeBool,
@@ -387,6 +387,12 @@ func resourceGkeonpremVmwareNodePoolCreate(d *schema.ResourceData, meta interfac
 		return err
 	} else if v, ok := d.GetOkExists("config"); !tpgresource.IsEmptyValue(reflect.ValueOf(configProp)) && (ok || !reflect.DeepEqual(v, configProp)) {
 		obj["config"] = configProp
+	}
+	onPremVersionProp, err := expandGkeonpremVmwareNodePoolOnPremVersion(d.Get("on_prem_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("on_prem_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(onPremVersionProp)) && (ok || !reflect.DeepEqual(v, onPremVersionProp)) {
+		obj["onPremVersion"] = onPremVersionProp
 	}
 	effectiveAnnotationsProp, err := expandGkeonpremVmwareNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
@@ -572,6 +578,12 @@ func resourceGkeonpremVmwareNodePoolUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, configProp)) {
 		obj["config"] = configProp
 	}
+	onPremVersionProp, err := expandGkeonpremVmwareNodePoolOnPremVersion(d.Get("on_prem_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("on_prem_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, onPremVersionProp)) {
+		obj["onPremVersion"] = onPremVersionProp
+	}
 	effectiveAnnotationsProp, err := expandGkeonpremVmwareNodePoolEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
@@ -598,6 +610,10 @@ func resourceGkeonpremVmwareNodePoolUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("config") {
 		updateMask = append(updateMask, "config")
+	}
+
+	if d.HasChange("on_prem_version") {
+		updateMask = append(updateMask, "onPremVersion")
 	}
 
 	if d.HasChange("effective_annotations") {
@@ -1091,6 +1107,9 @@ func expandGkeonpremVmwareNodePoolDisplayName(v interface{}, d tpgresource.Terra
 }
 
 func expandGkeonpremVmwareNodePoolNodePoolAutoscaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1125,6 +1144,9 @@ func expandGkeonpremVmwareNodePoolNodePoolAutoscalingMaxReplicas(v interface{}, 
 }
 
 func expandGkeonpremVmwareNodePoolConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1231,6 +1253,9 @@ func expandGkeonpremVmwareNodePoolConfigBootDiskSizeGb(v interface{}, d tpgresou
 }
 
 func expandGkeonpremVmwareNodePoolConfigTaints(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1290,6 +1315,9 @@ func expandGkeonpremVmwareNodePoolConfigLabels(v interface{}, d tpgresource.Terr
 }
 
 func expandGkeonpremVmwareNodePoolConfigVsphereConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1327,6 +1355,9 @@ func expandGkeonpremVmwareNodePoolConfigVsphereConfigDatastore(v interface{}, d 
 }
 
 func expandGkeonpremVmwareNodePoolConfigVsphereConfigTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1368,6 +1399,10 @@ func expandGkeonpremVmwareNodePoolConfigVsphereConfigHostGroups(v interface{}, d
 }
 
 func expandGkeonpremVmwareNodePoolConfigEnableLoadBalancer(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGkeonpremVmwareNodePoolOnPremVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

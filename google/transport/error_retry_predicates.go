@@ -210,6 +210,7 @@ func IsFingerprintError(err error) (bool, string) {
 	if gerr.Code != 412 {
 		return false, ""
 	}
+	log.Printf("[DEBUG] Got a 412 error, checking for fingerprint mismatch: %s", err)
 
 	for _, msg := range FINGERPRINT_FAIL_ERRORS {
 		if strings.Contains(err.Error(), msg) {
@@ -312,6 +313,17 @@ func IsBigqueryIAMQuotaError(err error) (bool, string) {
 // Retry if Repository Group operation returns a 409 with a specific message for
 // enqueued operations.
 func IsRepositoryGroupQueueError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && (strings.Contains(strings.ToLower(gerr.Body), "unable to queue the operation")) {
+			return true, "Waiting for other enqueued operations to finish"
+		}
+	}
+	return false, ""
+}
+
+// Retry if Workbench operation returns a 409 with a specific message for
+// enqueued operations.
+func IsWorkbenchQueueError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 409 && (strings.Contains(strings.ToLower(gerr.Body), "unable to queue the operation")) {
 			return true, "Waiting for other enqueued operations to finish"

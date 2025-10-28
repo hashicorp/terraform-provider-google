@@ -272,6 +272,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `{{parent}}/clusters/{{name}}`
 
+* `create_time` -
+  Creation time of this resource.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and
+  up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `update_time` -
+  Last updated time of this resource.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
+  fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
 * `management` -
   True if the cluster is a management cluster; false otherwise.
   There can only be one management cluster in a private cloud and it has to be the first one.

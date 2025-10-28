@@ -140,7 +140,7 @@ resource "google_gkeonprem_vmware_cluster" "default-full" {
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"
-  on_prem_version = "1.13.1-gke.35"
+  on_prem_version = "1.33.0-gke.35"
   network_config {
     service_address_cidr_blocks = ["10.96.0.0/12"]
     pod_address_cidr_blocks = ["192.168.0.0/16"]
@@ -177,6 +177,7 @@ resource "google_gkeonprem_vmware_node_pool" "nodepool-full" {
   name = "tf-test-my-nodepool%{random_suffix}"
   location = "us-west1"
   vmware_cluster = google_gkeonprem_vmware_cluster.default-full.name
+  on_prem_version = "1.33.0-gke.35"
   annotations = {}
   config {
     cpus = 4

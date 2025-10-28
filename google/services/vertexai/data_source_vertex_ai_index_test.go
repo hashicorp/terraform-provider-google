@@ -44,10 +44,10 @@ func TestAccDataSourceVertexAIIndex_basic(t *testing.T) {
 						"data.google_vertex_ai_index.foo",
 						"google_vertex_ai_index.index",
 						// The projects.locations.indexes.get doesn't return the following fields
-						map[string]struct{}{
-							"metadata.0.config.0.feature_norm_type": {},
-							"metadata.0.contents_delta_uri":         {},
-							"metadata.0.is_complete_overwrite":      {},
+						[]string{
+							"metadata.0.config.0.feature_norm_type",
+							"metadata.0.contents_delta_uri",
+							"metadata.0.is_complete_overwrite",
 						},
 					),
 				),

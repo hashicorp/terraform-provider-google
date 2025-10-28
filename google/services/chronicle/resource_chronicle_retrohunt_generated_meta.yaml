@@ -6,17 +6,17 @@ api_version: 'v1'
 api_resource_type_kind: 'Retrohunt'
 autogen_status: true
 fields:
-  - field: 'execution_interval.end_time'
-  - field: 'execution_interval.start_time'
+  - api_field: 'executionInterval.endTime'
+  - api_field: 'executionInterval.startTime'
   - field: 'instance'
     provider_only: true
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'process_interval.end_time'
-  - field: 'process_interval.start_time'
-  - field: 'progress_percentage'
-  - field: 'retrohunt'
+  - api_field: 'name'
+  - api_field: 'processInterval.endTime'
+  - api_field: 'processInterval.startTime'
+  - api_field: 'progressPercentage'
+  - api_field: 'retrohunt'
   - field: 'rule'
     provider_only: true
-  - field: 'state'
+  - api_field: 'state'

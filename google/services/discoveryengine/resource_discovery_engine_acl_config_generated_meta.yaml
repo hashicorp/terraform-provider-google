@@ -5,8 +5,8 @@ api_service_name: 'discoveryengine.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AclConfig'
 fields:
-  - field: 'idp_config.external_idp_config.workforce_pool_name'
-  - field: 'idp_config.idp_type'
+  - api_field: 'idpConfig.externalIdpConfig.workforcePoolName'
+  - api_field: 'idpConfig.idpType'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'

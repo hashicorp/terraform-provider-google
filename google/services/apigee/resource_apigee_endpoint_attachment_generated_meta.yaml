@@ -5,12 +5,12 @@ api_service_name: 'apigee.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'EndpointAttachment'
 fields:
-  - field: 'connection_state'
+  - api_field: 'connectionState'
   - field: 'endpoint_attachment_id'
     provider_only: true
-  - field: 'host'
-  - field: 'location'
-  - field: 'name'
+  - api_field: 'host'
+  - api_field: 'location'
+  - api_field: 'name'
   - field: 'org_id'
     provider_only: true
-  - field: 'service_attachment'
+  - api_field: 'serviceAttachment'

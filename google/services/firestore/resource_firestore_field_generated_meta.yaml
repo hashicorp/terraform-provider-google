@@ -11,8 +11,8 @@ fields:
     provider_only: true
   - field: 'field'
     provider_only: true
-  - field: 'index_config.indexes.array_config'
-  - field: 'index_config.indexes.order'
-  - field: 'index_config.indexes.query_scope'
-  - field: 'name'
-  - field: 'ttl_config.state'
+  - api_field: 'indexConfig.indexes.arrayConfig'
+  - api_field: 'indexConfig.indexes.order'
+  - api_field: 'indexConfig.indexes.queryScope'
+  - api_field: 'name'
+  - api_field: 'ttlConfig.state'

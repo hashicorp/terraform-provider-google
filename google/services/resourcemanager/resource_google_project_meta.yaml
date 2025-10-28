@@ -10,11 +10,11 @@ fields:
   - field: 'effective_labels'
     provider_only: true
   - field: 'folder_id'
-  - field: 'labels'
-  - field: 'name'
+  - api_field: 'labels'
+  - api_field: 'name'
   - field: 'number'
   - field: 'org_id'
-  - field: 'project_id'
-  - field: 'tags'
+  - api_field: 'projectId'
+  - api_field: 'tags'
   - field: 'terraform_labels'
     provider_only: true

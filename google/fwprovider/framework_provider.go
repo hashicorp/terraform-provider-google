@@ -38,7 +38,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/fwvalidators"
 	"github.com/hashicorp/terraform-provider-google/google/services/apigee"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
-
+	"github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/version"
 
@@ -400,6 +400,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				},
 			},
 			"cloud_scheduler_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
+			"cloud_security_compliance_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
 					transport_tpg.CustomEndpointValidator(),
@@ -783,6 +789,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					transport_tpg.CustomEndpointValidator(),
 				},
 			},
+			"network_connectivityv1_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
 			"network_management_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
@@ -802,6 +814,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				},
 			},
 			"notebooks_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
+			"observability_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
 					transport_tpg.CustomEndpointValidator(),
@@ -892,6 +910,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				},
 			},
 			"resource_manager_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
+			"resource_manager3_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
 					transport_tpg.CustomEndpointValidator(),
@@ -1250,5 +1274,6 @@ func (p *FrameworkProvider) EphemeralResources(_ context.Context) []func() ephem
 		resourcemanager.GoogleEphemeralServiceAccountIdToken,
 		resourcemanager.GoogleEphemeralServiceAccountJwt,
 		resourcemanager.GoogleEphemeralServiceAccountKey,
+		secretmanager.GoogleEphemeralSecretManagerSecretVersion,
 	}
 }

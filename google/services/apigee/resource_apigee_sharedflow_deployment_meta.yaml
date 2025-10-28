@@ -6,6 +6,6 @@ api_resource_type_kind: 'SharedFlow'
 fields:
   - field: 'environment'
   - field: 'org_id'
-  - field: 'revision'
+  - api_field: 'revision'
   - field: 'service_account'
   - field: 'sharedflow_id'

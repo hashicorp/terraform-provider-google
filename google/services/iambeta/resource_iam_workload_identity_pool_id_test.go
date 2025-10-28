@@ -32,6 +32,7 @@ func TestValidateIAMBetaWorkloadIdentityPoolId(t *testing.T) {
 		{TestName: "short", Value: "foos"},
 		{TestName: "long", Value: "12345678901234567890123456789012"},
 		{TestName: "has a hyphen", Value: "foo-bar"},
+		{TestName: "default pool format", Value: "foo-bar.svc.id.goog"},
 
 		// With errors
 		{TestName: "empty", Value: "", ExpectError: true},

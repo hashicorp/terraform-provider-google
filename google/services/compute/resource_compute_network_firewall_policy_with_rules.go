@@ -397,6 +397,16 @@ It can be set only if action = 'apply_security_profile_group' and cannot be set 
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"policy_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"VPC_POLICY", ""}),
+				Description: `Policy type is used to determine which resources (networks) the policy can be associated with.
+A policy can be associated with a network only if the network has the matching policyType in its network profile.
+Different policy types may support some of the Firewall Rules features. Possible values: ["VPC_POLICY"]`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -726,6 +736,12 @@ func resourceComputeNetworkFirewallPolicyWithRulesCreate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	policyTypeProp, err := expandComputeNetworkFirewallPolicyWithRulesPolicyType(d.Get("policy_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("policy_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(policyTypeProp)) && (ok || !reflect.DeepEqual(v, policyTypeProp)) {
+		obj["policyType"] = policyTypeProp
+	}
 	ruleProp, err := expandComputeNetworkFirewallPolicyWithRulesRule(d.Get("rule"), d, config)
 	if err != nil {
 		return err
@@ -896,6 +912,9 @@ func resourceComputeNetworkFirewallPolicyWithRulesRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading NetworkFirewallPolicyWithRules: %s", err)
 	}
 	if err := d.Set("description", flattenComputeNetworkFirewallPolicyWithRulesDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NetworkFirewallPolicyWithRules: %s", err)
+	}
+	if err := d.Set("policy_type", flattenComputeNetworkFirewallPolicyWithRulesPolicyType(res["policyType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkFirewallPolicyWithRules: %s", err)
 	}
 	if err := d.Set("rule", flattenComputeNetworkFirewallPolicyWithRulesRule(res["rules"], d, config)); err != nil {
@@ -1090,6 +1109,10 @@ func flattenComputeNetworkFirewallPolicyWithRulesNetworkFirewallPolicyId(v inter
 }
 
 func flattenComputeNetworkFirewallPolicyWithRulesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkFirewallPolicyWithRulesPolicyType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1606,7 +1629,14 @@ func expandComputeNetworkFirewallPolicyWithRulesDescription(v interface{}, d tpg
 	return v, nil
 }
 
+func expandComputeNetworkFirewallPolicyWithRulesPolicyType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeNetworkFirewallPolicyWithRulesRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1718,6 +1748,9 @@ func expandComputeNetworkFirewallPolicyWithRulesRulePriority(v interface{}, d tp
 }
 
 func expandComputeNetworkFirewallPolicyWithRulesRuleMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1854,6 +1887,9 @@ func expandComputeNetworkFirewallPolicyWithRulesRuleMatchDestThreatIntelligences
 }
 
 func expandComputeNetworkFirewallPolicyWithRulesRuleMatchLayer4Config(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1891,6 +1927,9 @@ func expandComputeNetworkFirewallPolicyWithRulesRuleMatchLayer4ConfigPorts(v int
 }
 
 func expandComputeNetworkFirewallPolicyWithRulesRuleMatchSrcSecureTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1928,6 +1967,9 @@ func expandComputeNetworkFirewallPolicyWithRulesRuleMatchSrcSecureTagState(v int
 }
 
 func expandComputeNetworkFirewallPolicyWithRulesRuleTargetSecureTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

@@ -599,43 +599,64 @@ func TestAccPubsubSubscription_javascriptUdfUpdate(t *testing.T) {
 	})
 }
 
-func testAccPubsubSubscription_javascriptUdfSettings(topic, subscription, functionName, code string) string {
-	return fmt.Sprintf(`
-resource "google_pubsub_topic" "foo" {
-  name = "%s"
+func TestGetComputedTopicName(t *testing.T) {
+	type testData struct {
+		project  string
+		topic    string
+		expected string
+	}
+
+	var testCases = []testData{
+		{
+			project:  "my-project",
+			topic:    "my-topic",
+			expected: "projects/my-project/topics/my-topic",
+		},
+		{
+			project:  "my-project",
+			topic:    "projects/another-project/topics/my-topic",
+			expected: "projects/another-project/topics/my-topic",
+		},
+	}
+
+	for _, testCase := range testCases {
+		computedTopicName := pubsub.GetComputedTopicName(testCase.project, testCase.topic)
+		if computedTopicName != testCase.expected {
+			t.Fatalf("bad computed topic name: %s' => expected %s", computedTopicName, testCase.expected)
+		}
+	}
 }
 
-resource "google_pubsub_subscription" "foo" {
-  name  = "%s"
-  topic = google_pubsub_topic.foo.id
-  message_transforms {
-    disabled = true
-    javascript_udf {
-      function_name = "%s"
-      code = "%s"
-    }
-  }
-}
-`, topic, subscription, functionName, code)
-}
+func TestAccPubsubSubscription_tags(t *testing.T) {
+	t.Parallel()
 
-func testAccPubsubSubscription_javascriptUdfSettings_noEnabled(topic, subscription, functionName, code string) string {
-	return fmt.Sprintf(`
-resource "google_pubsub_topic" "foo" {
-  name = "%s"
-}
+	subscription := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
+	tagKey := acctest.BootstrapSharedTestOrganizationTagKey(t, "pubsub-subscription-tagkey", nil)
+	context := map[string]interface{}{
+		"topic":        fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10)),
+		"subscription": subscription,
+		"org":          envvar.GetTestOrgFromEnv(t),
+		"tagKey":       tagKey,
+		"tagValue":     acctest.BootstrapSharedTestOrganizationTagValue(t, "pubsub-subscription-tagvalue", tagKey),
+	}
 
-resource "google_pubsub_subscription" "foo" {
-  name  = "%s"
-  topic = google_pubsub_topic.foo.id
-	message_transforms {
-    javascript_udf {
-      function_name = "%s"
-      code = "%s"
-    }
-  }
-}
-`, topic, subscription, functionName, code)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_tags(context),
+			},
+			{
+				ResourceName:            "google_pubsub_subscription.foo",
+				ImportStateId:           subscription,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"tags"},
+			},
+		},
+	})
 }
 
 func testAccPubsubSubscription_emptyTTL(topic, subscription string) string {
@@ -1016,34 +1037,6 @@ resource "google_pubsub_subscription" "foo" {
 `, topic, subscription)
 }
 
-func TestGetComputedTopicName(t *testing.T) {
-	type testData struct {
-		project  string
-		topic    string
-		expected string
-	}
-
-	var testCases = []testData{
-		{
-			project:  "my-project",
-			topic:    "my-topic",
-			expected: "projects/my-project/topics/my-topic",
-		},
-		{
-			project:  "my-project",
-			topic:    "projects/another-project/topics/my-topic",
-			expected: "projects/another-project/topics/my-topic",
-		},
-	}
-
-	for _, testCase := range testCases {
-		computedTopicName := pubsub.GetComputedTopicName(testCase.project, testCase.topic)
-		if computedTopicName != testCase.expected {
-			t.Fatalf("bad computed topic name: %s' => expected %s", computedTopicName, testCase.expected)
-		}
-	}
-}
-
 func testAccCheckPubsubSubscriptionCache404(t *testing.T, subName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -1076,4 +1069,60 @@ resource "google_pubsub_subscription" "foo" {
   filter = "%s"
 }
 `, topic, subscription, filter)
+}
+
+func testAccPubsubSubscription_javascriptUdfSettings(topic, subscription, functionName, code string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name  = "%s"
+  topic = google_pubsub_topic.foo.id
+  message_transforms {
+    disabled = true
+    javascript_udf {
+      function_name = "%s"
+      code = "%s"
+    }
+  }
+}
+`, topic, subscription, functionName, code)
+}
+
+func testAccPubsubSubscription_javascriptUdfSettings_noEnabled(topic, subscription, functionName, code string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name  = "%s"
+  topic = google_pubsub_topic.foo.id
+	message_transforms {
+    javascript_udf {
+      function_name = "%s"
+      code = "%s"
+    }
+  }
+}
+`, topic, subscription, functionName, code)
+}
+
+func testAccPubsubSubscription_tags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%{topic}"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name  = "%{subscription}"
+  topic = google_pubsub_topic.foo.id
+
+  tags = {
+    "%{org}/%{tagKey}" = "%{tagValue}"
+  }
+}
+`, context)
 }

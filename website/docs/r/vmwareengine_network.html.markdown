@@ -115,6 +115,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}`
 
+* `create_time` -
+  Creation time of this resource.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+  Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `update_time` -
+  Last update time of this resource.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+  Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
 * `vpc_networks` -
   VMware Engine service VPC networks that provide connectivity from a private cloud to customer projects,
   the internet, and other Google Cloud services.
@@ -125,6 +135,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `uid` -
   System-generated unique identifier for the resource.
+
+* `etag` -
+  Checksum that may be sent on update and delete requests to ensure that the user-provided value is up to date befor
+  The server computes checksums based on the value of other fields in the request.
 
 
 <a name="nested_vpc_networks"></a>The `vpc_networks` block contains:

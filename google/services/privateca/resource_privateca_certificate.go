@@ -2547,6 +2547,9 @@ func expandPrivatecaCertificatePemCsr(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandPrivatecaCertificateConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2640,6 +2643,9 @@ func expandPrivatecaCertificateConfigX509Config(v interface{}, d tpgresource.Ter
 }
 
 func expandPrivatecaCertificateConfigSubjectConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2666,6 +2672,9 @@ func expandPrivatecaCertificateConfigSubjectConfig(v interface{}, d tpgresource.
 }
 
 func expandPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2766,6 +2775,9 @@ func expandPrivatecaCertificateConfigSubjectConfigSubjectCommonName(v interface{
 }
 
 func expandPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2822,6 +2834,9 @@ func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(v in
 }
 
 func expandPrivatecaCertificateConfigSubjectKeyId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2845,6 +2860,9 @@ func expandPrivatecaCertificateConfigSubjectKeyIdKeyId(v interface{}, d tpgresou
 }
 
 func expandPrivatecaCertificateConfigPublicKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

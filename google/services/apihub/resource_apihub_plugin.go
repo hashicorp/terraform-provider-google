@@ -125,6 +125,7 @@ NON_API_HUB_MANAGED`,
 			},
 			"config_template": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `ConfigTemplate represents the configuration template for a plugin.`,
@@ -898,6 +899,9 @@ func expandApihubPluginDescription(v interface{}, d tpgresource.TerraformResourc
 }
 
 func expandApihubPluginActionsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -957,6 +961,9 @@ func expandApihubPluginActionsConfigTriggerMode(v interface{}, d tpgresource.Ter
 }
 
 func expandApihubPluginDocumentation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -984,6 +991,9 @@ func expandApihubPluginPluginCategory(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandApihubPluginConfigTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1010,6 +1020,9 @@ func expandApihubPluginConfigTemplate(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandApihubPluginConfigTemplateAuthConfigTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1040,6 +1053,9 @@ func expandApihubPluginConfigTemplateAuthConfigTemplateSupportedAuthTypes(v inte
 }
 
 func expandApihubPluginConfigTemplateAuthConfigTemplateServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1063,6 +1079,9 @@ func expandApihubPluginConfigTemplateAuthConfigTemplateServiceAccountServiceAcco
 }
 
 func expandApihubPluginConfigTemplateAdditionalConfigTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1131,6 +1150,9 @@ func expandApihubPluginConfigTemplateAdditionalConfigTemplateRequired(v interfac
 }
 
 func expandApihubPluginConfigTemplateAdditionalConfigTemplateEnumOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1179,6 +1201,9 @@ func expandApihubPluginConfigTemplateAdditionalConfigTemplateEnumOptionsDescript
 }
 
 func expandApihubPluginConfigTemplateAdditionalConfigTemplateMultiSelectOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1247,6 +1272,9 @@ func expandApihubPluginDisplayName(v interface{}, d tpgresource.TerraformResourc
 }
 
 func expandApihubPluginHostingService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

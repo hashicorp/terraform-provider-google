@@ -89,7 +89,10 @@ and the last a letter or a number.`,
 										Type:             schema.TypeString,
 										Required:         true,
 										DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-										Description:      `The reference to the service that runs the extension. Must be a reference to a backend service`,
+										Description: `The reference to the service that runs the extension.
+
+* To configure a callout extension, service must be a fully-qualified reference to a backend service.
+* To configure a plugin extension, service must be a reference to a WasmPlugin resource.`,
 									},
 									"authority": {
 										Type:        schema.TypeString,
@@ -739,6 +742,9 @@ func expandNetworkServicesLbTrafficExtensionForwardingRules(v interface{}, d tpg
 }
 
 func expandNetworkServicesLbTrafficExtensionExtensionChains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -779,6 +785,9 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsName(v interface{}, d
 }
 
 func expandNetworkServicesLbTrafficExtensionExtensionChainsMatchCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -802,6 +811,9 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsMatchConditionCelExpr
 }
 
 func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

@@ -828,6 +828,9 @@ func flattenModelArmorGlobalFloorsettingFloorSettingMetadataMultiLanguageDetecti
 }
 
 func expandModelArmorGlobalFloorsettingFilterConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -873,6 +876,9 @@ func expandModelArmorGlobalFloorsettingFilterConfig(v interface{}, d tpgresource
 }
 
 func expandModelArmorGlobalFloorsettingFilterConfigMaliciousUriFilterSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -896,6 +902,9 @@ func expandModelArmorGlobalFloorsettingFilterConfigMaliciousUriFilterSettingsFil
 }
 
 func expandModelArmorGlobalFloorsettingFilterConfigRaiSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -915,6 +924,9 @@ func expandModelArmorGlobalFloorsettingFilterConfigRaiSettings(v interface{}, d 
 }
 
 func expandModelArmorGlobalFloorsettingFilterConfigRaiSettingsRaiFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -952,6 +964,9 @@ func expandModelArmorGlobalFloorsettingFilterConfigRaiSettingsRaiFiltersConfiden
 }
 
 func expandModelArmorGlobalFloorsettingFilterConfigSdpSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -978,6 +993,9 @@ func expandModelArmorGlobalFloorsettingFilterConfigSdpSettings(v interface{}, d 
 }
 
 func expandModelArmorGlobalFloorsettingFilterConfigSdpSettingsAdvancedConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1012,6 +1030,9 @@ func expandModelArmorGlobalFloorsettingFilterConfigSdpSettingsAdvancedConfigDeid
 }
 
 func expandModelArmorGlobalFloorsettingFilterConfigSdpSettingsBasicConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1035,6 +1056,9 @@ func expandModelArmorGlobalFloorsettingFilterConfigSdpSettingsBasicConfigFilterE
 }
 
 func expandModelArmorGlobalFloorsettingFilterConfigPiAndJailbreakFilterSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1077,6 +1101,9 @@ func expandModelArmorGlobalFloorsettingIntegratedServices(v interface{}, d tpgre
 }
 
 func expandModelArmorGlobalFloorsettingAiPlatformFloorSetting(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1127,6 +1154,9 @@ func expandModelArmorGlobalFloorsettingAiPlatformFloorSettingEnableCloudLogging(
 }
 
 func expandModelArmorGlobalFloorsettingFloorSettingMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1146,6 +1176,9 @@ func expandModelArmorGlobalFloorsettingFloorSettingMetadata(v interface{}, d tpg
 }
 
 func expandModelArmorGlobalFloorsettingFloorSettingMetadataMultiLanguageDetection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

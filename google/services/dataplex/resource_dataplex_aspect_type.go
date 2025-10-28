@@ -35,6 +35,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceDataplexAspectType() *schema.Resource {
@@ -65,6 +66,17 @@ func ResourceDataplexAspectType() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The aspect type id of the aspect type.`,
+			},
+			"data_classification": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				ValidateFunc:     verify.ValidateEnum([]string{"DATA_CLASSIFICATION_UNSPECIFIED", "METADATA_AND_DATA", ""}),
+				DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("DATA_CLASSIFICATION_UNSPECIFIED"),
+				Description: `Classifies the data stored by the aspect.
+'DATA_CLASSIFICATION_UNSPECIFIED' denotes that the aspect contains only metadata
+while 'METADATA_AND_DATA' indicates data derived content.
+<br><br> Possible values: ["DATA_CLASSIFICATION_UNSPECIFIED", "METADATA_AND_DATA"]`,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -174,6 +186,12 @@ func resourceDataplexAspectTypeCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("metadata_template"); !tpgresource.IsEmptyValue(reflect.ValueOf(metadataTemplateProp)) && (ok || !reflect.DeepEqual(v, metadataTemplateProp)) {
 		obj["metadataTemplate"] = metadataTemplateProp
+	}
+	dataClassificationProp, err := expandDataplexAspectTypeDataClassification(d.Get("data_classification"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_classification"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataClassificationProp)) && (ok || !reflect.DeepEqual(v, dataClassificationProp)) {
+		obj["dataClassification"] = dataClassificationProp
 	}
 	effectiveLabelsProp, err := expandDataplexAspectTypeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -305,6 +323,9 @@ func resourceDataplexAspectTypeRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading AspectType: %s", err)
 	}
 	if err := d.Set("transfer_status", flattenDataplexAspectTypeTransferStatus(res["transferStatus"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AspectType: %s", err)
+	}
+	if err := d.Set("data_classification", flattenDataplexAspectTypeDataClassification(res["dataClassification"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AspectType: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenDataplexAspectTypeTerraformLabels(res["labels"], d, config)); err != nil {
@@ -556,6 +577,10 @@ func flattenDataplexAspectTypeTransferStatus(v interface{}, d *schema.ResourceDa
 	return v
 }
 
+func flattenDataplexAspectTypeDataClassification(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataplexAspectTypeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -593,6 +618,10 @@ func expandDataplexAspectTypeMetadataTemplate(v interface{}, d tpgresource.Terra
 		return nil, err
 	}
 	return m, nil
+}
+
+func expandDataplexAspectTypeDataClassification(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandDataplexAspectTypeEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

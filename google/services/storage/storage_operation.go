@@ -50,7 +50,7 @@ func (w *StorageOperationWaiter) QueryOp() (interface{}, error) {
 	}
 
 	// Returns the proper get.
-	url := fmt.Sprintf(w.SelfLink)
+	url := w.SelfLink
 
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,

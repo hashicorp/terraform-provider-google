@@ -7,17 +7,17 @@ api_resource_type_kind: 'NotebookRuntime'
 fields:
   - field: 'auto_upgrade'
     provider_only: true
-  - field: 'description'
+  - api_field: 'description'
   - field: 'desired_state'
     provider_only: true
-  - field: 'display_name'
-  - field: 'expiration_time'
-  - field: 'is_upgradable'
+  - api_field: 'displayName'
+  - api_field: 'expirationTime'
+  - api_field: 'isUpgradable'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
-  - field: 'notebook_runtime_template_ref.notebook_runtime_template'
-  - field: 'notebook_runtime_type'
-  - field: 'runtime_user'
-  - field: 'state'
+  - api_field: 'notebookRuntimeTemplateRef.notebookRuntimeTemplate'
+  - api_field: 'notebookRuntimeType'
+  - api_field: 'runtimeUser'
+  - api_field: 'state'

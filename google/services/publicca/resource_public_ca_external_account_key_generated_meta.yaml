@@ -5,9 +5,9 @@ api_service_name: 'publicca.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'ExternalAccountKey'
 fields:
-  - field: 'b64_mac_key'
-  - field: 'b64url_mac_key'
-  - field: 'key_id'
+  - api_field: 'b64MacKey'
+  - api_field: 'b64urlMacKey'
+  - api_field: 'keyId'
   - field: 'location'
     provider_only: true
-  - field: 'name'
+  - api_field: 'name'

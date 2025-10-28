@@ -132,7 +132,7 @@ This resource has been migrated from SDKv2 to the more modern [plugin framework 
 
 ### `certs_info` is now output-only
 
-Previously the `certis_info` field was set as an optional value, but the configured value was never used by the API. It is now correctly marked as output-only. If set in your configuration, simply remove it and the API value will continue to be used.
+Previously the `certs_info` field was set as an optional value, but the configured value was never used by the API. It is now correctly marked as output-only. If set in your configuration, simply remove it and the API value will continue to be used.
 
 ## Resource: `google_artifact_registry_repository`
 
@@ -155,19 +155,19 @@ The `view.use_legacy_sql` field no longer has a default value. Configurations th
 
 ### `instance` is now removed
 
-`instance` has been removed in favor of `instance_name`.
+`instance` has been removed in favor of `instance_name`. It is recommended to upgrade to v6.50.0+ and switch from `instance` to `instance_name` in your configuration before upgrading to v7.0.0+.
 
 ## Resource: `google_bigtable_table_iam_member`
 
 ### `instance` is now removed
 
-`instance` has been removed in favor of `instance_name`.
+`instance` has been removed in favor of `instance_name`. It is recommended to upgrade to v6.50.0+ and switch from `instance` to `instance_name` in your configuration before upgrading to v7.0.0+.
 
 ## Resource: `google_bigtable_table_iam_policy`
 
 ### `instance` is now removed
 
-`instance` has been removed in favor of `instance_name`.
+`instance` has been removed in favor of `instance_name`. It is recommended to upgrade to v6.50.0+ and switch from `instance` to `instance_name` in your configuration before upgrading to v7.0.0+.
 
 ## Resource: `google_billing_budget`
 

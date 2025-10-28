@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"testing"
 	"time"
 
@@ -1165,6 +1166,62 @@ func TestAccStorageBucket_cors(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_emptyCors(t *testing.T) {
+	t.Parallel()
+
+	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleStorageBucketsCors(bucketName),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
+				Config: testGoogleStorageBucketsEmptyCors(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBucketCorsCount(t, 3),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy", "cors"},
+			},
+			{
+				Config: testGoogleStorageBucketPartiallyEmptyCors(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBucketCorsCount(t, 4),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy", "cors"},
+			},
+			{
+				Config: testGoogleStorageBucketsRemoveCorsCompletely(bucketName),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_defaultEventBasedHold(t *testing.T) {
 	t.Parallel()
 
@@ -2200,13 +2257,82 @@ resource "google_storage_bucket" "bucket" {
   }
 
   cors {
-    origin          = ["ghi", "jkl"]
-    method          = ["z9z"]
-    response_header = ["000"]
-    max_age_seconds = 5
+    origin            = ["ghi", "jkl"]
+    method            = ["z9z"]
+    response_header   = ["000"]
+    max_age_seconds   = 0
   }
 }
 `, bucketName)
+}
+
+func testGoogleStorageBucketsEmptyCors(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+  cors {
+    origin          = []
+    method          = []
+    response_header = []
+    max_age_seconds = 0
+  }
+  cors {}
+  cors {
+    origin  = []
+    method  = []
+  }
+}
+`, bucketName)
+}
+
+func testGoogleStorageBucketsRemoveCorsCompletely(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+`, bucketName)
+}
+
+func testGoogleStorageBucketPartiallyEmptyCors(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+  cors {
+    origin          = ["*"]
+    method          = ["GET"]
+  }
+  cors{}
+  cors {
+    origin  = ["https://sample.com"]
+    method  = ["GET"]
+  }
+  cors{}
+}
+`, bucketName)
+}
+
+func testAccCheckBucketCorsCount(t *testing.T, corsInConfig int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources["google_storage_bucket.bucket"]
+		if !ok {
+			return fmt.Errorf("Bucket not found: %s", "google_storage_bucket.bucket")
+		}
+		corsInState, err := strconv.Atoi(rs.Primary.Attributes["cors.#"])
+		if err != nil {
+			return fmt.Errorf("Error conersion string to int %s", err)
+		}
+
+		if corsInConfig != corsInState {
+			return fmt.Errorf("Length of Cors in terraform state file and config should be equal")
+		}
+		return nil
+	}
 }
 
 func testAccStorageBucket_defaultEventBasedHold(bucketName string) string {

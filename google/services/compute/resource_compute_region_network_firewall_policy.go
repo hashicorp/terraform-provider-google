@@ -32,6 +32,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceComputeRegionNetworkFirewallPolicy() *schema.Resource {
@@ -66,6 +67,16 @@ func ResourceComputeRegionNetworkFirewallPolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `An optional description of this resource. Provide this property when you create the resource.`,
+			},
+			"policy_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"VPC_POLICY", "RDMA_ROCE_POLICY", ""}),
+				Description: `Policy type is used to determine which resources (networks) the policy can be associated with.
+A policy can be associated with a network only if the network has the matching policyType in its network profile.
+Different policy types may support some of the Firewall Rules features. Possible values: ["VPC_POLICY", "RDMA_ROCE_POLICY"]`,
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -134,6 +145,12 @@ func resourceComputeRegionNetworkFirewallPolicyCreate(d *schema.ResourceData, me
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	policyTypeProp, err := expandComputeRegionNetworkFirewallPolicyPolicyType(d.Get("policy_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("policy_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(policyTypeProp)) && (ok || !reflect.DeepEqual(v, policyTypeProp)) {
+		obj["policyType"] = policyTypeProp
 	}
 	fingerprintProp, err := expandComputeRegionNetworkFirewallPolicyFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -250,6 +267,9 @@ func resourceComputeRegionNetworkFirewallPolicyRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
 	}
 	if err := d.Set("description", flattenComputeRegionNetworkFirewallPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
+	}
+	if err := d.Set("policy_type", flattenComputeRegionNetworkFirewallPolicyPolicyType(res["policyType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkFirewallPolicy: %s", err)
 	}
 	if err := d.Set("fingerprint", flattenComputeRegionNetworkFirewallPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
@@ -431,6 +451,10 @@ func flattenComputeRegionNetworkFirewallPolicyDescription(v interface{}, d *sche
 	return v
 }
 
+func flattenComputeRegionNetworkFirewallPolicyPolicyType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionNetworkFirewallPolicyFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -465,6 +489,10 @@ func expandComputeRegionNetworkFirewallPolicyName(v interface{}, d tpgresource.T
 }
 
 func expandComputeRegionNetworkFirewallPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionNetworkFirewallPolicyPolicyType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

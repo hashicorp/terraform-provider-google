@@ -178,272 +178,242 @@ resource "google_network_security_authz_policy" "default" {
 
   http_rules {
     from {
-	  not_sources {
-        # Prefix
-		principals {
-          ignore_case = false
-          prefix      = "prefix"
+      not_sources {
+        ip_blocks {
+          length = 24
+          prefix = "10.1.5.0"
         }
-        resources {
-          iam_service_account {
-            ignore_case = false
-          	prefix      = "prefix"
-          }
-          tag_value_id_set {
-            ids = ["1"]
-          }
+
+        ip_blocks {
+          length = 24
+          prefix = "10.1.6.0"
         }
-		# Suffix / Ignore case
-		principals {
-		  ignore_case = true
-		  suffix      = "suffix"
-		}
-		resources {
-		  iam_service_account {
-		    ignore_case = true
-			  suffix      = "suffix"
-		  }
-		  tag_value_id_set {
-		    ids = ["2"]
-		  }
-		}
-		# Exact
-		principals {
-		  ignore_case = true
-		  exact       = "exact"
-		}
-		resources {
-		  iam_service_account {
-		    ignore_case = true
-			exact       = "exact"
-		  }
-		  tag_value_id_set {
-		    ids = ["3"]
-		  }
-		}
-		# Contains / Ignore case
-		principals {
-		  ignore_case = true
-		  contains    = "contains"
-		}
-		resources {
-		  iam_service_account {
-		    ignore_case = true
-			contains    = "contains"
-		  }
-		  tag_value_id_set {
-		    ids = ["4"]
-		  }
-		}
-      }
-      sources {
-		# Prefix
+
+        # Exact
         principals {
-          ignore_case = false
-          prefix      = "prefix"
-        }
-        resources {
-          iam_service_account {
-            ignore_case = false
-          	prefix      = "prefix"
-          }
-          tag_value_id_set {
-            ids = ["1"]
+          principal_selector = "CLIENT_CERT_URI_SAN"
+          principal {
+            ignore_case = true
+            exact       = "exact"
           }
         }
-		# Suffix / Ignore case
-		principals {
-			ignore_case = true
-			suffix      = "suffix"
-        }
+
         resources {
           iam_service_account {
             ignore_case = true
-          	suffix      = "suffix"
-          }
-          tag_value_id_set {
-            ids = ["2"]
-          }
-        }
-		# Exact
-		principals {
-          exact       = "exact"
-          ignore_case = false
-        }
-        resources {
-          iam_service_account {
             exact       = "exact"
-          	ignore_case = false
           }
           tag_value_id_set {
             ids = ["3"]
           }
         }
-		# Contains / Ignore case
-		principals {
-          contains    = "contains"
-          ignore_case = true
+      }
+
+      sources {
+        ip_blocks {
+          length = 24
+          prefix = "10.10.5.0"
         }
+
+        ip_blocks {
+          length = 24
+          prefix = "10.10.6.0"
+        }
+
+        # Exact
+        principals {
+          principal_selector = "CLIENT_CERT_URI_SAN"
+          principal {
+            exact       = "exact"
+            ignore_case = false
+          }
+        }
+
         resources {
           iam_service_account {
-            contains    = "contains"
-          	ignore_case = true
+            exact       = "exact"
+            ignore_case = false
           }
           tag_value_id_set {
-            ids = ["4"]
+            ids = ["3"]
           }
         }
       }
     }
+
     to {
       operations {
-        methods = ["GET", "PUT", "POST", "HEAD", "PATCH", "DELETE", "OPTIONS"]
-		header_set {
+        methods = ["GET", "PUT", "POST", "HEAD", "PATCH"]
+        header_set {
           # Prefix
-		  headers {
+          headers {
             name = "PrefixHeader"
             value {
-			  ignore_case = false
-			  prefix      = "prefix"
+			        ignore_case = false
+			        prefix      = "prefix"
             }
           }
-		  # Suffix / Ignore case
-		  headers {
-			name = "SuffixHeader"
-			value {
-			  ignore_case = true
-			  suffix      = "suffix"
-			}
-		  }
-		  # Exact
-		  headers {
+
+          # Suffix / Ignore case
+          headers {
+            name = "SuffixHeader"
+            value {
+              ignore_case = true
+              suffix      = "suffix"
+            }
+		      }
+
+          # Exact
+          headers {
             name = "ExactHeader"
             value {
               exact       = "exact"
-          	  ignore_case = false
+              ignore_case = false
             }
           }
-		  # Contains / Ignore case
-		  headers {
+
+          # Contains / Ignore case
+          headers {
             name = "ContainsHeader"
             value {
               contains    = "contains"
-          	  ignore_case = true
+              ignore_case = true
             }
           }
         }
+
         # Prefix
-		hosts {
-			ignore_case = false
-			prefix      = "prefix"
-        }
-		paths {
+        hosts {
           ignore_case = false
           prefix      = "prefix"
         }
-		# Suffix / Ignore case
-		hosts {
+
+        paths {
+          ignore_case = false
+          prefix      = "prefix"
+        }
+
+        # Suffix / Ignore case
+        hosts {
           ignore_case = true
           suffix      = "suffix"
         }
+
         paths {
           ignore_case = true
           suffix      = "suffix"
         }
-		# Exact
-		hosts {
+ 
+        # Exact
+        hosts {
           exact       = "exact"
           ignore_case = false
         }
-		paths {
-		  exact       = "exact"
-		  ignore_case = false
+
+        paths {
+          exact       = "exact"
+          ignore_case = false
         }
-		# Contains / Ignore case
-		hosts {
+
+        # Contains / Ignore case
+        hosts {
           contains    = "contains"
           ignore_case = true
         }
-		paths {
+
+        paths {
           contains    = "contains"
           ignore_case = true
         }
       }
+
       not_operations {
-        methods = ["GET", "PUT", "POST", "HEAD", "PATCH", "DELETE", "OPTIONS"]
-		header_set {
+        methods = ["GET", "PUT", "POST", "HEAD", "PATCH"]
+        header_set {
           # Prefix
-		  headers {
+          headers {
             name = "PrefixHeader"
             value {
-			  ignore_case = false
-			  prefix      = "prefix"
+              ignore_case = false
+              prefix      = "prefix"
             }
           }
-		  # Suffix / Ignore case
-		  headers {
-			name = "SuffixHeader"
-			value {
-			  ignore_case = true
-			  suffix      = "suffix"
-			}
-		  }
-		  # Exact
-		  headers {
+
+          # Suffix / Ignore case
+          headers {
+            name = "SuffixHeader"
+            value {
+              ignore_case = true
+              suffix      = "suffix"
+            }
+          }
+
+          # Exact
+          headers {
             name = "ExactHeader"
             value {
               exact       = "exact"
-          	  ignore_case = false
+              ignore_case = false
             }
           }
-		  # Contains / Ignore case
-		  headers {
+
+          # Contains / Ignore case
+          headers {
             name = "ContainsHeader"
             value {
               contains    = "contains"
-          	  ignore_case = true
+              ignore_case = true
             }
           }
         }
+
         # Prefix
-		hosts {
-			ignore_case = false
-			prefix      = "prefix"
-        }
-		paths {
+        hosts {
           ignore_case = false
           prefix      = "prefix"
         }
-		# Suffix / Ignore case
-		hosts {
+
+        paths {
+          ignore_case = false
+          prefix      = "prefix"
+        }
+
+        # Suffix / Ignore case
+        hosts {
           ignore_case = true
           suffix      = "suffix"
         }
+
         paths {
           ignore_case = true
           suffix      = "suffix"
         }
-		# Exact
-		hosts {
+
+        # Exact
+        hosts {
           exact       = "exact"
           ignore_case = false
         }
-		paths {
-		  exact       = "exact"
-		  ignore_case = false
+
+        paths {
+          exact       = "exact"
+          ignore_case = false
         }
-		# Contains / Ignore case
-		hosts {
+
+        # Contains / Ignore case
+        hosts {
           contains    = "contains"
           ignore_case = true
         }
-		paths {
+
+        paths {
           contains    = "contains"
           ignore_case = true
         }
       }
     }
-	when = "request.host.endsWith('.example.com')"
+
+    when = "request.host.endsWith('.example.com')"
   }
 
   labels = {

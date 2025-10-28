@@ -5,18 +5,18 @@ api_service_name: 'certificatemanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'TrustConfig'
 fields:
-  - field: 'allowlisted_certificates.pem_certificate'
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'allowlistedCertificates.pemCertificate'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'trust_stores.intermediate_cas.pem_certificate'
-  - field: 'trust_stores.trust_anchors.pem_certificate'
-  - field: 'update_time'
+  - api_field: 'trustStores.intermediateCas.pemCertificate'
+  - api_field: 'trustStores.trustAnchors.pemCertificate'
+  - api_field: 'updateTime'

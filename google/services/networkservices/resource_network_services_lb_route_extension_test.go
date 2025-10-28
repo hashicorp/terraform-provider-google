@@ -17,10 +17,12 @@
 package networkservices_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccNetworkServicesLbRouteExtension_update(t *testing.T) {
@@ -882,4 +884,261 @@ resource "google_compute_region_backend_service" "callouts_backend_2" {
   ]
 }
 `, context)
+}
+
+func TestAccNetworkServicesLbRouteExtension_crossRegionInternalPluginExtension(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"test_project_id": envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesLbRouteExtensionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesWasmPlugin_artifactRegistryRepositorySetup(context),
+				Check: resource.ComposeTestCheckFunc(
+					// Upload the compiled plugin code to Artifact Registry
+					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+						t,
+						"google_artifact_registry_repository.test_repository",
+						"my-wasm-plugin",
+						"v1",
+						"test-fixtures/compiled-package/plugin.wasm",
+						"plugin.wasm",
+					),
+				),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.test_repository",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels"},
+			},
+			{
+				Config: testAccNetworkServicesLbRouteExtension_crossRegionInternalPluginExtension(context),
+			},
+			{
+				ResourceName:            "google_network_services_lb_route_extension.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesLbRouteExtension_crossRegionInternalPluginExtension(context map[string]interface{}) string {
+	return fmt.Sprint(testAccNetworkServicesWasmPlugin_artifactRegistryRepositorySetup(context), acctest.Nprintf(`
+# VPC network
+resource "google_compute_network" "gilb_network" {
+  name                    = "tf-test-l7-ilb-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+# proxy-only subnet
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "tf-test-l7-ilb-proxy-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-west1"
+  purpose       = "GLOBAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.gilb_network.id
+}
+
+# backend subnet
+resource "google_compute_subnetwork" "gilb_subnet" {
+  name          = "tf-test-l7-gilb-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-west1"
+  network       = google_compute_network.gilb_network.id
+}
+
+# forwarding rule
+resource "google_compute_global_forwarding_rule" "default" {
+  name                  = "tf-test-l7-gilb-forwarding-rule%{random_suffix}"
+  depends_on            = [google_compute_subnetwork.proxy_subnet]
+  ip_protocol           = "TCP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_range            = "80"
+  target                = google_compute_target_http_proxy.default.id
+  network               = google_compute_network.gilb_network.id
+  subnetwork            = google_compute_subnetwork.gilb_subnet.id
+}
+
+# HTTP target proxy
+resource "google_compute_target_http_proxy" "default" {
+  name     = "tf-test-l7-gilb-target-http-proxy%{random_suffix}"
+  url_map  = google_compute_url_map.default.id
+}
+
+# URL map
+resource "google_compute_url_map" "default" {
+  name            = "tf-test-l7-gilb-url-map%{random_suffix}"
+  default_service = google_compute_backend_service.default.id
+}
+
+# backend service
+resource "google_compute_backend_service" "default" {
+  name                  = "tf-test-l7-gilb-backend-subnet%{random_suffix}"
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec           = 10
+  health_checks         = [google_compute_health_check.default.id]
+  backend {
+    group           = google_compute_instance_group_manager.mig.instance_group
+    balancing_mode  = "UTILIZATION"
+    capacity_scaler = 1.0
+  }
+}
+
+# instance template
+resource "google_compute_instance_template" "instance_template" {
+  name         = "tf-test-l7-gilb-mig-template%{random_suffix}"
+  machine_type = "e2-small"
+  tags         = ["http-server"]
+
+  network_interface {
+    network    = google_compute_network.gilb_network.id
+    subnetwork = google_compute_subnetwork.gilb_subnet.id
+    access_config {
+      # add external ip to fetch packages
+    }
+  }
+  disk {
+    source_image = "debian-cloud/debian-12"
+    auto_delete  = true
+    boot         = true
+  }
+
+  # install nginx and serve a simple web page
+  metadata = {
+    startup-script = <<-EOF1
+      #! /bin/bash
+      set -euo pipefail
+
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y nginx-light jq
+
+      NAME=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/hostname")
+      IP=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip")
+      METADATA=$(curl -f -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/attributes/?recursive=True" | jq 'del(.["startup-script"])')
+
+      cat <<EOF > /var/www/html/index.html
+      <pre>
+      Name: $NAME
+      IP: $IP
+      Metadata: $METADATA
+      </pre>
+      EOF
+    EOF1
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# health check
+resource "google_compute_health_check" "default" {
+  name     = "tf-test-l7-gilb-hc%{random_suffix}"
+  http_health_check {
+    port_specification = "USE_SERVING_PORT"
+  }
+}
+
+# MIG
+resource "google_compute_instance_group_manager" "mig" {
+  name     = "tf-test-l7-gilb-mig1%{random_suffix}"
+  zone = "us-west1-b"
+  version {
+    instance_template = google_compute_instance_template.instance_template.id
+    name              = "primary"
+  }
+  base_instance_name = "vm"
+  target_size        = 2
+}
+
+# allow all access from IAP and health check ranges
+resource "google_compute_firewall" "fw-iap" {
+  name          = "tf-test-l7-gilb-fw-allow-iap-hc%{random_suffix}"
+  direction     = "INGRESS"
+  network       = google_compute_network.gilb_network.id
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16", "35.235.240.0/20"]
+  allow {
+    protocol = "tcp"
+  }
+}
+
+# allow http from proxy subnet to backends
+resource "google_compute_firewall" "fw-gilb-to-backends" {
+  name          = "tf-test-l7-gilb-fw-allow-ilb-to-backends%{random_suffix}"
+  direction     = "INGRESS"
+  network       = google_compute_network.gilb_network.id
+  source_ranges = ["10.0.0.0/24"]
+  target_tags   = ["http-server"]
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443", "8080"]
+  }
+}
+
+resource "google_network_services_lb_route_extension" "default" {
+  name                  = "tf-test-l7-ilb-route-ext%{random_suffix}"
+  description           = "my route extension"
+  location              = "global"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  forwarding_rules      = [google_compute_global_forwarding_rule.default.self_link]
+
+  extension_chains {
+    name = "chain1"
+
+    match_condition {
+      cel_expression = "request.path.startsWith('/extensions')"
+    }
+
+    extensions {
+      name      = "ext11"
+      service   = google_network_services_wasm_plugin.wasm_plugin.id
+      fail_open = false
+
+      forward_headers  = ["custom-header"]
+    }
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_network_services_wasm_plugin" "wasm_plugin" {
+  name        = "tf-test-my-wasm-plugin%{random_suffix}"
+  description = "my wasm plugin"
+
+  main_version_id = "v1"
+
+  labels = {
+    test_label =  "test_value"
+  }
+  log_config {
+    enable =  true
+    sample_rate = 1
+    min_log_level =  "WARN"
+  }
+
+  versions {
+    version_name = "v1"
+    description = "v1 version of my wasm plugin"
+    image_uri = "projects/%{test_project_id}/locations/us-central1/repositories/tf-test-repository-standard%{random_suffix}/genericArtifacts/my-wasm-plugin:v1"
+
+    labels = {
+      test_label =  "test_value"
+    }
+  }
+}
+`, context))
 }

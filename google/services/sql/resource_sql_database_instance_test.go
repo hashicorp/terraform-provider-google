@@ -1166,9 +1166,9 @@ func TestAccSqlDatabaseInstance_withPscEnabled_withNetworkAttachmentUri_thenRemo
 	instanceName := "tf-test-" + random_suffix
 	projectId := envvar.GetTestProjectFromEnv()
 	region := "us-central1"
-	networkNameStr := "tf-test-cloud-sql-network-" + random_suffix
-	subnetworkNameStr := "tf-test-cloud-sql-subnetwork-" + random_suffix
-	networkAttachmentNameStr := "tf-test-cloud-sql-update-na-" + random_suffix
+	networkNameStr := "tf-test-cloud-sql-network-psc-1"
+	subnetworkNameStr := "tf-test-cloud-sql-subnetwork-psc-1"
+	networkAttachmentNameStr := "tf-test-cloud-sql-update-na-psc-1"
 	networkName := acctest.BootstrapSharedTestNetwork(t, networkNameStr)
 	subnetworkName := acctest.BootstrapSubnet(t, subnetworkNameStr, networkName)
 	networkAttachmentName := acctest.BootstrapNetworkAttachment(t, networkAttachmentNameStr, subnetworkName)
@@ -1216,9 +1216,9 @@ func TestAccSqlDatabaseInstance_withPscEnabled_withNetworkAttachmentUriOnCreate(
 	instanceName := "tf-test-" + random_suffix
 	projectId := envvar.GetTestProjectFromEnv()
 	region := "us-central1"
-	networkNameStr := "tf-test-cloud-sql-network-" + random_suffix
-	subnetworkNameStr := "tf-test-cloud-sql-subnetwork-" + random_suffix
-	networkAttachmentNameStr := "tf-test-cloud-sql-update-na-" + random_suffix
+	networkNameStr := "tf-test-cloud-sql-network-psc-2"
+	subnetworkNameStr := "tf-test-cloud-sql-subnetwork-psc-2"
+	networkAttachmentNameStr := "tf-test-cloud-sql-update-na-psc-2"
 	networkName := acctest.BootstrapSharedTestNetwork(t, networkNameStr)
 	subnetworkName := acctest.BootstrapSubnet(t, subnetworkNameStr, networkName)
 	networkAttachmentName := acctest.BootstrapNetworkAttachment(t, networkAttachmentNameStr, subnetworkName)
@@ -1374,6 +1374,8 @@ func TestAccSqlDatabaseInstance_createFromBackup(t *testing.T) {
 }
 
 func TestAccSqlDatabaseInstance_createFromBackupDR(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/24234")
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	// Bootstrap the BackupDR vault
@@ -1449,6 +1451,8 @@ func TestAccSqlDatabaseInstance_backupUpdate(t *testing.T) {
 }
 
 func TestAccSqlDatabaseInstance_BackupDRUpdate(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/24234")
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	// Bootstrap the BackupDR vault
@@ -1574,6 +1578,84 @@ func TestAccSqlDatabaseInstance_cloneWithDatabaseNames(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "clone"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_pointInTimeRestore(t *testing.T) {
+	// Skipped due to randomness
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	backupVaultID := "bv-test"
+	location := "us-central1"
+	project := envvar.GetTestProjectFromEnv()
+	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"project":         project,
+		"backup_vault_id": backupVaultID,
+		"backup_vault":    backupVault,
+		"db_version":      "MYSQL_8_0_41",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_pointInTimeRestoreContext(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "point_in_time_restore_context"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_pointInTimeRestoreWithSettings(t *testing.T) {
+	// Skipped due to randomness
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	backupVaultID := "bv-test"
+	location := "us-central1"
+	project := envvar.GetTestProjectFromEnv()
+	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"project":         project,
+		"backup_vault_id": backupVaultID,
+		"backup_vault":    backupVault,
+		"db_version":      "MYSQL_8_0_41",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_pointInTimeRestoreContextWithSettings(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "point_in_time_restore_context"},
 			},
 		},
 	})
@@ -3303,6 +3385,171 @@ func TestAccSqlDatabaseInstance_MysqlReadPoolEnableDisableSuccess(t *testing.T) 
 	})
 }
 
+// Read pool for MySQL. Enable and disable read pool auto scale
+func TestAccSqlDatabaseInstance_MysqlReadPoolAutoScaleEnableDisableSuccess(t *testing.T) {
+	t.Parallel()
+	primaryName := "tf-test-mysql-as-readpool-primary-" + acctest.RandString(t, 10)
+	readPoolName := "tf-test-mysql-as-readpool-" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType: "MYSQL_8_0",
+					ReplicaName:  readPoolName,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			// Enable auto scale
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "MYSQL_8_0",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        2,
+					MaxNodeCount:     2,
+					MinNodeCount:     2,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			// Disable auto scale
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "MYSQL_8_0",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: false,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.original-read-pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+// Read pool for Postgres. Modify Node Count when auto scale enabled
+func TestAccSqlDatabaseInstance_PostgresReadPoolAutoScaleChangeNodeCount(t *testing.T) {
+	t.Parallel()
+	primaryName := "tf-test-postgreas-as-readpool-primary-" + acctest.RandString(t, 10)
+	readPoolName := "tf-test-postgres-as-readpool-" + acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Create with auto scale takes min node count as node count
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        2,
+					MinNodeCount:     1,
+					MaxNodeCount:     5,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 1, 1, 5),
+			},
+			// Change node count not respected
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        4,
+					MinNodeCount:     1,
+					MaxNodeCount:     5,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 1, 1, 5),
+					testGoogleSqlDatabaseInstanceChangeNodeCount(t, readPoolName, 3),
+				), // Simulate auto scale to 3 nodes.
+
+			},
+			// Change Min/Max (no change to node count)
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        4,
+					MinNodeCount:     2,
+					MaxNodeCount:     4,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 3, 2, 4),
+			},
+			// Change Min (higher than node count), sets node count
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        3,
+					MinNodeCount:     4,
+					MaxNodeCount:     5,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 4, 4, 5),
+			},
+			// Change Max (lower than node count), sets node count
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: true,
+					NodeCount:        5,
+					MinNodeCount:     3,
+					MaxNodeCount:     3,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 3, 3, 3),
+			},
+			// Disable auto scale, sets node count
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName, ReadPoolConfig{
+					DatabaseType:     "POSTGRES_15",
+					ReplicaName:      readPoolName,
+					AutoScaleEnabled: false,
+					NodeCount:        2,
+				}),
+				Check: testGoogleSqlDatabaseInstanceCheckNodeCount(t, readPoolName, 2, 0, 0),
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_updateSslOptionsForPostgreSQL(t *testing.T) {
 	t.Parallel()
 
@@ -3499,6 +3746,107 @@ func TestAccSqlDatabaseInstance_useCustomerManagedServerCa(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_DiskSizeAutoResizeWithoutDiskSize(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+
+	trueVar := true
+	falseVar := false
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create DB with disk size 10gb (minimal) - no disk size specified in configuration, auto resize enabled
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 100, nil, false, false),
+				// Add additional 2gb outside of TF to simulate increase in disk size
+				Check: testGoogleSqlDatabaseInstanceResizeDisk(t, databaseName, 2),
+			},
+			{
+				// Disk size is now 12gb - requested (original value) 10gb, configuration is empty - should not trigger resize, no errors.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, nil, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 12),
+			},
+			{
+				// Disk size is now 12gb - requested (original value) 10gb, configuration is empty - should not trigger resize, no errors.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, &trueVar, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 12),
+			},
+			{
+				// Disk size is now 12gb - requested (original value) 10gb, configuration is empty - disable auto resize - should not error.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, &falseVar, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 12),
+			},
+			{
+				// Disk size is now 12gb - requested (original value) 10gb, configuration is empty - disable auto resize, but enable deletion protection should not error.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, &falseVar, true, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 12),
+			},
+			{
+				// Allow destroy
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 0, 101, &falseVar, true, true),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_DiskSizeAutoResizeWithDiskSize(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+
+	trueVar := true
+	falseVar := false
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create DB with disk size 12gb with auto resize enabled
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 12, 100, nil, false, false),
+				// Add additional 2gb outside of TF to simulate increase in disk size
+				Check: testGoogleSqlDatabaseInstanceResizeDisk(t, databaseName, 2),
+			},
+			{
+				// Disk size is now 14gb - requested (original value) 12gb and auto resize enable - should not trigger resize, no errors.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 12, 101, nil, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 14),
+			},
+			{
+				// Disk size is now 14gb - requested 13gb in configuration, still less - should not trigger resize, no errors.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 13, 102, &trueVar, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 14),
+			},
+			{
+				// Disk size is now 14gb - requested 15gb in configuration, that's an additional increase should trigger resize to 15gb.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 15, 103, nil, false, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 15),
+			},
+			{
+				// Disk size is now 15gb - requested 14gb, but disabled auto resize - should error because it can't be deleted for replacement.
+				Config:      testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 14, 104, &falseVar, false, false),
+				ExpectError: regexp.MustCompile("Instance cannot be destroyed"),
+			},
+			{
+				// Disk size is now 15gb - requested 14gb, but ignore changes is set - so should ignore the configuration change.
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 14, 105, &falseVar, true, false),
+				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 15),
+			},
+			{
+				// Allow destroy
+				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 14, 105, &falseVar, true, true),
 			},
 		},
 	})
@@ -4506,6 +4854,9 @@ resource "google_sql_database_instance" "original-replica" {
   settings {
     tier              = "db-perf-optimized-N-2"
     edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      binary_log_enabled = true
+    }
   }
 }
 `, project, primaryName, project, replicaName)
@@ -4552,6 +4903,9 @@ resource "google_sql_database_instance" "original-replica" {
   settings {
     tier              = "db-perf-optimized-N-2"
     edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      binary_log_enabled = true
+    }
   }
 }
 `, project, primaryName, drReplicaName, project, replicaName, primaryName)
@@ -4593,6 +4947,9 @@ resource "google_sql_database_instance" "original-replica" {
   settings {
     tier              = "db-perf-optimized-N-2"
     edition           = "ENTERPRISE_PLUS"
+    backup_configuration {
+      binary_log_enabled = true
+    }
   }
 }
 `, project, primaryName, project, replicaName, primaryName)
@@ -5045,6 +5402,11 @@ type ReadPoolConfig struct {
 	// ReplicaMachineType gives the machine type of the read pool nodes
 	// or read replica. It defaults to db-perf-optimized-N-2.
 	ReplicaMachineType string
+	// AutoScaleEnabled indicates if auto scaling should be enabled on
+	// the read pool.
+	AutoScaleEnabled bool
+	MinNodeCount     int64
+	MaxNodeCount     int64
 }
 
 func testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName string, rpconfig ReadPoolConfig) string {
@@ -5052,6 +5414,16 @@ func testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName 
 	if rpconfig.NodeCount > 0 {
 		nodeCountStr = fmt.Sprintf(`  node_count = %d
 `, rpconfig.NodeCount)
+	}
+	minNodeCountStr := ""
+	if rpconfig.MinNodeCount > 0 {
+		minNodeCountStr = fmt.Sprintf(`	min_node_count = %d
+`, rpconfig.MinNodeCount)
+	}
+	maxNodeCountStr := ""
+	if rpconfig.MaxNodeCount > 0 {
+		maxNodeCountStr = fmt.Sprintf(`	max_node_count = %d
+`, rpconfig.MaxNodeCount)
 	}
 
 	if rpconfig.InstanceType == "" {
@@ -5067,6 +5439,30 @@ func testGoogleSqlDatabaseInstanceConfig_eplusWithReadPool(project, primaryName 
 		primaryTxnLogs = "binary_log_enabled = true\n"
 	} else if strings.HasPrefix(rpconfig.DatabaseType, "POSTGRES") {
 		primaryTxnLogs = "point_in_time_recovery_enabled = true\n"
+	}
+	autoScaleConfigStr := ""
+	if rpconfig.AutoScaleEnabled {
+		cooldownSeconds := 180
+		autoScaleConfigStr = fmt.Sprintf(`
+	read_pool_auto_scale_config {
+		enabled = true
+%s
+%s
+		target_metrics {
+			metric = "AVERAGE_CPU_UTILIZATION"
+			target_value = 0.5
+		}
+		scale_in_cooldown_seconds = %d
+		scale_out_cooldown_seconds = %d
+		disable_scale_in = true
+	}
+`, minNodeCountStr, maxNodeCountStr, cooldownSeconds, cooldownSeconds)
+	} else {
+		autoScaleConfigStr = fmt.Sprintf(`
+	read_pool_auto_scale_config {
+		enabled = false
+	}
+`)
 	}
 
 	return fmt.Sprintf(`
@@ -5101,9 +5497,10 @@ resource "google_sql_database_instance" "original-read-pool" {
   settings {
     tier              = "%s"
     edition           = "ENTERPRISE_PLUS"
+    %s
   }
 }
-`, project, primaryName, rpconfig.DatabaseType, primaryTxnLogs, project, rpconfig.ReplicaName, rpconfig.DatabaseType, rpconfig.InstanceType, nodeCountStr, rpconfig.ReplicaMachineType)
+`, project, primaryName, rpconfig.DatabaseType, primaryTxnLogs, project, rpconfig.ReplicaName, rpconfig.DatabaseType, rpconfig.InstanceType, nodeCountStr, rpconfig.ReplicaMachineType, autoScaleConfigStr)
 }
 
 func testAccSqlDatabaseInstance_basicInstanceForPsc(instanceName string, projectId string, orgId string, billingAccount string) string {
@@ -6778,6 +7175,243 @@ data "google_sql_backup_run" "backup" {
 `, context)
 }
 
+func testAccSqlDatabaseInstance_pointInTimeRestoreContext(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Create service account
+resource "google_service_account" "bkdr_sa" {
+    account_id   = "tf-test-bkdr-sa-%{random_suffix}"
+    display_name = "Backup DR Service Account"
+}
+
+// Create a backup plan
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+  log_retention_days = 2
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+// Create source SQL instance to backup
+resource "google_sql_database_instance" "source" {
+    name                = "tf-test-source-%{random_suffix}"
+    database_version    = "MYSQL_8_0_41"
+    region             	= "us-central1"
+    project            	= "%{project}"
+    settings {
+        tier = "db-f1-micro"
+        backup_configuration {
+            enabled = true
+        }
+    }
+	lifecycle {
+		ignore_changes = [
+		  settings[0].backup_configuration[0].enabled,
+		]
+ 	}
+    deletion_protection = false
+}
+
+// Associate backup plan with SQL instance
+resource "google_backup_dr_backup_plan_association" "association" { 
+  location 						= "us-central1" 
+  backup_plan_association_id 	= "tf-test-bpa-test-%{random_suffix}"
+  resource 						= "projects/${google_sql_database_instance.source.project}/instances/${google_sql_database_instance.source.name}"
+  resource_type					= "sqladmin.googleapis.com/Instance"
+  backup_plan 					= google_backup_dr_backup_plan.plan.name
+}
+
+// Wait for the first backup to be created
+resource "time_sleep" "wait_10_mins" {
+  depends_on = [google_backup_dr_backup_plan_association.association]
+
+  create_duration = "600s"
+}
+
+data "google_backup_dr_backup" "sql_backups" {
+  project			= "%{project}"
+  location      	= "us-central1"
+  backup_vault_id 	= "%{backup_vault_id}"
+  data_source_id 	= element(split("/", google_backup_dr_backup_plan_association.association.data_source), length(split("/", google_backup_dr_backup_plan_association.association.data_source)) - 1)
+
+  depends_on = [time_sleep.wait_10_mins]
+}
+
+// for a point in time restore operation to succeed, the source instance must be in active state and have logs
+resource "google_sql_database" "database" {
+  name     = "tf-test-db-%{random_suffix}"
+  instance =  google_sql_database_instance.source.name
+  project  = "%{project}"
+  depends_on = [data.google_backup_dr_backup.sql_backups]
+}
+
+// Wait for the ten minutes (RPO is 5 minutes)
+resource "time_sleep" "wait_for_binlog" {
+  depends_on = [google_sql_database.database]
+
+  create_duration = "600s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "MYSQL_8_0_41"
+  region           = "us-central1"
+
+  point_in_time_restore_context {
+    datasource      = google_backup_dr_backup_plan_association.association.data_source
+	target_instance = "%{project}:tf-test-%{random_suffix}"
+	point_in_time   = timestamp()
+  }
+
+  lifecycle {
+	ignore_changes = [point_in_time_restore_context[0].point_in_time]
+  }
+
+  depends_on = [time_sleep.wait_for_binlog]
+
+  deletion_protection 	= false
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_pointInTimeRestoreContextWithSettings(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Create service account
+resource "google_service_account" "bkdr_sa" {
+    account_id   = "tf-test-bkdr-sa-%{random_suffix}"
+    display_name = "Backup DR Service Account"
+}
+
+// Create a backup plan
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+  log_retention_days = 2
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+// Create source SQL instance to backup
+resource "google_sql_database_instance" "source" {
+    name                = "tf-test-source-%{random_suffix}"
+    database_version    = "MYSQL_8_0_41"
+    region             	= "us-central1"
+    project            	= "%{project}"
+    settings {
+        tier = "db-f1-micro"
+        backup_configuration {
+            enabled = true
+        }
+    }
+	lifecycle {
+		ignore_changes = [
+		  settings[0].backup_configuration[0].enabled,
+		]
+ 	}
+    deletion_protection = false
+}
+
+// Associate backup plan with SQL instance
+resource "google_backup_dr_backup_plan_association" "association" { 
+  location 						= "us-central1" 
+  backup_plan_association_id 	= "tf-test-bpa-test-%{random_suffix}"
+  resource 						= "projects/${google_sql_database_instance.source.project}/instances/${google_sql_database_instance.source.name}"
+  resource_type					= "sqladmin.googleapis.com/Instance"
+  backup_plan 					= google_backup_dr_backup_plan.plan.name
+}
+
+// Wait for the first backup to be created
+resource "time_sleep" "wait_10_mins" {
+  depends_on = [google_backup_dr_backup_plan_association.association]
+
+  create_duration = "600s"
+}
+
+data "google_backup_dr_backup" "sql_backups" {
+  project			= "%{project}"
+  location      	= "us-central1"
+  backup_vault_id 	= "%{backup_vault_id}"
+  data_source_id 	= element(split("/", google_backup_dr_backup_plan_association.association.data_source), length(split("/", google_backup_dr_backup_plan_association.association.data_source)) - 1)
+
+  depends_on = [time_sleep.wait_10_mins]
+}
+
+// for a point in time restore operation to succeed, the source instance must be in active state and have logs
+resource "google_sql_database" "database" {
+  name     = "tf-test-db-%{random_suffix}"
+  instance =  google_sql_database_instance.source.name
+  project  = "%{project}"
+  depends_on = [data.google_backup_dr_backup.sql_backups]
+}
+
+// Wait for the ten minutes (RPO is 5 minutes)
+resource "time_sleep" "wait_for_binlog" {
+  depends_on = [google_sql_database.database]
+
+  create_duration = "600s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "MYSQL_8_0_41"
+  region           = "us-central1"
+
+  settings {
+	tier = "db-g1-small"
+	backup_configuration {
+		enabled            = false
+	}
+  }
+
+  point_in_time_restore_context {
+    datasource      = google_backup_dr_backup_plan_association.association.data_source
+	target_instance = "%{project}:tf-test-%{random_suffix}"
+	point_in_time   = timestamp()
+  }
+
+  lifecycle {
+	ignore_changes = [point_in_time_restore_context[0].point_in_time]
+  }
+
+  depends_on = [time_sleep.wait_for_binlog]
+
+  deletion_protection 	= false
+}
+`, context)
+}
+
 func checkPromoteReplicaSkipConfigurations(resourceName string) func(*terraform.State) error {
 	return func(s *terraform.State) error {
 		resource, ok := s.RootModule().Resources[resourceName]
@@ -7112,4 +7746,149 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, instance, databaseVersion, deletionProtection, activationPolicy)
+}
+
+func testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, dbName string, diskSize, maxConnections int, autoResize *bool, ignoreChanges, allowDestroy bool) string {
+	diskSizeStmt := ""
+	if diskSize != 0 {
+		diskSizeStmt = fmt.Sprintf("disk_size = %d", diskSize)
+	}
+	autoResizeStmt := ""
+	if autoResize != nil {
+		if *autoResize {
+			autoResizeStmt = "disk_autoresize = true"
+		} else {
+			autoResizeStmt = "disk_autoresize = false"
+		}
+	}
+	ignoreChangesStmt := ""
+	if ignoreChanges {
+		ignoreChangesStmt = "settings[0].disk_size"
+	}
+
+	preventDestroyStmt := "prevent_destroy = true"
+	if allowDestroy {
+		preventDestroyStmt = ""
+	}
+
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_15"
+  deletion_protection = false
+  settings {
+	tier = "db-f1-micro"
+	%s
+	%s
+	database_flags {
+      name  = "max_connections"
+      value = "%d"
+    }
+  }
+  lifecycle {
+    ignore_changes = [%s]
+	%s
+  }
+}
+`, project, dbName, diskSizeStmt, autoResizeStmt, maxConnections, ignoreChangesStmt, preventDestroyStmt)
+}
+
+func testGoogleSqlDatabaseInstanceResizeDisk(t *testing.T, instance string, addGb int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+
+		inst, err := sqlAdminClient.Instances.Get(config.Project, instance).Do()
+		if err != nil {
+			return fmt.Errorf("Could not get database instance %q: %s", instance, err)
+		}
+
+		operation, err := sqlAdminClient.Instances.Patch(config.Project, instance, &sqladmin.DatabaseInstance{
+			Settings: &sqladmin.Settings{
+				SettingsVersion: inst.Settings.SettingsVersion,
+				DataDiskSizeGb:  inst.Settings.DataDiskSizeGb + addGb,
+			},
+		}).Do()
+		if err != nil {
+			return fmt.Errorf("Could not update database instance %q: %s", instance, err)
+		}
+
+		// Wait for the operation to complete
+		if err := sql.SqlAdminOperationWaitTime(config, operation, config.Project, "Waiting for disk resize", config.UserAgent, 10*time.Minute); err != nil {
+			return fmt.Errorf("Could not wait for operation to complete: %s", err)
+		}
+
+		return nil
+	}
+}
+
+func testGoogleSqlDatabaseInstanceCheckDiskSize(t *testing.T, instance string, size int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+
+		inst, err := sqlAdminClient.Instances.Get(config.Project, instance).Do()
+		if err != nil {
+			return fmt.Errorf("Could not get database instance %q: %s", instance, err)
+		}
+
+		if inst.Settings.DataDiskSizeGb != size {
+			return fmt.Errorf("Expected disk size %d, got %d", size, inst.Settings.DataDiskSizeGb)
+		}
+
+		return nil
+	}
+}
+
+func testGoogleSqlDatabaseInstanceChangeNodeCount(t *testing.T, instance string, newNodeCount int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+
+		operation, err := sqlAdminClient.Instances.Patch(config.Project, instance, &sqladmin.DatabaseInstance{
+			NodeCount: newNodeCount,
+		}).Do()
+		if err != nil {
+			return fmt.Errorf("Could not update database instance %q: %s", instance, err)
+		}
+
+		// Wait for the operation to complete
+		if err := sql.SqlAdminOperationWaitTime(config, operation, config.Project, "Waiting for scale op", config.UserAgent, 10*time.Minute); err != nil {
+			return fmt.Errorf("Could not wait for operation to complete: %s", err)
+		}
+
+		return nil
+	}
+}
+
+func testGoogleSqlDatabaseInstanceCheckNodeCount(t *testing.T, instance string, nodeCount, minNodeCount, maxNodeCount int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		sqlAdminClient := config.NewSqlAdminClient(config.UserAgent)
+
+		inst, err := sqlAdminClient.Instances.Get(config.Project, instance).Do()
+		if err != nil {
+			return fmt.Errorf("Could not get database instance %q: %s", instance, err)
+		}
+		if inst.NodeCount != nodeCount {
+			return fmt.Errorf("Expected nodeCount %d, got %d", nodeCount, inst.NodeCount)
+		}
+		if minNodeCount > 0 && inst.Settings.ReadPoolAutoScaleConfig.MinNodeCount != minNodeCount {
+			return fmt.Errorf("Expected min node count %d, got %d", minNodeCount, inst.Settings.ReadPoolAutoScaleConfig.MinNodeCount)
+		}
+		if maxNodeCount > 0 && inst.Settings.ReadPoolAutoScaleConfig.MaxNodeCount != maxNodeCount {
+			return fmt.Errorf("Expected max node count %d, got %d", maxNodeCount, inst.Settings.ReadPoolAutoScaleConfig.MaxNodeCount)
+		}
+
+		return nil
+	}
 }

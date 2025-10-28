@@ -7,17 +7,17 @@ api_resource_type_kind: 'RepositoryGroup'
 fields:
   - field: 'code_repository_index'
     provider_only: true
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'repositories.branch_pattern'
-  - field: 'repositories.resource'
+  - api_field: 'name'
+  - api_field: 'repositories.branchPattern'
+  - api_field: 'repositories.resource'
   - field: 'repository_group_id'
     provider_only: true
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

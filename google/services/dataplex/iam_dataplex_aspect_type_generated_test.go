@@ -104,6 +104,7 @@ resource "google_dataplex_aspect_type" "test_aspect_type_basic" {
   project = "%{project_name}"
   location = "us-central1"
 
+  data_classification = "DATA_CLASSIFICATION_UNSPECIFIED"
   metadata_template = <<EOF
 {
   "name": "tf-test-template",
@@ -149,6 +150,7 @@ resource "google_dataplex_aspect_type" "test_aspect_type_basic" {
   project = "%{project_name}"
   location = "us-central1"
 
+  data_classification = "DATA_CLASSIFICATION_UNSPECIFIED"
   metadata_template = <<EOF
 {
   "name": "tf-test-template",
@@ -209,6 +211,7 @@ resource "google_dataplex_aspect_type" "test_aspect_type_basic" {
   project = "%{project_name}"
   location = "us-central1"
 
+  data_classification = "DATA_CLASSIFICATION_UNSPECIFIED"
   metadata_template = <<EOF
 {
   "name": "tf-test-template",
@@ -256,6 +259,7 @@ resource "google_dataplex_aspect_type" "test_aspect_type_basic" {
   project = "%{project_name}"
   location = "us-central1"
 
+  data_classification = "DATA_CLASSIFICATION_UNSPECIFIED"
   metadata_template = <<EOF
 {
   "name": "tf-test-template",
@@ -301,6 +305,7 @@ resource "google_dataplex_aspect_type" "test_aspect_type_basic" {
   project = "%{project_name}"
   location = "us-central1"
 
+  data_classification = "DATA_CLASSIFICATION_UNSPECIFIED"
   metadata_template = <<EOF
 {
   "name": "tf-test-template",

@@ -2506,6 +2506,9 @@ func expandGkeonpremVmwareAdminClusterBootstrapClusterMembership(v interface{}, 
 }
 
 func expandGkeonpremVmwareAdminClusterNetworkConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2575,6 +2578,9 @@ func expandGkeonpremVmwareAdminClusterNetworkConfigPodAddressCidrBlocks(v interf
 }
 
 func expandGkeonpremVmwareAdminClusterNetworkConfigStaticIpConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2594,6 +2600,9 @@ func expandGkeonpremVmwareAdminClusterNetworkConfigStaticIpConfig(v interface{},
 }
 
 func expandGkeonpremVmwareAdminClusterNetworkConfigStaticIpConfigIpBlocks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2638,6 +2647,9 @@ func expandGkeonpremVmwareAdminClusterNetworkConfigStaticIpConfigIpBlocksGateway
 }
 
 func expandGkeonpremVmwareAdminClusterNetworkConfigStaticIpConfigIpBlocksIps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2675,6 +2687,9 @@ func expandGkeonpremVmwareAdminClusterNetworkConfigStaticIpConfigIpBlocksIpsHost
 }
 
 func expandGkeonpremVmwareAdminClusterNetworkConfigDhcpIpConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2702,6 +2717,9 @@ func expandGkeonpremVmwareAdminClusterNetworkConfigVcenterNetwork(v interface{},
 }
 
 func expandGkeonpremVmwareAdminClusterNetworkConfigHostConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2747,6 +2765,9 @@ func expandGkeonpremVmwareAdminClusterNetworkConfigHostConfigDnsSearchDomains(v 
 }
 
 func expandGkeonpremVmwareAdminClusterNetworkConfigHaControlPlaneConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2766,6 +2787,9 @@ func expandGkeonpremVmwareAdminClusterNetworkConfigHaControlPlaneConfig(v interf
 }
 
 func expandGkeonpremVmwareAdminClusterNetworkConfigHaControlPlaneConfigControlPlaneIpBlock(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2807,6 +2831,9 @@ func expandGkeonpremVmwareAdminClusterNetworkConfigHaControlPlaneConfigControlPl
 }
 
 func expandGkeonpremVmwareAdminClusterNetworkConfigHaControlPlaneConfigControlPlaneIpBlockIps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2844,6 +2871,9 @@ func expandGkeonpremVmwareAdminClusterNetworkConfigHaControlPlaneConfigControlPl
 }
 
 func expandGkeonpremVmwareAdminClusterControlPlaneNode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2889,6 +2919,9 @@ func expandGkeonpremVmwareAdminClusterControlPlaneNodeReplicas(v interface{}, d 
 }
 
 func expandGkeonpremVmwareAdminClusterAddonNode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2908,6 +2941,9 @@ func expandGkeonpremVmwareAdminClusterAddonNode(v interface{}, d tpgresource.Ter
 }
 
 func expandGkeonpremVmwareAdminClusterAddonNodeAutoResizeConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2931,6 +2967,9 @@ func expandGkeonpremVmwareAdminClusterAddonNodeAutoResizeConfigEnabled(v interfa
 }
 
 func expandGkeonpremVmwareAdminClusterLoadBalancer(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2971,6 +3010,9 @@ func expandGkeonpremVmwareAdminClusterLoadBalancer(v interface{}, d tpgresource.
 }
 
 func expandGkeonpremVmwareAdminClusterLoadBalancerVipConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3005,6 +3047,9 @@ func expandGkeonpremVmwareAdminClusterLoadBalancerVipConfigAddonsVip(v interface
 }
 
 func expandGkeonpremVmwareAdminClusterLoadBalancerF5Config(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3050,6 +3095,9 @@ func expandGkeonpremVmwareAdminClusterLoadBalancerF5ConfigSnatPool(v interface{}
 }
 
 func expandGkeonpremVmwareAdminClusterLoadBalancerManualLbConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3117,6 +3165,9 @@ func expandGkeonpremVmwareAdminClusterLoadBalancerManualLbConfigAddonsNodePort(v
 }
 
 func expandGkeonpremVmwareAdminClusterLoadBalancerMetalLbConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3140,6 +3191,9 @@ func expandGkeonpremVmwareAdminClusterLoadBalancerMetalLbConfigEnabled(v interfa
 }
 
 func expandGkeonpremVmwareAdminClusterVcenter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3251,6 +3305,9 @@ func expandGkeonpremVmwareAdminClusterVcenterStoragePolicyName(v interface{}, d 
 }
 
 func expandGkeonpremVmwareAdminClusterAntiAffinityGroups(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3274,6 +3331,9 @@ func expandGkeonpremVmwareAdminClusterAntiAffinityGroupsAagConfigDisabled(v inte
 }
 
 func expandGkeonpremVmwareAdminClusterAutoRepairConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3297,6 +3357,9 @@ func expandGkeonpremVmwareAdminClusterAutoRepairConfigEnabled(v interface{}, d t
 }
 
 func expandGkeonpremVmwareAdminClusterAuthorization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3316,6 +3379,9 @@ func expandGkeonpremVmwareAdminClusterAuthorization(v interface{}, d tpgresource
 }
 
 func expandGkeonpremVmwareAdminClusterAuthorizationViewerUsers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3342,6 +3408,9 @@ func expandGkeonpremVmwareAdminClusterAuthorizationViewerUsersUsername(v interfa
 }
 
 func expandGkeonpremVmwareAdminClusterPlatformConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3390,6 +3459,9 @@ func expandGkeonpremVmwareAdminClusterPlatformConfigPlatformVersion(v interface{
 }
 
 func expandGkeonpremVmwareAdminClusterPlatformConfigBundles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3423,6 +3495,9 @@ func expandGkeonpremVmwareAdminClusterPlatformConfigBundlesVersion(v interface{}
 }
 
 func expandGkeonpremVmwareAdminClusterPlatformConfigBundlesStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3453,6 +3528,9 @@ func expandGkeonpremVmwareAdminClusterPlatformConfigBundlesStatusErrorMessage(v 
 }
 
 func expandGkeonpremVmwareAdminClusterPlatformConfigBundlesStatusConditions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3523,6 +3601,9 @@ func expandGkeonpremVmwareAdminClusterPlatformConfigBundlesStatusConditionsState
 }
 
 func expandGkeonpremVmwareAdminClusterPlatformConfigStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3553,6 +3634,9 @@ func expandGkeonpremVmwareAdminClusterPlatformConfigStatusErrorMessage(v interfa
 }
 
 func expandGkeonpremVmwareAdminClusterPlatformConfigStatusConditions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -3627,6 +3711,9 @@ func expandGkeonpremVmwareAdminClusterEnableAdvancedCluster(v interface{}, d tpg
 }
 
 func expandGkeonpremVmwareAdminClusterPrivateRegistryConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3661,6 +3748,9 @@ func expandGkeonpremVmwareAdminClusterPrivateRegistryConfigCaCert(v interface{},
 }
 
 func expandGkeonpremVmwareAdminClusterProxy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

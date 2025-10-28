@@ -759,6 +759,9 @@ func expandNetworkServicesTcpRouteGateways(v interface{}, d tpgresource.Terrafor
 }
 
 func expandNetworkServicesTcpRouteRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -788,6 +791,9 @@ func expandNetworkServicesTcpRouteRules(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandNetworkServicesTcpRouteRulesMatches(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -825,6 +831,9 @@ func expandNetworkServicesTcpRouteRulesMatchesPort(v interface{}, d tpgresource.
 }
 
 func expandNetworkServicesTcpRouteRulesAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -858,6 +867,9 @@ func expandNetworkServicesTcpRouteRulesAction(v interface{}, d tpgresource.Terra
 }
 
 func expandNetworkServicesTcpRouteRulesActionDestinations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

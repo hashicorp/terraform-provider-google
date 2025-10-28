@@ -5,17 +5,17 @@ api_service_name: 'networkservices.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Mesh'
 fields:
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'interception_port'
-  - field: 'labels'
+  - api_field: 'interceptionPort'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
-  - field: 'self_link'
+  - api_field: 'selfLink'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

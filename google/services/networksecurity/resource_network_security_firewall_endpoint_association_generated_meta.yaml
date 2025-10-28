@@ -5,23 +5,23 @@ api_service_name: 'networksecurity.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'FirewallEndpointAssociation'
 fields:
-  - field: 'create_time'
-  - field: 'disabled'
+  - api_field: 'createTime'
+  - api_field: 'disabled'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'firewall_endpoint'
-  - field: 'labels'
+  - api_field: 'firewallEndpoint'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
   - field: 'name'
     provider_only: true
-  - field: 'network'
+  - api_field: 'network'
   - field: 'parent'
     provider_only: true
-  - field: 'reconciling'
-  - field: 'self_link'
-  - field: 'state'
+  - api_field: 'reconciling'
+  - api_field: 'selfLink'
+  - api_field: 'state'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'tls_inspection_policy'
-  - field: 'update_time'
+  - api_field: 'tlsInspectionPolicy'
+  - api_field: 'updateTime'

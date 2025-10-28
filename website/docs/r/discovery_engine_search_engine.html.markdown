@@ -83,6 +83,7 @@ resource "google_discovery_engine_search_engine" "agentspace_basic" {
   display_name                = "tf-test-agentspace-search-engine"
   data_store_ids              = [google_discovery_engine_data_store.agentspace_basic.data_store_id]
   industry_vertical           = "GENERIC"
+  app_type                    = "APP_TYPE_INTRANET"
   search_engine_config {
   }
 }
@@ -134,6 +135,18 @@ The following arguments are supported:
   (Optional)
   This is the application type this engine resource represents.
   The supported values: 'APP_TYPE_UNSPECIFIED', 'APP_TYPE_INTRANET'.
+
+* `features` -
+  (Optional)
+  A map of the feature config for the engine to opt in or opt out of features.
+
+* `kms_key_name` -
+  (Optional)
+  The KMS key to be used to protect this Engine at creation time.
+  Must be set for requests that need to comply with CMEK Org Policy
+  protections.
+  If this field is set and processed successfully, the Engine will be
+  protected by the KMS key, as indicated in the cmek_config field.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

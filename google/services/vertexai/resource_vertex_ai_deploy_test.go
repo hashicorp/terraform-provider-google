@@ -205,6 +205,97 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-llama-
 `, context)
 }
 
+func TestAccVertexAIEndpointWithModelGardenDeployment_pscEndpoint(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{"random_suffix": acctest.RandString(t, 10)}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIEndpointWithModelGardenDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIEndpointWithModelGardenDeployment_pscEndpoint(context),
+			},
+		},
+	})
+}
+
+func testAccVertexAIEndpointWithModelGardenDeployment_pscEndpoint(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "test" {
+  publisher_model_name = "publishers/google/models/paligemma@paligemma-224-float32"
+  location             = "us-central1"
+
+  model_config {
+    accept_eula = true
+  }
+
+  endpoint_config {
+    private_service_connect_config {
+      enable_private_service_connect = true
+      project_allowlist              = [data.google_project.project.id]
+    }
+  }
+}
+
+data "google_project" "project" {}
+`, context)
+}
+
+func TestAccVertexAIEndpointWithModelGardenDeployment_pscEndpointAutomated(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{"random_suffix": acctest.RandString(t, 10)}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIEndpointWithModelGardenDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIEndpointWithModelGardenDeployment_pscEndpointAutomated(context),
+			},
+		},
+	})
+}
+
+func testAccVertexAIEndpointWithModelGardenDeployment_pscEndpointAutomated(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "test" {
+  publisher_model_name = "publishers/google/models/paligemma@paligemma-224-float32"
+  location             = "us-central1"
+
+  model_config {
+    accept_eula = true
+  }
+
+  endpoint_config {
+    private_service_connect_config {
+      enable_private_service_connect = true
+      project_allowlist              = [data.google_project.project.id]
+
+      psc_automation_configs {
+		    project_id = data.google_project.project.id
+		    network    = google_compute_network.network.id
+		  }
+    }
+  }
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "subnetwork"
+  ip_cidr_range = "192.168.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+}
+
+resource "google_compute_network" "network" {
+  name                    = "network"
+  auto_create_subnetworks = false
+}
+
+data "google_project" "project" {}
+`, context)
+}
+
 func testAccCheckVertexAIEndpointWithModelGardenDeploymentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

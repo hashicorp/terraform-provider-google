@@ -7,18 +7,18 @@ api_resource_type_kind: 'Feed'
 api_variant_patterns:
   - 'organizations/{organization}/feeds/{feed}'
 fields:
-  - field: 'asset_names'
-  - field: 'asset_types'
+  - api_field: 'assetNames'
+  - api_field: 'assetTypes'
   - field: 'billing_project'
     provider_only: true
-  - field: 'condition.description'
-  - field: 'condition.expression'
-  - field: 'condition.location'
-  - field: 'condition.title'
-  - field: 'content_type'
+  - api_field: 'condition.description'
+  - api_field: 'condition.expression'
+  - api_field: 'condition.location'
+  - api_field: 'condition.title'
+  - api_field: 'contentType'
   - field: 'feed_id'
     provider_only: true
-  - field: 'feed_output_config.pubsub_destination.topic'
-  - field: 'name'
+  - api_field: 'feedOutputConfig.pubsubDestination.topic'
+  - api_field: 'name'
   - field: 'org_id'
     provider_only: true

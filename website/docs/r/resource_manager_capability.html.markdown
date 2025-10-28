@@ -23,8 +23,6 @@ description: |-
 
 An app-enabled folder is a folder within the Google Cloud resource hierarchy that has been configured for application management. This folder lets you define and manage App Hub applications. These applications are functional groupings of services and workloads that span multiple projects within that folder and its descendant projects.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Capability, see:
 
@@ -37,7 +35,6 @@ To get more information about Capability, see:
 
 ```hcl
 resource "google_folder" "folder" {
-  provider         = google-beta
   display_name     = "my-folder"
   parent           = "organizations/123456789"
   deletion_protection = false
@@ -47,7 +44,6 @@ resource "time_sleep" "wait_60s" {
   create_duration = "60s"
 }
 resource "google_resource_manager_capability" "capability" {
-  provider         = google-beta
   value            = true
   parent           = "${google_folder.folder.name}"
   capability_name  = "app-management"

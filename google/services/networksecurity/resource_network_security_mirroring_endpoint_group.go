@@ -63,14 +63,6 @@ func ResourceNetworkSecurityMirroringEndpointGroup() *schema.Resource {
 				ForceNew:    true,
 				Description: `The cloud location of the endpoint group, currently restricted to 'global'.`,
 			},
-			"mirroring_deployment_group": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The deployment group that this DIRECT endpoint group is connected to, for example:
-'projects/123456789/locations/global/mirroringDeploymentGroups/my-dg'.
-See https://google.aip.dev/124.`,
-			},
 			"mirroring_endpoint_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -92,6 +84,15 @@ Used as additional context for the endpoint group.`,
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"mirroring_deployment_group": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The deployment group that this DIRECT endpoint group is connected to, for example:
+'projects/123456789/locations/global/mirroringDeploymentGroups/my-dg'.
+See https://google.aip.dev/124.`,
+				ExactlyOneOf: []string{"mirroring_deployment_group"},
 			},
 			"associations": {
 				Type:        schema.TypeSet,

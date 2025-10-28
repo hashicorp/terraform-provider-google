@@ -1712,6 +1712,22 @@ func ResourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"auto_ipam_config": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: `AutoIpamConfig contains all information related to Auto IPAM.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `The flag that enables Auto IPAM on this cluster.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1759,6 +1775,16 @@ func ResourceContainerCluster() *schema.Resource {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: `Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.`,
+									},
+									"enable_k8s_tokens_via_dns": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Controls whether the k8s token auth is allowed via dns.`,
+									},
+									"enable_k8s_certs_via_dns": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Controls whether the k8s certs auth is allowed via dns.`,
 									},
 								},
 							},
@@ -2268,6 +2294,12 @@ func ResourceContainerCluster() *schema.Resource {
 							Computed:    true,
 							Description: `Location of the fleet membership, for example "us-central1".`,
 						},
+						"membership_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"LIGHTWEIGHT"}, false),
+							Description:  `The type of the cluster's fleet membership.`,
+						},
 					},
 				},
 			},
@@ -2659,7 +2691,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	} else {
 		// Node Configs have default values that are set in the expand function,
 		// but can only be set if node pools are unspecified.
-		cluster.NodeConfig = expandNodeConfig([]interface{}{})
+		cluster.NodeConfig = expandNodeConfig(d, "", []interface{}{})
 	}
 
 	if v, ok := d.GetOk("node_pool_defaults"); ok {
@@ -2667,7 +2699,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("node_config"); ok {
-		cluster.NodeConfig = expandNodeConfig(v)
+		cluster.NodeConfig = expandNodeConfig(d, "", v)
 	}
 
 	if v, ok := d.GetOk("authenticator_groups_config"); ok {
@@ -4085,6 +4117,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s's AdditionalIpRangesConfig has been updated", d.Id())
 	}
 
+	if d.HasChange("ip_allocation_policy.0.auto_ipam_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredAutoIpamConfig: &container.AutoIpamConfig{Enabled: d.Get("ip_allocation_policy.0.auto_ipam_config.0.enabled").(bool)},
+			},
+		}
+
+		updateF := updateFunc(req, "updating AutoIpamConfig")
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's AutoIpamConfig has been updated", d.Id())
+	}
+
 	if n, ok := d.GetOk("node_pool.#"); ok {
 		for i := 0; i < n.(int); i++ {
 			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
@@ -5221,7 +5268,19 @@ func expandIPAllocationPolicy(configured interface{}, d *schema.ResourceData, ne
 		UseRoutes:                  networkingMode == "ROUTES",
 		StackType:                  stackType,
 		PodCidrOverprovisionConfig: expandPodCidrOverprovisionConfig(config["pod_cidr_overprovision_config"]),
+		AutoIpamConfig:             expandAutoIpamConfig(config["auto_ipam_config"]),
 	}, additionalIpRangesConfigs, nil
+}
+
+func expandAutoIpamConfig(configured interface{}) *container.AutoIpamConfig {
+	l, ok := configured.([]interface{})
+	if !ok || len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	return &container.AutoIpamConfig{
+		Enabled: l[0].(map[string]interface{})["enabled"].(bool),
+	}
 }
 
 func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *container.MaintenancePolicy {
@@ -5809,6 +5868,16 @@ func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.Contro
 		dns.ForceSendFields = []string{"AllowExternalTraffic"}
 	}
 
+	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_tokens_via_dns"); v != nil {
+		dns.EnableK8sTokensViaDns = v.(bool)
+		dns.ForceSendFields = []string{"EnableK8sTokensViaDns"}
+	}
+
+	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_certs_via_dns"); v != nil {
+		dns.EnableK8sCertsViaDns = v.(bool)
+		dns.ForceSendFields = []string{"EnableK8sCertsViaDns"}
+	}
+
 	ip := &container.IPEndpointsConfig{
 		Enabled:         true,
 		ForceSendFields: []string{"Enabled"},
@@ -6105,7 +6174,8 @@ func expandFleet(configured interface{}) *container.Fleet {
 
 	config := l[0].(map[string]interface{})
 	return &container.Fleet{
-		Project: config["project"].(string),
+		Project:        config["project"].(string),
+		MembershipType: config["membership_type"].(string),
 	}
 }
 
@@ -6560,8 +6630,10 @@ func flattenDnsEndpointConfig(dns *container.DNSEndpointConfig) []map[string]int
 	}
 	return []map[string]interface{}{
 		{
-			"endpoint":               dns.Endpoint,
-			"allow_external_traffic": dns.AllowExternalTraffic,
+			"endpoint":                  dns.Endpoint,
+			"allow_external_traffic":    dns.AllowExternalTraffic,
+			"enable_k8s_tokens_via_dns": dns.EnableK8sTokensViaDns,
+			"enable_k8s_certs_via_dns":  dns.EnableK8sCertsViaDns,
 		},
 	}
 }
@@ -6743,8 +6815,21 @@ func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, con
 			"pod_cidr_overprovision_config": flattenPodCidrOverprovisionConfig(p.PodCidrOverprovisionConfig),
 			"additional_pod_ranges_config":  flattenAdditionalPodRangesConfig(c.IpAllocationPolicy),
 			"additional_ip_ranges_config":   flattenAdditionalIpRangesConfigs(p.AdditionalIpRangesConfigs),
+			"auto_ipam_config":              flattenAutoIpamConfig(p.AutoIpamConfig),
 		},
 	}, nil
+}
+
+func flattenAutoIpamConfig(aic *container.AutoIpamConfig) []map[string]interface{} {
+	if aic == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"enabled": aic.Enabled,
+		},
+	}
 }
 
 func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]interface{} {
@@ -7123,6 +7208,7 @@ func flattenFleet(c *container.Fleet) []map[string]interface{} {
 			"membership_id":       membership_id,
 			"membership_location": membership_location,
 			"pre_registered":      c.PreRegistered,
+			"membership_type":     c.MembershipType,
 		},
 	}
 }

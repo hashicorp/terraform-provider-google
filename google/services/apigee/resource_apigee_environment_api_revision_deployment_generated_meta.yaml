@@ -1,0 +1,25 @@
+resource: 'google_apigee_environment_api_revision_deployment'
+generation_type: 'mmv1'
+source_file: 'products/apigee/EnvironmentApiRevisionDeployment.yaml'
+api_service_name: 'apigee.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'EnvironmentApiRevisionDeployment'
+fields:
+  - field: 'api'
+    provider_only: true
+  - api_field: 'basePath'
+    field: 'basepaths'
+  - api_field: 'deployStartTime'
+  - field: 'environment'
+    provider_only: true
+  - field: 'org_id'
+    provider_only: true
+  - field: 'override'
+    provider_only: true
+  - field: 'revision'
+    provider_only: true
+  - field: 'sequenced_rollout'
+    provider_only: true
+  - field: 'service_account'
+    provider_only: true
+  - api_field: 'state'

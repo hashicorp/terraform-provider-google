@@ -46,8 +46,8 @@ func TestAccDataSourceIapClient_basic(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_iap_client.default",
 						"google_iap_client.project_client",
-						map[string]struct{}{
-							"brand": {},
+						[]string{
+							"brand",
 						},
 					),
 				),

@@ -44,7 +44,7 @@ func TestAccDataSourceGoogleCloudFunctions2Function_basic(t *testing.T) {
 				// but the "labels" field in resource are user defined labels, which is the reason for the mismatch.
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(funcDataNameHttp,
-						"google_cloudfunctions2_function.function_http_v2", map[string]struct{}{"build_config.0.source.0.storage_source.0.bucket": {}, "build_config.0.source.0.storage_source.0.object": {}, "labels.%": {}, "terraform_labels.%": {}}),
+						"google_cloudfunctions2_function.function_http_v2", []string{"build_config.0.source.0.storage_source.0.bucket", "build_config.0.source.0.storage_source.0.object", "labels.%", "terraform_labels.%"}),
 				),
 			},
 		},

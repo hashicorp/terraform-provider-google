@@ -67,6 +67,23 @@ func ResourceVertexAIIndexEndpoint() *schema.Resource {
 				Optional:    true,
 				Description: `The description of the Index.`,
 			},
+			"encryption_spec": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Customer-managed encryption key spec for an IndexEndpoint. If set, this IndexEndpoint and all sub-resources of this IndexEndpoint will be secured by this key.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: 'projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key'. The key needs to be in the same region as where the compute resource is created.`,
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -213,6 +230,12 @@ func resourceVertexAIIndexEndpointCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("public_endpoint_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(publicEndpointEnabledProp)) && (ok || !reflect.DeepEqual(v, publicEndpointEnabledProp)) {
 		obj["publicEndpointEnabled"] = publicEndpointEnabledProp
 	}
+	encryptionSpecProp, err := expandVertexAIIndexEndpointEncryptionSpec(d.Get("encryption_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionSpecProp)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
+		obj["encryptionSpec"] = encryptionSpecProp
+	}
 	effectiveLabelsProp, err := expandVertexAIIndexEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -357,6 +380,9 @@ func resourceVertexAIIndexEndpointRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading IndexEndpoint: %s", err)
 	}
 	if err := d.Set("public_endpoint_domain_name", flattenVertexAIIndexEndpointPublicEndpointDomainName(res["publicEndpointDomainName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IndexEndpoint: %s", err)
+	}
+	if err := d.Set("encryption_spec", flattenVertexAIIndexEndpointEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading IndexEndpoint: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenVertexAIIndexEndpointTerraformLabels(res["labels"], d, config)); err != nil {
@@ -612,6 +638,23 @@ func flattenVertexAIIndexEndpointPublicEndpointDomainName(v interface{}, d *sche
 	return v
 }
 
+func flattenVertexAIIndexEndpointEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenVertexAIIndexEndpointEncryptionSpecKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIIndexEndpointEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIIndexEndpointTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -644,6 +687,9 @@ func expandVertexAIIndexEndpointNetwork(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandVertexAIIndexEndpointPrivateServiceConnectConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -678,6 +724,32 @@ func expandVertexAIIndexEndpointPrivateServiceConnectConfigProjectAllowlist(v in
 }
 
 func expandVertexAIIndexEndpointPublicEndpointEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIIndexEndpointEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandVertexAIIndexEndpointEncryptionSpecKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIIndexEndpointEncryptionSpecKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

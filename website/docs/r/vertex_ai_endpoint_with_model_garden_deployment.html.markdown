@@ -196,6 +196,65 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-llama-
   depends_on = [ google_vertex_ai_endpoint_with_model_garden_deployment.deploy-qwen3-0_6b ]
 }
 ```
+## Example Usage - Vertex Ai Deploy Psc Endpoint
+
+
+```hcl
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy" {
+  publisher_model_name = "publishers/google/models/paligemma@paligemma-224-float32"
+  location             = "us-central1"
+
+  model_config {
+    accept_eula =  true
+  }
+
+  endpoint_config {
+    private_service_connect_config {
+      enable_private_service_connect = true
+      project_allowlist              = ["my-project-id"]
+    }
+  }
+}
+```
+## Example Usage - Vertex Ai Deploy Psc Endpoint Automated
+
+
+```hcl
+resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy" {
+  publisher_model_name = "publishers/google/models/paligemma@paligemma-224-float32"
+  location             = "us-central1"
+
+  model_config {
+    accept_eula =  true
+  }
+
+  endpoint_config {
+    private_service_connect_config {
+      enable_private_service_connect = true
+      project_allowlist              = [data.google_project.project.id]
+
+      psc_automation_configs {
+        project_id = data.google_project.project.id
+        network    = google_compute_network.network.id
+      }
+    }
+  }
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "subnetwork"
+  ip_cidr_range = "192.168.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+}
+
+resource "google_compute_network" "network" {
+  name                    = "network"
+  auto_create_subnetworks = false
+}
+
+data "google_project" "project" {}
+```
 
 ## Argument Reference
 
@@ -927,6 +986,60 @@ The following arguments are supported:
   performance and reliability. Note: Once you enabled dedicated endpoint,
   you won't be able to send request to the shared DNS
   {region}-aiplatform.googleapis.com. The limitations will be removed soon.
+
+* `private_service_connect_config` -
+  (Optional)
+  The configuration for Private Service Connect (PSC).
+  Structure is [documented below](#nested_endpoint_config_private_service_connect_config).
+
+
+<a name="nested_endpoint_config_private_service_connect_config"></a>The `private_service_connect_config` block supports:
+
+* `enable_private_service_connect` -
+  (Required)
+  Required. If true, expose the IndexEndpoint via private service connect.
+
+* `project_allowlist` -
+  (Optional)
+  A list of Projects from which the forwarding rule will target the service attachment.
+
+* `psc_automation_configs` -
+  (Optional)
+  PSC config that is used to automatically create PSC endpoints in the user projects.
+  Structure is [documented below](#nested_endpoint_config_private_service_connect_config_psc_automation_configs).
+
+* `service_attachment` -
+  (Output)
+  Output only. The name of the generated service attachment resource.
+  This is only populated if the endpoint is deployed with PrivateServiceConnect.
+
+
+<a name="nested_endpoint_config_private_service_connect_config_psc_automation_configs"></a>The `psc_automation_configs` block supports:
+
+* `project_id` -
+  (Required)
+  Required. Project id used to create forwarding rule.
+
+* `network` -
+  (Required)
+  Required. The full name of the Google Compute Engine network.
+  Format: projects/{project}/global/networks/{network}.
+
+* `ip_address` -
+  (Output)
+  Output only. IP address rule created by the PSC service automation.
+
+* `forwarding_rule` -
+  (Output)
+  Output only. Forwarding rule created by the PSC service automation.
+
+* `state` -
+  (Output)
+  Output only. The state of the PSC service automation.
+
+* `error_message` -
+  (Output)
+  Output only. Error message if the PSC service automation failed.
 
 <a name="nested_deploy_config"></a>The `deploy_config` block supports:
 

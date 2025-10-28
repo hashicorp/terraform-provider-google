@@ -8,13 +8,13 @@ autogen_status: true
 fields:
   - field: 'backend'
     provider_only: true
-  - field: 'create_time'
-  - field: 'disabled'
+  - api_field: 'createTime'
+  - api_field: 'disabled'
   - field: 'domain_id'
     provider_only: true
-  - field: 'etag'
+  - api_field: 'etag'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'uid'
-  - field: 'update_time'
+  - api_field: 'name'
+  - api_field: 'uid'
+  - api_field: 'updateTime'

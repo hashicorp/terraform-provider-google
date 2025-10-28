@@ -8,20 +8,20 @@ autogen_status: true
 fields:
   - field: 'api_hub_instance_id'
     provider_only: true
-  - field: 'config.cmek_key_name'
-  - field: 'config.disable_search'
-  - field: 'config.encryption_type'
-  - field: 'config.vertex_location'
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'config.cmekKeyName'
+  - api_field: 'config.disableSearch'
+  - api_field: 'config.encryptionType'
+  - api_field: 'config.vertexLocation'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'labels'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'state'
-  - field: 'state_message'
+  - api_field: 'name'
+  - api_field: 'state'
+  - api_field: 'stateMessage'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

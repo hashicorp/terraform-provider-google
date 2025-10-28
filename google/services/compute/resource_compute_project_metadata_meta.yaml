@@ -4,5 +4,6 @@ api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Project'
 fields:
-  - field: 'metadata'
+  - api_field: 'commonInstanceMetadata.items'
+    field: 'metadata'
   - field: 'project'

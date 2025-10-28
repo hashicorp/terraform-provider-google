@@ -7,17 +7,17 @@ api_resource_type_kind: 'CodeRepositoryIndex'
 fields:
   - field: 'code_repository_index_id'
     provider_only: true
-  - field: 'create_time'
+  - api_field: 'createTime'
   - field: 'effective_labels'
     provider_only: true
   - field: 'force_destroy'
     provider_only: true
-  - field: 'kms_key'
-  - field: 'labels'
+  - api_field: 'kmsKey'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'state'
+  - api_field: 'name'
+  - api_field: 'state'
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
+  - api_field: 'updateTime'

@@ -72,7 +72,7 @@ func TestAccDataSourceGoogleServiceAccounts_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.google_service_accounts.with_regex", "accounts.0.email", fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa_1, project)),
 
 					// Check if the account_id matches the prefix
-					resource.TestCheckResourceAttr("data.google_service_accounts.with_prefix_and_regex", "accounts.0.account_id", fmt.Sprintf(sa_1)),
+					resource.TestCheckResourceAttr("data.google_service_accounts.with_prefix_and_regex", "accounts.0.account_id", sa_1),
 
 					// Check if the email matches the regex
 					resource.TestCheckResourceAttr("data.google_service_accounts.with_prefix_and_regex", "accounts.0.email", fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa_1, project)),

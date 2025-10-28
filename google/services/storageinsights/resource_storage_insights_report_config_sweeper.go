@@ -195,7 +195,7 @@ func deleteResourceStorageInsightsReportConfig(config *transport_tpg.Config, d *
 		return nil
 	}
 
-	deleteTemplate := "https://storageinsights.googleapis.com/v1/projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}"
+	deleteTemplate := "https://storageinsights.googleapis.com/v1/projects/{{project}}/locations/{{location}}/reportConfigs/{{name}}?force={{force_destroy}}"
 
 	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {

@@ -5,23 +5,23 @@ api_service_name: 'edgenetwork.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Subnet'
 fields:
-  - field: 'create_time'
-  - field: 'description'
+  - api_field: 'createTime'
+  - api_field: 'description'
   - field: 'effective_labels'
     provider_only: true
-  - field: 'ipv4_cidr'
-  - field: 'ipv6_cidr'
-  - field: 'labels'
+  - api_field: 'ipv4Cidr'
+  - api_field: 'ipv6Cidr'
+  - api_field: 'labels'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'network'
-  - field: 'state'
+  - api_field: 'name'
+  - api_field: 'network'
+  - api_field: 'state'
   - field: 'subnet_id'
     provider_only: true
   - field: 'terraform_labels'
     provider_only: true
-  - field: 'update_time'
-  - field: 'vlan_id'
+  - api_field: 'updateTime'
+  - api_field: 'vlanId'
   - field: 'zone'
     provider_only: true

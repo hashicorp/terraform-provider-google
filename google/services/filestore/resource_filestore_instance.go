@@ -128,6 +128,12 @@ The limit is 64 IP ranges/addresses for each FileShareConfig among all NfsExport
 											Type: schema.TypeString,
 										},
 									},
+									"network": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The source VPC network for 'ip_ranges'.
+Required for instances using Private Service Connect, optional otherwise.`,
+									},
 									"squash_mode": {
 										Type:         schema.TypeString,
 										Optional:     true,
@@ -192,6 +198,26 @@ instance is connected.`,
 If not provided, the connect mode defaults to
 DIRECT_PEERING. Default value: "DIRECT_PEERING" Possible values: ["DIRECT_PEERING", "PRIVATE_SERVICE_ACCESS", "PRIVATE_SERVICE_CONNECT"]`,
 							Default: "DIRECT_PEERING",
+						},
+						"psc_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Private Service Connect configuration.
+Should only be set when connect_mode is PRIVATE_SERVICE_CONNECT.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"endpoint_project": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `Consumer service project in which the Private Service Connect endpoint
+would be set up. This is optional, and only relevant in case the network
+is a shared VPC. If this is not specified, the endpoint would be set up
+in the VPC host project.`,
+									},
+								},
+							},
 						},
 						"reserved_ip_range": {
 							Type:     schema.TypeString,
@@ -1012,6 +1038,7 @@ func flattenFilestoreInstanceFileSharesNfsExportOptions(v interface{}, d *schema
 			"squash_mode": flattenFilestoreInstanceFileSharesNfsExportOptionsSquashMode(original["squashMode"], d, config),
 			"anon_uid":    flattenFilestoreInstanceFileSharesNfsExportOptionsAnonUid(original["anonUid"], d, config),
 			"anon_gid":    flattenFilestoreInstanceFileSharesNfsExportOptionsAnonGid(original["anonGid"], d, config),
+			"network":     flattenFilestoreInstanceFileSharesNfsExportOptionsNetwork(original["network"], d, config),
 		})
 	}
 	return transformed
@@ -1062,6 +1089,10 @@ func flattenFilestoreInstanceFileSharesNfsExportOptionsAnonGid(v interface{}, d 
 	return v // let terraform core handle it otherwise
 }
 
+func flattenFilestoreInstanceFileSharesNfsExportOptionsNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFilestoreInstanceNetworks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1080,6 +1111,7 @@ func flattenFilestoreInstanceNetworks(v interface{}, d *schema.ResourceData, con
 			"reserved_ip_range": flattenFilestoreInstanceNetworksReservedIpRange(original["reservedIpRange"], d, config),
 			"ip_addresses":      flattenFilestoreInstanceNetworksIpAddresses(original["ipAddresses"], d, config),
 			"connect_mode":      flattenFilestoreInstanceNetworksConnectMode(original["connectMode"], d, config),
+			"psc_config":        flattenFilestoreInstanceNetworksPscConfig(original["pscConfig"], d, config),
 		})
 	}
 	return transformed
@@ -1105,6 +1137,23 @@ func flattenFilestoreInstanceNetworksConnectMode(v interface{}, d *schema.Resour
 		return "DIRECT_PEERING"
 	}
 
+	return v
+}
+
+func flattenFilestoreInstanceNetworksPscConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["endpoint_project"] =
+		flattenFilestoreInstanceNetworksPscConfigEndpointProject(original["endpointProject"], d, config)
+	return []interface{}{transformed}
+}
+func flattenFilestoreInstanceNetworksPscConfigEndpointProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1287,6 +1336,9 @@ func expandFilestoreInstanceProtocol(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandFilestoreInstanceFileShares(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1342,6 +1394,9 @@ func expandFilestoreInstanceFileSharesSourceBackup(v interface{}, d tpgresource.
 }
 
 func expandFilestoreInstanceFileSharesNfsExportOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1386,6 +1441,13 @@ func expandFilestoreInstanceFileSharesNfsExportOptions(v interface{}, d tpgresou
 			transformed["anonGid"] = transformedAnonGid
 		}
 
+		transformedNetwork, err := expandFilestoreInstanceFileSharesNfsExportOptionsNetwork(original["network"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["network"] = transformedNetwork
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1411,7 +1473,14 @@ func expandFilestoreInstanceFileSharesNfsExportOptionsAnonGid(v interface{}, d t
 	return v, nil
 }
 
+func expandFilestoreInstanceFileSharesNfsExportOptionsNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandFilestoreInstanceNetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1456,6 +1525,13 @@ func expandFilestoreInstanceNetworks(v interface{}, d tpgresource.TerraformResou
 			transformed["connectMode"] = transformedConnectMode
 		}
 
+		transformedPscConfig, err := expandFilestoreInstanceNetworksPscConfig(original["psc_config"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPscConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pscConfig"] = transformedPscConfig
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1481,6 +1557,32 @@ func expandFilestoreInstanceNetworksConnectMode(v interface{}, d tpgresource.Ter
 	return v, nil
 }
 
+func expandFilestoreInstanceNetworksPscConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEndpointProject, err := expandFilestoreInstanceNetworksPscConfigEndpointProject(original["endpoint_project"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndpointProject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["endpointProject"] = transformedEndpointProject
+	}
+
+	return transformed, nil
+}
+
+func expandFilestoreInstanceNetworksPscConfigEndpointProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandFilestoreInstanceKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1494,6 +1596,9 @@ func expandFilestoreInstanceDeletionProtectionReason(v interface{}, d tpgresourc
 }
 
 func expandFilestoreInstancePerformanceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1520,6 +1625,9 @@ func expandFilestoreInstancePerformanceConfig(v interface{}, d tpgresource.Terra
 }
 
 func expandFilestoreInstancePerformanceConfigIopsPerTb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1543,6 +1651,9 @@ func expandFilestoreInstancePerformanceConfigIopsPerTbMaxIopsPerTb(v interface{}
 }
 
 func expandFilestoreInstancePerformanceConfigFixedIops(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1577,6 +1688,9 @@ func expandFilestoreInstanceTags(v interface{}, d tpgresource.TerraformResourceD
 }
 
 func expandFilestoreInstanceInitialReplication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1607,6 +1721,9 @@ func expandFilestoreInstanceInitialReplicationRole(v interface{}, d tpgresource.
 }
 
 func expandFilestoreInstanceInitialReplicationReplicas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

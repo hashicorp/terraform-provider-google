@@ -677,7 +677,7 @@ When the field is set to false, deleting the job is allowed.
 
 * `limits` -
   (Optional)
-  Only memory, CPU, and nvidia.com/gpu are supported. Use key `cpu` for CPU limit, `memory` for memory limit, `nvidia.com/gpu` for gpu limit. Note: The only supported values for CPU are '1', '2', '4', and '8'. Setting 4 CPU requires at least 2Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
+  Only memory, CPU, and nvidia.com/gpu are supported. Use key `cpu` for CPU limit, `memory` for memory limit, `nvidia.com/gpu` for gpu limit. Note: The only supported values for CPU are '1', '2', '4', '6', and '8'. Setting 4 CPU requires at least 2Gi of memory, setting 6 or more CPU requires at least 4Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
 
 <a name="nested_template_template_containers_containers_ports"></a>The `ports` block supports:
 
@@ -881,7 +881,7 @@ When the field is set to false, deleting the job is allowed.
   If true, mount this volume as read-only in all mounts. If false, mount this volume as read-write.
 
 * `mount_options` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A list of flags to pass to the gcsfuse command for configuring this volume.
   Flags should be passed without leading dashes.
 

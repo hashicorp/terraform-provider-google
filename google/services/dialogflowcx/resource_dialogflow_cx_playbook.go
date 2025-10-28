@@ -722,6 +722,9 @@ func expandDialogflowCXPlaybookGoal(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandDialogflowCXPlaybookInstruction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -752,6 +755,9 @@ func expandDialogflowCXPlaybookInstructionGuidelines(v interface{}, d tpgresourc
 }
 
 func expandDialogflowCXPlaybookInstructionSteps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -801,6 +807,9 @@ func expandDialogflowCXPlaybookReferencedTools(v interface{}, d tpgresource.Terr
 }
 
 func expandDialogflowCXPlaybookLlmModelSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

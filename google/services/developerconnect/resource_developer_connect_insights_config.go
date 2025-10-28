@@ -966,6 +966,9 @@ func expandDeveloperConnectInsightsConfigAppHubApplication(v interface{}, d tpgr
 }
 
 func expandDeveloperConnectInsightsConfigArtifactConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1002,6 +1005,9 @@ func expandDeveloperConnectInsightsConfigArtifactConfigs(v interface{}, d tpgres
 }
 
 func expandDeveloperConnectInsightsConfigArtifactConfigsGoogleArtifactRegistry(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1036,6 +1042,9 @@ func expandDeveloperConnectInsightsConfigArtifactConfigsGoogleArtifactRegistryAr
 }
 
 func expandDeveloperConnectInsightsConfigArtifactConfigsGoogleArtifactAnalysis(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil

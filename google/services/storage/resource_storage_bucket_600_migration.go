@@ -1590,6 +1590,9 @@ func ResourceStorageBucketStateUpgradeV3(_ context.Context, rawState map[string]
 			retentionPolicy := retentionPolicies[0].(map[string]interface{})
 			// nil check
 			if v, ok := retentionPolicy["retention_period"]; ok && v != nil {
+				if _, ok := v.(string); ok {
+					return rawState, nil
+				}
 				// number conversion check to error rather than crash
 				if num, ok := v.(json.Number); ok {
 					retentionPolicy["retention_period"] = num.String()

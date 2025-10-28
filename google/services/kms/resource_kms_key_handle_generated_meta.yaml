@@ -5,8 +5,8 @@ api_service_name: 'cloudkms.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'KeyHandle'
 fields:
-  - field: 'kms_key'
+  - api_field: 'kmsKey'
   - field: 'location'
     provider_only: true
-  - field: 'name'
-  - field: 'resource_type_selector'
+  - api_field: 'name'
+  - api_field: 'resourceTypeSelector'

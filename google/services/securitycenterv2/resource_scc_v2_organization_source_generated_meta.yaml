@@ -7,8 +7,8 @@ api_resource_type_kind: 'Source'
 api_variant_patterns:
   - 'organizations/{organization}/sources/{source}'
 fields:
-  - field: 'description'
-  - field: 'display_name'
-  - field: 'name'
+  - api_field: 'description'
+  - api_field: 'displayName'
+  - api_field: 'name'
   - field: 'organization'
     provider_only: true
