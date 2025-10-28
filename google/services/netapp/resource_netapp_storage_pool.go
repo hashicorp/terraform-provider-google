@@ -48,8 +48,8 @@ func ResourceNetappStoragePool() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(45 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(45 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -103,6 +103,7 @@ Auto-tiering can be enabled after storage pool creation but it can't be disabled
 			},
 			"custom_performance_enabled": {
 				Type:        schema.TypeBool,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Optional. True if using Independent Scaling of capacity and performance (Hyperdisk). Default is false.`,
@@ -173,6 +174,16 @@ Possible values are: AUTO, MANUAL. Possible values: ["QOS_TYPE_UNSPECIFIED", "AU
 				Computed:    true,
 				Optional:    true,
 				Description: `Optional. Custom Performance Total Throughput of the pool (in MiB/s).`,
+			},
+			"type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"STORAGE_POOL_TYPE_UNSPECIFIED", "FILE", "UNIFIED", ""}),
+				Description: `Type of the storage pool.
+This field is used to control whether the pool supports FILE based volumes only or UNIFIED (both FILE and BLOCK) volumes.
+If not specified during creation, it defaults to FILE. Possible values: ["STORAGE_POOL_TYPE_UNSPECIFIED", "FILE", "UNIFIED"]`,
 			},
 			"zone": {
 				Type:     schema.TypeString,
@@ -339,6 +350,12 @@ func resourceNetappStoragePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("qos_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(qosTypeProp)) && (ok || !reflect.DeepEqual(v, qosTypeProp)) {
 		obj["qosType"] = qosTypeProp
+	}
+	typeProp, err := expandNetappStoragePoolType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
 	}
 	effectiveLabelsProp, err := expandNetappStoragePoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -509,6 +526,9 @@ func resourceNetappStoragePoolRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 	if err := d.Set("hot_tier_size_used_gib", flattenNetappStoragePoolHotTierSizeUsedGib(res["hotTierSizeUsedGib"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err := d.Set("type", flattenNetappStoragePoolType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetappStoragePoolTerraformLabels(res["labels"], d, config)); err != nil {
@@ -962,6 +982,10 @@ func flattenNetappStoragePoolHotTierSizeUsedGib(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenNetappStoragePoolType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappStoragePoolTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1042,6 +1066,10 @@ func expandNetappStoragePoolEnableHotTierAutoResize(v interface{}, d tpgresource
 }
 
 func expandNetappStoragePoolQosType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappStoragePoolType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
