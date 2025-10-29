@@ -342,7 +342,7 @@ resource "google_vertex_ai_feature_online_store_featureview" "cross_project_feat
   region               = "us-central1"
   feature_online_store = google_vertex_ai_feature_online_store.featureonlinestore.name
   sync_config {
-    cron = "0 0 * * *"
+    continuous = true 
   }
   feature_registry_source {
     
@@ -525,6 +525,10 @@ The following arguments are supported:
   (Optional)
   Cron schedule (https://en.wikipedia.org/wiki/Cron) to launch scheduled runs.
   To explicitly set a timezone to the cron tab, apply a prefix in the cron tab: "CRON_TZ=${IANA_TIME_ZONE}" or "TZ=${IANA_TIME_ZONE}".
+
+* `continuous` -
+  (Optional)
+  If true, syncs the FeatureView in a continuous manner to Online Store.
 
 <a name="nested_big_query_source"></a>The `big_query_source` block supports:
 
