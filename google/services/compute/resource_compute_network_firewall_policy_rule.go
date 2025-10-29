@@ -399,7 +399,7 @@ func resourceComputeNetworkFirewallPolicyRuleCreate(d *schema.ResourceData, meta
 	disabledProp, err := expandComputeNetworkFirewallPolicyRuleDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(disabledProp)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
+	} else if v, ok := d.GetOkExists("disabled"); ok || !reflect.DeepEqual(v, disabledProp) {
 		obj["disabled"] = disabledProp
 	}
 
@@ -635,7 +635,7 @@ func resourceComputeNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData, meta
 	disabledProp, err := expandComputeNetworkFirewallPolicyRuleDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
+	} else if v, ok := d.GetOkExists("disabled"); ok || !reflect.DeepEqual(v, disabledProp) {
 		obj["disabled"] = disabledProp
 	}
 

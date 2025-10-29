@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed `google_compute_network_firewall_policy_rule` staying disabled after apply with `disabled = false`
+```
