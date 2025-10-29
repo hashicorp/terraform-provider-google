@@ -1,0 +1,50 @@
+```release-note:bug
+compute: resolve permadiff for `display_name` in new deployments of `google_compute_organization_security_policy`
+```
+
+Manual tests (no diff with new build, while having a reproduced diff with latest provider version):
+
+<details>
+
+```console
+~/projects/personal/terraform_test_suite                                                                                         v3.13.2 (ae-adh-dbt) 󱇶 rituals took 24s
+❯ TF_CLI_CONFIG_FILE="$(pwd)/tf-dev-override.tfrc" terraform apply
+
+╷
+│ Warning: Provider development overrides are in effect
+│
+│ The following provider development overrides are set in the CLI configuration:
+│  - hashicorp/google in /Users/ramon/go/bin
+│  - hashicorp/google-beta in /Users/ramon/go/bin
+│
+│ The behavior may therefore not match any released version of the provider and applying changes may cause the state to become incompatible with published releases.
+╵
+google_folder.folder_24412: Refreshing state... [id=folders/360679475693]
+google_compute_organization_security_policy.c_org_sec_policy_24412: Refreshing state... [id=locations/global/securityPolicies/978663178349]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+~/projects/personal/terraform_test_suite                                                                                          v3.13.2 (ae-adh-dbt) 󱇶 rituals took 3s
+➜ terraform apply
+google_folder.folder_24412: Refreshing state... [id=folders/360679475693]
+google_compute_organization_security_policy.c_org_sec_policy_24412: Refreshing state... [id=locations/global/securityPolicies/978663178349]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # google_compute_organization_security_policy.c_org_sec_policy_24412 must be replaced
+-/+ resource "google_compute_organization_security_policy" "c_org_sec_policy_24412" {
+      + display_name = "c-org-sec-policy-24412" # forces replacement
+      ~ fingerprint  = "MfWEetyNlRo=" -> (known after apply)
+      ~ id           = "locations/global/securityPolicies/978663178349" -> (known after apply)
+      ~ policy_id    = "978663178349" -> (known after apply)
+        # (4 unchanged attributes hidden)
+    }
+
+```
