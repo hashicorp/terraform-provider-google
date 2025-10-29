@@ -411,7 +411,7 @@ resource "google_vertex_ai_feature_online_store_featureview" "cross_project_feat
   region               = "us-central1"
   feature_online_store = google_vertex_ai_feature_online_store.featureonlinestore.name
   sync_config {
-    cron = "0 0 * * *"
+    continuous = true 
   }
   feature_registry_source {
     
