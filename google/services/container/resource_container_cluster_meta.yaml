@@ -149,6 +149,7 @@ fields:
   - api_field: 'ipAllocationPolicy.autoIpamConfig.enabled'
   - api_field: 'ipAllocationPolicy.clusterIpv4CidrBlock'
   - api_field: 'ipAllocationPolicy.clusterSecondaryRangeName'
+  - api_field: 'ipAllocationPolicy.networkTierConfig.networkTier'
   - field: 'ip_allocation_policy.pod_cidr_overprovision_config.disabled'
     api_field: 'ip_allocation_policy.pod_cidr_overprovision_config.disable'
   - api_field: 'ipAllocationPolicy.servicesIpv4CidrBlock'
