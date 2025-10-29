@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: fixed the issue where `credentials` block was not populated in the Terraform state in `google_apigee_developer_app` resource
+```
