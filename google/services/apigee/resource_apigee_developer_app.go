@@ -858,8 +858,6 @@ func resourceApigeeDeveloperAppDecoder(d *schema.ResourceData, meta interface{},
 						res["apiProducts"] = flattenedProducts
 					}
 				}
-
-				delete(res, "credentials")
 			} else {
 				return nil, fmt.Errorf("Unable to decode the first element of the credentials array.")
 			}
