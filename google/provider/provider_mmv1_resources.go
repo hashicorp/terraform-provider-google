@@ -576,9 +576,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 666
+// Generated resources: 667
 // Generated IAM resources: 318
-// Total generated resources: 984
+// Total generated resources: 985
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1058,6 +1058,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_discovery_engine_assistant":                                          discoveryengine.ResourceDiscoveryEngineAssistant(),
 	"google_discovery_engine_chat_engine":                                        discoveryengine.ResourceDiscoveryEngineChatEngine(),
 	"google_discovery_engine_cmek_config":                                        discoveryengine.ResourceDiscoveryEngineCmekConfig(),
+	"google_discovery_engine_control":                                            discoveryengine.ResourceDiscoveryEngineControl(),
 	"google_discovery_engine_data_connector":                                     discoveryengine.ResourceDiscoveryEngineDataConnector(),
 	"google_discovery_engine_data_store":                                         discoveryengine.ResourceDiscoveryEngineDataStore(),
 	"google_discovery_engine_license_config":                                     discoveryengine.ResourceDiscoveryEngineLicenseConfig(),
