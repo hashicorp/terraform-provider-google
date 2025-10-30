@@ -149,18 +149,15 @@ resource "google_compute_route" "route" {
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_network_management_vpc_flow_logs_config" "network-test" {
-  provider                = google-beta
   vpc_flow_logs_config_id = "basic-network-test-id"
   location                = "global"
   network                 = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.network.name}"
 }
 
 resource "google_compute_network" "network" {
-  provider = google-beta
   name     = "basic-network-test-network"
 }
 ```
@@ -174,24 +171,20 @@ resource "google_compute_network" "network" {
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_network_management_vpc_flow_logs_config" "subnet-test" {
-  provider                = google-beta
   vpc_flow_logs_config_id = "basic-subnet-test-id"
   location                = "global"
   subnet                  = "projects/${data.google_project.project.number}/regions/us-central1/subnetworks/${google_compute_subnetwork.subnetwork.name}"
 }
 
 resource "google_compute_network" "network" {
-  provider                = google-beta
   name                    = "basic-subnet-test-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  provider      = google-beta
   name          = "basic-subnet-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
@@ -262,11 +255,11 @@ The following arguments are supported:
   Traffic will be logged from the VPN Tunnel. Format: projects/{project_id}/regions/{region}/vpnTunnels/{name}
 
 * `subnet` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Traffic will be logged from VMs within the subnetwork. Format: projects/{project_id}/regions/{region}/subnetworks/{name}
 
 * `network` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Traffic will be logged from VMs, VPN tunnels and Interconnect Attachments within the network. Format: projects/{project_id}/global/networks/{name}
 
 * `labels` -
