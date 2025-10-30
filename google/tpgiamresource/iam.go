@@ -23,7 +23,6 @@ import (
 	"log"
 	"reflect"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -265,48 +264,6 @@ func subtractFromBindings(bindings []*cloudresourcemanager.Binding, toRemove ...
 	return listFromIamBindingMap(currMap)
 }
 
-func iamMemberIsCaseSensitive(member string) bool {
-	// allAuthenticatedUsers and allUsers are special identifiers that are case sensitive. See:
-	// https://cloud.google.com/iam/docs/overview#all-authenticated-users
-	return strings.Contains(member, "allAuthenticatedUsers") || strings.Contains(member, "allUsers") ||
-		strings.HasPrefix(member, "principalSet:") || strings.HasPrefix(member, "principal:") ||
-		strings.HasPrefix(member, "principalHierarchy:")
-}
-
-// normalizeIamMemberCasing returns the case adjusted value of an iamMember
-// this is important as iam will ignore casing unless it is one of the following
-// member types: principalSet, principal, principalHierarchy
-// members are in <type>:<value> format
-// <type> is case sensitive
-// <value> isn't in most cases
-// so lowercase the value unless iamMemberIsCaseSensitive and leave the type alone
-// since Dec '19 members can be prefixed with "deleted:" to indicate the principal
-// has been deleted
-func normalizeIamMemberCasing(member string) string {
-	var pieces []string
-	if strings.HasPrefix(member, "deleted:") {
-		pieces = strings.SplitN(member, ":", 3)
-		if len(pieces) > 2 && !iamMemberIsCaseSensitive(strings.TrimPrefix(member, "deleted:")) {
-			pieces[2] = strings.ToLower(pieces[2])
-		}
-	} else if strings.HasPrefix(member, "iamMember:") {
-		pieces = strings.SplitN(member, ":", 3)
-		if len(pieces) > 2 && !iamMemberIsCaseSensitive(strings.TrimPrefix(member, "iamMember:")) {
-			pieces[2] = strings.ToLower(pieces[2])
-		}
-	} else if !iamMemberIsCaseSensitive(member) {
-		pieces = strings.SplitN(member, ":", 2)
-		if len(pieces) > 1 {
-			pieces[1] = strings.ToLower(pieces[1])
-		}
-	}
-
-	if len(pieces) > 0 {
-		member = strings.Join(pieces, ":")
-	}
-	return member
-}
-
 // Construct map of role to set of members from list of bindings.
 func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindingKey]map[string]struct{} {
 	bm := make(map[iamBindingKey]map[string]struct{})
@@ -320,7 +277,7 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindi
 		}
 		// Get each member (user/principal) for the binding
 		for _, m := range b.Members {
-			m = normalizeIamMemberCasing(m)
+			m = tpgresource.NormalizeIamPrincipalCasing(m)
 			// Add the member
 			members[m] = struct{}{}
 		}

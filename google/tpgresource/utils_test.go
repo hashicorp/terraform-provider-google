@@ -1182,3 +1182,93 @@ func TestReplaceVars(t *testing.T) {
 		})
 	}
 }
+
+func TestNormalizeIamPrincipalCasing(t *testing.T) {
+	cases := map[string]struct {
+		Principal string
+		Expected  string
+	}{
+		"serviceAccount principal is normalized": {
+			Principal: "serviceAccount:my-service-account@my-project.iam.gserviceaccount.com",
+			Expected:  "serviceAccount:my-service-account@my-project.iam.gserviceaccount.com",
+		},
+		"serviceAccount principal is normalized with false casing": {
+			Principal: "serviceAccount:My-Service-Account@My-Project.Iam.Gserviceaccount.Com",
+			Expected:  "serviceAccount:my-service-account@my-project.iam.gserviceaccount.com",
+		},
+		"group principal is normalized": {
+			Principal: "group:my-group@my-project.iam.gserviceaccount.com",
+			Expected:  "group:my-group@my-project.iam.gserviceaccount.com",
+		},
+		"group principal is normalized with inconsistent casing": {
+			Principal: "group:My-Group@My-Project.Iam.Gserviceaccount.Com",
+			Expected:  "group:my-group@my-project.iam.gserviceaccount.com",
+		},
+		"user principal is normalized": {
+			Principal: "user:my-user@example.com",
+			Expected:  "user:my-user@example.com",
+		},
+		"user principal is normalized with inconsistent casing": {
+			Principal: "user:My-User@Example.Com",
+			Expected:  "user:my-user@example.com",
+		},
+		"domain principal is normalized": {
+			Principal: "domain:example.com",
+			Expected:  "domain:example.com",
+		},
+		"domain principal is normalized with inconsistent casing": {
+			Principal: "domain:Example.Com",
+			Expected:  "domain:example.com",
+		},
+		"deleted principal is normalized": {
+			Principal: "deleted:serviceAccount:my-service-account@my-project.iam.gserviceaccount.com",
+			Expected:  "deleted:serviceAccount:my-service-account@my-project.iam.gserviceaccount.com",
+		},
+		"deleted principal is normalized with inconsistent casing": {
+			Principal: "deleted:serviceAccount:My-Service-Account@My-Project.Iam.Gserviceaccount.Com",
+			Expected:  "deleted:serviceAccount:my-service-account@my-project.iam.gserviceaccount.com",
+		},
+		"principalSet is normalized": {
+			Principal: "principalSet:projects/my-project/locations/global/principalSets/my-principal-set",
+			Expected:  "principalSet:projects/my-project/locations/global/principalSets/my-principal-set",
+		},
+		"principalSet is normalized with inconsistent casing": {
+			Principal: "principalSet:Projects/My-Project/Locations/Global/PrincipalSets/My-Principal-Set",
+			Expected:  "principalSet:Projects/My-Project/Locations/Global/PrincipalSets/My-Principal-Set",
+		},
+		"allAuthenticatedUsers principal is normalized": {
+			Principal: "allAuthenticatedUsers",
+			Expected:  "allAuthenticatedUsers",
+		},
+		"allUsers principal is normalized": {
+			Principal: "allUsers",
+			Expected:  "allUsers",
+		},
+		"principal type is normalized": {
+			Principal: "principal:my-principal",
+			Expected:  "principal:my-principal",
+		},
+		"principal type is normalized with inconsistent casing": {
+			Principal: "principal:My-Principal",
+			Expected:  "principal:My-Principal",
+		},
+		"principalHierarchy is normalized": {
+			Principal: "principalHierarchy:projects/my-project/locations/global/principalHierarchies/my-principal-hierarchy",
+			Expected:  "principalHierarchy:projects/my-project/locations/global/principalHierarchies/my-principal-hierarchy",
+		},
+		"principalHierarchy is normalized with inconsistent casing": {
+			Principal: "principalHierarchy:Projects/My-Project/Locations/Global/PrincipalHierarchies/My-Principal-Hierarchy",
+			Expected:  "principalHierarchy:Projects/My-Project/Locations/Global/PrincipalHierarchies/My-Principal-Hierarchy",
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			normalizedPrincipal := tpgresource.NormalizeIamPrincipalCasing(tc.Principal)
+
+			if normalizedPrincipal != tc.Expected {
+				t.Errorf("bad: %s; expected %q, got %q", tn, tc.Expected, normalizedPrincipal)
+			}
+		})
+	}
+}

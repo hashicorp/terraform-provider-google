@@ -81,43 +81,63 @@ func AccessContextManagerServicePerimeterIngressPolicyIngressToResourcesDiffSupp
 func AccessContextManagerServicePerimeterIngressPolicyEgressFromIdentitiesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
 	old, new := d.GetChange("egress_from.0.identities")
 
-	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	oldIdentities, err := tpgresource.InterfaceSliceToStringSlice(old)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert egress from identities config value: %s", err)
 		return false
 	}
 
-	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	// Normalize IAM principal casing
+	for i, val := range oldIdentities {
+		oldIdentities[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
+
+	newIdentities, err := tpgresource.InterfaceSliceToStringSlice(new)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert egress from identities api value: %s", err)
 		return false
 	}
 
-	sort.Strings(oldResources)
-	sort.Strings(newResources)
+	// Normalize IAM principal casing
+	for i, val := range newIdentities {
+		newIdentities[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
 
-	return slices.Equal(oldResources, newResources)
+	sort.Strings(oldIdentities)
+	sort.Strings(newIdentities)
+
+	return slices.Equal(oldIdentities, newIdentities)
 }
 
 func AccessContextManagerServicePerimeterIngressPolicyIngressFromIdentitiesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
 	old, new := d.GetChange("ingress_from.0.identities")
 
-	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	oldIdentities, err := tpgresource.InterfaceSliceToStringSlice(old)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert ingress from identities config value: %s", err)
 		return false
 	}
 
-	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	// Normalize IAM principal casing
+	for i, val := range oldIdentities {
+		oldIdentities[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
+
+	newIdentities, err := tpgresource.InterfaceSliceToStringSlice(new)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert ingress from identities api value: %s", err)
 		return false
 	}
 
-	sort.Strings(oldResources)
-	sort.Strings(newResources)
+	// Normalize IAM principal casing
+	for i, val := range newIdentities {
+		newIdentities[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
 
-	return slices.Equal(oldResources, newResources)
+	sort.Strings(oldIdentities)
+	sort.Strings(newIdentities)
+
+	return slices.Equal(oldIdentities, newIdentities)
 }
 
 func AccessContextManagerServicePerimeterIngressPolicyIdentityTypeDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
@@ -614,6 +634,12 @@ func flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromId
 		log.Printf("[ERROR] Failed to convert ingress from identities config value: %s", err)
 		return v
 	}
+
+	// Normalize IAM principal casing
+	for i, val := range configValue {
+		configValue[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
+
 	sortedConfigValue := append([]string{}, configValue...)
 	sort.Strings(sortedConfigValue)
 
@@ -623,6 +649,12 @@ func flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromId
 		log.Printf("[ERROR] Failed to convert ingress from identities API value: %s", err)
 		return v
 	}
+
+	// Normalize IAM principal casing
+	for i, val := range apiValue {
+		apiValue[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
+
 	sortedApiValue := append([]string{}, apiValue...)
 	sort.Strings(sortedApiValue)
 
