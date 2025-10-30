@@ -72,6 +72,63 @@ resource "google_cloud_run_v2_worker_pool" "default" {
 `, context)
 }
 
+func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicDependsOnExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2WorkerPoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicDependsOnExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_worker_pool.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicDependsOnExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_worker_pool" "default" {
+  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
+  location = "us-central1"
+  deletion_protection = false
+  launch_stage = "BETA"
+  
+  template {
+    containers {
+        name = "foo-1"
+        image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
+        depends_on = ["foo-2"]
+    }
+    containers {
+        name = "foo-2"
+        image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
+        startup_probe {
+            http_get {
+                path = "/healthz"
+                port = 8080
+            }
+            period_seconds    = 5
+            timeout_seconds   = 2
+            failure_threshold = 3
+        }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolLimitsExample(t *testing.T) {
 	t.Parallel()
 

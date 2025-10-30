@@ -57,6 +57,7 @@ fields:
   - api_field: 'template.annotations'
   - api_field: 'template.containers.args'
   - api_field: 'template.containers.command'
+  - api_field: 'template.containers.dependsOn'
   - api_field: 'template.containers.env.name'
   - api_field: 'template.containers.env.value'
   - api_field: 'template.containers.env.valueSource.secretKeyRef.secret'
