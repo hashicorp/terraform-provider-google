@@ -49,8 +49,8 @@ To get more information about ServicePerimeterDryRunEgressPolicy, see:
 
 ```hcl
 resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
-  parent = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}"
-  name   = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}/serviceperimeters/storage-perimeter"
+  parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/storage_perimeter"
   title  = "Storage Perimeter"
   spec {
     restricted_services = ["storage.googleapis.com"]
@@ -91,8 +91,8 @@ resource "google_access_context_manager_access_policy" "access-policy" {
 
 ```hcl
 resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
-  parent = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}"
-  name   = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}/serviceperimeters/storage-perimeter"
+  parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/storage_perimeter"
   title  = "Storage Perimeter"
   spec {
     restricted_services = ["storage.googleapis.com"]

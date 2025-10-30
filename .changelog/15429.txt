@@ -1,0 +1,11 @@
+```release-note:bug
+accesscontextmanager: fixed the issue where `google_access_context_manager_service_perimeter_[dry_run_][egress|ingress]_policy` caused the provider to crash when a provided identity casing was invalid.
+```
+
+```release-note:none
+accesscontextmanager: fixed examples for the access context manager resources.
+```
+
+```release-note:note
+introduced `NormalizeIamPrincipalCasing` function in `tpgresource` package to allow normalizing the casing of referenced IAM principals in resources other than IAM policies (e.g. VPC Service Control Perimeters)
+```
