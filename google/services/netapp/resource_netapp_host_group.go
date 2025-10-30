@@ -78,6 +78,15 @@ func ResourceNetappHostGroup() *schema.Resource {
 				ForceNew:    true,
 				Description: `The resource name of the Host Group. Needs to be unique per location.`,
 			},
+			"os_type": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"LINUX", "WINDOWS", "ESXI"}),
+				Description: `The OS type of the host group. It indicates the type of operating system
+used by all of the hosts in the HostGroup. All hosts in a HostGroup must be
+of the same OS type. This can be set only when creating a HostGroup. Possible values: ["LINUX", "WINDOWS", "ESXI"]`,
+			},
 			"type": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -99,15 +108,6 @@ func ResourceNetappHostGroup() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
-			},
-			"os_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"LINUX", "WINDOWS", "ESXI", ""}),
-				Description: `The OS type of the host group. It indicates the type of operating system
-used by all of the hosts in the HostGroup. All hosts in a HostGroup must be
-of the same OS type. This can be set only when creating a HostGroup. Possible values: ["LINUX", "WINDOWS", "ESXI"]`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
