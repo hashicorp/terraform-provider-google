@@ -867,6 +867,21 @@ func ResourceContainerCluster() *schema.Resource {
 											},
 										},
 									},
+									"gvnic": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										MaxItems:    1,
+										Description: `Enable or disable gvnic in NAP node pools.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: `Whether or not gvnic is enabled`,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -5465,6 +5480,13 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 		}
 	}
 
+	if v, ok := config["gvnic"]; ok && len(v.([]interface{})) > 0 {
+		conf := v.([]interface{})[0].(map[string]interface{})
+		npd.Gvnic = &container.VirtualNIC{
+			Enabled: conf["enabled"].(bool),
+		}
+	}
+
 	cpu := config["min_cpu_platform"].(string)
 	// the only way to unset the field is to pass "automatic" as its value
 	if cpu == "" {
@@ -6962,6 +6984,7 @@ func flattenAutoProvisioningDefaults(a *container.AutoprovisioningNodePoolDefaul
 	r["shielded_instance_config"] = flattenShieldedInstanceConfig(a.ShieldedInstanceConfig)
 	r["management"] = flattenManagement(a.Management)
 	r["upgrade_settings"] = flattenUpgradeSettings(a.UpgradeSettings)
+	r["gvnic"] = flattenGvnic(a.Gvnic)
 
 	return []map[string]interface{}{r}
 }
