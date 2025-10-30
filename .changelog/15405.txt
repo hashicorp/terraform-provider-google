@@ -1,0 +1,3 @@
+```release-note:enhancement
+netapp: added `block_devices` field and `ISCSI` protocol support to `goolge_netapp_volume` resource, and increased timeouts on its operations
+```

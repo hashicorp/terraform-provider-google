@@ -879,3 +879,121 @@ data "google_compute_network" "default" {
 }
 `, context)
 }
+
+func TestAccNetappBlockVolume_NetappVolumeBasicExample_update(t *testing.T) {
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetappVolumeDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetappBlockVolume_volumeBasicExample_basic(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappBlockVolume_volumeBasicExample_update(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetappBlockVolume_volumeBasicExample_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+    resource "google_netapp_storage_pool" "default" {
+        name = "tf-test-test-pool%{random_suffix}"
+        location = "us-central1-a"
+        service_level = "FLEX"
+        capacity_gib = "2048"
+        type = "UNIFIED"
+        network = data.google_compute_network.default.id
+    }
+
+    resource "google_netapp_host_group" "test_host_group" {
+		name = "tf-test-test-host-group%{random_suffix}"
+		location = "us-central1"
+		os_type = "LINUX"
+		type = "ISCSI_INITIATOR"
+		hosts = ["iqn.1994-05.com.redhat:8518f79d5366"]
+	}
+
+    resource "google_netapp_volume" "test_volume" {
+        location = "us-central1-a"
+        name = "tf_test_test_volume%{random_suffix}"
+        capacity_gib = "100"
+        storage_pool = google_netapp_storage_pool.default.name
+        protocols = ["ISCSI"]
+        block_devices {
+            host_groups = [google_netapp_host_group.test_host_group.id]
+            os_type = "LINUX"
+        }
+    }
+
+    data "google_compute_network" "default" {
+        name = "%{network_name}"
+    }
+    `, context)
+}
+
+func testAccNetappBlockVolume_volumeBasicExample_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+    resource "google_netapp_storage_pool" "default" {
+        name = "tf-test-test-pool%{random_suffix}"
+        location = "us-central1-a"
+        service_level = "FLEX"
+        capacity_gib = "2048"
+        type = "UNIFIED"
+        network = data.google_compute_network.default.id
+    }
+
+    resource "google_netapp_host_group" "test_host_group" {
+		name = "tf-test-test-host-group%{random_suffix}"
+		location = "us-central1"
+		os_type = "LINUX"
+		type = "ISCSI_INITIATOR"
+		hosts = ["iqn.1994-05.com.redhat:8518f79d5366"]
+	}
+
+    resource "google_netapp_host_group" "test_host_group2" {
+		name = "tf-test-test-host2-group%{random_suffix}"
+		location = "us-central1"
+		os_type = "LINUX"
+		type = "ISCSI_INITIATOR"
+		hosts = ["iqn.1994-05.com.debian:8518f79d5366"]
+	}
+
+    resource "google_netapp_volume" "test_volume" {
+        location = "us-central1-a"
+        name = "tf_test_test_volume%{random_suffix}"
+        capacity_gib = "100"
+        storage_pool = google_netapp_storage_pool.default.name
+        protocols = ["ISCSI"]
+        block_devices {
+            host_groups = [google_netapp_host_group.test_host_group.id, google_netapp_host_group.test_host_group2.id]
+            os_type = "LINUX"
+        }
+    }
+
+    data "google_compute_network" "default" {
+        name = "%{network_name}"
+    }
+    `, context)
+}
