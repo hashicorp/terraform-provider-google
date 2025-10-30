@@ -61,6 +61,13 @@ The following arguments are supported:
   (Required)
   The list of hosts associated with the host group
 
+* `os_type` -
+  (Required)
+  The OS type of the host group. It indicates the type of operating system
+  used by all of the hosts in the HostGroup. All hosts in a HostGroup must be
+  of the same OS type. This can be set only when creating a HostGroup.
+  Possible values are: `LINUX`, `WINDOWS`, `ESXI`.
+
 * `location` -
   (Required)
   Location (region) of the Host Group.
@@ -80,13 +87,6 @@ The following arguments are supported:
 
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `os_type` -
-  (Optional)
-  The OS type of the host group. It indicates the type of operating system
-  used by all of the hosts in the HostGroup. All hosts in a HostGroup must be
-  of the same OS type. This can be set only when creating a HostGroup.
-  Possible values are: `LINUX`, `WINDOWS`, `ESXI`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
