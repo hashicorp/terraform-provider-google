@@ -1,0 +1,3 @@
+```release-note:new-resource
+resourcemanager: added ephemeral `google_client_config` resource
+```
