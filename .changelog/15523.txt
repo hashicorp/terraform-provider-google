@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkmanagement: promoted `google_network_management_organization_vpc_flow_logs_config` resource to GA
+```
