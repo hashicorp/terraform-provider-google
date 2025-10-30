@@ -24,7 +24,9 @@ Ephemeral resources are Terraform resources that are essentially temporary. They
 
 Ephemeral resources are available in Terraform v1.10 and later. For more information, see the [official HashiCorp documentation for Ephemeral Resources](https://developer.hashicorp.com/terraform/language/resources/ephemeral).
 
-To mark the launch of the ephemeral resources feature, the Google Cloud provider has added four ephemeral resources:
+To mark the launch of the ephemeral resources feature, the Google Cloud provider has added five ephemeral resources:
+
+- [`google_client_config`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/ephemeral-resources/client_config)
 - [`google_service_account_access_token`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/ephemeral-resources/service_account_access_token)
 - [`google_service_account_id_token`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/ephemeral-resources/service_account_id_token)
 - [`google_service_account_jwt`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/ephemeral-resources/service_account_jwt)
@@ -34,7 +36,7 @@ These are based on existing data sources already in the provider. In future you 
 
 ## Use the Google Cloud provider's new ephemeral resources
 
-Ephemeral resources are a source of ephemeral data, and they can be referenced in your configuration just like the attributes of resources and data sources. However, a field that references an ephemeral resource must be capable of handling ephemeral data. Due to this, resources in the Google Cloud provider will need to be updated so they include write-only attributes that are capable of using ephemeral data while not storing those values in the resource's state. 
+Ephemeral resources are a source of ephemeral data, and they can be referenced in your configuration just like the attributes of resources and data sources. However, a field that references an ephemeral resource must be capable of handling ephemeral data. Due to this, resources in the Google Cloud provider will need to be updated so they include write-only attributes that are capable of using ephemeral data while not storing those values in the resource's state.
 
 Until then, ephemeral resources can only be used to pass values into the provider block, which is already capable of receiving ephemeral values.
 
@@ -120,3 +122,37 @@ output "target-email" {
 }
 ```
 
+
+### Use ephemeral google_client_config to access provider configuration without storing credentials
+
+The [`google_client_config`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/ephemeral-resources/client_config) ephemeral resource provides access to the Google Cloud provider's configuration, including project, region, zone, and access token. Unlike the data source version, it does not persist sensitive credentials like the access token in Terraform's state.
+
+This is particularly useful when configuring other providers that need Google Cloud credentials:
+
+```hcl
+provider "google" {
+}
+
+ephemeral "google_client_config" "default" {
+}
+
+data "google_container_cluster" "my_cluster" {
+  project  = "my-project-123456"
+  name     = "my-cluster"
+  location = "us-west1"
+}
+
+provider "kubernetes" {
+  host  = "https://${data.google_container_cluster.my_cluster.endpoint}"
+  token = ephemeral.google_client_config.default.access_token
+  cluster_ca_certificate = base64decode(
+    data.google_container_cluster.my_cluster.master_auth[0].cluster_ca_certificate,
+  )
+}
+
+resource "kubernetes_namespace" "example" {
+  metadata {
+    name = "example"
+  }
+}
+```
