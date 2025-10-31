@@ -3,6 +3,7 @@ generation_type: 'handwritten'
 api_service_name: 'sqladmin.googleapis.com'
 api_version: 'v1beta4'
 api_resource_type_kind: 'DatabaseInstance'
+cai_asset_name_format: '//cloudsql.googleapis.com/projects/{{project}}/instances/{{name}}'
 fields:
   - api_field: 'availableMaintenanceVersions'
   - field: 'backupdr_backup'
