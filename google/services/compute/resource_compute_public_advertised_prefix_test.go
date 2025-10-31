@@ -32,12 +32,13 @@ import (
 // Since we only have access to one test prefix range we cannot run tests in parallel
 func TestAccComputePublicPrefixes(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"delegated_prefix":                         testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesBasicTest,
-		"advertised_prefix":                        testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesBasicTest,
-		"public_delegated_prefixes_ipv6":           testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesIpv6Test,
-		"public_advertised_prefixes_pdp_scope":     testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesPdpScopeTest,
-		"public_delegated_prefix_ipv6_subnet_mode": testAccComputePublicDelegatedPrefix_publicDelegatedPrefixIpv6SubnetModeTest,
-		"public_delgated_prefix_with_sub_prefix":   TestAccComputePublicDelegatedPrefix_computePublicDelegatedPrefixWithSubPrefixExample,
+		"delegated_prefix":                                testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesBasicTest,
+		"advertised_prefix":                               testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesBasicTest,
+		"public_delegated_prefixes_ipv6":                  testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesIpv6Test,
+		"public_advertised_prefixes_pdp_scope":            testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesPdpScopeTest,
+		"public_delegated_prefix_ipv6_subnet_mode":        testAccComputePublicDelegatedPrefix_publicDelegatedPrefixIpv6SubnetModeTest,
+		"public_delgated_prefix_with_sub_prefix":          TestAccComputePublicDelegatedPrefix_computePublicDelegatedPrefixWithSubPrefixExample,
+		"public_advertised_prefixes_internal_ipv6_access": testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesInternalIpv6AccessTest,
 	}
 
 	for name, tc := range testCases {
@@ -52,8 +53,42 @@ func TestAccComputePublicPrefixes(t *testing.T) {
 	}
 }
 
+func testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesInternalIpv6AccessTest(t *testing.T) {
+	context := map[string]interface{}{
+		"description":   envvar.GetTestPublicAdvertisedPrefixDescriptionFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputePublicAdvertisedPrefixDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesInternalIpv6AccessExample(context),
+			},
+			{
+				ResourceName:      "google_compute_public_advertised_prefix.prefix",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesInternalIpv6AccessExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_public_advertised_prefix" "prefix" {
+  name = "tf-test-my-prefix%{random_suffix}"
+  description = "%{description}"
+  ip_cidr_range = "2001:db8::/32"
+  pdp_scope = "REGIONAL"
+  ipv6_access_type = "INTERNAL"
+}
+`, context)
+}
+
 func TestAccComputePublicDelegatedPrefix_computePublicDelegatedPrefixWithSubPrefixExample(t *testing.T) {
-	t.Parallel()
 	subPrefixResourceName := "google_compute_public_delegated_prefix.subprefix"
 	parentProject := "tf-static-byoip"
 	parentRegion := "us-central1"
