@@ -4,6 +4,7 @@ source_file: 'products/bigtable/MaterializedView.yaml'
 api_service_name: 'bigtableadmin.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'MaterializedView'
+cai_asset_name_format: '//bigtable.googleapis.com/projects/{{project}}/instances/{{instance}}/materializedViews/{{materialized_view_id}}'
 fields:
   - api_field: 'deletionProtection'
   - field: 'instance'
