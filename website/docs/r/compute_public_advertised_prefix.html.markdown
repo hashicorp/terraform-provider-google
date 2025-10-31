@@ -53,6 +53,18 @@ resource "google_compute_public_advertised_prefix" "prefixes" {
   pdp_scope = "REGIONAL"
 }
 ```
+## Example Usage - Public Advertised Prefixes Ipv6 Access Type
+
+
+```hcl
+resource "google_compute_public_advertised_prefix" "prefixes" {
+  name = "my-pap"
+  description = "description"
+  ip_cidr_range = "2001:db8::/32"
+  pdp_scope = "REGIONAL"
+  ipv6_access_type = "INTERNAL"
+}
+```
 
 ## Argument Reference
 
@@ -68,10 +80,6 @@ The following arguments are supported:
   following characters must be a dash, lowercase letter, or digit,
   except the last character, which cannot be a dash.
 
-* `dns_verification_ip` -
-  (Required)
-  The IPv4 address to be used for reverse DNS verification.
-
 * `ip_cidr_range` -
   (Required)
   The address range, in CIDR format, represented by this public advertised prefix.
@@ -80,6 +88,10 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource.
+
+* `dns_verification_ip` -
+  (Optional)
+  The IPv4 address to be used for reverse DNS verification.
 
 * `pdp_scope` -
   (Optional)
@@ -90,6 +102,17 @@ The following arguments are supported:
   * GLOBAL: The public delegated prefix is global only. The provisioning
   will take ~4 weeks.
   Possible values are: `GLOBAL`, `REGIONAL`.
+
+* `ipv6_access_type` -
+  (Optional)
+  The internet access type for IPv6 Public Advertised Prefixes. It can be
+  set to one of following:
+    * EXTERNAL: Default access type. The prefix will be announced to the
+    internet. All children PDPs will have access type as EXTERNAL.
+    * INTERNAL: The prefix won’t be announced to the internet. Prefix will
+    be used privately within Google Cloud. All children PDPs will have
+    access type as INTERNAL.
+  Possible values are: `EXTERNAL`, `INTERNAL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
