@@ -181,6 +181,11 @@ The following arguments are supported:
   (Optional)
   Optional. Custom Performance Total Throughput of the pool (in MiB/s).
 
+* `cache_parameters` -
+  (Optional)
+  Cache parameters for the volume.
+  Structure is [documented below](#nested_cache_parameters).
+
 * `block_devices` -
   (Optional)
   Block device represents the device(s) which are stored in the block volume.
@@ -444,6 +449,60 @@ Possible values: DEFAULT, FORCE.
 * `large_volume_constituent_count` -
   (Optional)
   Optional. Constituent volume count for large volume.
+
+<a name="nested_cache_parameters"></a>The `cache_parameters` block supports:
+
+* `peer_volume_name` -
+  (Optional)
+  Required. Name of the origin volume for the cache volume.
+
+* `peer_cluster_name` -
+  (Optional)
+  Required. Name of the origin volume's ONTAP cluster.
+
+* `peer_svm_name` -
+  (Optional)
+  Required. Name of the origin volume's SVM.
+
+* `peer_ip_addresses` -
+  (Optional)
+  Required. List of IC LIF addresses of the origin volume's ONTAP cluster.
+
+* `enable_global_file_lock` -
+  (Optional)
+  Optional. Field indicating whether cache volume as global file lock enabled.
+
+* `peering_command_expiry_time` -
+  (Optional)
+  Optional. Expiration time for the peering command to be executed on user's ONTAP. A timestamp in RFC3339 UTC "Zulu" format. Examples: "2023-06-22T09:13:01.617Z".
+
+* `cache_state` -
+  (Output)
+  State of the cache volume indicating the peering status.
+
+* `command` -
+  (Output)
+  Copy-paste-able commands to be used on user's ONTAP to accept peering requests.
+
+* `passphrase` -
+  (Output)
+  Temporary passphrase generated to accept cluster peering command.
+
+* `state_details` -
+  (Output)
+  Detailed description of the current cache state.
+
+* `cache_config` -
+  (Optional)
+  Optional. Configuration of the cache volume.
+  Structure is [documented below](#nested_cache_parameters_cache_config).
+
+
+<a name="nested_cache_parameters_cache_config"></a>The `cache_config` block supports:
+
+* `cifs_change_notify_enabled` -
+  (Optional)
+  Optional. Flag indicating whether a CIFS change notification is enabled for the FlexCache volume.
 
 <a name="nested_block_devices"></a>The `block_devices` block supports:
 

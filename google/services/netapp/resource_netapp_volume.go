@@ -199,6 +199,85 @@ the parent Volume's 'capacity_gib'.`,
 					},
 				},
 			},
+			"cache_parameters": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Cache parameters for the volume.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cache_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Optional. Configuration of the cache volume.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cifs_change_notify_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Optional. Flag indicating whether a CIFS change notification is enabled for the FlexCache volume.`,
+									},
+								},
+							},
+						},
+						"enable_global_file_lock": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Optional. Field indicating whether cache volume as global file lock enabled.`,
+						},
+						"peer_cluster_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Required. Name of the origin volume's ONTAP cluster.`,
+						},
+						"peer_ip_addresses": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Required. List of IC LIF addresses of the origin volume's ONTAP cluster.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"peer_svm_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Required. Name of the origin volume's SVM.`,
+						},
+						"peer_volume_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Required. Name of the origin volume for the cache volume.`,
+						},
+						"peering_command_expiry_time": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: `Optional. Expiration time for the peering command to be executed on user's ONTAP. A timestamp in RFC3339 UTC "Zulu" format. Examples: "2023-06-22T09:13:01.617Z".`,
+						},
+						"cache_state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `State of the cache volume indicating the peering status.`,
+						},
+						"command": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Copy-paste-able commands to be used on user's ONTAP to accept peering requests.`,
+						},
+						"passphrase": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Temporary passphrase generated to accept cluster peering command.`,
+						},
+						"state_details": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Detailed description of the current cache state.`,
+						},
+					},
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -913,6 +992,12 @@ func resourceNetappVolumeCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("throughput_mibps"); !tpgresource.IsEmptyValue(reflect.ValueOf(throughputMibpsProp)) && (ok || !reflect.DeepEqual(v, throughputMibpsProp)) {
 		obj["throughputMibps"] = throughputMibpsProp
 	}
+	cacheParametersProp, err := expandNetappVolumeCacheParameters(d.Get("cache_parameters"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cache_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(cacheParametersProp)) && (ok || !reflect.DeepEqual(v, cacheParametersProp)) {
+		obj["cacheParameters"] = cacheParametersProp
+	}
 	blockDevicesProp, err := expandNetappVolumeBlockDevices(d.Get("block_devices"), d, config)
 	if err != nil {
 		return err
@@ -1141,6 +1226,9 @@ func resourceNetappVolumeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("hot_tier_size_used_gib", flattenNetappVolumeHotTierSizeUsedGib(res["hotTierSizeUsedGib"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
+	if err := d.Set("cache_parameters", flattenNetappVolumeCacheParameters(res["cacheParameters"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
 	if err := d.Set("block_devices", flattenNetappVolumeBlockDevices(res["blockDevices"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
@@ -1254,6 +1342,12 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("throughput_mibps"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, throughputMibpsProp)) {
 		obj["throughputMibps"] = throughputMibpsProp
 	}
+	cacheParametersProp, err := expandNetappVolumeCacheParameters(d.Get("cache_parameters"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cache_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cacheParametersProp)) {
+		obj["cacheParameters"] = cacheParametersProp
+	}
 	blockDevicesProp, err := expandNetappVolumeBlockDevices(d.Get("block_devices"), d, config)
 	if err != nil {
 		return err
@@ -1334,6 +1428,10 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("throughput_mibps") {
 		updateMask = append(updateMask, "throughputMibps")
+	}
+
+	if d.HasChange("cache_parameters") {
+		updateMask = append(updateMask, "cacheParameters")
 	}
 
 	if d.HasChange("block_devices") {
@@ -2239,6 +2337,96 @@ func flattenNetappVolumeHotTierSizeUsedGib(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenNetappVolumeCacheParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["peer_volume_name"] =
+		flattenNetappVolumeCacheParametersPeerVolumeName(original["peerVolumeName"], d, config)
+	transformed["peer_cluster_name"] =
+		flattenNetappVolumeCacheParametersPeerClusterName(original["peerClusterName"], d, config)
+	transformed["peer_svm_name"] =
+		flattenNetappVolumeCacheParametersPeerSvmName(original["peerSvmName"], d, config)
+	transformed["peer_ip_addresses"] =
+		flattenNetappVolumeCacheParametersPeerIpAddresses(original["peerIpAddresses"], d, config)
+	transformed["enable_global_file_lock"] =
+		flattenNetappVolumeCacheParametersEnableGlobalFileLock(original["enableGlobalFileLock"], d, config)
+	transformed["peering_command_expiry_time"] =
+		flattenNetappVolumeCacheParametersPeeringCommandExpiryTime(original["peeringCommandExpiryTime"], d, config)
+	transformed["cache_state"] =
+		flattenNetappVolumeCacheParametersCacheState(original["cacheState"], d, config)
+	transformed["command"] =
+		flattenNetappVolumeCacheParametersCommand(original["command"], d, config)
+	transformed["passphrase"] =
+		flattenNetappVolumeCacheParametersPassphrase(original["passphrase"], d, config)
+	transformed["state_details"] =
+		flattenNetappVolumeCacheParametersStateDetails(original["stateDetails"], d, config)
+	transformed["cache_config"] =
+		flattenNetappVolumeCacheParametersCacheConfig(original["cacheConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetappVolumeCacheParametersPeerVolumeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersPeerClusterName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersPeerSvmName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersPeerIpAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersEnableGlobalFileLock(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersPeeringCommandExpiryTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersCacheState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersCommand(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersPassphrase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersStateDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCacheParametersCacheConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["cifs_change_notify_enabled"] =
+		flattenNetappVolumeCacheParametersCacheConfigCifsChangeNotifyEnabled(original["cifsChangeNotifyEnabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetappVolumeCacheParametersCacheConfigCifsChangeNotifyEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappVolumeBlockDevices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3082,6 +3270,164 @@ func expandNetappVolumeHybridReplicationParametersLargeVolumeConstituentCount(v 
 }
 
 func expandNetappVolumeThroughputMibps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPeerVolumeName, err := expandNetappVolumeCacheParametersPeerVolumeName(original["peer_volume_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeerVolumeName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["peerVolumeName"] = transformedPeerVolumeName
+	}
+
+	transformedPeerClusterName, err := expandNetappVolumeCacheParametersPeerClusterName(original["peer_cluster_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeerClusterName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["peerClusterName"] = transformedPeerClusterName
+	}
+
+	transformedPeerSvmName, err := expandNetappVolumeCacheParametersPeerSvmName(original["peer_svm_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeerSvmName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["peerSvmName"] = transformedPeerSvmName
+	}
+
+	transformedPeerIpAddresses, err := expandNetappVolumeCacheParametersPeerIpAddresses(original["peer_ip_addresses"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeerIpAddresses); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["peerIpAddresses"] = transformedPeerIpAddresses
+	}
+
+	transformedEnableGlobalFileLock, err := expandNetappVolumeCacheParametersEnableGlobalFileLock(original["enable_global_file_lock"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableGlobalFileLock); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableGlobalFileLock"] = transformedEnableGlobalFileLock
+	}
+
+	transformedPeeringCommandExpiryTime, err := expandNetappVolumeCacheParametersPeeringCommandExpiryTime(original["peering_command_expiry_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeeringCommandExpiryTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["peeringCommandExpiryTime"] = transformedPeeringCommandExpiryTime
+	}
+
+	transformedCacheState, err := expandNetappVolumeCacheParametersCacheState(original["cache_state"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCacheState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cacheState"] = transformedCacheState
+	}
+
+	transformedCommand, err := expandNetappVolumeCacheParametersCommand(original["command"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCommand); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["command"] = transformedCommand
+	}
+
+	transformedPassphrase, err := expandNetappVolumeCacheParametersPassphrase(original["passphrase"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPassphrase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["passphrase"] = transformedPassphrase
+	}
+
+	transformedStateDetails, err := expandNetappVolumeCacheParametersStateDetails(original["state_details"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStateDetails); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stateDetails"] = transformedStateDetails
+	}
+
+	transformedCacheConfig, err := expandNetappVolumeCacheParametersCacheConfig(original["cache_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCacheConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cacheConfig"] = transformedCacheConfig
+	}
+
+	return transformed, nil
+}
+
+func expandNetappVolumeCacheParametersPeerVolumeName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersPeerClusterName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersPeerSvmName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersPeerIpAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersEnableGlobalFileLock(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersPeeringCommandExpiryTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersCacheState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersCommand(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersPassphrase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersStateDetails(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeCacheParametersCacheConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCifsChangeNotifyEnabled, err := expandNetappVolumeCacheParametersCacheConfigCifsChangeNotifyEnabled(original["cifs_change_notify_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCifsChangeNotifyEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cifsChangeNotifyEnabled"] = transformedCifsChangeNotifyEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandNetappVolumeCacheParametersCacheConfigCifsChangeNotifyEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
