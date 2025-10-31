@@ -18,12 +18,20 @@
 package iap_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+)
+
+var (
+	_ = fmt.Sprintf
+	_ = envvar.TestEnvVar
+	_ = tpgresource.SetLabels
 )
 
 func TestAccDataSourceIapClient_basic(t *testing.T) {
