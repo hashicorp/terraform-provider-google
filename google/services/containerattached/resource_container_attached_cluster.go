@@ -20,19 +20,38 @@
 package containerattached
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
+	"slices"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
+
+	"google.golang.org/api/googleapi"
 )
 
 func suppressAttachedClustersLoggingConfigDiff(_, old, new string, d *schema.ResourceData) bool {
@@ -45,6 +64,38 @@ func suppressAttachedClustersLoggingConfigDiff(_, old, new string, d *schema.Res
 	}
 	return false
 }
+
+var (
+	_ = bytes.Clone
+	_ = context.WithCancel
+	_ = base64.NewDecoder
+	_ = json.Marshal
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = http.Get
+	_ = reflect.ValueOf
+	_ = regexp.Match
+	_ = slices.Min([]int{1})
+	_ = sort.IntSlice{}
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = errwrap.Wrap
+	_ = cty.BoolVal
+	_ = diag.Diagnostic{}
+	_ = customdiff.All
+	_ = id.UniqueId
+	_ = logging.LogLevel
+	_ = retry.Retry
+	_ = schema.Noop
+	_ = validation.All
+	_ = structure.ExpandJsonFromString
+	_ = terraform.State{}
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = verify.ValidateEnum
+	_ = googleapi.Error{}
+)
 
 func ResourceContainerAttachedCluster() *schema.Resource {
 	return &schema.Resource{
@@ -1183,27 +1234,27 @@ func flattenContainerAttachedClusterErrorsMessage(v interface{}, d *schema.Resou
 // The custom expander transforms input into something like this:
 //
 //	authorization {
-//	   admin_users [
-//	     { username = "user1" },
-//	     { username = "user2" }
-//	   ]
-//	   admin_groups [
-//	     { group = "group1" },
-//	     { group = "group2" },
-//	   ]
+//		admin_users [
+//			{ username = "user1" },
+//			{ username = "user2" }
+//		]
+//		admin_groups [
+//			{ group = "group1" },
+//			{ group = "group2" },
+//		]
 //	}
 //
 // The custom flattener transforms input back into something like this:
 //
 //	authorization {
-//	   admin_users = [
-//	     "user1",
-//	     "user2"
-//	   ]
-//	   admin_groups = [
-//	     "group1",
-//	     "group2"
-//	   ],
+//		admin_users = [
+//			"user1",
+//			"user2"
+//		]
+//		admin_groups = [
+//			"group1",
+//			"group2"
+//		],
 //	}
 func flattenContainerAttachedClusterAuthorization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || len(v.(map[string]interface{})) == 0 {
@@ -1477,27 +1528,27 @@ type attachedClusterGroup struct {
 // The custom expander transforms input into something like this:
 //
 //	authorization {
-//	   admin_users [
-//	     { username = "user1" },
-//	     { username = "user2" }
-//	   ]
-//	   admin_groups [
-//	     { group = "group1" },
-//	     { group = "group2" },
-//	   ]
+//		admin_users [
+//			{ username = "user1" },
+//			{ username = "user2" }
+//		]
+//		admin_groups [
+//			{ group = "group1" },
+//			{ group = "group2" },
+//		]
 //	}
 //
 // The custom flattener transforms input back into something like this:
 //
 //	authorization {
-//	   admin_users = [
-//	     "user1",
-//	     "user2"
-//	   ]
-//	   admin_groups = [
-//	     "group1",
-//	     "group2"
-//	   ],
+//		admin_users = [
+//			"user1",
+//			"user2"
+//		]
+//		admin_groups = [
+//			"group1",
+//			"group2"
+//		],
 //	}
 func expandContainerAttachedClusterAuthorization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
