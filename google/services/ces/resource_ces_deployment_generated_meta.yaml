@@ -1,0 +1,26 @@
+resource: 'google_ces_deployment'
+generation_type: 'mmv1'
+source_file: 'products/ces/Deployment.yaml'
+api_service_name: 'ces.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'Deployment'
+autogen_status: true
+fields:
+  - field: 'app'
+    provider_only: true
+  - api_field: 'appVersion'
+  - api_field: 'channelProfile.channelType'
+  - api_field: 'channelProfile.disableBargeInControl'
+  - api_field: 'channelProfile.disableDtmf'
+  - api_field: 'channelProfile.personaProperty.persona'
+  - api_field: 'channelProfile.profileId'
+  - api_field: 'channelProfile.webWidgetConfig.modality'
+  - api_field: 'channelProfile.webWidgetConfig.theme'
+  - api_field: 'channelProfile.webWidgetConfig.webWidgetTitle'
+  - api_field: 'createTime'
+  - api_field: 'displayName'
+  - api_field: 'etag'
+  - field: 'location'
+    provider_only: true
+  - api_field: 'name'
+  - api_field: 'updateTime'
