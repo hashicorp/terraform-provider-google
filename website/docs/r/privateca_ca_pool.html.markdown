@@ -231,7 +231,7 @@ The following arguments are supported:
 * `allowed_key_types` -
   (Optional)
   If any AllowedKeyType is specified, then the certificate request's public key must match one of the key types listed here.
-  Otherwise, any key may be used.
+  Otherwise, any key may be used. You can specify only one key type of those listed here.
   Structure is [documented below](#nested_issuance_policy_allowed_key_types).
 
 * `backdate_duration` -

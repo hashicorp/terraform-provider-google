@@ -180,7 +180,7 @@ customer data will remain unencrypted.`,
 							Type:     schema.TypeList,
 							Optional: true,
 							Description: `If any AllowedKeyType is specified, then the certificate request's public key must match one of the key types listed here.
-Otherwise, any key may be used.`,
+Otherwise, any key may be used. You can specify only one key type of those listed here.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"elliptic_curve": {
