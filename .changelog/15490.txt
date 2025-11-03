@@ -1,0 +1,6 @@
+```release-note:enhancement
+bigquery: added `external_data_configuration.decimal_target_types` to `google_bigquery_table`
+```
+```release-note:enhancement
+bigquery: added the same diff suppression logic for `schema` to `external_data_configuration.schema` in `google_bigquery_table`
+```
