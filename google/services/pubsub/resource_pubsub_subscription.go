@@ -1148,6 +1148,15 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+	if _, ok := d.GetOkExists("bigquery_config"); ok {
+		// if bigqueryConfig is set, we need to always add it to the update mask
+		// so that the bigquery service account email can be updated properly
+		updateMask = append(updateMask, "bigqueryConfig")
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+		if err != nil {
+			return err
+		}
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {

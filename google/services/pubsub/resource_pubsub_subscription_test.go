@@ -659,6 +659,47 @@ func TestAccPubsubSubscription_tags(t *testing.T) {
 	})
 }
 
+func TestAccPubsubSubscription_bigquery_config_update(t *testing.T) {
+	// test that reproduces https://github.com/hashicorp/terraform-provider-google/issues/24891
+	t.Parallel()
+
+	subscription := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
+	suffix := acctest.RandString(t, 10)
+	context := map[string]interface{}{
+		"suffix":       suffix,
+		"subscription": subscription,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_bigquery_config(context),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscription,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscription_bigquery_config_update(context),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscription,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccPubsubSubscription_emptyTTL(topic, subscription string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
@@ -1123,6 +1164,146 @@ resource "google_pubsub_subscription" "foo" {
   tags = {
     "%{org}/%{tagKey}" = "%{tagValue}"
   }
+}
+`, context)
+}
+
+func testAccPubsubSubscription_bigquery_config(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "topic-%{suffix}"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on      = [google_bigquery_table_iam_policy.policy]
+  create_duration = "60s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name  = "%{subscription}"
+  topic = google_pubsub_topic.foo.id
+
+  bigquery_config {
+    table                 = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
+    service_account_email = google_service_account.bq_write_service_account.email
+  }
+
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tf_test_%{suffix}"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "tf_test_%{suffix}"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  schema = <<EOF
+[
+  {
+    "name": "data",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The data"
+  }
+]
+EOF
+
+  deletion_protection = false
+}
+
+resource "google_service_account" "bq_write_service_account" {
+  account_id   = "tf-test-%{suffix}"
+  display_name = "BQ Write Service Account"
+}
+
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/bigquery.dataEditor"
+    members = [
+      google_service_account.bq_write_service_account.member,
+    ]
+  }
+}
+
+resource "google_bigquery_table_iam_policy" "policy" {
+  project     = google_bigquery_table.test.project
+  dataset_id  = google_bigquery_table.test.dataset_id
+  table_id    = google_bigquery_table.test.table_id
+  policy_data = data.google_iam_policy.admin.policy_data
+}
+`, context)
+}
+
+func testAccPubsubSubscription_bigquery_config_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "topic-%{suffix}"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on      = [google_bigquery_table_iam_policy.policy]
+  create_duration = "60s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name  = "%{subscription}"
+  topic = google_pubsub_topic.foo.id
+
+  bigquery_config {
+    table                 = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
+    service_account_email = google_service_account.bq_write_service_account.email
+  }
+
+  expiration_policy {
+    ttl = ""
+  }
+
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tf_test_%{suffix}"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "tf_test_%{suffix}"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  schema = <<EOF
+[
+  {
+    "name": "data",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The data"
+  }
+]
+EOF
+
+  deletion_protection = false
+}
+
+resource "google_service_account" "bq_write_service_account" {
+  account_id   = "tf-test-%{suffix}"
+  display_name = "BQ Write Service Account"
+}
+
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/bigquery.dataEditor"
+    members = [
+      google_service_account.bq_write_service_account.member,
+    ]
+  }
+}
+
+resource "google_bigquery_table_iam_policy" "policy" {
+  project     = google_bigquery_table.test.project
+  dataset_id  = google_bigquery_table.test.dataset_id
+  table_id    = google_bigquery_table.test.table_id
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 `, context)
 }
