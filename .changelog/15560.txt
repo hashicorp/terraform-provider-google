@@ -1,0 +1,3 @@
+```release-note:bug
+container: added missing accepted "KUBE_DNS" value to `cluster_dns` field on `google_container_cluster` 
+```
