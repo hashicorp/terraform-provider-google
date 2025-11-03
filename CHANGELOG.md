@@ -7,7 +7,6 @@ FEATURES:
 * **New Resource:** `google_discovery_engine_control` ([#24883](https://github.com/hashicorp/terraform-provider-google/pull/24883))
 * **New Resource:** `google_netapp_host_group` ([#24876](https://github.com/hashicorp/terraform-provider-google/pull/24876))
 * **New Resource:** `google_network_management_organization_vpc_flow_logs_config` ([#24896](https://github.com/hashicorp/terraform-provider-google/pull/24896))
-* **New Resource:** `google_network_security_mirroring_endpoint` (beta) ([#24837](https://github.com/hashicorp/terraform-provider-google/pull/24837))
 * **New Resource:** `google_network_services_multicast_domain` ([#24864](https://github.com/hashicorp/terraform-provider-google/pull/24864))
 * **New Resource:** `google_privileged_access_manager_settings` ([#24878](https://github.com/hashicorp/terraform-provider-google/pull/24878))
 
