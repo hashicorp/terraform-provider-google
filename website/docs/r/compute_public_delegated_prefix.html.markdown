@@ -110,6 +110,36 @@ resource "google_compute_public_delegated_prefix" "subprefix" {
   mode = "EXTERNAL_IPV6_SUBNETWORK_CREATION"
 }
 ```
+## Example Usage - Public Delegated Prefix Internal Ipv6 Subnet Mode
+
+
+```hcl
+resource "google_compute_public_advertised_prefix" "advertised" {
+  name = "ipv6-pap"
+  description = "description"
+  ip_cidr_range = "2001:db8::/32"
+  pdp_scope = "REGIONAL"
+  ipv6_access_type = "INTERNAL"
+}
+
+resource "google_compute_public_delegated_prefix" "prefix" {
+  name = "ipv6-root-pdp"
+  description = "test-delegation-mode-pdp"
+  region = "us-east1"
+  ip_cidr_range = "2001:db8::/40"
+  parent_prefix = google_compute_public_advertised_prefix.advertised.id
+  mode = "DELEGATION"
+}
+
+resource "google_compute_public_delegated_prefix" "subprefix" {
+  name = "ipv6-sub-pdp"
+  description = "test-subnet-mode-pdp"
+  region = "us-east1"
+  ip_cidr_range = "2001:db8::/48"
+  parent_prefix = google_compute_public_delegated_prefix.prefix.id
+  mode = "INTERNAL_IPV6_SUBNETWORK_CREATION"
+}
+```
 
 ## Argument Reference
 
@@ -148,9 +178,12 @@ The following arguments are supported:
 
 * `mode` -
   (Optional)
-  Specifies the mode of this IPv6 PDP. MODE must be one of: DELEGATION,
-  EXTERNAL_IPV6_FORWARDING_RULE_CREATION and EXTERNAL_IPV6_SUBNETWORK_CREATION.
-  Possible values are: `DELEGATION`, `EXTERNAL_IPV6_FORWARDING_RULE_CREATION`, `EXTERNAL_IPV6_SUBNETWORK_CREATION`.
+  Specifies the mode of this IPv6 PDP. MODE must be one of:
+    * DELEGATION
+    * EXTERNAL_IPV6_FORWARDING_RULE_CREATION
+    * EXTERNAL_IPV6_SUBNETWORK_CREATION
+    * INTERNAL_IPV6_SUBNETWORK_CREATION
+  Possible values are: `DELEGATION`, `EXTERNAL_IPV6_FORWARDING_RULE_CREATION`, `EXTERNAL_IPV6_SUBNETWORK_CREATION`, `INTERNAL_IPV6_SUBNETWORK_CREATION`.
 
 * `allocatable_prefix_length` -
   (Optional)
@@ -166,6 +199,15 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/publicDelegatedPrefixes/{{name}}`
+
+* `ipv6_access_type` -
+  The internet access type for IPv6 Public Delegated Prefixes. Inherited
+  from parent prefix and can be one of following:
+    * EXTERNAL: The prefix will be announced to the internet. All children
+    PDPs will have access type as EXTERNAL.
+    * INTERNAL: The prefix won’t be announced to the internet. Prefix will
+    be used privately within Google Cloud. All children PDPs will have
+    access type as INTERNAL.
 
 * `public_delegated_sub_prefixs` -
   List of sub public delegated fixes for BYO IP functionality.
@@ -205,11 +247,21 @@ In addition to the arguments listed above, the following computed attributes are
 * `mode` -
   (Optional)
   The PublicDelegatedSubPrefix mode for IPv6 only.
-  Possible values are: `DELEGATION`, `EXTERNAL_IPV6_FORWARDING_RULE_CREATION`, `EXTERNAL_IPV6_SUBNETWORK_CREATION`.
+  Possible values are: `DELEGATION`, `EXTERNAL_IPV6_FORWARDING_RULE_CREATION`, `EXTERNAL_IPV6_SUBNETWORK_CREATION`, `INTERNAL_IPV6_SUBNETWORK_CREATION`.
 
 * `allocatable_prefix_length` -
   (Optional)
   The allocatable prefix length supported by this PublicDelegatedSubPrefix.
+
+* `ipv6_access_type` -
+  (Output)
+  The internet access type for IPv6 Public Delegated Prefixes. Inherited
+  from parent prefix and can be one of following:
+    * EXTERNAL: The prefix will be announced to the internet. All children
+    PDPs will have access type as EXTERNAL.
+    * INTERNAL: The prefix won’t be announced to the internet. Prefix will
+    be used privately within Google Cloud. All children PDPs will have
+    access type as INTERNAL.
 
 * `delegatee_project` -
   (Optional)
