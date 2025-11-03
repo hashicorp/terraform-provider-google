@@ -214,7 +214,6 @@ disabled rather than deleted. Default is 'DELETE'. Possible values are:
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    true,
-				Default:     false,
 				Description: `If set to 'true', the secret data is expected to be base64-encoded string and would be sent as is.`,
 			},
 		},
