@@ -235,6 +235,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_cloud_identity_group_memberships":                    cloudidentity.DataSourceGoogleCloudIdentityGroupMemberships(),
 	"google_cloud_identity_group_transitive_memberships":         cloudidentity.DataSourceGoogleCloudIdentityGroupTransitiveMemberships(),
 	"google_cloud_identity_group_lookup":                         cloudidentity.DataSourceGoogleCloudIdentityGroupLookup(),
+	"google_cloud_identity_policy":                               cloudidentity.DataSourceGoogleCloudIdentityPolicy(),
 	"google_cloud_quotas_quota_info":                             cloudquotas.DataSourceGoogleCloudQuotasQuotaInfo(),
 	"google_cloud_quotas_quota_infos":                            cloudquotas.DataSourceGoogleCloudQuotasQuotaInfos(),
 	"google_cloud_run_locations":                                 cloudrun.DataSourceGoogleCloudRunLocations(),
