@@ -27,6 +27,7 @@ fields:
   - api_field: 'executionConfigs.verbose'
   - api_field: 'executionConfigs.workerPool'
   - api_field: 'gke.cluster'
+  - api_field: 'gke.dnsEndpoint'
   - api_field: 'gke.internalIp'
   - api_field: 'gke.proxyUrl'
   - api_field: 'labels'
