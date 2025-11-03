@@ -81,7 +81,7 @@ func TestAccStorageBucketAcl_upgrade(t *testing.T) {
 			},
 
 			{
-				Config: testGoogleStorageBucketsAclBasic2(bucketName),
+				Config: testGoogleStorageBucketsAclBasic2Owner(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageBucketAcl(t, bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageBucketAcl(t, bucketName, roleEntityBasic3_owner),
@@ -323,6 +323,20 @@ resource "google_storage_bucket_acl" "acl" {
   role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
 `, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic2, roleEntityBasic3_owner)
+}
+
+func testGoogleStorageBucketsAclBasic2Owner(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+}
+
+resource "google_storage_bucket_acl" "acl" {
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = ["%s", "%s", "%s", "%s", "%s", "%s"]
+}
+`, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic1, roleEntityBasic2, roleEntityBasic3_owner)
 }
 
 func testGoogleStorageBucketsAclBasicDelete(bucketName string) string {
