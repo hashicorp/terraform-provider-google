@@ -95,6 +95,10 @@ resource "google_alloydb_cluster" "primary" {
     network = google_compute_network.default.id
   }
 
+  initial_user {
+    password = "alloydb-primary-cluster"
+  }
+
   deletion_protection = false
 }
 

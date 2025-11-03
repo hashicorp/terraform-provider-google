@@ -106,6 +106,10 @@ resource "google_alloydb_cluster" "source" {
     network = data.google_compute_network.default.id
   }
 
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
   deletion_protection = false
 }
 
@@ -141,6 +145,10 @@ resource "google_alloydb_cluster" "source" {
     network = data.google_compute_network.default.id
   }
 
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
   deletion_protection = false
 }
 
@@ -163,6 +171,9 @@ resource "google_alloydb_cluster" "restored" {
   location               = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
   }
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
@@ -197,6 +208,10 @@ resource "google_alloydb_cluster" "source" {
     network = data.google_compute_network.default.id
   }
 
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
   deletion_protection = false
 }
 
@@ -219,6 +234,10 @@ resource "google_alloydb_cluster" "restored" {
   location               = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
+  }
+
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
   }
 
   restore_continuous_backup_source {
@@ -249,6 +268,10 @@ resource "google_alloydb_cluster" "source" {
     network = data.google_compute_network.default.id
   }
 
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
   deletion_protection = false
 }
 
@@ -271,6 +294,9 @@ resource "google_alloydb_cluster" "restored_from_backup" {
   location              = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
   }
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
@@ -302,6 +328,10 @@ resource "google_alloydb_cluster" "source" {
     network = data.google_compute_network.default.id
   }
 
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
   deletion_protection = false
 }
 
@@ -325,6 +355,9 @@ resource "google_alloydb_cluster" "restored_from_backup" {
   network_config {
     network = data.google_compute_network.default.id
   }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
   }
@@ -341,6 +374,9 @@ resource "google_alloydb_cluster" "restored_from_point_in_time" {
   location               = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
   }
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.source.name
@@ -373,6 +409,10 @@ resource "google_alloydb_cluster" "source" {
     network = data.google_compute_network.default.id
   }
 
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
   deletion_protection = false
 }
 
@@ -396,6 +436,9 @@ resource "google_alloydb_cluster" "restored_from_backup" {
   network_config {
     network = data.google_compute_network.default.id
   }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
   }
@@ -417,6 +460,9 @@ resource "google_alloydb_cluster" "restored_from_point_in_time" {
   location               = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
   }
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.source.name
@@ -453,6 +499,9 @@ resource "google_alloydb_cluster" "source" {
   network_config {
     network = data.google_compute_network.default.id
   }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
 
   deletion_protection = false
 }
@@ -485,6 +534,9 @@ resource "google_alloydb_cluster" "restored_from_backup" {
   network_config {
     network = data.google_compute_network.default.id
   }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
   restore_backup_source {
     backup_name = google_alloydb_backup.default2.name
   }
@@ -508,6 +560,9 @@ resource "google_alloydb_cluster" "restored_from_point_in_time" {
   location               = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
   }
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.restored_from_backup.name
@@ -544,6 +599,9 @@ resource "google_alloydb_cluster" "source" {
   network_config {
     network = data.google_compute_network.default.id
   }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
 
   deletion_protection = false
 }
@@ -568,6 +626,9 @@ resource "google_alloydb_cluster" "restored_from_backup" {
   network_config {
     network = data.google_compute_network.default.id
   }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
   }
@@ -580,6 +641,9 @@ resource "google_alloydb_cluster" "restored_from_point_in_time" {
   location               = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
   }
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.source.name
