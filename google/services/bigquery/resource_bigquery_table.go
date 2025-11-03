@@ -645,7 +645,8 @@ func ResourceBigQueryTable() *schema.Resource {
 								json, _ := structure.NormalizeJsonString(v)
 								return json
 							},
-							Description: `A JSON schema for the external table. Schema is required for CSV and JSON formats and is disallowed for Google Cloud Bigtable, Cloud Datastore backups, and Avro formats when using external tables.`,
+							DiffSuppressFunc: bigQueryTableSchemaDiffSuppress,
+							Description:      `A JSON schema for the external table. Schema is required for CSV and JSON formats and is disallowed for Google Cloud Bigtable, Cloud Datastore backups, and Avro formats when using external tables.`,
 						},
 						// CsvOptions: [Optional] Additional properties to set if
 						// sourceFormat is set to CSV.
@@ -978,6 +979,12 @@ func ResourceBigQueryTable() *schema.Resource {
 							Optional:      true,
 							Description:   `Object Metadata is used to create Object Tables. Object Tables contain a listing of objects (with their metadata) found at the sourceUris. If ObjectMetadata is set, sourceFormat should be omitted.`,
 							ConflictsWith: []string{"external_data_configuration.0.source_format"},
+						},
+						"decimal_target_types": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: `The data types that could be used as a target type when converting decimal values.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -2411,6 +2418,16 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 		edc.SourceUris = sourceUris
 	}
 
+	if v, ok := raw["decimal_target_types"]; ok {
+		decimalTargetTypes := []string{}
+		for _, rawDecimalTargetType := range v.(*schema.Set).List() {
+			decimalTargetTypes = append(decimalTargetTypes, rawDecimalTargetType.(string))
+		}
+		if len(decimalTargetTypes) > 0 {
+			edc.DecimalTargetTypes = decimalTargetTypes
+		}
+	}
+
 	if v, ok := raw["file_set_spec_type"]; ok {
 		edc.FileSetSpecType = v.(string)
 	}
@@ -2476,7 +2493,6 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 	}
 
 	return edc, nil
-
 }
 
 func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) ([]map[string]interface{}, error) {
@@ -2484,6 +2500,14 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	result["autodetect"] = edc.Autodetect
 	result["source_uris"] = edc.SourceUris
+
+	if edc.DecimalTargetTypes != nil {
+		interfaceSlice := make([]interface{}, len(edc.DecimalTargetTypes))
+		for i, v := range edc.DecimalTargetTypes {
+			interfaceSlice[i] = v
+		}
+		result["decimal_target_types"] = schema.NewSet(schema.HashString, interfaceSlice)
+	}
 
 	if edc.FileSetSpecType != "" {
 		result["file_set_spec_type"] = edc.FileSetSpecType
