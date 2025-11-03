@@ -61,6 +61,10 @@ resource "google_alloydb_cluster" "default" {
     network = google_compute_network.default.id
   }
 
+  initial_user {
+    password = "alloydb-cluster"
+  }
+
   deletion_protection = false
 }
 
@@ -305,6 +309,10 @@ resource "google_alloydb_cluster" "primary" {
   location   = "us-central1"
   network_config {
     network = google_compute_network.default.id
+  }
+
+  initial_user {
+    password = "alloydb-primary-cluster"
   }
 
   deletion_protection = false
