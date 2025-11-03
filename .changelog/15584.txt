@@ -1,0 +1,49 @@
+```release-note:bug
+pubsub: always send `bigqueryConfig` in the updateMask when configured
+```
+
+Closes https://github.com/hashicorp/terraform-provider-google/issues/24891
+
+---
+
+Reproduced issue in https://github.com/GoogleCloudPlatform/magic-modules/pull/15584/commits/23b53ccb01d952cacf6fc1488d7626437c1dd24b with:
+
+```console
+➜ make testacc TEST=./google/services/pubsub TESTARGS='-run=TestAccPubsubSubscription_bigquery_config_update'
+sh -c "'/Users/ramon/go/src/github.com/hashicorp/terraform-provider-google/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/pubsub -v -run=TestAccPubsubSubscription_bigquery_config_update -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccPubsubSubscription_bigquery_config_update
+=== PAUSE TestAccPubsubSubscription_bigquery_config_update
+=== CONT  TestAccPubsubSubscription_bigquery_config_update
+    resource_pubsub_subscription_test.go:673: Step 3/4 error: Error running apply: exit status 1
+
+        Error: Error updating Subscription "projects/magic-modules-dev/subscriptions/tf-test-sub-vv7fn3hktk": googleapi: Error 403: The caller does not have permission
+
+          with google_pubsub_subscription.foo,
+          on terraform_plugin_test.tf line 12, in resource "google_pubsub_subscription" "foo":
+          12: resource "google_pubsub_subscription" "foo" {
+
+--- FAIL: TestAccPubsubSubscription_bigquery_config_update (104.87s)
+FAIL
+FAIL    github.com/hashicorp/terraform-provider-google/google/services/pubsub   105.678s
+FAIL
+make: *** [testacc] Error 1
+```
+
+Resolved issue by always sending the `bigqueryConfig` in the `updateMask` just like the google cli does in https://github.com/GoogleCloudPlatform/magic-modules/pull/15584/commits/12b4c374ab96dc7d4565190ac14999321f9d10e2: 
+
+```console
+➜ make testacc TEST=./google/services/pubsub TESTARGS='-run=TestAccPubsubSubscription_bigquery_config_update'
+sh -c "'/Users/ramon/go/src/github.com/hashicorp/terraform-provider-google/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/pubsub -v -run=TestAccPubsubSubscription_bigquery_config_update -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccPubsubSubscription_bigquery_config_update
+=== PAUSE TestAccPubsubSubscription_bigquery_config_update
+=== CONT  TestAccPubsubSubscription_bigquery_config_update
+--- PASS: TestAccPubsubSubscription_bigquery_config_update (122.95s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/pubsub   126.851s
+```
