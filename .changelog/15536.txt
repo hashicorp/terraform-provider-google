@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fix the customdiff in resource `google_storage_bucket_acl`
+```
