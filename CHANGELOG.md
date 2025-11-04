@@ -1,7 +1,7 @@
 ## 7.10.0 (Unreleased)
 
 BREAKING CHANGES:
-* alloydb: marked `initial_user.password` as required on create of new `google_alloydb_cluster` resources ([#25022](https://github.com/hashicorp/terraform-provider-google/pull/25022))
+* alloydb: marked `initial_user.password` as required on create of new `google_alloydb_cluster` resources. This constraint was recently added on the API side, so we're reflecting it in the provider. ([#25022](https://github.com/hashicorp/terraform-provider-google/pull/25022))
 
 FEATURES:
 * **New Resource:** `google_ces_app` ([#24861](https://github.com/hashicorp/terraform-provider-google/pull/24861))
@@ -20,17 +20,17 @@ IMPROVEMENTS:
 * container: added `network_tier_config` to `google_container_cluster` resource. ([#24877](https://github.com/hashicorp/terraform-provider-google/pull/24877))
 * eventarc: added `labels` field to `google_eventarc_channel` resource ([#24854](https://github.com/hashicorp/terraform-provider-google/pull/24854))
 * netapp: added `block_devices` field and `ISCSI` protocol support to `goolge_netapp_volume` resource, and increased timeouts on its operations ([#24898](https://github.com/hashicorp/terraform-provider-google/pull/24898))
-* netapp: added additional field `type` in `google_netapp_storage_pool` resource ([#24867](https://github.com/hashicorp/terraform-provider-google/pull/24867))
+* netapp: added `type` field to `google_netapp_storage_pool` resource ([#24867](https://github.com/hashicorp/terraform-provider-google/pull/24867))
 * vertexai: added `psc_automation_configs` field to `google_vertex_ai_endpoint` resource ([#24870](https://github.com/hashicorp/terraform-provider-google/pull/24870))
 * vertexai: added `sync_config.continuous` field to `google_vertex_ai_feature_online_store_featureview` ([#24881](https://github.com/hashicorp/terraform-provider-google/pull/24881))
 
 BUG FIXES:
-* accesscontextmanager: fixed the issue where `google_access_context_manager_service_perimeter_[dry_run_][egress|ingress]_policy` caused the provider to crash when a provided identity casing was invalid. ([#24886](https://github.com/hashicorp/terraform-provider-google/pull/24886))
-* apigee: fixed the issue where `credentials` block was not populated in the Terraform state in `google_apigee_developer_app` resource ([#24880](https://github.com/hashicorp/terraform-provider-google/pull/24880))
+* accesscontextmanager: fixed issue where `google_access_context_manager_service_perimeter_[dry_run_][egress|ingress]_policy` caused the provider to crash when a provided identity casing was invalid. ([#24886](https://github.com/hashicorp/terraform-provider-google/pull/24886))
+* apigee: fixed issue where `credentials` block was not populated in the Terraform state in `google_apigee_developer_app` resource ([#24880](https://github.com/hashicorp/terraform-provider-google/pull/24880))
 * compute: fixed `google_compute_network_firewall_policy_rule` staying disabled after apply with `disabled = false` ([#24879](https://github.com/hashicorp/terraform-provider-google/pull/24879))
 * compute: fixed a breaking change in `google_compute_instance` introduced in 7.9.0 where a destroy-diff is prompted for instances with preset GPUs ([#25020](https://github.com/hashicorp/terraform-provider-google/pull/25020)
 * compute: resolve permadiff for `display_name` in new deployments of `google_compute_organization_security_policy` ([#24882](https://github.com/hashicorp/terraform-provider-google/pull/24882))
-* storage: fixed a conversion error in `google_storage_bucket` state migration ([#24853](https://github.com/hashicorp/terraform-provider-google/pull/24853))
+* storage: fixed a conversion error in `google_storage_bucket` state migration. This bug impacted Pulumi users. ([#24853](https://github.com/hashicorp/terraform-provider-google/pull/24853))
 
 ## 7.9.0 (October 28, 2025)
 
