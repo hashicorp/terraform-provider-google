@@ -1,3 +1,0 @@
-```release-note:bug
-compute: fixed scenario where `google_compute_instance` would not be staged for recreation if `guest_accelerator.count` was updated to 0 from non-zero value
-```
