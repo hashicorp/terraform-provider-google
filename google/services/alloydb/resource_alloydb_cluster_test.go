@@ -309,7 +309,7 @@ func TestAccAlloydbCluster_addAutomatedBackupPolicyAndInitialUser(t *testing.T) 
 		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAlloydbCluster_withoutInitialUserAndAutomatedBackupPolicy(context),
+				Config: testAccAlloydbCluster_withoutAutomatedBackupPolicy(context),
 			},
 			{
 				ResourceName:            "google_alloydb_cluster.default",
@@ -359,7 +359,7 @@ func TestAccAlloydbCluster_deleteAutomatedBackupPolicyAndInitialUser(t *testing.
 				ImportStateVerifyIgnore: []string{"deletion_protection", "initial_user", "cluster_id", "location"},
 			},
 			{
-				Config: testAccAlloydbCluster_withoutInitialUserAndAutomatedBackupPolicy(context),
+				Config: testAccAlloydbCluster_withoutAutomatedBackupPolicy(context),
 			},
 			{
 				ResourceName:            "google_alloydb_cluster.default",
@@ -460,7 +460,7 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
-func testAccAlloydbCluster_withoutInitialUserAndAutomatedBackupPolicy(context map[string]interface{}) string {
+func testAccAlloydbCluster_withoutAutomatedBackupPolicy(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
@@ -1764,4 +1764,72 @@ func TestAccAlloydbCluster_standardClusterUpdateFailure(t *testing.T) {
 			},
 		},
 	})
+}
+
+// Ensures cluster throws expected errors for not specifying initial user on create
+func TestAccAlloydbCluster_withoutInitialUserFailure(t *testing.T) {
+	t.Parallel()
+	errorPattern := `New AlloyDB Clusters must have initial_user.password specified`
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccAlloydbCluster_withoutInitialUser(context),
+				ExpectError: regexp.MustCompile(errorPattern),
+			},
+		},
+	})
+}
+
+// Ensures cluster update does not throw errors for not specifying initial user after create
+func TestAccAlloydbCluster_withoutInitialUserUpdate(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_alloydbClusterBasicExample(context),
+			},
+			{
+				Config: testAccAlloydbCluster_withoutInitialUser(context),
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_withoutInitialUser(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = google_compute_network.default.id
+  }
+
+  deletion_protection = false
+
+  lifecycle {
+    prevent_destroy = false
+  }  
+}
+
+data "google_project" "project" {
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+`, context)
 }

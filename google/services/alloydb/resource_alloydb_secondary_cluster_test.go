@@ -233,6 +233,10 @@ resource "google_alloydb_cluster" "secondary" {
     network = data.google_compute_network.default.id
   }
 
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
+  }
+
   continuous_backup_config {
     enabled = false
   }
@@ -309,6 +313,10 @@ resource "google_alloydb_cluster" "secondary" {
     network = data.google_compute_network.default.id
   }
   cluster_type = "PRIMARY"
+
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
+  }
 
   continuous_backup_config {
     enabled = false
