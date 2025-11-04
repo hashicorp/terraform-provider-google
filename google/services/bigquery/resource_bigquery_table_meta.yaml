@@ -96,6 +96,7 @@ fields:
     provider_only: true
   - field: 'ignore_schema_changes'
     provider_only: true
+  - field: 'schema_foreign_type_info.type_system'
   - api_field: 'selfLink'
   - api_field: 'tableConstraints.foreignKeys.columnReferences.referencedColumn'
   - api_field: 'tableConstraints.foreignKeys.columnReferences.referencingColumn'
