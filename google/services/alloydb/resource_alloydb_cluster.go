@@ -54,6 +54,18 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func alloydbClusterCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	_, nType := diff.GetChange("cluster_type")
+	// Only check on new resource creation for primary clusters
+	if diff.Id() == "" && nType == "PRIMARY" {
+		_, n := diff.GetChange("initial_user.0.password")
+		if n == "" {
+			return fmt.Errorf("New AlloyDB Clusters must have initial_user.password specified")
+		}
+	}
+	return nil
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -104,6 +116,7 @@ func ResourceAlloydbCluster() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			alloydbClusterCustomizeDiff,
 			tpgresource.SetLabelsDiff,
 			tpgresource.SetAnnotationsDiff,
 			tpgresource.DefaultProviderProject,
@@ -355,7 +368,7 @@ Note: Changing this field to a higer version results in upgrading the AlloyDB cl
 			"initial_user": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: `Initial user to setup during cluster creation.`,
+				Description: `Initial user to setup during cluster creation. This must be set for all new Clusters.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
