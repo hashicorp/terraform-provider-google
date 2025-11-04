@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a breaking change in `google_compute_instance` introduced in 7.9.0 where a destroy-diff is prompted for instances with preset GPUs
+```
