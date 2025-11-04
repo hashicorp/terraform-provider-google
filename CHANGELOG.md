@@ -1,7 +1,7 @@
 ## 7.10.0 (Unreleased)
 
 BREAKING CHANGES:
-* alloydb: marked `initial_user.password` as required on create of new `google_alloydb_cluster` resources. This constraint was recently added on the API side, so we're reflecting it in the provider. ([#25022](https://github.com/hashicorp/terraform-provider-google/pull/25022))
+* alloydb: marked `initial_user.password` as required on create of new `google_alloydb_cluster` resources. This change aligns the provider with existing API constraints to surface errors earlier. ([#25022](https://github.com/hashicorp/terraform-provider-google/pull/25022))
 
 FEATURES:
 * **New Resource:** `google_ces_app` ([#24861](https://github.com/hashicorp/terraform-provider-google/pull/24861))
