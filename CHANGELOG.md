@@ -25,6 +25,7 @@ BUG FIXES:
 * accesscontextmanager: fixed the issue where `google_access_context_manager_service_perimeter_[dry_run_][egress|ingress]_policy` caused the provider to crash when a provided identity casing was invalid. ([#24886](https://github.com/hashicorp/terraform-provider-google/pull/24886))
 * apigee: fixed the issue where `credentials` block was not populated in the Terraform state in `google_apigee_developer_app` resource ([#24880](https://github.com/hashicorp/terraform-provider-google/pull/24880))
 * compute: fixed `google_compute_network_firewall_policy_rule` staying disabled after apply with `disabled = false` ([#24879](https://github.com/hashicorp/terraform-provider-google/pull/24879))
+* compute: fixed a breaking change in `google_compute_instance` introduced in 7.9.0 where a destroy-diff is prompted for instances with preset GPUs ([#25020](https://github.com/hashicorp/terraform-provider-google/pull/25020)
 * compute: resolve permadiff for `display_name` in new deployments of `google_compute_organization_security_policy` ([#24882](https://github.com/hashicorp/terraform-provider-google/pull/24882))
 * storage: fixed a conversion error in `google_storage_bucket` state migration ([#24853](https://github.com/hashicorp/terraform-provider-google/pull/24853))
 
