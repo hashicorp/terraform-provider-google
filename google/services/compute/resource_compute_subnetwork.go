@@ -110,6 +110,38 @@ func sendSecondaryIpRangeIfEmptyDiff(_ context.Context, diff *schema.ResourceDif
 	return nil
 }
 
+func IpDiffSuppress(_, old, new string, d *schema.ResourceData) bool {
+	if d.Id() == "" {
+		return false
+	}
+	if old == "" || new == "" {
+		return old == new
+	}
+	addr_equality := false
+	netmask_equality := false
+
+	addr_netmask_old := strings.Split(old, "/")
+	addr_netmask_new := strings.Split(new, "/")
+
+	if !((len(addr_netmask_old)) == 2 && (len(addr_netmask_new) == 2)) {
+		return false
+	}
+
+	var addr_old net.IP = net.ParseIP(addr_netmask_old[0])
+	if addr_old == nil {
+		return false
+	}
+	var addr_new net.IP = net.ParseIP(addr_netmask_new[0])
+	if addr_new == nil {
+		return false
+	}
+
+	addr_equality = net.IP.Equal(addr_old, addr_new)
+	netmask_equality = addr_netmask_old[1] == addr_netmask_new[1]
+
+	return addr_equality && netmask_equality
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -203,6 +235,15 @@ creation time.`,
 				ForceNew:    true,
 				Description: `The range of external IPv6 addresses that are owned by this subnetwork.`,
 			},
+			"internal_ipv6_prefix": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				ValidateFunc:     verify.ValidateIpCidrRange,
+				DiffSuppressFunc: IpDiffSuppress,
+				Description:      `The internal IPv6 address range that is assigned to this subnetwork.`,
+			},
 			"ip_cidr_range": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -219,9 +260,9 @@ Field is optional when 'reserved_internal_range' is defined, otherwise required.
 				Optional: true,
 				ForceNew: true,
 				Description: `Resource reference of a PublicDelegatedPrefix. The PDP must be a sub-PDP
-in EXTERNAL_IPV6_SUBNETWORK_CREATION mode.
-Use one of the following formats to specify a sub-PDP when creating an
-IPv6 NetLB forwarding rule using BYOIP:
+in EXTERNAL_IPV6_SUBNETWORK_CREATION or INTERNAL_IPV6_SUBNETWORK_CREATION
+mode. Use one of the following formats to specify a sub-PDP when creating
+a dual stack or IPv6-only subnetwork using BYOIP:
 Full resource URL, as in:
   * 'https://www.googleapis.com/compute/v1/projects/{{projectId}}/regions/{{region}}/publicDelegatedPrefixes/{{sub-pdp-name}}'
 Partial URL, as in:
@@ -438,11 +479,6 @@ If not specified IPV4_ONLY will be used. Possible values: ["IPV4_ONLY", "IPV4_IP
 				Description: `The gateway address for default routes to reach destination addresses
 outside this subnetwork.`,
 			},
-			"internal_ipv6_prefix": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The internal IPv6 address range that is assigned to this subnetwork.`,
-			},
 			"ipv6_cidr_range": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -634,6 +670,12 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("ipv6_access_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipv6AccessTypeProp)) && (ok || !reflect.DeepEqual(v, ipv6AccessTypeProp)) {
 		obj["ipv6AccessType"] = ipv6AccessTypeProp
+	}
+	internalIpv6PrefixProp, err := expandComputeSubnetworkInternalIpv6Prefix(d.Get("internal_ipv6_prefix"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("internal_ipv6_prefix"); !tpgresource.IsEmptyValue(reflect.ValueOf(internalIpv6PrefixProp)) && (ok || !reflect.DeepEqual(v, internalIpv6PrefixProp)) {
+		obj["internalIpv6Prefix"] = internalIpv6PrefixProp
 	}
 	externalIpv6PrefixProp, err := expandComputeSubnetworkExternalIpv6Prefix(d.Get("external_ipv6_prefix"), d, config)
 	if err != nil {
@@ -1748,6 +1790,10 @@ func expandComputeSubnetworkStackType(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandComputeSubnetworkIpv6AccessType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSubnetworkInternalIpv6Prefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
