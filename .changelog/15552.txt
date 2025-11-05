@@ -1,0 +1,3 @@
+```release-note:note
+compute: added ability to set `internal_ipv6_prefix`  in the `google_compute_subnetwork` resource
+```
