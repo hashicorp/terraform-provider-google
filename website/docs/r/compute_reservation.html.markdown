@@ -278,6 +278,10 @@ The following arguments are supported:
   (Output)
   How many instances are in use.
 
+* `assured_count` -
+  (Output)
+  Indicates how many instances are actually usable currently.
+
 * `instance_properties` -
   (Optional)
   The instance properties for the reservation.
@@ -317,6 +321,10 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Specifies the frequency of planned maintenance events.
   Possible values are: `AS_NEEDED`, `PERIODIC`, `RECURRENT`.
+
+* `location_hint` -
+  (Output)
+  An opaque location hint used to place the allocation close to other resources. This field is for use by internal tools that use the public API.
 
 
 <a name="nested_specific_reservation_instance_properties_guest_accelerators"></a>The `guest_accelerators` block supports:
@@ -402,8 +410,143 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `status` -
   The status of the reservation.
+
+* `reservation_block_count` -
+  The number of reservation blocks associated with this reservation.
+
+* `kind` -
+  Type of the resource. Always compute#reservations for reservations.
+
+* `id` -
+  The unique identifier for the resource. This identifier is defined by the server.
+
+* `linked_commitments` -
+  Full or partial URL to parent commitments. This field displays for reservations that are tied to multiple commitments.
+
+* `satisfies_pzs` -
+  Reserved for future use.
+
+* `resource_status` -
+  Status information for Reservation resource.
+  Structure is [documented below](#nested_resource_status).
 * `self_link` - The URI of the created resource.
 
+
+<a name="nested_resource_status"></a>The `resource_status` block contains:
+
+* `specific_sku_allocation` -
+  (Output)
+  Allocation Properties of this reservation.
+  Structure is [documented below](#nested_resource_status_specific_sku_allocation).
+
+* `reservation_maintenance` -
+  (Output)
+  Maintenance information for this reservation
+  Structure is [documented below](#nested_resource_status_reservation_maintenance).
+
+* `reservation_block_count` -
+  (Output)
+  The number of reservation blocks associated with this reservation.
+
+* `health_info` -
+  (Output)
+  Health information for the reservation.
+  Structure is [documented below](#nested_resource_status_health_info).
+
+
+<a name="nested_resource_status_specific_sku_allocation"></a>The `specific_sku_allocation` block contains:
+
+* `source_instance_template_id` -
+  (Output)
+  ID of the instance template used to populate reservation properties.
+
+* `utilizations` -
+  (Output)
+  Per service utilization breakdown. The Key is the Google Cloud managed service name.
+
+<a name="nested_resource_status_reservation_maintenance"></a>The `reservation_maintenance` block contains:
+
+* `upcoming_group_maintenance` -
+  (Output)
+  Maintenance information on this group of VMs.
+  Structure is [documented below](#nested_resource_status_reservation_maintenance_upcoming_group_maintenance).
+
+* `maintenance_ongoing_count` -
+  (Output)
+  Progress for ongoing maintenance for this group of VMs/hosts. Describes number of hosts in the block that have ongoing maintenance.
+
+* `maintenance_pending_count` -
+  (Output)
+  Progress for ongoing maintenance for this group of VMs/hosts. Describes number of hosts in the block that have pending maintenance.
+
+* `scheduling_type` -
+  (Output)
+  The type of maintenance for the reservation.
+
+* `subblock_infra_maintenance_ongoing_count` -
+  (Output)
+  Describes number of subblock Infrastructure that has ongoing maintenance. Here, Subblock Infrastructure Maintenance pertains to upstream hardware contained in the Subblock that is necessary for a VM Family(e.g. NVLink Domains). Not all VM Families will support this field.
+
+* `subblock_infra_maintenance_pending_count` -
+  (Output)
+  Describes number of subblock Infrastructure that has pending maintenance. Here, Subblock Infrastructure Maintenance pertains to upstream hardware contained in the Subblock that is necessary for a VM Family (e.g. NVLink Domains). Not all VM Families will support this field.
+
+* `instance_maintenance_ongoing_count` -
+  (Output)
+  Describes number of instances that have ongoing maintenance.
+
+* `instance_maintenance_pending_count` -
+  (Output)
+  Describes number of instances that have pending maintenance.
+
+
+<a name="nested_resource_status_reservation_maintenance_upcoming_group_maintenance"></a>The `upcoming_group_maintenance` block contains:
+
+* `type` -
+  (Output)
+  Defines the type of maintenance.
+
+* `can_reschedule` -
+  (Output)
+  Indicates if the maintenance can be customer triggered.
+
+* `window_start_time` -
+  (Output)
+  The current start time of the maintenance window. This timestamp value is in RFC3339 text format.
+
+* `window_end_time` -
+  (Output)
+  The time by which the maintenance disruption will be completed. This timestamp value is in RFC3339 text format.
+
+* `latest_window_start_time` -
+  (Output)
+  The latest time for the planned maintenance window to start. This timestamp value is in RFC3339 text format.
+
+* `maintenance_status` -
+  (Output)
+  Status of the maintenance.
+
+* `maintenance_on_shutdown` -
+  (Output)
+  Indicates whether the UpcomingMaintenance will be triggered on VM shutdown.
+
+* `maintenance_reasons` -
+  (Output)
+  The reasons for the maintenance. Only valid for vms.
+
+<a name="nested_resource_status_health_info"></a>The `health_info` block contains:
+
+* `health_status` -
+  (Output)
+  The health status of the reservation.
+
+* `healthy_block_count` -
+  (Output)
+  The number of reservation blocks that are healthy.
+
+* `degraded_block_count` -
+  (Output)
+  The number of reservation blocks that are degraded.
 
 ## Timeouts
 
