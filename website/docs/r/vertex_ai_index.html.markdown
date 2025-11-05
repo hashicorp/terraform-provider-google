@@ -33,10 +33,12 @@ To get more information about Index, see:
 
 ```hcl
 resource "google_project_service_identity" "vertexai_sa" {
+  provider = google-beta
   service = "aiplatform.googleapis.com"
 }
 
 resource "google_storage_bucket" "bucket" {
+  provider = google-beta
   name     = "vertex-ai-index-test"
   location = "us-central1"
   uniform_bucket_level_access = true
@@ -45,6 +47,7 @@ resource "google_storage_bucket" "bucket" {
 # The sample data comes from the following link:
 # https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#specify-namespaces-tokens
 resource "google_storage_bucket_object" "data" {
+  provider = google-beta
   name   = "contents/data.json"
   bucket = google_storage_bucket.bucket.name
   content = <<EOF
@@ -54,12 +57,14 @@ EOF
 }
 
 resource "google_kms_crypto_key_iam_member" "vertexai_encrypterdecrypter" {
+  provider = google-beta
   crypto_key_id = "kms-name"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        =  google_project_service_identity.vertexai_sa.member
 }
 
 resource "google_vertex_ai_index" "index" {
+  provider = google-beta
   labels = {
     foo = "bar"
   }
