@@ -1,0 +1,7 @@
+```release-note:new-datasource
+`google_compute_reservation_block`
+```
+
+```release-note:new-datasource
+`google_compute_reservation_sub_block`
+```

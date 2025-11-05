@@ -286,6 +286,8 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_region_ssl_certificate":                      compute.DataSourceGoogleRegionComputeSslCertificate(),
 	"google_compute_region_ssl_policy":                           compute.DataSourceGoogleRegionComputeSslPolicy(),
 	"google_compute_reservation":                                 compute.DataSourceGoogleComputeReservation(),
+	"google_compute_reservation_block":                           compute.DataSourceGoogleComputeReservationBlock(),
+	"google_compute_reservation_sub_block":                       compute.DataSourceGoogleComputeReservationSubBlock(),
 	"google_compute_resource_policy":                             compute.DataSourceGoogleComputeResourcePolicy(),
 	"google_compute_router":                                      compute.DataSourceGoogleComputeRouter(),
 	"google_compute_router_nat":                                  compute.DataSourceGoogleComputeRouterNat(),
