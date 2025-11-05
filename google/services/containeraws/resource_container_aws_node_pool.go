@@ -167,6 +167,13 @@ func ResourceContainerAwsNodePool() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
+			"deletion_labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. If set - these labels will be added right before destroy operation. Can be used to make sure that during destroy PDBs and update_settings etc are respected.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -753,12 +760,10 @@ func resourceContainerAwsNodePoolUpdate(d *schema.ResourceData, meta interface{}
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
 		log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
 	} else if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
 		return fmt.Errorf("Error updating NodePool: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating NodePool %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished updating NodePool %q: %#v", d.Id(), res)
 
 	return resourceContainerAwsNodePoolRead(d, meta)
 }
@@ -786,6 +791,14 @@ func resourceContainerAwsNodePoolDelete(d *schema.ResourceData, meta interface{}
 		UpdateSettings:    expandContainerAwsNodePoolUpdateSettings(d.Get("update_settings")),
 	}
 
+	deletionLabels := tpgresource.CheckStringMap(d.Get("deletion_labels"))
+	if len(deletionLabels) > 0 {
+		log.Printf("[DEBUG] Deletion Labels was configured for NodePool %q", d.Id())
+		for k, v := range deletionLabels {
+			obj.Config.Labels[k] = v
+		}
+	}
+
 	log.Printf("[DEBUG] Deleting NodePool %q", d.Id())
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -803,6 +816,20 @@ func resourceContainerAwsNodePoolDelete(d *schema.ResourceData, meta interface{}
 	} else {
 		client.Config.BasePath = bp
 	}
+
+	if len(deletionLabels) > 0 {
+		log.Printf("[DEBUG] Performing addition of Deletion Labels for NodePool %q", d.Id())
+		res, err := client.ApplyNodePool(context.Background(), obj, tpgdclresource.UpdateDirective...)
+
+		if _, ok := err.(dcl.DiffAfterApplyError); ok {
+			log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
+		} else if err != nil {
+			return fmt.Errorf("Error adding Deletion Labels to NodePool: %s", err)
+		}
+
+		log.Printf("[DEBUG] Finished adding Deletion Labels for NodePool %q: %#v", d.Id(), res)
+	}
+
 	if err := client.DeleteNodePool(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting NodePool: %s", err)
 	}
