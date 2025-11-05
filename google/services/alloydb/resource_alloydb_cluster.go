@@ -59,7 +59,8 @@ func alloydbClusterCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, m
 	// Only check on new resource creation for primary clusters
 	if diff.Id() == "" && nType == "PRIMARY" {
 		_, n := diff.GetChange("initial_user.0.password")
-		if n == "" {
+		// If the value is not computed and is still empty, throw error
+		if n == "" && diff.NewValueKnown("initial_user.0.password") {
 			return fmt.Errorf("New AlloyDB Clusters must have initial_user.password specified")
 		}
 	}

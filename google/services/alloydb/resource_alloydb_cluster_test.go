@@ -1833,3 +1833,63 @@ resource "google_compute_network" "default" {
 }
 `, context)
 }
+
+// Ensures cluster update does not throw errors for not specifying initial user after create
+func TestAccAlloydbCluster_randomPassword(t *testing.T) {
+	// Random provider causes VCR to fail
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_randomPassword(context),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "initial_user", "cluster_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_randomPassword(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = google_compute_network.default.id
+  }
+
+  initial_user {
+    password = random_string.random.result
+  }
+
+  deletion_protection = false
+
+  lifecycle {
+    prevent_destroy = false
+  }  
+}
+
+resource "random_string" "random" {
+  length = 16
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+`, context)
+}

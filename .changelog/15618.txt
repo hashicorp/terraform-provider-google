@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: fixed issue with creation when `initial_user.password` was set to a computed value in `google_alloydb_cluster`
+```
