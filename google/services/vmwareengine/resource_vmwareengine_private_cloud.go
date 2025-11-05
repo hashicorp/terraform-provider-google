@@ -1053,6 +1053,45 @@ func resourceVmwareenginePrivateCloudDelete(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	privateCloudPollRead := func(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
+		return func() (map[string]interface{}, error) {
+			config := meta.(*transport_tpg.Config)
+			url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
+			if err != nil {
+				return nil, err
+			}
+			billingProject := ""
+			project, err := tpgresource.GetProject(d, config)
+			if err != nil {
+				return nil, fmt.Errorf("Error fetching project for PrivateCloud: %s", err)
+			}
+			billingProject = project
+			// err == nil indicates that the billing_project value was found
+			if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+				billingProject = bp
+			}
+			userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+			if err != nil {
+				return nil, err
+			}
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: userAgent,
+			})
+			if err != nil {
+				return res, err
+			}
+			return res, nil
+		}
+	}
+
+	err = transport_tpg.PollingWaitTime(privateCloudPollRead(d, meta), pollCheckForPrivateCloudAbsence, "Deleting PrivateCloud", d.Timeout(schema.TimeoutDelete), 10)
+	if err != nil {
+		return fmt.Errorf("Error waiting to delete PrivateCloud: %s", err)
+	}
 
 	log.Printf("[DEBUG] Finished deleting PrivateCloud %q: %#v", d.Id(), res)
 	return nil
