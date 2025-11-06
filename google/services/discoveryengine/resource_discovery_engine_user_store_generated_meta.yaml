@@ -1,0 +1,15 @@
+resource: 'google_discovery_engine_user_store'
+generation_type: 'mmv1'
+source_file: 'products/discoveryengine/UserStore.yaml'
+api_service_name: 'discoveryengine.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'UserStore'
+fields:
+  - api_field: 'defaultLicenseConfig'
+  - api_field: 'enableExpiredLicenseAutoUpdate'
+  - api_field: 'enableLicenseAutoRegister'
+  - field: 'location'
+    provider_only: true
+  - api_field: 'name'
+  - field: 'user_store_id'
+    provider_only: true
