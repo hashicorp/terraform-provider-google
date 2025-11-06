@@ -77,6 +77,47 @@ func ProjectIDDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	return suffix1 == suffix2
 }
 
+func suppressSquashModeDiff(k, old, new string, d *schema.ResourceData) bool {
+	// k: The key of the field, e.g., "export_policy.0.rules.1.squash_mode"
+	// old: The value in the state (what the API returned on last read)
+	// new: The value in the configuration (what the user set)
+	// d: The ResourceData for the entire resource
+
+	// 1. Only suppress if the user did NOT set squash_mode in the config.
+	// According to the requirements, a "classic rule" is identified by the ABSENCE of squash_mode.
+	if new == "ALL_SQUASH" {
+		// If 'new' is not an empty string, the user has explicitly provided a value
+		// for squash_mode in the Terraform configuration. In this scenario, any
+		// difference between the API's value ('old') and the configured value ('new')
+		// is a real change and should NOT be suppressed.
+		return false
+	}
+
+	if new == "" && old != "ALL_SQUASH" {
+		return true
+	}
+
+	// 2. The user did not specify squash_mode in the configuration ('new' is empty).
+	// Now, we suppress the diff if the API/state value ('old') is one of the
+	// specific values that should be treated as equivalent to an unset field.
+	// These values are "NO_ROOT_SQUASH", "ROOT_SQUASH".
+	switch old {
+	case "NO_ROOT_SQUASH", "ROOT_SQUASH", "":
+		// The API returned one of the values that we consider equivalent to the field
+		// being unconfigured by the user. Since the user also didn't configure it,
+		// we should suppress this diff.
+		return true
+	default:
+		// If 'old' is not one of the values to be suppressed (and 'new' is empty),
+		// we do not suppress the diff. This could happen if, for instance, the API
+		// returned an unexpected value or if 'old' is also empty.
+		return false
+	}
+	// Note: The previous logic involving parsing 'k' and checking 'has_root_access'
+	// has been removed because squash_mode is independent of has_root_access,
+	// and a "classic rule" is defined by the absence of squash_mode itself.
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -361,13 +402,14 @@ the parent Volume's 'capacity_gib'.`,
 									"anon_uid": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: `An integer representing the anonymous user ID. Range is 0 to 4294967295. Required when 'squash_mode' is 'ROOT_SQUASH' or 'ALL_SQUASH'.`,
+										Description: `An integer representing the anonymous user ID. Range is 0 to 4294967295. Required when 'squash_mode' is 'ALL_SQUASH'.`,
 									},
 									"has_root_access": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Optional:    true,
-										Description: `If enabled, the root user (UID = 0) of the specified clients doesn't get mapped to nobody (UID = 65534). This is also known as no_root_squash.`,
+										Type:     schema.TypeString,
+										Computed: true,
+										Optional: true,
+										Description: `If enabled, the root user (UID = 0) of the specified clients doesn't get mapped to nobody (UID = 65534). This is also known as no_root_squash.
+It's overwritten by the squash_mode parameter. Use either squash_mode or has_root_access.`,
 									},
 									"kerberos5_read_only": {
 										Type:        schema.TypeBool,
@@ -410,11 +452,12 @@ the parent Volume's 'capacity_gib'.`,
 										Description: `Enable to apply the export rule to NFSV4.1 clients.`,
 									},
 									"squash_mode": {
-										Type:         schema.TypeString,
-										Computed:     true,
-										Optional:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH", ""}),
-										Description:  `SquashMode defines how remote user privileges are restricted when accessing an NFS export. It controls how the user identities (like root) are mapped to anonymous users to limit access and enforce security. Possible values: ["NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH"]`,
+										Type:             schema.TypeString,
+										Optional:         true,
+										ValidateFunc:     verify.ValidateEnum([]string{"SQUASH_MODE_UNSPECIFIED", "NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH", ""}),
+										DiffSuppressFunc: suppressSquashModeDiff,
+										Description: `SquashMode defines how remote user privileges are restricted when accessing an NFS export. It controls how the user identities (like root) are mapped to anonymous users to limit access and enforce security.
+It overwrites the has_root_access parameter. Use either squash_mode or has_root_access. For ALL_SQUASH, access_type needs to be set to READ_WRITE. Possible values: ["SQUASH_MODE_UNSPECIFIED", "NO_ROOT_SQUASH", "ROOT_SQUASH", "ALL_SQUASH"]`,
 									},
 								},
 							},
@@ -1525,9 +1568,103 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 			newBlockDevices = append(newBlockDevices, newblockDevice)
 		}
 
-		log.Printf("newBlockDevices %v", newBlockDevices)
 		if len(newBlockDevices) > 0 {
 			obj["blockDevices"] = newBlockDevices
+		}
+	}
+
+	// detect export_policy presence in TF config of volume
+
+	if v, ok := d.GetOk("export_policy"); ok {
+
+		l := v.([]interface{})
+		newExportPolicy := make([]interface{}, 0, len(l))
+
+		for _, item := range v.([]interface{}) {
+			if item == nil {
+				continue
+			}
+			ruleSet := item.(map[string]interface{})
+
+			if ruleMap, ruleMapExists := ruleSet["rules"]; ruleMapExists {
+
+				l := ruleMap.([]interface{})
+				newRuleMap := make([]interface{}, 0, len(l))
+				for _, ruleMapItem := range ruleMap.([]interface{}) {
+					if ruleMapItem == nil {
+						continue
+					}
+					ruleMapItemSet := ruleMapItem.(map[string]interface{})
+					newRuleMapItemSet := make(map[string]interface{})
+
+					if val, exists := ruleMapItemSet["access_type"]; exists {
+						newRuleMapItemSet["accessType"] = val
+					}
+					if val, exists := ruleMapItemSet["allowed_clients"]; exists {
+						newRuleMapItemSet["allowedClients"] = val
+					}
+					if val, exists := ruleMapItemSet["has_root_access"]; exists {
+						newRuleMapItemSet["hasRootAccess"] = val
+					}
+					if val, exists := ruleMapItemSet["nfsv3"]; exists {
+						newRuleMapItemSet["nfsv3"] = val
+					}
+					if val, exists := ruleMapItemSet["kerberos5_read_only"]; exists {
+						newRuleMapItemSet["kerberos5ReadOnly"] = val
+					}
+					if val, exists := ruleMapItemSet["kerberos5_read_write"]; exists {
+						newRuleMapItemSet["kerberos5ReadWrite"] = val
+					}
+					if val, exists := ruleMapItemSet["kerberos5i_read_only"]; exists {
+						newRuleMapItemSet["kerberos5iReadOnly"] = val
+					}
+					if val, exists := ruleMapItemSet["kerberos5i_read_write"]; exists {
+						newRuleMapItemSet["kerberos5iReadWrite"] = val
+					}
+					if val, exists := ruleMapItemSet["kerberos5p_read_only"]; exists {
+						newRuleMapItemSet["kerberos5pReadOnly"] = val
+					}
+					if val, exists := ruleMapItemSet["kerberos5p_read_write"]; exists {
+						newRuleMapItemSet["kerberos5pReadWrite"] = val
+					}
+
+					// Handle "squash_mode":
+					squashModeVal, squashModeExists := ruleMapItemSet["squash_mode"]
+
+					// Only send if the user explicitly added it.
+					// If not added, send as null.
+					if squashModeExists && squashModeVal == "ALL_SQUASH" {
+						// User provided the field, send their value
+						newRuleMapItemSet["squashMode"] = squashModeVal
+					} else {
+						// User did NOT provide the field, or provided an empty value.
+						// Explicitly send null to the API.
+						newRuleMapItemSet["squashMode"] = nil
+					}
+
+					// Handle "anon_uid"
+					anonUidVal, anonUidExists := ruleMapItemSet["anon_uid"]
+
+					// Only send if the user explicitly added it.
+					// If not added, send as null.
+					if anonUidExists && anonUidVal != nil && anonUidVal != 0 {
+						// User provided the field, send their value
+						newRuleMapItemSet["anonUid"] = anonUidVal
+					} else {
+						// User did NOT provide the field, or provided an empty value.
+						// Explicitly send null to the API.
+						newRuleMapItemSet["anonUid"] = nil
+					}
+
+					newRuleMap = append(newRuleMap, newRuleMapItemSet)
+
+				}
+				ruleSet["rules"] = newRuleMap
+				newExportPolicy = append(newExportPolicy, ruleSet)
+			}
+		}
+		if len(newExportPolicy) > 0 {
+			obj["exportPolicy"] = newExportPolicy[0]
 		}
 	}
 
