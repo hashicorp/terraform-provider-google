@@ -368,6 +368,91 @@ resource "google_bigquery_connection" "tf_test_connection" {
    cloud_resource {}
 }
 ```
+## Example Usage - Dataplex Datascan Documentation
+
+
+```hcl
+resource "google_bigquery_dataset" "tf_dataplex_test_dataset" {
+  dataset_id = "tf_dataplex_test_dataset_id_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+}
+
+resource "google_bigquery_table" "tf_dataplex_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id
+  table_id            = "tf_dataplex_test_table_id_%{random_suffix}"
+  deletion_protection = false
+  schema              = <<EOF
+    [
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "station_id",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The id of the bike station"
+    },
+    {
+      "name": "address",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The address of the bike station"
+    },
+    {
+      "name": "power_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The powert type of the bike station"
+    },
+    {
+      "name": "property_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The type of the property"
+    },
+    {
+      "name": "number_of_docks",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The number of docks the property have"
+    },
+    {
+      "name": "footprint_length",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The footpring lenght of the property"
+    },
+    {
+      "name": "council_district",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The council district the property is in"
+    }
+    ]
+  EOF
+}
+
+resource "google_dataplex_datascan" "documentation" {
+  location     = "us-central1"
+  data_scan_id = "datadocumentation"
+
+  data {
+    resource = "//bigquery.googleapis.com/projects/my-project-name/datasets/${google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_dataplex_test_table.table_id}"
+  }
+
+  execution_spec {
+    trigger {
+      on_demand {}
+    }
+  }
+
+  data_documentation_spec {}
+
+  project = "my-project-name"
+}
+```
 
 ## Argument Reference
 
@@ -422,6 +507,10 @@ The following arguments are supported:
   (Optional)
   DataDiscoveryScan related setting.
   Structure is [documented below](#nested_data_discovery_spec).
+
+* `data_documentation_spec` -
+  (Optional)
+  DataDocumentationScan related setting.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
