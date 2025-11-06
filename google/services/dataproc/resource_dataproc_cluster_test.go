@@ -368,6 +368,41 @@ func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withResourceManagerTags(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	pid := envvar.GetTestProjectFromEnv()
+	projectNumber := envvar.GetTestProjectNumberFromEnv()
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	// TODO: remove this IAM binding once tagUser permissions are present in Dataproc Service Agent role.
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: fmt.Sprintf("serviceAccount:service-%s@dataproc-accounts.iam.gserviceaccount.com", projectNumber),
+			Role:   "roles/resourcemanager.tagUser",
+		},
+	})
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withResourceManagerTags(pid, rnd, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+
+					testAccCheckDataprocClusterResourceManagerTags(t, "google_dataproc_cluster.basic"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withMinNumInstances(t *testing.T) {
 	t.Parallel()
 
@@ -1538,6 +1573,40 @@ func testAccCheckDataprocClusterExists(t *testing.T, n string, cluster *dataproc
 	}
 }
 
+func testAccCheckDataprocClusterResourceManagerTags(t *testing.T, n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Terraform resource Not found: %s", n)
+		}
+
+		// Find the tags and validate key/value formats.
+		tagPrefix := "cluster_config.0.gce_cluster_config.0.resource_manager_tags."
+		keyRegex := regexp.MustCompile(`^tagKeys/`)
+		valueRegex := regexp.MustCompile(`^tagValues/`)
+
+		foundTags := 0
+		for attr, value := range rs.Primary.Attributes {
+			if strings.HasPrefix(attr, tagPrefix) && !strings.HasSuffix(attr, ".#") && !strings.HasSuffix(attr, ".%") {
+				foundTags++
+				key := strings.TrimPrefix(attr, tagPrefix)
+
+				if !keyRegex.MatchString(key) {
+					return fmt.Errorf("resource manager tag key %q does not have expected prefix 'tagKeys/'", key)
+				}
+				if !valueRegex.MatchString(value) {
+					return fmt.Errorf("resource manager tag value %q for key %q does not have expected prefix 'tagValues/'", value, key)
+				}
+			}
+		}
+
+		if foundTags != 2 {
+			return fmt.Errorf("expected to find 2 resource manager tags, but found %d", foundTags)
+		}
+
+		return nil
+	}
+}
 func testAccCheckDataproc_missingZoneGlobalRegion1(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
@@ -1820,6 +1889,45 @@ resource "google_dataproc_cluster" "basic" {
   }
 }
 `, rnd, subnetworkName)
+}
+
+func testAccDataprocCluster_withResourceManagerTags(pid, rnd, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_tags_tag_key" "tag_key" {
+  parent = "projects/%s"
+  short_name = "key-%s"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+  parent = "tagKeys/${google_tags_tag_key.tag_key.name}"
+  short_name = "val-%s"
+}
+
+resource "google_tags_tag_key" "tag_key_2" {
+  parent = "projects/%s"
+  short_name = "key-2-%s"
+}
+
+resource "google_tags_tag_value" "tag_value_2" {
+  parent = "tagKeys/${google_tags_tag_key.tag_key_2.name}"
+  short_name = "val-2-%s"
+}
+
+resource "google_dataproc_cluster" "basic" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+      resource_manager_tags = {
+		"${google_tags_tag_key.tag_key.id}" = "${google_tags_tag_value.tag_value.id}",
+		"${google_tags_tag_key.tag_key_2.id}" = "${google_tags_tag_value.tag_value_2.id}"
+      }
+    }
+  }
+}
+`, pid, rnd, rnd, pid, rnd, rnd, rnd, subnetworkName)
 }
 
 func testAccDataprocCluster_withMinNumInstances(rnd, subnetworkName string) string {
