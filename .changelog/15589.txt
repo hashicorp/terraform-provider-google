@@ -1,0 +1,3 @@
+```release-note:bug
+pubsub: Add dependency on the Pub/Sub topic/subscription for tags examples to fix failing tests
+```

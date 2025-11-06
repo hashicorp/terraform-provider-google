@@ -881,6 +881,7 @@ data "google_project" "project" {}
 resource "google_tags_tag_key" "tag_key" {
   parent     = data.google_project.project.id
   short_name = "tf_test_tag_key%{random_suffix}"
+  depends_on = [google_pubsub_topic.example]
 }
 
 resource "google_tags_tag_value" "tag_value" {
