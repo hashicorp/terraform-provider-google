@@ -320,7 +320,17 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec"},
+				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
+			},
+			"data_documentation_spec": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `DataDocumentationScan related setting.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{},
+				},
+				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
 			},
 			"data_profile_spec": {
 				Type:        schema.TypeList,
@@ -411,7 +421,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec"},
+				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
 			},
 			"data_quality_spec": {
 				Type:        schema.TypeList,
@@ -749,7 +759,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec"},
+				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -893,6 +903,12 @@ func resourceDataplexDatascanCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("data_discovery_spec"); ok || !reflect.DeepEqual(v, dataDiscoverySpecProp) {
 		obj["dataDiscoverySpec"] = dataDiscoverySpecProp
+	}
+	dataDocumentationSpecProp, err := expandDataplexDatascanDataDocumentationSpec(d.Get("data_documentation_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_documentation_spec"); ok || !reflect.DeepEqual(v, dataDocumentationSpecProp) {
+		obj["dataDocumentationSpec"] = dataDocumentationSpecProp
 	}
 	effectiveLabelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1044,6 +1060,9 @@ func resourceDataplexDatascanRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("data_discovery_spec", flattenDataplexDatascanDataDiscoverySpec(res["dataDiscoverySpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Datascan: %s", err)
 	}
+	if err := d.Set("data_documentation_spec", flattenDataplexDatascanDataDocumentationSpec(res["dataDocumentationSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenDataplexDatascanTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Datascan: %s", err)
 	}
@@ -1106,6 +1125,12 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("data_discovery_spec"); ok || !reflect.DeepEqual(v, dataDiscoverySpecProp) {
 		obj["dataDiscoverySpec"] = dataDiscoverySpecProp
 	}
+	dataDocumentationSpecProp, err := expandDataplexDatascanDataDocumentationSpec(d.Get("data_documentation_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_documentation_spec"); ok || !reflect.DeepEqual(v, dataDocumentationSpecProp) {
+		obj["dataDocumentationSpec"] = dataDocumentationSpecProp
+	}
 	effectiveLabelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1144,6 +1169,10 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("data_discovery_spec") {
 		updateMask = append(updateMask, "dataDiscoverySpec")
+	}
+
+	if d.HasChange("data_documentation_spec") {
+		updateMask = append(updateMask, "dataDocumentationSpec")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -2032,6 +2061,14 @@ func flattenDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsEncoding(v 
 
 func flattenDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsTypeInferenceDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenDataplexDatascanDataDocumentationSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenDataplexDatascanTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3317,6 +3354,24 @@ func expandDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsEncoding(v i
 
 func expandDataplexDatascanDataDiscoverySpecStorageConfigJsonOptionsTypeInferenceDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataplexDatascanDataDocumentationSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandDataplexDatascanEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

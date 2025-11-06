@@ -608,6 +608,118 @@ resource "google_bigquery_connection" "tf_test_connection" {
 `, context)
 }
 
+func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"location":      envvar.GetTestRegionFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanDocumentationExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.documentation",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataplexDatascan_dataplexDatascanDocumentationExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "tf_dataplex_test_dataset" {
+  dataset_id = "tf_dataplex_test_dataset_id_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+}
+
+resource "google_bigquery_table" "tf_dataplex_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id
+  table_id            = "tf_dataplex_test_table_id_%{random_suffix}"
+  deletion_protection = false
+  schema              = <<EOF
+    [
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "station_id",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The id of the bike station"
+    },
+    {
+      "name": "address",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The address of the bike station"
+    },
+    {
+      "name": "power_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The powert type of the bike station"
+    },
+    {
+      "name": "property_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The type of the property"
+    },
+    {
+      "name": "number_of_docks",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The number of docks the property have"
+    },
+    {
+      "name": "footprint_length",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The footpring lenght of the property"
+    },
+    {
+      "name": "council_district",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The council district the property is in"
+    }
+    ]
+  EOF
+}
+
+resource "google_dataplex_datascan" "documentation" {
+  location     = "us-central1"
+  data_scan_id = "datadocumentation%{random_suffix}"
+
+  data {
+    resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_dataplex_test_table.table_id}"
+  }
+
+  execution_spec {
+    trigger {
+      on_demand {}
+    }
+  }
+
+  data_documentation_spec {}
+
+  project = "%{project_name}"
+}
+`, context)
+}
+
 func testAccCheckDataplexDatascanDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
