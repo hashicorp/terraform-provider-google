@@ -1,0 +1,11 @@
+```release-note:deprecation
+`pubsublite`: `google_pubsub_lite_subscription` will be turned down effective March 18, 2026. Use `google_pubsub_subscription` instead.
+```
+
+```release-note:deprecation
+`pubsublite`: `google_pubsub_lite_reservation` will be turned down effective March 18, 2026. Use `google_pubsub_reservation` instead.
+```
+
+```release-note:deprecation
+`pubsublite`: `google_pubsub_lite_topic` will be turned down effective March 18, 2026. Use `google_pubsub_topic` instead.
+```
