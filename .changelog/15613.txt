@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fix incorrect usage of `final_backup_description` in `google_sql_database_instance` resource
+```

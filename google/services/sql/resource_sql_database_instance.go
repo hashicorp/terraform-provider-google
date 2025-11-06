@@ -2665,7 +2665,7 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 
 	var op *sqladmin.Operation
 	finalBackupDescription := ""
-	if v, ok := d.GetOk("finalBackupDescription"); ok {
+	if v, ok := d.GetOk("final_backup_description"); ok {
 		finalBackupDescription = v.(string)
 	}
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
