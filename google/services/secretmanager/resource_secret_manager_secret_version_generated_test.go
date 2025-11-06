@@ -69,7 +69,7 @@ func TestAccSecretManagerSecretVersion_secretVersionBasicExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret_version.secret-version-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"secret"},
+				ImportStateVerifyIgnore: []string{"project", "secret"},
 			},
 		},
 	})
@@ -117,7 +117,7 @@ func TestAccSecretManagerSecretVersion_secretVersionBasicWriteOnlyExample(t *tes
 				ResourceName:            "google_secret_manager_secret_version.secret-version-basic-write-only",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"secret"},
+				ImportStateVerifyIgnore: []string{"project", "secret"},
 			},
 		},
 	})
@@ -165,7 +165,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyAbandonExample
 				ResourceName:            "google_secret_manager_secret_version.secret-version-deletion-policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "secret"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "project", "secret"},
 			},
 		},
 	})
@@ -213,7 +213,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyDisableExample
 				ResourceName:            "google_secret_manager_secret_version.secret-version-deletion-policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "secret"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "project", "secret"},
 			},
 		},
 	})
@@ -262,7 +262,7 @@ func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataEx
 				ResourceName:            "google_secret_manager_secret_version.secret-version-base64",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"is_secret_data_base64", "secret"},
+				ImportStateVerifyIgnore: []string{"is_secret_data_base64", "project", "secret"},
 			},
 		},
 	})
@@ -311,7 +311,7 @@ func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataWr
 				ResourceName:            "google_secret_manager_secret_version.secret-version-base64-write-only",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"is_secret_data_base64", "secret"},
+				ImportStateVerifyIgnore: []string{"is_secret_data_base64", "project", "secret"},
 			},
 		},
 	})
