@@ -219,6 +219,7 @@ Possible values: DEFAULT, FORCE.
 * `has_root_access` -
   (Optional)
   If enabled, the root user (UID = 0) of the specified clients doesn't get mapped to nobody (UID = 65534). This is also known as no_root_squash.
+  It's overwritten by the squash_mode parameter. Use either squash_mode or has_root_access.
 
 * `access_type` -
   (Optional)
@@ -260,11 +261,12 @@ Possible values: DEFAULT, FORCE.
 * `squash_mode` -
   (Optional)
   SquashMode defines how remote user privileges are restricted when accessing an NFS export. It controls how the user identities (like root) are mapped to anonymous users to limit access and enforce security.
-  Possible values are: `NO_ROOT_SQUASH`, `ROOT_SQUASH`, `ALL_SQUASH`.
+  It overwrites the has_root_access parameter. Use either squash_mode or has_root_access. For ALL_SQUASH, access_type needs to be set to READ_WRITE.
+  Possible values are: `SQUASH_MODE_UNSPECIFIED`, `NO_ROOT_SQUASH`, `ROOT_SQUASH`, `ALL_SQUASH`.
 
 * `anon_uid` -
   (Optional)
-  An integer representing the anonymous user ID. Range is 0 to 4294967295. Required when `squash_mode` is `ROOT_SQUASH` or `ALL_SQUASH`.
+  An integer representing the anonymous user ID. Range is 0 to 4294967295. Required when `squash_mode` is `ALL_SQUASH`.
 
 <a name="nested_restore_parameters"></a>The `restore_parameters` block supports:
 
