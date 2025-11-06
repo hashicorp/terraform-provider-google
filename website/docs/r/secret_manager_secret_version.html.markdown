@@ -236,6 +236,11 @@ The following arguments are supported:
   (Optional)
   Triggers update of secret data write-only. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
 
+* `project` -
+  (Optional)
+  The ID of the project in which the resource belongs. If it is not provided,
+  the provider project is used
+
 * `deletion_policy` - (Optional) The deletion policy for the secret version. Setting `ABANDON` allows the resource
 to be abandoned rather than deleted. Setting `DISABLE` allows the resource to be
 disabled rather than deleted. Default is `DELETE`. Possible values are:

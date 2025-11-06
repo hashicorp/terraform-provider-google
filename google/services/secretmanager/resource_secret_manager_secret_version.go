@@ -175,6 +175,14 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 				Description: `The current state of the SecretVersion.`,
 				Default:     true,
 			},
+			"project": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided,
+the provider project is used`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -253,6 +261,39 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	}
 
 	headers := make(http.Header)
+	secret := d.Get("secret").(string)
+	secretRegex := regexp.MustCompile("^(?:projects/([^/]+)/secrets/)?([^/]+)$")
+
+	parts := secretRegex.FindStringSubmatch(secret)
+	if len(parts) != 2 && len(parts) != 3 {
+		return fmt.Errorf("secret does not fit any of the expected formats `projects/{{project}}/secrets/{{secret}}` or `{{secret}}`. Got: %s", secret)
+	}
+
+	// Add project ID to secret if only its name is provided
+	if parts[1] == "" {
+		project, err := tpgresource.GetProject(d, config)
+		if err != nil {
+			return fmt.Errorf("error fetching project for DomainTrust: %s", err)
+		}
+
+		if err = d.Set("project", project); err != nil {
+			return fmt.Errorf("error updating the project in state: %s", err)
+		}
+
+		if err = d.Set("secret", fmt.Sprintf("projects/%s/secrets/%s", project, parts[2])); err != nil {
+			return fmt.Errorf("error updating the secret with its project ID: %s", err)
+		}
+
+		// Override the url after updating the secret
+		url, err = tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{secret}}:addVersion")
+		if err != nil {
+			return err
+		}
+	} else if configProject, hasConfigProject := d.GetOk("project"); hasConfigProject {
+		if configProject != parts[1] {
+			return fmt.Errorf("project %s was supplied on the secret and %s supplied on the config, values conflict", parts[1], configProject)
+		}
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",

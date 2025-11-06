@@ -1,0 +1,7 @@
+```release-note:enhancement
+secretmanager: added project and short name support for secret on `ephemeral_google_secret_manager_secret_version`
+```
+
+```release-note:enhancement
+secretmanager: added project and short name support for secret on `google_secret_manager_secret_version`
+```
