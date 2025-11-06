@@ -694,6 +694,11 @@ func resourceContainerAwsNodePoolRead(d *schema.ResourceData, meta interface{}) 
 	if err = d.Set("annotations", flattenContainerAwsNodePoolAnnotations(res.Annotations, d)); err != nil {
 		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
+	// preserve user-provided deletion_labels in state
+	if v, ok := d.GetOk("deletion_labels"); ok {
+		// no API source of truth for this field; keep config value
+		_ = d.Set("deletion_labels", tpgresource.CheckStringMap(v))
+	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
 	}
