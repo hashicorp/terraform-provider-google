@@ -127,3 +127,66 @@ data "google_compute_network" "lustre-network" {
 }
 `, context)
 }
+
+func TestAccLustreInstance_withPlacementPolicy(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "default-vpc"),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLustreInstance_withPlacementPolicy(context),
+			},
+			{
+				ResourceName:            "google_lustre_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "gke_support_enabled", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccLustreInstance_withPlacementPolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_lustre_instance" "instance" {
+  instance_id                 = "tf-test-my-instance%{random_suffix}"
+  location                    = "us-central1-a"
+  filesystem                  = "testfs"
+  network                     = data.google_compute_network.lustre-network.id
+  gke_support_enabled         = false
+  capacity_gib                = 18000
+  per_unit_storage_throughput = 1000
+  
+  placement_policy  = google_compute_resource_policy.lustre_policy.id
+  
+  timeouts {
+	create = "120m"
+  }
+}
+
+resource "google_compute_resource_policy" "lustre_policy" {
+  name   = "gce-policy"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "04:00"
+      }
+    }
+  }
+}
+
+
+data "google_compute_network" "lustre-network" {
+  name = "%{network_name}"
+}
+`, context)
+}
