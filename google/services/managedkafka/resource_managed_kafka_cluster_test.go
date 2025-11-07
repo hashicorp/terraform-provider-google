@@ -51,7 +51,7 @@ func TestAccManagedKafkaCluster_update(t *testing.T) {
 				ResourceName:            "google_managed_kafka_cluster.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cluster_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"broker_capacity_config", "cluster_id", "labels", "location", "terraform_labels"},
 			},
 			{
 				Config: testAccManagedKafkaCluster_updateTlsConfigToEmpty(context),
@@ -103,6 +103,9 @@ resource "google_managed_kafka_cluster" "example" {
   capacity_config {
     vcpu_count = 4
     memory_bytes = 4512135122
+  }
+  broker_capacity_config {
+    disk_size_gb = 1500
   }
   gcp_config {
     access_config {
