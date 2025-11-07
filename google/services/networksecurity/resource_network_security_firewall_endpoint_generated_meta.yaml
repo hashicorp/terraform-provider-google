@@ -10,6 +10,7 @@ fields:
   - api_field: 'createTime'
   - field: 'effective_labels'
     provider_only: true
+  - api_field: 'endpointSettings.jumboFramesEnabled'
   - api_field: 'labels'
   - field: 'location'
     provider_only: true

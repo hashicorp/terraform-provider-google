@@ -132,6 +132,22 @@ func ResourceNetworkSecurityFirewallEndpoint() *schema.Resource {
 				Description: `The name of the parent this firewall endpoint belongs to.
 Format: organizations/{organization_id}.`,
 			},
+			"endpoint_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for the endpoint.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"jumbo_frames_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Indicates whether Jumbo Frames are enabled for the firewall endpoint.`,
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -210,6 +226,12 @@ func resourceNetworkSecurityFirewallEndpointCreate(d *schema.ResourceData, meta 
 		return err
 	} else if v, ok := d.GetOkExists("billing_project_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(billingProjectIdProp)) && (ok || !reflect.DeepEqual(v, billingProjectIdProp)) {
 		obj["billingProjectId"] = billingProjectIdProp
+	}
+	endpointSettingsProp, err := expandNetworkSecurityFirewallEndpointEndpointSettings(d.Get("endpoint_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("endpoint_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(endpointSettingsProp)) && (ok || !reflect.DeepEqual(v, endpointSettingsProp)) {
+		obj["endpointSettings"] = endpointSettingsProp
 	}
 	effectiveLabelsProp, err := expandNetworkSecurityFirewallEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -324,6 +346,9 @@ func resourceNetworkSecurityFirewallEndpointRead(d *schema.ResourceData, meta in
 	if err := d.Set("billing_project_id", flattenNetworkSecurityFirewallEndpointBillingProjectId(res["billingProjectId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallEndpoint: %s", err)
 	}
+	if err := d.Set("endpoint_settings", flattenNetworkSecurityFirewallEndpointEndpointSettings(res["endpointSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FirewallEndpoint: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetworkSecurityFirewallEndpointTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallEndpoint: %s", err)
 	}
@@ -351,6 +376,12 @@ func resourceNetworkSecurityFirewallEndpointUpdate(d *schema.ResourceData, meta 
 	} else if v, ok := d.GetOkExists("billing_project_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, billingProjectIdProp)) {
 		obj["billingProjectId"] = billingProjectIdProp
 	}
+	endpointSettingsProp, err := expandNetworkSecurityFirewallEndpointEndpointSettings(d.Get("endpoint_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("endpoint_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, endpointSettingsProp)) {
+		obj["endpointSettings"] = endpointSettingsProp
+	}
 	effectiveLabelsProp, err := expandNetworkSecurityFirewallEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -369,6 +400,10 @@ func resourceNetworkSecurityFirewallEndpointUpdate(d *schema.ResourceData, meta 
 
 	if d.HasChange("billing_project_id") {
 		updateMask = append(updateMask, "billingProjectId")
+	}
+
+	if d.HasChange("endpoint_settings") {
+		updateMask = append(updateMask, "endpointSettings")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -529,6 +564,23 @@ func flattenNetworkSecurityFirewallEndpointBillingProjectId(v interface{}, d *sc
 	return v
 }
 
+func flattenNetworkSecurityFirewallEndpointEndpointSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["jumbo_frames_enabled"] =
+		flattenNetworkSecurityFirewallEndpointEndpointSettingsJumboFramesEnabled(original["jumboFramesEnabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityFirewallEndpointEndpointSettingsJumboFramesEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecurityFirewallEndpointTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -549,6 +601,32 @@ func flattenNetworkSecurityFirewallEndpointEffectiveLabels(v interface{}, d *sch
 }
 
 func expandNetworkSecurityFirewallEndpointBillingProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityFirewallEndpointEndpointSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedJumboFramesEnabled, err := expandNetworkSecurityFirewallEndpointEndpointSettingsJumboFramesEnabled(original["jumbo_frames_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["jumboFramesEnabled"] = transformedJumboFramesEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityFirewallEndpointEndpointSettingsJumboFramesEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
