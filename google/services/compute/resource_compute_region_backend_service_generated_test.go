@@ -663,6 +663,67 @@ resource "google_compute_region_backend_service" "default" {
 `, context)
 }
 
+func TestAccComputeRegionBackendService_regionBackendServiceTlsSettingsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_regionBackendServiceTlsSettingsExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "params", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_regionBackendServiceTlsSettingsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_backend_service" "default" {
+  region = "europe-north1"
+  name          = "tf-test-region-service%{random_suffix}"
+  health_checks = [google_compute_region_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol = "HTTPS"
+  tls_settings {
+    sni = "example.com"
+    subject_alt_names {
+        dns_name = "example.com"
+    }
+    subject_alt_names {
+        uniform_resource_identifier = "https://example.com"
+    }
+    authentication_config = "//networksecurity.googleapis.com/${google_network_security_backend_authentication_config.default.id}"
+  }
+}
+
+resource "google_compute_region_health_check" "default" {
+  name = "tf-test-health-check%{random_suffix}"
+  region = "europe-north1"
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_network_security_backend_authentication_config" "default" {
+  name             = "authentication%{random_suffix}"
+  location = "europe-north1"
+  well_known_roots = "PUBLIC_ROOTS"
+}
+`, context)
+}
+
 func testAccCheckComputeRegionBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

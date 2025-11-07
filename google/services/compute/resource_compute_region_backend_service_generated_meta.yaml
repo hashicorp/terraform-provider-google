@@ -115,4 +115,8 @@ fields:
   - api_field: 'strongSessionAffinityCookie.ttl.nanos'
   - api_field: 'strongSessionAffinityCookie.ttl.seconds'
   - api_field: 'timeoutSec'
+  - api_field: 'tlsSettings.authenticationConfig'
+  - api_field: 'tlsSettings.sni'
+  - api_field: 'tlsSettings.subjectAltNames.dnsName'
+  - api_field: 'tlsSettings.subjectAltNames.uniformResourceIdentifier'
   - api_field: 'selfLink'
