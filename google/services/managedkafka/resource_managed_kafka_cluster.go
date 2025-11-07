@@ -183,6 +183,21 @@ func ResourceManagedKafkaCluster() *schema.Resource {
 				ForceNew:    true,
 				Description: `ID of the location of the Kafka resource. See https://cloud.google.com/managed-kafka/docs/locations for a list of supported locations.`,
 			},
+			"broker_capacity_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Capacity configuration at a per-broker level within the Kafka cluster. The config will be appled to each broker in the cluster.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_gb": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The disk to provision for each broker in Gigabytes. Minimum: 100 GB.`,
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -311,6 +326,12 @@ func resourceManagedKafkaClusterCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(capacityConfigProp)) && (ok || !reflect.DeepEqual(v, capacityConfigProp)) {
 		obj["capacityConfig"] = capacityConfigProp
+	}
+	brokerCapacityConfigProp, err := expandManagedKafkaClusterBrokerCapacityConfig(d.Get("broker_capacity_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("broker_capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(brokerCapacityConfigProp)) && (ok || !reflect.DeepEqual(v, brokerCapacityConfigProp)) {
+		obj["brokerCapacityConfig"] = brokerCapacityConfigProp
 	}
 	rebalanceConfigProp, err := expandManagedKafkaClusterRebalanceConfig(d.Get("rebalance_config"), d, config)
 	if err != nil {
@@ -494,6 +515,12 @@ func resourceManagedKafkaClusterUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, capacityConfigProp)) {
 		obj["capacityConfig"] = capacityConfigProp
 	}
+	brokerCapacityConfigProp, err := expandManagedKafkaClusterBrokerCapacityConfig(d.Get("broker_capacity_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("broker_capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, brokerCapacityConfigProp)) {
+		obj["brokerCapacityConfig"] = brokerCapacityConfigProp
+	}
 	rebalanceConfigProp, err := expandManagedKafkaClusterRebalanceConfig(d.Get("rebalance_config"), d, config)
 	if err != nil {
 		return err
@@ -528,6 +555,10 @@ func resourceManagedKafkaClusterUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("capacity_config") {
 		updateMask = append(updateMask, "capacityConfig")
+	}
+
+	if d.HasChange("broker_capacity_config") {
+		updateMask = append(updateMask, "brokerCapacityConfig")
 	}
 
 	if d.HasChange("rebalance_config") {
@@ -973,6 +1004,32 @@ func expandManagedKafkaClusterCapacityConfigVcpuCount(v interface{}, d tpgresour
 }
 
 func expandManagedKafkaClusterCapacityConfigMemoryBytes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandManagedKafkaClusterBrokerCapacityConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDiskSizeGb, err := expandManagedKafkaClusterBrokerCapacityConfigDiskSizeGb(original["disk_size_gb"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDiskSizeGb); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["diskSizeGb"] = transformedDiskSizeGb
+	}
+
+	return transformed, nil
+}
+
+func expandManagedKafkaClusterBrokerCapacityConfigDiskSizeGb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

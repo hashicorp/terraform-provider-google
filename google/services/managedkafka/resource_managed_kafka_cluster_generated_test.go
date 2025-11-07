@@ -69,7 +69,7 @@ func TestAccManagedKafkaCluster_managedkafkaClusterBasicExample(t *testing.T) {
 				ResourceName:            "google_managed_kafka_cluster.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cluster_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"broker_capacity_config", "cluster_id", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -123,7 +123,7 @@ func TestAccManagedKafkaCluster_managedkafkaClusterMtlsExample(t *testing.T) {
 				ResourceName:            "google_managed_kafka_cluster.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cluster_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"broker_capacity_config", "cluster_id", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
