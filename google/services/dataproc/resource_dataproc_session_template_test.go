@@ -29,6 +29,13 @@ import (
 func TestAccDataprocSessionTemplate_update(t *testing.T) {
 	t.Parallel()
 
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@dataproc-accounts.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"kms_key_name":    acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-session-template-key1").CryptoKey.Name,
@@ -135,10 +142,6 @@ resource "google_dataproc_session_template" "dataproc_session_templates_jupyter_
       kernel       = "SCALA"
       display_name = "tf scala kernel"
     }
-
-    depends_on = [
-      google_kms_crypto_key_iam_member.crypto_key_member_1,
-    ]
 }
 
 resource "google_storage_bucket" "bucket" {
@@ -146,12 +149,6 @@ resource "google_storage_bucket" "bucket" {
   name                        = "tf-test-dataproc-bucket%{random_suffix}"
   location                    = "US"
   force_destroy               = true
-}
-
-resource "google_kms_crypto_key_iam_member" "crypto_key_member_1" {
-  crypto_key_id = "%{kms_key_name}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-${data.google_project.project.number}@dataproc-accounts.iam.gserviceaccount.com"
 }
 
 resource "google_dataproc_cluster" "basic" {
