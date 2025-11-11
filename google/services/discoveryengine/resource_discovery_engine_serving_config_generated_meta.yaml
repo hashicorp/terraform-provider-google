@@ -1,0 +1,21 @@
+resource: 'google_discovery_engine_serving_config'
+generation_type: 'mmv1'
+source_file: 'products/discoveryengine/ServingConfig.yaml'
+api_service_name: 'discoveryengine.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'ServingConfig'
+fields:
+  - api_field: 'boostControlIds'
+  - field: 'collection_id'
+    provider_only: true
+  - field: 'engine_id'
+    provider_only: true
+  - api_field: 'filterControlIds'
+  - field: 'location'
+    provider_only: true
+  - api_field: 'name'
+  - api_field: 'promoteControlIds'
+  - api_field: 'redirectControlIds'
+  - field: 'serving_config_id'
+    provider_only: true
+  - api_field: 'synonymsControlIds'
