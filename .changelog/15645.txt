@@ -1,0 +1,6 @@
+```release-note:deprecation
+backupdr: deprecated `required_type` in `google_backup_dr_backup_plan_associations` and `google_backup_dr_data_source_references`. It no longer has any functionality, and will be removed in the next major release.
+```
+```release-note:enhancement
+backupdr: updated `google_backup_dr_backup_plan_associations` and `google_backup_dr_data_source_references` to use LIST APIs.
+```
