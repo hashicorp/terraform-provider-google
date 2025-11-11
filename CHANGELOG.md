@@ -28,6 +28,7 @@ IMPROVEMENTS:
 * lustre: added `placement_policy` field to `google_lustre_instance` resource ([#25042](https://github.com/hashicorp/terraform-provider-google/pull/25042))
 * netapp: added `cache_parameters` field to `google_netapp_volume` resource ([#24909](https://github.com/hashicorp/terraform-provider-google/pull/24909))
 * secretmanager: added project and short name support for `secret` on `google_secret_manager_secret_version` ([#25045](https://github.com/hashicorp/terraform-provider-google/pull/25045))
+* secretmanager: added project and short name support for `secret` on ephemeral `google_secret_manager_secret_version` ([#25045](https://github.com/hashicorp/terraform-provider-google/pull/25045))
 
 BUG FIXES:
 * alloydb: fixed issue with creation when `initial_user.password` was set to a computed value in `google_alloydb_cluster` ([#25036](https://github.com/hashicorp/terraform-provider-google/pull/25036))
