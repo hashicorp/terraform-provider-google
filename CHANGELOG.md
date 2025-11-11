@@ -1,4 +1,46 @@
-## 7.8.0 (Unreleased)
+## 7.11.0 (Unreleased)
+
+DEPRECATIONS:
+* `pubsublite`: `google_pubsub_lite_reservation` will be turned down effective March 18, 2026. Use `google_pubsub_reservation` instead. ([#25058](https://github.com/hashicorp/terraform-provider-google/pull/25058))
+* `pubsublite`: `google_pubsub_lite_subscription` will be turned down effective March 18, 2026. Use `google_pubsub_subscription` instead. ([#25058](https://github.com/hashicorp/terraform-provider-google/pull/25058))
+* `pubsublite`: `google_pubsub_lite_topic` will be turned down effective March 18, 2026. Use `google_pubsub_topic` instead. ([#25058](https://github.com/hashicorp/terraform-provider-google/pull/25058))
+
+BREAKING CHANGES:
+* netapp: made `google_netapp_volumes.squash_mode` not preserve values returned by the API. Without this change, unsetting `squash_mode` in the provider can cause an API error. ([#25059](https://github.com/hashicorp/terraform-provider-google/pull/25059))
+
+FEATURES:
+* **New Data Source:** `google_artifact_registry_python_packages` ([#25053](https://github.com/hashicorp/terraform-provider-google/pull/25053))
+* **New Data Source:** `google_cloud_identity_policy` ([#24946](https://github.com/hashicorp/terraform-provider-google/pull/24946))
+* **New Data Source:** `google_compute_reservation_block` ([#25034](https://github.com/hashicorp/terraform-provider-google/pull/25034))
+* **New Data Source:** `google_compute_reservation_sub_block` ([#25034](https://github.com/hashicorp/terraform-provider-google/pull/25034))
+* **New Resource:** `google_ces_deployment` ([#24945](https://github.com/hashicorp/terraform-provider-google/pull/24945))
+* **New Resource:** `google_ces_example` ([#25056](https://github.com/hashicorp/terraform-provider-google/pull/25056))
+* **New Resource:** `google_discovery_engine_user_store` ([#25054](https://github.com/hashicorp/terraform-provider-google/pull/25054))
+* **New Ephemeral Resource:** `google_client_config` ([#24900](https://github.com/hashicorp/terraform-provider-google/pull/24900))
+
+IMPROVEMENTS:
+* bigquery: added `external_data_configuration.decimal_target_types` to `google_bigquery_table` ([#24936](https://github.com/hashicorp/terraform-provider-google/pull/24936))
+* compute: added `internal_ipv6_prefix` field to the `google_compute_subnetwork` resource ([#25037](https://github.com/hashicorp/terraform-provider-google/pull/25037))
+* compute: added `ipv6_access_type` field and `INTERNAL_IPV6_SUBNETWORK_CREATION` as a supported value for the `mode` field in `google_compute_public_delegated_prefix` resource ([#24940](https://github.com/hashicorp/terraform-provider-google/pull/24940))
+* compute: added `ipv6_access_type` field to `google_compute_public_advertised_prefix` resource ([#24911](https://github.com/hashicorp/terraform-provider-google/pull/24911))
+* dataplex: added `data_documentation_spec` field to `google_dataplex_datascan` resource to support the `DATA_DOCUMENTATION` scan type ([#25044](https://github.com/hashicorp/terraform-provider-google/pull/25044))
+* dataproc: added `resource_manager_tags` to `google_dataproc_cluster` resource ([#25057](https://github.com/hashicorp/terraform-provider-google/pull/25057))
+* lustre: added `placement_policy` field to `google_lustre_instance` resource ([#25042](https://github.com/hashicorp/terraform-provider-google/pull/25042))
+* netapp: added `cache_parameters` field to `google_netapp_volume` resource ([#24909](https://github.com/hashicorp/terraform-provider-google/pull/24909))
+* secretmanager: added project and short name support for `secret` on `google_secret_manager_secret_version` ([#25045](https://github.com/hashicorp/terraform-provider-google/pull/25045))
+* secretmanager: added project and short name support for `secret` on ephemeral `google_secret_manager_secret_version` ([#25045](https://github.com/hashicorp/terraform-provider-google/pull/25045))
+
+BUG FIXES:
+* alloydb: fixed issue with creation when `initial_user.password` was set to a computed value in `google_alloydb_cluster` ([#25036](https://github.com/hashicorp/terraform-provider-google/pull/25036))
+* bigquery: fixed extraneous diffs in `google_bigquery_table.external_data_configuration.schema` ([#24936](https://github.com/hashicorp/terraform-provider-google/pull/24936))
+* compute: fixed a breaking change in `google_compute_instance` introduced in 7.9.0 where a destroy-diff is prompted for instances with preset GPUs ([#25021](https://github.com/hashicorp/terraform-provider-google/pull/25021))
+* container: added `KUBE_DNS` as an accepted value for `cluster_dns` field on `google_container_cluster` ([#24953](https://github.com/hashicorp/terraform-provider-google/pull/24953))
+* netapp: fixed bug where unsetting `squash_mode` on `google_netapp_volumes` can cause an API error ([#25059](https://github.com/hashicorp/terraform-provider-google/pull/25059))
+* pubsub: fixed bug where `google_pubsub_subscription` could only be updated if `bigquery_config` was modified ([#24952](https://github.com/hashicorp/terraform-provider-google/pull/24952))
+* sql: fixed bug where `final_backup_description` in `google_sql_database_instance` resource wasn't set on the final backup on delete ([#25055](https://github.com/hashicorp/terraform-provider-google/pull/25055))
+* storage: fixed bug where certain changes to `google_storage_bucket_acl.role_entity` were ignored ([#24949](https://github.com/hashicorp/terraform-provider-google/pull/24949))
+* workstations: fixed bug in `google_workstations_workstation` where setting `source_workstation` caused a permadiff that forced recreation ([#24941](https://github.com/hashicorp/terraform-provider-google/pull/24941))
+* vmwareengine: made deletion of `google_vmwareengine_private_cloud` wait until the deletion completes ([#25040](https://github.com/hashicorp/terraform-provider-google/pull/25040))
 
 ## 7.7.0 (October 14th, 2025)
 BREAKING CHANGES:
