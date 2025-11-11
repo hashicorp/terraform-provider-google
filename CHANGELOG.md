@@ -1,4 +1,5 @@
 ## 7.11.0 (Unreleased)
+
 DEPRECATIONS:
 * `pubsublite`: `google_pubsub_lite_reservation` will be turned down effective March 18, 2026. Use `google_pubsub_reservation` instead. ([#25058](https://github.com/hashicorp/terraform-provider-google/pull/25058))
 * `pubsublite`: `google_pubsub_lite_subscription` will be turned down effective March 18, 2026. Use `google_pubsub_subscription` instead. ([#25058](https://github.com/hashicorp/terraform-provider-google/pull/25058))
@@ -26,7 +27,6 @@ IMPROVEMENTS:
 * dataproc: added `resource_manager_tags` to `google_dataproc_cluster` resource ([#25057](https://github.com/hashicorp/terraform-provider-google/pull/25057))
 * lustre: added `placement_policy` field to `google_lustre_instance` resource ([#25042](https://github.com/hashicorp/terraform-provider-google/pull/25042))
 * netapp: added `cache_parameters` field to `google_netapp_volume` resource ([#24909](https://github.com/hashicorp/terraform-provider-google/pull/24909))
-* secretmanager: added project and short name support for `secret` on `google_secret_manager_secret_version` ([#25045](https://github.com/hashicorp/terraform-provider-google/pull/25045))
 * secretmanager: added project and short name support for `secret` on `google_secret_manager_secret_version` ([#25045](https://github.com/hashicorp/terraform-provider-google/pull/25045))
 
 BUG FIXES:
