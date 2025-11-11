@@ -15,19 +15,18 @@
 # ----------------------------------------------------------------------------
 subcategory: "Backup and DR Service"
 description: |-
-  Get information about a list of Backup and DR BackupPlanAssociations for a specific resource type .
+  Get information about a list of Backup and DR BackupPlanAssociations.
 ---
 
 # google_backup_dr_backup_plan_associations
 
-Provides a list of Backup and DR BackupPlanAssociations for a specific resource type.
+Provides a list of Backup and DR BackupPlanAssociations.
 
 ## Example Usage
 
 ```hcl
-data "google_backup_dr_backup_plan_associations" "compute_instance_associations" {
+data "google_backup_dr_backup_plan_associations" "all_associations" {
   location      = "us-central1"
-  resource_type = "compute.googleapis.com/Instance"
 }
 ```
 
@@ -36,8 +35,7 @@ data "google_backup_dr_backup_plan_associations" "compute_instance_associations"
 The following arguments are supported:
 
 * `location` - (Required)The location where the Backup Plan Association resources reside.
-* `resource_type` - (Required) The resource type of the workload. For example, sqladmin.googleapis.com/Instance or compute.googleapis.com/Instance.
-
+* `resource_type` - (Optional, Deprecated) The resource type of the workload. For example, sqladmin.googleapis.com/Instance or compute.googleapis.com/Instance. `resource_type` is deprecated and will be removed in a future major release.
 - - -
 
 * `project` - (Optional) The project in which the resource belongs. If it
