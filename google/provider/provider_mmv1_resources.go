@@ -57,6 +57,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrun"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudscheduler"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudsecuritycompliance"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudtasks"
 	"github.com/hashicorp/terraform-provider-google/google/services/colab"
 	"github.com/hashicorp/terraform-provider-google/google/services/composer"
@@ -580,9 +581,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 674
+// Generated resources: 675
 // Generated IAM resources: 318
-// Total generated resources: 992
+// Total generated resources: 993
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -797,6 +798,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_cloud_run_v2_worker_pool_iam_member":                                 tpgiamresource.ResourceIamMember(cloudrunv2.CloudRunV2WorkerPoolIamSchema, cloudrunv2.CloudRunV2WorkerPoolIamUpdaterProducer, cloudrunv2.CloudRunV2WorkerPoolIdParseFunc),
 	"google_cloud_run_v2_worker_pool_iam_policy":                                 tpgiamresource.ResourceIamPolicy(cloudrunv2.CloudRunV2WorkerPoolIamSchema, cloudrunv2.CloudRunV2WorkerPoolIamUpdaterProducer, cloudrunv2.CloudRunV2WorkerPoolIdParseFunc),
 	"google_cloud_scheduler_job":                                                 cloudscheduler.ResourceCloudSchedulerJob(),
+	"google_cloud_security_compliance_framework":                                 cloudsecuritycompliance.ResourceCloudSecurityComplianceFramework(),
 	"google_cloud_tasks_queue":                                                   cloudtasks.ResourceCloudTasksQueue(),
 	"google_cloud_tasks_queue_iam_binding":                                       tpgiamresource.ResourceIamBinding(cloudtasks.CloudTasksQueueIamSchema, cloudtasks.CloudTasksQueueIamUpdaterProducer, cloudtasks.CloudTasksQueueIdParseFunc),
 	"google_cloud_tasks_queue_iam_member":                                        tpgiamresource.ResourceIamMember(cloudtasks.CloudTasksQueueIamSchema, cloudtasks.CloudTasksQueueIamUpdaterProducer, cloudtasks.CloudTasksQueueIdParseFunc),
@@ -1751,6 +1753,7 @@ func UseGeneratedProducts() {
 	var _ = cloudrun.ProductName
 	var _ = cloudrunv2.ProductName
 	var _ = cloudscheduler.ProductName
+	var _ = cloudsecuritycompliance.ProductName
 	var _ = cloudtasks.ProductName
 	var _ = colab.ProductName
 	var _ = composer.ProductName
