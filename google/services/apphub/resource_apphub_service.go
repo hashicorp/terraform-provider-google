@@ -112,7 +112,7 @@ func ResourceApphubService() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Part of 'parent'.  Full resource name of a parent Application. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`,
+				Description: `Part of 'parent'. ApplicationId of parent AppHub Application. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`,
 			},
 			"discovered_service": {
 				Type:             schema.TypeString,
@@ -125,7 +125,14 @@ func ResourceApphubService() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Part of 'parent'.  Full resource name of a parent Application. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`,
+				Description: `Part of 'parent'. Location of parent AppHub Application. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Computed: true,
+				ForceNew: true,
+				Description: `Part of 'parent'. ProjectId of parent AppHub Application. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`
+
 			},
 			"service_id": {
 				Type:        schema.TypeString,
@@ -307,12 +314,6 @@ format.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. Update time.`,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
 			},
 		},
 		UseJSONNumber: true,
