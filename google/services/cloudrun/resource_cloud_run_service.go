@@ -466,6 +466,93 @@ Must be smaller than period_seconds.`,
 														},
 													},
 												},
+												"readiness_probe": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Periodic probe of container readiness.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"failure_threshold": {
+																Type:     schema.TypeInt,
+																Computed: true,
+																Optional: true,
+																Description: `Minimum consecutive failures for the probe to be considered failed after
+having succeeded. Defaults to 3.`,
+															},
+															"grpc": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `GRPC specifies an action involving a GRPC port.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"port": {
+																			Type:     schema.TypeInt,
+																			Computed: true,
+																			Optional: true,
+																			Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
+																		},
+																		"service": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The name of the service to place in the gRPC HealthCheckRequest
+(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+If this is not specified, the default behavior is defined by gRPC.`,
+																		},
+																	},
+																},
+																ExactlyOneOf: []string{},
+															},
+															"http_get": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `HttpGet specifies the http request to perform.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"path": {
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Optional:    true,
+																			Description: `Path to access on the HTTP server. If set, it should not be empty string.`,
+																		},
+																		"port": {
+																			Type:     schema.TypeInt,
+																			Computed: true,
+																			Optional: true,
+																			Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
+																		},
+																	},
+																},
+																ExactlyOneOf: []string{},
+															},
+															"period_seconds": {
+																Type:     schema.TypeInt,
+																Computed: true,
+																Optional: true,
+																Description: `How often (in seconds) to perform the probe.
+Default to 10 seconds.`,
+															},
+															"success_threshold": {
+																Type:     schema.TypeInt,
+																Computed: true,
+																Optional: true,
+																Description: `Minimum consecutive successes for the probe to be considered successful after having failed.
+Defaults to 2.`,
+															},
+															"timeout_seconds": {
+																Type:     schema.TypeInt,
+																Computed: true,
+																Optional: true,
+																Description: `Number of seconds after which the probe times out.
+Defaults to 1 second. Must be smaller than period_seconds.`,
+															},
+														},
+													},
+												},
 												"resources": {
 													Type:        schema.TypeList,
 													Computed:    true,
@@ -1880,18 +1967,19 @@ func flattenCloudRunServiceSpecTemplateSpecContainers(v interface{}, d *schema.R
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":           flattenCloudRunServiceSpecTemplateSpecContainersName(original["name"], d, config),
-			"working_dir":    flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(original["workingDir"], d, config),
-			"args":           flattenCloudRunServiceSpecTemplateSpecContainersArgs(original["args"], d, config),
-			"env_from":       flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(original["envFrom"], d, config),
-			"image":          flattenCloudRunServiceSpecTemplateSpecContainersImage(original["image"], d, config),
-			"command":        flattenCloudRunServiceSpecTemplateSpecContainersCommand(original["command"], d, config),
-			"env":            flattenCloudRunServiceSpecTemplateSpecContainersEnv(original["env"], d, config),
-			"ports":          flattenCloudRunServiceSpecTemplateSpecContainersPorts(original["ports"], d, config),
-			"resources":      flattenCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d, config),
-			"volume_mounts":  flattenCloudRunServiceSpecTemplateSpecContainersVolumeMounts(original["volumeMounts"], d, config),
-			"startup_probe":  flattenCloudRunServiceSpecTemplateSpecContainersStartupProbe(original["startupProbe"], d, config),
-			"liveness_probe": flattenCloudRunServiceSpecTemplateSpecContainersLivenessProbe(original["livenessProbe"], d, config),
+			"name":            flattenCloudRunServiceSpecTemplateSpecContainersName(original["name"], d, config),
+			"working_dir":     flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(original["workingDir"], d, config),
+			"args":            flattenCloudRunServiceSpecTemplateSpecContainersArgs(original["args"], d, config),
+			"env_from":        flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(original["envFrom"], d, config),
+			"image":           flattenCloudRunServiceSpecTemplateSpecContainersImage(original["image"], d, config),
+			"command":         flattenCloudRunServiceSpecTemplateSpecContainersCommand(original["command"], d, config),
+			"env":             flattenCloudRunServiceSpecTemplateSpecContainersEnv(original["env"], d, config),
+			"ports":           flattenCloudRunServiceSpecTemplateSpecContainersPorts(original["ports"], d, config),
+			"resources":       flattenCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d, config),
+			"volume_mounts":   flattenCloudRunServiceSpecTemplateSpecContainersVolumeMounts(original["volumeMounts"], d, config),
+			"startup_probe":   flattenCloudRunServiceSpecTemplateSpecContainersStartupProbe(original["startupProbe"], d, config),
+			"readiness_probe": flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbe(original["readinessProbe"], d, config),
+			"liveness_probe":  flattenCloudRunServiceSpecTemplateSpecContainersLivenessProbe(original["livenessProbe"], d, config),
 		})
 	}
 	return transformed
@@ -2388,6 +2476,163 @@ func flattenCloudRunServiceSpecTemplateSpecContainersStartupProbeGrpcPort(v inte
 }
 
 func flattenCloudRunServiceSpecTemplateSpecContainersStartupProbeGrpcService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbe(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["timeout_seconds"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeTimeoutSeconds(original["timeoutSeconds"], d, config)
+	transformed["period_seconds"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbePeriodSeconds(original["periodSeconds"], d, config)
+	transformed["failure_threshold"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeFailureThreshold(original["failureThreshold"], d, config)
+	transformed["success_threshold"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeSuccessThreshold(original["successThreshold"], d, config)
+	transformed["http_get"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGet(original["httpGet"], d, config)
+	transformed["grpc"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpc(original["grpc"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbePeriodSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeFailureThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeSuccessThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["path"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGetPath(original["path"], d, config)
+	transformed["port"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGetPort(original["port"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGetPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGetPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["port"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpcPort(original["port"], d, config)
+	transformed["service"] =
+		flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpcService(original["service"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpcPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpcService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3476,6 +3721,13 @@ func expandCloudRunServiceSpecTemplateSpecContainers(v interface{}, d tpgresourc
 			transformed["startupProbe"] = transformedStartupProbe
 		}
 
+		transformedReadinessProbe, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbe(original["readiness_probe"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedReadinessProbe); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["readinessProbe"] = transformedReadinessProbe
+		}
+
 		transformedLivenessProbe, err := expandCloudRunServiceSpecTemplateSpecContainersLivenessProbe(original["liveness_probe"], d, config)
 		if err != nil {
 			return nil, err
@@ -4168,6 +4420,163 @@ func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeGrpcPort(v inter
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersStartupProbeGrpcService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbe(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTimeoutSeconds, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeTimeoutSeconds(original["timeout_seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeoutSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["timeoutSeconds"] = transformedTimeoutSeconds
+	}
+
+	transformedPeriodSeconds, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbePeriodSeconds(original["period_seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeriodSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["periodSeconds"] = transformedPeriodSeconds
+	}
+
+	transformedFailureThreshold, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeFailureThreshold(original["failure_threshold"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFailureThreshold); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["failureThreshold"] = transformedFailureThreshold
+	}
+
+	transformedSuccessThreshold, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeSuccessThreshold(original["success_threshold"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSuccessThreshold); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["successThreshold"] = transformedSuccessThreshold
+	}
+
+	transformedHttpGet, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGet(original["http_get"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["httpGet"] = transformedHttpGet
+	}
+
+	transformedGrpc, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpc(original["grpc"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["grpc"] = transformedGrpc
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeTimeoutSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbePeriodSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeFailureThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeSuccessThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPath, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGetPath(original["path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["path"] = transformedPath
+	}
+
+	transformedPort, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGetPort(original["port"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["port"] = transformedPort
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGetPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeHttpGetPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPort, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpcPort(original["port"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["port"] = transformedPort
+	}
+
+	transformedService, err := expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpcService(original["service"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedService); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["service"] = transformedService
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpcPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersReadinessProbeGrpcService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

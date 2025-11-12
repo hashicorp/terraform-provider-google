@@ -1,0 +1,3 @@
+```release-note:enhancement
+run: added `readiness_probe` field to `cloud_run_service` resource
+```

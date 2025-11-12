@@ -171,6 +171,11 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloud_run_service_probes&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Cloud Run Service Probes
 
 
@@ -195,6 +200,49 @@ resource "google_cloud_run_service" "default" {
         liveness_probe {
           http_get {
             path = "/"
+          }
+        }
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata.0.annotations,
+    ]
+  }
+}
+```
+## Example Usage - Cloud Run Service Readiness Probe
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  name     = "cloudrun-srv-rp"
+  location = "us-central1"
+
+  metadata {
+    annotations = {
+      "run.googleapis.com/launch-stage" = "BETA"
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        readiness_probe {
+          timeout_seconds = 20
+          period_seconds = 30
+          success_threshold = 3
+          failure_threshold = 2
+          grpc {
+            port = 8080
           }
         }
       }
@@ -597,6 +645,11 @@ this field is set to false, the revision name will still autogenerate.)
   succeeds. Container will not be added to service endpoints if the probe fails.
   Structure is [documented below](#nested_spec_template_spec_containers_containers_startup_probe).
 
+* `readiness_probe` -
+  (Optional)
+  Periodic probe of container readiness.
+  Structure is [documented below](#nested_spec_template_spec_containers_containers_readiness_probe).
+
 * `liveness_probe` -
   (Optional)
   Periodic probe of container liveness. Container will be restarted if the probe fails.
@@ -820,6 +873,63 @@ this field is set to false, the revision name will still autogenerate.)
   The header field value.
 
 <a name="nested_spec_template_spec_containers_containers_startup_probe_grpc"></a>The `grpc` block supports:
+
+* `port` -
+  (Optional)
+  Port number to access on the container. Number must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
+
+* `service` -
+  (Optional)
+  The name of the service to place in the gRPC HealthCheckRequest
+  (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+  If this is not specified, the default behavior is defined by gRPC.
+
+<a name="nested_spec_template_spec_containers_containers_readiness_probe"></a>The `readiness_probe` block supports:
+
+* `timeout_seconds` -
+  (Optional)
+  Number of seconds after which the probe times out.
+  Defaults to 1 second. Must be smaller than period_seconds.
+
+* `period_seconds` -
+  (Optional)
+  How often (in seconds) to perform the probe.
+  Default to 10 seconds.
+
+* `failure_threshold` -
+  (Optional)
+  Minimum consecutive failures for the probe to be considered failed after
+  having succeeded. Defaults to 3.
+
+* `success_threshold` -
+  (Optional)
+  Minimum consecutive successes for the probe to be considered successful after having failed.
+  Defaults to 2.
+
+* `http_get` -
+  (Optional)
+  HttpGet specifies the http request to perform.
+  Structure is [documented below](#nested_spec_template_spec_containers_containers_readiness_probe_http_get).
+
+* `grpc` -
+  (Optional)
+  GRPC specifies an action involving a GRPC port.
+  Structure is [documented below](#nested_spec_template_spec_containers_containers_readiness_probe_grpc).
+
+
+<a name="nested_spec_template_spec_containers_containers_readiness_probe_http_get"></a>The `http_get` block supports:
+
+* `path` -
+  (Optional)
+  Path to access on the HTTP server. If set, it should not be empty string.
+
+* `port` -
+  (Optional)
+  Port number to access on the container. Number must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
+
+<a name="nested_spec_template_spec_containers_containers_readiness_probe_grpc"></a>The `grpc` block supports:
 
 * `port` -
   (Optional)
