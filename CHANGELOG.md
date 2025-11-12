@@ -78,7 +78,7 @@ BUG FIXES:
 * compute: resolve permadiff for `display_name` in new deployments of `google_compute_organization_security_policy` ([#24882](https://github.com/hashicorp/terraform-provider-google/pull/24882))
 * storage: fixed a conversion error in `google_storage_bucket` state migration. This bug impacted Pulumi users. ([#24853](https://github.com/hashicorp/terraform-provider-google/pull/24853))
 
-## 7.9.0 (October 28th, 2025)
+## 7.9.0 (October 28, 2025)
 
 BREAKING CHANGES:
 * beyondcorp: made the `ports` field in `endpoint_matchers` required in response to a change in the API surface. ([#24770](https://github.com/hashicorp/terraform-provider-google/pull/24770))
@@ -107,14 +107,14 @@ BUG FIXES:
 * compute: fixed scenario where `google_compute_instance` would not be staged for recreation if `guest_accelerator.count` was updated to 0 from non-zero value ([#24762](https://github.com/hashicorp/terraform-provider-google/pull/24762))
 * sql: fixed an issue where `dataDiskSize` was unintentionally null instead of set to the current value in API requests, triggering unrelated errors ([#24790](https://github.com/hashicorp/terraform-provider-google/pull/24790))
 
-## 7.8.0 (October 21st, 2025)
+## 7.8.0 (October 21, 2025)
 
 FEATURES:
 * **New Data Source:** `google_artifact_registry_packages` ([#24696](https://github.com/hashicorp/terraform-provider-google/pull/24696))
 * **New Data Source:** `google_network_management_connectivity_tests` ([#24635](https://github.com/hashicorp/terraform-provider-google/pull/24635))
 * **New Resource:** `google_apigee_environment_api_revision_deployment` ([#24657](https://github.com/hashicorp/terraform-provider-google/pull/24657))
-* **New Resource:** `google_dataplex_entry_links` ([#24737](https://github.com/hashicorp/terraform-provider-google/pull/24737))
-* **New Resource:** `google_discovery_engine_assisstant` ([#24724](https://github.com/hashicorp/terraform-provider-google/pull/24724))
+* **New Resource:** `google_dataplex_entry_link` ([#24737](https://github.com/hashicorp/terraform-provider-google/pull/24737))
+* **New Resource:** `google_discovery_engine_assistant` ([#24724](https://github.com/hashicorp/terraform-provider-google/pull/24724))
 * **New Resource:** `google_oracle_database_db_system` ([#24733](https://github.com/hashicorp/terraform-provider-google/pull/24733))
 * **New Resource:** `google_saas_runtime_unit` ([#24692](https://github.com/hashicorp/terraform-provider-google/pull/24692))
 
@@ -145,7 +145,7 @@ BUG FIXES:
 * bigquery: fixed the issue where `google_bigquery_table` detected an incorrect `schema` diff on tables with row access policies when the schema was unchanged. ([#24711](https://github.com/hashicorp/terraform-provider-google/pull/24711))
 * compute: allow `requested_link_count` to be updated in-place in `google_compute_interconnect` resource ([#24705](https://github.com/hashicorp/terraform-provider-google/pull/24705))
 
-## 7.7.0 (October 14th, 2025)
+## 7.7.0 (October 14, 2025)
 BREAKING CHANGES:
 * discoveryengine: changed type of `google_discovery_engine_data_connector.entities.params`. Previously, it was a map of string keys to string values; now, it must be a [JSON-encoded](https://developer.hashicorp.com/terraform/language/functions/jsonencode) string containing an object. This change is being made in a minor release because the field wasn't usable as intended – specifically, all current valid uses require mapping strings to _lists_ of strings. ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
 
