@@ -238,6 +238,35 @@ languages from Cloud Text-to-Speech.`,
 					},
 				},
 			},
+			"client_certificate_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The default client certificate settings for the app.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"private_key": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The name of the SecretManager secret version resource
+storing the private key encoded in PEM format.
+Format: projects/{project}/secrets/{secret}/versions/{version}`,
+						},
+						"tls_certificate": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The TLS certificate encoded in PEM format.
+This string must include the begin header and end footer lines.`,
+						},
+						"passphrase": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The passphrase to decrypt the private key.
+Should be left unset if the private key is not encrypted.`,
+						},
+					},
+				},
+			},
 			"data_store_settings": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -961,6 +990,12 @@ func resourceCESAppCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("variable_declarations"); !tpgresource.IsEmptyValue(reflect.ValueOf(variableDeclarationsProp)) && (ok || !reflect.DeepEqual(v, variableDeclarationsProp)) {
 		obj["variableDeclarations"] = variableDeclarationsProp
 	}
+	clientCertificateSettingsProp, err := expandCESAppClientCertificateSettings(d.Get("client_certificate_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client_certificate_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(clientCertificateSettingsProp)) && (ok || !reflect.DeepEqual(v, clientCertificateSettingsProp)) {
+		obj["clientCertificateSettings"] = clientCertificateSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps?appId={{app_id}}")
 	if err != nil {
@@ -1134,6 +1169,9 @@ func resourceCESAppRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("variable_declarations", flattenCESAppVariableDeclarations(res["variableDeclarations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading App: %s", err)
 	}
+	if err := d.Set("client_certificate_settings", flattenCESAppClientCertificateSettings(res["clientCertificateSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading App: %s", err)
+	}
 
 	return nil
 }
@@ -1244,6 +1282,12 @@ func resourceCESAppUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("variable_declarations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, variableDeclarationsProp)) {
 		obj["variableDeclarations"] = variableDeclarationsProp
 	}
+	clientCertificateSettingsProp, err := expandCESAppClientCertificateSettings(d.Get("client_certificate_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client_certificate_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientCertificateSettingsProp)) {
+		obj["clientCertificateSettings"] = clientCertificateSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}projects/{{project}}/locations/{{location}}/apps/{{name}}")
 	if err != nil {
@@ -1312,6 +1356,10 @@ func resourceCESAppUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("variable_declarations") {
 		updateMask = append(updateMask, "variableDeclarations")
+	}
+
+	if d.HasChange("client_certificate_settings") {
+		updateMask = append(updateMask, "clientCertificateSettings")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -2164,6 +2212,35 @@ func flattenCESAppVariableDeclarationsSchemaItems(v interface{}, d *schema.Resou
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
+}
+
+func flattenCESAppClientCertificateSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["tls_certificate"] =
+		flattenCESAppClientCertificateSettingsTlsCertificate(original["tlsCertificate"], d, config)
+	transformed["private_key"] =
+		flattenCESAppClientCertificateSettingsPrivateKey(original["privateKey"], d, config)
+	transformed["passphrase"] =
+		flattenCESAppClientCertificateSettingsPassphrase(original["passphrase"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppClientCertificateSettingsTlsCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppClientCertificateSettingsPrivateKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppClientCertificateSettingsPassphrase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandCESAppAudioProcessingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -3300,4 +3377,52 @@ func expandCESAppVariableDeclarationsSchemaItems(v interface{}, d tpgresource.Te
 		return nil, err
 	}
 	return j, nil
+}
+
+func expandCESAppClientCertificateSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTlsCertificate, err := expandCESAppClientCertificateSettingsTlsCertificate(original["tls_certificate"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTlsCertificate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tlsCertificate"] = transformedTlsCertificate
+	}
+
+	transformedPrivateKey, err := expandCESAppClientCertificateSettingsPrivateKey(original["private_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrivateKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["privateKey"] = transformedPrivateKey
+	}
+
+	transformedPassphrase, err := expandCESAppClientCertificateSettingsPassphrase(original["passphrase"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPassphrase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["passphrase"] = transformedPassphrase
+	}
+
+	return transformed, nil
+}
+
+func expandCESAppClientCertificateSettingsTlsCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppClientCertificateSettingsPrivateKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppClientCertificateSettingsPassphrase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
