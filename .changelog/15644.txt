@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: added `block_names` fields to `google_compute_reservation` resource
+```
+
+```release-note:enhancement
+compute: added `sub_block_names` fields to `google_compute_reservation_block` data source
+```
