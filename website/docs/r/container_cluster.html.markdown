@@ -775,6 +775,7 @@ maintenance_policy {
 
 <a name="nested_exclusion_options"></a>The `exclusion_options` block supports:
 * `scope` - (Required) The scope of automatic upgrades to restrict in the exclusion window. One of: **NO_UPGRADES | NO_MINOR_UPGRADES | NO_MINOR_OR_NODE_UPGRADES**
+* `end_time_behavior` - (Optional) The exclusion window end time behavior. One of: **UNTIL_END_OF_SUPPORT**
 
 Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) "Zulu" date format.  The start time's date is
 the initial date that the window starts, and the end time is used for calculating duration.Specify `recurrence` in
