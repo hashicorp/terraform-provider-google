@@ -188,6 +188,14 @@ func DataSourceGoogleComputeReservationBlock() *schema.Resource {
 					},
 				},
 			},
+			"sub_block_names": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "List of all block sub-block names in the parent block.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -209,10 +217,10 @@ func dataSourceGoogleComputeReservationBlockRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	name := d.Get("name").(string)
+	block_name := d.Get("name").(string)
 	reservation := d.Get("reservation").(string)
 
-	url := fmt.Sprintf("https://compute.googleapis.com/compute/v1/projects/%s/zones/%s/reservations/%s/reservationBlocks/%s", project, zone, reservation, name)
+	url := fmt.Sprintf("https://compute.googleapis.com/compute/v1/projects/%s/zones/%s/reservations/%s/reservationBlocks/%s", project, zone, reservation, block_name)
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -226,7 +234,7 @@ func dataSourceGoogleComputeReservationBlockRead(d *schema.ResourceData, meta in
 	}
 
 	if res == nil {
-		return fmt.Errorf("ReservationBlock %s not found", name)
+		return fmt.Errorf("ReservationBlock %s not found", block_name)
 	}
 
 	// Flatten the resource field if it exists
@@ -322,6 +330,35 @@ func dataSourceGoogleComputeReservationBlockRead(d *schema.ResourceData, meta in
 		}
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/zones/%s/reservations/%s/reservationBlocks/%s", project, zone, reservation, name))
+	listUrl := fmt.Sprintf("https://compute.googleapis.com/compute/v1/projects/%s/zones/%s/reservations%%2F%s%%2FreservationBlocks%%2F%s/reservationSubBlocks?alt=json&maxResults=500", project, zone, reservation, block_name)
+
+	listRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    listUrl,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing ReservationSubBlocks: %s", err)
+	}
+
+	subBlockNames := []string{}
+	if listRes != nil {
+		if items, ok := listRes["items"].([]interface{}); ok {
+			for _, item := range items {
+				if subBlock, ok := item.(map[string]interface{}); ok {
+					if subBlockName, ok := subBlock["name"].(string); ok {
+						subBlockNames = append(subBlockNames, subBlockName)
+					}
+				}
+			}
+		}
+	}
+
+	if err := d.Set("sub_block_names", subBlockNames); err != nil {
+		return fmt.Errorf("Error setting sub_block_names: %s", err)
+	}
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/reservations/%s/reservationBlocks/%s", project, zone, reservation, block_name))
 	return nil
 }

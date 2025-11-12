@@ -552,6 +552,14 @@ reservations that are tied to a commitment.`,
 				Computed:    true,
 				Description: `The status of the reservation.`,
 			},
+			"block_names": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `List of all reservation block names in the parent reservation.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -724,6 +732,44 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeReservation %q", d.Id()))
 	}
 
+	zone, err := tpgresource.GetZone(d, config)
+	if err != nil {
+		return err
+	}
+	name := d.Get("name").(string)
+
+	// Fetch the list of all reservation blocks from this reservation
+	listUrl := fmt.Sprintf("https://compute.googleapis.com/compute/v1/projects/%s/zones/%s/reservations/%s/reservationBlocks?alt=json&maxResults=500", project, zone, name)
+
+	listRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    listUrl,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing ReservationBlocks: %s", err)
+	}
+
+	blockNames := []string{}
+	if listRes != nil {
+		if items, ok := listRes["items"].([]interface{}); ok {
+			for _, item := range items {
+				if block, ok := item.(map[string]interface{}); ok {
+					if blockName, ok := block["name"].(string); ok {
+						blockNames = append(blockNames, blockName)
+					}
+				}
+			}
+		}
+	}
+
+	if err := d.Set("block_names", blockNames); err != nil {
+		return fmt.Errorf("Error setting block_names: %s", err)
+	}
+
+	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
@@ -1035,6 +1081,8 @@ func resourceComputeReservationImport(d *schema.ResourceData, meta interface{}) 
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }

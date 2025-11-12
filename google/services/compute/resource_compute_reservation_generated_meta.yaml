@@ -5,6 +5,8 @@ api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'Allocation'
 fields:
+  - field: 'block_names'
+    provider_only: true
   - api_field: 'commitment'
   - api_field: 'creationTimestamp'
   - api_field: 'deleteAfterDuration.nanos'
