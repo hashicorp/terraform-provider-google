@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `bearer_token_config` field to `google_ces_toolset`
+```
