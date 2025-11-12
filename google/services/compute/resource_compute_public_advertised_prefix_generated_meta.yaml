@@ -8,6 +8,7 @@ fields:
   - api_field: 'description'
   - api_field: 'dnsVerificationIp'
   - api_field: 'ipCidrRange'
+  - api_field: 'ipv6AccessType'
   - api_field: 'name'
   - api_field: 'pdpScope'
   - api_field: 'sharedSecret'

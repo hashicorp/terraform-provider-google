@@ -20,20 +20,38 @@
 package accesscontextmanager
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
+
+	"google.golang.org/api/googleapi"
 )
 
 func AccessContextManagerServicePerimeterDryRunEgressPolicyEgressToResourcesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
@@ -81,43 +99,63 @@ func AccessContextManagerServicePerimeterDryRunEgressPolicyIngressToResourcesDif
 func AccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentitiesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
 	old, new := d.GetChange("egress_from.0.identities")
 
-	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	oldIdentities, err := tpgresource.InterfaceSliceToStringSlice(old)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert egress from identities config value: %s", err)
 		return false
 	}
 
-	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	// Normalize IAM principal casing
+	for i, val := range oldIdentities {
+		oldIdentities[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
+
+	newIdentities, err := tpgresource.InterfaceSliceToStringSlice(new)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert egress from identities api value: %s", err)
 		return false
 	}
 
-	sort.Strings(oldResources)
-	sort.Strings(newResources)
+	// Normalize IAM principal casing
+	for i, val := range newIdentities {
+		newIdentities[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
 
-	return slices.Equal(oldResources, newResources)
+	sort.Strings(oldIdentities)
+	sort.Strings(newIdentities)
+
+	return slices.Equal(oldIdentities, newIdentities)
 }
 
 func AccessContextManagerServicePerimeterDryRunEgressPolicyIngressFromIdentitiesDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
 	old, new := d.GetChange("ingress_from.0.identities")
 
-	oldResources, err := tpgresource.InterfaceSliceToStringSlice(old)
+	oldIdentities, err := tpgresource.InterfaceSliceToStringSlice(old)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert ingress from identities config value: %s", err)
 		return false
 	}
 
-	newResources, err := tpgresource.InterfaceSliceToStringSlice(new)
+	// Normalize IAM principal casing
+	for i, val := range oldIdentities {
+		oldIdentities[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
+
+	newIdentities, err := tpgresource.InterfaceSliceToStringSlice(new)
 	if err != nil {
 		log.Printf("[ERROR] Failed to convert ingress from identities api value: %s", err)
 		return false
 	}
 
-	sort.Strings(oldResources)
-	sort.Strings(newResources)
+	// Normalize IAM principal casing
+	for i, val := range newIdentities {
+		newIdentities[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
 
-	return slices.Equal(oldResources, newResources)
+	sort.Strings(oldIdentities)
+	sort.Strings(newIdentities)
+
+	return slices.Equal(oldIdentities, newIdentities)
 }
 
 func AccessContextManagerServicePerimeterDryRunEgressPolicyIdentityTypeDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
@@ -127,6 +165,38 @@ func AccessContextManagerServicePerimeterDryRunEgressPolicyIdentityTypeDiffSuppr
 
 	return old == new
 }
+
+var (
+	_ = bytes.Clone
+	_ = context.WithCancel
+	_ = base64.NewDecoder
+	_ = json.Marshal
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = http.Get
+	_ = reflect.ValueOf
+	_ = regexp.Match
+	_ = slices.Min([]int{1})
+	_ = sort.IntSlice{}
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = errwrap.Wrap
+	_ = cty.BoolVal
+	_ = diag.Diagnostic{}
+	_ = customdiff.All
+	_ = id.UniqueId
+	_ = logging.LogLevel
+	_ = retry.Retry
+	_ = schema.Noop
+	_ = validation.All
+	_ = structure.ExpandJsonFromString
+	_ = terraform.State{}
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = verify.ValidateEnum
+	_ = googleapi.Error{}
+)
 
 func ResourceAccessContextManagerServicePerimeterDryRunEgressPolicy() *schema.Resource {
 	return &schema.Resource{
@@ -624,6 +694,12 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFr
 		log.Printf("[ERROR] Failed to convert egress from identities config value: %s", err)
 		return v
 	}
+
+	// Normalize IAM principal casing
+	for i, val := range configValue {
+		configValue[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
+
 	sortedConfigValue := append([]string{}, configValue...)
 	sort.Strings(sortedConfigValue)
 
@@ -633,6 +709,12 @@ func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFr
 		log.Printf("[ERROR] Failed to convert egress from identities API value: %s", err)
 		return v
 	}
+
+	// Normalize IAM principal casing
+	for i, val := range apiValue {
+		apiValue[i] = tpgresource.NormalizeIamPrincipalCasing(val)
+	}
+
 	sortedApiValue := append([]string{}, apiValue...)
 	sort.Strings(sortedApiValue)
 

@@ -20,19 +20,70 @@
 package firestore
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
+	"slices"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = bytes.Clone
+	_ = context.WithCancel
+	_ = base64.NewDecoder
+	_ = json.Marshal
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = http.Get
+	_ = reflect.ValueOf
+	_ = regexp.Match
+	_ = slices.Min([]int{1})
+	_ = sort.IntSlice{}
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = errwrap.Wrap
+	_ = cty.BoolVal
+	_ = diag.Diagnostic{}
+	_ = customdiff.All
+	_ = id.UniqueId
+	_ = logging.LogLevel
+	_ = retry.Retry
+	_ = schema.Noop
+	_ = validation.All
+	_ = structure.ExpandJsonFromString
+	_ = terraform.State{}
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = verify.ValidateEnum
+	_ = googleapi.Error{}
 )
 
 func ResourceFirestoreDatabase() *schema.Resource {
@@ -448,7 +499,7 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("point_in_time_recovery_enablement", flattenFirestoreDatabasePointInTimeRecoveryEnablement(res["pointInTimeRecoveryEnablement"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("key_prefix", flattenFirestoreDatabaseKeyPrefix(res["key_prefix"], d, config)); err != nil {
+	if err := d.Set("key_prefix", flattenFirestoreDatabaseKeyPrefix(res["keyPrefix"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("delete_protection_state", flattenFirestoreDatabaseDeleteProtectionState(res["deleteProtectionState"], d, config)); err != nil {
@@ -457,10 +508,10 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("etag", flattenFirestoreDatabaseEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("create_time", flattenFirestoreDatabaseCreateTime(res["create_time"], d, config)); err != nil {
+	if err := d.Set("create_time", flattenFirestoreDatabaseCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("update_time", flattenFirestoreDatabaseUpdateTime(res["update_time"], d, config)); err != nil {
+	if err := d.Set("update_time", flattenFirestoreDatabaseUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("uid", flattenFirestoreDatabaseUid(res["uid"], d, config)); err != nil {

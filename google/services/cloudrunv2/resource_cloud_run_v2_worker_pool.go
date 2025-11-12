@@ -20,18 +20,70 @@
 package cloudrunv2
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
+	"slices"
+	"sort"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = bytes.Clone
+	_ = context.WithCancel
+	_ = base64.NewDecoder
+	_ = json.Marshal
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = http.Get
+	_ = reflect.ValueOf
+	_ = regexp.Match
+	_ = slices.Min([]int{1})
+	_ = sort.IntSlice{}
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = errwrap.Wrap
+	_ = cty.BoolVal
+	_ = diag.Diagnostic{}
+	_ = customdiff.All
+	_ = id.UniqueId
+	_ = logging.LogLevel
+	_ = retry.Retry
+	_ = schema.Noop
+	_ = validation.All
+	_ = structure.ExpandJsonFromString
+	_ = terraform.State{}
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = verify.ValidateEnum
+	_ = googleapi.Error{}
 )
 
 func ResourceCloudRunV2WorkerPool() *schema.Resource {
@@ -112,6 +164,15 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: `Entrypoint array. Not executed within a shell. The docker image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"depends_on": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Names of the containers that must start before this container.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -1887,6 +1948,7 @@ func flattenCloudRunV2WorkerPoolTemplateContainers(v interface{}, d *schema.Reso
 			"image":          flattenCloudRunV2WorkerPoolTemplateContainersImage(original["image"], d, config),
 			"command":        flattenCloudRunV2WorkerPoolTemplateContainersCommand(original["command"], d, config),
 			"args":           flattenCloudRunV2WorkerPoolTemplateContainersArgs(original["args"], d, config),
+			"depends_on":     flattenCloudRunV2WorkerPoolTemplateContainersDependsOn(original["dependsOn"], d, config),
 			"env":            flattenCloudRunV2WorkerPoolTemplateContainersEnv(original["env"], d, config),
 			"resources":      flattenCloudRunV2WorkerPoolTemplateContainersResources(original["resources"], d, config),
 			"volume_mounts":  flattenCloudRunV2WorkerPoolTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
@@ -1910,6 +1972,10 @@ func flattenCloudRunV2WorkerPoolTemplateContainersCommand(v interface{}, d *sche
 }
 
 func flattenCloudRunV2WorkerPoolTemplateContainersArgs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2WorkerPoolTemplateContainersDependsOn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3381,6 +3447,13 @@ func expandCloudRunV2WorkerPoolTemplateContainers(v interface{}, d tpgresource.T
 			transformed["args"] = transformedArgs
 		}
 
+		transformedDependsOn, err := expandCloudRunV2WorkerPoolTemplateContainersDependsOn(original["depends_on"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDependsOn); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dependsOn"] = transformedDependsOn
+		}
+
 		transformedEnv, err := expandCloudRunV2WorkerPoolTemplateContainersEnv(original["env"], d, config)
 		if err != nil {
 			return nil, err
@@ -3441,6 +3514,10 @@ func expandCloudRunV2WorkerPoolTemplateContainersCommand(v interface{}, d tpgres
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersArgs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2WorkerPoolTemplateContainersDependsOn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

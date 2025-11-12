@@ -321,6 +321,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					transport_tpg.CustomEndpointValidator(),
 				},
 			},
+			"ces_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
 			"chronicle_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
@@ -400,12 +406,6 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				},
 			},
 			"cloud_scheduler_custom_endpoint": &schema.StringAttribute{
-				Optional: true,
-				Validators: []validator.String{
-					transport_tpg.CustomEndpointValidator(),
-				},
-			},
-			"cloud_security_compliance_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
 					transport_tpg.CustomEndpointValidator(),
@@ -1270,6 +1270,7 @@ func (p *FrameworkProvider) Functions(_ context.Context) []func() function.Funct
 // EphemeralResources defines the resources that are of ephemeral type implemented in the provider.
 func (p *FrameworkProvider) EphemeralResources(_ context.Context) []func() ephemeral.EphemeralResource {
 	return []func() ephemeral.EphemeralResource{
+		resourcemanager.GoogleEphemeralClientConfig,
 		resourcemanager.GoogleEphemeralServiceAccountAccessToken,
 		resourcemanager.GoogleEphemeralServiceAccountIdToken,
 		resourcemanager.GoogleEphemeralServiceAccountJwt,

@@ -9,6 +9,10 @@ fields:
   - api_field: 'instance'
   - api_field: 'name'
   - api_field: 'password'
+  - api_field: 'password'
+    field: 'password_wo'
+  - field: 'password_wo_version'
+    provider_only: true
   - api_field: 'passwordPolicy.allowedFailedAttempts'
   - api_field: 'passwordPolicy.enableFailedAttemptsCheck'
   - api_field: 'passwordPolicy.enablePasswordVerification'

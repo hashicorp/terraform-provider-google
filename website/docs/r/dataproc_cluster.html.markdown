@@ -458,6 +458,10 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 * `metadata` - (Optional) A map of the Compute Engine metadata entries to add to all instances
    (see [Project and instance metadata](https://cloud.google.com/compute/docs/storing-retrieving-metadata#project_and_instance_metadata)).
 
+* `resource_manager_tags` - (Optional) A map of resource manager tags to add to all instances.
+   Keys must be in the format `tagKeys/{tag_key_id}` and values in the format `tagValues/{tag_value_id}`
+   (see [Secure tags](https://cloud.google.com/dataproc/docs/guides/use-secure-tags)).
+
 * `reservation_affinity` - (Optional) Reservation Affinity for consuming zonal reservation.
     * `consume_reservation_type` - (Optional) Corresponds to the type of reservation consumption.
     * `key` - (Optional) Corresponds to the label key of reservation resource.

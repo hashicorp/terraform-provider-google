@@ -246,11 +246,7 @@ func (d *GoogleProviderConfigPluginFrameworkDataSource) Read(ctx context.Context
 	data.RequestReason = types.StringValue(d.providerConfig.RequestReason)
 	data.RequestTimeout = types.StringValue(d.providerConfig.RequestTimeout.String())
 
-	lbs := make(map[string]attr.Value, len(d.providerConfig.DefaultLabels))
-	for k, v := range d.providerConfig.DefaultLabels {
-		lbs[k] = types.StringValue(v)
-	}
-	labels, di := types.MapValueFrom(ctx, types.StringType, lbs)
+	labels, di := types.MapValueFrom(ctx, types.StringType, d.providerConfig.DefaultLabels)
 	if di.HasError() {
 		resp.Diagnostics.Append(di...)
 	}

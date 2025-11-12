@@ -76,6 +76,7 @@ type ProviderModel struct {
 	BinaryAuthorizationCustomEndpoint      types.String `tfsdk:"binary_authorization_custom_endpoint"`
 	BlockchainNodeEngineCustomEndpoint     types.String `tfsdk:"blockchain_node_engine_custom_endpoint"`
 	CertificateManagerCustomEndpoint       types.String `tfsdk:"certificate_manager_custom_endpoint"`
+	CESCustomEndpoint                      types.String `tfsdk:"ces_custom_endpoint"`
 	ChronicleCustomEndpoint                types.String `tfsdk:"chronicle_custom_endpoint"`
 	CloudAssetCustomEndpoint               types.String `tfsdk:"cloud_asset_custom_endpoint"`
 	CloudBuildCustomEndpoint               types.String `tfsdk:"cloud_build_custom_endpoint"`
@@ -90,7 +91,6 @@ type ProviderModel struct {
 	CloudRunCustomEndpoint                 types.String `tfsdk:"cloud_run_custom_endpoint"`
 	CloudRunV2CustomEndpoint               types.String `tfsdk:"cloud_run_v2_custom_endpoint"`
 	CloudSchedulerCustomEndpoint           types.String `tfsdk:"cloud_scheduler_custom_endpoint"`
-	CloudSecurityComplianceCustomEndpoint  types.String `tfsdk:"cloud_security_compliance_custom_endpoint"`
 	CloudTasksCustomEndpoint               types.String `tfsdk:"cloud_tasks_custom_endpoint"`
 	ColabCustomEndpoint                    types.String `tfsdk:"colab_custom_endpoint"`
 	ComposerCustomEndpoint                 types.String `tfsdk:"composer_custom_endpoint"`

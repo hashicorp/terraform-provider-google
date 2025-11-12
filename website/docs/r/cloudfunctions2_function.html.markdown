@@ -990,6 +990,58 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 ```
+## Example Usage - Cloudfunctions2 Directvpc
+
+
+```hcl
+locals {
+  project = "my-project-name" # Google Cloud Platform Project ID
+}
+
+resource "google_storage_bucket" "bucket" {
+  provider = google-beta
+  name     = "${local.project}-gcf-source"  # Every bucket name must be globally unique
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  provider = google-beta
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "function-source.zip"  # Add path to the zipped function source code
+}
+
+resource "google_cloudfunctions2_function" "function" {
+  provider = google-beta
+  name = "function-v2"
+  location = "us-central1"
+  description = "a new function"
+
+  build_config {
+    runtime = "nodejs20"
+    entry_point = "helloHttp"  # Set the entry point
+    source {
+    storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+  }
+
+  service_config {
+    max_instance_count  = 1
+    available_memory    = "256M"
+    timeout_seconds     = 60
+    direct_vpc_network_interface {
+      network = "default"
+      subnetwork = "default"
+      tags = ["tag1", "tag2"]
+    }
+    direct_vpc_egress = "VPC_EGRESS_ALL_TRAFFIC"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -1211,6 +1263,16 @@ The following arguments are supported:
   Available egress settings.
   Possible values are: `VPC_CONNECTOR_EGRESS_SETTINGS_UNSPECIFIED`, `PRIVATE_RANGES_ONLY`, `ALL_TRAFFIC`.
 
+* `direct_vpc_network_interface` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The Direct VPC network interface for the Cloud Function. Currently only a single Direct VPC is supported.
+  Structure is [documented below](#nested_service_config_direct_vpc_network_interface).
+
+* `direct_vpc_egress` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Egress settings for direct VPC. If not provided, it defaults to VPC_EGRESS_PRIVATE_RANGES_ONLY.
+  Possible values are: `VPC_EGRESS_ALL_TRAFFIC`, `VPC_EGRESS_PRIVATE_RANGES_ONLY`.
+
 * `ingress_settings` -
   (Optional)
   Available ingress settings. Defaults to "ALLOW_ALL" if unspecified.
@@ -1247,6 +1309,20 @@ The following arguments are supported:
   (Optional)
   The binary authorization policy to be checked when deploying the Cloud Run service.
 
+
+<a name="nested_service_config_direct_vpc_network_interface"></a>The `direct_vpc_network_interface` block supports:
+
+* `network` -
+  (Optional)
+  The name of the VPC network to which the function will be connected. Specify either a VPC network or a subnet, or both. If you specify only a network, the subnet uses the same name as the network.
+
+* `subnetwork` -
+  (Optional)
+  The name of the VPC subnetwork that the Cloud Function resource will get IPs from. Specify either a VPC network or a subnet, or both. If both network and subnetwork are specified, the given VPC subnetwork must belong to the given VPC network. If subnetwork is not specified, the subnetwork with the same name with the network will be used.
+
+* `tags` -
+  (Optional)
+  Network tags applied to this Cloud Function resource.
 
 <a name="nested_service_config_secret_environment_variables"></a>The `secret_environment_variables` block supports:
 

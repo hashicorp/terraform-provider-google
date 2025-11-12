@@ -20,18 +20,70 @@
 package managedkafka
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
+	"slices"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = bytes.Clone
+	_ = context.WithCancel
+	_ = base64.NewDecoder
+	_ = json.Marshal
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = http.Get
+	_ = reflect.ValueOf
+	_ = regexp.Match
+	_ = slices.Min([]int{1})
+	_ = sort.IntSlice{}
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = errwrap.Wrap
+	_ = cty.BoolVal
+	_ = diag.Diagnostic{}
+	_ = customdiff.All
+	_ = id.UniqueId
+	_ = logging.LogLevel
+	_ = retry.Retry
+	_ = schema.Noop
+	_ = validation.All
+	_ = structure.ExpandJsonFromString
+	_ = terraform.State{}
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = verify.ValidateEnum
+	_ = googleapi.Error{}
 )
 
 func ResourceManagedKafkaCluster() *schema.Resource {
@@ -130,6 +182,21 @@ func ResourceManagedKafkaCluster() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `ID of the location of the Kafka resource. See https://cloud.google.com/managed-kafka/docs/locations for a list of supported locations.`,
+			},
+			"broker_capacity_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Capacity configuration at a per-broker level within the Kafka cluster. The config will be appled to each broker in the cluster.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_gb": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The disk to provision for each broker in Gigabytes. Minimum: 100 GB.`,
+						},
+					},
+				},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -259,6 +326,12 @@ func resourceManagedKafkaClusterCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(capacityConfigProp)) && (ok || !reflect.DeepEqual(v, capacityConfigProp)) {
 		obj["capacityConfig"] = capacityConfigProp
+	}
+	brokerCapacityConfigProp, err := expandManagedKafkaClusterBrokerCapacityConfig(d.Get("broker_capacity_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("broker_capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(brokerCapacityConfigProp)) && (ok || !reflect.DeepEqual(v, brokerCapacityConfigProp)) {
+		obj["brokerCapacityConfig"] = brokerCapacityConfigProp
 	}
 	rebalanceConfigProp, err := expandManagedKafkaClusterRebalanceConfig(d.Get("rebalance_config"), d, config)
 	if err != nil {
@@ -442,6 +515,12 @@ func resourceManagedKafkaClusterUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, capacityConfigProp)) {
 		obj["capacityConfig"] = capacityConfigProp
 	}
+	brokerCapacityConfigProp, err := expandManagedKafkaClusterBrokerCapacityConfig(d.Get("broker_capacity_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("broker_capacity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, brokerCapacityConfigProp)) {
+		obj["brokerCapacityConfig"] = brokerCapacityConfigProp
+	}
 	rebalanceConfigProp, err := expandManagedKafkaClusterRebalanceConfig(d.Get("rebalance_config"), d, config)
 	if err != nil {
 		return err
@@ -476,6 +555,10 @@ func resourceManagedKafkaClusterUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("capacity_config") {
 		updateMask = append(updateMask, "capacityConfig")
+	}
+
+	if d.HasChange("broker_capacity_config") {
+		updateMask = append(updateMask, "brokerCapacityConfig")
 	}
 
 	if d.HasChange("rebalance_config") {
@@ -921,6 +1004,32 @@ func expandManagedKafkaClusterCapacityConfigVcpuCount(v interface{}, d tpgresour
 }
 
 func expandManagedKafkaClusterCapacityConfigMemoryBytes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandManagedKafkaClusterBrokerCapacityConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDiskSizeGb, err := expandManagedKafkaClusterBrokerCapacityConfigDiskSizeGb(original["disk_size_gb"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDiskSizeGb); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["diskSizeGb"] = transformedDiskSizeGb
+	}
+
+	return transformed, nil
+}
+
+func expandManagedKafkaClusterBrokerCapacityConfigDiskSizeGb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

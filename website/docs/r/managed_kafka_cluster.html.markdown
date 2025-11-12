@@ -175,6 +175,11 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `broker_capacity_config` -
+  (Optional)
+  Capacity configuration at a per-broker level within the Kafka cluster. The config will be appled to each broker in the cluster.
+  Structure is [documented below](#nested_broker_capacity_config).
+
 * `rebalance_config` -
   (Optional)
   Defines rebalancing behavior of a Kafka cluster.
@@ -225,6 +230,12 @@ The following arguments are supported:
 * `memory_bytes` -
   (Required)
   The memory to provision for the cluster in bytes. The value must be between 1 GiB and 8 GiB per vCPU. Ex. 1024Mi, 4Gi.
+
+<a name="nested_broker_capacity_config"></a>The `broker_capacity_config` block supports:
+
+* `disk_size_gb` -
+  (Optional)
+  The disk to provision for each broker in Gigabytes. Minimum: 100 GB.
 
 <a name="nested_rebalance_config"></a>The `rebalance_config` block supports:
 

@@ -20,18 +20,70 @@
 package compute
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
+	"slices"
+	"sort"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = bytes.Clone
+	_ = context.WithCancel
+	_ = base64.NewDecoder
+	_ = json.Marshal
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = http.Get
+	_ = reflect.ValueOf
+	_ = regexp.Match
+	_ = slices.Min([]int{1})
+	_ = sort.IntSlice{}
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = errwrap.Wrap
+	_ = cty.BoolVal
+	_ = diag.Diagnostic{}
+	_ = customdiff.All
+	_ = id.UniqueId
+	_ = logging.LogLevel
+	_ = retry.Retry
+	_ = schema.Noop
+	_ = validation.All
+	_ = structure.ExpandJsonFromString
+	_ = terraform.State{}
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = verify.ValidateEnum
+	_ = googleapi.Error{}
 )
 
 func ResourceComputePublicAdvertisedPrefix() *schema.Resource {
@@ -54,12 +106,6 @@ func ResourceComputePublicAdvertisedPrefix() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"dns_verification_ip": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The IPv4 address to be used for reverse DNS verification.`,
-			},
 			"ip_cidr_range": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -82,6 +128,26 @@ except the last character, which cannot be a dash.`,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
+			},
+			"dns_verification_ip": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The IPv4 address to be used for reverse DNS verification.`,
+			},
+			"ipv6_access_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"EXTERNAL", "INTERNAL", ""}),
+				Description: `The internet access type for IPv6 Public Advertised Prefixes. It can be
+set to one of following:
+  * EXTERNAL: Default access type. The prefix will be announced to the
+  internet. All children PDPs will have access type as EXTERNAL.
+  * INTERNAL: The prefix won’t be announced to the internet. Prefix will
+  be used privately within Google Cloud. All children PDPs will have
+  access type as INTERNAL. Possible values: ["EXTERNAL", "INTERNAL"]`,
 			},
 			"pdp_scope": {
 				Type:         schema.TypeString,
@@ -152,6 +218,12 @@ func resourceComputePublicAdvertisedPrefixCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("pdp_scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(pdpScopeProp)) && (ok || !reflect.DeepEqual(v, pdpScopeProp)) {
 		obj["pdpScope"] = pdpScopeProp
+	}
+	ipv6AccessTypeProp, err := expandComputePublicAdvertisedPrefixIpv6AccessType(d.Get("ipv6_access_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ipv6_access_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipv6AccessTypeProp)) && (ok || !reflect.DeepEqual(v, ipv6AccessTypeProp)) {
+		obj["ipv6AccessType"] = ipv6AccessTypeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/publicAdvertisedPrefixes")
@@ -267,6 +339,9 @@ func resourceComputePublicAdvertisedPrefixRead(d *schema.ResourceData, meta inte
 	if err := d.Set("pdp_scope", flattenComputePublicAdvertisedPrefixPdpScope(res["pdpScope"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PublicAdvertisedPrefix: %s", err)
 	}
+	if err := d.Set("ipv6_access_type", flattenComputePublicAdvertisedPrefixIpv6AccessType(res["ipv6AccessType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicAdvertisedPrefix: %s", err)
+	}
 	if err := d.Set("shared_secret", flattenComputePublicAdvertisedPrefixSharedSecret(res["sharedSecret"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PublicAdvertisedPrefix: %s", err)
 	}
@@ -373,6 +448,10 @@ func flattenComputePublicAdvertisedPrefixPdpScope(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenComputePublicAdvertisedPrefixIpv6AccessType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputePublicAdvertisedPrefixSharedSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -394,5 +473,9 @@ func expandComputePublicAdvertisedPrefixIpCidrRange(v interface{}, d tpgresource
 }
 
 func expandComputePublicAdvertisedPrefixPdpScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputePublicAdvertisedPrefixIpv6AccessType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

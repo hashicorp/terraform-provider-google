@@ -7,6 +7,7 @@ fields:
   - field: 'bucket'
   - api_field: 'customAttributes'
   - api_field: 'eventTypes'
+  - field: 'id'
   - field: 'notification_id'
   - api_field: 'objectNamePrefix'
   - api_field: 'payloadFormat'

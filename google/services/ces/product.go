@@ -15,7 +15,7 @@
 //
 // ----------------------------------------------------------------------------
 
-// Package cloudsecuritycompliance contains resources, datasources, etc. for the cloud security compliance service.
-package cloudsecuritycompliance
+// Package ces contains resources, datasources, etc. for the customer engagement suite service.
+package ces
 
-const ProductName = "cloudsecuritycompliance"
+const ProductName = "ces"

@@ -72,10 +72,6 @@ data "google_compute_network" "default" {
 The following arguments are supported:
 
 
-* `share_name` -
-  (Required)
-  Share name (SMB) or export path (NFS) of the volume. Needs to be unique per location.
-
 * `storage_pool` -
   (Required)
   Name of the storage pool to create the volume in. Pool needs enough spare capacity to accommodate the volume.
@@ -87,7 +83,7 @@ The following arguments are supported:
 * `protocols` -
   (Required)
   The protocol of the volume. Allowed combinations are `['NFSV3']`, `['NFSV4']`, `['SMB']`, `['NFSV3', 'NFSV4']`, `['SMB', 'NFSV3']` and `['SMB', 'NFSV4']`.
-  Each value may be one of: `NFSV3`, `NFSV4`, `SMB`.
+  Each value may be one of: `NFSV3`, `NFSV4`, `SMB`, `ISCSI`.
 
 * `location` -
   (Required)
@@ -97,6 +93,10 @@ The following arguments are supported:
   (Required)
   The name of the volume. Needs to be unique per location.
 
+
+* `share_name` -
+  (Optional)
+  Share name (SMB) or export path (NFS) of the volume. Needs to be unique per location.
 
 * `export_policy` -
   (Optional)
@@ -181,6 +181,17 @@ The following arguments are supported:
   (Optional)
   Optional. Custom Performance Total Throughput of the pool (in MiB/s).
 
+* `cache_parameters` -
+  (Optional)
+  Cache parameters for the volume.
+  Structure is [documented below](#nested_cache_parameters).
+
+* `block_devices` -
+  (Optional)
+  Block device represents the device(s) which are stored in the block volume.
+  Currently, only one block device is permitted per Volume.
+  Structure is [documented below](#nested_block_devices).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -208,6 +219,7 @@ Possible values: DEFAULT, FORCE.
 * `has_root_access` -
   (Optional)
   If enabled, the root user (UID = 0) of the specified clients doesn't get mapped to nobody (UID = 65534). This is also known as no_root_squash.
+  It's overwritten by the squash_mode parameter. Use either squash_mode or has_root_access.
 
 * `access_type` -
   (Optional)
@@ -249,11 +261,12 @@ Possible values: DEFAULT, FORCE.
 * `squash_mode` -
   (Optional)
   SquashMode defines how remote user privileges are restricted when accessing an NFS export. It controls how the user identities (like root) are mapped to anonymous users to limit access and enforce security.
-  Possible values are: `NO_ROOT_SQUASH`, `ROOT_SQUASH`, `ALL_SQUASH`.
+  It overwrites the has_root_access parameter. Use either squash_mode or has_root_access. For ALL_SQUASH, access_type needs to be set to READ_WRITE.
+  Possible values are: `SQUASH_MODE_UNSPECIFIED`, `NO_ROOT_SQUASH`, `ROOT_SQUASH`, `ALL_SQUASH`.
 
 * `anon_uid` -
   (Optional)
-  An integer representing the anonymous user ID. Range is 0 to 4294967295. Required when `squash_mode` is `ROOT_SQUASH` or `ALL_SQUASH`.
+  An integer representing the anonymous user ID. Range is 0 to 4294967295. Required when `squash_mode` is `ALL_SQUASH`.
 
 <a name="nested_restore_parameters"></a>The `restore_parameters` block supports:
 
@@ -439,6 +452,97 @@ Possible values: DEFAULT, FORCE.
   (Optional)
   Optional. Constituent volume count for large volume.
 
+<a name="nested_cache_parameters"></a>The `cache_parameters` block supports:
+
+* `peer_volume_name` -
+  (Optional)
+  Required. Name of the origin volume for the cache volume.
+
+* `peer_cluster_name` -
+  (Optional)
+  Required. Name of the origin volume's ONTAP cluster.
+
+* `peer_svm_name` -
+  (Optional)
+  Required. Name of the origin volume's SVM.
+
+* `peer_ip_addresses` -
+  (Optional)
+  Required. List of IC LIF addresses of the origin volume's ONTAP cluster.
+
+* `enable_global_file_lock` -
+  (Optional)
+  Optional. Field indicating whether cache volume as global file lock enabled.
+
+* `peering_command_expiry_time` -
+  (Optional)
+  Optional. Expiration time for the peering command to be executed on user's ONTAP. A timestamp in RFC3339 UTC "Zulu" format. Examples: "2023-06-22T09:13:01.617Z".
+
+* `cache_state` -
+  (Output)
+  State of the cache volume indicating the peering status.
+
+* `command` -
+  (Output)
+  Copy-paste-able commands to be used on user's ONTAP to accept peering requests.
+
+* `passphrase` -
+  (Output)
+  Temporary passphrase generated to accept cluster peering command.
+
+* `state_details` -
+  (Output)
+  Detailed description of the current cache state.
+
+* `cache_config` -
+  (Optional)
+  Optional. Configuration of the cache volume.
+  Structure is [documented below](#nested_cache_parameters_cache_config).
+
+
+<a name="nested_cache_parameters_cache_config"></a>The `cache_config` block supports:
+
+* `cifs_change_notify_enabled` -
+  (Optional)
+  Optional. Flag indicating whether a CIFS change notification is enabled for the FlexCache volume.
+
+<a name="nested_block_devices"></a>The `block_devices` block supports:
+
+* `name` -
+  (Optional)
+  User-defined name for the block device, unique within the Volume. In case
+  no user input is provided, name will be autogenerated in the backend.
+  The name must meet the following requirements:
+  *   Be between 1 and 255 characters long.
+  *   Contain only uppercase or lowercase letters (A-Z, a-z), numbers (0-9),
+      and the following special characters: "-", "_", "}", "{", ".".
+  *   Spaces are not allowed.
+
+* `host_groups` -
+  (Optional)
+  A list of host groups that identify hosts that can mount the block volume.
+  Format:
+  `projects/{project_id}/locations/{location}/hostGroups/{host_group_id}`
+  This field can be updated after the block device is created.
+
+* `identifier` -
+  (Output)
+  Device identifier of the Block volume. This represents lun_serial_number
+  for ISCSI volumes
+
+* `size_gib` -
+  (Output)
+  The size of the block device in GiB.
+  Any value provided in this field during Volume creation is IGNORED.
+  The block device's size is system-managed and will be set to match
+  the parent Volume's `capacity_gib`.
+
+* `os_type` -
+  (Required)
+  The OS type of the volume.
+  This field can't be changed after the block device is created.
+  Possible values are: `LINUX`, `WINDOWS`, `ESXI`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -534,9 +638,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `create` - Default is 50 minutes.
+- `update` - Default is 30 minutes.
+- `delete` - Default is 30 minutes.
 
 ## Import
 

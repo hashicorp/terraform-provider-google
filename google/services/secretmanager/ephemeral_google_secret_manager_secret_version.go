@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral/schema"
@@ -142,11 +143,19 @@ func (p *googleEphemeralSecretManagerSecretVersion) Open(ctx context.Context, re
 	}
 
 	var url string
+	versionID := "latest"
 	if version != "" {
-		url = fmt.Sprintf("%s%s/versions/%s", config.SecretManagerBasePath, secret, version)
-	} else {
-		url = fmt.Sprintf("%s%s/versions/latest", config.SecretManagerBasePath, secret)
+		versionID = version
 	}
+
+	// The secret can be given as a full resource name or just the secret id.
+	fullSecretName := secret
+	if !strings.Contains(secret, "/") {
+		// If no slash is present, assume it's a secret id and construct the full resource name.
+		fullSecretName = fmt.Sprintf("projects/%s/secrets/%s", project, secret)
+	}
+
+	url = fmt.Sprintf("%s%s/versions/%s", config.SecretManagerBasePath, fullSecretName, versionID)
 
 	versionResp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,

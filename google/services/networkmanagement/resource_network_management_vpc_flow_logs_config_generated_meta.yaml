@@ -19,7 +19,9 @@ fields:
   - api_field: 'metadata'
   - api_field: 'metadataFields'
   - api_field: 'name'
+  - api_field: 'network'
   - api_field: 'state'
+  - api_field: 'subnet'
   - api_field: 'targetResourceState'
   - field: 'terraform_labels'
     provider_only: true

@@ -663,6 +663,47 @@ resource "google_compute_region_backend_service" "default" {
   connection_draining_timeout_sec = 0
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_backend_service_tls_settings&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Backend Service Tls Settings
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  region = "europe-north1"
+  name          = "region-service"
+  health_checks = [google_compute_region_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol = "HTTPS"
+  tls_settings {
+    sni = "example.com"
+    subject_alt_names {
+        dns_name = "example.com"
+    }
+    subject_alt_names {
+        uniform_resource_identifier = "https://example.com"
+    }
+    authentication_config = "//networksecurity.googleapis.com/${google_network_security_backend_authentication_config.default.id}"
+  }
+}
+
+resource "google_compute_region_health_check" "default" {
+  name = "health-check"
+  region = "europe-north1"
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_network_security_backend_authentication_config" "default" {
+  name             = "authentication"
+  location = "europe-north1"
+  well_known_roots = "PUBLIC_ROOTS"
+}
+```
 
 ## Argument Reference
 
@@ -919,6 +960,11 @@ The following arguments are supported:
   (Optional)
   Additional params passed with the request, but not persisted as part of resource payload
   Structure is [documented below](#nested_params).
+
+* `tls_settings` -
+  (Optional)
+  Configuration for Backend Authenticated TLS and mTLS. May only be specified when the backend protocol is SSL, HTTPS or HTTP2.
+  Structure is [documented below](#nested_tls_settings).
 
 * `region` -
   (Optional)
@@ -1649,6 +1695,41 @@ The following arguments are supported:
   Resource manager tags to be bound to the region backend service. Tag keys and values have the
   same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
   and values are in the format tagValues/456.
+
+<a name="nested_tls_settings"></a>The `tls_settings` block supports:
+
+* `sni` -
+  (Optional)
+  Server Name Indication - see RFC3546 section 3.1. If set, the load balancer sends this string as the SNI hostname in the
+  TLS connection to the backend, and requires that this string match a Subject Alternative Name (SAN) in the backend's
+  server certificate. With a Regional Internet NEG backend, if the SNI is specified here, the load balancer uses it
+  regardless of whether the Regional Internet NEG is specified with FQDN or IP address and port.
+
+* `subject_alt_names` -
+  (Optional)
+  A list of Subject Alternative Names (SANs) that the Load Balancer verifies during a TLS handshake with the backend.
+  When the server presents its X.509 certificate to the Load Balancer, the Load Balancer inspects the certificate's SAN field,
+  and requires that at least one SAN match one of the subjectAltNames in the list. This field is limited to 5 entries.
+  When both sni and subjectAltNames are specified, the load balancer matches the backend certificate's SAN only to
+  subjectAltNames.
+  Structure is [documented below](#nested_tls_settings_subject_alt_names).
+
+* `authentication_config` -
+  (Optional)
+  Reference to the BackendAuthenticationConfig resource from the networksecurity.googleapis.com namespace.
+  Can be used in authenticating TLS connections to the backend, as specified by the authenticationMode field.
+  Can only be specified if authenticationMode is not NONE.
+
+
+<a name="nested_tls_settings_subject_alt_names"></a>The `subject_alt_names` block supports:
+
+* `dns_name` -
+  (Optional)
+  The SAN specified as a DNS Name.
+
+* `uniform_resource_identifier` -
+  (Optional)
+  The SAN specified as a URI.
 
 ## Attributes Reference
 

@@ -19,15 +19,35 @@ package networkmanagement_test
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = resource.TestMain
+	_ = terraform.NewState
+	_ = envvar.TestEnvVar
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = googleapi.Error{}
 )
 
 func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigInterconnectBasicExample(t *testing.T) {
@@ -180,6 +200,98 @@ resource "google_compute_route" "route" {
   dest_range          = "15.0.0.0/24"
   priority            = 1000
   next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel.id
+}
+`, context)
+}
+
+func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigNetworkBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkManagementVpcFlowLogsConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigNetworkBasicExample(context),
+			},
+			{
+				ResourceName:            "google_network_management_vpc_flow_logs_config.network-test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels", "vpc_flow_logs_config_id"},
+			},
+		},
+	})
+}
+
+func testAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigNetworkBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+resource "google_network_management_vpc_flow_logs_config" "network-test" {
+  vpc_flow_logs_config_id = "tf-test-basic-network-test-id%{random_suffix}"
+  location                = "global"
+  network                 = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.network.name}"
+}
+
+resource "google_compute_network" "network" {
+  name     = "tf-test-basic-network-test-network%{random_suffix}"
+}
+`, context)
+}
+
+func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigSubnetBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkManagementVpcFlowLogsConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigSubnetBasicExample(context),
+			},
+			{
+				ResourceName:            "google_network_management_vpc_flow_logs_config.subnet-test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels", "vpc_flow_logs_config_id"},
+			},
+		},
+	})
+}
+
+func testAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfigSubnetBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+resource "google_network_management_vpc_flow_logs_config" "subnet-test" {
+  vpc_flow_logs_config_id = "tf-test-basic-subnet-test-id%{random_suffix}"
+  location                = "global"
+  subnet                  = "projects/${data.google_project.project.number}/regions/us-central1/subnetworks/${google_compute_subnetwork.subnetwork.name}"
+}
+
+resource "google_compute_network" "network" {
+  name                    = "tf-test-basic-subnet-test-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "tf-test-basic-subnet-test-subnetwork%{random_suffix}"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
 }
 `, context)
 }

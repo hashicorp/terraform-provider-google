@@ -27,7 +27,20 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = json.Marshal
+	_ = errors.New
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = strings.Trim
+	_ = time.Now
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = googleapi.Error{}
 )
 
 type ServiceUsageOperationWaiter struct {

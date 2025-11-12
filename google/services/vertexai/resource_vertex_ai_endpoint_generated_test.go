@@ -19,15 +19,35 @@ package vertexai_test
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = resource.TestMain
+	_ = terraform.NewState
+	_ = envvar.TestEnvVar
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = googleapi.Error{}
 )
 
 func TestAccVertexAIEndpoint_vertexAiEndpointPrivateServiceConnectExample(t *testing.T) {
@@ -57,6 +77,10 @@ func TestAccVertexAIEndpoint_vertexAiEndpointPrivateServiceConnectExample(t *tes
 
 func testAccVertexAIEndpoint_vertexAiEndpointPrivateServiceConnectExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_compute_network" "default" {
+  name = "tf-test-psc-network%{random_suffix}-%{random_suffix}"
+}
+
 resource "google_vertex_ai_endpoint" "endpoint" {
   name         = "endpoint-name%{random_suffix}"
   display_name = "sample-endpoint"
@@ -71,6 +95,11 @@ resource "google_vertex_ai_endpoint" "endpoint" {
     project_allowlist = [
       "${data.google_project.project.project_id}"
     ]
+
+    psc_automation_configs {
+      project_id = data.google_project.project.project_id
+      network    = google_compute_network.default.id
+    }
   }
 }
 

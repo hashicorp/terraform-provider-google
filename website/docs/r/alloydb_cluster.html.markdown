@@ -61,6 +61,10 @@ resource "google_alloydb_cluster" "default" {
     network = google_compute_network.default.id
   }
 
+  initial_user {
+    password = "alloydb-cluster"
+  }
+
   deletion_protection = false
 }
 
@@ -307,6 +311,10 @@ resource "google_alloydb_cluster" "primary" {
     network = google_compute_network.default.id
   }
 
+  initial_user {
+    password = "alloydb-primary-cluster"
+  }
+
   deletion_protection = false
 }
 
@@ -421,7 +429,7 @@ The following arguments are supported:
 
 * `initial_user` -
   (Optional)
-  Initial user to setup during cluster creation.
+  Initial user to setup during cluster creation. This must be set for all new Clusters.
   Structure is [documented below](#nested_initial_user).
 
 * `restore_backup_source` -

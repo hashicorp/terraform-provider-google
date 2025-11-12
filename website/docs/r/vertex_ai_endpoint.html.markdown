@@ -106,6 +106,10 @@ data "google_project" "project" {}
 
 
 ```hcl
+resource "google_compute_network" "default" {
+  name = "psc-network-%{random_suffix}"
+}
+
 resource "google_vertex_ai_endpoint" "endpoint" {
   name         = "endpoint-name%{random_suffix}"
   display_name = "sample-endpoint"
@@ -120,6 +124,11 @@ resource "google_vertex_ai_endpoint" "endpoint" {
     project_allowlist = [
       "${data.google_project.project.project_id}"
     ]
+
+    psc_automation_configs {
+      project_id = data.google_project.project.project_id
+      network    = google_compute_network.default.id
+    }
   }
 }
 
@@ -237,6 +246,38 @@ The following arguments are supported:
 * `enable_secure_private_service_connect` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled.
+
+* `psc_automation_configs` -
+  (Optional)
+  List of projects and networks where the PSC endpoints will be created. This field is used by Online Inference(Prediction) only.
+  Structure is [documented below](#nested_private_service_connect_config_psc_automation_configs).
+
+
+<a name="nested_private_service_connect_config_psc_automation_configs"></a>The `psc_automation_configs` block supports:
+
+* `project_id` -
+  (Required)
+  Project id used to create forwarding rule.
+
+* `network` -
+  (Required)
+  The full name of the Google Compute Engine [network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/get): projects/{project}/global/networks/{network}.
+
+* `ip_address` -
+  (Output)
+  IP address rule created by the PSC service automation.
+
+* `forwarding_rule` -
+  (Output)
+  Forwarding rule created by the PSC service automation.
+
+* `state` -
+  (Output)
+  The state of the PSC service automation.
+
+* `error_message` -
+  (Output)
+  Error message if the PSC service automation failed.
 
 <a name="nested_predict_request_response_logging_config"></a>The `predict_request_response_logging_config` block supports:
 

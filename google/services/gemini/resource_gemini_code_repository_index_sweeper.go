@@ -140,9 +140,9 @@ func listAndActionGeminiCodeRepositoryIndex(action sweeper.ResourceAction) error
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["codeRepositoryIndices"]
+		resourceList, ok := res["codeRepositoryIndexes"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'codeRepositoryIndices'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'codeRepositoryIndexes'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

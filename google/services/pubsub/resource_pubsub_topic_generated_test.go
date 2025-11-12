@@ -19,8 +19,11 @@ package pubsub_test
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -29,6 +32,22 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = resource.TestMain
+	_ = terraform.NewState
+	_ = envvar.TestEnvVar
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = googleapi.Error{}
 )
 
 func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
@@ -520,9 +539,7 @@ func testAccPubsubTopic_pubsubTopicTagsExample(context map[string]interface{}) s
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
-  tags = {
-    (google_tags_tag_key.tag_key.namespaced_name) = google_tags_tag_value.tag_value.short_name
-  }
+  project = data.google_project.project.project_id
 }
 
 data "google_project" "project" {}
@@ -535,6 +552,11 @@ resource "google_tags_tag_key" "tag_key" {
 resource "google_tags_tag_value" "tag_value" {
   parent     = google_tags_tag_key.tag_key.id
   short_name = "tf_test_tag_value%{random_suffix}"
+}
+
+resource "google_tags_tag_binding" "binding" {
+  parent    = "//pubsub.googleapis.com/projects/${data.google_project.project.number}/topics/${google_pubsub_topic.example.name}"
+  tag_value = google_tags_tag_value.tag_value.id
 }
 `, context)
 }

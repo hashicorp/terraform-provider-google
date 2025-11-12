@@ -95,6 +95,50 @@ resource "google_network_security_firewall_endpoint" "foobar" {
 `, randomSuffix, orgId, billingProjectId)
 }
 
+func TestAccNetworkSecurityFirewallEndpoints_enableJumboFrames(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	billingProjectId := envvar.GetTestProjectFromEnv()
+	orgId := envvar.GetTestOrgFromEnv(t)
+	randomSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecurityFirewallEndpointDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecurityFirewallEndpoints_enableJumboFrames(orgId, billingProjectId, randomSuffix),
+			},
+			{
+				ResourceName:            "google_network_security_firewall_endpoint.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkSecurityFirewallEndpoints_enableJumboFrames(orgId string, billingProjectId string, randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_network_security_firewall_endpoint" "foobar" {
+  name     = "tf-test-my-firewall-endpoint%[1]s"
+  parent   = "organizations/%[2]s"
+  location = "us-central1-a"
+  billing_project_id = "%[3]s"
+  endpoint_settings {
+    jumbo_frames_enabled = true
+  }
+
+  labels = {
+    foo = "bar-updated"
+  }
+}
+`, randomSuffix, orgId, billingProjectId)
+}
+
 func testAccCheckNetworkSecurityFirewallEndpointDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

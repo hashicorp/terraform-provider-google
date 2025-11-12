@@ -21,6 +21,7 @@ fields:
   - api_field: 'dataDiscoverySpec.storageConfig.includePatterns'
   - api_field: 'dataDiscoverySpec.storageConfig.jsonOptions.encoding'
   - api_field: 'dataDiscoverySpec.storageConfig.jsonOptions.typeInferenceDisabled'
+  - api_field: 'dataDocumentationSpec'
   - api_field: 'dataProfileSpec.excludeFields.fieldNames'
   - api_field: 'dataProfileSpec.includeFields.fieldNames'
   - api_field: 'dataProfileSpec.postScanActions.bigqueryExport.resultsTable'
