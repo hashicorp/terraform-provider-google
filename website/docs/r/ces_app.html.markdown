@@ -34,6 +34,27 @@ Description
 
 
 ```hcl
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "fake_private_key_secret" {
+  secret_id = "fake-pk-secret-app-tf1"
+
+  replication {
+    auto{}
+  }
+}
+
+resource "google_secret_manager_secret_version" "fake_secret_version" {
+  secret = google_secret_manager_secret.fake_private_key_secret.id
+  secret_data = file("test-fixtures/test.key")
+}
+resource "google_secret_manager_secret_iam_member" "private_key_accessor" {
+  project   = google_secret_manager_secret.fake_private_key_secret.project
+  secret_id = google_secret_manager_secret.fake_private_key_secret.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-ces.iam.gserviceaccount.com"
+  }
+
 resource "google_ces_app" "ces_app_basic" {
   app_id = "app-id"
   location = "us"
@@ -185,6 +206,12 @@ variable_declarations {
 
   time_zone_settings {
     time_zone = "America/Los_Angeles"
+  }
+
+  client_certificate_settings {
+    tls_certificate = file("test-fixtures/cert.pem")
+    private_key = google_secret_manager_secret_version.fake_secret_version.name
+    passphrase = "fakepassphrase"
   }
 
   # Root agent should not be specified when creating an app
@@ -448,6 +475,11 @@ The following arguments are supported:
   (Optional)
   The declarations of the variables.
   Structure is [documented below](#nested_variable_declarations).
+
+* `client_certificate_settings` -
+  (Optional)
+  The default client certificate settings for the app.
+  Structure is [documented below](#nested_client_certificate_settings).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -930,6 +962,24 @@ The following arguments are supported:
 * `items` -
   (Optional)
   Schema of the elements of Type.ARRAY.
+
+<a name="nested_client_certificate_settings"></a>The `client_certificate_settings` block supports:
+
+* `tls_certificate` -
+  (Required)
+  The TLS certificate encoded in PEM format.
+  This string must include the begin header and end footer lines.
+
+* `private_key` -
+  (Required)
+  The name of the SecretManager secret version resource
+  storing the private key encoded in PEM format.
+  Format: projects/{project}/secrets/{secret}/versions/{version}
+
+* `passphrase` -
+  (Optional)
+  The passphrase to decrypt the private key.
+  Should be left unset if the private key is not encrypted.
 
 ## Attributes Reference
 
