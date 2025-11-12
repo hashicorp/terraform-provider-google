@@ -28,6 +28,8 @@ import (
 func TestAccApigeeDeveloperApp_apigeeDeveloperAppUpdateTest(t *testing.T) {
 	t.Parallel()
 
+	resourceName := "google_apigee_developer_app.apigee_developer_app"
+
 	context := map[string]interface{}{
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
@@ -44,18 +46,26 @@ func TestAccApigeeDeveloperApp_apigeeDeveloperAppUpdateTest(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeDeveloperApp_apigeeDeveloperAppBasicTest(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "credentials.0.consumer_key"),
+					resource.TestCheckResourceAttrSet(resourceName, "credentials.0.consumer_secret"),
+				),
 			},
 			{
-				ResourceName:            "google_apigee_developer_app.apigee_developer_app",
+				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id"},
 			},
 			{
 				Config: testAccApigeeDeveloperApp_apigeeDeveloperAppUpdateTest(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "credentials.0.consumer_key"),
+					resource.TestCheckResourceAttrSet(resourceName, "credentials.0.consumer_secret"),
+				),
 			},
 			{
-				ResourceName:            "google_apigee_developer_app.apigee_developer_app",
+				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id"},

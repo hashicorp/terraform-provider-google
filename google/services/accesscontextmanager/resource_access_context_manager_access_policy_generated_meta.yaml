@@ -4,6 +4,7 @@ source_file: 'products/accesscontextmanager/AccessPolicy.yaml'
 api_service_name: 'accesscontextmanager.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'AccessPolicy'
+cai_asset_name_format: '//accesscontextmanager.googleapis.com/accessPolicies/{{name}}'
 fields:
   - api_field: 'createTime'
   - api_field: 'name'

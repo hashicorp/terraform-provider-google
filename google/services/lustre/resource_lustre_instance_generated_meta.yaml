@@ -22,6 +22,7 @@ fields:
   - api_field: 'name'
   - api_field: 'network'
   - api_field: 'perUnitStorageThroughput'
+  - api_field: 'placementPolicy'
   - api_field: 'state'
   - field: 'terraform_labels'
     provider_only: true

@@ -20,12 +20,22 @@
 package networksecurity_test
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+)
+
+var (
+	_ = fmt.Sprintf
+	_ = strings.Trim
+	_ = envvar.TestEnvVar
+	_ = tpgresource.SetLabels
 )
 
 func TestAccNetworkSecurityProjectAddressGroupIamBindingGenerated(t *testing.T) {

@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_pubsub_lite_reservation
+~> **Warning:** [Pubsub Lite is deprecated and will be turned down effective March 18, 2026](https://cloud.google.com/pubsub/lite/docs/release-notes#June_17_2024). The resource will be removed in a future major release, please use `google_pubsub_reservation` instead.
 
 A named resource representing a shared pool of capacity.
 

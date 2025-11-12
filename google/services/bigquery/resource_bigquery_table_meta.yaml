@@ -19,6 +19,14 @@ fields:
   - field: 'encryption_configuration.kms_key_version'
   - api_field: 'etag'
   - api_field: 'expirationTime'
+  - api_field: 'externalCatalogTableOptions.connectionId'
+  - api_field: 'externalCatalogTableOptions.parameters'
+  - api_field: 'externalCatalogTableOptions.storageDescriptor.inputFormat'
+  - api_field: 'externalCatalogTableOptions.storageDescriptor.locationUri'
+  - api_field: 'externalCatalogTableOptions.storageDescriptor.outputFormat'
+  - api_field: 'externalCatalogTableOptions.storageDescriptor.serdeInfo.name'
+  - api_field: 'externalCatalogTableOptions.storageDescriptor.serdeInfo.parameters'
+  - api_field: 'externalCatalogTableOptions.storageDescriptor.serdeInfo.serializationLibrary'
   - api_field: 'externalDataConfiguration.autodetect'
   - api_field: 'externalDataConfiguration.avroOptions.useAvroLogicalTypes'
   - field: 'external_data_configuration.bigtable_options.column_family.column.encoding'
@@ -82,6 +90,13 @@ fields:
   - api_field: 'resourceTags'
   - api_field: 'schema'
     json: true
+  - api_field: 'schema'
+    field: 'generated_schema_columns'
+  - field: 'ignore_auto_generated_schema'
+    provider_only: true
+  - field: 'ignore_schema_changes'
+    provider_only: true
+  - field: 'schema_foreign_type_info.type_system'
   - api_field: 'selfLink'
   - api_field: 'tableConstraints.foreignKeys.columnReferences.referencedColumn'
   - api_field: 'tableConstraints.foreignKeys.columnReferences.referencingColumn'

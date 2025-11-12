@@ -342,9 +342,9 @@ includes an up-to-date reference of supported versions.
     or `terraform destroy` that would delete the instance will fail.
     When the field is set to false, deleting the instance is allowed.
 
-* `final_backup_description` - (Optional) The description of final backup. Only set this field when `final_backup_config.enabled` is true.
-
   ~> **NOTE:** This flag only protects instances from deletion within Terraform. To protect your instances from accidental deletion across all surfaces (API, gcloud, Cloud Console and Terraform), use the API flag `settings.deletion_protection_enabled`.
+
+* `final_backup_description` - (Optional) The description of final backup. Only set this field when `final_backup_config.enabled` is true.
 
 * `restore_backup_context` - (optional) The context needed to restore the database to a backup run. This field will
     cause Terraform to trigger the database to restore from the backup run indicated. The configuration is detailed below.

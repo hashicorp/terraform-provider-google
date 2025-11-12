@@ -123,6 +123,11 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `placement_policy` -
+  (Optional)
+  The placement policy name for the instance in the format of
+  projects/{project}/locations/{location}/resourcePolicies/{resource_policy}
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

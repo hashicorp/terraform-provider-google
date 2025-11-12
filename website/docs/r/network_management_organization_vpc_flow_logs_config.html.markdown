@@ -23,8 +23,6 @@ description: |-
 
 VPC Flow Logs Config is a resource that lets you configure Flow Logs for Organization.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Network Management Org Vpc Flow Logs Config Basic
@@ -32,7 +30,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_network_management_organization_vpc_flow_logs_config" "org-test" {
-  provider                = google-beta
   vpc_flow_logs_config_id = "basic-org-test-id"
   location                = "global"
   organization            = "123456789"
@@ -80,7 +77,7 @@ The following arguments are supported:
   Optional. The value of the field must be in (0, 1]. The sampling rate
   of VPC Flow Logs where 1.0 means all collected logs are reported. Setting the
   sampling rate to 0.0 is not allowed. If you want to disable VPC Flow Logs, use
-  the state field instead. Default value is 1.0.
+  the state field instead. Default value is 1.0
 
 * `metadata` -
   (Optional)

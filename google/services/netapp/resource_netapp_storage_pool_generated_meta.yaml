@@ -33,6 +33,7 @@ fields:
     provider_only: true
   - api_field: 'totalIops'
   - api_field: 'totalThroughputMibps'
+  - api_field: 'type'
   - api_field: 'volumeCapacityGib'
   - api_field: 'volumeCount'
   - api_field: 'zone'

@@ -16,3 +16,4 @@ fields:
   - api_field: 'restrictions.iosKeyRestrictions.allowedBundleIds'
   - api_field: 'restrictions.serverKeyRestrictions.allowedIps'
   - api_field: 'uid'
+  - api_field: 'serviceAccountEmail'

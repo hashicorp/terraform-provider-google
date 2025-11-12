@@ -304,6 +304,42 @@ func TestAccComputeNetworkFirewallSecurityProfileGroupDiffsuppress(t *testing.T)
 	})
 }
 
+func TestAccComputeNetworkFirewallPolicyRule_disable_enable(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetworkFirewallPolicyRule_disabled(context, true),
+			},
+			{
+				ResourceName:            "google_compute_network_firewall_policy_rule.fw_policy_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+			{
+				Config: testAccComputeNetworkFirewallPolicyRule_disabled(context, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_network_firewall_policy_rule.fw_policy_rule", "disabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_network_firewall_policy_rule.fw_policy_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+		},
+	})
+}
+
 func testAccComputeNetworkFirewallPolicyRule_secureTags(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
@@ -1042,5 +1078,35 @@ resource "google_compute_network_firewall_policy_rule" "dest_test" {
   }
 }
 
+`, context)
+}
+
+func testAccComputeNetworkFirewallPolicyRule_disabled(context map[string]interface{}, disabled bool) string {
+	context["disabled"] = fmt.Sprintf("%t", disabled)
+	return acctest.Nprintf(`
+resource "google_compute_network" "network" {
+  name                    = "tf-test-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network_firewall_policy" "fw_policy" {
+  name = "tf-test-policy-%{random_suffix}"
+}
+
+resource "google_compute_network_firewall_policy_rule" "fw_policy_rule" {
+  firewall_policy = google_compute_network_firewall_policy.fw_policy.id
+  priority        = 1000
+  action          = "allow"
+  direction       = "EGRESS"
+  disabled        = %{disabled}
+  match {
+    dest_ip_ranges = ["35.235.240.0/20"]
+
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = [22]
+    }
+  }
+}
 `, context)
 }

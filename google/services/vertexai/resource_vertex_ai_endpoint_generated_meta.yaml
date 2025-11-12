@@ -50,6 +50,12 @@ fields:
   - api_field: 'predictRequestResponseLoggingConfig.samplingRate'
   - api_field: 'privateServiceConnectConfig.enablePrivateServiceConnect'
   - api_field: 'privateServiceConnectConfig.projectAllowlist'
+  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.errorMessage'
+  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.forwardingRule'
+  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.ipAddress'
+  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.network'
+  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.projectId'
+  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.state'
   - field: 'region'
     provider_only: true
   - field: 'terraform_labels'

@@ -19,8 +19,11 @@ package dataplex_test
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -29,6 +32,22 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = resource.TestMain
+	_ = terraform.NewState
+	_ = envvar.TestEnvVar
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = googleapi.Error{}
 )
 
 func TestAccDataplexEntryLink_dataplexEntryLinkBasicExample(t *testing.T) {
@@ -136,47 +155,48 @@ func testAccDataplexEntryLink_dataplexEntryLinkFullExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_dataplex_entry_group" "entry-group-full" {
   location = "us-central1"
-  entry_group_id = "tf-test-entry-group-full%{random_suffix}"
+  entry_group_id = "tf-test-entry-group%{random_suffix}"
   project = "%{project_number}"
 }
-
 resource "google_dataplex_entry" "source" {
   location = "us-central1"
   entry_group_id = google_dataplex_entry_group.entry-group-full.entry_group_id
-  entry_id = "tf-test-source-entry-full%{random_suffix}"
+  entry_id = "tf-test-source-entry%{random_suffix}"
   entry_type = google_dataplex_entry_type.entry-type-full.name
   project = "%{project_number}"
 }
-
 resource "google_dataplex_entry_type" "entry-type-full" {
-  entry_type_id = "tf-test-entry-type-full%{random_suffix}"
+  entry_type_id = "tf-test-entry-type%{random_suffix}"
   location = "us-central1"
   project = "%{project_number}"
 }
-
-resource "google_dataplex_entry" "target" {
-  location = "us-central1"
-  entry_group_id = google_dataplex_entry_group.entry-group-full.entry_group_id
-  entry_id = "tf-test-target-entry-full%{random_suffix}"
-  entry_type = google_dataplex_entry_type.entry-type-full.name
-  project = "%{project_number}"
+resource "google_dataplex_glossary" "term_test_id_full" {
+  glossary_id = "tf-test-glossary%{random_suffix}"
+  location    = "us-central1"
 }
-
+resource "google_dataplex_glossary_term" "term_test_id_full" {
+  parent = "projects/${google_dataplex_glossary.term_test_id_full.project}/locations/us-central1/glossaries/${google_dataplex_glossary.term_test_id_full.glossary_id}"
+  glossary_id = google_dataplex_glossary.term_test_id_full.glossary_id
+  location = "us-central1"
+  term_id = "tf-test-term-full%{random_suffix}"
+  labels = { "tag": "test-tf" }
+  display_name = "terraform term"
+  description = "term created by Terraform"
+}
 resource "google_dataplex_entry_link" "full_entry_link" {
   project = "%{project_number}"
   location = "us-central1"
   entry_group_id = google_dataplex_entry_group.entry-group-full.entry_group_id
-  entry_link_id = "tf-test-entry-link-full%{random_suffix}"
-
-  entry_link_type = "projects/655216118709/locations/global/entryLinkTypes/related"
-
+  entry_link_id = "tf-test-entry-link%{random_suffix}"
+  entry_link_type = "projects/655216118709/locations/global/entryLinkTypes/definition"
   entry_references {
     name = google_dataplex_entry.source.name
+    type = "SOURCE"
     path = ""
   }
-
   entry_references {
-    name = google_dataplex_entry.target.name
+    name = "projects/${google_dataplex_entry_group.entry-group-full.project}/locations/us-central1/entryGroups/@dataplex/entries/projects/${google_dataplex_entry_group.entry-group-full.project}/locations/us-central1/glossaries/${google_dataplex_glossary.term_test_id_full.glossary_id}/terms/${google_dataplex_glossary_term.term_test_id_full.term_id}"
+    type = "TARGET"
   }
 }
 `, context)

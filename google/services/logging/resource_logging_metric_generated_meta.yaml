@@ -4,6 +4,7 @@ source_file: 'products/logging/Metric.yaml'
 api_service_name: 'logging.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'LogMetric'
+cai_asset_name_format: '//logging.googleapis.com/projects/{{project}}/metrics/{{%name}}'
 fields:
   - api_field: 'bucketName'
   - api_field: 'bucketOptions.explicitBuckets.bounds'

@@ -75,35 +75,55 @@ func ResourceStorageBucketAcl() *schema.Resource {
 }
 
 func resourceStorageRoleEntityCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
-	keys := diff.GetChangedKeysPrefix("role_entity")
-	if len(keys) < 1 {
+	oldData, newData := diff.GetChange("role_entity")
+
+	oldList, _ := oldData.([]interface{})
+	newList, _ := newData.([]interface{})
+
+	if len(oldList) == 0 || len(newList) == 0 {
 		return nil
 	}
-	count := diff.Get("role_entity.#").(int)
-	if count < 1 {
-		return nil
+
+	newSet := make(map[string]struct{})
+	for _, item := range newList {
+		newSet[item.(string)] = struct{}{}
 	}
-	state := map[string]struct{}{}
-	conf := map[string]struct{}{}
-	for i := 0; i < count; i++ {
-		old, new := diff.GetChange(fmt.Sprintf("role_entity.%d", i))
-		state[old.(string)] = struct{}{}
-		conf[new.(string)] = struct{}{}
-	}
-	if len(state) != len(conf) {
-		return nil
-	}
-	for k := range state {
-		if _, ok := conf[k]; !ok {
-			// project-owners- is explicitly stripped from the roles that this
-			// resource will delete
-			if strings.Contains(k, "OWNER:project-owners-") {
-				continue
-			}
-			return nil
+
+	visited := make(map[string]struct{})
+
+	var finalAcls []interface{}
+
+	// Preserve order from oldList and handle removals, this will help avoid permadiff
+	// Iterate through the original list to maintain its order.
+	for _, item := range oldList {
+		key := item.(string)
+		if _, exists := newSet[key]; exists || isDefaultGcpAcl(key) {
+			visited[key] = struct{}{}
+			finalAcls = append(finalAcls, item)
 		}
 	}
-	return diff.Clear("role_entity")
+
+	// Append any new additions
+	// Iterate through the new config to find items that weren't in the old list or newly added
+	for _, item := range newList {
+		key := item.(string)
+		if _, exists := visited[key]; !exists {
+			visited[key] = struct{}{}
+			finalAcls = append(finalAcls, item)
+		}
+	}
+
+	// finaclAcls will be applied if any change in existing config otherwise not diff is displayed
+	if err := diff.SetNew("role_entity", finalAcls); err != nil {
+		return fmt.Errorf("error setting new role entities in CustomizeDiff: %w", err)
+	}
+	return nil
+}
+
+func isDefaultGcpAcl(key string) bool {
+	return strings.HasPrefix(key, "OWNER:project-owners-") ||
+		strings.HasPrefix(key, "OWNER:project-editors-") ||
+		strings.HasPrefix(key, "READER:project-viewers-")
 }
 
 type RoleEntity struct {
@@ -189,6 +209,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 					break
 				}
 			}
+
 			if alreadyInserted {
 				log.Printf("[DEBUG]: pair %s-%s already exists, not trying to insert again\n", pair.Role, pair.Entity)
 				continue
@@ -309,7 +330,6 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 			old_re_map[res.Entity] = res.Role
 		}
-
 		for _, v := range new_re {
 			pair, err := GetRoleEntityPair(v.(string))
 
@@ -331,7 +351,6 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 				return fmt.Errorf("Error updating ACL for bucket %s: %v", bucket, err)
 			}
 		}
-
 		for entity, role := range old_re_map {
 			if entity == fmt.Sprintf("project-owners-%s", project) && role == "OWNER" {
 				log.Printf("[WARN]: Skipping %s-%s; not deleting owner ACL.", role, entity)
@@ -401,6 +420,16 @@ func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) er
 
 		if res.Entity == fmt.Sprintf("project-owners-%s", project) && res.Role == "OWNER" {
 			log.Printf("[WARN]: Skipping %s-%s; not deleting owner ACL.", res.Role, res.Entity)
+			continue
+		}
+
+		if res.Entity == fmt.Sprintf("project-editors-%s", project) && res.Role == "OWNER" {
+			log.Printf("[WARN]: Skipping %s-%s; not deleting editors ACL.", res.Role, res.Entity)
+			continue
+		}
+
+		if res.Entity == fmt.Sprintf("project-viewers-%s", project) && res.Role == "READER" {
+			log.Printf("[WARN]: Skipping %s-%s; not deleting viewers ACL.", res.Role, res.Entity)
 			continue
 		}
 

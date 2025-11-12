@@ -20,18 +20,70 @@
 package lustre
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
+	"slices"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = bytes.Clone
+	_ = context.WithCancel
+	_ = base64.NewDecoder
+	_ = json.Marshal
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = http.Get
+	_ = reflect.ValueOf
+	_ = regexp.Match
+	_ = slices.Min([]int{1})
+	_ = sort.IntSlice{}
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = errwrap.Wrap
+	_ = cty.BoolVal
+	_ = diag.Diagnostic{}
+	_ = customdiff.All
+	_ = id.UniqueId
+	_ = logging.LogLevel
+	_ = retry.Retry
+	_ = schema.Noop
+	_ = validation.All
+	_ = structure.ExpandJsonFromString
+	_ = terraform.State{}
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = verify.ValidateEnum
+	_ = googleapi.Error{}
 )
 
 func ResourceLustreInstance() *schema.Resource {
@@ -122,6 +174,12 @@ GKE clients are not supported.`,
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"placement_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The placement policy name for the instance in the format of
+projects/{project}/locations/{location}/resourcePolicies/{resource_policy}`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -223,6 +281,12 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("per_unit_storage_throughput"); !tpgresource.IsEmptyValue(reflect.ValueOf(perUnitStorageThroughputProp)) && (ok || !reflect.DeepEqual(v, perUnitStorageThroughputProp)) {
 		obj["perUnitStorageThroughput"] = perUnitStorageThroughputProp
+	}
+	placementPolicyProp, err := expandLustreInstancePlacementPolicy(d.Get("placement_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("placement_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(placementPolicyProp)) && (ok || !reflect.DeepEqual(v, placementPolicyProp)) {
+		obj["placementPolicy"] = placementPolicyProp
 	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -365,6 +429,9 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("name", flattenLustreInstanceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("placement_policy", flattenLustreInstancePlacementPolicy(res["placementPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenLustreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -409,6 +476,12 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	placementPolicyProp, err := expandLustreInstancePlacementPolicy(d.Get("placement_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("placement_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, placementPolicyProp)) {
+		obj["placementPolicy"] = placementPolicyProp
+	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -435,6 +508,10 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("placement_policy") {
+		updateMask = append(updateMask, "placementPolicy")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -618,6 +695,10 @@ func flattenLustreInstanceName(v interface{}, d *schema.ResourceData, config *tr
 	return v
 }
 
+func flattenLustreInstancePlacementPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenLustreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -658,6 +739,10 @@ func expandLustreInstanceDescription(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandLustreInstancePerUnitStorageThroughput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstancePlacementPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

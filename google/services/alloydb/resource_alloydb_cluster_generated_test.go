@@ -19,15 +19,35 @@ package alloydb_test
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = resource.TestMain
+	_ = terraform.NewState
+	_ = envvar.TestEnvVar
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = googleapi.Error{}
 )
 
 func TestAccAlloydbCluster_alloydbClusterBasicExample(t *testing.T) {
@@ -62,6 +82,10 @@ resource "google_alloydb_cluster" "default" {
   location   = "us-central1"
   network_config {
     network = google_compute_network.default.id
+  }
+
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
   }
 
   deletion_protection = false
@@ -313,6 +337,10 @@ resource "google_alloydb_cluster" "primary" {
   location   = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
+  }
+
+  initial_user {
+    password = "tf-test-alloydb-primary-cluster%{random_suffix}"
   }
 
   deletion_protection = false

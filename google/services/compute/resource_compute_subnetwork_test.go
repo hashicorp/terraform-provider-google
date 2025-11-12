@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -64,6 +65,119 @@ func TestIsShrinkageIpCidr(t *testing.T) {
 		if tpgcompute.IsShrinkageIpCidr(context.Background(), tc.Old, tc.New, nil) != tc.Shrinkage {
 			t.Errorf("%s failed: Shrinkage should be %t", tn, tc.Shrinkage)
 		}
+	}
+}
+
+func TestIpDiffSuppress(t *testing.T) {
+	d := &schema.ResourceData{}
+	d.SetId("test-id")
+
+	tests := []struct {
+		name string
+		old  string
+		new  string
+		want bool
+	}{
+		{
+			name: "both empty",
+			old:  "",
+			new:  "",
+			want: true,
+		},
+		{
+			name: "old empty new not",
+			old:  "",
+			new:  "10.0.0.0/24",
+			want: false,
+		},
+		{
+			name: "new empty old not",
+			old:  "10.0.0.0/24",
+			new:  "",
+			want: false,
+		},
+		{
+			name: "identical CIDR",
+			old:  "10.0.0.0/24",
+			new:  "10.0.0.0/24",
+			want: true,
+		},
+		{
+			name: "different address same mask",
+			old:  "10.0.0.0/24",
+			new:  "10.0.1.0/24",
+			want: false,
+		},
+		{
+			name: "same address different mask",
+			old:  "10.0.0.0/24",
+			new:  "10.0.0.0/16",
+			want: false,
+		},
+		{
+			name: "different address different mask",
+			old:  "10.0.0.0/24",
+			new:  "192.168.0.0/16",
+			want: false,
+		},
+		{
+			name: "invalid old CIDR format no mask",
+			old:  "10.0.0.0",
+			new:  "10.0.0.0/24",
+			want: false,
+		},
+		{
+			name: "invalid new CIDR format no mask",
+			old:  "10.0.0.0/24",
+			new:  "10.0.0.0",
+			want: false,
+		},
+		{
+			name: "invalid old IP",
+			old:  "256.0.0.0/24",
+			new:  "10.0.0.0/24",
+			want: false,
+		},
+		{
+			name: "invalid new IP",
+			old:  "10.0.0.0/24",
+			new:  "10.0.0.256/24",
+			want: false,
+		},
+		{
+			name: "ipv6 identical CIDR",
+			old:  "2001:db8::/32",
+			new:  "2001:db8::/32",
+			want: true,
+		},
+		{
+			name: "ipv6 different address",
+			old:  "2001:db8::/32",
+			new:  "2001:db9::/32",
+			want: false,
+		},
+		{
+			name: "ipv6 different mask",
+			old:  "2001:db8::/32",
+			new:  "2001:db8::/48",
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tpgcompute.IpDiffSuppress("ip_cidr_range", tt.old, tt.new, d); got != tt.want {
+				t.Errorf("IpDiffSuppress() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIpDiffSuppress_NoId(t *testing.T) {
+	d := &schema.ResourceData{}
+
+	if tpgcompute.IpDiffSuppress("ip_cidr_range", "10.0.0.0/24", "10.0.0.0/24", d) != false {
+		t.Errorf("IpDiffSuppress() with no ID should return false")
 	}
 }
 

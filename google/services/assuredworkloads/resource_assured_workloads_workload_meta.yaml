@@ -8,8 +8,8 @@ api_variant_patterns:
 fields:
   - api_field: 'billingAccount'
   - api_field: 'complianceRegime'
-  - field: 'compliance_status.acknowledged_violation_count'
-  - field: 'compliance_status.active_violation_count'
+  - api_field: 'complianceStatus.acknowledgedViolationCount'
+  - api_field: 'complianceStatus.activeViolationCount'
   - api_field: 'compliantButDisallowedServices'
   - api_field: 'createTime'
   - api_field: 'displayName'

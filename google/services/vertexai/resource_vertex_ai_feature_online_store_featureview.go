@@ -20,18 +20,70 @@
 package vertexai
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
+	"slices"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = bytes.Clone
+	_ = context.WithCancel
+	_ = base64.NewDecoder
+	_ = json.Marshal
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = http.Get
+	_ = reflect.ValueOf
+	_ = regexp.Match
+	_ = slices.Min([]int{1})
+	_ = sort.IntSlice{}
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = errwrap.Wrap
+	_ = cty.BoolVal
+	_ = diag.Diagnostic{}
+	_ = customdiff.All
+	_ = id.UniqueId
+	_ = logging.LogLevel
+	_ = retry.Retry
+	_ = schema.Noop
+	_ = validation.All
+	_ = structure.ExpandJsonFromString
+	_ = terraform.State{}
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = verify.ValidateEnum
+	_ = googleapi.Error{}
 )
 
 func ResourceVertexAIFeatureOnlineStoreFeatureview() *schema.Resource {
@@ -156,12 +208,19 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"continuous": {
+							Type:          schema.TypeBool,
+							Optional:      true,
+							Description:   `If true, syncs the FeatureView in a continuous manner to Online Store.`,
+							ConflictsWith: []string{"sync_config.0.cron"},
+						},
 						"cron": {
 							Type:     schema.TypeString,
 							Computed: true,
 							Optional: true,
 							Description: `Cron schedule (https://en.wikipedia.org/wiki/Cron) to launch scheduled runs.
 To explicitly set a timezone to the cron tab, apply a prefix in the cron tab: "CRON_TZ=${IANA_TIME_ZONE}" or "TZ=${IANA_TIME_ZONE}".`,
+							ConflictsWith: []string{"sync_config.0.continuous"},
 						},
 					},
 				},
@@ -571,9 +630,15 @@ func flattenVertexAIFeatureOnlineStoreFeatureviewSyncConfig(v interface{}, d *sc
 	transformed := make(map[string]interface{})
 	transformed["cron"] =
 		flattenVertexAIFeatureOnlineStoreFeatureviewSyncConfigCron(original["cron"], d, config)
+	transformed["continuous"] =
+		flattenVertexAIFeatureOnlineStoreFeatureviewSyncConfigContinuous(original["continuous"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIFeatureOnlineStoreFeatureviewSyncConfigCron(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIFeatureOnlineStoreFeatureviewSyncConfigContinuous(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -684,10 +749,21 @@ func expandVertexAIFeatureOnlineStoreFeatureviewSyncConfig(v interface{}, d tpgr
 		transformed["cron"] = transformedCron
 	}
 
+	transformedContinuous, err := expandVertexAIFeatureOnlineStoreFeatureviewSyncConfigContinuous(original["continuous"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContinuous); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["continuous"] = transformedContinuous
+	}
+
 	return transformed, nil
 }
 
 func expandVertexAIFeatureOnlineStoreFeatureviewSyncConfigCron(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreFeatureviewSyncConfigContinuous(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

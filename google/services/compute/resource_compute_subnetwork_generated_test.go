@@ -19,15 +19,35 @@ package compute_test
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
+	"google.golang.org/api/googleapi"
+)
+
+var (
+	_ = fmt.Sprintf
+	_ = log.Print
+	_ = strconv.Atoi
+	_ = strings.Trim
+	_ = time.Now
+	_ = resource.TestMain
+	_ = terraform.NewState
+	_ = envvar.TestEnvVar
+	_ = tpgresource.SetLabels
+	_ = transport_tpg.Config{}
+	_ = googleapi.Error{}
 )
 
 func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
@@ -297,6 +317,96 @@ resource "google_compute_subnetwork" "subnetwork-with-subnet-mode-pdp" {
 
 resource "google_compute_network" "custom-test-network" {
   name                    = "tf-test-network-byoipv6-external%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"ip_collection_url": "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/internal-ipv6-subnet-mode-test-sub-pdp",
+		"random_suffix":     acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExample(context),
+			},
+			{
+				ResourceName:            "google_compute_subnetwork.subnetwork-with-internal-subnet-mode-pdp",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ip_collection", "network", "params", "region", "reserved_internal_range"},
+			},
+		},
+	})
+}
+
+func testAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_subnetwork" "subnetwork-with-internal-subnet-mode-pdp" {
+  name             = "tf-test-internal-subnet-mode-pdp-subnet%{random_suffix}"
+  region           = "us-central1"
+  network          = google_compute_network.custom-test-network.id
+  stack_type       = "IPV6_ONLY"
+  ipv6_access_type = "INTERNAL"
+  ip_collection    = "%{ip_collection_url}"
+}
+
+resource "google_compute_network" "custom-test-network" {
+  name                    = "tf-test-network-byoipv6-internal%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExplicitIpPrefixExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"internal_ipv6_prefix": fmt.Sprintf("2001:db8:1:%d::/64", acctest.RandIntRange(t, 0, 9999)),
+		"ip_collection_url":    "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/internal-ipv6-subnet-mode-test-sub-pdp-explicit-prefix",
+		"random_suffix":        acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExplicitIpPrefixExample(context),
+			},
+			{
+				ResourceName:            "google_compute_subnetwork.subnetwork-with-internal-subnet-mode-pdp-explicit-ip-prefix",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ip_collection", "network", "params", "region", "reserved_internal_range"},
+			},
+		},
+	})
+}
+
+func testAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExplicitIpPrefixExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_subnetwork" "subnetwork-with-internal-subnet-mode-pdp-explicit-ip-prefix" {
+  name             = "tf-test-subnet-mode-pdp-subnet-internal-prefix%{random_suffix}"
+  region           = "us-central1"
+  network          = google_compute_network.custom-test-network.id
+  stack_type       = "IPV6_ONLY"
+  ipv6_access_type = "INTERNAL"
+  ip_collection    = "%{ip_collection_url}"
+  internal_ipv6_prefix = "%{internal_ipv6_prefix}"
+}
+
+resource "google_compute_network" "custom-test-network" {
+  name                    = "tf-test-network-byoipv6-internal-prefix%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)

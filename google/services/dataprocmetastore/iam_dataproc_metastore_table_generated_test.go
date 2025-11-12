@@ -21,12 +21,21 @@ package dataprocmetastore_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+)
+
+var (
+	_ = fmt.Sprintf
+	_ = strings.Trim
+	_ = envvar.TestEnvVar
+	_ = tpgresource.SetLabels
 )
 
 func TestAccDataprocMetastoreTableIamBindingGenerated(t *testing.T) {
@@ -40,6 +49,9 @@ func TestAccDataprocMetastoreTableIamBindingGenerated(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreTableIamBinding_basicGenerated(context),
@@ -75,6 +87,9 @@ func TestAccDataprocMetastoreTableIamMemberGenerated(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -101,6 +116,9 @@ func TestAccDataprocMetastoreTableIamPolicyGenerated(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreTableIamPolicy_basicGenerated(context),
@@ -189,6 +207,13 @@ resource "google_dataproc_job" "hive" {
   }
 }
 
+# There is no simple way to wait on the Dataproc job to be SUCCESS
+# rather than RUNNING.
+resource "time_sleep" "wait_hive_job" {
+  create_duration = "90s"
+  depends_on      = [google_dataproc_job.hive]
+}
+
 resource "google_dataproc_metastore_table_iam_member" "foo" {
   project = google_dataproc_metastore_service.dpms_service.project
   location = google_dataproc_metastore_service.dpms_service.location
@@ -263,6 +288,13 @@ resource "google_dataproc_job" "hive" {
       "CREATE TABLE testdb.testtbl (bar int)",
     ]
   }
+}
+
+# There is no simple way to wait on the Dataproc job to be SUCCESS
+# rather than RUNNING.
+resource "time_sleep" "wait_hive_job" {
+  create_duration = "90s"
+  depends_on      = [google_dataproc_job.hive]
 }
 
 data "google_iam_policy" "foo" {
@@ -358,6 +390,13 @@ resource "google_dataproc_job" "hive" {
   }
 }
 
+# There is no simple way to wait on the Dataproc job to be SUCCESS
+# rather than RUNNING.
+resource "time_sleep" "wait_hive_job" {
+  create_duration = "90s"
+  depends_on      = [google_dataproc_job.hive]
+}
+
 data "google_iam_policy" "foo" {
 }
 
@@ -436,6 +475,13 @@ resource "google_dataproc_job" "hive" {
   }
 }
 
+# There is no simple way to wait on the Dataproc job to be SUCCESS
+# rather than RUNNING.
+resource "time_sleep" "wait_hive_job" {
+  create_duration = "90s"
+  depends_on      = [google_dataproc_job.hive]
+}
+
 resource "google_dataproc_metastore_table_iam_binding" "foo" {
   project = google_dataproc_metastore_service.dpms_service.project
   location = google_dataproc_metastore_service.dpms_service.location
@@ -510,6 +556,13 @@ resource "google_dataproc_job" "hive" {
       "CREATE TABLE testdb.testtbl (bar int)",
     ]
   }
+}
+
+# There is no simple way to wait on the Dataproc job to be SUCCESS
+# rather than RUNNING.
+resource "time_sleep" "wait_hive_job" {
+  create_duration = "90s"
+  depends_on      = [google_dataproc_job.hive]
 }
 
 resource "google_dataproc_metastore_table_iam_binding" "foo" {

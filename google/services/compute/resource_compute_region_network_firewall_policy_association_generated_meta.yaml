@@ -5,10 +5,13 @@ api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'FirewallPolicy'
 fields:
-  - api_field: 'attachmentTarget'
+  - api_field: 'associations.attachmentTarget'
+    field: 'attachment_target'
   - field: 'firewall_policy'
     provider_only: true
-  - api_field: 'name'
+  - api_field: 'associations.name'
+    field: 'name'
   - field: 'region'
     provider_only: true
-  - api_field: 'shortName'
+  - api_field: 'associations.shortName'
+    field: 'short_name'

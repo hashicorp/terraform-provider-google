@@ -32,6 +32,7 @@ fields:
   - field: 'cluster_config.gce_cluster_config.reservation_affinity.consume_reservation_type'
   - field: 'cluster_config.gce_cluster_config.reservation_affinity.key'
   - field: 'cluster_config.gce_cluster_config.reservation_affinity.values'
+  - field: 'cluster_config.gce_cluster_config.resource_manager_tags'
   - field: 'cluster_config.gce_cluster_config.service_account'
   - field: 'cluster_config.gce_cluster_config.service_account_scopes'
   - field: 'cluster_config.gce_cluster_config.shielded_instance_config.enable_integrity_monitoring'
