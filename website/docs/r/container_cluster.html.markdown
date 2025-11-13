@@ -314,6 +314,10 @@ region are guaranteed to support the same version.
     [SecretManagerConfig](https://cloud.google.com/secret-manager/docs/secret-manager-managed-csi-component) feature.
     Structure is [documented below](#nested_secret_manager_config).
 
+* `secret_sync_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for the
+    [SecretSyncConfig](https://cloud.google.com/secret-manager/docs/sync-k8-secrets) feature.
+    Structure is [documented below](#nested_secret_sync_config).
+
 * `authenticator_groups_config` - (Optional) Configuration for the
     [Google Groups for GKE](https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control#groups-setup-gsuite) feature.
     Structure is [documented below](#nested_authenticator_groups_config).
@@ -1321,7 +1325,17 @@ notification_config {
 <a name="rotation_config"></a>The `rotation_config` block supports:
 
 * `enabled` (Optional) - Enable the roation in Secret Manager add-on for this cluster.
-* `rotation_interval` (Optional) - The interval between two consecutive rotations. Default rotation interval is 2 minutes.
+* `rotation_interval` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - The interval between two consecutive rotations. Default rotation interval is 2 minutes.
+
+<a name="nested_secret_sync_config"></a>The `secret_sync_config` block supports:
+
+* `enabled` (Required, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - Enable the Sync as K8s secret feature for this cluster.
+* `rotation_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - config for secret sync auto rotation. Structure is [docuemented below](#sync_rotation_config)
+
+<a name="sync_rotation_config"></a>The `rotation_config` block supports:
+
+* `enabled` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - Enable the roation in Sync as K8s secret feature for this cluster.
+* `rotation_interval` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - The interval between two consecutive rotations. Default rotation interval is 2 minutes.
 
 <a name="nested_user_managed_keys_config"></a>The `user_managed_keys_config` block supports:
 
