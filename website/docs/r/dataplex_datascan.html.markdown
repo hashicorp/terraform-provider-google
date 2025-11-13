@@ -92,6 +92,7 @@ resource "google_dataplex_datascan" "full_profile" {
         results_table = "//bigquery.googleapis.com/projects/my-project-name/datasets/dataplex_dataset/tables/profile_export"
       }
     }
+    catalog_publishing_enabled = true
   }
 
   project = "my-project-name"
@@ -822,6 +823,10 @@ The following arguments are supported:
   The fields to exclude from data profile.
   If specified, the fields will be excluded from data profile, regardless of `include_fields` value.
   Structure is [documented below](#nested_data_profile_spec_exclude_fields).
+
+* `catalog_publishing_enabled` -
+  (Optional)
+  If set, the latest DataScan job result will be published to Dataplex Catalog.
 
 
 <a name="nested_data_profile_spec_post_scan_actions"></a>The `post_scan_actions` block supports:

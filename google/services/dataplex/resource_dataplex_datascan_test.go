@@ -246,3 +246,212 @@ resource "google_dataplex_datascan" "full_quality" {
 }
 `, context)
 }
+
+func TestAccDataplexDatascan_dataplexDatascanFullProfile_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanFullProfile_full(context),
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.full_profile",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanFullProfile_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_dataplex_datascan.full_profile", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.full_profile",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataplexDatascan_dataplexDatascanFullProfile_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "tf_test_dataset" {
+  dataset_id = "tf_test_dataset_id_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+  delete_contents_on_destroy = true
+}
+
+resource "google_bigquery_table" "tf_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
+  table_id            = "tf_test_table_id_%{random_suffix}"
+  deletion_protection = false
+  schema              = <<EOF
+    [
+      {
+        "name": "word",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "word_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "corpus",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "corpus_date",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      }
+    ]
+  EOF
+}
+
+resource "google_dataplex_datascan" "full_profile" {
+  location = "us-central1"
+  display_name = "Full Datascan Quality Publishing"
+  data_scan_id = "tf-test-dataprofile-full-test%{random_suffix}"
+  description = "Example resource - Full Datascan Quality with Publishing enabled"
+  labels = {
+    author = "billing"
+  }
+
+  data {
+      resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
+  }
+
+  execution_spec {
+      trigger {
+      schedule {
+          cron = "TZ=America/New_York 1 1 * * *"
+      }
+      }
+  }
+
+  data_profile_spec {
+    sampling_percent = 80
+    row_filter = "word_count > 10"
+    include_fields {
+      field_names = ["word_count"]
+    }
+    exclude_fields {
+      field_names = ["property_type"]
+    }
+    post_scan_actions {
+      bigquery_export {
+        results_table = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/profile_export_%{random_suffix}"
+      }
+    }
+  }
+
+  project = "%{project_name}"
+
+  depends_on = [
+    google_bigquery_dataset.tf_test_dataset
+  ]
+}
+`, context)
+}
+
+func testAccDataplexDatascan_dataplexDatascanFullProfile_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "tf_test_dataset" {
+  dataset_id = "tf_test_dataset_id_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+  delete_contents_on_destroy = true
+}
+
+resource "google_bigquery_table" "tf_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
+  table_id            = "tf_test_table_id_%{random_suffix}"
+  deletion_protection = false
+  schema              = <<EOF
+    [
+      {
+        "name": "word",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "word_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "corpus",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "corpus_date",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      }
+    ]
+  EOF
+}
+
+resource "google_dataplex_datascan" "full_profile" {
+  location = "us-central1"
+  display_name = "Full Datascan Quality Publishing"
+  data_scan_id = "tf-test-dataprofile-full-test%{random_suffix}"
+  description = "Example resource - Full Datascan Quality with Publishing enabled"
+  labels = {
+    author = "billing"
+  }
+
+  data {
+      resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
+  }
+
+  execution_spec {
+      trigger {
+      schedule {
+          cron = "TZ=America/New_York 1 1 * * *"
+      }
+      }
+  }
+
+  data_profile_spec {
+    sampling_percent = 80
+    row_filter = "word_count > 10"
+    include_fields {
+      field_names = ["word_count"]
+    }
+    exclude_fields {
+      field_names = ["property_type"]
+    }
+    post_scan_actions {
+      bigquery_export {
+        results_table = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/profile_export_%{random_suffix}"
+      }
+    }
+    catalog_publishing_enabled = true
+  }
+
+  project = "%{project_name}"
+
+  depends_on = [
+    google_bigquery_dataset.tf_test_dataset
+  ]
+}
+`, context)
+}
