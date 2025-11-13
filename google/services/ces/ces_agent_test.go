@@ -83,16 +83,16 @@ resource "google_ces_app" "ces_app_for_agent" {
   }
 }
 
-// resource "google_ces_tool" "ces_tool_for_agent" {
-//     location       = "us"
-//     app            = google_ces_app.ces_app_for_agent.app_id
-//     tool_id        = "tool-1"
-//     execution_type = "SYNCHRONOUS"
-//     python_function {
-//         name = "example_function"
-//         python_code = "def example_function() -> int: return 0"
-//     }
-// }
+resource "google_ces_tool" "ces_tool_for_agent" {
+    location       = "us"
+    app            = google_ces_app.ces_app_for_agent.app_id
+    tool_id        = "tool-1"
+    execution_type = "SYNCHRONOUS"
+    python_function {
+        name = "example_function"
+        python_code = "def example_function() -> int: return 0"
+    }
+}
 
 resource "google_ces_toolset" "ces_toolset_for_agent" {
   toolset_id = "tf-test-toolset-id%{random_suffix}"
@@ -147,28 +147,28 @@ resource "google_ces_agent" "ces_child_agent" {
 }
 
 
-// resource "google_ces_guardrail" "ces_guardrail_for_agent" {
-//   guardrail_id = "guardrail-id"
-//   location     = google_ces_app.ces_app_for_agent.location
-//   app          = google_ces_app.ces_app_for_agent.app_id
-//   display_name = "Example guardrail"
-//   description  = "Guardrail description"
-//   action {
-//     respond_immediately  {
-//         responses {
-//             text = "Text"
-//             disabled = false
-//         }
-//     }
-//   }
-//   enabled = true
-//   model_safety  {
-//     safety_settings {
-//         category = "HARM_CATEGORY_HATE_SPEECH"
-//         threshold = "BLOCK_NONE"
-//     }
-//   }
-// }
+resource "google_ces_guardrail" "ces_guardrail_for_agent" {
+  guardrail_id = "guardrail-id"
+  location     = google_ces_app.ces_app_for_agent.location
+  app          = google_ces_app.ces_app_for_agent.app_id
+  display_name = "Example guardrail"
+  description  = "Guardrail description"
+  action {
+    respond_immediately  {
+        responses {
+            text = "Text"
+            disabled = false
+        }
+    }
+  }
+  enabled = true
+  model_safety  {
+    safety_settings {
+        category = "HARM_CATEGORY_HATE_SPEECH"
+        threshold = "BLOCK_NONE"
+    }
+  }
+}
 
 
 
@@ -219,13 +219,13 @@ resource "google_ces_agent" "ces_agent_basic" {
     python_code = "def callback(context):\n    return {'override': False}"
   }
 
-//   tools = [
-//     google_ces_tool.ces_tool_for_agent.id
-//   ]
+  tools = [
+    google_ces_tool.ces_tool_for_agent.id
+  ]
 
-//   guardrails = [
-//     google_ces_guardrail.ces_guardrail_for_agent.id
-//   ]
+  guardrails = [
+    google_ces_guardrail.ces_guardrail_for_agent.id
+  ]
 
   toolsets {
     toolset = google_ces_toolset.ces_toolset_for_agent.id
@@ -259,16 +259,16 @@ resource "google_ces_app" "ces_app_for_agent" {
   }
 }
 
-// resource "google_ces_tool" "ces_tool_for_agent" {
-//     location       = "us"
-//     app            = google_ces_app.ces_app_for_agent.app_id
-//     tool_id        = "tool-1"
-//     execution_type = "SYNCHRONOUS"
-//     python_function {
-//         name = "example_function"
-//         python_code = "def example_function() -> int: return 0"
-//     }
-// }
+resource "google_ces_tool" "ces_tool_for_agent" {
+    location       = "us"
+    app            = google_ces_app.ces_app_for_agent.app_id
+    tool_id        = "tool-1"
+    execution_type = "SYNCHRONOUS"
+    python_function {
+        name = "example_function"
+        python_code = "def example_function() -> int: return 0"
+    }
+}
 
 resource "google_ces_toolset" "ces_toolset_for_agent" {
   toolset_id = "tf-test-toolset-id%{random_suffix}"
@@ -318,28 +318,28 @@ resource "google_ces_agent" "ces_child_agent" {
 }
 
 
-// resource "google_ces_guardrail" "ces_guardrail_for_agent" {
-//   guardrail_id = "guardrail-id"
-//   location     = google_ces_app.ces_app_for_agent.location
-//   app          = google_ces_app.ces_app_for_agent.app_id
-//   display_name = "Example guardrail"
-//   description  = "Guardrail description"
-//   action {
-//     respond_immediately  {
-//         responses {
-//             text = "Text"
-//             disabled = false
-//         }
-//     }
-//   }
-//   enabled = true
-//   model_safety  {
-//     safety_settings {
-//         category = "HARM_CATEGORY_HATE_SPEECH"
-//         threshold = "BLOCK_NONE"
-//     }
-//   }
-// }
+resource "google_ces_guardrail" "ces_guardrail_for_agent" {
+  guardrail_id = "guardrail-id"
+  location     = google_ces_app.ces_app_for_agent.location
+  app          = google_ces_app.ces_app_for_agent.app_id
+  display_name = "Example guardrail"
+  description  = "Guardrail description"
+  action {
+    respond_immediately  {
+        responses {
+            text = "Text"
+            disabled = false
+        }
+    }
+  }
+  enabled = true
+  model_safety  {
+    safety_settings {
+        category = "HARM_CATEGORY_HATE_SPEECH"
+        threshold = "BLOCK_NONE"
+    }
+  }
+}
 
 
 
