@@ -1,0 +1,3 @@
+```release-note:note
+storage: examples and note for `ip_filter` in resource `google_storage_bucket`
+```
