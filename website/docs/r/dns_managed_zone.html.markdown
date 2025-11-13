@@ -138,6 +138,39 @@ resource "google_compute_network" "network-2" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dns_managed_zone_private_forwarding_ipv6&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dns Managed Zone Private Forwarding Ipv6
+
+
+```hcl
+resource "google_dns_managed_zone" "private-zone" {
+  name        = "private-zone"
+  dns_name    = "private.example.com."
+  description = "Example private DNS zone"
+  visibility  = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.network_1.id
+    }
+  }
+
+  forwarding_config {
+    target_name_servers {
+      ipv6_address = "fd20:3e9:7a70:680d:0:8::"
+    }
+  }
+}
+
+resource "google_compute_network" "network_1" {
+  name                    = "network-1"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dns_managed_zone_private_gke&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -494,6 +527,12 @@ The following arguments are supported:
 * `ipv4_address` -
   (Optional)
   IPv4 address of a target name server.
+  Does not accept both fields (ipv4 & ipv6) being populated.
+
+* `ipv6_address` -
+  (Optional)
+  IPv6 address of a target name server.
+  Does not accept both fields (ipv4 & ipv6) being populated.
 
 * `domain_name` -
   (Optional)
@@ -501,9 +540,11 @@ The following arguments are supported:
 
 * `forwarding_path` -
   (Optional)
-  Forwarding path for this TargetNameServer. If unset or `default` Cloud DNS will make forwarding
-  decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
-  to the Internet. When set to `private`, Cloud DNS will always send queries through VPC for this target
+  Forwarding path for this TargetNameServer. If unset or `default`
+  Cloud DNS will make forwarding decision based on address ranges,
+  i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
+  to the Internet. When set to `private`, Cloud DNS will always
+  send queries through VPC for this target.
   Possible values are: `default`, `private`.
 
 <a name="nested_peering_config"></a>The `peering_config` block supports:
