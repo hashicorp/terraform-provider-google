@@ -12932,6 +12932,208 @@ resource "google_container_cluster" "primary" {
 `, secretID, clusterName, customDomain, networkName, subnetworkName)
 }
 
+func TestAccContainerCluster_writableCgroups(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePoolName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Test enabling writable_cgroups for new node pools via node_pool_defaults.
+			{
+				Config: testAccContainerCluster_writableCgroupsEnabled(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_pool_defaults.0.node_config_defaults.0.containerd_config.0.writable_cgroups.0.enabled",
+						"true",
+					),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Test disabling writable_cgroups for new node pools via node_pool_defaults.
+			{
+				Config: testAccContainerCluster_writableCgroupsDisabled(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_pool_defaults.0.node_config_defaults.0.containerd_config.0.writable_cgroups.0.enabled",
+						"false",
+					),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Test configuring writable_cgroups on the cluster's default node pool directly via node_config.
+			{
+				Config: testAccContainerCluster_withNodeConfigWritableCgroups(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_config.0.containerd_config.0.writable_cgroups.0.enabled",
+						"true",
+					),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Test configuring writable_cgroups on a named node pool defined within the cluster.
+			// This change from a default to a named node pool is expected to force recreation.
+			{
+				Config: testAccContainerCluster_withNodePoolWritableCgroups(clusterName, nodePoolName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_writableCgroupsEnabled(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_pool_defaults {
+    node_config_defaults {
+      containerd_config {
+        writable_cgroups {
+          enabled = true
+        }
+      }
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_writableCgroupsDisabled(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_pool_defaults {
+    node_config_defaults {
+      containerd_config {
+        writable_cgroups {
+          enabled = false
+        }
+      }
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodePoolWritableCgroups(clusterName, nodePoolName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 1
+    node_config {
+      containerd_config {
+        writable_cgroups {
+          enabled = true
+        }
+      }
+    }
+  }
+
+}
+`, clusterName, networkName, subnetworkName, nodePoolName)
+}
+
+func testAccContainerCluster_withNodeConfigWritableCgroups(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_config {
+    containerd_config {
+      writable_cgroups {
+        enabled = true
+      }
+    }
+  }
+
+}
+`, clusterName, networkName, subnetworkName)
+}
+
 func TestAccContainerCluster_withProviderDefaultLabels(t *testing.T) {
 	// The test failed if VCR testing is enabled, because the cached provider config is used.
 	// With the cached provider config, any changes in the provider default labels will not be applied.
