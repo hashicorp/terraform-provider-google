@@ -212,6 +212,33 @@ resource "google_compute_network" "custom-test" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=subnetwork_resolve_subnet_mask&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork Resolve Subnet Mask
+
+
+```hcl
+resource "google_compute_subnetwork" "subnetwork-resolve-subnet-mask" {
+  provider         = google-beta
+
+  name             = "subnet-resolve-subnet-mask-test-subnetwork"
+  region           = "us-west2"
+  ip_cidr_range    = "10.10.0.0/24"
+  purpose          = "PRIVATE"
+  resolve_subnet_mask = "ARP_PRIMARY_RANGE"
+  network          = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+  provider                = google-beta
+
+  name                    = "subnet-resolve-subnet-mask-test-network"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=subnetwork_cidr_overlap&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -461,6 +488,11 @@ The following arguments are supported:
   (Optional)
   Additional params passed with the request, but not persisted as part of resource payload
   Structure is [documented below](#nested_params).
+
+* `resolve_subnet_mask` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  'Configures subnet mask resolution for this subnetwork.'
+  Possible values are: `ARP_ALL_RANGES`, `ARP_PRIMARY_RANGE`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
