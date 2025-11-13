@@ -176,6 +176,10 @@ resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
       service_address_cidr_blocks = ["172.26.0.0/16"]
       pod_address_cidr_blocks = ["10.240.0.0/13"]
     }
+    advanced_networking = true
+    multiple_network_interfaces_config {
+      enabled = true
+    }
   }
   node_config {
     max_pods_per_node = 250
@@ -216,8 +220,49 @@ resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
     vip_config {
       control_plane_vip = "10.200.0.5"
     }
-    manual_lb_config {
-      enabled = true
+    bgp_lb_config {
+      asn = 123456
+      bgp_peer_configs {
+        asn = 123457
+        ip_address = "10.0.0.1"
+        control_plane_nodes = ["test-node"]
+      }
+      address_pools {
+	pool = "loadBalancerAddressPool-1"
+        addresses = [
+          "10.200.0.14/32",
+          "10.200.0.15/32",
+          "10.200.0.16/32",
+          "10.200.0.17/32",
+          "10.200.0.18/32",
+          "fd00:1::f/128",
+          "fd00:1::10/128",
+          "fd00:1::11/128",
+          "fd00:1::12/128"
+        ]
+	manual_assign = true
+        avoid_buggy_ips = true
+      }
+      load_balancer_node_pool_config {
+        node_pool_config {
+          labels = {}
+          operating_system = "LINUX"
+          node_configs {
+            labels = {}
+            node_ip = "10.200.0.9"
+          }
+	  kubelet_config {
+            registry_burst = 12
+            registry_pull_qps = 10
+            serialize_image_pulls_disabled = true
+          }
+          taints {
+            key = "test-key"
+            value = "test-value"
+            effect = "NO_EXECUTE"
+          }
+        }
+      }
     }
   }
   storage {
