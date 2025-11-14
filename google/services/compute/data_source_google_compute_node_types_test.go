@@ -78,7 +78,10 @@ func testAccCheckGoogleComputeNodeTypes(n string) resource.TestCheckFunc {
 			}
 
 			if !regexp.MustCompile(`-[0-9]+-[0-9]+$`).MatchString(v) {
-				return fmt.Errorf("unexpected type format for %q, value is %v", idx, v)
+				// Added this condition to cover https://github.com/hashicorp/terraform-provider-google/issues/24697
+				if !regexp.MustCompile(`-[0-9]+-[0-9]+-[a-z]+$`).MatchString(v) {
+					return fmt.Errorf("unexpected type format for %q, value is %v", idx, v)
+				}
 			}
 		}
 		return nil
