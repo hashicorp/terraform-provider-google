@@ -1,0 +1,3 @@
+```release-note:bug
+ces: fixed conflicting required and output tags in CES tool
+```

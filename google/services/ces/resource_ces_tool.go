@@ -1084,7 +1084,7 @@ app.`,
 								Schema: map[string]*schema.Schema{
 									"ca_certs": {
 										Type:     schema.TypeList,
-										Required: true,
+										Computed: true,
 										Description: `Specifies a list of allowed custom CA certificates for HTTPS
 verification.`,
 										Elem: &schema.Resource{
