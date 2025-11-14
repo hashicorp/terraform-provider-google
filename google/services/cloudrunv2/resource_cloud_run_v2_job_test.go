@@ -934,7 +934,6 @@ func testAccCloudRunV2Job_cloudrunv2JobWithGpu(context map[string]interface{}) s
   resource "google_cloud_run_v2_job" "default" {
     name     = "%{job_name}"
     location = "us-central1"
-    launch_stage = "BETA"
     deletion_protection = false
     template {
       template {
