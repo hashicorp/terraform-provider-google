@@ -355,7 +355,7 @@ The following arguments are supported:
 The following write-only attributes are supported:
 
 * `shared_secret_wo` -
-  (Optional)
+  (Optional, Write-Only)
   Shared secret used to set the secure session between the Cloud VPN
   gateway and the peer VPN gateway.
    Note: This property is write-only and will not be read from the API. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)

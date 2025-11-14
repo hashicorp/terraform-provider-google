@@ -256,7 +256,7 @@ disabled rather than deleted. Default is `DELETE`. Possible values are:
 The following write-only attributes are supported:
 
 * `secret_data_wo` -
-  (Optional)
+  (Optional, Write-Only)
   The secret data. Must be no larger than 64KiB. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
   **Note**: This property is write-only and will not be read from the API.
 
@@ -264,7 +264,7 @@ The following write-only attributes are supported:
 <a name="nested_payload"></a>The `payload` block supports:
 
 * `secret_data_wo` -
-  (Optional)
+  (Optional, Write-Only)
   The secret data. Must be no larger than 64KiB. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)
   **Note**: This property is write-only and will not be read from the API.
 

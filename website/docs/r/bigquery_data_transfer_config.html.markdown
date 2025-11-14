@@ -294,7 +294,7 @@ The following write-only attributes are supported:
 <a name="nested_sensitive_params"></a>The `sensitive_params` block supports:
 
 * `secret_access_key_wo` -
-  (Optional)
+  (Optional, Write-Only)
   The Secret Access Key of the AWS account transferring data from.
   **Note**: This property is write-only and will not be read from the API.
 
