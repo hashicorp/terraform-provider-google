@@ -312,9 +312,10 @@ func resourceDialogflowCXPlaybookCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") || strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") {
 		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 	}
+
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -381,9 +382,10 @@ func resourceDialogflowCXPlaybookRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") || strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") {
 		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 	}
+
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -532,7 +534,7 @@ func resourceDialogflowCXPlaybookUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") || strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") {
 		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 	}
 
@@ -601,7 +603,7 @@ func resourceDialogflowCXPlaybookDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") || strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") {
 		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 	}
 
