@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed a crash when set `name = ""` in `google_sql_database_instance` datasource
+```

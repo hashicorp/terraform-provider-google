@@ -2713,6 +2713,10 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 }
 
 func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.ResourceData) []map[string]interface{} {
+	if settings == nil {
+		return nil
+	}
+
 	data := map[string]interface{}{
 		"version":                     settings.SettingsVersion,
 		"tier":                        settings.Tier,
