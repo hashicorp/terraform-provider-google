@@ -1098,13 +1098,13 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_open_api_tool_tls_config"></a>The `tls_config` block contains:
 
 * `ca_certs` -
-  (Required)
+  (Output)
   Specifies a list of allowed custom CA certificates for HTTPS
   verification.
   Structure is [documented below](#nested_open_api_tool_tls_config_ca_certs).
 
 
-<a name="nested_open_api_tool_tls_config_ca_certs"></a>The `ca_certs` block supports:
+<a name="nested_open_api_tool_tls_config_ca_certs"></a>The `ca_certs` block contains:
 
 * `cert` -
   (Output)
