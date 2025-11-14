@@ -1,5 +1,38 @@
 ## 7.12.0 (Unreleased)
 
+DEPRECATIONS:
+* backupdr: deprecated `required_type` in `google_backup_dr_backup_plan_associations` and `google_backup_dr_data_source_references`. It no longer has any functionality, and will be removed in the next major release. ([#25107](https://github.com/hashicorp/terraform-provider-google/pull/25107))
+
+FEATURES:
+* **New Resource:** `google_ces_agent` ([#25106](https://github.com/hashicorp/terraform-provider-google/pull/25106))
+* **New Resource:** `google_ces_guardrail` ([#25112](https://github.com/hashicorp/terraform-provider-google/pull/25112))
+* **New Resource:** `google_ces_tool` ([#25113](https://github.com/hashicorp/terraform-provider-google/pull/25113))
+* **New Resource:** `google_cloud_security_compliance_cloud_control` ([#25137](https://github.com/hashicorp/terraform-provider-google/pull/25137))
+* **New Resource:** `google_cloud_security_compliance_framework_deployment` ([#25138](https://github.com/hashicorp/terraform-provider-google/pull/25138))
+* **New Resource:** `google_cloud_security_compliance_framework` ([#25111](https://github.com/hashicorp/terraform-provider-google/pull/25111))
+* **New Resource:** `google_discovery_engine_serving_config` ([#25105](https://github.com/hashicorp/terraform-provider-google/pull/25105))
+* **New Resource:** `google_oracle_database_exascale_db_storage_vault` ([#25129](https://github.com/hashicorp/terraform-provider-google/pull/25129))
+
+IMPROVEMENTS:
+* apphub: added `functional_type`, `registration_type`, and `extended_metadata` fields to `google_apphub_service` and `google_apphub_workload` resources ([#25145](https://github.com/hashicorp/terraform-provider-google/pull/25145))
+* ces: added `bearer_token_config` field to `google_ces_toolset` ([#25119](https://github.com/hashicorp/terraform-provider-google/pull/25119))
+* ces: added `client_certificate_settings` field to `google_ces_app` resource ([#25117](https://github.com/hashicorp/terraform-provider-google/pull/25117))
+* compute: added `block_names` field to `google_compute_reservation` resource ([#25121](https://github.com/hashicorp/terraform-provider-google/pull/25121))
+* compute: added `sub_block_names` field to `google_compute_reservation_block` data source ([#25121](https://github.com/hashicorp/terraform-provider-google/pull/25121))
+* compute: added `tls_settings` field to `google_compute_regional_backend_service` resource ([#25068](https://github.com/hashicorp/terraform-provider-google/pull/25068))
+* container: added `end_time_behavior` field to `google_container_cluster` resource ([#25120](https://github.com/hashicorp/terraform-provider-google/pull/25120))
+* container: added `writable_cgroups` field to node `containerd_config` resource ([#25140](https://github.com/hashicorp/terraform-provider-google/pull/25140))
+* dataplex: added `catalog_publishing_enabled` field to `dataQualitySpec` in `google_dataplex_datascan` resource ([#25143](https://github.com/hashicorp/terraform-provider-google/pull/25143))
+* dns: added `forwarding_config.target_name_servers.ipv6_address` argument to `google_dns_managed_zone` resource ([#25131](https://github.com/hashicorp/terraform-provider-google/pull/25131))
+* gkeonprem: added `advanced_networking`, `multiple_network_interfaces_config` and `bgp_lb_config` fields to `google_gkeonprem_bare_metal_cluster` resource ([#25136](https://github.com/hashicorp/terraform-provider-google/pull/25136))
+* managedkafka: added `broker_capacity_config` field to `google_managed_kafka_cluster` resource ([#25074](https://github.com/hashicorp/terraform-provider-google/pull/25074))
+* networksecurity: added `endpoint_settings.jumbo_frames_enabled` field to `google_network_security_firewall_endpoint` resource ([#25073](https://github.com/hashicorp/terraform-provider-google/pull/25073))
+* run: added `readiness_probe` field to `cloud_run_service` resource ([#25114](https://github.com/hashicorp/terraform-provider-google/pull/25114))
+
+BUG FIXES:
+* backupdr: updated `google_backup_dr_backup_plan_associations` and `google_backup_dr_data_source_references` to use LIST APIs, and require the correct List permissions ([#25107](https://github.com/hashicorp/terraform-provider-google/pull/25107))
+* provider: an issue preventing X.509 certificates from being used for authentication when supplied as Application Default Credentials as been resolved ([#25144](https://github.com/hashicorp/terraform-provider-google/pull/25144))
+
 ## 7.11.0 (November 11, 2025)
 
 DEPRECATIONS:
