@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
-func TestDataSourceApphubApplication_basic(t *testing.T) {
+func TestAccDataSourceApphubApplication_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -36,7 +36,7 @@ func TestDataSourceApphubApplication_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckApphubApplicationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceApphubApplication_basic(context),
+				Config: testAccDataSourceApphubApplication_basic(context),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceState("data.google_apphub_application.example_data", "google_apphub_application.example"),
 				),
@@ -45,7 +45,7 @@ func TestDataSourceApphubApplication_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceApphubApplication_basic(context map[string]interface{}) string {
+func testAccDataSourceApphubApplication_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 
 data "google_apphub_application" "example_data" {
