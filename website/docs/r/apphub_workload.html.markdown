@@ -473,6 +473,45 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Output only. The location that the underlying compute resource resides in if it is zonal (e.g us-west1-a).
 
+* `functional_type` -
+  (Output)
+  Output only. The functional type of a service or workload.
+  Structure is [documented below](#nested_workload_properties_functional_type).
+
+* `extended_metadata` -
+  (Output)
+  Output only. Additional metadata specific to the resource type.
+  Structure is [documented below](#nested_workload_properties_extended_metadata).
+
+
+<a name="nested_workload_properties_functional_type"></a>The `functional_type` block contains:
+
+* `type` -
+  (Output)
+  Output only. The functional type of a service or workload.
+
+<a name="nested_workload_properties_extended_metadata"></a>The `extended_metadata` block contains:
+
+* `key` -
+  (Output)
+  The key of the extended metadata.
+
+* `value` -
+  (Output)
+  The value of the extended metadata.
+  Structure is [documented below](#nested_workload_properties_extended_metadata_extended_metadata_value).
+
+
+<a name="nested_workload_properties_extended_metadata_extended_metadata_value"></a>The `value` block contains:
+
+* `metadata_struct` -
+  (Output)
+  The metadata contents as a JSON string.
+
+* `extended_metadata_schema` -
+  (Output)
+  The resource name for the Extended Metadata Schema.
+
 ## Timeouts
 
 This resource provides the following

@@ -30,6 +30,10 @@ fields:
   - api_field: 'updateTime'
   - field: 'workload_id'
     provider_only: true
+  - api_field: 'workloadProperties.extendedMetadata.key'
+  - api_field: 'workloadProperties.extendedMetadata.value.extendedMetadataSchema'
+  - api_field: 'workloadProperties.extendedMetadata.value.metadataStruct'
+  - api_field: 'workloadProperties.functionalType.type'
   - api_field: 'workloadProperties.gcpProject'
   - api_field: 'workloadProperties.location'
   - api_field: 'workloadProperties.zone'

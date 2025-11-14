@@ -273,6 +273,53 @@ func ResourceApphubWorkload() *schema.Resource {
 				Description: `Properties of an underlying compute resource represented by the Workload.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"extended_metadata": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. Additional metadata specific to the resource type.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The key of the extended metadata.`,
+									},
+									"value": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `The value of the extended metadata.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"extended_metadata_schema": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The resource name for the Extended Metadata Schema.`,
+												},
+												"metadata_struct": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The metadata contents as a JSON string.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"functional_type": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. The functional type of a service or workload.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. The functional type of a service or workload.`,
+									},
+								},
+							},
+						},
 						"gcp_project": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -702,6 +749,10 @@ func flattenApphubWorkloadWorkloadProperties(v interface{}, d *schema.ResourceDa
 		flattenApphubWorkloadWorkloadPropertiesLocation(original["location"], d, config)
 	transformed["zone"] =
 		flattenApphubWorkloadWorkloadPropertiesZone(original["zone"], d, config)
+	transformed["functional_type"] =
+		flattenApphubWorkloadWorkloadPropertiesFunctionalType(original["functionalType"], d, config)
+	transformed["extended_metadata"] =
+		flattenApphubWorkloadWorkloadPropertiesExtendedMetadata(original["extendedMetadata"], d, config)
 	return []interface{}{transformed}
 }
 func flattenApphubWorkloadWorkloadPropertiesGcpProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -713,6 +764,69 @@ func flattenApphubWorkloadWorkloadPropertiesLocation(v interface{}, d *schema.Re
 }
 
 func flattenApphubWorkloadWorkloadPropertiesZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubWorkloadWorkloadPropertiesFunctionalType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenApphubWorkloadWorkloadPropertiesFunctionalTypeType(original["type"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApphubWorkloadWorkloadPropertiesFunctionalTypeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubWorkloadWorkloadPropertiesExtendedMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"key":   flattenApphubWorkloadWorkloadPropertiesExtendedMetadataKey(original["key"], d, config),
+			"value": flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["metadata_struct"] =
+		flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValueMetadataStruct(original["metadataStruct"], d, config)
+	transformed["extended_metadata_schema"] =
+		flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValueExtendedMetadataSchema(original["extendedMetadataSchema"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValueMetadataStruct(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValueExtendedMetadataSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

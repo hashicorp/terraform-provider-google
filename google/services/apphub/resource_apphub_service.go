@@ -259,6 +259,53 @@ func ResourceApphubService() *schema.Resource {
 				Description: `Properties of an underlying cloud resource that can comprise a Service.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"extended_metadata": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. Additional metadata specific to the resource type.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The key of the extended metadata.`,
+									},
+									"value": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `The value of the extended metadata.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"extended_metadata_schema": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The resource name for the Extended Metadata Schema.`,
+												},
+												"metadata_struct": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The metadata contents as a JSON string.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"functional_type": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. The type of the service.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. The functional type of a service or workload.`,
+									},
+								},
+							},
+						},
 						"gcp_project": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -268,6 +315,20 @@ func ResourceApphubService() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `Output only. The location that the underlying resource resides in, for example, us-west1.`,
+						},
+						"registration_type": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. The registration type of the service.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. The registration type of a service.`,
+									},
+								},
+							},
 						},
 						"zone": {
 							Type:        schema.TypeString,
@@ -705,6 +766,12 @@ func flattenApphubServiceServiceProperties(v interface{}, d *schema.ResourceData
 		flattenApphubServiceServicePropertiesLocation(original["location"], d, config)
 	transformed["zone"] =
 		flattenApphubServiceServicePropertiesZone(original["zone"], d, config)
+	transformed["functional_type"] =
+		flattenApphubServiceServicePropertiesFunctionalType(original["functionalType"], d, config)
+	transformed["registration_type"] =
+		flattenApphubServiceServicePropertiesRegistrationType(original["registrationType"], d, config)
+	transformed["extended_metadata"] =
+		flattenApphubServiceServicePropertiesExtendedMetadata(original["extendedMetadata"], d, config)
 	return []interface{}{transformed}
 }
 func flattenApphubServiceServicePropertiesGcpProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -716,6 +783,86 @@ func flattenApphubServiceServicePropertiesLocation(v interface{}, d *schema.Reso
 }
 
 func flattenApphubServiceServicePropertiesZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubServiceServicePropertiesFunctionalType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenApphubServiceServicePropertiesFunctionalTypeType(original["type"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApphubServiceServicePropertiesFunctionalTypeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubServiceServicePropertiesRegistrationType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenApphubServiceServicePropertiesRegistrationTypeType(original["type"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApphubServiceServicePropertiesRegistrationTypeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubServiceServicePropertiesExtendedMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"key":   flattenApphubServiceServicePropertiesExtendedMetadataKey(original["key"], d, config),
+			"value": flattenApphubServiceServicePropertiesExtendedMetadataValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenApphubServiceServicePropertiesExtendedMetadataKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubServiceServicePropertiesExtendedMetadataValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["metadata_struct"] =
+		flattenApphubServiceServicePropertiesExtendedMetadataValueMetadataStruct(original["metadataStruct"], d, config)
+	transformed["extended_metadata_schema"] =
+		flattenApphubServiceServicePropertiesExtendedMetadataValueExtendedMetadataSchema(original["extendedMetadataSchema"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApphubServiceServicePropertiesExtendedMetadataValueMetadataStruct(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubServiceServicePropertiesExtendedMetadataValueExtendedMetadataSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
