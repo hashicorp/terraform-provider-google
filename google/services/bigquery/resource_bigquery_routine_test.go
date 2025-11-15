@@ -245,7 +245,7 @@ resource "google_cloudfunctions2_function" "default" {
   description = "a new function"
 
   build_config {
-    runtime     = "nodejs18"
+    runtime     = "nodejs20"
     entry_point = "helloHttp"
     source {
       storage_source {
@@ -312,7 +312,7 @@ resource "google_cloudfunctions2_function" "default2" {
   description = "a new new function"
 
   build_config {
-    runtime     = "nodejs18"
+    runtime     = "nodejs20"
     entry_point = "helloHttp"
     source {
       storage_source {
