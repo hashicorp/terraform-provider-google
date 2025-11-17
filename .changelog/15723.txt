@@ -1,0 +1,6 @@
+```release-note:enhancement
+ces: added `entry_agent` field to `google_ces_example` resource
+```
+```release-note:enhancement
+ces: added `message.chunk.tool_response` and `message.chunk.tool_call` fields to `google_ces_example` resource
+```
