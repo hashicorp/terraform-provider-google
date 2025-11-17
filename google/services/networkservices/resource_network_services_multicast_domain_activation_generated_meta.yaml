@@ -1,0 +1,29 @@
+resource: 'google_network_services_multicast_domain_activation'
+generation_type: 'mmv1'
+source_file: 'products/networkservices/MulticastDomainActivation.yaml'
+api_service_name: 'networkservices.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'MulticastDomainActivation'
+autogen_status: true
+fields:
+  - api_field: 'adminNetwork'
+  - api_field: 'createTime'
+  - api_field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - api_field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - api_field: 'multicastDomain'
+  - field: 'multicast_domain_activation_id'
+    provider_only: true
+  - api_field: 'name'
+  - field: 'terraform_labels'
+    provider_only: true
+  - api_field: 'trafficSpec.aggrEgressPps'
+  - api_field: 'trafficSpec.aggrIngressPps'
+  - api_field: 'trafficSpec.avgPacketSize'
+  - api_field: 'trafficSpec.maxPerGroupIngressPps'
+  - api_field: 'trafficSpec.maxPerGroupSubscribers'
+  - api_field: 'uniqueId'
+  - api_field: 'updateTime'
