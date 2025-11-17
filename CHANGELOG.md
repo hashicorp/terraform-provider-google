@@ -18,7 +18,6 @@ FEATURES:
 * **New Resource:** `google_ces_deployment` ([#24945](https://github.com/hashicorp/terraform-provider-google/pull/24945))
 * **New Resource:** `google_ces_example` ([#25056](https://github.com/hashicorp/terraform-provider-google/pull/25056))
 * **New Resource:** `google_discovery_engine_user_store` ([#25054](https://github.com/hashicorp/terraform-provider-google/pull/25054))
-* **New Ephemeral Resource:** `google_client_config` ([#24900](https://github.com/hashicorp/terraform-provider-google/pull/24900))
 
 IMPROVEMENTS:
 * bigquery: added `external_data_configuration.decimal_target_types` to `google_bigquery_table` ([#24936](https://github.com/hashicorp/terraform-provider-google/pull/24936))
@@ -52,12 +51,12 @@ BREAKING CHANGES:
 FEATURES:
 * **New Resource:** `google_ces_app` ([#24861](https://github.com/hashicorp/terraform-provider-google/pull/24861))
 * **New Resource:** `google_ces_toolset` ([#24885](https://github.com/hashicorp/terraform-provider-google/pull/24885))
-* **New Resource:** `google_client_config` ([#24900](https://github.com/hashicorp/terraform-provider-google/pull/24900))
 * **New Resource:** `google_discovery_engine_control` ([#24883](https://github.com/hashicorp/terraform-provider-google/pull/24883))
 * **New Resource:** `google_netapp_host_group` ([#24876](https://github.com/hashicorp/terraform-provider-google/pull/24876))
 * **New Resource:** `google_network_management_organization_vpc_flow_logs_config` ([#24896](https://github.com/hashicorp/terraform-provider-google/pull/24896))
 * **New Resource:** `google_network_services_multicast_domain` ([#24864](https://github.com/hashicorp/terraform-provider-google/pull/24864))
 * **New Resource:** `google_privileged_access_manager_settings` ([#24878](https://github.com/hashicorp/terraform-provider-google/pull/24878))
+* **New Ephemeral Resource:** `google_client_config` ([#24900](https://github.com/hashicorp/terraform-provider-google/pull/24900))
 
 IMPROVEMENTS:
 * cloudfunctions2: added `direct_vpc_network_interface` and `direct_vpc_egress` field to `google_cloudfunctions2_function` resource ([#24895](https://github.com/hashicorp/terraform-provider-google/pull/24895))
@@ -179,7 +178,7 @@ BUG FIXES:
 * bigqueryanalyticshub: fixed `google_bigquery_analytics_hub_listing_subscription` import ([#24634](https://github.com/hashicorp/terraform-provider-google/pull/24634))
 * discoveryengine: fixed bug where it wasn't possible to specify values for `knowledgeBaseSysId` or `catalogSysId` in `google_discovery_engine_data_connector.entities.params`. ([#24658](https://github.com/hashicorp/terraform-provider-google/pull/24658))
 
-## 7.6.0 (October 7th, 2025)
+## 7.6.0 (October 7, 2025)
 DEPRECATIONS:
 * networksecurity: deprecated `ignore_case`, `exact`, `prefix`, `suffix` and `contains` fields in `http_rules.from.not_sources.principals` and `http_rules.from.sources.principals` blocks in `google_network_security_authz_policy` resource. Use the equivalent fields in `http_rules.from.not_sources.principals.principal` or `http_rules.from.sources.principals.principal` instead. ([#24543](https://github.com/hashicorp/terraform-provider-google/pull/24543))
 
