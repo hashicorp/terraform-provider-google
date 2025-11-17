@@ -245,7 +245,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 									},
 								},
 							},
-							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.headers", "http_check.0.mask_headers", "http_check.0.path", "http_check.0.port", "http_check.0.use_ssl"},
 						},
 						"body": {
 							Type:        schema.TypeString,
@@ -269,13 +269,13 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Optional:     true,
 							Description:  `The list of headers to send as part of the uptime check request. If two headers have the same key and different values, they should be entered as a single header, with the value being a comma-separated list of all the desired values as described in [RFC 2616 (page 31)](https://www.w3.org/Protocols/rfc2616/rfc2616.txt). Entering two separate headers with the same key in a Create call will cause the first to be overwritten by the second. The maximum number of headers allowed is 100.`,
 							Elem:         &schema.Schema{Type: schema.TypeString},
-							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.headers", "http_check.0.mask_headers", "http_check.0.path", "http_check.0.port", "http_check.0.use_ssl"},
 						},
 						"mask_headers": {
 							Type:         schema.TypeBool,
 							Optional:     true,
 							Description:  `Boolean specifying whether to encrypt the header information. Encryption should be specified for any headers related to authentication that you do not wish to be seen when retrieving the configuration. The server will be responsible for encrypting the headers. On Get/List calls, if 'mask_headers' is set to 'true' then the headers will be obscured with '******'.`,
-							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.headers", "http_check.0.mask_headers", "http_check.0.path", "http_check.0.port", "http_check.0.use_ssl"},
 						},
 						"path": {
 							Type:             schema.TypeString,
@@ -283,7 +283,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							DiffSuppressFunc: resourceMonitoringUptimeCheckConfigHttpCheckPathDiffSuppress,
 							Description:      `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. If the provided path does not begin with '/', a '/' will be prepended automatically. Optional (defaults to '/').`,
 							Default:          "/",
-							AtLeastOneOf:     []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+							AtLeastOneOf:     []string{"http_check.0.auth_info", "http_check.0.headers", "http_check.0.mask_headers", "http_check.0.path", "http_check.0.port", "http_check.0.use_ssl"},
 						},
 						"ping_config": {
 							Type:        schema.TypeList,
@@ -305,7 +305,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Computed:     true,
 							Optional:     true,
 							Description:  `The port to the page to run the check against. Will be combined with 'host' (specified within the ['monitored_resource'](#nested_monitored_resource)) and path to construct the full URL. Optional (defaults to 80 without SSL, or 443 with SSL).`,
-							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.headers", "http_check.0.mask_headers", "http_check.0.path", "http_check.0.port", "http_check.0.use_ssl"},
 						},
 						"request_method": {
 							Type:         schema.TypeString,
@@ -335,7 +335,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Type:         schema.TypeBool,
 							Optional:     true,
 							Description:  `If true, use HTTPS instead of HTTP to run the check.`,
-							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.headers", "http_check.0.mask_headers", "http_check.0.path", "http_check.0.port", "http_check.0.use_ssl"},
 						},
 						"validate_ssl": {
 							Type:        schema.TypeBool,
@@ -406,7 +406,7 @@ uptime checks:
 							ForceNew:         true,
 							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							Description:      `The group of resources being monitored. Should be the 'name' of a group`,
-							AtLeastOneOf:     []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
+							AtLeastOneOf:     []string{"resource_group.0.group_id", "resource_group.0.resource_type"},
 						},
 						"resource_type": {
 							Type:         schema.TypeString,
@@ -414,7 +414,7 @@ uptime checks:
 							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}),
 							Description:  `The resource type of the group members. Possible values: ["RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER"]`,
-							AtLeastOneOf: []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
+							AtLeastOneOf: []string{"resource_group.0.group_id", "resource_group.0.resource_type"},
 						},
 					},
 				},

@@ -176,7 +176,7 @@ This field is required for data clean room exchanges.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
 							},
-							ExactlyOneOf: []string{"sharing_environment_config.0.default_exchange_config", "sharing_environment_config.0.dcr_exchange_config"},
+							ExactlyOneOf: []string{"sharing_environment_config.0.dcr_exchange_config", "sharing_environment_config.0.default_exchange_config"},
 						},
 						"default_exchange_config": {
 							Type:        schema.TypeList,
@@ -187,7 +187,7 @@ This field is required for data clean room exchanges.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
 							},
-							ExactlyOneOf: []string{"sharing_environment_config.0.default_exchange_config", "sharing_environment_config.0.dcr_exchange_config"},
+							ExactlyOneOf: []string{"sharing_environment_config.0.dcr_exchange_config", "sharing_environment_config.0.default_exchange_config"},
 						},
 					},
 				},

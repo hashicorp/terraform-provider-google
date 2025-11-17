@@ -461,7 +461,7 @@ This is only populated if the endpoint is deployed with PrivateServiceConnect.`,
 				ForceNew: true,
 				Description: `The Hugging Face model to deploy.
 Format: Hugging Face model ID like 'google/gemma-2-2b-it'.`,
-				ExactlyOneOf: []string{"publisher_model_name", "hugging_face_model_id"},
+				ExactlyOneOf: []string{"hugging_face_model_id", "publisher_model_name"},
 			},
 			"model_config": {
 				Type:        schema.TypeList,
@@ -1412,7 +1412,7 @@ set, a default name will be used.`,
 Format:
 'publishers/{publisher}/models/{publisher_model}@{version_id}', or
 'publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001'.`,
-				ExactlyOneOf: []string{"publisher_model_name", "hugging_face_model_id"},
+				ExactlyOneOf: []string{"hugging_face_model_id", "publisher_model_name"},
 			},
 			"deployed_model_display_name": {
 				Type:     schema.TypeString,

@@ -150,7 +150,7 @@ You can set this to a value up to 14 weeks.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"weekly_recurrence", "daily_recurrence"},
+				ExactlyOneOf: []string{"daily_recurrence", "weekly_recurrence"},
 			},
 			"name": {
 				Type:     schema.TypeString,

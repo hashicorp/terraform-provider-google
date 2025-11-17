@@ -172,7 +172,7 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"pubsub_topic", "bigquery_dataset"},
+				ExactlyOneOf: []string{"bigquery_dataset", "pubsub_topic"},
 			},
 			"categories": {
 				Type:        schema.TypeList,
@@ -280,7 +280,7 @@ See https://cloud.google.com/about/locations for full listing of possible Cloud 
 						},
 					},
 				},
-				ExactlyOneOf: []string{"pubsub_topic", "bigquery_dataset"},
+				ExactlyOneOf: []string{"bigquery_dataset", "pubsub_topic"},
 			},
 			"request_access": {
 				Type:        schema.TypeString,

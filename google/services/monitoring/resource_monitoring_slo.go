@@ -142,7 +142,7 @@ to be met. 0 < goal <= 0.999`,
 				ValidateFunc: verify.ValidateEnum([]string{"DAY", "WEEK", "FORTNIGHT", "MONTH", ""}),
 				Description: `A calendar period, semantically "since the start of the current
 <calendarPeriod>". Possible values: ["DAY", "WEEK", "FORTNIGHT", "MONTH"]`,
-				ExactlyOneOf: []string{"rolling_period_days", "calendar_period"},
+				ExactlyOneOf: []string{"calendar_period", "rolling_period_days"},
 			},
 			"display_name": {
 				Type:        schema.TypeString,
@@ -155,7 +155,7 @@ to be met. 0 < goal <= 0.999`,
 				ValidateFunc: validation.IntBetween(1, 30),
 				Description: `A rolling time period, semantically "in the past X days".
 Must be between 1 to 30 days, inclusive.`,
-				ExactlyOneOf: []string{"rolling_period_days", "calendar_period"},
+				ExactlyOneOf: []string{"calendar_period", "rolling_period_days"},
 			},
 			"basic_sli": {
 				Type:     schema.TypeList,
@@ -187,7 +187,7 @@ Exactly one of the following must be set:
 									},
 								},
 							},
-							ExactlyOneOf: []string{"basic_sli.0.latency", "basic_sli.0.availability"},
+							ExactlyOneOf: []string{"basic_sli.0.availability", "basic_sli.0.latency"},
 						},
 						"latency": {
 							Type:        schema.TypeList,
@@ -205,7 +205,7 @@ this service that return in no more than threshold.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"basic_sli.0.latency", "basic_sli.0.availability"},
+							ExactlyOneOf: []string{"basic_sli.0.availability", "basic_sli.0.latency"},
 						},
 						"location": {
 							Type:     schema.TypeSet,
@@ -305,21 +305,21 @@ just one of min or max.`,
 													Optional: true,
 													Description: `max value for the range (inclusive). If not given,
 will be set to 0`,
-													AtLeastOneOf: []string{"request_based_sli.0.distribution_cut.0.range.0.min", "request_based_sli.0.distribution_cut.0.range.0.max"},
+													AtLeastOneOf: []string{"request_based_sli.0.distribution_cut.0.range.0.max", "request_based_sli.0.distribution_cut.0.range.0.min"},
 												},
 												"min": {
 													Type:     schema.TypeFloat,
 													Optional: true,
 													Description: `Min value for the range (inclusive). If not given,
 will be set to 0`,
-													AtLeastOneOf: []string{"request_based_sli.0.distribution_cut.0.range.0.min", "request_based_sli.0.distribution_cut.0.range.0.max"},
+													AtLeastOneOf: []string{"request_based_sli.0.distribution_cut.0.range.0.max", "request_based_sli.0.distribution_cut.0.range.0.min"},
 												},
 											},
 										},
 									},
 								},
 							},
-							ExactlyOneOf: []string{"request_based_sli.0.good_total_ratio", "request_based_sli.0.distribution_cut"},
+							ExactlyOneOf: []string{"request_based_sli.0.distribution_cut", "request_based_sli.0.good_total_ratio"},
 						},
 						"good_total_ratio": {
 							Type:     schema.TypeList,
@@ -347,7 +347,7 @@ must have MetricKind = DELTA or MetricKind = CUMULATIVE.
 
 Exactly two of 'good_service_filter','bad_service_filter','total_service_filter'
 must be set (good + bad = total is assumed).`,
-										AtLeastOneOf: []string{"request_based_sli.0.good_total_ratio.0.good_service_filter", "request_based_sli.0.good_total_ratio.0.bad_service_filter", "request_based_sli.0.good_total_ratio.0.total_service_filter"},
+										AtLeastOneOf: []string{"request_based_sli.0.good_total_ratio.0.bad_service_filter", "request_based_sli.0.good_total_ratio.0.good_service_filter", "request_based_sli.0.good_total_ratio.0.total_service_filter"},
 									},
 									"good_service_filter": {
 										Type:     schema.TypeString,
@@ -359,7 +359,7 @@ must have MetricKind = DELTA or MetricKind = CUMULATIVE.
 
 Exactly two of 'good_service_filter','bad_service_filter','total_service_filter'
 must be set (good + bad = total is assumed).`,
-										AtLeastOneOf: []string{"request_based_sli.0.good_total_ratio.0.good_service_filter", "request_based_sli.0.good_total_ratio.0.bad_service_filter", "request_based_sli.0.good_total_ratio.0.total_service_filter"},
+										AtLeastOneOf: []string{"request_based_sli.0.good_total_ratio.0.bad_service_filter", "request_based_sli.0.good_total_ratio.0.good_service_filter", "request_based_sli.0.good_total_ratio.0.total_service_filter"},
 									},
 									"total_service_filter": {
 										Type:     schema.TypeString,
@@ -372,11 +372,11 @@ must have MetricKind = DELTA or MetricKind = CUMULATIVE.
 
 Exactly two of 'good_service_filter','bad_service_filter','total_service_filter'
 must be set (good + bad = total is assumed).`,
-										AtLeastOneOf: []string{"request_based_sli.0.good_total_ratio.0.good_service_filter", "request_based_sli.0.good_total_ratio.0.bad_service_filter", "request_based_sli.0.good_total_ratio.0.total_service_filter"},
+										AtLeastOneOf: []string{"request_based_sli.0.good_total_ratio.0.bad_service_filter", "request_based_sli.0.good_total_ratio.0.good_service_filter", "request_based_sli.0.good_total_ratio.0.total_service_filter"},
 									},
 								},
 							},
-							ExactlyOneOf: []string{"request_based_sli.0.good_total_ratio", "request_based_sli.0.distribution_cut"},
+							ExactlyOneOf: []string{"request_based_sli.0.distribution_cut", "request_based_sli.0.good_total_ratio"},
 						},
 					},
 				},
@@ -441,7 +441,7 @@ high enough. One of 'good_bad_metric_filter',
 															},
 														},
 													},
-													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.latency", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.availability"},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.availability", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.latency"},
 												},
 												"latency": {
 													Type:        schema.TypeList,
@@ -459,7 +459,7 @@ this service that return in no more than threshold.`,
 															},
 														},
 													},
-													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.latency", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.availability"},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.availability", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.latency"},
 												},
 												"location": {
 													Type:     schema.TypeSet,
@@ -505,7 +505,7 @@ field will result in an error.`,
 												},
 											},
 										},
-										ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance"},
+										ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance", "windows_based_sli.0.good_total_ratio_threshold.0.performance"},
 									},
 									"performance": {
 										Type:        schema.TypeList,
@@ -550,21 +550,21 @@ just one of min or max.`,
 																			Optional: true,
 																			Description: `max value for the range (inclusive). If not given,
 will be set to 0`,
-																			AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.min", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.max"},
+																			AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.max", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.min"},
 																		},
 																		"min": {
 																			Type:     schema.TypeFloat,
 																			Optional: true,
 																			Description: `Min value for the range (inclusive). If not given,
 will be set to 0`,
-																			AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.min", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.max"},
+																			AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.max", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.min"},
 																		},
 																	},
 																},
 															},
 														},
 													},
-													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut"},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio"},
 												},
 												"good_total_ratio": {
 													Type:     schema.TypeList,
@@ -589,7 +589,7 @@ good + bad = total is assumed)
 
 Must have ValueType = DOUBLE or ValueType = INT64 and
 must have MetricKind = DELTA or MetricKind = CUMULATIVE.`,
-																AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.good_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.bad_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.total_service_filter"},
+																AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.bad_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.good_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.total_service_filter"},
 															},
 															"good_service_filter": {
 																Type:     schema.TypeString,
@@ -601,7 +601,7 @@ good + bad = total is assumed)
 
 Must have ValueType = DOUBLE or ValueType = INT64 and
 must have MetricKind = DELTA or MetricKind = CUMULATIVE.`,
-																AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.good_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.bad_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.total_service_filter"},
+																AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.bad_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.good_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.total_service_filter"},
 															},
 															"total_service_filter": {
 																Type:     schema.TypeString,
@@ -613,15 +613,15 @@ good + bad = total is assumed)
 
 Must have ValueType = DOUBLE or ValueType = INT64 and
 must have MetricKind = DELTA or MetricKind = CUMULATIVE.`,
-																AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.good_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.bad_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.total_service_filter"},
+																AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.bad_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.good_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.total_service_filter"},
 															},
 														},
 													},
-													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut"},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio"},
 												},
 											},
 										},
-										ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance"},
+										ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance", "windows_based_sli.0.good_total_ratio_threshold.0.performance"},
 									},
 									"threshold": {
 										Type:     schema.TypeFloat,
@@ -666,7 +666,7 @@ good service.`,
 													Description: `max value for the range (inclusive). If not given,
 will be set to "infinity", defining an open range
 ">= range.min"`,
-													AtLeastOneOf: []string{"windows_based_sli.0.metric_mean_in_range.0.range.0.min", "windows_based_sli.0.metric_mean_in_range.0.range.0.max"},
+													AtLeastOneOf: []string{"windows_based_sli.0.metric_mean_in_range.0.range.0.max", "windows_based_sli.0.metric_mean_in_range.0.range.0.min"},
 												},
 												"min": {
 													Type:     schema.TypeFloat,
@@ -674,7 +674,7 @@ will be set to "infinity", defining an open range
 													Description: `Min value for the range (inclusive). If not given,
 will be set to "-infinity", defining an open range
 "< range.max"`,
-													AtLeastOneOf: []string{"windows_based_sli.0.metric_mean_in_range.0.range.0.min", "windows_based_sli.0.metric_mean_in_range.0.range.0.max"},
+													AtLeastOneOf: []string{"windows_based_sli.0.metric_mean_in_range.0.range.0.max", "windows_based_sli.0.metric_mean_in_range.0.range.0.min"},
 												},
 											},
 										},
@@ -725,7 +725,7 @@ just one of min or max. Summed value 'X' should satisfy
 													Description: `max value for the range (inclusive). If not given,
 will be set to "infinity", defining an open range
 ">= range.min"`,
-													AtLeastOneOf: []string{"windows_based_sli.0.metric_sum_in_range.0.range.0.min", "windows_based_sli.0.metric_sum_in_range.0.range.0.max"},
+													AtLeastOneOf: []string{"windows_based_sli.0.metric_sum_in_range.0.range.0.max", "windows_based_sli.0.metric_sum_in_range.0.range.0.min"},
 												},
 												"min": {
 													Type:     schema.TypeFloat,
@@ -733,7 +733,7 @@ will be set to "infinity", defining an open range
 													Description: `Min value for the range (inclusive). If not given,
 will be set to "-infinity", defining an open range
 "< range.max"`,
-													AtLeastOneOf: []string{"windows_based_sli.0.metric_sum_in_range.0.range.0.min", "windows_based_sli.0.metric_sum_in_range.0.range.0.max"},
+													AtLeastOneOf: []string{"windows_based_sli.0.metric_sum_in_range.0.range.0.max", "windows_based_sli.0.metric_sum_in_range.0.range.0.min"},
 												},
 											},
 										},

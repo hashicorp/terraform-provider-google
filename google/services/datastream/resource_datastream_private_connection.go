@@ -207,7 +207,7 @@ Add Datastream project to the attachment accepted list:
 						},
 					},
 				},
-				ExactlyOneOf: []string{"vpc_peering_config", "psc_interface_config"},
+				ExactlyOneOf: []string{"psc_interface_config", "vpc_peering_config"},
 			},
 			"vpc_peering_config": {
 				Type:     schema.TypeList,
@@ -233,7 +233,7 @@ Format: projects/{project}/global/{networks}/{name}`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"vpc_peering_config", "psc_interface_config"},
+				ExactlyOneOf: []string{"psc_interface_config", "vpc_peering_config"},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,

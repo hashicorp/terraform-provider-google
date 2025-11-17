@@ -164,7 +164,7 @@ cache key.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_http_headers"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_http_headers", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
 									},
 									"query_string_whitelist": {
 										Type:     schema.TypeList,
@@ -175,7 +175,7 @@ be percent encoded and not treated as delimiters.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.query_string_whitelist", "cdn_policy.0.cache_key_policy.0.include_http_headers"},
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_http_headers", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
 									},
 								},
 							},

@@ -154,7 +154,7 @@ describes the bucket boundaries used to create a histogram of the extracted valu
 									},
 								},
 							},
-							AtLeastOneOf: []string{"bucket_options.0.linear_buckets", "bucket_options.0.exponential_buckets", "bucket_options.0.explicit_buckets"},
+							AtLeastOneOf: []string{"bucket_options.0.explicit_buckets", "bucket_options.0.exponential_buckets", "bucket_options.0.linear_buckets"},
 						},
 						"exponential_buckets": {
 							Type:     schema.TypeList,
@@ -181,7 +181,7 @@ the lower bound. Each bucket represents a constant relative uncertainty on a spe
 									},
 								},
 							},
-							AtLeastOneOf: []string{"bucket_options.0.linear_buckets", "bucket_options.0.exponential_buckets", "bucket_options.0.explicit_buckets"},
+							AtLeastOneOf: []string{"bucket_options.0.explicit_buckets", "bucket_options.0.exponential_buckets", "bucket_options.0.linear_buckets"},
 						},
 						"linear_buckets": {
 							Type:     schema.TypeList,
@@ -208,7 +208,7 @@ Each bucket represents a constant absolute uncertainty on the specific value in 
 									},
 								},
 							},
-							AtLeastOneOf: []string{"bucket_options.0.linear_buckets", "bucket_options.0.exponential_buckets", "bucket_options.0.explicit_buckets"},
+							AtLeastOneOf: []string{"bucket_options.0.explicit_buckets", "bucket_options.0.exponential_buckets", "bucket_options.0.linear_buckets"},
 						},
 					},
 				},

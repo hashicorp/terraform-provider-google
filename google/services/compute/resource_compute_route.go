@@ -167,7 +167,7 @@ partial valid URL:
 * 'projects/project/global/gateways/default-internet-gateway'
 * 'global/gateways/default-internet-gateway'
 * The string 'default-internet-gateway'.`,
-				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
+				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_ilb", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel"},
 			},
 			"next_hop_ilb": {
 				Type:             schema.TypeString,
@@ -190,7 +190,7 @@ of a forwarding rule from the same VPC or any peered VPC.
 
 Note that this can only be used when the destinationRange is
 a public (non-RFC 1918) IP CIDR range.`,
-				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
+				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_ilb", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel"},
 			},
 			"next_hop_instance": {
 				Type:             schema.TypeString,
@@ -203,7 +203,7 @@ You can specify this as a full or partial URL. For example:
 * 'projects/project/zones/zone/instances/instance'
 * 'zones/zone/instances/instance'
 * Just the instance name, with the zone in 'next_hop_instance_zone'.`,
-				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
+				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_ilb", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel"},
 			},
 			"next_hop_ip": {
 				Type:         schema.TypeString,
@@ -211,7 +211,7 @@ You can specify this as a full or partial URL. For example:
 				Optional:     true,
 				ForceNew:     true,
 				Description:  `Network IP address of an instance that should handle matching packets.`,
-				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
+				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_ilb", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel"},
 			},
 			"next_hop_vpn_tunnel": {
 				Type:             schema.TypeString,
@@ -219,7 +219,7 @@ You can specify this as a full or partial URL. For example:
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `URL to a VpnTunnel that should handle matching packets.`,
-				ExactlyOneOf:     []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
+				ExactlyOneOf:     []string{"next_hop_gateway", "next_hop_ilb", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel"},
 			},
 			"params": {
 				Type:        schema.TypeList,

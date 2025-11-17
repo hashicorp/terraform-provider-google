@@ -137,7 +137,7 @@ Format: projects/{project_id}/locations/global/interceptEndpointGroups/{endpoint
 						},
 					},
 				},
-				ConflictsWith: []string{"threat_prevention_profile", "custom_mirroring_profile"},
+				ConflictsWith: []string{"custom_mirroring_profile", "threat_prevention_profile"},
 			},
 			"custom_mirroring_profile": {
 				Type:     schema.TypeList,
@@ -155,7 +155,7 @@ Format: projects/{project_id}/locations/global/mirroringEndpointGroups/{endpoint
 						},
 					},
 				},
-				ConflictsWith: []string{"threat_prevention_profile", "custom_intercept_profile"},
+				ConflictsWith: []string{"custom_intercept_profile", "threat_prevention_profile"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -219,7 +219,7 @@ and threat overrides, the threat overrides action is applied.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"custom_mirroring_profile", "custom_intercept_profile"},
+				ConflictsWith: []string{"custom_intercept_profile", "custom_mirroring_profile"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,

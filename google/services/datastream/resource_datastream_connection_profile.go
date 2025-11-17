@@ -145,7 +145,7 @@ func ResourceDatastreamConnectionProfile() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile", "sql_server_profile", "mongodb_profile"},
+				ExactlyOneOf: []string{"bigquery_profile", "gcs_profile", "mongodb_profile", "mysql_profile", "oracle_profile", "postgresql_profile", "sql_server_profile"},
 			},
 			"create_without_validation": {
 				Type:             schema.TypeBool,
@@ -216,7 +216,7 @@ func ResourceDatastreamConnectionProfile() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile", "sql_server_profile", "mongodb_profile"},
+				ExactlyOneOf: []string{"bigquery_profile", "gcs_profile", "mongodb_profile", "mysql_profile", "oracle_profile", "postgresql_profile", "sql_server_profile"},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -369,7 +369,7 @@ host[:port] in the connection URI.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile", "sql_server_profile", "mongodb_profile"},
+				ExactlyOneOf: []string{"bigquery_profile", "gcs_profile", "mongodb_profile", "mysql_profile", "oracle_profile", "postgresql_profile", "sql_server_profile"},
 			},
 			"mysql_profile": {
 				Type:        schema.TypeList,
@@ -459,7 +459,7 @@ If this field is used then the 'client_certificate' and the
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile", "sql_server_profile", "mongodb_profile"},
+				ExactlyOneOf: []string{"bigquery_profile", "gcs_profile", "mongodb_profile", "mysql_profile", "oracle_profile", "postgresql_profile", "sql_server_profile"},
 			},
 			"oracle_profile": {
 				Type:        schema.TypeList,
@@ -508,7 +508,7 @@ If this field is used then the 'client_certificate' and the
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile", "sql_server_profile", "mongodb_profile"},
+				ExactlyOneOf: []string{"bigquery_profile", "gcs_profile", "mongodb_profile", "mysql_profile", "oracle_profile", "postgresql_profile", "sql_server_profile"},
 			},
 			"postgresql_profile": {
 				Type:        schema.TypeList,
@@ -551,7 +551,7 @@ If this field is used then the 'client_certificate' and the
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile", "sql_server_profile", "mongodb_profile"},
+				ExactlyOneOf: []string{"bigquery_profile", "gcs_profile", "mongodb_profile", "mysql_profile", "oracle_profile", "postgresql_profile", "sql_server_profile"},
 			},
 			"private_connectivity": {
 				Type:        schema.TypeList,
@@ -610,7 +610,7 @@ If this field is used then the 'client_certificate' and the
 						},
 					},
 				},
-				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile", "sql_server_profile", "mongodb_profile"},
+				ExactlyOneOf: []string{"bigquery_profile", "gcs_profile", "mongodb_profile", "mysql_profile", "oracle_profile", "postgresql_profile", "sql_server_profile"},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,

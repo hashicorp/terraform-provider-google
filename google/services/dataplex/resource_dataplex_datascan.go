@@ -320,7 +320,7 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
+				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
 			},
 			"data_documentation_spec": {
 				Type:        schema.TypeList,
@@ -330,7 +330,7 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
+				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
 			},
 			"data_profile_spec": {
 				Type:        schema.TypeList,
@@ -426,7 +426,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
+				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
 			},
 			"data_quality_spec": {
 				Type:        schema.TypeList,
@@ -764,7 +764,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
+				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
 			},
 			"description": {
 				Type:        schema.TypeString,

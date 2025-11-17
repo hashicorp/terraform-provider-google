@@ -147,7 +147,7 @@ func ResourceColabNotebookExecution() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"dataform_repository_source", "gcs_notebook_source", "direct_notebook_source"},
+				ExactlyOneOf: []string{"dataform_repository_source", "direct_notebook_source", "gcs_notebook_source"},
 			},
 			"direct_notebook_source": {
 				Type:        schema.TypeList,
@@ -165,7 +165,7 @@ func ResourceColabNotebookExecution() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"dataform_repository_source", "gcs_notebook_source", "direct_notebook_source"},
+				ExactlyOneOf: []string{"dataform_repository_source", "direct_notebook_source", "gcs_notebook_source"},
 			},
 			"execution_timeout": {
 				Type:        schema.TypeString,
@@ -202,7 +202,7 @@ func ResourceColabNotebookExecution() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"dataform_repository_source", "gcs_notebook_source", "direct_notebook_source"},
+				ExactlyOneOf: []string{"dataform_repository_source", "direct_notebook_source", "gcs_notebook_source"},
 			},
 			"notebook_execution_job_id": {
 				Type:        schema.TypeString,
