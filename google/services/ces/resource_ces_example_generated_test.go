@@ -86,13 +86,99 @@ resource "google_ces_app" "my-app" {
     }
 }
 
+resource "google_ces_tool" "ces_tool" {
+    location       = "us"
+    app            = google_ces_app.my-app.app_id
+    tool_id        = "tool-1"
+    execution_type = "SYNCHRONOUS"
+    python_function {
+        name = "example_function"
+        python_code = "def example_function() -> int: return 0"
+    }
+}
+
+resource "google_ces_toolset" "ces_toolset" {
+    toolset_id   = "tf-test-toolset-id%{random_suffix}"
+
+    location     = "us"
+    app          = google_ces_app.my-app.app_id
+    display_name = "Basic toolset display name"
+
+    open_api_toolset {
+        open_api_schema = <<-EOT
+        openapi: 3.0.0
+        info:
+            title: My Sample API
+            version: 1.0.0
+            description: A simple API example
+        servers:
+            - url: https://api.example.com/v1
+        paths: {}
+        EOT
+        ignore_unknown_fields = false
+        tls_config {
+            ca_certs {
+            display_name="example"
+            cert="ZXhhbXBsZQ=="
+            }
+        }
+        service_directory_config {
+        service = "projects/example/locations/us/namespaces/namespace/services/service"
+        }
+        api_authentication {
+            service_agent_id_token_auth_config {
+            }
+        }
+    }
+}
+
+resource "google_ces_agent" "ces_base_agent" {
+    agent_id = "tf-test-base-agent-id%{random_suffix}"
+    location = "us"
+    app      = google_ces_app.my-app.app_id
+    display_name = "base agent"
+
+    instruction = "You are a helpful assistant for this example."
+
+    model_settings {
+        model       = "gemini-2.5-flash"
+        temperature = 0.5
+    }
+
+    llm_agent {
+    }
+}
+
+resource "google_ces_agent" "ces_child_agent" {
+    agent_id = "tf-test-child-agent-id%{random_suffix}"
+    location = "us"
+    app      = google_ces_app.my-app.app_id
+    display_name = "child agent"
+
+    instruction = "You are a helpful assistant for this example."
+
+    model_settings {
+        model       = "gemini-2.5-flash"
+        temperature = 0.5
+    }
+
+    llm_agent {
+    }
+}
+
 resource "google_ces_example" "my-example" {
     location     = "us"
     display_name = "tf-test-my-example%{random_suffix}"
     app          = google_ces_app.my-app.name
     example_id   = "tf-test-example-id%{random_suffix}"
     description  = "example description"
+    entry_agent  = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/agents/${google_ces_agent.ces_base_agent.agent_id}"
     messages {
+        chunks {
+            agent_transfer {
+                target_agent = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/agents/${google_ces_agent.ces_child_agent.agent_id}"
+            }
+        }
         chunks {
             image {
                 mime_type = "image/png"
@@ -101,6 +187,50 @@ resource "google_ces_example" "my-example" {
         }
         chunks {
             text = "text_data"
+        }
+        chunks {
+            tool_call {
+                args = jsonencode({
+                    arg1 = "val1"
+                    arg2 = "val2"
+                })
+                id = "tool_call_id"
+                tool = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/tools/${google_ces_tool.ces_tool.tool_id}"
+            }
+        }
+        chunks {
+            tool_call {
+                args = jsonencode({
+                    arg1 = "val1"
+                    arg2 = "val2"
+                })
+                id = "tool_call_id2"
+                toolset_tool {
+                    toolset = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/toolsets/${google_ces_toolset.ces_toolset.toolset_id}"
+                    tool_id = "example-id"
+                }
+            }
+        }
+        chunks {
+            tool_response {
+                id = "tool_call_id"
+                response = jsonencode({
+                    output = "example-output"
+                })
+                tool = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/tools/${google_ces_tool.ces_tool.tool_id}"
+            }
+        }
+        chunks {
+            tool_response {
+                id = "tool_call_id2"
+                response = jsonencode({
+                    output = "example-output"
+                })
+                toolset_tool {
+                    toolset = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/toolsets/${google_ces_toolset.ces_toolset.toolset_id}"
+                    tool_id = "example-id"
+                }
+            }
         }
         chunks {
             updated_variables = jsonencode({
