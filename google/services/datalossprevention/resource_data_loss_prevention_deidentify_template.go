@@ -221,7 +221,7 @@ all findings that correspond to infoTypes that were requested in InspectConfig.`
 									},
 								},
 							},
-							ExactlyOneOf: []string{"deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations", "deidentify_config.0.image_transformations"},
+							ExactlyOneOf: []string{"deidentify_config.0.image_transformations", "deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations"},
 						},
 						"info_type_transformations": {
 							Type:        schema.TypeList,
@@ -1372,7 +1372,7 @@ all findings that correspond to infoTypes that were requested in InspectConfig.`
 									},
 								},
 							},
-							ExactlyOneOf: []string{"deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations", "deidentify_config.0.image_transformations"},
+							ExactlyOneOf: []string{"deidentify_config.0.image_transformations", "deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations"},
 						},
 						"record_transformations": {
 							Type:        schema.TypeList,
@@ -4207,7 +4207,7 @@ The 'new_value' block must only contain one argument. For example when replacing
 									},
 								},
 							},
-							ExactlyOneOf: []string{"deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations", "deidentify_config.0.image_transformations"},
+							ExactlyOneOf: []string{"deidentify_config.0.image_transformations", "deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations"},
 						},
 					},
 				},

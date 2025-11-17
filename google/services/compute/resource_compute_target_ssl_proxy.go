@@ -132,7 +132,7 @@ character, which cannot be a dash.`,
 				Description: `A reference to the CertificateMap resource uri that identifies a certificate map
 associated with the given target proxy. This field can only be set for global target proxies.
 Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificateMaps/{resourceName}'.`,
-				ExactlyOneOf: []string{"ssl_certificates", "certificate_map"},
+				ExactlyOneOf: []string{"certificate_map", "ssl_certificates"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -158,7 +158,7 @@ SSL certificate must be specified.`,
 					Type:             schema.TypeString,
 					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				},
-				ExactlyOneOf: []string{"ssl_certificates", "certificate_map"},
+				ExactlyOneOf: []string{"certificate_map", "ssl_certificates"},
 			},
 			"ssl_policy": {
 				Type:             schema.TypeString,

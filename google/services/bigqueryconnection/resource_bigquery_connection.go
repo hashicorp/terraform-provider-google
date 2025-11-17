@@ -137,7 +137,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "spark"},
 			},
 			"azure": {
 				Type:        schema.TypeList,
@@ -183,7 +183,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "spark"},
 			},
 			"cloud_resource": {
 				Type:        schema.TypeList,
@@ -199,7 +199,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "spark"},
 			},
 			"cloud_spanner": {
 				Type:        schema.TypeList,
@@ -244,7 +244,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "spark"},
 			},
 			"cloud_sql": {
 				Type:        schema.TypeList,
@@ -297,7 +297,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "spark"},
 			},
 			"connection_id": {
 				Type:        schema.TypeString,
@@ -379,7 +379,7 @@ Azure allowed regions are azure-eastus2`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "spark"},
 			},
 			"has_credential": {
 				Type:        schema.TypeBool,

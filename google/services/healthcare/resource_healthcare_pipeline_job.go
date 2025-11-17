@@ -256,7 +256,7 @@ with a reconciliation destination can be created.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"reconciliation_pipeline_job", "backfill_pipeline_job"},
+				ConflictsWith: []string{"backfill_pipeline_job", "reconciliation_pipeline_job"},
 			},
 			"reconciliation_pipeline_job": {
 				Type:        schema.TypeList,
@@ -318,7 +318,7 @@ in the format of: project/{projectID}/locations/{locationID}/datasets/{datasetNa
 						},
 					},
 				},
-				ConflictsWith: []string{"mapping_pipeline_job", "backfill_pipeline_job"},
+				ConflictsWith: []string{"backfill_pipeline_job", "mapping_pipeline_job"},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,

@@ -267,7 +267,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ConflictsWith: []string{"network", "dedicated_endpoint_enabled"},
+				ConflictsWith: []string{"dedicated_endpoint_enabled", "network"},
 			},
 			"region": {
 				Type:        schema.TypeString,

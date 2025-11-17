@@ -177,7 +177,7 @@ Note that 'passphrase' is not the password for web server, but an extra layer of
 									},
 								},
 							},
-							ConflictsWith: []string{"decrypted_credential.0.username_and_password", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.jwt", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.oidc_token"},
+							ConflictsWith: []string{"decrypted_credential.0.jwt", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.oidc_token", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.username_and_password"},
 						},
 						"jwt": {
 							Type:        schema.TypeList,
@@ -208,7 +208,7 @@ Note that 'passphrase' is not the password for web server, but an extra layer of
 									},
 								},
 							},
-							ConflictsWith: []string{"decrypted_credential.0.username_and_password", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.auth_token", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.oidc_token"},
+							ConflictsWith: []string{"decrypted_credential.0.auth_token", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.oidc_token", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.username_and_password"},
 						},
 						"oauth2_authorization_code": {
 							Type:        schema.TypeList,
@@ -244,7 +244,7 @@ Note that 'passphrase' is not the password for web server, but an extra layer of
 									},
 								},
 							},
-							ConflictsWith: []string{"decrypted_credential.0.username_and_password", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.jwt", "decrypted_credential.0.auth_token", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.oidc_token"},
+							ConflictsWith: []string{"decrypted_credential.0.auth_token", "decrypted_credential.0.jwt", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.oidc_token", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.username_and_password"},
 						},
 						"oauth2_client_credentials": {
 							Type:        schema.TypeList,
@@ -350,7 +350,7 @@ Note that 'passphrase' is not the password for web server, but an extra layer of
 									},
 								},
 							},
-							ConflictsWith: []string{"decrypted_credential.0.username_and_password", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.jwt", "decrypted_credential.0.auth_token", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.oidc_token"},
+							ConflictsWith: []string{"decrypted_credential.0.auth_token", "decrypted_credential.0.jwt", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oidc_token", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.username_and_password"},
 						},
 						"oidc_token": {
 							Type:        schema.TypeList,
@@ -383,7 +383,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 									},
 								},
 							},
-							ConflictsWith: []string{"decrypted_credential.0.username_and_password", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.jwt", "decrypted_credential.0.auth_token", "decrypted_credential.0.service_account_credentials"},
+							ConflictsWith: []string{"decrypted_credential.0.auth_token", "decrypted_credential.0.jwt", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.username_and_password"},
 						},
 						"service_account_credentials": {
 							Type:        schema.TypeList,
@@ -404,7 +404,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 									},
 								},
 							},
-							ConflictsWith: []string{"decrypted_credential.0.username_and_password", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.jwt", "decrypted_credential.0.auth_token", "decrypted_credential.0.oidc_token"},
+							ConflictsWith: []string{"decrypted_credential.0.auth_token", "decrypted_credential.0.jwt", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.oidc_token", "decrypted_credential.0.username_and_password"},
 						},
 						"username_and_password": {
 							Type:        schema.TypeList,
@@ -425,7 +425,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 									},
 								},
 							},
-							ConflictsWith: []string{"decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.jwt", "decrypted_credential.0.auth_token", "decrypted_credential.0.service_account_credentials", "decrypted_credential.0.oidc_token"},
+							ConflictsWith: []string{"decrypted_credential.0.auth_token", "decrypted_credential.0.jwt", "decrypted_credential.0.oauth2_authorization_code", "decrypted_credential.0.oauth2_client_credentials", "decrypted_credential.0.oidc_token", "decrypted_credential.0.service_account_credentials"},
 						},
 					},
 				},

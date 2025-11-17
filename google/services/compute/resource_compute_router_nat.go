@@ -365,7 +365,7 @@ Conflicts with natIps and drainNatIps. Only valid if natIpAllocateOption is set 
 					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				},
 				Set:           computeRouterNatIPsHash,
-				ConflictsWith: []string{"nat_ips", "drain_nat_ips"},
+				ConflictsWith: []string{"drain_nat_ips", "nat_ips"},
 			},
 			"log_config": {
 				Type:        schema.TypeList,

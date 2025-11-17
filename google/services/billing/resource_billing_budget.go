@@ -139,7 +139,7 @@ func ResourceBillingBudget() *schema.Resource {
 last period's spend.
 Boolean. Set value to true to use. Do not set to false, instead
 use the 'specified_amount' block.`,
-							ExactlyOneOf: []string{"amount.0.specified_amount", "amount.0.last_period_amount"},
+							ExactlyOneOf: []string{"amount.0.last_period_amount", "amount.0.specified_amount"},
 						},
 						"specified_amount": {
 							Type:     schema.TypeList,
@@ -175,7 +175,7 @@ is "USD", then 1 unit is one US dollar.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"amount.0.specified_amount", "amount.0.last_period_amount"},
+							ExactlyOneOf: []string{"amount.0.last_period_amount", "amount.0.specified_amount"},
 						},
 					},
 				},
@@ -225,7 +225,7 @@ A maximum of 5 channels are allowed.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"all_updates_rule.0.pubsub_topic", "all_updates_rule.0.monitoring_notification_channels"},
+							AtLeastOneOf: []string{"all_updates_rule.0.monitoring_notification_channels", "all_updates_rule.0.pubsub_topic"},
 						},
 						"pubsub_topic": {
 							Type:     schema.TypeString,
@@ -234,7 +234,7 @@ A maximum of 5 channels are allowed.`,
 messages will be published, in the form
 projects/{project_id}/topics/{topic_id}. Updates are sent
 at regular intervals to the topic.`,
-							AtLeastOneOf: []string{"all_updates_rule.0.pubsub_topic", "all_updates_rule.0.monitoring_notification_channels"},
+							AtLeastOneOf: []string{"all_updates_rule.0.monitoring_notification_channels", "all_updates_rule.0.pubsub_topic"},
 						},
 						"schema_version": {
 							Type:     schema.TypeString,
@@ -266,7 +266,7 @@ canonical start. Grammatically, "the start of the current CalendarPeriod".
 All calendar times begin at 12 AM US and Canadian Pacific Time (UTC-8).
 
 Exactly one of 'calendar_period', 'custom_period' must be provided. Possible values: ["MONTH", "QUARTER", "YEAR", "CALENDAR_PERIOD_UNSPECIFIED"]`,
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.calendar_period", "budget_filter.0.credit_types_treatment", "budget_filter.0.custom_period", "budget_filter.0.labels", "budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.services", "budget_filter.0.subaccounts"},
 						},
 						"credit_types": {
 							Type:     schema.TypeList,
@@ -277,7 +277,7 @@ If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be emp
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.calendar_period", "budget_filter.0.credit_types_treatment", "budget_filter.0.custom_period", "budget_filter.0.labels", "budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.services", "budget_filter.0.subaccounts"},
 						},
 						"credit_types_treatment": {
 							Type:         schema.TypeString,
@@ -286,7 +286,7 @@ If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be emp
 							Description: `Specifies how credits should be treated when determining spend
 for threshold calculations. Default value: "INCLUDE_ALL_CREDITS" Possible values: ["INCLUDE_ALL_CREDITS", "EXCLUDE_ALL_CREDITS", "INCLUDE_SPECIFIED_CREDITS"]`,
 							Default:      "INCLUDE_ALL_CREDITS",
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.calendar_period", "budget_filter.0.credit_types_treatment", "budget_filter.0.custom_period", "budget_filter.0.labels", "budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.services", "budget_filter.0.subaccounts"},
 						},
 						"custom_period": {
 							Type:     schema.TypeList,
@@ -357,7 +357,7 @@ If unset, specifies to track all usage incurred since the startDate.`,
 									},
 								},
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.calendar_period", "budget_filter.0.credit_types_treatment", "budget_filter.0.custom_period", "budget_filter.0.labels", "budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.services", "budget_filter.0.subaccounts"},
 						},
 						"labels": {
 							Type:     schema.TypeMap,
@@ -366,7 +366,7 @@ If unset, specifies to track all usage incurred since the startDate.`,
 							Description: `A single label and value pair specifying that usage from only
 this set of labeled resources should be included in the budget.`,
 							Elem:         &schema.Schema{Type: schema.TypeString},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.calendar_period", "budget_filter.0.credit_types_treatment", "budget_filter.0.custom_period", "budget_filter.0.labels", "budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.services", "budget_filter.0.subaccounts"},
 						},
 						"projects": {
 							Type:     schema.TypeSet,
@@ -380,7 +380,7 @@ the usage occurred on.`,
 								Type: schema.TypeString,
 							},
 							Set:          schema.HashString,
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.calendar_period", "budget_filter.0.credit_types_treatment", "budget_filter.0.custom_period", "budget_filter.0.labels", "budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.services", "budget_filter.0.subaccounts"},
 						},
 						"resource_ancestors": {
 							Type:     schema.TypeSet,
@@ -393,7 +393,7 @@ contains projects that are paid for by a different Cloud Billing account, the bu
 								Type: schema.TypeString,
 							},
 							Set:          schema.HashString,
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.calendar_period", "budget_filter.0.credit_types_treatment", "budget_filter.0.custom_period", "budget_filter.0.labels", "budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.services", "budget_filter.0.subaccounts"},
 						},
 						"services": {
 							Type:     schema.TypeList,
@@ -408,7 +408,7 @@ https://cloud.google.com/billing/v1/how-tos/catalog-api.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.calendar_period", "budget_filter.0.credit_types_treatment", "budget_filter.0.custom_period", "budget_filter.0.labels", "budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.services", "budget_filter.0.subaccounts"},
 						},
 						"subaccounts": {
 							Type:     schema.TypeList,
@@ -422,7 +422,7 @@ account and all subaccounts, if they exist.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.calendar_period", "budget_filter.0.credit_types_treatment", "budget_filter.0.custom_period", "budget_filter.0.labels", "budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.services", "budget_filter.0.subaccounts"},
 						},
 					},
 				},

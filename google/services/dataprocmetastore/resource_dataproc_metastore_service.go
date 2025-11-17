@@ -425,7 +425,7 @@ There must be at least one IP address available in the subnet's primary range. T
 							ValidateFunc:  verify.ValidateEnum([]string{"EXTRA_SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE", ""}),
 							Description:   `Metastore instance sizes. Possible values: ["EXTRA_SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE"]`,
 							ConflictsWith: []string{"tier"},
-							ExactlyOneOf:  []string{"scaling_config.0.instance_size", "scaling_config.0.scaling_factor", "scaling_config.0.autoscaling_config"},
+							ExactlyOneOf:  []string{"scaling_config.0.autoscaling_config", "scaling_config.0.instance_size", "scaling_config.0.scaling_factor"},
 						},
 						"scaling_factor": {
 							Type:        schema.TypeFloat,

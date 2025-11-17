@@ -124,7 +124,7 @@ NOTE: This is the default tier if not explicitly chosen.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
 							},
-							ExactlyOneOf: []string{"rag_managed_db_config.0.scaled", "rag_managed_db_config.0.basic", "rag_managed_db_config.0.unprovisioned"},
+							ExactlyOneOf: []string{"rag_managed_db_config.0.basic", "rag_managed_db_config.0.scaled", "rag_managed_db_config.0.unprovisioned"},
 						},
 						"scaled": {
 							Type:        schema.TypeList,
@@ -134,7 +134,7 @@ NOTE: This is the default tier if not explicitly chosen.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
 							},
-							ExactlyOneOf: []string{"rag_managed_db_config.0.scaled", "rag_managed_db_config.0.basic", "rag_managed_db_config.0.unprovisioned"},
+							ExactlyOneOf: []string{"rag_managed_db_config.0.basic", "rag_managed_db_config.0.scaled", "rag_managed_db_config.0.unprovisioned"},
 						},
 						"unprovisioned": {
 							Type:     schema.TypeList,
@@ -145,7 +145,7 @@ NOTE: Once deleted the data cannot be recovered. To start using RAG Engine again
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
 							},
-							ExactlyOneOf: []string{"rag_managed_db_config.0.scaled", "rag_managed_db_config.0.basic", "rag_managed_db_config.0.unprovisioned"},
+							ExactlyOneOf: []string{"rag_managed_db_config.0.basic", "rag_managed_db_config.0.scaled", "rag_managed_db_config.0.unprovisioned"},
 						},
 					},
 				},

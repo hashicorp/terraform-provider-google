@@ -281,7 +281,7 @@ instanceProperties field.`,
 				ForceNew: true,
 				Description: `Absolute time in future when the reservation will be auto-deleted by Compute Engine. Timestamp is represented in RFC3339 text format.
 Cannot be used with delete_after_duration.`,
-				ConflictsWith: []string{"delete_after_duration.0.seconds", "delete_after_duration.0.nanos"},
+				ConflictsWith: []string{"delete_after_duration.0.nanos", "delete_after_duration.0.seconds"},
 			},
 			"description": {
 				Type:        schema.TypeString,

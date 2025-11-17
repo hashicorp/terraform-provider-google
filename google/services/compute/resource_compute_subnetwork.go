@@ -296,7 +296,7 @@ Toggles the aggregation interval for collecting flow logs. Increasing the
 interval time will reduce the amount of generated flow logs for long
 lasting connections. Default is an interval of 5 seconds per connection. Default value: "INTERVAL_5_SEC" Possible values: ["INTERVAL_5_SEC", "INTERVAL_30_SEC", "INTERVAL_1_MIN", "INTERVAL_5_MIN", "INTERVAL_10_MIN", "INTERVAL_15_MIN"]`,
 							Default:      "INTERVAL_5_SEC",
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.filter_expr", "log_config.0.flow_sampling", "log_config.0.metadata"},
 						},
 						"filter_expr": {
 							Type:     schema.TypeString,
@@ -305,7 +305,7 @@ lasting connections. Default is an interval of 5 seconds per connection. Default
 https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.
 The default value is 'true', which evaluates to include everything.`,
 							Default:      "true",
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.filter_expr", "log_config.0.flow_sampling", "log_config.0.metadata"},
 						},
 						"flow_sampling": {
 							Type:     schema.TypeFloat,
@@ -316,7 +316,7 @@ flow logs within the subnetwork where 1.0 means all collected logs are
 reported and 0.0 means no logs are reported. Default is 0.5 which means
 half of all collected logs are reported.`,
 							Default:      0.5,
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.filter_expr", "log_config.0.flow_sampling", "log_config.0.metadata"},
 						},
 						"metadata": {
 							Type:         schema.TypeString,
@@ -326,7 +326,7 @@ half of all collected logs are reported.`,
 Configures whether metadata fields should be added to the reported VPC
 flow logs. Default value: "INCLUDE_ALL_METADATA" Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA"]`,
 							Default:      "INCLUDE_ALL_METADATA",
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.filter_expr", "log_config.0.flow_sampling", "log_config.0.metadata"},
 						},
 						"metadata_fields": {
 							Type:     schema.TypeSet,

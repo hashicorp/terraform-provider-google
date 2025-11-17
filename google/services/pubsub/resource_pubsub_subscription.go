@@ -231,7 +231,7 @@ The subscription name, messageId, and publishTime fields are put in their own co
 						},
 					},
 				},
-				ConflictsWith: []string{"push_config", "cloud_storage_config"},
+				ConflictsWith: []string{"cloud_storage_config", "push_config"},
 			},
 			"cloud_storage_config": {
 				Type:     schema.TypeList,
@@ -315,7 +315,7 @@ service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"push_config", "bigquery_config"},
+				ConflictsWith: []string{"bigquery_config", "push_config"},
 			},
 			"dead_letter_policy": {
 				Type:     schema.TypeList,

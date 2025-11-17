@@ -228,21 +228,21 @@ No spaces are allowed, and the maximum length allowed is 2083 characters`,
 										Optional: true,
 										Description: `App instance.
 By default, the job is sent to an instance which is available when the job is attempted.`,
-										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version", "app_engine_http_target.0.app_engine_routing.0.instance"},
+										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.instance", "app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version"},
 									},
 									"service": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Description: `App service.
 By default, the job is sent to the service which is the default service when the job is attempted.`,
-										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version", "app_engine_http_target.0.app_engine_routing.0.instance"},
+										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.instance", "app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version"},
 									},
 									"version": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Description: `App version.
 By default, the job is sent to the version which is the default version when the job is attempted.`,
-										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version", "app_engine_http_target.0.app_engine_routing.0.instance"},
+										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.instance", "app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version"},
 									},
 								},
 							},
@@ -273,7 +273,7 @@ Headers can be set when the job is created.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"pubsub_target", "http_target", "app_engine_http_target"},
+				ExactlyOneOf: []string{"app_engine_http_target", "http_target", "pubsub_target"},
 			},
 			"attempt_deadline": {
 				Type:             schema.TypeString,
@@ -383,7 +383,7 @@ the URI specified in target will be used.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"pubsub_target", "http_target", "app_engine_http_target"},
+				ExactlyOneOf: []string{"app_engine_http_target", "http_target", "pubsub_target"},
 			},
 			"paused": {
 				Type:        schema.TypeBool,
@@ -426,7 +426,7 @@ Pubsub message must contain either non-empty data, or at least one attribute.
 						},
 					},
 				},
-				ExactlyOneOf: []string{"pubsub_target", "http_target", "app_engine_http_target"},
+				ExactlyOneOf: []string{"app_engine_http_target", "http_target", "pubsub_target"},
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -450,7 +450,7 @@ then it will be retried with exponential backoff according to the settings`,
 							Optional: true,
 							Description: `The maximum amount of time to wait before retrying a job after it fails.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
-							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
+							AtLeastOneOf: []string{"retry_config.0.max_backoff_duration", "retry_config.0.max_doublings", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.retry_count"},
 						},
 						"max_doublings": {
 							Type:     schema.TypeInt,
@@ -460,7 +460,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 A job's retry interval starts at minBackoffDuration,
 then doubles maxDoublings times, then increases linearly,
 and finally retries retries at intervals of maxBackoffDuration up to retryCount times.`,
-							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
+							AtLeastOneOf: []string{"retry_config.0.max_backoff_duration", "retry_config.0.max_doublings", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.retry_count"},
 						},
 						"max_retry_duration": {
 							Type:     schema.TypeString,
@@ -469,7 +469,7 @@ and finally retries retries at intervals of maxBackoffDuration up to retryCount 
 							Description: `The time limit for retrying a failed job, measured from time when an execution was first attempted.
 If specified with retryCount, the job will be retried until both limits are reached.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
-							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
+							AtLeastOneOf: []string{"retry_config.0.max_backoff_duration", "retry_config.0.max_doublings", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.retry_count"},
 						},
 						"min_backoff_duration": {
 							Type:     schema.TypeString,
@@ -477,7 +477,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							Optional: true,
 							Description: `The minimum amount of time to wait before retrying a job after it fails.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
-							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
+							AtLeastOneOf: []string{"retry_config.0.max_backoff_duration", "retry_config.0.max_doublings", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.retry_count"},
 						},
 						"retry_count": {
 							Type:     schema.TypeInt,
@@ -486,7 +486,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							Description: `The number of attempts that the system will make to run a
 job using the exponential backoff procedure described by maxDoublings.
 Values greater than 5 and negative values are not allowed.`,
-							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
+							AtLeastOneOf: []string{"retry_config.0.max_backoff_duration", "retry_config.0.max_doublings", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.retry_count"},
 						},
 					},
 				},
