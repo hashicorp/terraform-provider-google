@@ -1,0 +1,7 @@
+```release-note:enhancement
+servicedirectory: promoted `google_service_directory_namespace`, `google_service_directory_service`, and `google_service_directory_endpoint` to GA
+```
+
+```release-note:enhancement
+servicedirectory: replace `metadata` KeyValuePair with `annotations` KeyValueAnnotations in  `google_service_directory_service`, and `google_service_directory_endpoint` resources
+```

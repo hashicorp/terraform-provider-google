@@ -390,6 +390,7 @@ type Config struct {
 	SecurityCenterManagementBasePath string
 	SecurityCenterV2BasePath         string
 	SecuritypostureBasePath          string
+	ServiceDirectoryBasePath         string
 	ServiceManagementBasePath        string
 	ServiceNetworkingBasePath        string
 	ServiceUsageBasePath             string
@@ -565,6 +566,7 @@ const SecurityCenterBasePathKey = "SecurityCenter"
 const SecurityCenterManagementBasePathKey = "SecurityCenterManagement"
 const SecurityCenterV2BasePathKey = "SecurityCenterV2"
 const SecuritypostureBasePathKey = "Securityposture"
+const ServiceDirectoryBasePathKey = "ServiceDirectory"
 const ServiceManagementBasePathKey = "ServiceManagement"
 const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const ServiceUsageBasePathKey = "ServiceUsage"
@@ -729,6 +731,7 @@ var DefaultBasePaths = map[string]string{
 	SecurityCenterManagementBasePathKey: "https://securitycentermanagement.googleapis.com/v1/",
 	SecurityCenterV2BasePathKey:         "https://securitycenter.googleapis.com/v2/",
 	SecuritypostureBasePathKey:          "https://securityposture.googleapis.com/v1/",
+	ServiceDirectoryBasePathKey:         "https://servicedirectory.googleapis.com/v1/",
 	ServiceManagementBasePathKey:        "https://servicemanagement.googleapis.com/v1/",
 	ServiceNetworkingBasePathKey:        "https://servicenetworking.googleapis.com/v1/",
 	ServiceUsageBasePathKey:             "https://serviceusage.googleapis.com/v1/",
@@ -1497,6 +1500,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("securityposture_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_SECURITYPOSTURE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[SecuritypostureBasePathKey]))
+	}
+	if d.Get("service_directory_custom_endpoint") == "" {
+		d.Set("service_directory_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SERVICE_DIRECTORY_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ServiceDirectoryBasePathKey]))
 	}
 	if d.Get("service_management_custom_endpoint") == "" {
 		d.Set("service_management_custom_endpoint", MultiEnvDefault([]string{
@@ -2799,6 +2807,7 @@ func ConfigureBasePaths(c *Config) {
 	c.SecurityCenterManagementBasePath = DefaultBasePaths[SecurityCenterManagementBasePathKey]
 	c.SecurityCenterV2BasePath = DefaultBasePaths[SecurityCenterV2BasePathKey]
 	c.SecuritypostureBasePath = DefaultBasePaths[SecuritypostureBasePathKey]
+	c.ServiceDirectoryBasePath = DefaultBasePaths[ServiceDirectoryBasePathKey]
 	c.ServiceManagementBasePath = DefaultBasePaths[ServiceManagementBasePathKey]
 	c.ServiceNetworkingBasePath = DefaultBasePaths[ServiceNetworkingBasePathKey]
 	c.ServiceUsageBasePath = DefaultBasePaths[ServiceUsageBasePathKey]
