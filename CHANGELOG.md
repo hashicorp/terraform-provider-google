@@ -22,7 +22,7 @@ IMPROVEMENTS:
 * compute: added `tls_settings` field to `google_compute_regional_backend_service` resource ([#25068](https://github.com/hashicorp/terraform-provider-google/pull/25068))
 * container: added `end_time_behavior` field to `google_container_cluster` resource ([#25120](https://github.com/hashicorp/terraform-provider-google/pull/25120))
 * container: added `writable_cgroups` field to node `containerd_config` resource ([#25140](https://github.com/hashicorp/terraform-provider-google/pull/25140))
-* dataplex: added `catalog_publishing_enabled` field to `dataQualitySpec` in `google_dataplex_datascan` resource ([#25143](https://github.com/hashicorp/terraform-provider-google/pull/25143))
+* dataplex: added `catalog_publishing_enabled` field to `data_profile_spec` in `google_dataplex_datascan` resource ([#25143](https://github.com/hashicorp/terraform-provider-google/pull/25143))
 * dns: added `forwarding_config.target_name_servers.ipv6_address` argument to `google_dns_managed_zone` resource ([#25131](https://github.com/hashicorp/terraform-provider-google/pull/25131))
 * gkeonprem: added `advanced_networking`, `multiple_network_interfaces_config` and `bgp_lb_config` fields to `google_gkeonprem_bare_metal_cluster` resource ([#25136](https://github.com/hashicorp/terraform-provider-google/pull/25136))
 * managedkafka: added `broker_capacity_config` field to `google_managed_kafka_cluster` resource ([#25074](https://github.com/hashicorp/terraform-provider-google/pull/25074))
