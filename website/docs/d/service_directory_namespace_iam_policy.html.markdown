@@ -23,8 +23,6 @@ description: |-
 # google_service_directory_namespace_iam_policy
 
 Retrieves the current IAM policy data for namespace
-~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage
@@ -32,7 +30,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_service_directory_namespace_iam_policy" "policy" {
-  provider = google-beta
   name = google_service_directory_namespace.example.name
 }
 ```
