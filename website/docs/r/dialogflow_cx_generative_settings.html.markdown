@@ -103,7 +103,6 @@ The following arguments are supported:
 * `generative_safety_settings` -
   (Optional)
   Settings for Generative Safety.
-  w
   Structure is [documented below](#nested_generative_safety_settings).
 
 * `knowledge_connector_settings` -

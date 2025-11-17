@@ -149,11 +149,11 @@ func ResourceDialogflowCXGenerativeSettings() *schema.Resource {
 				},
 			},
 			"generative_safety_settings": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `Settings for Generative Safety.
-w`,
-				MaxItems: 1,
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
+				Description:      `Settings for Generative Safety.`,
+				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"banned_phrases": {
