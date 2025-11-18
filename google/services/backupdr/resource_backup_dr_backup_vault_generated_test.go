@@ -50,7 +50,7 @@ var (
 	_ = googleapi.Error{}
 )
 
-func TestAccBackupDRBackupVault_backupDrBackupVaultFullExample(t *testing.T) {
+func TestAccBackupDRBackupVault_backupDrBackupVaultSimpleExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -64,7 +64,7 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultFullExample(t *testing.T) {
 		CheckDestroy:             testAccCheckBackupDRBackupVaultDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBackupDRBackupVault_backupDrBackupVaultFullExample(context),
+				Config: testAccBackupDRBackupVault_backupDrBackupVaultSimpleExample(context),
 			},
 			{
 				ResourceName:            "google_backup_dr_backup_vault.backup-vault-test",
@@ -76,7 +76,7 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultFullExample(t *testing.T) {
 	})
 }
 
-func testAccBackupDRBackupVault_backupDrBackupVaultFullExample(context map[string]interface{}) string {
+func testAccBackupDRBackupVault_backupDrBackupVaultSimpleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_backup_dr_backup_vault" "backup-vault-test" {
   location = "us-central1"
@@ -90,6 +90,71 @@ resource "google_backup_dr_backup_vault" "backup-vault-test" {
   labels = {
     foo = "bar1"
     bar = "baz1"
+  }
+  force_update = "true"
+  access_restriction = "WITHIN_ORGANIZATION"
+  backup_retention_inheritance = "INHERIT_VAULT_RETENTION"
+  ignore_inactive_datasources = "true"
+  ignore_backup_plan_references = "true"
+  allow_missing = "true"
+}
+`, context)
+}
+
+func TestAccBackupDRBackupVault_backupDrBackupVaultCmekExample(t *testing.T) {
+	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-backupdr.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBackupDRBackupVaultDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBackupDRBackupVault_backupDrBackupVaultCmekExample(context),
+			},
+			{
+				ResourceName:            "google_backup_dr_backup_vault.backup-vault-cmek",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_retention_inheritance", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccBackupDRBackupVault_backupDrBackupVaultCmekExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "test_project" {
+	project_id = "%{project}"
+}
+
+resource "google_backup_dr_backup_vault" "backup-vault-cmek" {
+  location = "us-central1"
+  backup_vault_id    = "tf-test-backup-vault-cmek%{random_suffix}"
+  description = "This is a second backup vault built by Terraform."
+  backup_minimum_enforced_retention_duration = "100000s"
+  annotations = {
+    annotations1 = "bar1"
+    annotations2 = "baz1"
+  }
+  labels = {
+    foo = "bar1"
+    bar = "baz1"
+  }
+  encryption_config {
+    kms_key_name = "%{kms_key_name}"
   }
   force_update = "true"
   access_restriction = "WITHIN_ORGANIZATION"

@@ -22,6 +22,7 @@ fields:
   - field: 'effective_labels'
     provider_only: true
   - api_field: 'effectiveTime'
+  - api_field: 'encryptionConfig.kmsKeyName'
   - api_field: 'etag'
   - field: 'force_delete'
     provider_only: true
