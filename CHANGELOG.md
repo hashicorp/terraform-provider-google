@@ -1,7 +1,7 @@
 ## 7.12.0 (Unreleased)
 
 DEPRECATIONS:
-* backupdr: deprecated `required_type` in `google_backup_dr_backup_plan_associations` and `google_backup_dr_data_source_references`. It no longer has any functionality, and will be removed in the next major release. ([#25107](https://github.com/hashicorp/terraform-provider-google/pull/25107))
+* backupdr: deprecated `required_type` in `google_backup_dr_backup_plan_associations` and `google_backup_dr_data_source_references`. Both resources no longer have functionality, and will be removed in the next major release. ([#25107](https://github.com/hashicorp/terraform-provider-google/pull/25107))
 
 FEATURES:
 * **New Resource:** `google_ces_agent` ([#25106](https://github.com/hashicorp/terraform-provider-google/pull/25106))
@@ -15,13 +15,13 @@ FEATURES:
 
 IMPROVEMENTS:
 * apphub: added `functional_type`, `registration_type`, and `extended_metadata` fields to `google_apphub_service` and `google_apphub_workload` resources ([#25145](https://github.com/hashicorp/terraform-provider-google/pull/25145))
-* ces: added `bearer_token_config` field to `google_ces_toolset` ([#25119](https://github.com/hashicorp/terraform-provider-google/pull/25119))
+* ces: added `bearer_token_config` field to `google_ces_toolset` resource ([#25119](https://github.com/hashicorp/terraform-provider-google/pull/25119))
 * ces: added `client_certificate_settings` field to `google_ces_app` resource ([#25117](https://github.com/hashicorp/terraform-provider-google/pull/25117))
 * compute: added `block_names` field to `google_compute_reservation` resource ([#25121](https://github.com/hashicorp/terraform-provider-google/pull/25121))
 * compute: added `sub_block_names` field to `google_compute_reservation_block` data source ([#25121](https://github.com/hashicorp/terraform-provider-google/pull/25121))
 * compute: added `tls_settings` field to `google_compute_regional_backend_service` resource ([#25068](https://github.com/hashicorp/terraform-provider-google/pull/25068))
 * container: added `end_time_behavior` field to `google_container_cluster` resource ([#25120](https://github.com/hashicorp/terraform-provider-google/pull/25120))
-* container: added `writable_cgroups` field to node `containerd_config` resource ([#25140](https://github.com/hashicorp/terraform-provider-google/pull/25140))
+* container: added `writable_cgroups` field to `node_config.defaults.containerd_config` in `google_container_cluster` resource ([#25140](https://github.com/hashicorp/terraform-provider-google/pull/25140))
 * dataplex: added `catalog_publishing_enabled` field to `data_profile_spec` in `google_dataplex_datascan` resource ([#25143](https://github.com/hashicorp/terraform-provider-google/pull/25143))
 * dns: added `forwarding_config.target_name_servers.ipv6_address` argument to `google_dns_managed_zone` resource ([#25131](https://github.com/hashicorp/terraform-provider-google/pull/25131))
 * gkeonprem: added `advanced_networking`, `multiple_network_interfaces_config` and `bgp_lb_config` fields to `google_gkeonprem_bare_metal_cluster` resource ([#25136](https://github.com/hashicorp/terraform-provider-google/pull/25136))
