@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed crashes when no `network_endpoints` block specified in `google_compute_network_endpoints` resource or no network endpoints exist
+```
