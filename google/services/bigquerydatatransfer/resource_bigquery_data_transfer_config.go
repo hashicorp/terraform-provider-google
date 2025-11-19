@@ -354,7 +354,7 @@ to a different credential configuration in the config will require an apply to u
 						"secret_access_key_wo_version": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Description:  `The version of the sensitive params - used to trigger updates of the write-only params. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+							Description:  `The version of the sensitive params - used to trigger updates of the write-only params. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
 							RequiredWith: []string{"sensitive_params.0.secret_access_key_wo"},
 						},
 					},

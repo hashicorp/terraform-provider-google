@@ -35,7 +35,7 @@ values will be stored in the raw state as plain text: `http_check.auth_info.pass
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ~> **Note:**  All arguments marked as write-only values will not be stored in the state: `http_check.auth_info.password_wo`.
-[Read more about Write-only Attributes](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
 
 ## Example Usage - Uptime Check Config Http
 
@@ -544,11 +544,6 @@ The following arguments are supported:
 * `name` -
   (Required)
   The fully qualified name of the cloud function resource.
-
-## Ephemeral Attributes Reference
-
-The following write-only attributes are supported:
-
 
 ## Attributes Reference
 

@@ -440,8 +440,7 @@ gateway and the peer VPN gateway.`,
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `Shared secret used to set the secure session between the Cloud VPN
-gateway and the peer VPN gateway.
- Note: This property is write-only and will not be read from the API. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+gateway and the peer VPN gateway.`,
 				WriteOnly:    true,
 				ExactlyOneOf: []string{"shared_secret", "shared_secret_wo"},
 				RequiredWith: []string{"shared_secret_wo_version"},
@@ -450,7 +449,7 @@ gateway and the peer VPN gateway.
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Description:  `Triggers update of shared_secret_wo write-only. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+				Description:  `Triggers update of 'shared_secret_wo' write-only. Increment this value when an update to 'shared_secret_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
 				RequiredWith: []string{"shared_secret_wo"},
 			},
 			"target_vpn_gateway": {
