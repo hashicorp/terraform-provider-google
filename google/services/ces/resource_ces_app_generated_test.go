@@ -103,6 +103,7 @@ resource "google_ces_app" "ces_app_basic" {
   location = "us"
   description = "Basic CES App example"
   display_name = "tf-test-my-app%{random_suffix}"
+  pinned = true
 
   language_settings {
     default_language_code    = "en-US"
@@ -185,6 +186,7 @@ variable_declarations {
     schema {
       description = "schema description"
       type        = "ARRAY"
+      title = "title"
       nullable    = true
       required = ["some_property"]
       enum = ["VALUE_A", "VALUE_B"]

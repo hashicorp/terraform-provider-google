@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `pinned` and `variable_declarations.schema.title` fields to `google_ces_app` resource
+```
