@@ -91,6 +91,7 @@ resource "google_ces_app" "ces_app_basic" {
   location = "us"
   description = "Basic CES App example"
   display_name = "tf-test-my-app-%{random_suffix}"
+  pinned = false
 
   language_settings {
     default_language_code    = "en-US"
@@ -173,6 +174,7 @@ resource "google_ces_app" "ces_app_basic" {
     schema {
       description = "schema description"
       type        = "ARRAY"
+      title = ""
       nullable    = true
       required = ["some_property"]
       enum = ["VALUE_A", "VALUE_B"]
@@ -281,6 +283,7 @@ resource "google_ces_app" "ces_app_basic" {
   location = "us"
   description = "Updated CES App example"
   display_name = "tf-test-my-app%{random_suffix}"
+  pinned = true
 
   language_settings {
     default_language_code    = "en-ES"
@@ -363,6 +366,7 @@ resource "google_ces_app" "ces_app_basic" {
       schema {
         description = "schema description updated"
         type        = "ARRAY"
+        title = "updated"
         nullable    = true
         required = ["some_property_updated"]
         enum = ["VALUE_B", "VALUE_C"]

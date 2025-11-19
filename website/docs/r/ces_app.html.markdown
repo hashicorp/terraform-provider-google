@@ -60,6 +60,7 @@ resource "google_ces_app" "ces_app_basic" {
   location = "us"
   description = "Basic CES App example"
   display_name = "my-app"
+  pinned = true
 
   language_settings {
     default_language_code    = "en-US"
@@ -142,6 +143,7 @@ variable_declarations {
     schema {
       description = "schema description"
       type        = "ARRAY"
+      title = "title"
       nullable    = true
       required = ["some_property"]
       enum = ["VALUE_A", "VALUE_B"]
@@ -408,6 +410,10 @@ The following arguments are supported:
   Configuration for how the input and output audio should be processed and
   delivered.
   Structure is [documented below](#nested_audio_processing_config).
+
+* `pinned` -
+  (Optional)
+  Whether the app is pinned in the app list.
 
 * `data_store_settings` -
   (Optional)
@@ -872,6 +878,10 @@ The following arguments are supported:
 
 
 <a name="nested_variable_declarations_variable_declarations_schema"></a>The `schema` block supports:
+
+* `title` -
+  (Optional)
+  The title of the schema.
 
 * `description` -
   (Optional)

@@ -680,6 +680,11 @@ responses that are more creative.`,
 					},
 				},
 			},
+			"pinned": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether the app is pinned in the app list.`,
+			},
 			"root_agent": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -842,6 +847,11 @@ https://json-schema.org/understanding-json-schema/structuring.`,
 											Type: schema.TypeString,
 										},
 									},
+									"title": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The title of the schema.`,
+									},
 									"unique_items": {
 										Type:        schema.TypeBool,
 										Optional:    true,
@@ -905,6 +915,12 @@ func resourceCESAppCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("audio_processing_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(audioProcessingConfigProp)) && (ok || !reflect.DeepEqual(v, audioProcessingConfigProp)) {
 		obj["audioProcessingConfig"] = audioProcessingConfigProp
+	}
+	pinnedProp, err := expandCESAppPinned(d.Get("pinned"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("pinned"); !tpgresource.IsEmptyValue(reflect.ValueOf(pinnedProp)) && (ok || !reflect.DeepEqual(v, pinnedProp)) {
+		obj["pinned"] = pinnedProp
 	}
 	dataStoreSettingsProp, err := expandCESAppDataStoreSettings(d.Get("data_store_settings"), d, config)
 	if err != nil {
@@ -1115,6 +1131,9 @@ func resourceCESAppRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("create_time", flattenCESAppCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading App: %s", err)
 	}
+	if err := d.Set("pinned", flattenCESAppPinned(res["pinned"], d, config)); err != nil {
+		return fmt.Errorf("Error reading App: %s", err)
+	}
 	if err := d.Set("data_store_settings", flattenCESAppDataStoreSettings(res["dataStoreSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading App: %s", err)
 	}
@@ -1197,6 +1216,12 @@ func resourceCESAppUpdate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("audio_processing_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, audioProcessingConfigProp)) {
 		obj["audioProcessingConfig"] = audioProcessingConfigProp
+	}
+	pinnedProp, err := expandCESAppPinned(d.Get("pinned"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("pinned"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pinnedProp)) {
+		obj["pinned"] = pinnedProp
 	}
 	dataStoreSettingsProp, err := expandCESAppDataStoreSettings(d.Get("data_store_settings"), d, config)
 	if err != nil {
@@ -1300,6 +1325,10 @@ func resourceCESAppUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("audio_processing_config") {
 		updateMask = append(updateMask, "audioProcessingConfig")
+	}
+
+	if d.HasChange("pinned") {
+		updateMask = append(updateMask, "pinned")
 	}
 
 	if d.HasChange("data_store_settings") {
@@ -1567,6 +1596,10 @@ func flattenCESAppAudioProcessingConfigSynthesizeSpeechConfigsSpeakingRate(v int
 }
 
 func flattenCESAppCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppPinned(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2080,6 +2113,8 @@ func flattenCESAppVariableDeclarationsSchema(v interface{}, d *schema.ResourceDa
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["title"] =
+		flattenCESAppVariableDeclarationsSchemaTitle(original["title"], d, config)
 	transformed["description"] =
 		flattenCESAppVariableDeclarationsSchemaDescription(original["description"], d, config)
 	transformed["enum"] =
@@ -2110,6 +2145,10 @@ func flattenCESAppVariableDeclarationsSchema(v interface{}, d *schema.ResourceDa
 		flattenCESAppVariableDeclarationsSchemaItems(original["items"], d, config)
 	return []interface{}{transformed}
 }
+func flattenCESAppVariableDeclarationsSchemaTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESAppVariableDeclarationsSchemaDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2401,6 +2440,10 @@ func expandCESAppAudioProcessingConfigSynthesizeSpeechConfigsVoice(v interface{}
 }
 
 func expandCESAppAudioProcessingConfigSynthesizeSpeechConfigsSpeakingRate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppPinned(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3174,6 +3217,13 @@ func expandCESAppVariableDeclarationsSchema(v interface{}, d tpgresource.Terrafo
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedTitle, err := expandCESAppVariableDeclarationsSchemaTitle(original["title"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["title"] = transformedTitle
+	}
+
 	transformedDescription, err := expandCESAppVariableDeclarationsSchemaDescription(original["description"], d, config)
 	if err != nil {
 		return nil, err
@@ -3273,6 +3323,10 @@ func expandCESAppVariableDeclarationsSchema(v interface{}, d tpgresource.Terrafo
 	}
 
 	return transformed, nil
+}
+
+func expandCESAppVariableDeclarationsSchemaTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESAppVariableDeclarationsSchemaDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
