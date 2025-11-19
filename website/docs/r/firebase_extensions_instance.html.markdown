@@ -30,7 +30,7 @@ To get more information about Instance, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/products/extensions)
 
-## Example Usage - Firebase Extentions Instance Resize Image
+## Example Usage - Firebase Extensions Instance Resize Image
 
 
 ```hcl
@@ -51,7 +51,7 @@ resource "google_firebase_extensions_instance" "resize_image" {
   instance_id = "storage-resize-images"
   config {
     extension_ref = "firebase/storage-resize-images"
-    extension_version = "0.2.2"
+    extension_version = "0.2.10"
 
     # The following params apply to the firebase/storage-resize-images extension. 
     # Different extensions may have different params
@@ -64,6 +64,9 @@ resource "google_firebase_extensions_instance" "resize_image" {
       DO_BACKFILL          = false
       IMG_SIZES            = "200x200"
       IMG_BUCKET           = google_storage_bucket.images.name
+      BACKFILL_BATCH_SIZE  = 3
+      CONTENT_FILTER_LEVEL = "OFF"
+      REGENERATE_TOKEN     = "true"
     }
 
     system_params = {
