@@ -312,10 +312,12 @@ func resourceDialogflowCXPlaybookCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") || strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -382,10 +384,12 @@ func resourceDialogflowCXPlaybookRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") || strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -534,8 +538,32 @@ func resourceDialogflowCXPlaybookUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") || strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+	}
+
+	// The generated code sets the wrong masks for the following fields.
+	newUpdateMask := []string{}
+	if d.HasChange("instruction.0.steps") {
+		newUpdateMask = append(newUpdateMask, "instruction.steps")
+	}
+	if d.HasChange("instruction.0.guidelines") {
+		newUpdateMask = append(newUpdateMask, "instruction.guidelines")
+	}
+	// Pull out any other set fields from the generated mask.
+	for _, mask := range updateMask {
+		if mask == "instruction" {
+			continue
+		}
+		newUpdateMask = append(newUpdateMask, mask)
+	}
+	// Overwrite the previously set mask.
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
+	if err != nil {
+		return err
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -603,8 +631,11 @@ func resourceDialogflowCXPlaybookDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") || strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 	}
 
 	log.Printf("[DEBUG] Deleting Playbook %q", d.Id())
