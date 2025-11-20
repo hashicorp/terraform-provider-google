@@ -75,18 +75,27 @@ func TestAccLoggingOrganizationSink_update(t *testing.T) {
 		CheckDestroy:             testAccCheckLoggingOrganizationSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingOrganizationSink_update(sinkName, bucketName, org),
+				Config: testAccLoggingOrganizationSink_update(sinkName, bucketName, org, "false"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLoggingOrganizationSinkExists(t, "google_logging_organization_sink.update", &sinkBefore),
 					testAccCheckLoggingOrganizationSink(&sinkBefore, "google_logging_organization_sink.update"),
 				),
-			}, {
-				Config: testAccLoggingOrganizationSink_update(sinkName, updatedBucketName, org),
+			},
+			{
+				Config: testAccLoggingOrganizationSink_update(sinkName, updatedBucketName, org, "true"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLoggingOrganizationSinkExists(t, "google_logging_organization_sink.update", &sinkAfter),
 					testAccCheckLoggingOrganizationSink(&sinkAfter, "google_logging_organization_sink.update"),
 				),
-			}, {
+			},
+			{
+				Config: testAccLoggingOrganizationSink_update(sinkName, bucketName, org, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLoggingOrganizationSinkExists(t, "google_logging_organization_sink.update", &sinkBefore),
+					testAccCheckLoggingOrganizationSink(&sinkBefore, "google_logging_organization_sink.update"),
+				),
+			},
+			{
 				ResourceName:      "google_logging_organization_sink.update",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -343,21 +352,21 @@ resource "google_storage_bucket" "log-bucket" {
 `, sinkName, orgId, envvar.GetTestProjectFromEnv(), bucketName)
 }
 
-func testAccLoggingOrganizationSink_update(sinkName, bucketName, orgId string) string {
+func testAccLoggingOrganizationSink_update(sinkName, bucketName, orgId, includeChildren string) string {
 	return fmt.Sprintf(`
 resource "google_logging_organization_sink" "update" {
   name             = "%s"
   org_id           = "%s"
   destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-  include_children = false
+  include_children = %s
 }
 
 resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, sinkName, orgId, envvar.GetTestProjectFromEnv(), bucketName)
+`, sinkName, orgId, envvar.GetTestProjectFromEnv(), includeChildren, bucketName)
 }
 
 func testAccLoggingOrganizationSink_described(sinkName, bucketName, orgId string) string {
