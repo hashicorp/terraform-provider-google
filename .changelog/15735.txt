@@ -1,0 +1,3 @@
+```release-note:deprecation
+dlp: deprecated `publish_findings_to_cloud_data_catalog` field in `google_data_loss_prevention_job_trigger` resource. Use `publish_findings_to_dataplex_catalog` field instead.
+```
