@@ -72,6 +72,12 @@ func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_lustre_instance.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

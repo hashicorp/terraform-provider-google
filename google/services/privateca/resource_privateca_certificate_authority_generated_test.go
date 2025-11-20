@@ -74,6 +74,12 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"certificate_authority_id", "deletion_protection", "ignore_active_certificates_on_deletion", "labels", "location", "pem_ca_certificate", "pool", "skip_grace_period", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_privateca_certificate_authority.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -143,6 +149,12 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicNoOr
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"certificate_authority_id", "deletion_protection", "ignore_active_certificates_on_deletion", "labels", "location", "pem_ca_certificate", "pool", "skip_grace_period", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_privateca_certificate_authority.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -211,6 +223,12 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"certificate_authority_id", "deletion_protection", "ignore_active_certificates_on_deletion", "labels", "location", "pem_ca_certificate", "pool", "skip_grace_period", "subordinate_config.0.certificate_authority", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_privateca_certificate_authority.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -324,6 +342,12 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicWith
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"certificate_authority_id", "deletion_protection", "ignore_active_certificates_on_deletion", "labels", "location", "pem_ca_certificate", "pool", "skip_grace_period", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_privateca_certificate_authority.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

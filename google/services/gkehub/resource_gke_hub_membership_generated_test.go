@@ -75,6 +75,12 @@ func TestAccGKEHubMembership_gkehubMembershipRegionalExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "membership_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_hub_membership.membership",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -125,6 +131,12 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "membership_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_hub_membership.membership",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -180,6 +192,12 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "membership_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_hub_membership.membership",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -108,6 +108,29 @@ func ResourceDataplexTask() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"lake": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"task_id": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"execution_spec": {
 				Type:        schema.TypeList,
@@ -819,6 +842,35 @@ func resourceDataplexTaskRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Task: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("lake"); ok && v != "" {
+			err = identity.Set("lake", d.Get("lake").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting lake: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("task_id"); ok && v != "" {
+			err = identity.Set("task_id", d.Get("task_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting task_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

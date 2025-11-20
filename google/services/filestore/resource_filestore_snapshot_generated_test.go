@@ -71,6 +71,12 @@ func TestAccFilestoreSnapshot_filestoreSnapshotBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_filestore_snapshot.snapshot",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -121,6 +127,12 @@ func TestAccFilestoreSnapshot_filestoreSnapshotFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_filestore_snapshot.snapshot",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

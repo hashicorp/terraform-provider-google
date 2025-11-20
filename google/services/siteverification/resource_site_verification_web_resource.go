@@ -101,6 +101,17 @@ func ResourceSiteVerificationWebResource() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"web_resource_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"site": {
 				Type:        schema.TypeList,
@@ -267,6 +278,17 @@ func resourceSiteVerificationWebResourceRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading WebResource: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("web_resource_id"); ok && v != "" {
+			err = identity.Set("web_resource_id", d.Get("web_resource_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting web_resource_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

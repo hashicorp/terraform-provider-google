@@ -72,6 +72,12 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"delete_service_on_destroy", "deployment", "entrypoint", "env_variables", "service", "threadsafe"},
 			},
+			{
+				ResourceName:       "google_app_engine_standard_app_version.myapp_v1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

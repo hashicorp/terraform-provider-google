@@ -71,6 +71,12 @@ func TestAccParameterManagerParameter_parameterConfigBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_parameter_manager_parameter.parameter-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -103,6 +109,12 @@ func TestAccParameterManagerParameter_parameterWithFormatExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_parameter_manager_parameter.parameter-with-format",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -137,6 +149,12 @@ func TestAccParameterManagerParameter_parameterWithLabelsExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_parameter_manager_parameter.parameter-with-labels",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -185,6 +203,12 @@ func TestAccParameterManagerParameter_parameterWithKmsKeyExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_parameter_manager_parameter.parameter-with-kms-key",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

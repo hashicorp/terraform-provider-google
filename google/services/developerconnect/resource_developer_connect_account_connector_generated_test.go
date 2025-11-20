@@ -71,6 +71,12 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGit
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -109,6 +115,12 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGit
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -149,6 +161,12 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGoo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -187,6 +205,12 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorSen
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -227,6 +251,12 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorRov
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -266,6 +296,12 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorNew
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -304,6 +340,12 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorDat
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"account_connector_id", "annotations", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

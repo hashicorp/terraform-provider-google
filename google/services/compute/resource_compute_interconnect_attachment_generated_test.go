@@ -71,6 +71,12 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "region", "router", "subnet_length", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_compute_interconnect_attachment.on_prem",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -121,6 +127,12 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentDedicatedExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "region", "router", "subnet_length", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_compute_interconnect_attachment.on_prem",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -188,6 +200,12 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncr
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "region", "router", "subnet_length", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_compute_interconnect_attachment.ipsec-encrypted-interconnect-attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

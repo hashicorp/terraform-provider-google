@@ -135,6 +135,25 @@ func ResourceIAMBetaWorkloadIdentityPoolProvider() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"workload_identity_pool_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"workload_identity_pool_provider_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"workload_identity_pool_id": {
 				Type:     schema.TypeString,
@@ -647,6 +666,29 @@ func resourceIAMBetaWorkloadIdentityPoolProviderRead(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("workload_identity_pool_id"); ok && v != "" {
+			err = identity.Set("workload_identity_pool_id", d.Get("workload_identity_pool_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting workload_identity_pool_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("workload_identity_pool_provider_id"); ok && v != "" {
+			err = identity.Set("workload_identity_pool_provider_id", d.Get("workload_identity_pool_provider_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting workload_identity_pool_provider_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

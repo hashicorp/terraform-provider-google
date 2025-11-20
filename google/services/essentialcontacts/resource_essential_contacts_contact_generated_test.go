@@ -71,6 +71,12 @@ func TestAccEssentialContactsContact_essentialContactExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent"},
 			},
+			{
+				ResourceName:       "google_essential_contacts_contact.contact",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

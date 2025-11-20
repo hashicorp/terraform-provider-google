@@ -71,6 +71,12 @@ func TestAccComputeTargetSslProxy_targetSslProxyBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend_service", "ssl_policy"},
 			},
+			{
+				ResourceName:       "google_compute_target_ssl_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

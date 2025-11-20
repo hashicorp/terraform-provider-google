@@ -71,6 +71,12 @@ func TestAccStorageBatchOperationsJob_storageBatchOperationsExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"delete_protection", "job_id"},
 			},
+			{
+				ResourceName:       "google_storage_batch_operations_job.tf-job",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

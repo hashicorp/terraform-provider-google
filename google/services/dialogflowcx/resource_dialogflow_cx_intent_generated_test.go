@@ -71,6 +71,12 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentFullExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "parent", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_intent.basic_intent",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -148,6 +154,12 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultNegativeIntentExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "parent", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_intent.default_negative_intent",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -198,6 +210,12 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultWelcomeIntentExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "parent", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dialogflow_cx_intent.default_welcome_intent",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

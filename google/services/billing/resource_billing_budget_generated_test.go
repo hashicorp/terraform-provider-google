@@ -72,6 +72,12 @@ func TestAccBillingBudget_billingBudgetBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
+			{
+				ResourceName:       "google_billing_budget.budget",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -119,6 +125,12 @@ func TestAccBillingBudget_billingBudgetLastperiodExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
+			},
+			{
+				ResourceName:       "google_billing_budget.budget",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -177,6 +189,12 @@ func TestAccBillingBudget_billingBudgetFilterExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
+			},
+			{
+				ResourceName:       "google_billing_budget.budget",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -242,6 +260,12 @@ func TestAccBillingBudget_billingBudgetNotifyExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
+			},
+			{
+				ResourceName:       "google_billing_budget.budget",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -320,6 +344,12 @@ func TestAccBillingBudget_billingBudgetNotifyProjectRecipientExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
+			{
+				ResourceName:       "google_billing_budget.budget",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -377,6 +407,12 @@ func TestAccBillingBudget_billingBudgetCustomperiodExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
+			},
+			{
+				ResourceName:       "google_billing_budget.budget",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -452,6 +488,12 @@ func TestAccBillingBudget_billingBudgetOptionalExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"billing_account"},
+			},
+			{
+				ResourceName:       "google_billing_budget.budget",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

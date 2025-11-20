@@ -75,6 +75,12 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "deletion_protection", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -150,6 +156,12 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterOdbnetworkE
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "deletion_protection", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -216,6 +228,12 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterFullExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "deletion_protection", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

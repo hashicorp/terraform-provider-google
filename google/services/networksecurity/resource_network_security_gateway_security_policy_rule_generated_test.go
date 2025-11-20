@@ -71,6 +71,12 @@ func TestAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecur
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"gateway_security_policy", "location", "name"},
 			},
+			{
+				ResourceName:       "google_network_security_gateway_security_policy_rule.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -116,6 +122,12 @@ func TestAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecur
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"gateway_security_policy", "location", "name"},
+			},
+			{
+				ResourceName:       "google_network_security_gateway_security_policy_rule.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

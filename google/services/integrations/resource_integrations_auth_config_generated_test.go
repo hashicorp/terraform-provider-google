@@ -71,6 +71,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigAdvanceExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
 			},
+			{
+				ResourceName:       "google_integrations_auth_config.advance_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -122,6 +128,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
 			},
+			{
+				ResourceName:       "google_integrations_auth_config.username_and_password_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -164,6 +176,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCode
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
+			},
+			{
+				ResourceName:       "google_integrations_auth_config.oauth2_authotization_code_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -210,6 +228,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentials
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
+			},
+			{
+				ResourceName:       "google_integrations_auth_config.oauth2_client_credentials_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -271,6 +295,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
 			},
+			{
+				ResourceName:       "google_integrations_auth_config.jwt_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -315,6 +345,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
 			},
+			{
+				ResourceName:       "google_integrations_auth_config.auth_token_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -357,6 +393,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
+			},
+			{
+				ResourceName:       "google_integrations_auth_config.service_account_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -406,6 +448,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
 			},
+			{
+				ResourceName:       "google_integrations_auth_config.oidc_token_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -453,6 +501,12 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyEx
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
+			},
+			{
+				ResourceName:       "google_integrations_auth_config.client_certificate_example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

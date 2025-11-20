@@ -107,6 +107,29 @@ func ResourceSecureSourceManagerBranchRule() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"branch_rule_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"repository_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"branch_rule_id": {
 				Type:        schema.TypeString,
@@ -386,6 +409,35 @@ func resourceSecureSourceManagerBranchRuleRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading BranchRule: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("branch_rule_id"); ok && v != "" {
+			err = identity.Set("branch_rule_id", d.Get("branch_rule_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting branch_rule_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); ok && v != "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("repository_id"); ok && v != "" {
+			err = identity.Set("repository_id", d.Get("repository_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting repository_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

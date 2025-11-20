@@ -77,6 +77,12 @@ func TestAccApigeeEnvgroupAttachment_apigeeEnvironmentGroupAttachmentBasicTestEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"envgroup_id"},
 			},
+			{
+				ResourceName:       "google_apigee_envgroup_attachment.apigee_environment_group_attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

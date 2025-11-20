@@ -71,6 +71,12 @@ func TestAccComputeInstanceSettings_instanceSettingsBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"zone"},
 			},
+			{
+				ResourceName:       "google_compute_instance_settings.gce_instance_settings",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

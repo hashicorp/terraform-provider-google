@@ -70,6 +70,12 @@ func TestAccDiscoveryEngineUserStore_discoveryengineUserstoreBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "user_store_id"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_user_store.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

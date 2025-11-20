@@ -71,6 +71,12 @@ func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBasicExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"blockchain_node_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_blockchain_node_engine_blockchain_nodes.default_node",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -120,6 +126,12 @@ func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesGethDetailsExampl
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"blockchain_node_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_blockchain_node_engine_blockchain_nodes.default_node_geth",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

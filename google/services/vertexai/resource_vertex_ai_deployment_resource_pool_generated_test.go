@@ -71,6 +71,12 @@ func TestAccVertexAIDeploymentResourcePool_vertexAiDeploymentResourcePoolExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_deployment_resource_pool.deployment_resource_pool",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

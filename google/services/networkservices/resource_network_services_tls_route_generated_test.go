@@ -71,6 +71,12 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteBasicExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name"},
 			},
+			{
+				ResourceName:       "google_network_services_tls_route.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -128,6 +134,12 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteMeshBasicExample(t *t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name"},
+			},
+			{
+				ResourceName:       "google_network_services_tls_route.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -198,6 +210,12 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteGatewayBasicExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name"},
+			},
+			{
+				ResourceName:       "google_network_services_tls_route.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

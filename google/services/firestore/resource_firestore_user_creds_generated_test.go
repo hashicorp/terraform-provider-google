@@ -72,6 +72,12 @@ func TestAccFirestoreUserCreds_firestoreUserCredsBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"database", "secure_password"},
 			},
+			{
+				ResourceName:       "google_firestore_user_creds.my-user-creds",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -118,6 +124,12 @@ func TestAccFirestoreUserCreds_firestoreUserCredsWithSecretManagerExample(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"database", "secure_password"},
+			},
+			{
+				ResourceName:       "google_firestore_user_creds.my-user-creds",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

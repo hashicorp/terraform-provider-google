@@ -71,6 +71,12 @@ func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyBasicExample(t *
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "server_tls_policy", "ssl_policy", "url_map"},
 			},
+			{
+				ResourceName:       "google_compute_region_target_https_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -154,6 +160,12 @@ func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyHttpKeepAliveTim
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "server_tls_policy", "ssl_policy", "url_map"},
+			},
+			{
+				ResourceName:       "google_compute_region_target_https_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -241,6 +253,12 @@ func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyCertificateManag
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "server_tls_policy", "ssl_policy", "url_map"},
+			},
+			{
+				ResourceName:       "google_compute_region_target_https_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -71,6 +71,12 @@ func TestAccStorageFolder_storageFolderBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"bucket", "force_destroy"},
 			},
+			{
+				ResourceName:       "google_storage_folder.folder",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

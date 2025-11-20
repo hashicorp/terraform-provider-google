@@ -77,6 +77,12 @@ func TestAccApphubService_apphubServiceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "location", "service_id"},
 			},
+			{
+				ResourceName:       "google_apphub_service.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -221,6 +227,12 @@ func TestAccApphubService_apphubServiceFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"application_id", "location", "service_id"},
+			},
+			{
+				ResourceName:       "google_apphub_service.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

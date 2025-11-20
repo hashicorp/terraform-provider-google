@@ -107,6 +107,25 @@ func ResourceIdentityPlatformTenantDefaultSupportedIdpConfig() *schema.Resource 
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"idp_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"tenant": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"client_id": {
 				Type:        schema.TypeString,
@@ -299,6 +318,29 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigRead(d *schema.Resou
 		return fmt.Errorf("Error reading TenantDefaultSupportedIdpConfig: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("idp_id"); ok && v != "" {
+			err = identity.Set("idp_id", d.Get("idp_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting idp_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("tenant"); ok && v != "" {
+			err = identity.Set("tenant", d.Get("tenant").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting tenant: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

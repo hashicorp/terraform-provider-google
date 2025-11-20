@@ -73,6 +73,12 @@ func TestAccModelArmorTemplate_modelarmorTemplateBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "template_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_model_armor_template.template-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -124,6 +130,12 @@ func TestAccModelArmorTemplate_modelarmorTemplateFilterConfigExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "template_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_model_armor_template.template-filter-config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -198,6 +210,12 @@ func TestAccModelArmorTemplate_modelarmorTemplateTemplateMetadataExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "template_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_model_armor_template.template-template-metadata",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -263,6 +281,12 @@ func TestAccModelArmorTemplate_modelarmorTemplateLabelExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "template_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_model_armor_template.template-label-advanced-config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

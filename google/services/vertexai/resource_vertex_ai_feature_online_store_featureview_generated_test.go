@@ -71,6 +71,12 @@ func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeat
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"feature_online_store", "labels", "name", "region", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_feature_online_store_featureview.featureview",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -169,6 +175,12 @@ func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeat
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"feature_online_store", "labels", "name", "region", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_feature_online_store_featureview.featureview_featureregistry",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -296,6 +308,12 @@ func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeat
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"feature_online_store", "feature_registry_source.0.project_number", "labels", "name", "region", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_feature_online_store_featureview.cross_project_featureview",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

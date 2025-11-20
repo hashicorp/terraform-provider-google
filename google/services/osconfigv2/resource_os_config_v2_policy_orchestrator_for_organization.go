@@ -107,6 +107,21 @@ func ResourceOSConfigV2PolicyOrchestratorForOrganization() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"organization_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"policy_orchestrator_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"action": {
 				Type:     schema.TypeString,
@@ -1926,6 +1941,23 @@ func resourceOSConfigV2PolicyOrchestratorForOrganizationRead(d *schema.ResourceD
 		return fmt.Errorf("Error reading PolicyOrchestratorForOrganization: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("organization_id"); ok && v != "" {
+			err = identity.Set("organization_id", d.Get("organization_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting organization_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("policy_orchestrator_id"); ok && v != "" {
+			err = identity.Set("policy_orchestrator_id", d.Get("policy_orchestrator_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

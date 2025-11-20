@@ -76,6 +76,12 @@ func TestAccApigeeEnvironmentKeyvaluemaps_apigeeEnvironmentKeyvaluemapsTestExamp
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"env_id"},
 			},
+			{
+				ResourceName:       "google_apigee_environment_keyvaluemaps.apigee_environment_keyvaluemaps",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

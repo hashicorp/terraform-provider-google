@@ -71,6 +71,12 @@ func TestAccHealthcareWorkspace_healthcareWorkspaceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"dataset", "labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_healthcare_workspace.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -71,6 +71,12 @@ func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyBasicExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_clouddeploy_deploy_policy.b-deploy-policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -127,6 +133,12 @@ func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyFullExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_clouddeploy_deploy_policy.f-deploy-policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

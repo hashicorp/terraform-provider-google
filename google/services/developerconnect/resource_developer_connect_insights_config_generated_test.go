@@ -77,6 +77,12 @@ func TestAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigBasicEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_insights_config.insights_config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

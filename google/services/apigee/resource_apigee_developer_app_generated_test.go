@@ -77,6 +77,12 @@ func TestAccApigeeDeveloperApp_apigeeDeveloperAppBasicTestExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"developer_email", "org_id"},
 			},
+			{
+				ResourceName:       "google_apigee_developer_app.apigee_developer_app",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

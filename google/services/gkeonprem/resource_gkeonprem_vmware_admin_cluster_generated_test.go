@@ -70,6 +70,12 @@ func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "platform_config.0.required_platform_version"},
 			},
+			{
+				ResourceName:       "google_gkeonprem_vmware_admin_cluster.admin-cluster-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -142,6 +148,12 @@ func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterFullExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "platform_config.0.required_platform_version"},
+			},
+			{
+				ResourceName:       "google_gkeonprem_vmware_admin_cluster.admin-cluster-full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -266,6 +278,12 @@ func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterMetallbExampl
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "platform_config.0.required_platform_version"},
+			},
+			{
+				ResourceName:       "google_gkeonprem_vmware_admin_cluster.admin-cluster-metallb",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

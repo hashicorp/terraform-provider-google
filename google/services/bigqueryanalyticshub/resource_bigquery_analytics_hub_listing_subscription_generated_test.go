@@ -71,6 +71,12 @@ func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingS
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_exchange_id", "listing_id", "location"},
 			},
+			{
+				ResourceName:       "google_bigquery_analytics_hub_listing_subscription.subscription",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

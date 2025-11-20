@@ -70,6 +70,12 @@ func TestAccServiceNetworkingVPCServiceControls_serviceNetworkingVpcServiceContr
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "project", "service"},
 			},
+			{
+				ResourceName:       "google_service_networking_vpc_service_controls.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

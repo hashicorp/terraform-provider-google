@@ -71,6 +71,12 @@ func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
 			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -110,6 +116,12 @@ func TestAccLookerInstance_lookerInstanceFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
+			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -182,6 +194,12 @@ func TestAccLookerInstance_lookerInstanceFipsExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
 			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -225,6 +243,12 @@ func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T)
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
+			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -320,6 +344,12 @@ func TestAccLookerInstance_lookerInstanceCustomDomainExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
 			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -363,6 +393,12 @@ func TestAccLookerInstance_lookerInstancePscExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
+			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -410,6 +446,12 @@ func TestAccLookerInstance_lookerInstanceForceDeleteExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "name", "oauth_config", "region"},
+			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

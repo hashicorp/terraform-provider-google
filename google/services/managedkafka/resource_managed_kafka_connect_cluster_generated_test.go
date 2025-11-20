@@ -76,6 +76,12 @@ func TestAccManagedKafkaConnectCluster_managedkafkaConnectClusterBasicExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connect_cluster_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_managed_kafka_connect_cluster.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

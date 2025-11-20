@@ -107,6 +107,25 @@ func ResourceBigtableMaterializedView() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"materialized_view_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"instance": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"materialized_view_id": {
 				Type:        schema.TypeString,
@@ -267,6 +286,29 @@ func resourceBigtableMaterializedViewRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading MaterializedView: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("materialized_view_id"); ok && v != "" {
+			err = identity.Set("materialized_view_id", d.Get("materialized_view_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting materialized_view_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("instance"); ok && v != "" {
+			err = identity.Set("instance", d.Get("instance").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

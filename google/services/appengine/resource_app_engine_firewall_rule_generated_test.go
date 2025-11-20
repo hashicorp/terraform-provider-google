@@ -72,6 +72,12 @@ func TestAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(t *testing.T
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_app_engine_firewall_rule.rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

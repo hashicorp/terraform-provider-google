@@ -75,6 +75,12 @@ func TestAccIAM3FoldersPolicyBinding_iamFoldersPolicyBindingExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "folder", "location", "policy_binding_id"},
 			},
+			{
+				ResourceName:       "google_iam_folders_policy_binding.binding-for-all-folder-principals",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

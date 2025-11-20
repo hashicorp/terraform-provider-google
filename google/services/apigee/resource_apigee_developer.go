@@ -103,6 +103,21 @@ func ResourceApigeeDeveloper() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"email": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"email": {
 				Type:        schema.TypeString,
@@ -315,6 +330,23 @@ func resourceApigeeDeveloperRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Developer: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("email"); ok && v != "" {
+			err = identity.Set("email", d.Get("email").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting email: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

@@ -73,6 +73,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "serviceinstance", "spark_application_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -116,6 +122,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationExample(t *te
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "serviceinstance", "spark_application_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -181,6 +193,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationPysparkExampl
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "serviceinstance", "spark_application_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -230,6 +248,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparkrExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "serviceinstance", "spark_application_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -275,6 +299,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlExamp
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "serviceinstance", "spark_application_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -324,6 +354,12 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlQuery
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "serviceinstance", "spark_application_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

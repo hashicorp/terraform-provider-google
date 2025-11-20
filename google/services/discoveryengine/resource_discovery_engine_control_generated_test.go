@@ -71,6 +71,12 @@ func TestAccDiscoveryEngineControl_discoveryengineControlBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection_id", "control_id", "engine_id", "location"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_control.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

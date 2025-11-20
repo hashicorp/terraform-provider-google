@@ -71,6 +71,12 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_database_migration_service_migration_job.mysqltomysql",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -206,6 +212,12 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_database_migration_service_migration_job.psqltopsql",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -325,6 +337,12 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "migration_job_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_database_migration_service_migration_job.psqltoalloydb",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

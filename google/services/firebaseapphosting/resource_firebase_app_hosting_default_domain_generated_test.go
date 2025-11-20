@@ -72,6 +72,12 @@ func TestAccFirebaseAppHostingDefaultDomain_firebaseAppHostingDefaultDomainMinim
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend", "domain_id", "location"},
 			},
+			{
+				ResourceName:       "google_firebase_app_hosting_default_domain.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -130,6 +136,12 @@ func TestAccFirebaseAppHostingDefaultDomain_firebaseAppHostingDefaultDomainFullE
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend", "domain_id", "location"},
+			},
+			{
+				ResourceName:       "google_firebase_app_hosting_default_domain.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -191,6 +203,12 @@ func TestAccFirebaseAppHostingDefaultDomain_firebaseAppHostingDefaultDomainDisab
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend", "domain_id", "location"},
+			},
+			{
+				ResourceName:       "google_firebase_app_hosting_default_domain.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

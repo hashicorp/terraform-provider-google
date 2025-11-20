@@ -71,6 +71,12 @@ func TestAccGeminiLoggingSetting_geminiLoggingSettingBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "logging_setting_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gemini_logging_setting.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

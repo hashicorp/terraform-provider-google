@@ -101,6 +101,21 @@ func ResourceAccessContextManagerIngressPolicy() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"resource": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"ingress_policy_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"ingress_policy_name": {
 				Type:             schema.TypeString,
@@ -259,6 +274,23 @@ func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading IngressPolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("resource"); ok && v != "" {
+			err = identity.Set("resource", d.Get("resource").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("ingress_policy_name"); ok && v != "" {
+			err = identity.Set("ingress_policy_name", d.Get("ingress_policy_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting ingress_policy_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

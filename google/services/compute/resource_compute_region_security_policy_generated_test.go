@@ -71,6 +71,12 @@ func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyBasicExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
 			},
+			{
+				ResourceName:       "google_compute_region_security_policy.region-sec-policy-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -105,6 +111,12 @@ func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithDdosProtectionCo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
+			},
+			{
+				ResourceName:       "google_compute_region_security_policy.region-sec-policy-ddos-protection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -144,6 +156,12 @@ func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithUserDefinedField
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
+			},
+			{
+				ResourceName:       "google_compute_region_security_policy.region-sec-policy-user-defined-fields",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -193,6 +211,12 @@ func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithRulesExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region"},
+			},
+			{
+				ResourceName:       "google_compute_region_security_policy.region-sec-policy-with-rules",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

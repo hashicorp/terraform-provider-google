@@ -71,6 +71,12 @@ func TestAccGkeonpremBareMetalNodePool_gkeonpremBareMetalNodePoolBasicExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "bare_metal_cluster", "location", "name"},
 			},
+			{
+				ResourceName:       "google_gkeonprem_bare_metal_node_pool.nodepool-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -181,6 +187,12 @@ func TestAccGkeonpremBareMetalNodePool_gkeonpremBareMetalNodePoolFullExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "bare_metal_cluster", "location", "name"},
+			},
+			{
+				ResourceName:       "google_gkeonprem_bare_metal_node_pool.nodepool-full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

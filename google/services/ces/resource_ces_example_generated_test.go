@@ -71,6 +71,12 @@ func TestAccCESExample_cesExampleBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app", "example_id", "location"},
 			},
+			{
+				ResourceName:       "google_ces_example.my-example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

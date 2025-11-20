@@ -76,6 +76,12 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *test
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "membership_binding_id", "membership_id", "scope", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_hub_membership_binding.membership_binding",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

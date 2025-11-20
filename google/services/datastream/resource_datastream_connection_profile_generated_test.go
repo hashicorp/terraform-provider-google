@@ -71,6 +71,12 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "create_without_validation", "labels", "location", "mongodb_profile.0.ssl_config.0.ca_certificate", "mongodb_profile.0.ssl_config.0.client_certificate", "mongodb_profile.0.ssl_config.0.client_key", "mongodb_profile.0.ssl_config.0.secret_manager_stored_client_key", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_datastream_connection_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -116,6 +122,12 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresqlPri
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "create_without_validation", "labels", "location", "mongodb_profile.0.ssl_config.0.ca_certificate", "mongodb_profile.0.ssl_config.0.client_certificate", "mongodb_profile.0.ssl_config.0.client_key", "mongodb_profile.0.ssl_config.0.secret_manager_stored_client_key", "postgresql_profile.0.password", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_datastream_connection_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -278,6 +290,12 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "create_without_validation", "forward_ssh_connectivity.0.password", "labels", "location", "mongodb_profile.0.ssl_config.0.ca_certificate", "mongodb_profile.0.ssl_config.0.client_certificate", "mongodb_profile.0.ssl_config.0.client_key", "mongodb_profile.0.ssl_config.0.secret_manager_stored_client_key", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_datastream_connection_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -327,6 +345,12 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresSecre
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "create_without_validation", "labels", "location", "mongodb_profile.0.ssl_config.0.ca_certificate", "mongodb_profile.0.ssl_config.0.client_certificate", "mongodb_profile.0.ssl_config.0.client_key", "mongodb_profile.0.ssl_config.0.secret_manager_stored_client_key", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_datastream_connection_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

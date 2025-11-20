@@ -71,6 +71,12 @@ func TestAccCESDeployment_cesDeploymentBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app", "app_version", "location"},
 			},
+			{
+				ResourceName:       "google_ces_deployment.my-deployment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

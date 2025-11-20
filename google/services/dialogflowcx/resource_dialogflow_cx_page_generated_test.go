@@ -71,6 +71,12 @@ func TestAccDialogflowCXPage_dialogflowcxPageFullExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"knowledge_connector_settings.0.trigger_fulfillment.0.advanced_settings.0.logging_settings", "parent"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_page.basic_page",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

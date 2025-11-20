@@ -72,6 +72,12 @@ func TestAccChronicleWatchlist_chronicleWatchlistBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance", "location"},
 			},
+			{
+				ResourceName:       "google_chronicle_watchlist.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

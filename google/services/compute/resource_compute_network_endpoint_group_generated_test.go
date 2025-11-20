@@ -71,6 +71,12 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "subnetwork", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_network_endpoint_group.neg",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -119,6 +125,12 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "subnetwork", "zone"},
+			},
+			{
+				ResourceName:       "google_compute_network_endpoint_group.neg",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

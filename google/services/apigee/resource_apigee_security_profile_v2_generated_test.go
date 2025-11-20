@@ -77,6 +77,12 @@ func TestAccApigeeSecurityProfileV2_apigeeSecurityProfileV2BasicTestExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id", "profile_id"},
 			},
+			{
+				ResourceName:       "google_apigee_security_profile_v2.security_profile_v2",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

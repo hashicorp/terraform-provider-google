@@ -71,6 +71,12 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "mysql.0.password", "mysql.0.ssl.0.ca_certificate", "mysql.0.ssl.0.client_certificate", "mysql.0.ssl.0.client_key", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_database_migration_service_connection_profile.cloudsqlprofile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -187,6 +193,12 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "postgresql.0.password", "postgresql.0.ssl.0.ca_certificate", "postgresql.0.ssl.0.client_certificate", "postgresql.0.ssl.0.client_key", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_database_migration_service_connection_profile.postgresprofile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -264,6 +276,12 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "postgresql.0.password", "postgresql.0.ssl.0.ca_certificate", "postgresql.0.ssl.0.client_certificate", "postgresql.0.ssl.0.client_key", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_database_migration_service_connection_profile.postgresprofile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -337,6 +355,12 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "postgresql.0.password", "postgresql.0.ssl.0.ca_certificate", "postgresql.0.ssl.0.client_certificate", "postgresql.0.ssl.0.client_key", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_database_migration_service_connection_profile.postgresprofile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -412,6 +436,12 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_database_migration_service_connection_profile.existing-mysql",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -467,6 +497,12 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_database_migration_service_connection_profile.existing-psql",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -521,6 +557,12 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_database_migration_service_connection_profile.existing-alloydb",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -136,6 +136,21 @@ func ResourceSecretManagerSecret() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"secret_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"replication": {
 				Type:     schema.TypeList,
@@ -610,6 +625,23 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Secret: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("secret_id"); ok && v != "" {
+			err = identity.Set("secret_id", d.Get("secret_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting secret_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

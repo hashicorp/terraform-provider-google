@@ -77,6 +77,12 @@ func TestAccApigeeAppGroup_apigeeAppGroupBasicTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id"},
 			},
+			{
+				ResourceName:       "google_apigee_app_group.apigee_app_group",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -190,6 +196,12 @@ func TestAccApigeeAppGroup_apigeeAppGroupWithAttributesTestExample(t *testing.T)
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id"},
+			},
+			{
+				ResourceName:       "google_apigee_app_group.apigee_app_group",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

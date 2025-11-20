@@ -72,6 +72,12 @@ func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ddl", "default_time_zone", "deletion_protection", "instance"},
 			},
+			{
+				ResourceName:       "google_spanner_database.database",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

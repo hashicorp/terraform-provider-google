@@ -71,6 +71,12 @@ func TestAccDiscoveryEngineTargetSite_discoveryengineTargetsiteBasicExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_store_id", "location", "project", "provided_uri_pattern", "target_site_id"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_target_site.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -118,6 +124,12 @@ func TestAccDiscoveryEngineTargetSite_discoveryengineTargetsiteAdvancedExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_store_id", "location", "project", "provided_uri_pattern", "target_site_id"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_target_site.advanced",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

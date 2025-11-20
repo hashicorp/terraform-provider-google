@@ -71,6 +71,12 @@ func TestAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePr
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "private_connection_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_database_migration_service_private_connection.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

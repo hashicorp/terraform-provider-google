@@ -71,6 +71,12 @@ func TestAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationeng
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"common_config", "engine_id", "industry_vertical", "location"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_recommendation_engine.generic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -120,6 +126,12 @@ func TestAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationeng
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"common_config", "engine_id", "industry_vertical", "location"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_recommendation_engine.media",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

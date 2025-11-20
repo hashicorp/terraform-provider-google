@@ -97,6 +97,17 @@ func ResourceAccessContextManagerAccessLevelCondition() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"access_level": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"access_level": {
 				Type:             schema.TypeString,
@@ -525,6 +536,17 @@ func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData
 		return fmt.Errorf("Error reading AccessLevelCondition: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("access_level"); ok && v != "" {
+			err = identity.Set("access_level", d.Get("access_level").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting access_level: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

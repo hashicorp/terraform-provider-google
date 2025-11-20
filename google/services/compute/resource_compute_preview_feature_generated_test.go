@@ -70,6 +70,12 @@ func TestAccComputePreviewFeature_previewFeatureBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "rollout_operation"},
 			},
+			{
+				ResourceName:       "google_compute_preview_feature.gce_preview_feature",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

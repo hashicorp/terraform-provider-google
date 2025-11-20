@@ -70,6 +70,12 @@ func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_logging_metric.logging_metric",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -131,6 +137,12 @@ func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_logging_metric.logging_metric",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -167,6 +179,12 @@ func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
 				ResourceName:      "google_logging_metric.logging_metric",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_logging_metric.logging_metric",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -214,6 +232,12 @@ func TestAccLoggingMetric_loggingMetricLoggingBucketExample(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_logging_metric.logging_metric",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -253,6 +277,12 @@ func TestAccLoggingMetric_loggingMetricDisabledExample(t *testing.T) {
 				ResourceName:      "google_logging_metric.logging_metric",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_logging_metric.logging_metric",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

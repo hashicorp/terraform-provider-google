@@ -71,6 +71,12 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_backend_bucket.image_backend",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -111,6 +117,12 @@ func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				ResourceName:       "google_compute_backend_bucket.image_backend_full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -164,6 +176,12 @@ func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_backend_bucket.image_backend",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -212,6 +230,12 @@ func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_backend_bucket.image_backend",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -258,6 +282,12 @@ func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_backend_bucket.image_backend",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -303,6 +333,12 @@ func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				ResourceName:       "google_compute_backend_bucket.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -435,6 +471,12 @@ func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_backend_bucket.image_backend",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -480,6 +522,12 @@ func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				ResourceName:       "google_compute_backend_bucket.image_backend",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -527,6 +575,12 @@ func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				ResourceName:       "google_compute_backend_bucket.global-ilb-backend",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

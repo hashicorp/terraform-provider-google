@@ -101,6 +101,21 @@ func ResourceApigeeEndpointAttachment() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"endpoint_attachment_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"endpoint_attachment_id": {
 				Type:        schema.TypeString,
@@ -267,6 +282,23 @@ func resourceApigeeEndpointAttachmentRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading EndpointAttachment: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("endpoint_attachment_id"); ok && v != "" {
+			err = identity.Set("endpoint_attachment_id", d.Get("endpoint_attachment_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting endpoint_attachment_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

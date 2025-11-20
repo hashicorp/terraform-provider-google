@@ -75,6 +75,12 @@ func TestAccApihubHostProjectRegistration_apihubHostProjectRegistrationBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"host_project_registration_id", "location"},
 			},
+			{
+				ResourceName:       "google_apihub_host_project_registration.apihub_host_project",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

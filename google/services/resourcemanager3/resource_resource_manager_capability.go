@@ -103,6 +103,21 @@ func ResourceResourceManager3Capability() *schema.Resource {
 			Delete: schema.DefaultTimeout(0 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"parent": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"capability_name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"capability_name": {
 				Type:        schema.TypeString,
@@ -225,6 +240,23 @@ func resourceResourceManager3CapabilityRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading Capability: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("parent"); ok && v != "" {
+			err = identity.Set("parent", d.Get("parent").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("capability_name"); ok && v != "" {
+			err = identity.Set("capability_name", d.Get("capability_name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting capability_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

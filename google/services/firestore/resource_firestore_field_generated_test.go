@@ -73,6 +73,12 @@ func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
 			},
+			{
+				ResourceName:       "google_firestore_field.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -131,6 +137,12 @@ func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
 			},
+			{
+				ResourceName:       "google_firestore_field.timestamp",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -184,6 +196,12 @@ func TestAccFirestoreField_firestoreFieldMatchOverrideExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
+			},
+			{
+				ResourceName:       "google_firestore_field.match_override",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -244,6 +262,12 @@ func TestAccFirestoreField_firestoreFieldWildcardExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
+			},
+			{
+				ResourceName:       "google_firestore_field.wildcard",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

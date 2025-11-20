@@ -70,6 +70,12 @@ func TestAccDialogflowCXGenerativeSettings_dialogflowcxGenerativeSettingsFullExa
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"fallback_settings.0.prompt_templates", "parent"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_generative_settings.full_generative_settings",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
