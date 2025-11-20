@@ -72,6 +72,12 @@ func TestAccCloudRunDomainMapping_cloudRunDomainMappingBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
 			},
+			{
+				ResourceName:       "google_cloud_run_domain_mapping.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -71,6 +71,12 @@ func TestAccDNSResponsePolicyRule_dnsResponsePolicyRuleBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"response_policy"},
 			},
+			{
+				ResourceName:       "google_dns_response_policy_rule.example-response-policy-rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

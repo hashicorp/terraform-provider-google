@@ -72,6 +72,12 @@ func TestAccAlloydbInstance_alloydbInstanceBasicTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "cluster", "display_name", "instance_id", "labels", "reconciling", "terraform_labels", "update_time"},
 			},
+			{
+				ResourceName:       "google_alloydb_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -130,6 +136,12 @@ func TestAccAlloydbInstance_alloydbSecondaryInstanceBasicTestExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "cluster", "display_name", "instance_id", "labels", "reconciling", "terraform_labels", "update_time"},
+			},
+			{
+				ResourceName:       "google_alloydb_instance.secondary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -221,6 +233,12 @@ func TestAccAlloydbInstance_alloydbInstancePscTestExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "cluster", "display_name", "instance_id", "labels", "reconciling", "terraform_labels", "update_time"},
+			},
+			{
+				ResourceName:       "google_alloydb_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

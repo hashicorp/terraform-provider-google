@@ -101,6 +101,29 @@ func ResourceApigeeApiDeployment() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"environment": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"proxy_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"revision": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"environment": {
 				Type:        schema.TypeString,
@@ -221,6 +244,35 @@ func resourceApigeeApiDeploymentRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading ApiDeployment: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("environment"); ok && v != "" {
+			err = identity.Set("environment", d.Get("environment").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting environment: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("proxy_id"); ok && v != "" {
+			err = identity.Set("proxy_id", d.Get("proxy_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting proxy_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("revision"); ok && v != "" {
+			err = identity.Set("revision", d.Get("revision").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting revision: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

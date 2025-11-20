@@ -103,6 +103,17 @@ func ResourceAccessApprovalProjectSettings() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"enrolled_services": {
 				Type:     schema.TypeSet,
@@ -362,6 +373,17 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading ProjectSettings: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("project_id"); ok && v != "" {
+			err = identity.Set("project_id", d.Get("project_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

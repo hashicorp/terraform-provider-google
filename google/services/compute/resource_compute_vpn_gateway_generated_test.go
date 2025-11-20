@@ -71,6 +71,12 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
+			{
+				ResourceName:       "google_compute_vpn_gateway.target_gateway",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

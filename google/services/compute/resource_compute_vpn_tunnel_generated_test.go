@@ -71,6 +71,12 @@ func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "peer_external_gateway", "peer_gcp_gateway", "region", "router", "shared_secret", "shared_secret_wo", "target_vpn_gateway", "terraform_labels", "vpn_gateway"},
 			},
+			{
+				ResourceName:       "google_compute_vpn_tunnel.tunnel1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -162,6 +168,12 @@ func TestAccComputeVpnTunnel_vpnTunnelCipherSuiteExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "peer_external_gateway", "peer_gcp_gateway", "region", "router", "shared_secret", "shared_secret_wo", "target_vpn_gateway", "terraform_labels", "vpn_gateway"},
+			},
+			{
+				ResourceName:       "google_compute_vpn_tunnel.tunnel1",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

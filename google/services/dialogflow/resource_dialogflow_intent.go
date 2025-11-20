@@ -107,6 +107,17 @@ func ResourceDialogflowIntent() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Type:        schema.TypeString,
@@ -454,6 +465,17 @@ func resourceDialogflowIntentRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Intent: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("name"); ok && v != "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

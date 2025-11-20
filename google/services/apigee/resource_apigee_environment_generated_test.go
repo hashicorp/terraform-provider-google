@@ -77,6 +77,12 @@ func TestAccApigeeEnvironment_apigeeEnvironmentBasicTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id"},
 			},
+			{
+				ResourceName:       "google_apigee_environment.apigee_environment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -187,6 +193,12 @@ func TestAccApigeeEnvironment_apigeeEnvironmentBasicDeploymentApiproxyTypeTestEx
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id"},
+			},
+			{
+				ResourceName:       "google_apigee_environment.apigee_environment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -299,6 +311,12 @@ func TestAccApigeeEnvironment_apigeeEnvironmentBasicPropertiesTestExample(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id"},
+			},
+			{
+				ResourceName:       "google_apigee_environment.apigee_environment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -415,6 +433,12 @@ func TestAccApigeeEnvironment_apigeeEnvironmentClientIpResolutionConfigTestExamp
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id"},
+			},
+			{
+				ResourceName:       "google_apigee_environment.apigee_environment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

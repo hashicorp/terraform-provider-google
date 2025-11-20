@@ -71,6 +71,12 @@ func TestAccIapSettings_iapSettingsBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"access_settings.0.workforce_identity_settings.0.oauth2.0.client_secret", "name"},
 			},
+			{
+				ResourceName:       "google_iap_settings.iap_settings",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

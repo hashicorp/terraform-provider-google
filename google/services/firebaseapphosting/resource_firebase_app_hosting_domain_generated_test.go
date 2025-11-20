@@ -74,6 +74,12 @@ func TestAccFirebaseAppHostingDomain_firebaseAppHostingDomainMinimalExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend", "domain_id", "location"},
 			},
+			{
+				ResourceName:       "google_firebase_app_hosting_domain.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -134,6 +140,12 @@ func TestAccFirebaseAppHostingDomain_firebaseAppHostingDomainFullExample(t *test
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"backend", "custom_domain_status", "domain_id", "location"},
+			},
+			{
+				ResourceName:       "google_firebase_app_hosting_domain.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

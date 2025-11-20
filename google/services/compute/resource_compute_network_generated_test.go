@@ -71,6 +71,12 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_network.vpc_network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -104,6 +110,12 @@ func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				ResourceName:       "google_compute_network.vpc_network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -142,6 +154,12 @@ func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_network.vpc_network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -179,6 +197,12 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
 			},
+			{
+				ResourceName:       "google_compute_network.vpc_network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -214,6 +238,12 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				ResourceName:       "google_compute_network.vpc_network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -251,6 +281,12 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsEx
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				ResourceName:       "google_compute_network.vpc_network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

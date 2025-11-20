@@ -71,6 +71,12 @@ func TestAccComputeInterconnectAttachmentGroup_interconnectAttachmentGroupBasicE
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_compute_interconnect_attachment_group.example-interconnect-attachment-group",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

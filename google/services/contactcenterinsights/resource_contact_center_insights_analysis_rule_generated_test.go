@@ -71,6 +71,12 @@ func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleB
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
 			},
+			{
+				ResourceName:       "google_contact_center_insights_analysis_rule.analysis_rule_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -105,6 +111,12 @@ func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleF
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_contact_center_insights_analysis_rule.analysis_rule_full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -164,6 +176,12 @@ func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleP
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_contact_center_insights_analysis_rule.analysis_rule_profile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

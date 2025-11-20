@@ -71,6 +71,12 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "terraform_labels", "type"},
 			},
+			{
+				ResourceName:       "google_compute_region_disk.regiondisk",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -124,6 +130,12 @@ func TestAccComputeRegionDisk_regionDiskAsyncExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "terraform_labels", "type"},
 			},
+			{
+				ResourceName:       "google_compute_region_disk.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -174,6 +186,12 @@ func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "terraform_labels", "type"},
+			},
+			{
+				ResourceName:       "google_compute_region_disk.regiondisk",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -226,6 +244,12 @@ func TestAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(t *t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "terraform_labels", "type"},
+			},
+			{
+				ResourceName:       "google_compute_region_disk.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

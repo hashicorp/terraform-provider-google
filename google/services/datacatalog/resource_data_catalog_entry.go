@@ -105,6 +105,17 @@ func ResourceDataCatalogEntry() *schema.Resource {
 
 		DeprecationMessage: "`google_data_catalog_entry` is deprecated and will be removed in a future major release. Data Catalog is deprecated and will be discontinued on January 30, 2026. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.",
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"entry_group": {
 				Type:        schema.TypeString,
@@ -495,6 +506,17 @@ func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Entry: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("name"); ok && v != "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

@@ -71,6 +71,12 @@ func TestAccPrivatecaCertificateTemplate_privatecaTemplateBasicExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_privateca_certificate_template.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -172,6 +178,12 @@ func TestAccPrivatecaCertificateTemplate_privatecaTemplateZeroMaxIssuerPathLengt
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_privateca_certificate_template.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

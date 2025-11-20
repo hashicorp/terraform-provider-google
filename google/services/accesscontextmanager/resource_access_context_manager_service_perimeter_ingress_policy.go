@@ -209,6 +209,17 @@ func ResourceAccessContextManagerServicePerimeterIngressPolicy() *schema.Resourc
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"perimeter": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"perimeter": {
 				Type:             schema.TypeString,
@@ -571,6 +582,17 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyRead(d *schema.Res
 		return fmt.Errorf("Error reading ServicePerimeterIngressPolicy: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("perimeter"); ok && v != "" {
+			err = identity.Set("perimeter", d.Get("perimeter").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting perimeter: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

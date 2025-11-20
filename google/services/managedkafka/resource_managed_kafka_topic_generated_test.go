@@ -71,6 +71,12 @@ func TestAccManagedKafkaTopic_managedkafkaTopicBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cluster", "location", "topic_id"},
 			},
+			{
+				ResourceName:       "google_managed_kafka_topic.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -71,6 +71,12 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -131,6 +137,12 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -235,6 +247,12 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -274,6 +292,12 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -312,6 +336,12 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -416,6 +446,12 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -474,6 +510,12 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedRegiona
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -522,6 +564,12 @@ func TestAccCertificateManagerCertificate_certificateManagerClientAuthCertificat
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

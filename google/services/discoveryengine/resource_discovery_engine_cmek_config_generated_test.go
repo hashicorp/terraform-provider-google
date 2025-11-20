@@ -72,6 +72,12 @@ func TestAccDiscoveryEngineCmekConfig_discoveryengineCmekconfigDefaultExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"cmek_config_id", "location", "project", "set_default"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_cmek_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

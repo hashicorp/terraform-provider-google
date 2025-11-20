@@ -72,6 +72,12 @@ func TestAccDataplexEntryType_dataplexEntryTypeBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"entry_type_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataplex_entry_type.test_entry_type_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -107,6 +113,12 @@ func TestAccDataplexEntryType_dataplexEntryTypeFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"entry_type_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataplex_entry_type.test_entry_type_full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

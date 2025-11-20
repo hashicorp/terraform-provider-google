@@ -75,6 +75,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllNamespacesExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.all_ns",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -151,6 +157,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRollbackNamespaceExample(t 
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.rollback_ns",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -238,6 +250,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanProtectedApplicationExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.rollback_app",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -319,6 +337,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllClusterResourcesExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.all_cluster_resources",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -394,6 +418,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRenameNamespaceExample(t *t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.rename_ns",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -498,6 +528,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanSecondTransformationExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.transform_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -599,6 +635,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanGitopsModeExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.gitops_mode",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -675,6 +717,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRestoreOrderExample(t *test
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.restore_order",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -774,6 +822,12 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanVolumeResExample(t *testing
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_backup_restore_plan.volume_res",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

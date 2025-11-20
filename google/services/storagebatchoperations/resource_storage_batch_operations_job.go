@@ -107,6 +107,21 @@ func ResourceStorageBatchOperationsJob() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"job_id": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"bucket_list": {
 				Type:        schema.TypeList,
@@ -524,6 +539,23 @@ func resourceStorageBatchOperationsJobRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("job_id"); ok && v != "" {
+			err = identity.Set("job_id", d.Get("job_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting job_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

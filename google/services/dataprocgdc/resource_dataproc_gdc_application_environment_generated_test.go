@@ -73,6 +73,12 @@ func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentB
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "application_environment_id", "labels", "location", "serviceinstance", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataproc_gdc_application_environment.application-environment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -111,6 +117,12 @@ func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentE
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "application_environment_id", "labels", "location", "serviceinstance", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataproc_gdc_application_environment.application-environment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

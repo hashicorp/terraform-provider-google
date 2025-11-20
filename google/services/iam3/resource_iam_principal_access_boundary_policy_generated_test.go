@@ -75,6 +75,12 @@ func TestAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyEx
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "organization", "principal_access_boundary_policy_id"},
 			},
+			{
+				ResourceName:       "google_iam_principal_access_boundary_policy.pab-policy-for-org",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

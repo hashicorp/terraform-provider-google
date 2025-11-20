@@ -71,6 +71,12 @@ func TestAccDataPipelinePipeline_dataPipelinePipelineExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "schedule_info.0.next_job_time"},
 			},
+			{
+				ResourceName:       "google_data_pipeline_pipeline.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

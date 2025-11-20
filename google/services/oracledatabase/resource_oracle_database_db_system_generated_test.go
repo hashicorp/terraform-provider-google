@@ -77,6 +77,12 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"db_system_id", "deletion_protection", "labels", "location", "properties.0.database_edition", "properties.0.db_home", "properties.0.hostname_prefix", "properties.0.initial_data_storage_size_gb", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_oracle_database_db_system.my_db_system",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -143,6 +149,12 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemFullExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"db_system_id", "deletion_protection", "labels", "location", "properties.0.database_edition", "properties.0.db_home", "properties.0.hostname_prefix", "properties.0.initial_data_storage_size_gb", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_db_system.my_db_system",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

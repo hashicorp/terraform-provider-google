@@ -71,6 +71,12 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_internal_range.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -118,6 +124,12 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_internal_range.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -162,6 +174,12 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_internal_range.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -208,6 +226,12 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_internal_range.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -267,6 +291,12 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_internal_range.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -324,6 +354,12 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_internal_range.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -371,6 +407,12 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_internal_range.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

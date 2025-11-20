@@ -101,6 +101,29 @@ func ResourceApigeeKeystoresAliasesSelfSignedCert() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"org_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"environment": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"keystore": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"alias": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"alias": {
 				Type:     schema.TypeString,
@@ -433,6 +456,35 @@ func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+			err = identity.Set("org_id", d.Get("org_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("environment"); ok && v != "" {
+			err = identity.Set("environment", d.Get("environment").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting environment: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("keystore"); ok && v != "" {
+			err = identity.Set("keystore", d.Get("keystore").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting keystore: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("alias"); ok && v != "" {
+			err = identity.Set("alias", d.Get("alias").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting alias: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

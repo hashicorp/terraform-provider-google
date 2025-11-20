@@ -70,6 +70,12 @@ func TestAccDiscoveryEngineLicenseConfig_discoveryengineLicenseconfigBasicExampl
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"license_config_id", "location"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_license_config.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

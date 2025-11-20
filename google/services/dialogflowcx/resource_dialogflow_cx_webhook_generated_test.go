@@ -71,6 +71,12 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookStandardExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_webhook.standard_webhook",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -143,6 +149,12 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookFlexibleExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_webhook.flexible_webhook",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -206,6 +218,12 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryStandardExamp
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
+			},
+			{
+				ResourceName:       "google_dialogflow_cx_webhook.standard_webhook",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -281,6 +299,12 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryFlexibleExamp
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
+			},
+			{
+				ResourceName:       "google_dialogflow_cx_webhook.flexible_webhook",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

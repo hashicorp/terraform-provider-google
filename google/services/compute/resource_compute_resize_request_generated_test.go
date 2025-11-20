@@ -71,6 +71,12 @@ func TestAccComputeResizeRequest_computeMigResizeRequestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance_group_manager", "zone"},
 			},
+			{
+				ResourceName:       "google_compute_resize_request.a3_resize_request",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

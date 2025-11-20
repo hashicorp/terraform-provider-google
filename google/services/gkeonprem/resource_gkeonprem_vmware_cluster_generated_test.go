@@ -71,6 +71,12 @@ func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
 			},
+			{
+				ResourceName:       "google_gkeonprem_vmware_cluster.cluster-basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -140,6 +146,12 @@ func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterF5lbExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
+			},
+			{
+				ResourceName:       "google_gkeonprem_vmware_cluster.cluster-f5lb",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -237,6 +249,12 @@ func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterManuallbExample(t *test
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
+			},
+			{
+				ResourceName:       "google_gkeonprem_vmware_cluster.cluster-manuallb",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

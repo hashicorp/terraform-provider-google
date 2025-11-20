@@ -72,6 +72,12 @@ func TestAccManagedKafkaAcl_managedkafkaAclBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"acl_id", "cluster", "location"},
 			},
+			{
+				ResourceName:       "google_managed_kafka_acl.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

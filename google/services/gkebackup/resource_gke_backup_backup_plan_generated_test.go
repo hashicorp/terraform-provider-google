@@ -75,6 +75,12 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_backup_plan.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -134,6 +140,12 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(t *testing.T
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_backup_backup_plan.autopilot",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -197,6 +209,12 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_backup_backup_plan.cmek",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -274,6 +292,12 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanNslabelsExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_backup_plan.nslabels",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -339,6 +363,12 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_backup_backup_plan.full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -417,6 +447,12 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanPermissiveExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_backup_backup_plan.permissive",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -494,6 +530,12 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(t *test
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_backup_backup_plan.rpo_daily_window",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -586,6 +628,12 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoWeeklyWindowExample(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_backup_backup_plan.rpo_weekly_window",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

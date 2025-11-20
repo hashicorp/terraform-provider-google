@@ -103,6 +103,21 @@ func ResourceSecurityCenterFolderSccBigQueryExport() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"folder": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"big_query_export_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"big_query_export_id": {
 				Type:        schema.TypeString,
@@ -319,6 +334,23 @@ func resourceSecurityCenterFolderSccBigQueryExportRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading FolderSccBigQueryExport: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("folder"); ok && v != "" {
+			err = identity.Set("folder", d.Get("folder").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting folder: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("big_query_export_id"); ok && v != "" {
+			err = identity.Set("big_query_export_id", d.Get("big_query_export_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting big_query_export_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

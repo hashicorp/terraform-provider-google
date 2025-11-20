@@ -71,6 +71,12 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestI
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_management_connectivity_test.instance-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -159,6 +165,12 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestA
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_management_connectivity_test.address-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -232,6 +244,12 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestE
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_management_connectivity_test.endpoints-test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

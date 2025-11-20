@@ -71,6 +71,12 @@ func TestAccDiscoveryEngineSchema_discoveryengineSchemaBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_store_id", "location", "schema_id"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_schema.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

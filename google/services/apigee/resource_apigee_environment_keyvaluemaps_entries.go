@@ -101,6 +101,21 @@ func ResourceApigeeEnvironmentKeyvaluemapsEntries() *schema.Resource {
 			Delete: schema.DefaultTimeout(1 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"env_keyvaluemap_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"env_keyvaluemap_id": {
 				Type:     schema.TypeString,
@@ -226,6 +241,23 @@ func resourceApigeeEnvironmentKeyvaluemapsEntriesRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading EnvironmentKeyvaluemapsEntries: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("name"); ok && v != "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("env_keyvaluemap_id"); ok && v != "" {
+			err = identity.Set("env_keyvaluemap_id", d.Get("env_keyvaluemap_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting env_keyvaluemap_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

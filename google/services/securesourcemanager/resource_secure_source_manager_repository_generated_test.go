@@ -72,6 +72,12 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "initial_config", "location", "repository_id"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_repository.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -118,6 +124,12 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryInitialCo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "initial_config", "location", "repository_id"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_repository.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -107,6 +107,21 @@ func ResourceHealthcareWorkspace() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"dataset": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"dataset": {
 				Type:             schema.TypeString,
@@ -283,6 +298,23 @@ func resourceHealthcareWorkspaceRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Workspace: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("name"); ok && v != "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("dataset"); ok && v != "" {
+			err = identity.Set("dataset", d.Get("dataset").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting dataset: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

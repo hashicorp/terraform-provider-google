@@ -70,6 +70,12 @@ func TestAccBigQueryRoutine_bigqueryRoutineBasicExample(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_bigquery_routine.sproc",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -110,6 +116,12 @@ func TestAccBigQueryRoutine_bigqueryRoutineJsonExample(t *testing.T) {
 				ResourceName:      "google_bigquery_routine.sproc",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_bigquery_routine.sproc",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -161,6 +173,12 @@ func TestAccBigQueryRoutine_bigqueryRoutineTvfExample(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_bigquery_routine.sproc",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -210,6 +228,12 @@ func TestAccBigQueryRoutine_bigqueryRoutinePysparkExample(t *testing.T) {
 				ResourceName:      "google_bigquery_routine.pyspark",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_bigquery_routine.pyspark",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -281,6 +305,12 @@ func TestAccBigQueryRoutine_bigqueryRoutinePysparkMainfileExample(t *testing.T) 
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_bigquery_routine.pyspark_mainfile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -334,6 +364,12 @@ func TestAccBigQueryRoutine_bigqueryRoutineSparkJarExample(t *testing.T) {
 				ResourceName:      "google_bigquery_routine.spark_jar",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_bigquery_routine.spark_jar",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -391,6 +427,12 @@ func TestAccBigQueryRoutine_bigqueryRoutineDataGovernanceTypeExample(t *testing.
 				ResourceName:      "google_bigquery_routine.custom_masking_routine",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_bigquery_routine.custom_masking_routine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

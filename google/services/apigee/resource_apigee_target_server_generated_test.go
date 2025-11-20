@@ -76,6 +76,12 @@ func TestAccApigeeTargetServer_apigeeTargetServerTestExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"env_id"},
 			},
+			{
+				ResourceName:       "google_apigee_target_server.apigee_target_server",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

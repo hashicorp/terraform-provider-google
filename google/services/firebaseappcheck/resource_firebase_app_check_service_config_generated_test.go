@@ -73,6 +73,12 @@ func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigOffExampl
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"service_id"},
 			},
+			{
+				ResourceName:       "google_firebase_app_check_service_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -115,6 +121,12 @@ func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigEnforcedE
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"service_id"},
+			},
+			{
+				ResourceName:       "google_firebase_app_check_service_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -159,6 +171,12 @@ func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigUnenforce
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"service_id"},
+			},
+			{
+				ResourceName:       "google_firebase_app_check_service_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

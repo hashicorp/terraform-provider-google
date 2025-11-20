@@ -72,6 +72,12 @@ func TestAccNetworkServicesAuthzExtension_networkServicesAuthzExtensionBasicExam
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "service", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_services_authz_extension.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

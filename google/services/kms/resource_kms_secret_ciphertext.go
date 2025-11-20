@@ -97,6 +97,17 @@ func ResourceKMSSecretCiphertext() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"crypto_key": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"crypto_key": {
 				Type:     schema.TypeString,
@@ -257,6 +268,17 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 		return nil
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("crypto_key"); ok && v != "" {
+			err = identity.Set("crypto_key", d.Get("crypto_key").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting crypto_key: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

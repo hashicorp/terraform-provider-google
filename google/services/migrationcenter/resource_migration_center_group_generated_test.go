@@ -71,6 +71,12 @@ func TestAccMigrationCenterGroup_migrationGroupBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"group_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_migration_center_group.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

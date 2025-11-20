@@ -71,6 +71,12 @@ func TestAccIdentityPlatformInboundSamlConfig_identityPlatformInboundSamlConfigB
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_identity_platform_inbound_saml_config.saml_config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

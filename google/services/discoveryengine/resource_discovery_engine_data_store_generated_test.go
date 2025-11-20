@@ -71,6 +71,12 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "kms_key_name", "location", "skip_default_schema_creation"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_data_store.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -112,6 +118,12 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreKmsKeyNameExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "kms_key_name", "location", "skip_default_schema_creation"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_data_store.kms_key_name",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -152,6 +164,12 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "kms_key_name", "location", "skip_default_schema_creation"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_data_store.document_processing_config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -203,6 +221,12 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "kms_key_name", "location", "skip_default_schema_creation"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_data_store.document_processing_config_ocr",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -248,6 +272,12 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "kms_key_name", "location", "skip_default_schema_creation"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_data_store.document_processing_config_layout",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -298,6 +328,12 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "kms_key_name", "location", "skip_default_schema_creation"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_data_store.document_processing_config_layout_full",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -355,6 +391,12 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreAdvancedSiteSearchC
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "kms_key_name", "location", "skip_default_schema_creation"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_data_store.advanced_site_search_config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

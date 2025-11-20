@@ -71,6 +71,12 @@ func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigExamp
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"config_id", "location"},
 			},
+			{
+				ResourceName:       "google_cloudbuild_bitbucket_server_config.bbs-config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -112,6 +118,12 @@ func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigPeere
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"config_id", "location"},
+			},
+			{
+				ResourceName:       "google_cloudbuild_bitbucket_server_config.bbs-config-with-peered-network",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -72,6 +72,12 @@ func TestAccSecurityCenterV2OrganizationNotificationConfig_sccV2OrganizationNoti
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"config_id", "location", "organization"},
 			},
+			{
+				ResourceName:       "google_scc_v2_organization_notification_config.custom_organization_notification_config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

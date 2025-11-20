@@ -74,6 +74,12 @@ func TestAccStorageAnywhereCache_storageAnywhereCacheBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"bucket"},
 			},
+			{
+				ResourceName:       "google_storage_anywhere_cache.cache",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

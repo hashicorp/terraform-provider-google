@@ -71,6 +71,12 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -112,6 +118,12 @@ func TestAccComputeBackendService_backendServiceExternalIapExample(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -151,6 +163,12 @@ func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T)
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -197,6 +215,12 @@ func TestAccComputeBackendService_backendServiceCacheIncludeHttpHeadersExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -239,6 +263,12 @@ func TestAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -285,6 +315,12 @@ func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -335,6 +371,12 @@ func TestAccComputeBackendService_backendServiceCacheBypassCacheOnRequestHeaders
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -394,6 +436,12 @@ func TestAccComputeBackendService_backendServiceExternalManagedExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -437,6 +485,12 @@ func TestAccComputeBackendService_backendServiceIpAddressSelectionPolicyExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -471,6 +525,12 @@ func TestAccComputeBackendService_backendServiceCustomMetricsExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -556,6 +616,12 @@ func TestAccComputeBackendService_backendServiceTlsSettingsExample(t *testing.T)
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

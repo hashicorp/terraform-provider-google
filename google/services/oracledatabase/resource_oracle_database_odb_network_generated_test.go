@@ -74,6 +74,12 @@ func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkBasicExample(t *tes
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "labels", "location", "odb_network_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_oracle_database_odb_network.my-odbnetwork",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -121,6 +127,12 @@ func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkFullExample(t *test
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "labels", "location", "odb_network_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_odb_network.my-odbnetwork",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -71,6 +71,12 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
 			},
+			{
+				ResourceName:       "google_os_config_patch_deployment.patch",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -111,6 +117,12 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
+			},
+			{
+				ResourceName:       "google_os_config_patch_deployment.patch",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -162,6 +174,12 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
 			},
+			{
+				ResourceName:       "google_os_config_patch_deployment.patch",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -211,6 +229,12 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(t *te
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
+			},
+			{
+				ResourceName:       "google_os_config_patch_deployment.patch",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -300,6 +324,12 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"patch_deployment_id"},
+			},
+			{
+				ResourceName:       "google_os_config_patch_deployment.patch",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

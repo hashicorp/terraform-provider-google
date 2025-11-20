@@ -71,6 +71,12 @@ func TestAccVertexAIFeatureGroup_vertexAiFeatureGroupExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"description", "etag", "labels", "region", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_vertex_ai_feature_group.feature_group",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

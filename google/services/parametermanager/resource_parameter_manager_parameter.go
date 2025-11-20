@@ -108,6 +108,21 @@ func ResourceParameterManagerParameter() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"parameter_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"parameter_id": {
 				Type:        schema.TypeString,
@@ -358,6 +373,23 @@ func resourceParameterManagerParameterRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading Parameter: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("parameter_id"); ok && v != "" {
+			err = identity.Set("parameter_id", d.Get("parameter_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting parameter_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

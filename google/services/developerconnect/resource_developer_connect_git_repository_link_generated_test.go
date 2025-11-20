@@ -71,6 +71,12 @@ func TestAccDeveloperConnectGitRepositoryLink_developerConnectGitRepositoryLinkG
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "git_repository_link_id", "labels", "location", "parent_connection", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_git_repository_link.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

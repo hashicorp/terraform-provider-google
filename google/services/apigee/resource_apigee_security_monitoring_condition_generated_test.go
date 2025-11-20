@@ -77,6 +77,12 @@ func TestAccApigeeSecurityMonitoringCondition_apigeeSecurityMonitoringConditionB
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"condition_id", "org_id"},
 			},
+			{
+				ResourceName:       "google_apigee_security_monitoring_condition.security_monitoring_condition",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

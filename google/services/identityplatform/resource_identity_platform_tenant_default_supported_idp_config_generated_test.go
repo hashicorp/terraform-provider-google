@@ -71,6 +71,12 @@ func TestAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTena
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"idp_id", "tenant"},
 			},
+			{
+				ResourceName:       "google_identity_platform_tenant_default_supported_idp_config.idp_config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

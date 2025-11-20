@@ -74,6 +74,12 @@ func TestAccResourceManager3Capability_resourceManagerCapabilityExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"capability_name", "parent"},
 			},
+			{
+				ResourceName:       "google_resource_manager_capability.capability",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

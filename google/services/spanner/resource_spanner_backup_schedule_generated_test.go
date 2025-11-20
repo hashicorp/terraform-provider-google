@@ -72,6 +72,12 @@ func TestAccSpannerBackupSchedule_spannerBackupScheduleDailyFullExample(t *testi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"database", "instance"},
 			},
+			{
+				ResourceName:       "google_spanner_backup_schedule.full-backup",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -146,6 +152,12 @@ func TestAccSpannerBackupSchedule_spannerBackupScheduleDailyIncrementalExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"database", "instance"},
+			},
+			{
+				ResourceName:       "google_spanner_backup_schedule.incremental-backup",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

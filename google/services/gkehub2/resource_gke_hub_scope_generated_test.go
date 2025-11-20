@@ -72,6 +72,12 @@ func TestAccGKEHub2Scope_gkehubScopeBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "scope_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gke_hub_scope.scope",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

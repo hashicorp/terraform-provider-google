@@ -72,6 +72,12 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionExistingCredent
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "connection_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_connection.my-connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -119,6 +125,12 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionGithubExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "connection_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_connection.my-connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -161,6 +173,12 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionGithubEnterpris
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "connection_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_connection.my-connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -202,6 +220,12 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionGitlabExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "connection_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_developer_connect_connection.my-connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -248,6 +272,12 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionGitlabEnterpris
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "connection_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_developer_connect_connection.my-connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -297,6 +327,12 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionBbcExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "connection_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_developer_connect_connection.my-connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -343,6 +379,12 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionBbdcExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "connection_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_developer_connect_connection.my-connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -72,6 +72,12 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -113,6 +119,12 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -165,6 +177,12 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTruste
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -207,6 +225,12 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExampl
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -321,6 +345,12 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscBac
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -538,6 +568,12 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscEnd
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
 			},
+			{
+				ResourceName:       "google_secure_source_manager_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -717,6 +753,12 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIden
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_instance.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -71,6 +71,12 @@ func TestAccComputeSecurityPolicyRule_securityPolicyRuleBasicExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"security_policy"},
 			},
+			{
+				ResourceName:       "google_compute_security_policy_rule.policy_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -119,6 +125,12 @@ func TestAccComputeSecurityPolicyRule_securityPolicyRuleDefaultRuleExample(t *te
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"security_policy"},
+			},
+			{
+				ResourceName:       "google_compute_security_policy_rule.policy_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -181,6 +193,12 @@ func TestAccComputeSecurityPolicyRule_securityPolicyRuleMultipleRulesExample(t *
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"security_policy"},
+			},
+			{
+				ResourceName:       "google_compute_security_policy_rule.policy_rule_one",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

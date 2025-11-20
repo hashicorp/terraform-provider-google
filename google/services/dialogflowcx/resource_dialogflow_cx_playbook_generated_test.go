@@ -71,6 +71,12 @@ func TestAccDialogflowCXPlaybook_dialogflowcxPlaybookBasicExample(t *testing.T) 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "playbook_type"},
 			},
+			{
+				ResourceName:       "google_dialogflow_cx_playbook.my-playbook",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -144,6 +150,12 @@ func TestAccDialogflowCXPlaybook_dialogflowcxPlaybookFulfillmentExample(t *testi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent", "playbook_type"},
+			},
+			{
+				ResourceName:       "google_dialogflow_cx_playbook.my-playbook",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

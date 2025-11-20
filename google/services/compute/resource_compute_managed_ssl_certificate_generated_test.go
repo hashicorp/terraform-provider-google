@@ -70,6 +70,12 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateBasicExample(t *te
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_compute_managed_ssl_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -160,6 +166,12 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(
 				ResourceName:      "google_compute_managed_ssl_certificate.cert",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_compute_managed_ssl_certificate.cert",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

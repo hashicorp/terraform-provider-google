@@ -71,6 +71,12 @@ func TestAccStorageHmacKey_storageHmacKeyExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"secret"},
 			},
+			{
+				ResourceName:       "google_storage_hmac_key.key",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

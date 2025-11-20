@@ -72,6 +72,12 @@ func TestAccDataplexTask_dataplexTaskBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "lake", "location", "task_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_dataplex_task.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -148,6 +154,12 @@ func TestAccDataplexTask_dataplexTaskSparkExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "lake", "location", "task_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataplex_task.example_spark",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -240,6 +252,12 @@ func TestAccDataplexTask_dataplexTaskNotebookExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "lake", "location", "task_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataplex_task.example_notebook",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

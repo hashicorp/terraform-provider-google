@@ -77,6 +77,12 @@ func TestAccApigeeApiDeployment_apigeeApiDeploymentBasicTestExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"environment", "org_id", "proxy_id", "revision"},
 			},
+			{
+				ResourceName:       "google_apigee_api_deployment.api_deployment_test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

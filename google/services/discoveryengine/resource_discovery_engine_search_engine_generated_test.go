@@ -71,6 +71,12 @@ func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection_id", "engine_id", "kms_key_name", "location"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_search_engine.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -118,6 +124,12 @@ func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineAgentspaceBas
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"collection_id", "engine_id", "kms_key_name", "location"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_search_engine.agentspace_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

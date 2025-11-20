@@ -72,6 +72,12 @@ func TestAccIdentityPlatformTenantOauthIdpConfig_identityPlatformTenantOauthIdpC
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"tenant"},
 			},
+			{
+				ResourceName:       "google_identity_platform_tenant_oauth_idp_config.tenant_oauth_idp_config",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

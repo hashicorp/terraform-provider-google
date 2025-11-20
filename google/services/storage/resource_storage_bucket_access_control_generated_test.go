@@ -71,6 +71,12 @@ func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExa
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"bucket"},
 			},
+			{
+				ResourceName:       "google_storage_bucket_access_control.public_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

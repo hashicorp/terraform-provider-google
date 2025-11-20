@@ -77,6 +77,12 @@ func TestAccApigeeInstanceAttachment_apigeeInstanceAttachmentBasicTestExample(t 
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"instance_id"},
 			},
+			{
+				ResourceName:       "google_apigee_instance_attachment.apigee_instance_attachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

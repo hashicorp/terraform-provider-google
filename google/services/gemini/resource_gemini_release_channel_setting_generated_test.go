@@ -71,6 +71,12 @@ func TestAccGeminiReleaseChannelSetting_geminiReleaseChannelSettingBasicExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "release_channel_setting_id", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gemini_release_channel_setting.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

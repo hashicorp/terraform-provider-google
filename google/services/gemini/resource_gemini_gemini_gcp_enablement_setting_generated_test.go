@@ -71,6 +71,12 @@ func TestAccGeminiGeminiGcpEnablementSetting_geminiGeminiGcpEnablementSettingBas
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"gemini_gcp_enablement_setting_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_gemini_gemini_gcp_enablement_setting.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -73,6 +73,12 @@ func TestAccIapClient_iapClientExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"brand"},
 			},
+			{
+				ResourceName:       "google_iap_client.project_client",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

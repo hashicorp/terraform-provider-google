@@ -108,6 +108,25 @@ func ResourceGKEHub2Namespace() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"scope_namespace_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"scope_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"scope": {
 				Type:             schema.TypeString,
@@ -370,6 +389,29 @@ func resourceGKEHub2NamespaceRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading Namespace: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("scope_namespace_id"); ok && v != "" {
+			err = identity.Set("scope_namespace_id", d.Get("scope_namespace_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting scope_namespace_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("scope_id"); ok && v != "" {
+			err = identity.Set("scope_id", d.Get("scope_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting scope_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); ok && v != "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

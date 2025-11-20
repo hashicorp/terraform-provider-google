@@ -71,6 +71,12 @@ func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigExample(t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_certificate_manager_trust_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -118,6 +124,12 @@ func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigAllowlist
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_certificate_manager_trust_config.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

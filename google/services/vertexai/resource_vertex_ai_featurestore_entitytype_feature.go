@@ -107,6 +107,21 @@ func ResourceVertexAIFeaturestoreEntitytypeFeature() *schema.Resource {
 			tpgresource.SetLabelsDiff,
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"entitytype": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"entitytype": {
 				Type:        schema.TypeString,
@@ -325,6 +340,23 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading FeaturestoreEntitytypeFeature: %s", err)
 	}
 
+	identity, err := d.Identity()
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("name"); ok && v != "" {
+			err = identity.Set("name", d.Get("name").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("entitytype"); ok && v != "" {
+			err = identity.Set("entitytype", d.Get("entitytype").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting entitytype: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
+	}
 	return nil
 }
 

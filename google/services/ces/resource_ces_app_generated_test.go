@@ -71,6 +71,12 @@ func TestAccCESApp_cesAppBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app_id", "location"},
 			},
+			{
+				ResourceName:       "google_ces_app.ces_app_basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -255,6 +261,12 @@ func TestAccCESApp_cesAppAmbientSoundGcsUriExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"app_id", "location"},
+			},
+			{
+				ResourceName:       "google_ces_app.ces_app_ambient_sound_gcs_uri",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

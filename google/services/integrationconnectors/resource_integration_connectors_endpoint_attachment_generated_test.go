@@ -71,6 +71,12 @@ func TestAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpoin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_integration_connectors_endpoint_attachment.sampleendpointattachment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

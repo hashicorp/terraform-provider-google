@@ -71,6 +71,12 @@ func TestAccHealthcareDataset_healthcareDatasetBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "self_link"},
 			},
+			{
+				ResourceName:       "google_healthcare_dataset.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -71,6 +71,12 @@ func TestAccBigQueryDataset_bigqueryDatasetBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_bigquery_dataset.dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -125,6 +131,12 @@ func TestAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(t *test
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_bigquery_dataset.dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -181,6 +193,12 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(t *testing.T
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_bigquery_dataset.dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -270,6 +288,12 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_bigquery_dataset.private",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -338,6 +362,12 @@ func TestAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(t *testin
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_bigquery_dataset.dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -393,6 +423,12 @@ func TestAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(t *testing
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_bigquery_dataset.dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -450,6 +486,12 @@ func TestAccBigQueryDataset_bigqueryDatasetExternalCatalogDatasetOptionsExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_bigquery_dataset.dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -492,6 +534,12 @@ func TestAccBigQueryDataset_bigqueryDatasetResourceTagsExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_bigquery_dataset.dataset",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -71,6 +71,12 @@ func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"initial_replication", "labels", "location", "name", "tags", "terraform_labels", "zone"},
 			},
+			{
+				ResourceName:       "google_filestore_instance.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -115,6 +121,12 @@ func TestAccFilestoreInstance_filestoreInstanceFullExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"initial_replication", "labels", "location", "name", "tags", "terraform_labels", "zone"},
+			},
+			{
+				ResourceName:       "google_filestore_instance.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -175,6 +187,12 @@ func TestAccFilestoreInstance_filestoreInstanceProtocolExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"initial_replication", "labels", "location", "name", "tags", "terraform_labels", "zone"},
+			},
+			{
+				ResourceName:       "google_filestore_instance.instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

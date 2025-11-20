@@ -71,6 +71,12 @@ func TestAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_connectivity_policy_based_route.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -113,6 +119,12 @@ func TestAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_policy_based_route.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

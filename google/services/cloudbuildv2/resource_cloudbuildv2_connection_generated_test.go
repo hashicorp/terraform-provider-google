@@ -71,6 +71,12 @@ func TestAccCloudbuildv2Connection_cloudbuildv2ConnectionExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
 			},
+			{
+				ResourceName:       "google_cloudbuildv2_connection.my-connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -71,6 +71,12 @@ func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleBasicExample
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "security_policy"},
 			},
+			{
+				ResourceName:       "google_compute_region_security_policy_rule.policy_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -121,6 +127,12 @@ func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleMultipleRule
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "security_policy"},
+			},
+			{
+				ResourceName:       "google_compute_region_security_policy_rule.policy_rule_one",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -188,6 +200,12 @@ func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleDefaultRuleE
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "security_policy"},
 			},
+			{
+				ResourceName:       "google_compute_region_security_policy_rule.policy_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -252,6 +270,12 @@ func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleWithPreconfi
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"region", "security_policy"},
+			},
+			{
+				ResourceName:       "google_compute_region_security_policy_rule.policy_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -71,6 +71,12 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"server_tls_policy", "ssl_policy", "url_map"},
 			},
+			{
+				ResourceName:       "google_compute_target_https_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -149,6 +155,12 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyHttpKeepAliveTimeoutExample(
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"server_tls_policy", "ssl_policy", "url_map"},
+			},
+			{
+				ResourceName:       "google_compute_target_https_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -231,6 +243,12 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyCertificateManagerCertificat
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"server_tls_policy", "ssl_policy", "url_map"},
 			},
+			{
+				ResourceName:       "google_compute_target_https_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -305,6 +323,12 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyFingerprintExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"server_tls_policy", "ssl_policy", "url_map"},
+			},
+			{
+				ResourceName:       "google_compute_target_https_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -71,6 +71,12 @@ func TestAccDiscoveryEngineSitemap_discoveryengineSitemapBasicExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_store_id", "location", "project", "sitemap_id"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_sitemap.basic",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

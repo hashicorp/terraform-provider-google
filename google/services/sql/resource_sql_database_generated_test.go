@@ -71,6 +71,12 @@ func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_sql_database.database",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -117,6 +123,12 @@ func TestAccSQLDatabase_sqlDatabaseDeletionPolicyExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy"},
+			},
+			{
+				ResourceName:       "google_sql_database.database_deletion_policy",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

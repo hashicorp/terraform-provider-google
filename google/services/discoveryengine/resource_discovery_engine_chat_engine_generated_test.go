@@ -71,6 +71,12 @@ func TestAccDiscoveryEngineChatEngine_discoveryengineChatEngineBasicExample(t *t
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"chat_engine_config", "collection_id", "engine_id", "location"},
 			},
+			{
+				ResourceName:       "google_discovery_engine_chat_engine.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -136,6 +142,12 @@ func TestAccDiscoveryEngineChatEngine_discoveryengineChatEngineExistingDialogflo
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"chat_engine_config", "collection_id", "engine_id", "location"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_chat_engine.primary",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

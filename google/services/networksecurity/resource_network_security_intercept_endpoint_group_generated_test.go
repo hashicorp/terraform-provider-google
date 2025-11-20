@@ -71,6 +71,12 @@ func TestAccNetworkSecurityInterceptEndpointGroup_networkSecurityInterceptEndpoi
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"intercept_endpoint_group_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_network_security_intercept_endpoint_group.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

@@ -72,6 +72,12 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
+			{
+				ResourceName:       "google_monitoring_uptime_check_config.http",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -141,6 +147,12 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpPasswordWoExample(t
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
+			},
+			{
+				ResourceName:       "google_monitoring_uptime_check_config.http",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -216,6 +228,12 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigStatusCodeExample(t *te
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
+			{
+				ResourceName:       "google_monitoring_uptime_check_config.status_code",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -288,6 +306,12 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(t *testing
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
+			{
+				ResourceName:       "google_monitoring_uptime_check_config.https",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -349,6 +373,12 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
 			},
+			{
+				ResourceName:       "google_monitoring_uptime_check_config.tcp_group",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -401,6 +431,12 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"http_check.0.auth_info.0.password_wo_version"},
+			},
+			{
+				ResourceName:       "google_monitoring_uptime_check_config.synthetic_monitor",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

@@ -72,6 +72,12 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithLogtypeExample(
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_access_scope_id", "instance", "location"},
 			},
+			{
+				ResourceName:       "google_chronicle_data_access_scope.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -114,6 +120,12 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithDataaccesslabel
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_access_scope_id", "instance", "location"},
+			},
+			{
+				ResourceName:       "google_chronicle_data_access_scope.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -162,6 +174,12 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithAssetNamespaceE
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_access_scope_id", "instance", "location"},
 			},
+			{
+				ResourceName:       "google_chronicle_data_access_scope.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -201,6 +219,12 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithIngestionLabelE
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_access_scope_id", "instance", "location"},
+			},
+			{
+				ResourceName:       "google_chronicle_data_access_scope.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -244,6 +268,12 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithDeniedLabelsExa
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_access_scope_id", "instance", "location"},
+			},
+			{
+				ResourceName:       "google_chronicle_data_access_scope.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

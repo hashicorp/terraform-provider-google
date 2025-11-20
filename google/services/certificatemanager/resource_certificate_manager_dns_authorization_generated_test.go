@@ -71,6 +71,12 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_certificate_manager_dns_authorization.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -118,6 +124,12 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_certificate_manager_dns_authorization.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

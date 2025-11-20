@@ -71,6 +71,12 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplateBasicExample(t *testing.T
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"job_template_id", "labels", "location", "terraform_labels"},
 			},
+			{
+				ResourceName:       "google_transcoder_job_template.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -184,6 +190,12 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplateOverlaysExample(t *testin
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"job_template_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_transcoder_job_template.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -317,6 +329,12 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplateEncryptionsExample(t *tes
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"job_template_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_transcoder_job_template.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -495,6 +513,12 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplatePubsubExample(t *testing.
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"job_template_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_transcoder_job_template.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
