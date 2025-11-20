@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: added field `custom_mirroring_profile.mirroring_deployment_groups` and output field `custom_mirroring_profile.mirroring_endpoint_group_type` to `google_network_security_security_profile` resource (beta)
+```
