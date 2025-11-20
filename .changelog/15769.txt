@@ -1,0 +1,3 @@
+```release-note:bug
+logging: fixed an issue with `google_logging_*_sink.include_children` fields not being updatable to true
+```
