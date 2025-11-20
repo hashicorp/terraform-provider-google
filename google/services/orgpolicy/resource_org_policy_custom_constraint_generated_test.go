@@ -54,7 +54,7 @@ func TestAccOrgPolicyCustomConstraint_orgPolicyCustomConstraintBasicExample(t *t
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"policy_name":   "custom.tfTestDisableGkeAutoUpgrade" + acctest.RandString(t, 10),
 		"random_suffix": acctest.RandString(t, 10),
 	}
