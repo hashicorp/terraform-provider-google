@@ -1,0 +1,20 @@
+```release-note:enhancement
+sql: added write-only argument for `root_password` in `google_sql_database_instance` resource
+```
+
+Local test execution based on commit https://github.com/GoogleCloudPlatform/magic-modules/pull/15393/commits/de3b7cff6e2aca487393962cca48aff7fa1e3a5e, waiting on CI to run all tests for cloud sql because it might be costly to run on my personal dev org:
+
+```console
+❮ make testacc TEST=./google/services/sql TESTARGS='-run=TestAccSqlDatabaseInstance_basicMSSQL_passwordWo'
+
+sh -c "'/Users/ramon/go/src/github.com/hashicorp/terraform-provider-google/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/sql -v -run=TestAccSqlDatabaseInstance_basicMSSQL_passwordWo -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccSqlDatabaseInstance_basicMSSQL_passwordWo
+=== PAUSE TestAccSqlDatabaseInstance_basicMSSQL_passwordWo
+=== CONT  TestAccSqlDatabaseInstance_basicMSSQL_passwordWo
+--- PASS: TestAccSqlDatabaseInstance_basicMSSQL_passwordWo (353.14s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/sql      353.932s
+```

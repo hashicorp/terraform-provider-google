@@ -137,6 +137,50 @@ func TestAccSqlDatabaseInstance_basicMSSQL(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_basicMSSQL_passwordWo(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+	rootPassword := acctest.RandString(t, 15)
+	updatedRootPassword := acctest.RandString(t, 15)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_mssql_wo_password, databaseName, rootPassword),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_sql_database_instance.instance", "root_password_wo"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "root_password_wo_version", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_basic_mssql_wo_password_update, databaseName, updatedRootPassword),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_sql_database_instance.instance", "root_password_wo"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "root_password_wo_version", "2"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/20975")
 	t.Parallel()
@@ -4130,6 +4174,34 @@ resource "google_sql_database_instance" "instance" {
   database_version    = "SQLSERVER_2019_STANDARD"
   root_password       = "%s"
   deletion_protection = false
+  settings {
+    tier = "db-custom-1-3840"
+    collation = "Polish_CI_AS"
+  }
+}
+`
+
+var testGoogleSqlDatabaseInstance_basic_mssql_wo_password = `
+resource "google_sql_database_instance" "instance" {
+  name                     = "%s"
+  database_version         = "SQLSERVER_2019_STANDARD"
+  root_password_wo         = "%s"
+  root_password_wo_version = "1"
+  deletion_protection      = false
+  settings {
+    tier = "db-custom-1-3840"
+    collation = "Polish_CI_AS"
+  }
+}
+`
+
+var testGoogleSqlDatabaseInstance_basic_mssql_wo_password_update = `
+resource "google_sql_database_instance" "instance" {
+  name                     = "%s"
+  database_version         = "SQLSERVER_2019_STANDARD"
+  root_password_wo         = "%s"
+  root_password_wo_version = "2"
+  deletion_protection      = false
   settings {
     tier = "db-custom-1-3840"
     collation = "Polish_CI_AS"

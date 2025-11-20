@@ -993,19 +993,33 @@ API (for read pools, effective_availability_type may differ from availability_ty
 				Description:      `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, MYSQL_8_4, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, POSTGRES_15, POSTGRES_16, POSTGRES_17, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 				DiffSuppressFunc: databaseVersionDiffSuppress,
 			},
-
 			"encryption_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"root_password": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: `Initial root password. Required for MS SQL Server.`,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				Description:   `Initial root password. Required for MS SQL Server.`,
+				ConflictsWith: []string{"root_password_wo"},
+			},
+			"root_password_wo": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Initial root password. Required for MS SQL Server.
+				Note: This property is write-only and will not be read from the API. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+				WriteOnly:     true,
+				ConflictsWith: []string{"root_password"},
+				RequiredWith:  []string{"root_password_wo_version"},
+			},
+			"root_password_wo_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  `Triggers update of root_password_wo write-only. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+				RequiredWith: []string{"root_password_wo"},
 			},
 			"ip_address": {
 				Type:     schema.TypeList,
@@ -1516,7 +1530,11 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		instance.NodeCount = int64(d.Get("node_count").(int))
 	}
 
-	instance.RootPassword = d.Get("root_password").(string)
+	if _, ok := d.GetOk("root_password_wo_version"); ok {
+		instance.RootPassword = tpgresource.GetRawConfigAttributeAsString(d, "root_password_wo")
+	} else if _, ok := d.GetOk("root_password"); ok {
+		instance.RootPassword = d.Get("root_password").(string)
+	}
 
 	// Modifying a replica during Create can cause problems if the master is
 	// modified at the same time. Lock the master until we're done in order
@@ -2349,8 +2367,14 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	// Check if the root_password is being updated, because updating root_password is an atomic operation and can not be
 	// performed with other fields, we first update root password before updating the rest of the fields.
-	if d.HasChange("root_password") {
-		oldPwd, newPwd := d.GetChange("root_password")
+	if d.HasChange("root_password") || d.HasChange("root_password_wo_version") {
+		var oldPwd, newPwd interface{}
+		if d.HasChange("root_password_wo_version") {
+			oldPwd = ""
+			newPwd = tpgresource.GetRawConfigAttributeAsString(d, "root_password_wo")
+		} else {
+			oldPwd, newPwd = d.GetChange("root_password")
+		}
 		password := newPwd.(string)
 		dv := d.Get("database_version").(string)
 		name := ""
