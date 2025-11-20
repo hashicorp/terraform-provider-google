@@ -150,7 +150,9 @@ mirror traffic to third-party collectors.`,
 						"mirroring_endpoint_group": {
 							Type:     schema.TypeString,
 							Required: true,
-							Description: `The Mirroring Endpoint Group to which matching traffic should be mirrored.
+							Description: `The target Mirroring Endpoint Group.
+When a mirroring rule with this security profile attached matches a packet,
+a replica will be mirrored to the location-local target in this group.
 Format: projects/{project_id}/locations/global/mirroringEndpointGroups/{endpoint_group_id}`,
 						},
 					},

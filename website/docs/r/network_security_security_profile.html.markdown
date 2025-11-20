@@ -179,6 +179,44 @@ resource "google_network_security_security_profile" "default" {
   }
 }
 ```
+## Example Usage - Network Security Security Profile Broker
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "my-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_security_mirroring_deployment_group" "default" {
+  provider                      = google-beta
+  mirroring_deployment_group_id = "my-dg"
+  location                      = "global"
+  network                       = google_compute_network.default.id
+}
+
+resource "google_network_security_mirroring_endpoint_group" "default" {
+  provider                    = google-beta
+  mirroring_endpoint_group_id = "my-eg"
+  location                    = "global"
+  type                        = "BROKER"
+  mirroring_deployment_groups = [google_network_security_mirroring_deployment_group.default.id]
+}
+
+resource "google_network_security_security_profile" "default" {
+  provider    = google-beta
+  name        = "my-security-profile"
+  parent      = "organizations/123456789"
+  description = "my description"
+  type        = "CUSTOM_MIRRORING"
+
+  custom_mirroring_profile {
+    mirroring_endpoint_group    = google_network_security_mirroring_endpoint_group.default.id
+    mirroring_deployment_groups = [google_network_security_mirroring_deployment_group.default.id]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -331,8 +369,24 @@ The following arguments are supported:
 
 * `mirroring_endpoint_group` -
   (Required)
-  The Mirroring Endpoint Group to which matching traffic should be mirrored.
+  The target Mirroring Endpoint Group.
+  When a mirroring rule with this security profile attached matches a packet,
+  a replica will be mirrored to the location-local target in this group.
   Format: projects/{project_id}/locations/global/mirroringEndpointGroups/{endpoint_group_id}
+
+* `mirroring_deployment_groups` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The target downstream Mirroring Deployment Groups.
+  This field is used for Packet Broker mirroring endpoint groups to specify
+  the deployment groups that the packet should be mirrored to by the broker.
+  Format: projects/{project_id}/locations/global/mirroringDeploymentGroups/{deployment_group_id}
+
+* `mirroring_endpoint_group_type` -
+  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The type of the mirroring endpoint group this profile is attached to.
+  Possible values:
+  DIRECT
+  BROKER
 
 <a name="nested_custom_intercept_profile"></a>The `custom_intercept_profile` block supports:
 
