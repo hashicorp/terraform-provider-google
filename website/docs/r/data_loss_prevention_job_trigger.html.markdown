@@ -1489,8 +1489,10 @@ The following arguments are supported:
   Publish findings of a DlpJob as an aspect to Dataplex Universal Catalog.
 
 * `publish_findings_to_cloud_data_catalog` -
-  (Optional)
+  (Optional, Deprecated)
   Publish findings of a DlpJob to Data Catalog.
+
+  ~> **Warning:** `publish_findings_to_cloud_data_catalog` is deprecated and will be removed in a future major release. To publish findings to Dataplex Catalog, use `publish_findings_to_dataplex_catalog` instead.
 
 * `job_notification_emails` -
   (Optional)

@@ -684,6 +684,7 @@ is 1,024 characters.`,
 									"publish_findings_to_cloud_data_catalog": {
 										Type:        schema.TypeList,
 										Optional:    true,
+										Deprecated:  "`publish_findings_to_cloud_data_catalog` is deprecated and will be removed in a future major release. To publish findings to Dataplex Catalog, use `publish_findings_to_dataplex_catalog` instead.",
 										Description: `Publish findings of a DlpJob to Data Catalog.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
