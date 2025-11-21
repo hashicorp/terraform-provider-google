@@ -234,6 +234,14 @@ func diskImageFamilyEquals(imageName, familyName string) bool {
 		return true
 	}
 
+	if suppressFedoraFamilyDiff(imageName, familyName) {
+		return true
+	}
+
+	if suppressSuseFamilyDiff(imageName, familyName) {
+		return true
+	}
+
 	if suppressCosFamilyDiff(imageName, familyName) {
 		return true
 	}
@@ -264,6 +272,26 @@ func suppressCanonicalFamilyDiff(imageName, familyName string) bool {
 		}
 	}
 
+	return false
+}
+
+func suppressFedoraFamilyDiff(imageName, familyName string) bool {
+	parts := fedoraImage.FindStringSubmatch(imageName)
+	if len(parts) == 6 {
+		if strings.HasPrefix(familyName, "fedora-") {
+			return true
+		}
+	}
+	return false
+}
+
+func suppressSuseFamilyDiff(imageName, familyName string) bool {
+	parts := suseImage.FindStringSubmatch(imageName)
+	if len(parts) == 4 {
+		if strings.HasPrefix(familyName, "sles-") {
+			return true
+		}
+	}
 	return false
 }
 
