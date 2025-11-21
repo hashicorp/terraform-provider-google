@@ -41,6 +41,9 @@ import (
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
+//resource is non-functional, preserved for reference with ongoing fwprovider work
+//any changes to `google_sql_user` should be performed at mmv1/third_party/terraform/services/sql/resource_sql_user.go
+
 var (
 	_ resource.Resource              = &SQLUserFWResource{}
 	_ resource.ResourceWithConfigure = &SQLUserFWResource{}
