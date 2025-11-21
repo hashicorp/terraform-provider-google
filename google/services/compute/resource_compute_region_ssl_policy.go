@@ -423,6 +423,7 @@ func resourceComputeRegionSslPolicyRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading RegionSslPolicy: %s", err)
 	}
+
 	identity, err := d.Identity()
 	if err != nil && identity != nil {
 		if v, ok := identity.GetOk("name"); ok && v != "" {
