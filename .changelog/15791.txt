@@ -1,0 +1,3 @@
+```release-note:note
+privateca: modified `encryption_spec` field from `google_privateca_ca_pool` resource to be mutable and allow cmek key rotation
+```
