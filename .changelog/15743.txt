@@ -1,0 +1,123 @@
+```release-note:enhancement
+alloydb: added `password_wo` and `password_wo_version` fields to `google_alloydb_user` resource
+```
+
+Tests:
+
+```console
+➜ make testacc TEST=./google/services/alloydb TESTARGS='-run=TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo'
+sh -c "'/Users/ramon/go/src/github.com/hashicorp/terraform-provider-google/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/alloydb -v -run=TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo
+=== PAUSE TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo
+=== RUN   TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo_update
+=== PAUSE TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo_update
+=== CONT  TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo
+=== CONT  TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo_update
+2025/11/17 13:28:44 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:44 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:44 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:44 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:44 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:44 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:44 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:44 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:44 [DEBUG] Waiting for state to become: [success]
+2025/11/17 13:28:44 [DEBUG] Waiting for state to become: [success]
+2025/11/17 13:28:45 [INFO] Terraform is using this identity: ramonvermeulen98@gmail.com
+2025/11/17 13:28:45 [INFO] Instantiating Google Cloud ResourceManager client for path https://cloudresourcemanager.googleapis.com/
+2025/11/17 13:28:45 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:45 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:45 [INFO] Terraform is using this identity: ramonvermeulen98@gmail.com
+2025/11/17 13:28:45 [INFO] Instantiating Google Cloud ResourceManager client for path https://cloudresourcemanager.googleapis.com/
+2025/11/17 13:28:45 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:45 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:45 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:45 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:45 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:45 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:45 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:45 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:45 [DEBUG] Waiting for state to become: [success]
+2025/11/17 13:28:45 [INFO] Terraform is using this identity: ramonvermeulen98@gmail.com
+2025/11/17 13:28:45 [DEBUG] Getting shared test network "tf-bootstrap-net-alloydb-1"
+2025/11/17 13:28:45 [INFO] Instantiating GCE client for path https://compute.googleapis.com/compute/v1/
+2025/11/17 13:28:45 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:45 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:45 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:45 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:45 [INFO] Instantiating GCE client for path https://compute.googleapis.com/compute/v1/
+2025/11/17 13:28:45 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:45 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:45 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:45 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:45 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:45 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:45 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:45 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:45 [DEBUG] Waiting for state to become: [success]
+2025/11/17 13:28:45 [INFO] Terraform is using this identity: ramonvermeulen98@gmail.com
+2025/11/17 13:28:45 [DEBUG] Getting shared test network "tf-bootstrap-net-alloydb-1"
+2025/11/17 13:28:45 [INFO] Instantiating GCE client for path https://compute.googleapis.com/compute/v1/
+2025/11/17 13:28:45 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:45 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:45 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:45 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:45 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:45 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:45 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:45 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:45 [DEBUG] Waiting for state to become: [success]
+2025/11/17 13:28:46 [INFO] Terraform is using this identity: ramonvermeulen98@gmail.com
+2025/11/17 13:28:46 [DEBUG] Getting shared test global address "tf-bootstrap-addr-alloydb-1"
+2025/11/17 13:28:46 [INFO] Instantiating GCE client for path https://compute.googleapis.com/compute/v1/
+2025/11/17 13:28:46 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:46 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:46 [INFO] Instantiating GCE client for path https://compute.googleapis.com/compute/v1/
+2025/11/17 13:28:46 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:46 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:46 [INFO] Instantiating GCE client for path https://compute.googleapis.com/compute/v1/
+2025/11/17 13:28:46 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:46 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:46 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:46 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:46 [INFO] Authenticating using DefaultClient...
+2025/11/17 13:28:46 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2025/11/17 13:28:46 [DEBUG] Waiting for state to become: [success]
+2025/11/17 13:28:46 [INFO] Terraform is using this identity: ramonvermeulen98@gmail.com
+2025/11/17 13:28:46 [DEBUG] Getting shared test global address "tf-bootstrap-addr-alloydb-1"
+2025/11/17 13:28:46 [INFO] Instantiating GCE client for path https://compute.googleapis.com/compute/v1/
+2025/11/17 13:28:46 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:46 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:46 [INFO] Instantiating Service Networking client for path https://servicenetworking.googleapis.com/
+2025/11/17 13:28:46 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:46 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:46 [INFO] Instantiating GCE client for path https://compute.googleapis.com/compute/v1/
+2025/11/17 13:28:46 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:46 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:46 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:46 [INFO] Instantiating Service Networking client for path https://servicenetworking.googleapis.com/
+2025/11/17 13:28:46 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2025/11/17 13:28:46 [DEBUG] Retry Transport: request attempt 0
+2025/11/17 13:28:47 [DEBUG] Retry Transport: Stopping retries, last request was successful
+2025/11/17 13:28:47 [DEBUG] Retry Transport: Returning after 1 attempts
+2025/11/17 13:28:47 [DEBUG] Getting shared test service networking connection
+--- PASS: TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo (821.22s)
+--- PASS: TestAccAlloydbUser_alloydbUserBuiltinWithPasswordWo_update (924.52s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/alloydb  925.281s
+
+```
