@@ -383,7 +383,7 @@ The following arguments are supported:
 * `enable_endpoint_independent_mapping` -
   (Optional)
   Enable endpoint independent mapping.
-  For more information see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).
+  For more information see the [official documentation](https://docs.cloud.google.com/nat/docs/public-nat#specs-rfcs).
 
 * `type` -
   (Optional)
