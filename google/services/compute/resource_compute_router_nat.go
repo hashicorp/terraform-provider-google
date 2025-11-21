@@ -332,7 +332,7 @@ Mutually exclusive with enableEndpointIndependentMapping.`,
 				Computed: true,
 				Optional: true,
 				Description: `Enable endpoint independent mapping.
-For more information see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).`,
+For more information see the [official documentation](https://docs.cloud.google.com/nat/docs/public-nat#specs-rfcs).`,
 			},
 			"endpoint_types": {
 				Type:     schema.TypeList,
