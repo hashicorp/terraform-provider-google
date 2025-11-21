@@ -132,7 +132,6 @@ running 'gcloud privateca locations list'.`,
 			"encryption_spec": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `Used when customer would like to encrypt data at rest. The customer-provided key will be used
 to encrypt the Subject, SubjectAltNames and PEM-encoded certificate fields. When unspecified,
 customer data will remain unencrypted.`,
@@ -142,7 +141,6 @@ customer data will remain unencrypted.`,
 						"cloud_kms_key": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: `The resource name for an existing Cloud KMS key in the format
 'projects/*/locations/*/keyRings/*/cryptoKeys/*'.`,
 						},
@@ -894,6 +892,12 @@ func resourcePrivatecaCaPoolUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("publishing_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, publishingOptionsProp)) {
 		obj["publishingOptions"] = publishingOptionsProp
 	}
+	encryptionSpecProp, err := expandPrivatecaCaPoolEncryptionSpec(d.Get("encryption_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
+		obj["encryptionSpec"] = encryptionSpecProp
+	}
 	effectiveLabelsProp, err := expandPrivatecaCaPoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -916,6 +920,10 @@ func resourcePrivatecaCaPoolUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("publishing_options") {
 		updateMask = append(updateMask, "publishingOptions")
+	}
+
+	if d.HasChange("encryption_spec") {
+		updateMask = append(updateMask, "encryptionSpec")
 	}
 
 	if d.HasChange("effective_labels") {
