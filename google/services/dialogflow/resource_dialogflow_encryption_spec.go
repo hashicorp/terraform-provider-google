@@ -246,6 +246,7 @@ func resourceDialogflowEncryptionSpecCreate(d *schema.ResourceData, meta interfa
 func resourceDialogflowEncryptionSpecRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
 	return nil
+
 	return nil
 }
 

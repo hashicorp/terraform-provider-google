@@ -1671,6 +1671,7 @@ func resourceVertexAIEndpointWithModelGardenDeploymentCreate(d *schema.ResourceD
 func resourceVertexAIEndpointWithModelGardenDeploymentRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
 	return nil
+
 	return nil
 }
 

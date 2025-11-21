@@ -323,16 +323,16 @@ func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	identity, err := d.Identity()
-	if err != nil {
-		return fmt.Errorf("Error getting identity: %s", err)
-	}
-	if v, ok := identity.GetOk("org"); ok && v != "" {
-		err = identity.Set("org", d.Get("org").(string))
-		if err != nil {
-			return fmt.Errorf("Error setting org: %s", err)
+	if err != nil && identity != nil {
+		if v, ok := identity.GetOk("org"); ok && v != "" {
+			err = identity.Set("org", d.Get("org").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting org: %s", err)
+			}
 		}
+	} else {
+		log.Printf("[DEBUG] identity not set: %s", err)
 	}
-
 	return nil
 }
 
