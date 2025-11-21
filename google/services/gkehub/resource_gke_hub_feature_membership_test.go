@@ -276,11 +276,6 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
         secret_type = "none"
       }
     }
-    hierarchy_controller {
-      enable_hierarchical_resource_quota = true
-      enable_pod_tree_labels = false
-      enabled = true
-    }
   }
 }
 
@@ -298,11 +293,6 @@ resource "google_gke_hub_feature_membership" "feature_member_3" {
         sync_repo   = "https://github.com/hashicorp/terraform"
         secret_type = "none"
       }
-    }
-    hierarchy_controller {
-      enable_hierarchical_resource_quota = false
-      enable_pod_tree_labels = true
-      enabled = false
     }
   }
 }
