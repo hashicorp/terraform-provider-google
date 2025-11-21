@@ -1,0 +1,3 @@
+```release-note:enhancement
+lustre: added `kms_key` field to `google_lustre_instance` resource
+```
