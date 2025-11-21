@@ -184,6 +184,13 @@ in days, can range from 1 day to 60 days, and has a default value of
 							ForceNew:    true,
 							Description: `The number of compute servers for the Autonomous Database.`,
 						},
+						"cpu_core_count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The number of CPU cores to be made available to the database.`,
+						},
 						"customer_contacts": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -298,6 +305,18 @@ FAILED_DISABLING`,
 							Optional:    true,
 							ForceNew:    true,
 							Description: `The private endpoint label for the Autonomous Database.`,
+						},
+						"secret_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The ID of the Oracle Cloud Infrastructure vault secret.`,
+						},
+						"vault_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The ID of the Oracle Cloud Infrastructure vault.`,
 						},
 						"actual_used_data_storage_size_tb": {
 							Type:     schema.TypeFloat,
@@ -1350,6 +1369,8 @@ func flattenOracleDatabaseAutonomousDatabaseProperties(v interface{}, d *schema.
 		flattenOracleDatabaseAutonomousDatabasePropertiesOcid(original["ocid"], d, config)
 	transformed["compute_count"] =
 		flattenOracleDatabaseAutonomousDatabasePropertiesComputeCount(original["computeCount"], d, config)
+	transformed["cpu_core_count"] =
+		flattenOracleDatabaseAutonomousDatabasePropertiesCpuCoreCount(original["cpuCoreCount"], d, config)
 	transformed["data_storage_size_tb"] =
 		flattenOracleDatabaseAutonomousDatabasePropertiesDataStorageSizeTb(original["dataStorageSizeTb"], d, config)
 	transformed["data_storage_size_gb"] =
@@ -1376,6 +1397,10 @@ func flattenOracleDatabaseAutonomousDatabaseProperties(v interface{}, d *schema.
 		flattenOracleDatabaseAutonomousDatabasePropertiesLicenseType(original["licenseType"], d, config)
 	transformed["customer_contacts"] =
 		flattenOracleDatabaseAutonomousDatabasePropertiesCustomerContacts(original["customerContacts"], d, config)
+	transformed["secret_id"] =
+		flattenOracleDatabaseAutonomousDatabasePropertiesSecretId(original["secretId"], d, config)
+	transformed["vault_id"] =
+		flattenOracleDatabaseAutonomousDatabasePropertiesVaultId(original["vaultId"], d, config)
 	transformed["maintenance_schedule_type"] =
 		flattenOracleDatabaseAutonomousDatabasePropertiesMaintenanceScheduleType(original["maintenanceScheduleType"], d, config)
 	transformed["mtls_connection_required"] =
@@ -1462,6 +1487,23 @@ func flattenOracleDatabaseAutonomousDatabasePropertiesOcid(v interface{}, d *sch
 
 func flattenOracleDatabaseAutonomousDatabasePropertiesComputeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenOracleDatabaseAutonomousDatabasePropertiesCpuCoreCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenOracleDatabaseAutonomousDatabasePropertiesDataStorageSizeTb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1557,6 +1599,14 @@ func flattenOracleDatabaseAutonomousDatabasePropertiesCustomerContacts(v interfa
 	return transformed
 }
 func flattenOracleDatabaseAutonomousDatabasePropertiesCustomerContactsEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseAutonomousDatabasePropertiesSecretId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseAutonomousDatabasePropertiesVaultId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2304,6 +2354,13 @@ func expandOracleDatabaseAutonomousDatabaseProperties(v interface{}, d tpgresour
 		transformed["computeCount"] = transformedComputeCount
 	}
 
+	transformedCpuCoreCount, err := expandOracleDatabaseAutonomousDatabasePropertiesCpuCoreCount(original["cpu_core_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCpuCoreCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cpuCoreCount"] = transformedCpuCoreCount
+	}
+
 	transformedDataStorageSizeTb, err := expandOracleDatabaseAutonomousDatabasePropertiesDataStorageSizeTb(original["data_storage_size_tb"], d, config)
 	if err != nil {
 		return nil, err
@@ -2393,6 +2450,20 @@ func expandOracleDatabaseAutonomousDatabaseProperties(v interface{}, d tpgresour
 		return nil, err
 	} else if val := reflect.ValueOf(transformedCustomerContacts); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["customerContacts"] = transformedCustomerContacts
+	}
+
+	transformedSecretId, err := expandOracleDatabaseAutonomousDatabasePropertiesSecretId(original["secret_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secretId"] = transformedSecretId
+	}
+
+	transformedVaultId, err := expandOracleDatabaseAutonomousDatabasePropertiesVaultId(original["vault_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVaultId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["vaultId"] = transformedVaultId
 	}
 
 	transformedMaintenanceScheduleType, err := expandOracleDatabaseAutonomousDatabasePropertiesMaintenanceScheduleType(original["maintenance_schedule_type"], d, config)
@@ -2679,6 +2750,10 @@ func expandOracleDatabaseAutonomousDatabasePropertiesComputeCount(v interface{},
 	return v, nil
 }
 
+func expandOracleDatabaseAutonomousDatabasePropertiesCpuCoreCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandOracleDatabaseAutonomousDatabasePropertiesDataStorageSizeTb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2753,6 +2828,14 @@ func expandOracleDatabaseAutonomousDatabasePropertiesCustomerContacts(v interfac
 }
 
 func expandOracleDatabaseAutonomousDatabasePropertiesCustomerContactsEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseAutonomousDatabasePropertiesSecretId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseAutonomousDatabasePropertiesVaultId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

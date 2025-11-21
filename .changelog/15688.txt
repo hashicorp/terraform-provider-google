@@ -1,0 +1,7 @@
+```release-note:enhancement
+oracledatabase: added `properties.cpu_core_count`, `properties.secret_id`, and `properties.vault_id` fields to `google_oracle_database_autonomous` resource
+```
+
+```release-note:enhancement
+oracledatabase: added `properties.time_zone.version` field to `google_oracle_database_cloud_vm_cluster` resource
+```
