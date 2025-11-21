@@ -50,7 +50,7 @@ var (
 	_ = googleapi.Error{}
 )
 
-func TestAccIAMWorkforcePoolWorkforcePoolProviderScimTenant_iamWorkforcePoolProviderScimTenantBasicExample(t *testing.T) {
+func TestAccIAMWorkforcePoolWorkforcePoolProviderScimToken_iamWorkforcePoolProviderScimTokenBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -61,22 +61,22 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimTenant_iamWorkforcePoolProv
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolProviderScimTenantDestroyProducer(t),
+		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolProviderScimTokenDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIAMWorkforcePoolWorkforcePoolProviderScimTenant_iamWorkforcePoolProviderScimTenantBasicExample(context),
+				Config: testAccIAMWorkforcePoolWorkforcePoolProviderScimToken_iamWorkforcePoolProviderScimTokenBasicExample(context),
 			},
 			{
-				ResourceName:            "google_iam_workforce_pool_provider_scim_tenant.example",
+				ResourceName:            "google_iam_workforce_pool_provider_scim_token.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "provider_id", "scim_tenant_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"location", "provider_id", "scim_tenant_id", "scim_token_id", "workforce_pool_id"},
 			},
 		},
 	})
 }
 
-func testAccIAMWorkforcePoolWorkforcePoolProviderScimTenant_iamWorkforcePoolProviderScimTenantBasicExample(context map[string]interface{}) string {
+func testAccIAMWorkforcePoolWorkforcePoolProviderScimToken_iamWorkforcePoolProviderScimTokenBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
   workforce_pool_id = "tf-test-example-pool%{random_suffix}"
@@ -111,13 +111,13 @@ resource "google_iam_workforce_pool_provider" "provider" {
     attribute_condition = "true"
 }
 
-resource "google_iam_workforce_pool_provider_scim_tenant" "example" {
+resource "google_iam_workforce_pool_provider_scim_tenant" "tenant" {
   location            = "global"
   workforce_pool_id   = google_iam_workforce_pool.pool.workforce_pool_id
   provider_id         = google_iam_workforce_pool_provider.provider.provider_id
-  scim_tenant_id      = "example-scim-tenant"
-  display_name        = "Example SCIM Tenant"
-  description         = "A basic SCIM tenant for IAM Workforce Pool Provider"
+  scim_tenant_id      = "tf-test-example-tenant%{random_suffix}"
+  display_name        = "SCIM Tenant display Name"
+  description         = "A SCIM Tenant for IAM Workforce Pool Provider"
   claim_mapping       = {
     "google.subject"  = "user.externalId",
     "google.group"    = "group.externalId"
@@ -125,14 +125,23 @@ resource "google_iam_workforce_pool_provider_scim_tenant" "example" {
   # state, base_uri, purge_time and service_agent are output only, not settable
 }
 
+resource "google_iam_workforce_pool_provider_scim_token" "example" {
+  location            = "global"
+  workforce_pool_id   = google_iam_workforce_pool.pool.workforce_pool_id
+  provider_id         = google_iam_workforce_pool_provider.provider.provider_id
+  scim_tenant_id      = google_iam_workforce_pool_provider_scim_tenant.tenant.scim_tenant_id
+  scim_token_id       = "example-scim-token"
+  display_name        = "SCIM Token display Name"
+  # security_token and state are output only, not settable
+}
   
 `, context)
 }
 
-func testAccCheckIAMWorkforcePoolWorkforcePoolProviderScimTenantDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckIAMWorkforcePoolWorkforcePoolProviderScimTokenDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_iam_workforce_pool_provider_scim_tenant" {
+			if rs.Type != "google_iam_workforce_pool_provider_scim_token" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -141,7 +150,7 @@ func testAccCheckIAMWorkforcePoolWorkforcePoolProviderScimTenantDestroyProducer(
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}/tokens/{{scim_token_id}}")
 			if err != nil {
 				return err
 			}
@@ -160,7 +169,7 @@ func testAccCheckIAMWorkforcePoolWorkforcePoolProviderScimTenantDestroyProducer(
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("IAMWorkforcePoolWorkforcePoolProviderScimTenant still exists at %s", url)
+				return fmt.Errorf("IAMWorkforcePoolWorkforcePoolProviderScimToken still exists at %s", url)
 			}
 		}
 

@@ -1,0 +1,11 @@
+```release-note:new-resource
+`google_iam_workforce_pool_provider_scim_token`
+```
+
+```release-note:enhancement
+iamworkforcepool: added `claim_mapping`, `purge_time`, and `service_agent` fields to `google_iam_workforce_pool_provider_scim_tenant` resource
+```
+
+```release-note:bug
+iamworkforcepool: fixed bug in `google_iam_workforce_pool_provider_scim_token` where `base_uri` wasn't set correctly from the API
+```
