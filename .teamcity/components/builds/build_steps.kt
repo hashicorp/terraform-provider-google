@@ -77,9 +77,46 @@ fun BuildSteps.downloadTerraformBinary() {
 
 // RunSweepers runs sweepers, and relies on set build configuration parameters
 fun BuildSteps.runSweepers(sweeperStepName: String) {
-    step(ScriptBuildStep{
+    step(ScriptBuildStep {
+        name = "Compile Sweeper Test Binary"
+        workingDir = "%PACKAGE_PATH%"
+        scriptContent = """
+            #!/bin/bash
+            export TEST_FILE_COUNT=$(ls ./*_test.go | wc -l)
+            if test ${'$'}TEST_FILE_COUNT -gt "0"; then
+                echo "Compiling sweeper test binary"
+                go test -c -o test-binary
+            else
+                echo "Skipping compilation of test binary; no Go test files found"
+            fi
+        """.trimIndent()
+    })
+
+    step(ScriptBuildStep {
         name = sweeperStepName
-        scriptContent = "go test -v \"%PACKAGE_PATH%\" -run=\"%TEST_PREFIX%\" -sweep=\"%SWEEPER_REGIONS%\" -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m -json"
+        workingDir = "%PACKAGE_PATH%"
+        scriptContent = """
+            #!/bin/bash
+            if ! test -f "./test-binary"; then
+              echo "Skipping sweeper execution; file ./test-binary does not exist."
+              exit 0
+            fi
+            
+            # Set sweeper environment variables
+            export SWEEPER_REGIONS="%SWEEPER_REGIONS%"
+            export SWEEP_ALLOW_FAILURES="true"
+            export SWEEP_RUN="%SWEEP_RUN%"
+            
+            export TEST_COUNT=${'$'}(./test-binary -test.list="%TEST_PREFIX%" | wc -l)
+            echo "Found ${'$'}{TEST_COUNT} sweeper tests that match the given test prefix %TEST_PREFIX%"
+            if test ${'$'}TEST_COUNT -le "0"; then
+              echo "Skipping sweeper execution; no tests to run"
+              exit 0
+            fi
+            
+            echo "Starting sweeper tests"  
+            ./test-binary -test.list="%TEST_PREFIX%" | teamcity-go-test -test ./test-binary -parallelism "%PARALLELISM%" -timeout "%TIMEOUT%h"
+        """.trimIndent()
     })
 }
 
