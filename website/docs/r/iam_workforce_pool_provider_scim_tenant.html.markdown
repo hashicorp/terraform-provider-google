@@ -27,9 +27,9 @@ The SCIM tenant configuration allows for the synchronization of user/group ident
 
 To get more information about WorkforcePoolProviderScimTenant, see:
 
-* [API documentation](https://cloud.google.com/sdk/gcloud/reference/iam/workforce-pools/providers/scim-tenants)
+* [API documentation](https://docs.cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers.scimTenants)
 * How-to Guides
-    * [QUICKSTART_TITLE](https://cloud.google.com/iam/docs/workforce-sign-in-microsoft-entra-id-scalable-groups?group_type=extended#extended-attributes)
+    * [Configure a SCIM Tenant](https://cloud.google.com/iam/docs/workforce-sign-in-microsoft-entra-id-scalable-groups?group_type=extended#extended-attributes)
 
 ## Example Usage - Iam Workforce Pool Provider Scim Tenant Basic
 
@@ -75,7 +75,11 @@ resource "google_iam_workforce_pool_provider_scim_tenant" "example" {
   scim_tenant_id      = "example-scim-tenant"
   display_name        = "Example SCIM Tenant"
   description         = "A basic SCIM tenant for IAM Workforce Pool Provider"
-  # state is output only, not settable
+  claim_mapping       = {
+    "google.subject"  = "user.externalId",
+    "google.group"    = "group.externalId"
+  }
+  # state, base_uri, purge_time and service_agent are output only, not settable
 }
 
   
@@ -111,6 +115,10 @@ The following arguments are supported:
   (Optional)
   A user-specified description of the provider. Cannot exceed 256 characters.
 
+* `claim_mapping` -
+  (Optional)
+  Maps BYOID claims to SCIM claims. This is a required field for new SCIM Tenants being created.
+
 
 
 ## Attributes Reference
@@ -125,7 +133,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state` -
   The current state of the scim tenant.
-  * STATE_UNSPECIFIED: State unspecified.
   * ACTIVE: The scim tenant is active and may be used to validate authentication credentials.
   * DELETED: The scim tenant is soft-deleted. Soft-deleted scim tenants are permanently
     deleted after approximately 30 days.
@@ -136,6 +143,13 @@ In addition to the arguments listed above, the following computed attributes are
   must use this as the root address for managing resources under the tenant.
   Format:
   https://iamscim.googleapis.com/{version}/{tenant_id}/
+
+* `purge_time` -
+  The timestamp that represents the time when the SCIM tenant is purged.
+
+* `service_agent` -
+  Service Agent created by SCIM Tenant API. SCIM tokens created under
+  this tenant will be attached to this service agent.
 
 
 ## Timeouts
