@@ -60,5 +60,6 @@ fields:
   - api_field: 'properties.storageSizeGb'
   - api_field: 'properties.systemVersion'
   - api_field: 'properties.timeZone.id'
+  - api_field: 'properties.timeZone.version'
   - field: 'terraform_labels'
     provider_only: true
