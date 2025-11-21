@@ -65,7 +65,7 @@ func TestAccProjectService_basic(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService(t, services, pid, false),
+					testAccCheckProjectService(t, services, pid, true),
 				),
 			},
 			// Create services with disabling turned off.
