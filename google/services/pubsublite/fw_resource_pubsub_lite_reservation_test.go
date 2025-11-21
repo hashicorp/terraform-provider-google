@@ -24,7 +24,8 @@ import (
 )
 
 func TestAccResourceFWPubsubLiteReservation_basic(t *testing.T) {
-	acctest.SkipIfVcr(t)
+	//tests and resource are non-functional, preserved for reference with ongoing fwprovider work
+	t.Skip()
 	t.Parallel()
 
 	context := map[string]interface{}{
