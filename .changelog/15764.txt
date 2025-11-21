@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed the permadiff when table schema is unchanged for a `google_bigquery_table` with row access policies
+```

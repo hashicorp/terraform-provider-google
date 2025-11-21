@@ -367,20 +367,19 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}, isExternalTab
 				sameNameColumns += 1
 			}
 		}
-		// in-place column dropping alongside column additions is not allowed
+		// In-place column dropping is not supported when there are row access
+		// policies on the table.
+		hasDroppedColumns := droppedColumns > 0
+		if hasDroppedColumns && topLevel {
+			hasRowAccessPolicy, err := hasRowAccessPolicyFunc()
+			if err == nil && hasRowAccessPolicy {
+				return false, nil
+			}
+		}
+		// In-place column dropping alongside column additions is not allowed
 		// as of now because user intention can be ambiguous (e.g. column renaming)
 		newColumns := len(arrayNew) - sameNameColumns
 		isSchemaChangeable := (droppedColumns == 0) || (newColumns == 0)
-		if isSchemaChangeable && topLevel {
-			hasRowAccessPolicy, err := hasRowAccessPolicyFunc()
-			if err != nil {
-				// Default behavior when we can't get row access policies data.
-				return isSchemaChangeable, nil
-			}
-			if hasRowAccessPolicy {
-				isSchemaChangeable = false
-			}
-		}
 		return isSchemaChangeable, nil
 	case map[string]interface{}:
 		objectOld := old.(map[string]interface{})
