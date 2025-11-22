@@ -7893,6 +7893,11 @@ func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 			},
 			{
 				Config: testAccContainerCluster_withEnablePrivateEndpoint(clusterName, "false", networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.with_enable_private_endpoint", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_container_cluster.with_enable_private_endpoint",
@@ -7903,7 +7908,6 @@ func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 		},
 	})
 }
-
 func testAccContainerCluster_withEnablePrivateEndpoint(clusterName, flag, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "uscentral1a" {
