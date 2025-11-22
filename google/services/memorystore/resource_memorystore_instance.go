@@ -54,6 +54,20 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func memorystoreInstancedDesiredAutoConnectionsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diff wis to handle an edge case where desired_auto_created_endpoints in addtion to desired_psc_auto_connections are both set with same values
+	// this is due to how the api reponds when mode is set to CLUSTER_DISABLED and desired_psc_auto_connections is set.
+	log.Printf("[DEBUG] desired_auto_created_endpoints is set in state but not in config, supressing force new recreate")
+
+	oldAuto, newAuto := d.GetChange("desired_auto_created_endpoints")
+
+	if reflect.DeepEqual(oldAuto, newAuto) && !tpgresource.IsEmptyValue(reflect.ValueOf(oldAuto)) && !tpgresource.IsEmptyValue(reflect.ValueOf(newAuto)) {
+		return true
+	}
+
+	return false
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -998,10 +1012,11 @@ projects/{project_id}/global/networks/{network_id}.`,
 				ConflictsWith: []string{},
 			},
 			"desired_auto_created_endpoints": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Immutable. User inputs for the auto-created endpoints connections.`,
+				Type:             schema.TypeList,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: memorystoreInstancedDesiredAutoConnectionsDiffSuppress,
+				Description:      `Immutable. User inputs for the auto-created endpoints connections.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": {

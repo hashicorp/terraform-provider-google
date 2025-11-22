@@ -1,0 +1,3 @@
+```release-note:bug
+memorystore: fixed an issue where a permadiff on `desired_auto_created_endpoints` caused the `google_memorystore_instance` resource to recreated.
+```
