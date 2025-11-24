@@ -1,0 +1,3 @@
+```release-note:bug
+compute: the `terms` field in `google_compute_router_route_policy` has been corrected to be updatable without forcing resource recreation
+```
