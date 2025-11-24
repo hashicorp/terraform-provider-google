@@ -248,6 +248,11 @@ If true, update will affect both PENDING and ACCEPTED/REJECTED PSC endpoints. Fo
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `URL of the region where the resource resides.`,
 			},
+			"show_nat_ips": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, show NAT IPs of all connected endpoints.`,
+			},
 			"connected_endpoints": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -264,6 +269,14 @@ attachment.`,
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The URL of the consumer forwarding rule.`,
+						},
+						"nat_ips": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The nat IPs of the connected endpoint.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 						"propagated_connection_count": {
 							Type:        schema.TypeInt,
@@ -533,6 +546,10 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 	}
 
 	headers := make(http.Header)
+	if d.Get("show_nat_ips").(bool) {
+		url += "?showNatIps=true"
+	}
+
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -868,6 +885,7 @@ func flattenComputeServiceAttachmentConnectedEndpoints(v interface{}, d *schema.
 			"consumer_network":            flattenComputeServiceAttachmentConnectedEndpointsConsumerNetwork(original["consumerNetwork"], d, config),
 			"psc_connection_id":           flattenComputeServiceAttachmentConnectedEndpointsPscConnectionId(original["pscConnectionId"], d, config),
 			"propagated_connection_count": flattenComputeServiceAttachmentConnectedEndpointsPropagatedConnectionCount(original["propagatedConnectionCount"], d, config),
+			"nat_ips":                     flattenComputeServiceAttachmentConnectedEndpointsNatIps(original["natIps"], d, config),
 		})
 	}
 	return transformed
@@ -903,6 +921,10 @@ func flattenComputeServiceAttachmentConnectedEndpointsPropagatedConnectionCount(
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeServiceAttachmentConnectedEndpointsNatIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeServiceAttachmentTargetService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
