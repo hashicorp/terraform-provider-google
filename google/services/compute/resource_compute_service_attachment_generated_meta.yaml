@@ -7,6 +7,7 @@ api_resource_type_kind: 'ServiceAttachment'
 fields:
   - api_field: 'connectedEndpoints.consumerNetwork'
   - api_field: 'connectedEndpoints.endpoint'
+  - api_field: 'connectedEndpoints.natIps'
   - api_field: 'connectedEndpoints.propagatedConnectionCount'
   - api_field: 'connectedEndpoints.pscConnectionId'
   - api_field: 'connectedEndpoints.status'
@@ -27,6 +28,8 @@ fields:
   - api_field: 'reconcileConnections'
   - api_field: 'region'
   - field: 'send_propagated_connection_limit_if_zero'
+    provider_only: true
+  - field: 'show_nat_ips'
     provider_only: true
   - api_field: 'targetService'
   - api_field: 'selfLink'

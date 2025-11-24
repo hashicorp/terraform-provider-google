@@ -620,6 +620,10 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `show_nat_ips` -
+  (Optional)
+  If true, show NAT IPs of all connected endpoints.
+
 * `domain_names` -
   (Optional)
   If specified, the domain name will be used during the integration between
@@ -751,6 +755,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `propagated_connection_count` -
   (Output)
   The number of consumer Network Connectivity Center spokes that the connected Private Service Connect endpoint has propagated to.
+
+* `nat_ips` -
+  (Output)
+  The nat IPs of the connected endpoint.
 
 ## Timeouts
 
