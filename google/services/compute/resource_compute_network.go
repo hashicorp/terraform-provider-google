@@ -227,6 +227,13 @@ This value can only be set if the --bgp-best-path-selection-mode is STANDARD`,
 				ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "ADD_COST_TO_MED", ""}),
 				Description:  `Choice of the behavior of inter-regional cost and MED in the BPS algorithm. Possible values: ["DEFAULT", "ADD_COST_TO_MED"]`,
 			},
+			"delete_bgp_always_compare_med": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `If set to 'true', the 'bgp_always_compare_med' field will be cleared.
+If set to 'false' (the default), 'bgp_always_compare_med' will be set to the value specified in the configuration.`,
+				Default: false,
+			},
 			"routing_mode": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -572,7 +579,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	d.Partial(true)
 
-	if d.HasChange("routing_mode") || d.HasChange("bgp_best_path_selection_mode") || d.HasChange("bgp_always_compare_med") || d.HasChange("bgp_inter_region_cost") || d.HasChange("network_firewall_policy_enforcement_order") {
+	if d.HasChange("routing_mode") || d.HasChange("bgp_best_path_selection_mode") || d.HasChange("bgp_always_compare_med") || d.HasChange("bgp_inter_region_cost") || d.HasChange("delete_bgp_always_compare_med") || d.HasChange("network_firewall_policy_enforcement_order") {
 		obj := make(map[string]interface{})
 
 		routingConfigProp, err := expandComputeNetworkRoutingConfig(nil, d, config)
@@ -829,6 +836,8 @@ func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData, c
 		flattenComputeNetworkRoutingConfigBgpAlwaysCompareMed(original["bgpAlwaysCompareMed"], d, config)
 	transformed["bgp_inter_region_cost"] =
 		flattenComputeNetworkRoutingConfigBgpInterRegionCost(original["bgpInterRegionCost"], d, config)
+	transformed["delete_bgp_always_compare_med"] =
+		flattenComputeNetworkRoutingConfigDeleteBgpAlwaysCompareMed(original["delete_bgp_always_compare_med"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -845,6 +854,12 @@ func flattenComputeNetworkRoutingConfigBgpAlwaysCompareMed(v interface{}, d *sch
 
 func flattenComputeNetworkRoutingConfigBgpInterRegionCost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+// The API does not return this field, so we must read it from the
+// local state to prevent perpetual diffs.
+func flattenComputeNetworkRoutingConfigDeleteBgpAlwaysCompareMed(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("delete_bgp_always_compare_med")
 }
 
 func flattenComputeNetworkMtu(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -922,6 +937,13 @@ func expandComputeNetworkRoutingConfig(v interface{}, d tpgresource.TerraformRes
 		transformed["bgpInterRegionCost"] = transformedBgpInterRegionCost
 	}
 
+	transformedDeleteBgpAlwaysCompareMed, err := expandComputeNetworkRoutingConfigDeleteBgpAlwaysCompareMed(d.Get("delete_bgp_always_compare_med"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDeleteBgpAlwaysCompareMed); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["delete_bgp_always_compare_med"] = transformedDeleteBgpAlwaysCompareMed
+	}
+
 	return transformed, nil
 }
 
@@ -938,6 +960,10 @@ func expandComputeNetworkRoutingConfigBgpAlwaysCompareMed(v interface{}, d tpgre
 }
 
 func expandComputeNetworkRoutingConfigBgpInterRegionCost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkRoutingConfigDeleteBgpAlwaysCompareMed(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -995,19 +1021,42 @@ func expandComputeNetworkParamsResourceManagerTags(v interface{}, d tpgresource.
 }
 
 func resourceComputeNetworkEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	delete(obj, "numeric_id") // Field doesn't exist in the API
+	//  BGP always-compare-med
+	_, ok := obj["routingConfig"].(map[string]interface{})
+	if ok {
+		obj["routingConfig"].(map[string]interface{})["deleteBgpAlwaysCompareMed"] = d.Get("delete_bgp_always_compare_med").(bool)
+
+		bgpAlwaysCompareMed := d.Get("bgp_always_compare_med").(bool)
+		if d.Get("delete_bgp_always_compare_med").(bool) {
+			if bgpAlwaysCompareMed {
+				return nil, fmt.Errorf("Cannot set BgpAlwaysCompareMed to true while DeleteBgpAlwaysCompareMed is also true")
+			}
+			obj["routingConfig"].(map[string]interface{})["bgpAlwaysCompareMed"] = nil
+		} else if _, present := d.GetOkExists("bgp_always_compare_med"); present {
+			obj["routingConfig"].(map[string]interface{})["bgpAlwaysCompareMed"] = d.Get("bgp_always_compare_med").(bool)
+		}
+	}
+	// now clean up the rest
+	delete(obj, "numeric_id")
 	return obj, nil
 }
 
 func resourceComputeNetworkUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	//  BGP always-compare-med
-	if d.HasChange("bgp_always_compare_med") {
-		if _, ok := obj["routingConfig"]; !ok {
-			obj["routingConfig"] = make(map[string]interface{})
-		}
-		obj["routingConfig"].(map[string]interface{})["bgpAlwaysCompareMed"] = d.Get("bgp_always_compare_med").(bool)
-	}
+	_, ok := obj["routingConfig"].(map[string]interface{})
+	if ok {
+		obj["routingConfig"].(map[string]interface{})["deleteBgpAlwaysCompareMed"] = d.Get("delete_bgp_always_compare_med").(bool)
 
+		bgpAlwaysCompareMed := d.Get("bgp_always_compare_med").(bool)
+		if d.Get("delete_bgp_always_compare_med").(bool) {
+			if bgpAlwaysCompareMed {
+				return nil, fmt.Errorf("Cannot set BgpAlwaysCompareMed to true while DeleteBgpAlwaysCompareMed is also true")
+			}
+			obj["routingConfig"].(map[string]interface{})["bgpAlwaysCompareMed"] = nil
+		} else if d.HasChange("bgp_always_compare_med") {
+			obj["routingConfig"].(map[string]interface{})["bgpAlwaysCompareMed"] = d.Get("bgp_always_compare_med").(bool)
+		}
+	}
 	// now clean up the rest
 	delete(obj, "numeric_id")
 	return obj, nil

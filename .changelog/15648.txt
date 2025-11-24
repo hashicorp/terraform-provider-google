@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where the `bgp_always_compare_med` field could not be unset in in `google_compute_network`. It can now be unset by configuring the new field `delete_bgp_always_compare_med` to a value of `true`.
+```

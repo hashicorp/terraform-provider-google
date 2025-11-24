@@ -99,6 +99,22 @@ resource "google_compute_network" "vpc_network" {
   bgp_inter_region_cost                     = "ADD_COST_TO_MED"
 }
 ```
+## Example Usage - Network Bgp Standard Mode Delete Med
+
+
+```hcl
+resource "google_compute_network" "vpc_network" {
+  name                    = "vpc-network"
+  auto_create_subnetworks = false
+  routing_mode            = "GLOBAL"
+  project                 = "my-project-name"
+  bgp_best_path_selection_mode  = "LEGACY"
+  bgp_always_compare_med        = false
+  # By setting this to true, any previous value for bgp_always_compare_med
+  # will be cleared, reverting it to the API default.
+  delete_bgp_always_compare_med = true
+}
+```
 
 ## Argument Reference
 
@@ -152,6 +168,11 @@ The following arguments are supported:
   (Optional)
   Choice of the behavior of inter-regional cost and MED in the BPS algorithm.
   Possible values are: `DEFAULT`, `ADD_COST_TO_MED`.
+
+* `delete_bgp_always_compare_med` -
+  (Optional)
+  If set to `true`, the `bgp_always_compare_med` field will be cleared.
+  If set to `false` (the default), `bgp_always_compare_med` will be set to the value specified in the configuration.
 
 * `mtu` -
   (Optional)
