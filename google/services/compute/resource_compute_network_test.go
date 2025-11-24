@@ -782,6 +782,79 @@ func testAccCheckComputeNetworkWasUpdated(newNetwork *compute.Network, oldNetwor
 	}
 }
 
+func TestAccComputeNetwork_bgpModeAndMedInteractions(t *testing.T) {
+	t.Parallel()
+
+	network := "google_compute_network.vpc_network"
+	netName := fmt.Sprintf("tf-bgp-int-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_bgp(netName, "STANDARD", "true", ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(network, "bgp_best_path_selection_mode", "STANDARD"),
+					resource.TestCheckResourceAttr(network, "bgp_always_compare_med", "true"),
+				),
+			},
+			{
+				Config: testAccComputeNetwork_bgp(netName, "STANDARD", "false", ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(network, "bgp_always_compare_med", "false"),
+				),
+			},
+			{
+				Config: testAccComputeNetwork_bgp(netName, "LEGACY", "", ""),
+				// Expect an API error because bgp_always_compare_med cannot be set when switching to LEGACY
+				ExpectError: regexp.MustCompile("Field bgp_always_compare_med is not supported for LEGACY BGP Best Path Selection algorithm"),
+			},
+			{
+				Config: testAccComputeNetwork_bgp(netName, "LEGACY", "", "true"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(network, "bgp_best_path_selection_mode", "LEGACY"),
+					resource.TestCheckResourceAttr(network, "bgp_always_compare_med", "false"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeNetwork_networkBgpStandardModeDeleteMed(t *testing.T) {
+	t.Parallel()
+
+	network := "google_compute_network.vpc_network"
+	netName := fmt.Sprintf("tf-bgp-del-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_bgp(netName, "STANDARD", "true", ""),
+				Check:  resource.TestCheckResourceAttr(network, "bgp_always_compare_med", "true"),
+			},
+			{
+				ResourceName:            network,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params", "delete_bgp_always_compare_med"},
+			},
+			{
+				Config:      testAccComputeNetwork_bgp(netName, "STANDARD", "true", "true"),
+				ExpectError: regexp.MustCompile("Cannot set BgpAlwaysCompareMed to true while DeleteBgpAlwaysCompareMed is also true"),
+			},
+			{
+				Config: testAccComputeNetwork_bgp(netName, "STANDARD", "false", "true"),
+				Check:  resource.TestCheckResourceAttr(network, "bgp_always_compare_med", "false"),
+			},
+		},
+	})
+}
+
 func testAccComputeNetwork_basic(networkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "bar" {
@@ -798,6 +871,26 @@ resource "google_compute_network" "baz" {
   auto_create_subnetworks = false
 }
 `, networkName)
+}
+
+func testAccComputeNetwork_bgp(name, bgpBestPathSelectionMode, bgpAlwaysCompareMed, deleteBgpAlwaysCompareMed string) string {
+	var medLine, deleteMedLine string
+	if bgpAlwaysCompareMed != "" {
+		medLine = fmt.Sprintf("  bgp_always_compare_med = %s\n", bgpAlwaysCompareMed)
+	}
+	if deleteBgpAlwaysCompareMed != "" {
+		deleteMedLine = fmt.Sprintf("  delete_bgp_always_compare_med = %s\n", deleteBgpAlwaysCompareMed)
+	}
+
+	return fmt.Sprintf(`
+resource "google_compute_network" "vpc_network" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+  routing_mode            = "GLOBAL"
+  project                 = "%s"
+  bgp_best_path_selection_mode = "%s"
+%s%s}
+`, name, envvar.GetTestProjectFromEnv(), bgpBestPathSelectionMode, medLine, deleteMedLine)
 }
 
 func testAccComputeNetwork_mtu(networkName string, mtu int32) string {

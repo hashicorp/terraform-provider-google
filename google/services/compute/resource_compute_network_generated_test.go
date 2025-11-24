@@ -69,7 +69,7 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_network.vpc_network",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"params"},
+				ImportStateVerifyIgnore: []string{"delete_bgp_always_compare_med", "params"},
 			},
 		},
 	})
@@ -103,7 +103,7 @@ func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 				ResourceName:            "google_compute_network.vpc_network",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"params"},
+				ImportStateVerifyIgnore: []string{"delete_bgp_always_compare_med", "params"},
 			},
 		},
 	})
@@ -140,7 +140,7 @@ func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testi
 				ResourceName:            "google_compute_network.vpc_network",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"params"},
+				ImportStateVerifyIgnore: []string{"delete_bgp_always_compare_med", "params"},
 			},
 		},
 	})
@@ -177,7 +177,7 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeExample(t *testing.T) 
 				ResourceName:            "google_compute_network.vpc_network",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"params"},
+				ImportStateVerifyIgnore: []string{"delete_bgp_always_compare_med", "params"},
 			},
 		},
 	})
@@ -213,7 +213,7 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(t *tes
 				ResourceName:            "google_compute_network.vpc_network",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"params"},
+				ImportStateVerifyIgnore: []string{"delete_bgp_always_compare_med", "params"},
 			},
 		},
 	})
@@ -250,7 +250,7 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsEx
 				ResourceName:            "google_compute_network.vpc_network",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"params"},
+				ImportStateVerifyIgnore: []string{"delete_bgp_always_compare_med", "params"},
 			},
 		},
 	})
@@ -265,6 +265,48 @@ resource "google_compute_network" "vpc_network" {
   bgp_best_path_selection_mode              = "STANDARD"
   bgp_always_compare_med                    = true
   bgp_inter_region_cost                     = "ADD_COST_TO_MED"
+}
+`, context)
+}
+
+func TestAccComputeNetwork_networkBgpStandardModeDeleteMedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_networkBgpStandardModeDeleteMedExample(context),
+			},
+			{
+				ResourceName:            "google_compute_network.vpc_network",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_bgp_always_compare_med", "params"},
+			},
+		},
+	})
+}
+
+func testAccComputeNetwork_networkBgpStandardModeDeleteMedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "vpc_network" {
+  name                    = "tf-test-vpc-network%{random_suffix}"
+  auto_create_subnetworks = false
+  routing_mode            = "GLOBAL"
+  project                 = "%{project}"
+  bgp_best_path_selection_mode  = "LEGACY"
+  bgp_always_compare_med        = false
+  # By setting this to true, any previous value for bgp_always_compare_med
+  # will be cleared, reverting it to the API default.
+  delete_bgp_always_compare_med = true
 }
 `, context)
 }
