@@ -1,0 +1,3 @@
+```release-note:enhancement
+monitoring: fixes an issue with `google_monitoring_alert_policy` where it ignores the resource project during Import
+```
