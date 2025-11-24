@@ -19,3 +19,12 @@ body:
       value: Please use the resources listed above instead of submitting a question with this form.
     validations:
       required: true
+  - type: textarea
+    id: affected-resources
+    attributes:
+      label: Related Resource(s)
+      description: Please list the resources and data sources your question is related to. Use `google_*` if all resources or data sources are affected.
+      value: |
+        * google_XXXXX
+    validations:
+      required: true
