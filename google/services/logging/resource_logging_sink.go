@@ -179,6 +179,11 @@ func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) (sink *logging.L
 		ForceSendFields: []string{"Destination", "Filter", "Disabled", "Exclusions"},
 	}
 
+	if v, ok := d.GetOkExists("include_children"); ok {
+		sink.IncludeChildren = v.(bool)
+		sink.ForceSendFields = append(sink.ForceSendFields, "IncludeChildren")
+	}
+
 	updateFields := []string{"exclusions"}
 	if d.HasChange("destination") {
 		updateFields = append(updateFields, "destination")

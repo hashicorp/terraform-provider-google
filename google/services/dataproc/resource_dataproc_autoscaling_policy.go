@@ -238,14 +238,14 @@ The default value is 'global'.`,
 secondary workers. Required for secondary workers if the minimum secondary instances is set.
 Bounds: [minInstances, ). Defaults to 0.`,
 							Default:      0,
-							AtLeastOneOf: []string{"secondary_worker_config.0.min_instances", "secondary_worker_config.0.max_instances", "secondary_worker_config.0.weight"},
+							AtLeastOneOf: []string{"secondary_worker_config.0.max_instances", "secondary_worker_config.0.min_instances", "secondary_worker_config.0.weight"},
 						},
 						"min_instances": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Description:  `Minimum number of instances for this group. Bounds: [0, maxInstances]. Defaults to 0.`,
 							Default:      0,
-							AtLeastOneOf: []string{"secondary_worker_config.0.min_instances", "secondary_worker_config.0.max_instances", "secondary_worker_config.0.weight"},
+							AtLeastOneOf: []string{"secondary_worker_config.0.max_instances", "secondary_worker_config.0.min_instances", "secondary_worker_config.0.weight"},
 						},
 						"weight": {
 							Type:     schema.TypeInt,
@@ -265,7 +265,7 @@ within the configured size bounds for each group. If weight is set for one group
 the cluster will default to zero weight on the unset group. For example if weight is set
 only on primary workers, the cluster will use primary workers only and no secondary workers.`,
 							Default:      1,
-							AtLeastOneOf: []string{"secondary_worker_config.0.min_instances", "secondary_worker_config.0.max_instances", "secondary_worker_config.0.weight"},
+							AtLeastOneOf: []string{"secondary_worker_config.0.max_instances", "secondary_worker_config.0.min_instances", "secondary_worker_config.0.weight"},
 						},
 					},
 				},

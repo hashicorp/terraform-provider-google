@@ -276,6 +276,67 @@ resource "google_ces_toolset" "ces_toolset_openapi_api_key_config" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_toolset_bearer_token_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Toolset Bearer Token Config
+
+
+```hcl
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "app-id"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "my-app"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_toolset" "ces_toolset_bearer_token_config" {
+  toolset_id = "toolset1"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+
+  open_api_toolset {
+    open_api_schema = <<-EOT
+      openapi: 3.0.0
+      info:
+        title: My Sample API
+        version: 1.0.0
+        description: A simple API example
+      servers:
+        - url: https://api.example.com/v1
+      paths: {}
+    EOT
+    ignore_unknown_fields = false
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        bearer_token_config {
+            token = "$context.variables.my_ces_toolset_auth_token"
+        }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -381,6 +442,11 @@ The following arguments are supported:
   token](https://cloud.google.com/docs/authentication/token-types#id) generated
   from service agent.
 
+* `bearer_token_config` -
+  (Optional)
+  Configurations for authentication with a bearer token.
+  Structure is [documented below](#nested_open_api_toolset_api_authentication_bearer_token_config).
+
 
 <a name="nested_open_api_toolset_api_authentication_api_key_config"></a>The `api_key_config` block supports:
 
@@ -444,6 +510,11 @@ The following arguments are supported:
   `roles/iam.serviceAccountTokenCreator` role granted to the
   CES service agent
   `service-@gcp-sa-ces.iam.gserviceaccount.com`.
+
+<a name="nested_open_api_toolset_api_authentication_bearer_token_config"></a>The `bearer_token_config` block supports:
+
+* `token` -
+  (Optional)
 
 <a name="nested_open_api_toolset_service_directory_config"></a>The `service_directory_config` block supports:
 

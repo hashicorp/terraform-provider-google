@@ -313,7 +313,7 @@ configuration will be disabled. The runs can be started on ad-hoc
 basis using transferConfigs.startManualRuns API. When automatic
 scheduling is disabled, the TransferConfig.schedule field will
 be ignored.`,
-							AtLeastOneOf: []string{"schedule_options.0.disable_auto_scheduling", "schedule_options.0.start_time", "schedule_options.0.end_time"},
+							AtLeastOneOf: []string{"schedule_options.0.disable_auto_scheduling", "schedule_options.0.end_time", "schedule_options.0.start_time"},
 						},
 						"end_time": {
 							Type:     schema.TypeString,
@@ -322,7 +322,7 @@ be ignored.`,
 scheduled at or after the end time. The end time can be changed at any
 moment. The time when a data transfer can be triggered manually is not
 limited by this option.`,
-							AtLeastOneOf: []string{"schedule_options.0.disable_auto_scheduling", "schedule_options.0.start_time", "schedule_options.0.end_time"},
+							AtLeastOneOf: []string{"schedule_options.0.disable_auto_scheduling", "schedule_options.0.end_time", "schedule_options.0.start_time"},
 						},
 						"start_time": {
 							Type:     schema.TypeString,
@@ -332,7 +332,7 @@ scheduled at or after the start time according to a recurrence pattern
 defined in the schedule string. The start time can be changed at any
 moment. The time when a data transfer can be triggered manually is not
 limited by this option.`,
-							AtLeastOneOf: []string{"schedule_options.0.disable_auto_scheduling", "schedule_options.0.start_time", "schedule_options.0.end_time"},
+							AtLeastOneOf: []string{"schedule_options.0.disable_auto_scheduling", "schedule_options.0.end_time", "schedule_options.0.start_time"},
 						},
 					},
 				},
@@ -364,12 +364,12 @@ to a different credential configuration in the config will require an apply to u
 							Description:   `The Secret Access Key of the AWS account transferring data from.`,
 							WriteOnly:     true,
 							ConflictsWith: []string{"sensitive_params.0.secret_access_key"},
-							AtLeastOneOf:  []string{"sensitive_params.0.secret_access_key_wo", "sensitive_params.0.secret_access_key"},
+							AtLeastOneOf:  []string{"sensitive_params.0.secret_access_key", "sensitive_params.0.secret_access_key_wo"},
 						},
 						"secret_access_key_wo_version": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Description:  `The version of the sensitive params - used to trigger updates of the write-only params. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+							Description:  `The version of the sensitive params - used to trigger updates of the write-only params. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
 							RequiredWith: []string{"sensitive_params.0.secret_access_key_wo"},
 						},
 					},

@@ -212,7 +212,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 						},
 					},
 				},
-				ConflictsWith: []string{"github_config", "github_enterprise_config", "gitlab_config", "bitbucket_data_center_config"},
+				ConflictsWith: []string{"bitbucket_data_center_config", "github_config", "github_enterprise_config", "gitlab_config"},
 			},
 			"bitbucket_data_center_config": {
 				Type:        schema.TypeList,
@@ -303,7 +303,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 						},
 					},
 				},
-				ConflictsWith: []string{"github_config", "github_enterprise_config", "bitbucket_cloud_config", "gitlab_config"},
+				ConflictsWith: []string{"bitbucket_cloud_config", "github_config", "github_enterprise_config", "gitlab_config"},
 			},
 			"disabled": {
 				Type:        schema.TypeBool,
@@ -345,7 +345,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 						},
 					},
 				},
-				ConflictsWith: []string{"github_enterprise_config", "gitlab_config", "bitbucket_cloud_config", "bitbucket_data_center_config"},
+				ConflictsWith: []string{"bitbucket_cloud_config", "bitbucket_data_center_config", "github_enterprise_config", "gitlab_config"},
 			},
 			"github_enterprise_config": {
 				Type:        schema.TypeList,
@@ -409,7 +409,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 						},
 					},
 				},
-				ConflictsWith: []string{"github_config", "gitlab_config", "bitbucket_cloud_config", "bitbucket_data_center_config"},
+				ConflictsWith: []string{"bitbucket_cloud_config", "bitbucket_data_center_config", "github_config", "gitlab_config"},
 			},
 			"gitlab_config": {
 				Type:        schema.TypeList,
@@ -501,7 +501,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 						},
 					},
 				},
-				ConflictsWith: []string{"github_config", "github_enterprise_config", "bitbucket_cloud_config", "bitbucket_data_center_config"},
+				ConflictsWith: []string{"bitbucket_cloud_config", "bitbucket_data_center_config", "github_config", "github_enterprise_config"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,

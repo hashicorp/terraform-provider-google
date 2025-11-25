@@ -302,6 +302,15 @@ The following arguments are supported:
   Note that the consumer network may be in a different GCP project than the consumer
   project that is hosting the Looker Instance.
 
+* `controlled_egress_config` -
+  (Optional)
+  Controlled egress configuration.
+  Structure is [documented below](#nested_controlled_egress_config).
+
+* `controlled_egress_enabled` -
+  (Optional)
+  Whether controlled egress is enabled on the Looker instance.
+
 * `deny_maintenance_period` -
   (Optional)
   Maintenance denial period for this instance.
@@ -418,6 +427,17 @@ nested resources will return an error. Possible values: DEFAULT, FORCE
   Updating this list will restart the instance. Updating the allowed email domains from terraform
   means the value provided will be considered as the entire list and not an amendment to the
   existing list of allowed email domains.
+
+<a name="nested_controlled_egress_config"></a>The `controlled_egress_config` block supports:
+
+* `marketplace_enabled` -
+  (Optional)
+  Whether the Looker Marketplace is enabled.
+
+* `egress_fqdns` -
+  (Optional)
+  List of fully qualified domain names to be added to the allowlist for
+  outbound traffic.
 
 <a name="nested_deny_maintenance_period"></a>The `deny_maintenance_period` block supports:
 

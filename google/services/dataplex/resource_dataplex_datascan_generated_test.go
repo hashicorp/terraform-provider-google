@@ -105,7 +105,7 @@ data_profile_spec {}
 `, context)
 }
 
-func TestAccDataplexDatascan_dataplexDatascanFullProfileExample(t *testing.T) {
+func TestAccDataplexDatascan_dataplexDatascanFullProfileTestExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -119,16 +119,16 @@ func TestAccDataplexDatascan_dataplexDatascanFullProfileExample(t *testing.T) {
 		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataplexDatascan_dataplexDatascanFullProfileExample(context),
+				Config: testAccDataplexDatascan_dataplexDatascanFullProfileTestExample(context),
 			},
 			{
-				ResourceName:            "google_dataplex_datascan.full_profile",
+				ResourceName:            "google_dataplex_datascan.full_profile_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
 			},
 			{
-				ResourceName:       "google_dataplex_datascan.full_profile",
+				ResourceName:       "google_dataplex_datascan.full_profile_test",
 				RefreshState:       true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
@@ -137,27 +137,63 @@ func TestAccDataplexDatascan_dataplexDatascanFullProfileExample(t *testing.T) {
 	})
 }
 
-func testAccDataplexDatascan_dataplexDatascanFullProfileExample(context map[string]interface{}) string {
+func testAccDataplexDatascan_dataplexDatascanFullProfileTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_dataplex_datascan" "full_profile" {
-  location     = "us-central1"
-  display_name = "Full Datascan Profile"
-  data_scan_id = "tf-test-dataprofile-full%{random_suffix}"
-  description  = "Example resource - Full Datascan Profile"
+resource "google_bigquery_dataset" "tf_test_dataset" {
+  dataset_id = "tf_test_dataset_id_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+  delete_contents_on_destroy = true
+}
+
+resource "google_bigquery_table" "tf_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_test_dataset.dataset_id
+  table_id            = "tf_test_table_id_%{random_suffix}"
+  deletion_protection = false
+  schema              = <<EOF
+    [
+      {
+        "name": "word",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "word_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "corpus",
+        "type": "STRING",
+        "mode": "REQUIRED"
+      },
+      {
+        "name": "corpus_date",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+      }
+    ]
+  EOF
+}
+
+resource "google_dataplex_datascan" "full_profile_test" {
+  location = "us-central1"
+  display_name = "Full Datascan Quality Publishing"
+  data_scan_id = "tf-test-dataprofile-full-test%{random_suffix}"
+  description = "Example resource - Full Datascan Quality with Publishing enabled"
   labels = {
     author = "billing"
   }
 
   data {
-    resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
+      resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_test_table.table_id}"
   }
 
   execution_spec {
-    trigger {
+      trigger {
       schedule {
-        cron = "TZ=America/New_York 1 1 * * *"
+          cron = "TZ=America/New_York 1 1 * * *"
       }
-    }
+      }
   }
 
   data_profile_spec {
@@ -171,24 +207,17 @@ resource "google_dataplex_datascan" "full_profile" {
     }
     post_scan_actions {
       bigquery_export {
-        results_table = "//bigquery.googleapis.com/projects/%{project_name}/datasets/tf_test_dataplex_dataset%{random_suffix}/tables/profile_export"
+        results_table = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_test_dataset.dataset_id}/tables/profile_export_%{random_suffix}"
       }
     }
+    catalog_publishing_enabled = true
   }
 
   project = "%{project_name}"
 
   depends_on = [
-    google_bigquery_dataset.source
+    google_bigquery_dataset.tf_test_dataset
   ]
-}
-
-resource "google_bigquery_dataset" "source" {
-  dataset_id                  = "tf_test_dataplex_dataset%{random_suffix}"
-  friendly_name               = "test"
-  description                 = "This is a test description"
-  location                    = "US"
-  delete_contents_on_destroy = true
 }
 `, context)
 }
@@ -465,7 +494,7 @@ resource "google_dataplex_datascan" "full_quality_test" {
     rules {
       dimension = "VALIDITY"
       sql_assertion {
-        sql_statement = "select * from %{project_name}.${google_bigquery_dataset.tf_test_dataset.dataset_id}.${google_bigquery_table.tf_test_table.table_id} where address is null"
+        sql_statement = "select * from $${data()} where address is null"
       }
     }
   }

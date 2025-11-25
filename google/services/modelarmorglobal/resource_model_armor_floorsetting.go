@@ -311,14 +311,14 @@ DISABLED`,
 							Optional: true,
 							Description: `If true, Model Armor filters will be run in inspect and block mode.
 Requests that trip Model Armor filters will be blocked.`,
-							ExactlyOneOf: []string{"ai_platform_floor_setting.0.inspect_only", "ai_platform_floor_setting.0.inspect_and_block"},
+							ExactlyOneOf: []string{"ai_platform_floor_setting.0.inspect_and_block", "ai_platform_floor_setting.0.inspect_only"},
 						},
 						"inspect_only": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Description: `If true, Model Armor filters will be run in inspect only mode. No action
 will be taken on the request.`,
-							ExactlyOneOf: []string{"ai_platform_floor_setting.0.inspect_only", "ai_platform_floor_setting.0.inspect_and_block"},
+							ExactlyOneOf: []string{"ai_platform_floor_setting.0.inspect_and_block", "ai_platform_floor_setting.0.inspect_only"},
 						},
 					},
 				},

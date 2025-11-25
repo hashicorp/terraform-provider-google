@@ -212,14 +212,14 @@ to sign all other types of resource record sets. Possible values: ["keySigning",
 									},
 								},
 							},
-							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
+							AtLeastOneOf: []string{"dnssec_config.0.default_key_specs", "dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state"},
 						},
 						"kind": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Description:  `Identifies what kind of resource this is`,
 							Default:      "dns#managedZoneDnsSecConfig",
-							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
+							AtLeastOneOf: []string{"dnssec_config.0.default_key_specs", "dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state"},
 						},
 						"non_existence": {
 							Type:         schema.TypeString,
@@ -228,14 +228,14 @@ to sign all other types of resource record sets. Possible values: ["keySigning",
 							ValidateFunc: verify.ValidateEnum([]string{"nsec", "nsec3", ""}),
 							Description: `Specifies the mechanism used to provide authenticated denial-of-existence responses.
 non_existence can only be updated when the state is 'off'. Possible values: ["nsec", "nsec3"]`,
-							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
+							AtLeastOneOf: []string{"dnssec_config.0.default_key_specs", "dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state"},
 						},
 						"state": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"off", "on", "transfer", ""}),
 							Description:  `Specifies whether DNSSEC is enabled, and what mode it is in Possible values: ["off", "on", "transfer"]`,
-							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
+							AtLeastOneOf: []string{"dnssec_config.0.default_key_specs", "dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state"},
 						},
 					},
 				},
@@ -445,14 +445,23 @@ func dnsManagedZoneForwardingConfigTargetNameServersSchema() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"default", "private", ""}),
-				Description: `Forwarding path for this TargetNameServer. If unset or 'default' Cloud DNS will make forwarding
-decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
-to the Internet. When set to 'private', Cloud DNS will always send queries through VPC for this target Possible values: ["default", "private"]`,
+				Description: `Forwarding path for this TargetNameServer. If unset or 'default'
+Cloud DNS will make forwarding decision based on address ranges,
+i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
+to the Internet. When set to 'private', Cloud DNS will always
+send queries through VPC for this target. Possible values: ["default", "private"]`,
 			},
 			"ipv4_address": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `IPv4 address of a target name server.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `IPv4 address of a target name server.
+Does not accept both fields (ipv4 & ipv6) being populated.`,
+			},
+			"ipv6_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `IPv6 address of a target name server.
+Does not accept both fields (ipv4 & ipv6) being populated.`,
 			},
 		},
 	}
@@ -1191,6 +1200,7 @@ func flattenDNSManagedZoneForwardingConfigTargetNameServers(v interface{}, d *sc
 		}
 		transformed.Add(map[string]interface{}{
 			"ipv4_address":    flattenDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(original["ipv4Address"], d, config),
+			"ipv6_address":    flattenDNSManagedZoneForwardingConfigTargetNameServersIpv6Address(original["ipv6Address"], d, config),
 			"domain_name":     flattenDNSManagedZoneForwardingConfigTargetNameServersDomainName(original["domainName"], d, config),
 			"forwarding_path": flattenDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(original["forwardingPath"], d, config),
 		})
@@ -1198,6 +1208,10 @@ func flattenDNSManagedZoneForwardingConfigTargetNameServers(v interface{}, d *sc
 	return transformed
 }
 func flattenDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDNSManagedZoneForwardingConfigTargetNameServersIpv6Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1543,6 +1557,13 @@ func expandDNSManagedZoneForwardingConfigTargetNameServers(v interface{}, d tpgr
 			transformed["ipv4Address"] = transformedIpv4Address
 		}
 
+		transformedIpv6Address, err := expandDNSManagedZoneForwardingConfigTargetNameServersIpv6Address(original["ipv6_address"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpv6Address); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipv6Address"] = transformedIpv6Address
+		}
+
 		transformedDomainName, err := expandDNSManagedZoneForwardingConfigTargetNameServersDomainName(original["domain_name"], d, config)
 		if err != nil {
 			return nil, err
@@ -1563,6 +1584,10 @@ func expandDNSManagedZoneForwardingConfigTargetNameServers(v interface{}, d tpgr
 }
 
 func expandDNSManagedZoneForwardingConfigTargetNameServersIpv4Address(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDNSManagedZoneForwardingConfigTargetNameServersIpv6Address(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

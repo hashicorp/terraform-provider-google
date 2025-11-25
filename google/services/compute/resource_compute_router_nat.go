@@ -355,7 +355,7 @@ Mutually exclusive with enableEndpointIndependentMapping.`,
 				Computed: true,
 				Optional: true,
 				Description: `Enable endpoint independent mapping.
-For more information see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).`,
+For more information see the [official documentation](https://docs.cloud.google.com/nat/docs/public-nat#specs-rfcs).`,
 			},
 			"endpoint_types": {
 				Type:     schema.TypeList,
@@ -388,7 +388,7 @@ Conflicts with natIps and drainNatIps. Only valid if natIpAllocateOption is set 
 					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				},
 				Set:           computeRouterNatIPsHash,
-				ConflictsWith: []string{"nat_ips", "drain_nat_ips"},
+				ConflictsWith: []string{"drain_nat_ips", "nat_ips"},
 			},
 			"log_config": {
 				Type:        schema.TypeList,

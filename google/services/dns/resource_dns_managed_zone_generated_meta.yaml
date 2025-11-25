@@ -23,6 +23,7 @@ fields:
   - api_field: 'forwardingConfig.targetNameServers.domainName'
   - api_field: 'forwardingConfig.targetNameServers.forwardingPath'
   - api_field: 'forwardingConfig.targetNameServers.ipv4Address'
+  - api_field: 'forwardingConfig.targetNameServers.ipv6Address'
   - api_field: 'labels'
   - api_field: 'id'
     field: 'managed_zone_id'

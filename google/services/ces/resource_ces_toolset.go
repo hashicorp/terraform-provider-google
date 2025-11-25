@@ -221,6 +221,21 @@ QUERY_STRING`,
 											},
 										},
 									},
+									"bearer_token_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configurations for authentication with a bearer token.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"token": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: ``,
+												},
+											},
+										},
+									},
 									"oauth_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -828,6 +843,8 @@ func flattenCESToolsetOpenApiToolsetApiAuthentication(v interface{}, d *schema.R
 		flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfig(original["serviceAccountAuthConfig"], d, config)
 	transformed["service_agent_id_token_auth_config"] =
 		flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAgentIdTokenAuthConfig(original["serviceAgentIdTokenAuthConfig"], d, config)
+	transformed["bearer_token_config"] =
+		flattenCESToolsetOpenApiToolsetApiAuthenticationBearerTokenConfig(original["bearerTokenConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolsetOpenApiToolsetApiAuthenticationApiKeyConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -923,6 +940,23 @@ func flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAgentIdTokenAuthConf
 	}
 	transformed := make(map[string]interface{})
 	return []interface{}{transformed}
+}
+
+func flattenCESToolsetOpenApiToolsetApiAuthenticationBearerTokenConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["token"] =
+		flattenCESToolsetOpenApiToolsetApiAuthenticationBearerTokenConfigToken(original["token"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolsetOpenApiToolsetApiAuthenticationBearerTokenConfigToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCESToolsetOpenApiToolsetIgnoreUnknownFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1107,6 +1141,13 @@ func expandCESToolsetOpenApiToolsetApiAuthentication(v interface{}, d tpgresourc
 		transformed["serviceAgentIdTokenAuthConfig"] = transformedServiceAgentIdTokenAuthConfig
 	}
 
+	transformedBearerTokenConfig, err := expandCESToolsetOpenApiToolsetApiAuthenticationBearerTokenConfig(original["bearer_token_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBearerTokenConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bearerTokenConfig"] = transformedBearerTokenConfig
+	}
+
 	return transformed, nil
 }
 
@@ -1270,6 +1311,32 @@ func expandCESToolsetOpenApiToolsetApiAuthenticationServiceAgentIdTokenAuthConfi
 	transformed := make(map[string]interface{})
 
 	return transformed, nil
+}
+
+func expandCESToolsetOpenApiToolsetApiAuthenticationBearerTokenConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedToken, err := expandCESToolsetOpenApiToolsetApiAuthenticationBearerTokenConfigToken(original["token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedToken); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["token"] = transformedToken
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolsetOpenApiToolsetApiAuthenticationBearerTokenConfigToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESToolsetOpenApiToolsetIgnoreUnknownFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

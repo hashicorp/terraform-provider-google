@@ -19,6 +19,7 @@ fields:
   - api_field: 'openApiToolset.apiAuthentication.apiKeyConfig.apiKeySecretVersion'
   - api_field: 'openApiToolset.apiAuthentication.apiKeyConfig.keyName'
   - api_field: 'openApiToolset.apiAuthentication.apiKeyConfig.requestLocation'
+  - api_field: 'openApiToolset.apiAuthentication.bearerTokenConfig.token'
   - api_field: 'openApiToolset.apiAuthentication.oauthConfig.clientId'
   - api_field: 'openApiToolset.apiAuthentication.oauthConfig.clientSecretVersion'
   - api_field: 'openApiToolset.apiAuthentication.oauthConfig.oauthGrantType'

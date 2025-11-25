@@ -34,6 +34,9 @@ import (
 	"google.golang.org/api/pubsublite/v1"
 )
 
+//resource is non-functional, preserved for reference with ongoing fwprovider work
+//any changes to `google_pubsublite_reservation` should be performed at mmv1/products/pubsublite/Reservation.yaml
+
 // Ensure the implementation satisfies the expected interfaces.
 var (
 	_ resource.Resource              = &GooglePubsubLiteReservationFWResource{}

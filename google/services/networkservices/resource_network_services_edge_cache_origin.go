@@ -393,7 +393,7 @@ Valid values are:
 Defaults to 5 seconds. The timeout must be a value between 1s and 15s.
 
 The connectTimeout capped by the deadline set by the request's maxAttemptsTimeout.  The last connection attempt may have a smaller connectTimeout in order to adhere to the overall maxAttemptsTimeout.`,
-							AtLeastOneOf: []string{"timeout.0.connect_timeout", "timeout.0.max_attempts_timeout", "timeout.0.response_timeout", "timeout.0.read_timeout"},
+							AtLeastOneOf: []string{"timeout.0.connect_timeout", "timeout.0.max_attempts_timeout", "timeout.0.read_timeout", "timeout.0.response_timeout"},
 						},
 						"max_attempts_timeout": {
 							Type:     schema.TypeString,
@@ -403,7 +403,7 @@ The connectTimeout capped by the deadline set by the request's maxAttemptsTimeou
 Defaults to 15 seconds. The timeout must be a value between 1s and 30s.
 
 If a failoverOrigin is specified, the maxAttemptsTimeout of the first configured origin sets the deadline for all connection attempts across all failoverOrigins.`,
-							AtLeastOneOf: []string{"timeout.0.connect_timeout", "timeout.0.max_attempts_timeout", "timeout.0.response_timeout", "timeout.0.read_timeout"},
+							AtLeastOneOf: []string{"timeout.0.connect_timeout", "timeout.0.max_attempts_timeout", "timeout.0.read_timeout", "timeout.0.response_timeout"},
 						},
 						"read_timeout": {
 							Type:     schema.TypeString,
@@ -415,7 +415,7 @@ Defaults to 15 seconds.  The timeout must be a value between 1s and 30s.
 The readTimeout is capped by the responseTimeout.  All reads of the HTTP connection/stream must be completed by the deadline set by the responseTimeout.
 
 If the response headers have already been written to the connection, the response will be truncated and logged.`,
-							AtLeastOneOf: []string{"timeout.0.connect_timeout", "timeout.0.max_attempts_timeout", "timeout.0.response_timeout", "timeout.0.read_timeout"},
+							AtLeastOneOf: []string{"timeout.0.connect_timeout", "timeout.0.max_attempts_timeout", "timeout.0.read_timeout", "timeout.0.response_timeout"},
 						},
 						"response_timeout": {
 							Type:     schema.TypeString,
@@ -429,7 +429,7 @@ The responseTimeout starts after the connection has been established.
 This also applies to HTTP Chunked Transfer Encoding responses, and/or when an open-ended Range request is made to the origin. Origins that take longer to write additional bytes to the response than the configured responseTimeout will result in an error being returned to the client.
 
 If the response headers have already been written to the connection, the response will be truncated and logged.`,
-							AtLeastOneOf: []string{"timeout.0.connect_timeout", "timeout.0.max_attempts_timeout", "timeout.0.response_timeout", "timeout.0.read_timeout"},
+							AtLeastOneOf: []string{"timeout.0.connect_timeout", "timeout.0.max_attempts_timeout", "timeout.0.read_timeout", "timeout.0.response_timeout"},
 						},
 					},
 				},

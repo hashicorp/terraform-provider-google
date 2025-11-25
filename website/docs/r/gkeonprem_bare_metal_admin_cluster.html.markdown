@@ -108,6 +108,10 @@ resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
       service_address_cidr_blocks = ["172.26.0.0/16"]
       pod_address_cidr_blocks = ["10.240.0.0/13"]
     }
+    advanced_networking = true
+    multiple_network_interfaces_config {
+      enabled = true
+    }
   }
   node_config {
     max_pods_per_node = 250
@@ -148,8 +152,49 @@ resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
     vip_config {
       control_plane_vip = "10.200.0.5"
     }
-    manual_lb_config {
-      enabled = true
+    bgp_lb_config {
+      asn = 123456
+      bgp_peer_configs {
+        asn = 123457
+        ip_address = "10.0.0.1"
+        control_plane_nodes = ["test-node"]
+      }
+      address_pools {
+	pool = "loadBalancerAddressPool-1"
+        addresses = [
+          "10.200.0.14/32",
+          "10.200.0.15/32",
+          "10.200.0.16/32",
+          "10.200.0.17/32",
+          "10.200.0.18/32",
+          "fd00:1::f/128",
+          "fd00:1::10/128",
+          "fd00:1::11/128",
+          "fd00:1::12/128"
+        ]
+	manual_assign = true
+        avoid_buggy_ips = true
+      }
+      load_balancer_node_pool_config {
+        node_pool_config {
+          labels = {}
+          operating_system = "LINUX"
+          node_configs {
+            labels = {}
+            node_ip = "10.200.0.9"
+          }
+	  kubelet_config {
+            registry_burst = 12
+            registry_pull_qps = 10
+            serialize_image_pulls_disabled = true
+          }
+          taints {
+            key = "test-key"
+            value = "test-value"
+            effect = "NO_EXECUTE"
+          }
+        }
+      }
     }
   }
   storage {
@@ -286,6 +331,15 @@ The following arguments are supported:
   A nested object resource.
   Structure is [documented below](#nested_network_config_island_mode_cidr).
 
+* `advanced_networking` -
+  (Optional)
+  Enables the use of advanced Anthos networking features.
+
+* `multiple_network_interfaces_config` -
+  (Optional)
+  Configuration for multiple network interfaces.
+  Structure is [documented below](#nested_network_config_multiple_network_interfaces_config).
+
 
 <a name="nested_network_config_island_mode_cidr"></a>The `island_mode_cidr` block supports:
 
@@ -296,6 +350,13 @@ The following arguments are supported:
 * `pod_address_cidr_blocks` -
   (Required)
   All pods in the cluster are assigned an RFC1918 IPv4 address from these ranges. This field cannot be changed after creation.
+
+<a name="nested_network_config_multiple_network_interfaces_config"></a>The `multiple_network_interfaces_config` block supports:
+
+* `enabled` -
+  (Optional)
+  When set network_config.advanced_networking is automatically
+  set to true.
 
 <a name="nested_control_plane"></a>The `control_plane` block supports:
 
@@ -413,6 +474,11 @@ The following arguments are supported:
   A nested object resource.
   Structure is [documented below](#nested_load_balancer_manual_lb_config).
 
+* `bgp_lb_config` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config).
+
 
 <a name="nested_load_balancer_vip_config"></a>The `vip_config` block supports:
 
@@ -431,6 +497,130 @@ The following arguments are supported:
 * `enabled` -
   (Required)
   Whether manual load balancing is enabled.
+
+<a name="nested_load_balancer_bgp_lb_config"></a>The `bgp_lb_config` block supports:
+
+* `asn` -
+  (Optional)
+  BGP autonomous system number (ASN) of the cluster.
+
+* `bgp_peer_configs` -
+  (Optional)
+  BGP autonomous system number (ASN) of the cluster.
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_bgp_peer_configs).
+
+* `address_pools` -
+  (Optional)
+  a list of non-overlapping IP pools used
+  by load balancer typed services.
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_address_pools).
+
+* `load_balancer_node_pool_config` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config).
+
+
+<a name="nested_load_balancer_bgp_lb_config_bgp_peer_configs"></a>The `bgp_peer_configs` block supports:
+
+* `asn` -
+  (Optional)
+
+* `ip_address` -
+  (Optional)
+
+* `control_plane_nodes` -
+  (Optional)
+  The IP address of the control plane node that
+  connects to the external peer.
+
+<a name="nested_load_balancer_bgp_lb_config_address_pools"></a>The `address_pools` block supports:
+
+* `pool` -
+  (Optional)
+
+* `addresses` -
+  (Optional)
+  The addresses that are part of this pool.
+
+* `avoid_buggy_ips` -
+  (Optional)
+  This avoids buggy consumer devices mistakenly
+  dropping IPv4 traffic for those special IP addresses.
+
+* `manual_assign` -
+  (Optional)
+  If true, prevent IP addresses from being automatically assigned.
+
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config"></a>The `load_balancer_node_pool_config` block supports:
+
+* `node_pool_config` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config).
+
+
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config"></a>The `node_pool_config` block supports:
+
+* `node_configs` -
+  (Optional)
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_node_configs).
+
+* `operating_system` -
+  (Optional)
+  The available Operating Systems to be run in a Node.
+
+* `taints` -
+  (Optional)
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_taints).
+
+* `labels` -
+  (Optional)
+  The labels assigned to nodes of this node pool.
+  An object containing a list of key/value pairs.
+  Example:
+  { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+* `kubelet_config` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_kubelet_config).
+
+
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_node_configs"></a>The `node_configs` block supports:
+
+* `node_ip` -
+  (Optional)
+
+* `labels` -
+  (Optional)
+  The labels assigned to nodes of this node pool.
+  An object containing a list of key/value pairs.
+  Example:
+  { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_taints"></a>The `taints` block supports:
+
+* `key` -
+  (Optional)
+
+* `value` -
+  (Optional)
+
+* `effect` -
+  (Optional)
+  Available taint effects.
+
+<a name="nested_load_balancer_bgp_lb_config_load_balancer_node_pool_config_node_pool_config_kubelet_config"></a>The `kubelet_config` block supports:
+
+* `registry_pull_qps` -
+  (Optional)
+
+* `registry_burst` -
+  (Optional)
+
+* `serialize_image_pulls_disabled` -
+  (Optional)
 
 <a name="nested_storage"></a>The `storage` block supports:
 

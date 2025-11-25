@@ -228,7 +228,7 @@ resource "google_compute_resource_policy" "bar" {
   region = "europe-west1"
   workload_policy {
     type = "HIGH_THROUGHPUT"
-    accelerator_topology = "SOME NEW TOPOLOGY"
+    accelerator_topology = "2x2"
   }
 }
 ```

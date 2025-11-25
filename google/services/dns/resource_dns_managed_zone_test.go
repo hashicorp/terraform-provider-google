@@ -33,7 +33,7 @@ import (
 func TestAccDNSManagedZone_update(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -41,7 +41,7 @@ func TestAccDNSManagedZone_update(t *testing.T) {
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_basic(zoneSuffix, "description1", map[string]string{"foo": "bar", "ping": "pong"}),
+				Config: testAccDnsManagedZone_basic(suffix, "description1", map[string]string{"foo": "bar", "ping": "pong"}),
 			},
 			{
 				ResourceName:            "google_dns_managed_zone.foobar",
@@ -50,7 +50,7 @@ func TestAccDNSManagedZone_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
-				Config: testAccDnsManagedZone_basic(zoneSuffix, "description2", map[string]string{"foo": "bar"}),
+				Config: testAccDnsManagedZone_basic(suffix, "description2", map[string]string{"foo": "bar"}),
 			},
 			{
 				ResourceName:            "google_dns_managed_zone.foobar",
@@ -65,7 +65,7 @@ func TestAccDNSManagedZone_update(t *testing.T) {
 func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -73,7 +73,7 @@ func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_privateUpdate(zoneSuffix, "network-1", "network-2"),
+				Config: testAccDnsManagedZone_privateUpdate(suffix, "network-1", "network-2"),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.private",
@@ -81,7 +81,7 @@ func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsManagedZone_privateUpdate(zoneSuffix, "network-2", "network-3"),
+				Config: testAccDnsManagedZone_privateUpdate(suffix, "network-2", "network-3"),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.private",
@@ -95,7 +95,7 @@ func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 func TestAccDNSManagedZone_dnssec_update(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -103,7 +103,7 @@ func TestAccDNSManagedZone_dnssec_update(t *testing.T) {
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_dnssec_on(zoneSuffix),
+				Config: testAccDnsManagedZone_dnssec_on(suffix),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.foobar",
@@ -111,7 +111,7 @@ func TestAccDNSManagedZone_dnssec_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsManagedZone_dnssec_off(zoneSuffix),
+				Config: testAccDnsManagedZone_dnssec_off(suffix),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.foobar",
@@ -125,7 +125,7 @@ func TestAccDNSManagedZone_dnssec_update(t *testing.T) {
 func TestAccDNSManagedZone_dnssec_empty(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -133,7 +133,7 @@ func TestAccDNSManagedZone_dnssec_empty(t *testing.T) {
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_dnssec_empty(zoneSuffix),
+				Config: testAccDnsManagedZone_dnssec_empty(suffix),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.foobar",
@@ -147,7 +147,7 @@ func TestAccDNSManagedZone_dnssec_empty(t *testing.T) {
 func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -155,7 +155,7 @@ func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_privateForwardingUpdate(zoneSuffix, "172.16.1.10", "172.16.1.20", "default", "private"),
+				Config: testAccDnsManagedZone_privateForwardingUpdate(suffix, "172.16.1.10", "172.16.1.20", "fd20:3e9:7a70:680d:0:8::", "default", "private", "default"),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.private",
@@ -163,7 +163,7 @@ func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsManagedZone_privateForwardingUpdate(zoneSuffix, "172.16.1.10", "192.168.1.1", "private", "default"),
+				Config: testAccDnsManagedZone_privateForwardingUpdate(suffix, "172.16.1.10", "192.168.1.1", "fd20:3e9:7a70:680d:0:8::1", "private", "default", "private"),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.private",
@@ -177,7 +177,7 @@ func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -185,7 +185,7 @@ func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_cloudLoggingConfig_basic(zoneSuffix),
+				Config: testAccDnsManagedZone_cloudLoggingConfig_basic(suffix),
 			},
 			{
 				ResourceName:            "google_dns_managed_zone.foobar",
@@ -194,7 +194,7 @@ func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
-				Config: testAccDnsManagedZone_cloudLoggingConfig_update(zoneSuffix, true),
+				Config: testAccDnsManagedZone_cloudLoggingConfig_update(suffix, true),
 			},
 			{
 				ResourceName:            "google_dns_managed_zone.foobar",
@@ -203,7 +203,7 @@ func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
-				Config: testAccDnsManagedZone_cloudLoggingConfig_update(zoneSuffix, false),
+				Config: testAccDnsManagedZone_cloudLoggingConfig_update(suffix, false),
 			},
 			{
 				ResourceName:            "google_dns_managed_zone.foobar",
@@ -218,7 +218,7 @@ func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
 func TestAccDNSManagedZone_forceDestroy(t *testing.T) {
 	//t.Parallel()
 
-	zoneSuffix := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 	project := envvar.GetTestProjectFromEnv()
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -227,36 +227,36 @@ func TestAccDNSManagedZone_forceDestroy(t *testing.T) {
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDNSManagedZone_forceDestroy(zoneSuffix),
+				Config: testAccDNSManagedZone_forceDestroy(suffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckManagedZoneCreateRRs(t, zoneSuffix, project),
+					testAccCheckManagedZoneCreateRRs(t, suffix, project),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckManagedZoneCreateRRs(t *testing.T, zoneSuffix string, project string) resource.TestCheckFunc {
+func testAccCheckManagedZoneCreateRRs(t *testing.T, suffix string, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-		zone := fmt.Sprintf("mzone-test-%s", zoneSuffix)
+		zone := fmt.Sprintf("mzone-test-%s", suffix)
 		// Build the change
 		chg := &dns.Change{
 			Additions: []*dns.ResourceRecordSet{
 				{
-					Name:    fmt.Sprintf("cname.%s.hashicorptest.com.", zoneSuffix),
+					Name:    fmt.Sprintf("cname.%s.hashicorptest.com.", suffix),
 					Type:    "CNAME",
 					Ttl:     300,
 					Rrdatas: []string{"foo.example.com."},
 				},
 				{
-					Name:    fmt.Sprintf("a.%s.hashicorptest.com.", zoneSuffix),
+					Name:    fmt.Sprintf("a.%s.hashicorptest.com.", suffix),
 					Type:    "A",
 					Ttl:     300,
 					Rrdatas: []string{"1.1.1.1"},
 				},
 				{
-					Name:    fmt.Sprintf("nested.%s.hashicorptest.com.", zoneSuffix),
+					Name:    fmt.Sprintf("nested.%s.hashicorptest.com.", suffix),
 					Type:    "NS",
 					Ttl:     300,
 					Rrdatas: []string{"ns.hashicorp.services.", "ns2.hashicorp.services."},
@@ -461,36 +461,62 @@ resource "google_container_cluster" "cluster-1" {
 `, suffix, first_network, second_network, suffix, suffix, suffix, suffix)
 }
 
-func testAccDnsManagedZone_privateForwardingUpdate(suffix, first_nameserver, second_nameserver, first_forwarding_path, second_forwarding_path string) string {
+func testAccDnsManagedZone_privateForwardingUpdate(suffix, first_nameserver, second_nameserver, third_nameserver, first_forwarding_path, second_forwarding_path, third_forwarding_path string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "private" {
   name        = "private-zone-%s"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
   visibility  = "private"
+
   private_visibility_config {
     networks {
-      network_url = google_compute_network.network-1.self_link
+      network_url = google_compute_network.network_1.self_link
     }
   }
 
   forwarding_config {
     target_name_servers {
-      ipv4_address = "%s"
+      ipv4_address    = "%s"
       forwarding_path = "%s"
     }
     target_name_servers {
-      ipv4_address = "%s"
+      ipv4_address    = "%s"
       forwarding_path = "%s"
     }
   }
 }
 
-resource "google_compute_network" "network-1" {
+resource "google_dns_managed_zone" "private_ipv6" {
+  name        = "private-zone-ipv6-%s"
+  dns_name    = "private.example.com."
+  description = "Example private DNS zone"
+  visibility  = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.network_2.self_link
+    }
+  }
+
+  forwarding_config {
+    target_name_servers {
+      ipv6_address = "%s"
+      forwarding_path = "%s"
+    }
+  }
+}
+
+resource "google_compute_network" "network_1" {
   name                    = "tf-test-net-1-%s"
   auto_create_subnetworks = false
 }
-`, suffix, first_nameserver, first_forwarding_path, second_nameserver, second_forwarding_path, suffix)
+
+resource "google_compute_network" "network_2" {
+  name                    = "tf-test-net-2-%s"
+  auto_create_subnetworks = false
+}
+`, suffix, first_nameserver, first_forwarding_path, second_nameserver, second_forwarding_path, suffix, third_nameserver, third_forwarding_path, suffix, suffix)
 }
 
 func testAccDnsManagedZone_cloudLoggingConfig_basic(suffix string) string {
@@ -603,7 +629,7 @@ func TestDnsManagedZoneImport_parseImportId(t *testing.T) {
 func TestAccDNSManagedZone_importWithProject(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 	project := envvar.GetTestProjectFromEnv()
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -612,7 +638,7 @@ func TestAccDNSManagedZone_importWithProject(t *testing.T) {
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_basicWithProject(zoneSuffix, "description1", project),
+				Config: testAccDnsManagedZone_basicWithProject(suffix, "description1", project),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.foobar",
@@ -637,7 +663,7 @@ resource "google_dns_managed_zone" "foobar" {
 func TestAccDNSManagedZone_privateForwardingWithDomainNameUpdate(t *testing.T) {
 	t.Parallel()
 
-	zoneSuffix := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -645,7 +671,7 @@ func TestAccDNSManagedZone_privateForwardingWithDomainNameUpdate(t *testing.T) {
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_privateForwardingWithDomainNameUpdate(zoneSuffix, "dns.infra.foo.com.", "private"),
+				Config: testAccDnsManagedZone_privateForwardingWithDomainNameUpdate(suffix, "dns.infra.foo.com.", "private"),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.private",
@@ -653,7 +679,7 @@ func TestAccDNSManagedZone_privateForwardingWithDomainNameUpdate(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDnsManagedZone_privateForwardingWithDomainNameUpdate(zoneSuffix, "dns.infra.goo.com.", "default"),
+				Config: testAccDnsManagedZone_privateForwardingWithDomainNameUpdate(suffix, "dns.infra.goo.com.", "default"),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.private",

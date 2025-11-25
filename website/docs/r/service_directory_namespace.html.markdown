@@ -24,12 +24,10 @@ description: |-
 A container for `services`. Namespaces allow administrators to group services
 together and define permissions for a collection of services.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Namespace, see:
 
-* [API documentation](https://cloud.google.com/service-directory/docs/reference/rest/v1beta1/projects.locations.namespaces)
+* [API documentation](https://cloud.google.com/service-directory/docs/reference/rest/v1/projects.locations.namespaces)
 * How-to Guides
     * [Configuring a namespace](https://cloud.google.com/service-directory/docs/configuring-service-directory#configuring_a_namespace)
 
@@ -43,7 +41,6 @@ To get more information about Namespace, see:
 
 ```hcl
 resource "google_service_directory_namespace" "example" {
-  provider     = google-beta
   namespace_id = "example-namespace"
   location     = "us-central1"
 
@@ -62,8 +59,6 @@ The following arguments are supported:
 * `location` -
   (Required)
   The location for the Namespace.
-  A full list of valid locations can be found by running
-  `gcloud beta service-directory locations list`.
 
 * `namespace_id` -
   (Required)

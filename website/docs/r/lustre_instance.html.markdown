@@ -128,6 +128,10 @@ The following arguments are supported:
   The placement policy name for the instance in the format of
   projects/{project}/locations/{location}/resourcePolicies/{resource_policy}
 
+* `kms_key` -
+  (Optional)
+  The KMS key id to use for encryption of the Lustre instance.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -144,14 +148,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state` -
   The state of the instance.
-  Possible values:
-  STATE_UNSPECIFIED
-  ACTIVE
-  CREATING
-  DELETING
-  UPGRADING
-  REPAIRING
-  STOPPED
+  Please see https://cloud.google.com/managed-lustre/docs/reference/rest/v1/projects.locations.instances#state for values
 
 * `mount_point` -
   Mount point of the instance in the format `IP_ADDRESS@tcp:/FILESYSTEM`.
@@ -161,6 +158,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   Identifier. The name of the instance.
+
+* `state_reason` -
+  The reason why the instance is in a certain state.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

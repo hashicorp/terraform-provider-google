@@ -560,7 +560,7 @@ Each additional scope may be at most 256 characters. A maximum of 10 additional 
 						},
 					},
 				},
-				ExactlyOneOf: []string{"saml", "oidc"},
+				ExactlyOneOf: []string{"oidc", "saml"},
 			},
 			"saml": {
 				Type:        schema.TypeList,
@@ -590,7 +590,7 @@ no non-expired signing keys present in the existing metadata.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"saml", "oidc"},
+				ExactlyOneOf: []string{"oidc", "saml"},
 			},
 			"scim_usage": {
 				Type:         schema.TypeString,

@@ -466,6 +466,65 @@ resource "google_project_service" "dns_project_2" {
 `, context)
 }
 
+func TestAccDNSManagedZone_dnsManagedZonePrivateForwardingIpv6Example(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsManagedZonePrivateForwardingIpv6Example(context),
+			},
+			{
+				ResourceName:            "google_dns_managed_zone.private-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dns_managed_zone.private-zone",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsManagedZonePrivateForwardingIpv6Example(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dns_managed_zone" "private-zone" {
+  name        = "tf-test-private-zone%{random_suffix}"
+  dns_name    = "private.example.com."
+  description = "Example private DNS zone"
+  visibility  = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.network_1.id
+    }
+  }
+
+  forwarding_config {
+    target_name_servers {
+      ipv6_address = "fd20:3e9:7a70:680d:0:8::"
+    }
+  }
+}
+
+resource "google_compute_network" "network_1" {
+  name                    = "tf-test-network-1%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
 	t.Parallel()
 

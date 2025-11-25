@@ -127,17 +127,17 @@ func ResourceIAMWorkforcePoolWorkforcePoolProviderScimTenant() *schema.Resource 
 			},
 		},
 		Schema: map[string]*schema.Schema{
-			"provider_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The ID of the provider.`,
-			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `The location for the resource.`,
+			},
+			"provider_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the provider.`,
 			},
 			"scim_tenant_id": {
 				Type:        schema.TypeString,
@@ -150,6 +150,12 @@ func ResourceIAMWorkforcePoolWorkforcePoolProviderScimTenant() *schema.Resource 
 				Required:    true,
 				ForceNew:    true,
 				Description: `The ID of the workforce pool.`,
+			},
+			"claim_mapping": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Maps BYOID claims to SCIM claims. This is a required field for new SCIM Tenants being created.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -176,11 +182,21 @@ https://iamscim.googleapis.com/{version}/{tenant_id}/`,
 				Description: `Identifier. The resource name of the scim tenant.
 Format: 'locations/{location}/workforcePools/{workforce_pool}/providers/{workforce_pool_provider}/scimTenants/{scim_tenant_id}`,
 			},
+			"purge_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The timestamp that represents the time when the SCIM tenant is purged.`,
+			},
+			"service_agent": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Service Agent created by SCIM Tenant API. SCIM tokens created under
+this tenant will be attached to this service agent.`,
+			},
 			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The current state of the scim tenant.
-* STATE_UNSPECIFIED: State unspecified.
 * ACTIVE: The scim tenant is active and may be used to validate authentication credentials.
 * DELETED: The scim tenant is soft-deleted. Soft-deleted scim tenants are permanently
   deleted after approximately 30 days.`,
@@ -209,6 +225,12 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantCreate(d *schema.Res
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	claimMappingProp, err := expandIAMWorkforcePoolWorkforcePoolProviderScimTenantClaimMapping(d.Get("claim_mapping"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("claim_mapping"); !tpgresource.IsEmptyValue(reflect.ValueOf(claimMappingProp)) && (ok || !reflect.DeepEqual(v, claimMappingProp)) {
+		obj["claimMapping"] = claimMappingProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants?workforcePoolProviderScimTenantId={{scim_tenant_id}}")
@@ -312,7 +334,16 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantRead(d *schema.Resou
 	if err := d.Set("state", flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WorkforcePoolProviderScimTenant: %s", err)
 	}
-	if err := d.Set("base_uri", flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantBaseURI(res["baseURI"], d, config)); err != nil {
+	if err := d.Set("base_uri", flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantBaseUri(res["baseUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderScimTenant: %s", err)
+	}
+	if err := d.Set("claim_mapping", flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantClaimMapping(res["claimMapping"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderScimTenant: %s", err)
+	}
+	if err := d.Set("purge_time", flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantPurgeTime(res["purgeTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProviderScimTenant: %s", err)
+	}
+	if err := d.Set("service_agent", flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantServiceAgent(res["serviceAgent"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WorkforcePoolProviderScimTenant: %s", err)
 	}
 
@@ -370,6 +401,12 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantUpdate(d *schema.Res
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	claimMappingProp, err := expandIAMWorkforcePoolWorkforcePoolProviderScimTenantClaimMapping(d.Get("claim_mapping"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("claim_mapping"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, claimMappingProp)) {
+		obj["claimMapping"] = claimMappingProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}")
 	if err != nil {
@@ -386,6 +423,10 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantUpdate(d *schema.Res
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("claim_mapping") {
+		updateMask = append(updateMask, "claimMapping")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -504,7 +545,19 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantState(v interface{}, 
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantBaseURI(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantBaseUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantClaimMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantPurgeTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderScimTenantServiceAgent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -514,6 +567,17 @@ func expandIAMWorkforcePoolWorkforcePoolProviderScimTenantDisplayName(v interfac
 
 func expandIAMWorkforcePoolWorkforcePoolProviderScimTenantDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderScimTenantClaimMapping(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {

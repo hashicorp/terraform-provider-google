@@ -500,7 +500,7 @@ func resourceDialogflowCXToolCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") || strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") {
 		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 	}
 
@@ -597,8 +597,11 @@ func resourceDialogflowCXToolRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -743,8 +746,11 @@ func resourceDialogflowCXToolUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 	}
 
 	// err == nil indicates that the billing_project value was found

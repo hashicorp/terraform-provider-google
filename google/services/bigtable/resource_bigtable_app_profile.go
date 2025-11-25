@@ -176,7 +176,7 @@ func ResourceBigtableAppProfile() *schema.Resource {
 				Description: `If true, read/write requests are routed to the nearest cluster in the instance, and will fail over to the nearest cluster that is available
 in the event of transient errors or delays. Clusters in a region are considered equidistant. Choosing this option sacrifices read-your-writes
 consistency to improve availability.`,
-				ExactlyOneOf: []string{"single_cluster_routing", "multi_cluster_routing_use_any"},
+				ExactlyOneOf: []string{"multi_cluster_routing_use_any", "single_cluster_routing"},
 			},
 			"single_cluster_routing": {
 				Type:        schema.TypeList,
@@ -198,7 +198,7 @@ It is unsafe to send these requests to the same table/row/column in multiple clu
 						},
 					},
 				},
-				ExactlyOneOf: []string{"single_cluster_routing", "multi_cluster_routing_use_any"},
+				ExactlyOneOf: []string{"multi_cluster_routing_use_any", "single_cluster_routing"},
 			},
 			"standard_isolation": {
 				Type:        schema.TypeList,

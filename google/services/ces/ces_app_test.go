@@ -64,11 +64,34 @@ func TestAccCESApp_update(t *testing.T) {
 
 func testAccCESApp_cesAppBasicExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "fake_private_key_secret" {
+  secret_id = "fake-pk-secret-app-tf%{random_suffix}"
+
+  replication {
+    auto{}
+  }
+}
+
+resource "google_secret_manager_secret_version" "fake_secret_version" {
+  secret = google_secret_manager_secret.fake_private_key_secret.id
+  secret_data = file("test-fixtures/test.key")
+}
+
+resource "google_secret_manager_secret_iam_member" "private_key_accessor" {
+  project   = google_secret_manager_secret.fake_private_key_secret.project
+  secret_id = google_secret_manager_secret.fake_private_key_secret.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-ces.iam.gserviceaccount.com"
+}
+
 resource "google_ces_app" "ces_app_basic" {
   app_id = "tf-test-app-id-%{random_suffix}"
   location = "us"
   description = "Basic CES App example"
   display_name = "tf-test-my-app-%{random_suffix}"
+  pinned = false
 
   language_settings {
     default_language_code    = "en-US"
@@ -151,6 +174,7 @@ resource "google_ces_app" "ces_app_basic" {
     schema {
       description = "schema description"
       type        = "ARRAY"
+      title = ""
       nullable    = true
       required = ["some_property"]
       enum = ["VALUE_A", "VALUE_B"]
@@ -217,6 +241,14 @@ resource "google_ces_app" "ces_app_basic" {
     time_zone = "America/Los_Angeles"
   }
 
+
+  client_certificate_settings {
+    tls_certificate = file("test-fixtures/cert.pem")
+    private_key = google_secret_manager_secret_version.fake_secret_version.name
+    passphrase = "fakepassphrase"
+  }
+
+
   # Root agent should not be specified when creating an app
 }
 `, context)
@@ -224,11 +256,34 @@ resource "google_ces_app" "ces_app_basic" {
 
 func testAccCESApp_cesAppBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "fake_private_key_secret" {
+  secret_id = "fake-pk-secret-app-tf%{random_suffix}"
+
+  replication {
+    auto{}
+  }
+}
+
+resource "google_secret_manager_secret_version" "fake_secret_version" {
+  secret = google_secret_manager_secret.fake_private_key_secret.id
+  secret_data = file("test-fixtures/test.key")
+}
+
+resource "google_secret_manager_secret_iam_member" "private_key_accessor" {
+  project   = google_secret_manager_secret.fake_private_key_secret.project
+  secret_id = google_secret_manager_secret.fake_private_key_secret.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-ces.iam.gserviceaccount.com"
+}
+
 resource "google_ces_app" "ces_app_basic" {
   app_id = "tf-test-app-id-%{random_suffix}"
   location = "us"
   description = "Updated CES App example"
   display_name = "tf-test-my-app%{random_suffix}"
+  pinned = true
 
   language_settings {
     default_language_code    = "en-ES"
@@ -311,6 +366,7 @@ resource "google_ces_app" "ces_app_basic" {
       schema {
         description = "schema description updated"
         type        = "ARRAY"
+        title = "updated"
         nullable    = true
         required = ["some_property_updated"]
         enum = ["VALUE_B", "VALUE_C"]
@@ -375,6 +431,12 @@ resource "google_ces_app" "ces_app_basic" {
 
   time_zone_settings {
     time_zone = "America/Los_Angeles"
+  }
+
+  client_certificate_settings {
+    tls_certificate = file("test-fixtures/cert.pem")
+    private_key = google_secret_manager_secret_version.fake_secret_version.name
+    passphrase = "fakepassphraseupdated"
   }
 
   # Root agent should not be specified when creating an app

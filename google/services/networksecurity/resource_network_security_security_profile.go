@@ -156,7 +156,7 @@ Format: projects/{project_id}/locations/global/interceptEndpointGroups/{endpoint
 						},
 					},
 				},
-				ConflictsWith: []string{"threat_prevention_profile", "custom_mirroring_profile"},
+				ConflictsWith: []string{"custom_mirroring_profile", "threat_prevention_profile"},
 			},
 			"custom_mirroring_profile": {
 				Type:     schema.TypeList,
@@ -169,12 +169,14 @@ mirror traffic to third-party collectors.`,
 						"mirroring_endpoint_group": {
 							Type:     schema.TypeString,
 							Required: true,
-							Description: `The Mirroring Endpoint Group to which matching traffic should be mirrored.
+							Description: `The target Mirroring Endpoint Group.
+When a mirroring rule with this security profile attached matches a packet,
+a replica will be mirrored to the location-local target in this group.
 Format: projects/{project_id}/locations/global/mirroringEndpointGroups/{endpoint_group_id}`,
 						},
 					},
 				},
-				ConflictsWith: []string{"threat_prevention_profile", "custom_intercept_profile"},
+				ConflictsWith: []string{"custom_intercept_profile", "threat_prevention_profile"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -238,7 +240,7 @@ and threat overrides, the threat overrides action is applied.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"custom_mirroring_profile", "custom_intercept_profile"},
+				ConflictsWith: []string{"custom_intercept_profile", "custom_mirroring_profile"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
