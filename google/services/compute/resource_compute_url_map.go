@@ -233,7 +233,7 @@ Only one of defaultRouteAction or defaultUrlRedirect must be set.`,
 										Description: `In response to a preflight request, setting this to true indicates that the actual request can include user credentials.
 This translates to the Access-Control-Allow-Credentials header.`,
 										Default:      false,
-										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age", "default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.disabled"},
+										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.disabled", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age"},
 									},
 									"allow_headers": {
 										Type:        schema.TypeList,
@@ -242,7 +242,7 @@ This translates to the Access-Control-Allow-Credentials header.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age", "default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.disabled"},
+										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.disabled", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age"},
 									},
 									"allow_methods": {
 										Type:        schema.TypeList,
@@ -251,7 +251,7 @@ This translates to the Access-Control-Allow-Credentials header.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age", "default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.disabled"},
+										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.disabled", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age"},
 									},
 									"allow_origin_regexes": {
 										Type:     schema.TypeList,
@@ -262,7 +262,7 @@ An origin is allowed if it matches either an item in allowOrigins or an item in 
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age", "default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.disabled"},
+										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.disabled", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age"},
 									},
 									"allow_origins": {
 										Type:     schema.TypeList,
@@ -272,14 +272,14 @@ An origin is allowed if it matches either an item in allowOrigins or an item in 
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age", "default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.disabled"},
+										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.disabled", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age"},
 									},
 									"disabled": {
 										Type:         schema.TypeBool,
 										Optional:     true,
 										Description:  `If true, specifies the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.`,
 										Default:      false,
-										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age", "default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.disabled"},
+										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.disabled", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age"},
 									},
 									"expose_headers": {
 										Type:        schema.TypeList,
@@ -288,18 +288,18 @@ An origin is allowed if it matches either an item in allowOrigins or an item in 
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age", "default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.disabled"},
+										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.disabled", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age"},
 									},
 									"max_age": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Description: `Specifies how long results of a preflight request can be cached in seconds.
 This translates to the Access-Control-Max-Age header.`,
-										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age", "default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.disabled"},
+										AtLeastOneOf: []string{"default_route_action.0.cors_policy.0.allow_credentials", "default_route_action.0.cors_policy.0.allow_headers", "default_route_action.0.cors_policy.0.allow_methods", "default_route_action.0.cors_policy.0.allow_origin_regexes", "default_route_action.0.cors_policy.0.allow_origins", "default_route_action.0.cors_policy.0.disabled", "default_route_action.0.cors_policy.0.expose_headers", "default_route_action.0.cors_policy.0.max_age"},
 									},
 								},
 							},
-							AtLeastOneOf: []string{"default_route_action.0.weighted_backend_services", "default_route_action.0.url_rewrite", "default_route_action.0.timeout", "default_route_action.0.retry_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy"},
+							AtLeastOneOf: []string{"default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.retry_policy", "default_route_action.0.timeout", "default_route_action.0.url_rewrite", "default_route_action.0.weighted_backend_services"},
 						},
 						"fault_injection_policy": {
 							Type:     schema.TypeList,
@@ -338,7 +338,7 @@ The value must be between 0.0 and 100.0 inclusive.`,
 												},
 											},
 										},
-										AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay", "default_route_action.0.fault_injection_policy.0.abort"},
+										AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.abort", "default_route_action.0.fault_injection_policy.0.delay"},
 									},
 									"delay": {
 										Type:        schema.TypeList,
@@ -359,14 +359,14 @@ The value must be between 0.0 and 100.0 inclusive.`,
 																Optional: true,
 																Description: `Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
 represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.`,
-																AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay.0.seconds", "default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay.0.nanos"},
+																AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay.0.nanos", "default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay.0.seconds"},
 															},
 															"seconds": {
 																Type:     schema.TypeString,
 																Optional: true,
 																Description: `Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
 Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years`,
-																AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay.0.seconds", "default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay.0.nanos"},
+																AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay.0.nanos", "default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay.0.seconds"},
 															},
 														},
 													},
@@ -382,11 +382,11 @@ The value must be between 0.0 and 100.0 inclusive.`,
 												},
 											},
 										},
-										AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay", "default_route_action.0.fault_injection_policy.0.abort"},
+										AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.abort", "default_route_action.0.fault_injection_policy.0.delay"},
 									},
 								},
 							},
-							AtLeastOneOf: []string{"default_route_action.0.weighted_backend_services", "default_route_action.0.url_rewrite", "default_route_action.0.timeout", "default_route_action.0.retry_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy"},
+							AtLeastOneOf: []string{"default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.retry_policy", "default_route_action.0.timeout", "default_route_action.0.url_rewrite", "default_route_action.0.weighted_backend_services"},
 						},
 						"max_stream_duration": {
 							Type:     schema.TypeList,
@@ -432,7 +432,7 @@ the host / authority header is suffixed with -shadow.`,
 									},
 								},
 							},
-							AtLeastOneOf: []string{"default_route_action.0.weighted_backend_services", "default_route_action.0.url_rewrite", "default_route_action.0.timeout", "default_route_action.0.retry_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy"},
+							AtLeastOneOf: []string{"default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.retry_policy", "default_route_action.0.timeout", "default_route_action.0.url_rewrite", "default_route_action.0.weighted_backend_services"},
 						},
 						"retry_policy": {
 							Type:        schema.TypeList,
@@ -447,7 +447,7 @@ the host / authority header is suffixed with -shadow.`,
 										ValidateFunc: validation.IntAtLeast(1),
 										Description:  `Specifies the allowed number retries. This number must be > 0. If not specified, defaults to 1.`,
 										Default:      1,
-										AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.retry_conditions", "default_route_action.0.retry_policy.0.num_retries", "default_route_action.0.retry_policy.0.per_try_timeout"},
+										AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.num_retries", "default_route_action.0.retry_policy.0.per_try_timeout", "default_route_action.0.retry_policy.0.retry_conditions"},
 									},
 									"per_try_timeout": {
 										Type:     schema.TypeList,
@@ -464,18 +464,18 @@ will use the largest timeout among all backend services associated with the rout
 													Optional: true,
 													Description: `Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
 represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.`,
-													AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.per_try_timeout.0.seconds", "default_route_action.0.retry_policy.0.per_try_timeout.0.nanos"},
+													AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.per_try_timeout.0.nanos", "default_route_action.0.retry_policy.0.per_try_timeout.0.seconds"},
 												},
 												"seconds": {
 													Type:     schema.TypeString,
 													Optional: true,
 													Description: `Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
 Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years`,
-													AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.per_try_timeout.0.seconds", "default_route_action.0.retry_policy.0.per_try_timeout.0.nanos"},
+													AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.per_try_timeout.0.nanos", "default_route_action.0.retry_policy.0.per_try_timeout.0.seconds"},
 												},
 											},
 										},
-										AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.retry_conditions", "default_route_action.0.retry_policy.0.num_retries", "default_route_action.0.retry_policy.0.per_try_timeout"},
+										AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.num_retries", "default_route_action.0.retry_policy.0.per_try_timeout", "default_route_action.0.retry_policy.0.retry_conditions"},
 									},
 									"retry_conditions": {
 										Type:     schema.TypeList,
@@ -499,11 +499,11 @@ Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.2
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.retry_conditions", "default_route_action.0.retry_policy.0.num_retries", "default_route_action.0.retry_policy.0.per_try_timeout"},
+										AtLeastOneOf: []string{"default_route_action.0.retry_policy.0.num_retries", "default_route_action.0.retry_policy.0.per_try_timeout", "default_route_action.0.retry_policy.0.retry_conditions"},
 									},
 								},
 							},
-							AtLeastOneOf: []string{"default_route_action.0.weighted_backend_services", "default_route_action.0.url_rewrite", "default_route_action.0.timeout", "default_route_action.0.retry_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy"},
+							AtLeastOneOf: []string{"default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.retry_policy", "default_route_action.0.timeout", "default_route_action.0.url_rewrite", "default_route_action.0.weighted_backend_services"},
 						},
 						"timeout": {
 							Type:     schema.TypeList,
@@ -521,18 +521,18 @@ If not specified, will use the largest timeout among all backend services associ
 										Optional: true,
 										Description: `Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
 with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.`,
-										AtLeastOneOf: []string{"default_route_action.0.timeout.0.seconds", "default_route_action.0.timeout.0.nanos"},
+										AtLeastOneOf: []string{"default_route_action.0.timeout.0.nanos", "default_route_action.0.timeout.0.seconds"},
 									},
 									"seconds": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Description: `Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
 Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years`,
-										AtLeastOneOf: []string{"default_route_action.0.timeout.0.seconds", "default_route_action.0.timeout.0.nanos"},
+										AtLeastOneOf: []string{"default_route_action.0.timeout.0.nanos", "default_route_action.0.timeout.0.seconds"},
 									},
 								},
 							},
-							AtLeastOneOf: []string{"default_route_action.0.weighted_backend_services", "default_route_action.0.url_rewrite", "default_route_action.0.timeout", "default_route_action.0.retry_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy"},
+							AtLeastOneOf: []string{"default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.retry_policy", "default_route_action.0.timeout", "default_route_action.0.url_rewrite", "default_route_action.0.weighted_backend_services"},
 						},
 						"url_rewrite": {
 							Type:        schema.TypeList,
@@ -548,7 +548,7 @@ Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.2
 with contents of hostRewrite.
 
 The value must be between 1 and 255 characters.`,
-										AtLeastOneOf: []string{"default_route_action.0.url_rewrite.0.path_prefix_rewrite", "default_route_action.0.url_rewrite.0.host_rewrite"},
+										AtLeastOneOf: []string{"default_route_action.0.url_rewrite.0.host_rewrite", "default_route_action.0.url_rewrite.0.path_prefix_rewrite"},
 									},
 									"path_prefix_rewrite": {
 										Type:     schema.TypeString,
@@ -557,11 +557,11 @@ The value must be between 1 and 255 characters.`,
 request's path is replaced by pathPrefixRewrite.
 
 The value must be between 1 and 1024 characters.`,
-										AtLeastOneOf: []string{"default_route_action.0.url_rewrite.0.path_prefix_rewrite", "default_route_action.0.url_rewrite.0.host_rewrite"},
+										AtLeastOneOf: []string{"default_route_action.0.url_rewrite.0.host_rewrite", "default_route_action.0.url_rewrite.0.path_prefix_rewrite"},
 									},
 								},
 							},
-							AtLeastOneOf: []string{"default_route_action.0.weighted_backend_services", "default_route_action.0.url_rewrite", "default_route_action.0.timeout", "default_route_action.0.retry_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy"},
+							AtLeastOneOf: []string{"default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.retry_policy", "default_route_action.0.timeout", "default_route_action.0.url_rewrite", "default_route_action.0.weighted_backend_services"},
 						},
 						"weighted_backend_services": {
 							Type:     schema.TypeList,
@@ -683,8 +683,8 @@ The value must be between 0 and 1000`,
 									},
 								},
 							},
-							AtLeastOneOf: []string{"default_route_action.0.weighted_backend_services", "default_route_action.0.url_rewrite", "default_route_action.0.timeout", "default_route_action.0.retry_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy"},
-							ExactlyOneOf: []string{"default_service", "default_url_redirect", "default_route_action.0.weighted_backend_services"},
+							AtLeastOneOf: []string{"default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.retry_policy", "default_route_action.0.timeout", "default_route_action.0.url_rewrite", "default_route_action.0.weighted_backend_services"},
+							ExactlyOneOf: []string{"default_route_action.0.weighted_backend_services", "default_service", "default_url_redirect"},
 						},
 					},
 				},
@@ -695,7 +695,7 @@ The value must be between 0 and 1000`,
 				Optional:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The backend service or backend bucket to use when none of the given rules match.`,
-				ExactlyOneOf:     []string{"default_service", "default_url_redirect", "default_route_action.0.weighted_backend_services"},
+				ExactlyOneOf:     []string{"default_route_action.0.weighted_backend_services", "default_service", "default_url_redirect"},
 			},
 			"default_url_redirect": {
 				Type:     schema.TypeList,
@@ -768,7 +768,7 @@ the request method will be retained. Possible values: ["FOUND", "MOVED_PERMANENT
 					},
 				},
 				ConflictsWith: []string{"default_route_action"},
-				ExactlyOneOf:  []string{"default_service", "default_url_redirect", "default_route_action.0.weighted_backend_services"},
+				ExactlyOneOf:  []string{"default_route_action.0.weighted_backend_services", "default_service", "default_url_redirect"},
 			},
 			"description": {
 				Type:     schema.TypeString,

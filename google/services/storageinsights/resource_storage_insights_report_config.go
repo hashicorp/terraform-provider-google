@@ -158,7 +158,7 @@ must be in the same location.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"parquet_options", "csv_options"},
+				ExactlyOneOf: []string{"csv_options", "parquet_options"},
 			},
 			"display_name": {
 				Type:        schema.TypeString,
@@ -293,7 +293,7 @@ must be in the same location.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{},
 				},
-				ExactlyOneOf: []string{"parquet_options", "csv_options"},
+				ExactlyOneOf: []string{"csv_options", "parquet_options"},
 			},
 			"name": {
 				Type:        schema.TypeString,

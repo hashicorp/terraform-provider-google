@@ -36,14 +36,11 @@ A data source can be used to retrieve policy data in advent you do not need crea
 ~> **Note:** `google_service_directory_namespace_iam_binding` resources **can be** used in conjunction with `google_service_directory_namespace_iam_member` resources **only if** they do not grant privilege to the same role.
 
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 ## google_service_directory_namespace_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
-  provider = google-beta
   binding {
     role = "roles/viewer"
     members = [
@@ -53,7 +50,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_service_directory_namespace_iam_policy" "policy" {
-  provider = google-beta
   name = google_service_directory_namespace.example.name
   policy_data = data.google_iam_policy.admin.policy_data
 }
@@ -63,7 +59,6 @@ resource "google_service_directory_namespace_iam_policy" "policy" {
 
 ```hcl
 resource "google_service_directory_namespace_iam_binding" "binding" {
-  provider = google-beta
   name = google_service_directory_namespace.example.name
   role = "roles/viewer"
   members = [
@@ -76,7 +71,6 @@ resource "google_service_directory_namespace_iam_binding" "binding" {
 
 ```hcl
 resource "google_service_directory_namespace_iam_member" "member" {
-  provider = google-beta
   name = google_service_directory_namespace.example.name
   role = "roles/viewer"
   member = "user:jane@example.com"

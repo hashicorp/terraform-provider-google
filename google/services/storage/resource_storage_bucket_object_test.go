@@ -466,7 +466,7 @@ func TestAccStorageObject_retention(t *testing.T) {
 	})
 }
 
-func TestResourceStorageBucketObjectUpdate_ContentChange(t *testing.T) {
+func TestAccResourceStorageBucketObjectUpdate_ContentChange(t *testing.T) {
 	t.Parallel()
 
 	bucketName := acctest.TestBucketName(t)
@@ -483,7 +483,7 @@ func TestResourceStorageBucketObjectUpdate_ContentChange(t *testing.T) {
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleStorageBucketsObjectCustomContent(bucketName, string(initialContent)),
+				Config: testAccGoogleStorageBucketsObjectCustomContent(bucketName, string(initialContent)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectCrc32cHash(t, bucketName, objectName, dataCrc32c),
 					resource.TestCheckResourceAttr(
@@ -494,7 +494,7 @@ func TestResourceStorageBucketObjectUpdate_ContentChange(t *testing.T) {
 				),
 			},
 			{
-				Config: testGoogleStorageBucketsObjectCustomContent(bucketName, string(updatedContent)),
+				Config: testAccGoogleStorageBucketsObjectCustomContent(bucketName, string(updatedContent)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObjectCrc32cHash(t, bucketName, objectName, newDataCrc32c),
 					resource.TestCheckResourceAttr(
@@ -690,7 +690,7 @@ func testAccStorageObjectDestroyProducer(t *testing.T) func(s *terraform.State) 
 	}
 }
 
-func testGoogleStorageBucketsObjectCustomContent(bucketName string, customContent string) string {
+func testAccGoogleStorageBucketsObjectCustomContent(bucketName string, customContent string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name          = "%s"

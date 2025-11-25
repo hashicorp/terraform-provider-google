@@ -459,3 +459,130 @@ resource "google_privateca_ca_pool" "default" {
 }
 `, context)
 }
+
+func TestAccPrivatecaCaPool_CmekKeyUpdate(t *testing.T) {
+	t.Parallel()
+
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-privateca.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	context := map[string]interface{}{
+		"kms_key1":      acctest.BootstrapKMSKeyWithPurposeInLocation(t, "ENCRYPT_DECRYPT", "us-central1").CryptoKey.Name,
+		"kms_key2":      acctest.BootstrapKMSKeyWithPurposeInLocation(t, "ENCRYPT_DECRYPT", "us-central1").CryptoKey.Name,
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCaPoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCaPool_privatecaCapoolWithCmek(context),
+			},
+			{
+				ResourceName:            "google_privateca_ca_pool.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "labels"},
+			},
+			{
+				Config: testAccPrivatecaCaPool_privatecaCapoolWithCmekUpdate0(context),
+			},
+			{
+				ResourceName:            "google_privateca_ca_pool.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "labels"},
+			},
+		},
+	})
+}
+
+func testAccPrivatecaCaPool_privatecaCapoolWithCmek(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  name = "tf-test-my-capool%{random_suffix}"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = false
+    publish_crl = true
+  }
+  labels = {
+    foo = "bar"
+  }
+  encryption_spec {
+    cloud_kms_key = "%{kms_key1}"
+  }
+  issuance_policy {
+    baseline_values {
+      additional_extensions {
+        critical = false
+        value = "asdf"
+        object_id {
+          object_id_path = [1, 6]
+        }
+      }
+      ca_options {
+        is_ca = false
+      }
+      key_usage {
+        base_key_usage {
+          digital_signature = false
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccPrivatecaCaPool_privatecaCapoolWithCmekUpdate0(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  name = "tf-test-my-capool%{random_suffix}"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = false
+    publish_crl = true
+  }
+  labels = {
+    foo = "bar"
+  }
+  encryption_spec {
+    cloud_kms_key = "%{kms_key2}"
+  }
+  issuance_policy {
+    baseline_values {
+      additional_extensions {
+        critical = false
+        value = "asdf"
+        object_id {
+          object_id_path = [1, 6]
+        }
+      }
+      ca_options {
+        is_ca = false
+      }
+      key_usage {
+        base_key_usage {
+          digital_signature = false
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+    }
+  }
+}
+`, context)
+}

@@ -294,7 +294,7 @@ Cloud SQL console or using Cloud SQL APIs.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"static_ip_connectivity", "reverse_ssh_connectivity"},
+				ExactlyOneOf: []string{"reverse_ssh_connectivity", "static_ip_connectivity"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,

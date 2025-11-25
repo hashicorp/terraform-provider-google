@@ -339,7 +339,7 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
+				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
 			},
 			"data_documentation_spec": {
 				Type:        schema.TypeList,
@@ -349,7 +349,7 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
+				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
 			},
 			"data_profile_spec": {
 				Type:        schema.TypeList,
@@ -358,6 +358,11 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"catalog_publishing_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If set, the latest DataScan job result will be published to Dataplex Catalog.`,
+						},
 						"exclude_fields": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -440,7 +445,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
+				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
 			},
 			"data_quality_spec": {
 				Type:        schema.TypeList,
@@ -778,7 +783,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"data_quality_spec", "data_profile_spec", "data_discovery_spec", "data_documentation_spec"},
+				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -1880,6 +1885,8 @@ func flattenDataplexDatascanDataProfileSpec(v interface{}, d *schema.ResourceDat
 		flattenDataplexDatascanDataProfileSpecIncludeFields(original["includeFields"], d, config)
 	transformed["exclude_fields"] =
 		flattenDataplexDatascanDataProfileSpecExcludeFields(original["excludeFields"], d, config)
+	transformed["catalog_publishing_enabled"] =
+		flattenDataplexDatascanDataProfileSpecCatalogPublishingEnabled(original["catalogPublishingEnabled"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataProfileSpecSamplingPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1951,6 +1958,10 @@ func flattenDataplexDatascanDataProfileSpecExcludeFields(v interface{}, d *schem
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataProfileSpecCatalogPublishingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3036,6 +3047,13 @@ func expandDataplexDatascanDataProfileSpec(v interface{}, d tpgresource.Terrafor
 		transformed["excludeFields"] = transformedExcludeFields
 	}
 
+	transformedCatalogPublishingEnabled, err := expandDataplexDatascanDataProfileSpecCatalogPublishingEnabled(original["catalog_publishing_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCatalogPublishingEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["catalogPublishingEnabled"] = transformedCatalogPublishingEnabled
+	}
+
 	return transformed, nil
 }
 
@@ -3144,6 +3162,10 @@ func expandDataplexDatascanDataProfileSpecExcludeFields(v interface{}, d tpgreso
 }
 
 func expandDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataProfileSpecCatalogPublishingEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

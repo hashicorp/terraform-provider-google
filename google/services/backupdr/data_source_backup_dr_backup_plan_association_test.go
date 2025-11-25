@@ -311,7 +311,6 @@ resource "google_backup_dr_backup_plan_association" "bpa" {
 
 data "google_backup_dr_backup_plan_associations" "bpas" {
   location      = "us-central1"
-  resource_type = "compute.googleapis.com/Instance"
   depends_on = [google_backup_dr_backup_plan_association.bpa]
 }
 `, context)

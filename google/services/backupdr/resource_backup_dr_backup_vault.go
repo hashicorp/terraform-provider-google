@@ -186,6 +186,21 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 				Optional:    true,
 				Description: `Optional. Time after which the BackupVault resource is locked.`,
 			},
+			"encryption_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Encryption configuration for the backup vault.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Resource name of the Cloud KMS key to be used to encrypt new backups. The key must be in the same location as the backup vault. The key must be a Cloud KMS CryptoKey.`,
+						},
+					},
+				},
+			},
 			"force_delete": {
 				Type:       schema.TypeBool,
 				Optional:   true,
@@ -353,6 +368,12 @@ func resourceBackupDRBackupVaultCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("backup_retention_inheritance"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupRetentionInheritanceProp)) && (ok || !reflect.DeepEqual(v, backupRetentionInheritanceProp)) {
 		obj["backupRetentionInheritance"] = backupRetentionInheritanceProp
 	}
+	encryptionConfigProp, err := expandBackupDRBackupVaultEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
+	}
 	effectiveLabelsProp, err := expandBackupDRBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -512,6 +533,9 @@ func resourceBackupDRBackupVaultRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("access_restriction", flattenBackupDRBackupVaultAccessRestriction(res["accessRestriction"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
+	if err := d.Set("encryption_config", flattenBackupDRBackupVaultEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupVault: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenBackupDRBackupVaultTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
@@ -588,6 +612,12 @@ func resourceBackupDRBackupVaultUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("backup_retention_inheritance"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupRetentionInheritanceProp)) {
 		obj["backupRetentionInheritance"] = backupRetentionInheritanceProp
 	}
+	encryptionConfigProp, err := expandBackupDRBackupVaultEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
+	}
 	effectiveLabelsProp, err := expandBackupDRBackupVaultEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -624,6 +654,10 @@ func resourceBackupDRBackupVaultUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("backup_retention_inheritance") {
 		updateMask = append(updateMask, "backupRetentionInheritance")
+	}
+
+	if d.HasChange("encryption_config") {
+		updateMask = append(updateMask, "encryptionConfig")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -862,6 +896,23 @@ func flattenBackupDRBackupVaultAccessRestriction(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenBackupDRBackupVaultEncryptionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenBackupDRBackupVaultEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBackupDRBackupVaultEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBackupDRBackupVaultTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -902,6 +953,32 @@ func expandBackupDRBackupVaultAccessRestriction(v interface{}, d tpgresource.Ter
 }
 
 func expandBackupDRBackupVaultBackupRetentionInheritance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBackupDRBackupVaultEncryptionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandBackupDRBackupVaultEncryptionConfigKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandBackupDRBackupVaultEncryptionConfigKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -223,7 +223,7 @@ The ingestion key value pair will match the key of the tuple.`,
 						},
 					},
 				},
-				AtLeastOneOf: []string{"allowed_data_access_labels", "allow_all"},
+				AtLeastOneOf: []string{"allow_all", "allowed_data_access_labels"},
 			},
 			"denied_data_access_labels": {
 				Type:     schema.TypeList,

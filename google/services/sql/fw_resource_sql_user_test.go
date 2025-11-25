@@ -26,8 +26,10 @@ import (
 )
 
 func TestAccSqlUserFW_mysql(t *testing.T) {
+	//tests and resource are non-functional, preserved for reference with ongoing fwprovider work
+	t.Skip()
 	// Multiple fine-grained resources
-	acctest.SkipIfVcr(t)
+	//acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))

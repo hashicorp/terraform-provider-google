@@ -230,7 +230,7 @@ Fields/functions available for filtering are:
 							Type:         schema.TypeBool,
 							Optional:     true,
 							Description:  `Determines whether messages with no header are allowed.`,
-							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.segment_terminator", "parser_config.0.schema"},
+							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.schema", "parser_config.0.segment_terminator"},
 						},
 						"schema": {
 							Type:         schema.TypeString,
@@ -239,7 +239,7 @@ Fields/functions available for filtering are:
 							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 							Description: `JSON encoded string for schemas used to parse messages in this
 store if schematized parsing is desired.`,
-							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.segment_terminator", "parser_config.0.schema", "parser_config.0.version"},
+							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.schema", "parser_config.0.segment_terminator", "parser_config.0.version"},
 						},
 						"segment_terminator": {
 							Type:         schema.TypeString,
@@ -248,7 +248,7 @@ store if schematized parsing is desired.`,
 							Description: `Byte(s) to be used as the segment terminator. If this is unset, '\r' will be used as segment terminator.
 
 A base64-encoded string.`,
-							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.segment_terminator", "parser_config.0.schema"},
+							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.schema", "parser_config.0.segment_terminator"},
 						},
 						"version": {
 							Type:         schema.TypeString,

@@ -866,6 +866,11 @@ The following arguments are supported:
   List of custom metrics that are used for the WEIGHTED_ROUND_ROBIN locality_lb_policy.
   Structure is [documented below](#nested_custom_metrics).
 
+* `network_pass_through_lb_traffic_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configures traffic steering properties of internal passthrough Network Load Balancers.
+  Structure is [documented below](#nested_network_pass_through_lb_traffic_policy).
+
 * `outlier_detection` -
   (Optional)
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
@@ -1416,6 +1421,30 @@ The following arguments are supported:
 * `dry_run` -
   (Required)
   If true, the metric data is not used for load balancing.
+
+<a name="nested_network_pass_through_lb_traffic_policy"></a>The `network_pass_through_lb_traffic_policy` block supports:
+
+* `zonal_affinity` -
+  (Optional)
+  When configured, new connections are load balanced across healthy backend endpoints in the local zone.
+  Structure is [documented below](#nested_network_pass_through_lb_traffic_policy_zonal_affinity).
+
+
+<a name="nested_network_pass_through_lb_traffic_policy_zonal_affinity"></a>The `zonal_affinity` block supports:
+
+* `spillover` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  This field indicates whether zonal affinity is enabled or not.
+  Default value is `ZONAL_AFFINITY_DISABLED`.
+  Possible values are: `ZONAL_AFFINITY_DISABLED`, `ZONAL_AFFINITY_SPILL_CROSS_ZONE`, `ZONAL_AFFINITY_STAY_WITHIN_ZONE`.
+
+* `spillover_ratio` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The value of the field must be in [0, 1]. When the ratio of the count of healthy backend endpoints in a zone
+  to the count of backend endpoints in that same zone is equal to or above this threshold, the load balancer
+  distributes new connections to all healthy endpoints in the local zone only. When the ratio of the count
+  of healthy backend endpoints in a zone to the count of backend endpoints in that same zone is below this
+  threshold, the load balancer distributes all new connections to all healthy endpoints across all zones.
 
 <a name="nested_outlier_detection"></a>The `outlier_detection` block supports:
 

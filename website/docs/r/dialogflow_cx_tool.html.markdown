@@ -224,6 +224,112 @@ resource "google_dialogflow_cx_tool" "function_tool" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflowcx_tool_connector&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dialogflowcx Tool Connector
+
+
+```hcl
+resource "google_dialogflow_cx_agent" "agent" {
+  provider = google-beta
+  display_name = "dialogflowcx-agent-connector"
+  location = "us-central1"
+  default_language_code = "en"
+  time_zone = "America/New_York"
+  description = "Example description."
+  delete_chat_engine_on_destroy = true
+}
+
+resource "google_integration_connectors_connection" "integration_connector" {
+  provider = google-beta
+  name     = "terraform-df-cx-tool-connection"
+  location = "us-central1"
+  connector_version = "projects/${google_dialogflow_cx_agent.agent.project}/locations/global/providers/gcp/connectors/bigquery/versions/1"
+  description = "tf created description"
+  config_variable {
+      key = "dataset_id"
+      string_value = google_bigquery_dataset.bq_dataset.dataset_id
+  }
+    config_variable {
+      key = "project_id"
+      string_value = google_dialogflow_cx_agent.agent.project
+  }
+  config_variable {
+    key = "support_native_data_type"
+    boolean_value = false
+  }
+  config_variable {
+    key = "proxy_enabled"
+    boolean_value = false
+  }
+
+  service_account = "${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+
+  auth_config {
+    auth_type = "AUTH_TYPE_UNSPECIFIED"
+  }
+  lifecycle {
+    ignore_changes = [
+      auth_config,
+    ]
+  }
+}
+
+resource "google_bigquery_dataset" "bq_dataset" {
+  provider = google-beta
+  dataset_id    = "terraformdatasetdfcxtool"
+  friendly_name = "test"
+  description   = "This is a test description"
+  location      = "us-central1"
+  delete_contents_on_destroy = true
+}
+
+resource "google_bigquery_table" "bq_table" {
+  provider = google-beta
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  table_id   = "terraformdatasetdfcxtooltable"
+}
+
+
+resource "google_bigquery_dataset_iam_member" "connector_sa_dataset_perms" {
+  provider   = google-beta
+  project    = data.google_project.test_project.project_id
+  dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
+  role       = "roles/bigquery.dataEditor"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+}
+
+resource "google_dialogflow_cx_tool" "connector_tool" {
+  provider = google-beta
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "Example Connector Tool"
+  description  = "Example Description"
+
+
+  connector_spec {
+    name = "projects/${google_dialogflow_cx_agent.agent.project}/locations/us-central1/connections/${google_integration_connectors_connection.integration_connector.name}"
+    actions {
+      connection_action_id = "ExecuteCustomQuery"
+      input_fields = ["test1"]
+      output_fields = ["test1"]
+    }
+    actions {
+      entity_operation {
+        entity_id = google_bigquery_table.bq_table.table_id
+        operation = "LIST"
+      }
+    }
+  }
+}
+
+data "google_project" "test_project" {
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -256,6 +362,12 @@ The following arguments are supported:
   Client side executed function specification.
   This field is part of a union field `specification`: Only one of `openApiSpec`, `dataStoreSpec`, or `functionSpec` may be set.
   Structure is [documented below](#nested_function_spec).
+
+* `connector_spec` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Integration connectors tool specification.
+  This field is part of a union field `specification`: Only one of `openApiSpec`, `dataStoreSpec`, `functionSpec`, or `connectorSpec` may be set.
+  Structure is [documented below](#nested_connector_spec).
 
 * `parent` -
   (Optional)
@@ -462,6 +574,95 @@ The following arguments are supported:
   (Optional)
   Optional. The JSON schema is encapsulated in a [google.protobuf.Struct](https://protobuf.dev/reference/protobuf/google.protobuf/#struct) to describe the output of the function.
   This output is a JSON object that contains the function's parameters as properties of the object
+
+<a name="nested_connector_spec"></a>The `connector_spec` block supports:
+
+* `name` -
+  (Required)
+  The full resource name of the referenced Integration Connectors Connection.
+  Format: projects/*/locations/*/connections/*
+
+* `actions` -
+  (Required)
+  Actions for the tool to use.
+  Structure is [documented below](#nested_connector_spec_actions).
+
+* `end_user_auth_config` -
+  (Optional)
+  Integration Connectors end-user authentication configuration.
+  If configured, the end-user authentication fields will be passed in the Integration Connectors API request
+  and override the admin, default authentication configured for the Connection.
+  Note: The Connection must have authentication override enabled in order to specify an EUC configuration here - otherwise,
+  the ConnectorTool creation will fail.
+  See: https://cloud.google.com/application-integration/docs/configure-connectors-task#configure-authentication-override        properties:
+  Structure is [documented below](#nested_connector_spec_end_user_auth_config).
+
+
+<a name="nested_connector_spec_actions"></a>The `actions` block supports:
+
+* `input_fields` -
+  (Optional)
+  Entity fields to use as inputs for the operation.
+  If no fields are specified, all fields of the Entity will be used.
+
+* `output_fields` -
+  (Optional)
+  Entity fields to return from the operation.
+  If no fields are specified, all fields of the Entity will be returned.
+
+* `connection_action_id` -
+  (Optional)
+  ID of a Connection action for the tool to use. This field is part of a required union field `action_spec`.
+
+* `entity_operation` -
+  (Optional)
+  Entity operation configuration for the tool to use. This field is part of a required union field `action_spec`.
+  Structure is [documented below](#nested_connector_spec_actions_actions_entity_operation).
+
+
+<a name="nested_connector_spec_actions_actions_entity_operation"></a>The `entity_operation` block supports:
+
+* `entity_id` -
+  (Required)
+  ID of the entity.
+
+* `operation` -
+  (Required)
+  The operation to perform on the entity.
+  Possible values are: `LIST`, `CREATE`, `UPDATE`, `DELETE`, `GET`.
+
+<a name="nested_connector_spec_end_user_auth_config"></a>The `end_user_auth_config` block supports:
+
+* `oauth2_auth_code_config` -
+  (Optional)
+  Oauth 2.0 Authorization Code authentication. This field is part of a union field `end_user_auth_config`. Only one of `oauth2AuthCodeConfig` or `oauth2JwtBearerConfig` may be set.
+  Structure is [documented below](#nested_connector_spec_end_user_auth_config_oauth2_auth_code_config).
+
+* `oauth2_jwt_bearer_config` -
+  (Optional)
+  JWT Profile Oauth 2.0 Authorization Grant authentication.. This field is part of a union field `end_user_auth_config`. Only one of `oauth2AuthCodeConfig` or `oauth2JwtBearerConfig` may be set.
+  Structure is [documented below](#nested_connector_spec_end_user_auth_config_oauth2_jwt_bearer_config).
+
+
+<a name="nested_connector_spec_end_user_auth_config_oauth2_auth_code_config"></a>The `oauth2_auth_code_config` block supports:
+
+* `oauth_token` -
+  (Required)
+  Oauth token value or parameter name to pass it through.
+
+<a name="nested_connector_spec_end_user_auth_config_oauth2_jwt_bearer_config"></a>The `oauth2_jwt_bearer_config` block supports:
+
+* `issuer` -
+  (Required)
+  Issuer value or parameter name to pass it through.
+
+* `subject` -
+  (Required)
+  Subject value or parameter name to pass it through.
+
+* `client_key` -
+  (Required)
+  Client key value or parameter name to pass it through.
 
 ## Attributes Reference
 

@@ -102,6 +102,33 @@ func resourceSpannerDBVirtualUpdate(d *schema.ResourceData, resourceSchema map[s
 	return false
 }
 
+func resourceSpannerEncryptionConfigCustomDiffFunc(diff tpgresource.TerraformResourceDiff) error {
+	if diff.HasChange("encryption_config.0.kms_key_names") {
+		kmsKeyName := diff.Get("encryption_config.0.kms_key_name")
+		if kmsKeyName == "" {
+			return nil
+		}
+		old, new := diff.GetChange("encryption_config.0.kms_key_names")
+		if old == nil {
+			old = []interface{}{}
+		}
+		if new == nil {
+			new = []interface{}{}
+		}
+		oldKeys := old.([]interface{})
+		newKeys := new.([]interface{})
+		if len(newKeys) == 0 && len(oldKeys) == 1 && oldKeys[0] == kmsKeyName {
+			return diff.Clear("encryption_config.0.kms_key_names")
+		}
+		return diff.ForceNew("encryption_config.0.kms_key_names")
+	}
+	return nil
+}
+
+func resourceSpannerEncryptionConfigCustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	return resourceSpannerEncryptionConfigCustomDiffFunc(diff)
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -153,6 +180,7 @@ func ResourceSpannerDatabase() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceSpannerDBDdlCustomDiff,
+			resourceSpannerEncryptionConfigCustomDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -247,6 +275,7 @@ in the same location as the Spanner Database.`,
 						},
 						"kms_key_names": {
 							Type:     schema.TypeList,
+							Computed: true,
 							Optional: true,
 							ForceNew: true,
 							Description: `Fully qualified name of the KMS keys to use to encrypt this database. The keys must exist

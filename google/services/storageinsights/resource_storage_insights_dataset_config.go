@@ -292,7 +292,7 @@ Projects that do not belong to the provided organization are not considered when
 				Type:         schema.TypeBool,
 				Optional:     true,
 				Description:  `Defines the options for providing a source organization for the DatasetConfig.`,
-				ExactlyOneOf: []string{"source_projects", "source_folders", "organization_scope"},
+				ExactlyOneOf: []string{"organization_scope", "source_folders", "source_projects"},
 			},
 			"source_folders": {
 				Type:        schema.TypeList,
@@ -311,7 +311,7 @@ Projects that do not belong to the provided organization are not considered when
 						},
 					},
 				},
-				ExactlyOneOf: []string{"source_projects", "source_folders", "organization_scope"},
+				ExactlyOneOf: []string{"organization_scope", "source_folders", "source_projects"},
 			},
 			"source_projects": {
 				Type:        schema.TypeList,
@@ -330,7 +330,7 @@ Projects that do not belong to the provided organization are not considered when
 						},
 					},
 				},
-				ExactlyOneOf: []string{"source_projects", "source_folders", "organization_scope"},
+				ExactlyOneOf: []string{"organization_scope", "source_folders", "source_projects"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,

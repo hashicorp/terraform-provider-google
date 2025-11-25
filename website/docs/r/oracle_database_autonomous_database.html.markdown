@@ -249,6 +249,10 @@ The following arguments are supported:
   (Optional)
   The number of compute servers for the Autonomous Database.
 
+* `cpu_core_count` -
+  (Optional)
+  The number of CPU cores to be made available to the database.
+
 * `data_storage_size_tb` -
   (Optional)
   The size of the data stored in the database, in terabytes.
@@ -317,6 +321,14 @@ The following arguments are supported:
   (Optional)
   The list of customer contacts.
   Structure is [documented below](#nested_properties_customer_contacts).
+
+* `secret_id` -
+  (Optional)
+  The ID of the Oracle Cloud Infrastructure vault secret.
+
+* `vault_id` -
+  (Optional)
+  The ID of the Oracle Cloud Infrastructure vault.
 
 * `maintenance_schedule_type` -
   (Optional)

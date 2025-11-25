@@ -25,13 +25,12 @@ A list of Backup and DR data source references.
 ## Example Usage
 
 ```hcl
-data "google_backup_dr_data_source_references" "csql_data_source_reference" {
+data "google_backup_dr_data_source_references" "data_source_reference" {
   location      = "us-central1"
-  resource_type = "sqladmin.googleapis.com/Instance"
 }
 
-output "all_csql_data_source_references" {
-  allReferences = data.google_backup_dr_data_source_references.my_sql_references.data_source_references
+output "all_data_source_references" {
+  allReferences = data.google_backup_dr_data_source_references.my_references.data_source_references
 }
 ```
 
@@ -40,8 +39,7 @@ output "all_csql_data_source_references" {
 The following arguments are supported:
 
 *   `location `- (Required) The location of the data source references.
-    
-*   `resource_type` - (Required) The resource type to get the data source references for. Examples include, "sqladmin.googleapis.com/Instance" , "compute.googleapis.com/Instance" (**right now this service not available for compute Instances and disk , it will be added soon**)
+*   `resource_type` - (Optional, Deprecated) The resource type to get the data source references for. Examples include, "sqladmin.googleapis.com/Instance" , "compute.googleapis.com/Instance". `resource_type` is deprecated and will be removed in a future major release.
     
 *   `project` - (Optional) The ID of the project in which the resource belongs. If it is not provided, the provider project is used.
     

@@ -43,13 +43,99 @@ resource "google_ces_app" "my-app" {
     }
 }
 
+resource "google_ces_tool" "ces_tool" {
+    location       = "us"
+    app            = google_ces_app.my-app.app_id
+    tool_id        = "tool-1"
+    execution_type = "SYNCHRONOUS"
+    python_function {
+        name = "example_function"
+        python_code = "def example_function() -> int: return 0"
+    }
+}
+
+resource "google_ces_toolset" "ces_toolset" {
+    toolset_id   = "toolset-id"
+
+    location     = "us"
+    app          = google_ces_app.my-app.app_id
+    display_name = "Basic toolset display name"
+
+    open_api_toolset {
+        open_api_schema = <<-EOT
+        openapi: 3.0.0
+        info:
+            title: My Sample API
+            version: 1.0.0
+            description: A simple API example
+        servers:
+            - url: https://api.example.com/v1
+        paths: {}
+        EOT
+        ignore_unknown_fields = false
+        tls_config {
+            ca_certs {
+            display_name="example"
+            cert="ZXhhbXBsZQ=="
+            }
+        }
+        service_directory_config {
+        service = "projects/example/locations/us/namespaces/namespace/services/service"
+        }
+        api_authentication {
+            service_agent_id_token_auth_config {
+            }
+        }
+    }
+}
+
+resource "google_ces_agent" "ces_base_agent" {
+    agent_id = "base-agent-id"
+    location = "us"
+    app      = google_ces_app.my-app.app_id
+    display_name = "base agent"
+
+    instruction = "You are a helpful assistant for this example."
+
+    model_settings {
+        model       = "gemini-2.5-flash"
+        temperature = 0.5
+    }
+
+    llm_agent {
+    }
+}
+
+resource "google_ces_agent" "ces_child_agent" {
+    agent_id = "child-agent-id"
+    location = "us"
+    app      = google_ces_app.my-app.app_id
+    display_name = "child agent"
+
+    instruction = "You are a helpful assistant for this example."
+
+    model_settings {
+        model       = "gemini-2.5-flash"
+        temperature = 0.5
+    }
+
+    llm_agent {
+    }
+}
+
 resource "google_ces_example" "my-example" {
     location     = "us"
     display_name = "my-example"
     app          = google_ces_app.my-app.name
     example_id   = "example-id"
     description  = "example description"
+    entry_agent  = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/agents/${google_ces_agent.ces_base_agent.agent_id}"
     messages {
+        chunks {
+            agent_transfer {
+                target_agent = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/agents/${google_ces_agent.ces_child_agent.agent_id}"
+            }
+        }
         chunks {
             image {
                 mime_type = "image/png"
@@ -58,6 +144,50 @@ resource "google_ces_example" "my-example" {
         }
         chunks {
             text = "text_data"
+        }
+        chunks {
+            tool_call {
+                args = jsonencode({
+                    arg1 = "val1"
+                    arg2 = "val2"
+                })
+                id = "tool_call_id"
+                tool = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/tools/${google_ces_tool.ces_tool.tool_id}"
+            }
+        }
+        chunks {
+            tool_call {
+                args = jsonencode({
+                    arg1 = "val1"
+                    arg2 = "val2"
+                })
+                id = "tool_call_id2"
+                toolset_tool {
+                    toolset = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/toolsets/${google_ces_toolset.ces_toolset.toolset_id}"
+                    tool_id = "example-id"
+                }
+            }
+        }
+        chunks {
+            tool_response {
+                id = "tool_call_id"
+                response = jsonencode({
+                    output = "example-output"
+                })
+                tool = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/tools/${google_ces_tool.ces_tool.tool_id}"
+            }
+        }
+        chunks {
+            tool_response {
+                id = "tool_call_id2"
+                response = jsonencode({
+                    output = "example-output"
+                })
+                toolset_tool {
+                    toolset = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/toolsets/${google_ces_toolset.ces_toolset.toolset_id}"
+                    tool_id = "example-id"
+                }
+            }
         }
         chunks {
             updated_variables = jsonencode({
@@ -97,6 +227,12 @@ The following arguments are supported:
   (Optional)
   Human-readable description of the example.
 
+* `entry_agent` -
+  (Optional)
+  The agent that initially handles the conversation. If not specified, the
+  example represents a conversation that is handled by the root agent.
+  Format: `projects/{project}/locations/{location}/apps/{app}/agents/{agent}`
+
 * `messages` -
   (Optional)
   The collection of messages that make up the conversation.
@@ -121,6 +257,12 @@ The following arguments are supported:
 
 <a name="nested_messages_messages_chunks"></a>The `chunks` block supports:
 
+* `agent_transfer` -
+  (Optional)
+  Represents an event indicating the transfer of a conversation to a different
+  agent.
+  Structure is [documented below](#nested_messages_messages_chunks_chunks_agent_transfer).
+
 * `image` -
   (Optional)
   Represents an image input or output in the conversation.
@@ -130,11 +272,33 @@ The following arguments are supported:
   (Optional)
   Text data.
 
+* `tool_call` -
+  (Optional)
+  Request for the client or the agent to execute the specified tool.
+  Structure is [documented below](#nested_messages_messages_chunks_chunks_tool_call).
+
+* `tool_response` -
+  (Optional)
+  The execution result of a specific tool from the client or the agent.
+  Structure is [documented below](#nested_messages_messages_chunks_chunks_tool_response).
+
 * `updated_variables` -
   (Optional)
   A struct represents variables that were updated in the conversation,
   keyed by variable names.
 
+
+<a name="nested_messages_messages_chunks_chunks_agent_transfer"></a>The `agent_transfer` block supports:
+
+* `display_name` -
+  (Output)
+  Display name of the agent.
+
+* `target_agent` -
+  (Required)
+  The agent to which the conversation is being transferred. The agent will
+  handle the conversation from this point forward.
+  Format: `projects/{project}/locations/{location}/apps/{app}/agents/{agent}`
 
 <a name="nested_messages_messages_chunks_chunks_image"></a>The `image` block supports:
 
@@ -149,6 +313,85 @@ The following arguments are supported:
   * image/png
   * image/jpeg
   * image/webp
+
+<a name="nested_messages_messages_chunks_chunks_tool_call"></a>The `tool_call` block supports:
+
+* `args` -
+  (Optional)
+  The input parameters and values for the tool in JSON object format.
+
+* `display_name` -
+  (Output)
+  Display name of the tool.
+
+* `id` -
+  (Optional)
+  The unique identifier of the tool call. If populated, the client should
+  return the execution result with the matching ID in
+  ToolResponse.
+
+* `tool` -
+  (Optional)
+  The name of the tool to execute.
+  Format: `projects/{project}/locations/{location}/apps/{app}/tools/{tool}`
+
+* `toolset_tool` -
+  (Optional)
+  A tool that is created from a toolset.
+  Structure is [documented below](#nested_messages_messages_chunks_chunks_tool_call_toolset_tool).
+
+
+<a name="nested_messages_messages_chunks_chunks_tool_call_toolset_tool"></a>The `toolset_tool` block supports:
+
+* `toolset` -
+  (Required)
+  The resource name of the Toolset from which this tool is derived.
+  Format:
+  `projects/{project}/locations/{location}/apps/{app}/toolsets/{toolset}`
+
+* `tool_id` -
+  (Optional)
+  The tool ID to filter the tools to retrieve the schema for.
+
+<a name="nested_messages_messages_chunks_chunks_tool_response"></a>The `tool_response` block supports:
+
+* `display_name` -
+  (Output)
+  Display name of the tool.
+
+* `id` -
+  (Optional)
+  The matching ID of the tool call the response is for.
+
+* `response` -
+  (Required)
+  The tool execution result in JSON object format.
+  Use "output" key to specify tool response and "error" key to specify
+  error details (if any). If "output" and "error" keys are not specified,
+  then whole "response" is treated as tool execution result.
+
+* `tool` -
+  (Optional)
+  The name of the tool to execute.
+  Format: `projects/{project}/locations/{location}/apps/{app}/tools/{tool}`
+
+* `toolset_tool` -
+  (Optional)
+  A tool that is created from a toolset.
+  Structure is [documented below](#nested_messages_messages_chunks_chunks_tool_response_toolset_tool).
+
+
+<a name="nested_messages_messages_chunks_chunks_tool_response_toolset_tool"></a>The `toolset_tool` block supports:
+
+* `toolset` -
+  (Required)
+  The resource name of the Toolset from which this tool is derived.
+  Format:
+  `projects/{project}/locations/{location}/apps/{app}/toolsets/{toolset}`
+
+* `tool_id` -
+  (Optional)
+  The tool ID to filter the tools to retrieve the schema for.
 
 ## Attributes Reference
 

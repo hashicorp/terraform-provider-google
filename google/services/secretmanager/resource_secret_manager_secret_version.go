@@ -157,7 +157,7 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Triggers update of secret data write-only. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+				Description: `Triggers update of secret data write-only. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
 				Default:     0,
 			},
 			"secret_data": {
@@ -171,7 +171,7 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 			"secret_data_wo": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				Description:   `The secret data. Must be no larger than 64KiB. For more info see [updating write-only attributes](/docs/providers/google/guides/using_write_only_attributes.html#updating-write-only-attributes)`,
+				Description:   `The secret data. Must be no larger than 64KiB. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
 				WriteOnly:     true,
 				ConflictsWith: []string{"secret_data"},
 				RequiredWith:  []string{},

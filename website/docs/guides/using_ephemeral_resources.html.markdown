@@ -36,7 +36,7 @@ These are based on existing data sources already in the provider. In future you 
 
 ## Use the Google Cloud provider's new ephemeral resources
 
-Ephemeral resources are a source of ephemeral data, and they can be referenced in your configuration just like the attributes of resources and data sources. However, a field that references an ephemeral resource must be capable of handling ephemeral data. Due to this, resources in the Google Cloud provider will need to be updated so they include write-only attributes that are capable of using ephemeral data while not storing those values in the resource's state.
+Ephemeral resources are a source of ephemeral data, and they can be referenced in your configuration just like the attributes of resources and data sources. However, a field that references an ephemeral resource must be capable of handling ephemeral data. Due to this, resources in the Google Cloud provider will need to be updated so they include write-only arguments that are capable of using ephemeral data while not storing those values in the resource's state. 
 
 Until then, ephemeral resources can only be used to pass values into the provider block, which is already capable of receiving ephemeral values.
 

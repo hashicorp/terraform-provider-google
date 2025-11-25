@@ -27,8 +27,13 @@ fields:
   - api_field: 'name'
   - field: 'service_id'
     provider_only: true
+  - api_field: 'serviceProperties.extendedMetadata.key'
+  - api_field: 'serviceProperties.extendedMetadata.value.extendedMetadataSchema'
+  - api_field: 'serviceProperties.extendedMetadata.value.metadataStruct'
+  - api_field: 'serviceProperties.functionalType.type'
   - api_field: 'serviceProperties.gcpProject'
   - api_field: 'serviceProperties.location'
+  - api_field: 'serviceProperties.registrationType.type'
   - api_field: 'serviceProperties.zone'
   - api_field: 'serviceReference.uri'
   - api_field: 'state'

@@ -185,6 +185,12 @@ Valid values are 125, 250, 500, 1000.`,
 				Description: `Indicates whether you want to enable support for GKE clients. By default,
 GKE clients are not supported.`,
 			},
+			"kms_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The KMS key id to use for encryption of the Lustre instance.`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -225,14 +231,12 @@ projects/{project}/locations/{location}/resourcePolicies/{resource_policy}`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The state of the instance.
-Possible values:
-STATE_UNSPECIFIED
-ACTIVE
-CREATING
-DELETING
-UPGRADING
-REPAIRING
-STOPPED`,
+Please see https://cloud.google.com/managed-lustre/docs/reference/rest/v1/projects.locations.instances#state for values`,
+			},
+			"state_reason": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The reason why the instance is in a certain state.`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -306,6 +310,12 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("placement_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(placementPolicyProp)) && (ok || !reflect.DeepEqual(v, placementPolicyProp)) {
 		obj["placementPolicy"] = placementPolicyProp
+	}
+	kmsKeyProp, err := expandLustreInstanceKmsKey(d.Get("kms_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
+		obj["kmsKey"] = kmsKeyProp
 	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -449,6 +459,12 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("placement_policy", flattenLustreInstancePlacementPolicy(res["placementPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("kms_key", flattenLustreInstanceKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("state_reason", flattenLustreInstanceStateReason(res["stateReason"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenLustreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -741,6 +757,14 @@ func flattenLustreInstancePlacementPolicy(v interface{}, d *schema.ResourceData,
 	return v
 }
 
+func flattenLustreInstanceKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceStateReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenLustreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -785,6 +809,10 @@ func expandLustreInstancePerUnitStorageThroughput(v interface{}, d tpgresource.T
 }
 
 func expandLustreInstancePlacementPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

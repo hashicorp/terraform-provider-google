@@ -297,6 +297,7 @@ type Config struct {
 	CloudRunBasePath                 string
 	CloudRunV2BasePath               string
 	CloudSchedulerBasePath           string
+	CloudSecurityComplianceBasePath  string
 	CloudTasksBasePath               string
 	ColabBasePath                    string
 	ComposerBasePath                 string
@@ -389,6 +390,7 @@ type Config struct {
 	SecurityCenterManagementBasePath string
 	SecurityCenterV2BasePath         string
 	SecuritypostureBasePath          string
+	ServiceDirectoryBasePath         string
 	ServiceManagementBasePath        string
 	ServiceNetworkingBasePath        string
 	ServiceUsageBasePath             string
@@ -471,6 +473,7 @@ const CloudQuotasBasePathKey = "CloudQuotas"
 const CloudRunBasePathKey = "CloudRun"
 const CloudRunV2BasePathKey = "CloudRunV2"
 const CloudSchedulerBasePathKey = "CloudScheduler"
+const CloudSecurityComplianceBasePathKey = "CloudSecurityCompliance"
 const CloudTasksBasePathKey = "CloudTasks"
 const ColabBasePathKey = "Colab"
 const ComposerBasePathKey = "Composer"
@@ -563,6 +566,7 @@ const SecurityCenterBasePathKey = "SecurityCenter"
 const SecurityCenterManagementBasePathKey = "SecurityCenterManagement"
 const SecurityCenterV2BasePathKey = "SecurityCenterV2"
 const SecuritypostureBasePathKey = "Securityposture"
+const ServiceDirectoryBasePathKey = "ServiceDirectory"
 const ServiceManagementBasePathKey = "ServiceManagement"
 const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const ServiceUsageBasePathKey = "ServiceUsage"
@@ -634,6 +638,7 @@ var DefaultBasePaths = map[string]string{
 	CloudRunBasePathKey:                 "https://{{location}}-run.googleapis.com/",
 	CloudRunV2BasePathKey:               "https://run.googleapis.com/v2/",
 	CloudSchedulerBasePathKey:           "https://cloudscheduler.googleapis.com/v1/",
+	CloudSecurityComplianceBasePathKey:  "https://cloudsecuritycompliance.googleapis.com/v1/",
 	CloudTasksBasePathKey:               "https://cloudtasks.googleapis.com/v2/",
 	ColabBasePathKey:                    "https://{{location}}-aiplatform.googleapis.com/v1/",
 	ComposerBasePathKey:                 "https://composer.googleapis.com/v1/",
@@ -726,6 +731,7 @@ var DefaultBasePaths = map[string]string{
 	SecurityCenterManagementBasePathKey: "https://securitycentermanagement.googleapis.com/v1/",
 	SecurityCenterV2BasePathKey:         "https://securitycenter.googleapis.com/v2/",
 	SecuritypostureBasePathKey:          "https://securityposture.googleapis.com/v1/",
+	ServiceDirectoryBasePathKey:         "https://servicedirectory.googleapis.com/v1/",
 	ServiceManagementBasePathKey:        "https://servicemanagement.googleapis.com/v1/",
 	ServiceNetworkingBasePathKey:        "https://servicenetworking.googleapis.com/v1/",
 	ServiceUsageBasePathKey:             "https://serviceusage.googleapis.com/v1/",
@@ -1029,6 +1035,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("cloud_scheduler_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_SCHEDULER_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[CloudSchedulerBasePathKey]))
+	}
+	if d.Get("cloud_security_compliance_custom_endpoint") == "" {
+		d.Set("cloud_security_compliance_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_CLOUD_SECURITY_COMPLIANCE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[CloudSecurityComplianceBasePathKey]))
 	}
 	if d.Get("cloud_tasks_custom_endpoint") == "" {
 		d.Set("cloud_tasks_custom_endpoint", MultiEnvDefault([]string{
@@ -1489,6 +1500,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("securityposture_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_SECURITYPOSTURE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[SecuritypostureBasePathKey]))
+	}
+	if d.Get("service_directory_custom_endpoint") == "" {
+		d.Set("service_directory_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SERVICE_DIRECTORY_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ServiceDirectoryBasePathKey]))
 	}
 	if d.Get("service_management_custom_endpoint") == "" {
 		d.Set("service_management_custom_endpoint", MultiEnvDefault([]string{
@@ -2579,9 +2595,18 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 				return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
 			}
 		} else {
-			creds, err = transport.Creds(context.Background(), option.WithScopes(clientScopes...))
-			if err != nil {
-				return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+			if AreADCCredentialsX509() {
+				log.Printf("[INFO] Authenticating using EnableNewAuthLibrary")
+				creds, err = transport.Creds(context.Background(), option.WithScopes(clientScopes...), internaloption.EnableNewAuthLibrary())
+				if err != nil {
+					//this call should be backwards compatible, but this initial implementation ahead of the EnableNewAuthLibrary being made default for all googleapi authentication calls is only intended for it to be called on X.509 requests.
+					return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'. If you are recieving this error while not attempting to authenticate using X.509 certificates, please file an issue with the provider at https://github.com/hashicorp/terraform-provider-google/issues/new/choose. Original error: %w", err)
+				}
+			} else {
+				creds, err = transport.Creds(context.Background(), option.WithScopes(clientScopes...))
+				if err != nil {
+					return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+				}
 			}
 		}
 	}
@@ -2607,6 +2632,36 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 	}
 
 	return *creds, nil
+}
+
+// parse application default credentials to determine if they are X.509 certs
+func AreADCCredentialsX509() bool {
+	adcCreds := MultiEnvSearch([]string{
+		"GOOGLE_APPLICATION_CREDENTIALS",
+	})
+	if adcCreds != "" {
+		contents, _, err := verify.PathOrContents(adcCreds)
+		if err != nil {
+			return false
+		}
+
+		var content map[string]any
+		if err := json.Unmarshal([]byte(contents), &content); err != nil {
+			return false
+		}
+		if content["credential_source"] != nil {
+			if content["credential_source"].(map[string]any)["certificate"] != nil {
+				log.Printf("[INFO] Application Default Credentials identified as using X.509 certificates")
+				return true
+			} else {
+				return false
+			}
+		} else {
+			//ADC file does not contain x509 attribute
+			return false
+		}
+	}
+	return false
 }
 
 // Remove the `/{{version}}/` from a base path if present.
@@ -2659,6 +2714,7 @@ func ConfigureBasePaths(c *Config) {
 	c.CloudRunBasePath = DefaultBasePaths[CloudRunBasePathKey]
 	c.CloudRunV2BasePath = DefaultBasePaths[CloudRunV2BasePathKey]
 	c.CloudSchedulerBasePath = DefaultBasePaths[CloudSchedulerBasePathKey]
+	c.CloudSecurityComplianceBasePath = DefaultBasePaths[CloudSecurityComplianceBasePathKey]
 	c.CloudTasksBasePath = DefaultBasePaths[CloudTasksBasePathKey]
 	c.ColabBasePath = DefaultBasePaths[ColabBasePathKey]
 	c.ComposerBasePath = DefaultBasePaths[ComposerBasePathKey]
@@ -2751,6 +2807,7 @@ func ConfigureBasePaths(c *Config) {
 	c.SecurityCenterManagementBasePath = DefaultBasePaths[SecurityCenterManagementBasePathKey]
 	c.SecurityCenterV2BasePath = DefaultBasePaths[SecurityCenterV2BasePathKey]
 	c.SecuritypostureBasePath = DefaultBasePaths[SecuritypostureBasePathKey]
+	c.ServiceDirectoryBasePath = DefaultBasePaths[ServiceDirectoryBasePathKey]
 	c.ServiceManagementBasePath = DefaultBasePaths[ServiceManagementBasePathKey]
 	c.ServiceNetworkingBasePath = DefaultBasePaths[ServiceNetworkingBasePathKey]
 	c.ServiceUsageBasePath = DefaultBasePaths[ServiceUsageBasePathKey]

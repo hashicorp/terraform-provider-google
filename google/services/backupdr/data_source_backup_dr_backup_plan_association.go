@@ -30,7 +30,6 @@ func DataSourceGoogleCloudBackupDRBackupPlanAssociation() *schema.Resource {
 	// Set 'Required' schema elements
 	tpgresource.AddRequiredFieldsToSchema(dsSchema, "backup_plan_association_id", "location")
 
-	// Set 'Optional' schema elements
 	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project")
 	return &schema.Resource{
 		Read:   dataSourceGoogleCloudBackupDRBackupPlanAssociationRead,
@@ -80,10 +79,10 @@ func DataSourceGoogleCloudBackupDRBackupPlanAssociations() *schema.Resource {
 			},
 			"resource_type": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: `The resource type of workload on which backup plan is applied. Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk".`,
+				Deprecated:  "`resource_type` is deprecated and will be removed in a future major release.",
 			},
-
 			"associations": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -173,9 +172,8 @@ func dataSourceGoogleCloudBackupDRBackupPlanAssociationsRead(d *schema.ResourceD
 	}
 
 	location := d.Get("location").(string)
-	resourceType := d.Get("resource_type").(string)
 
-	url := fmt.Sprintf("%sprojects/%s/locations/%s/backupPlanAssociations:fetchForResourceType?resourceType=%s", config.BackupDRBasePath, project, location, resourceType)
+	url := fmt.Sprintf("%sprojects/%s/locations/%s/backupPlanAssociations", config.BackupDRBasePath, project, location)
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,

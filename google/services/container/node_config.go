@@ -91,6 +91,21 @@ func schemaContainerdConfig() *schema.Schema {
 					},
 				}},
 			},
+			"writable_cgroups": {
+				Type:        schema.TypeList,
+				Description: `Parameters for writable cgroups configuration.`,
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Whether writable cgroups are enabled.`,
+						},
+					},
+				},
+			},
 		}},
 	}
 }
@@ -1908,6 +1923,7 @@ func expandContainerdConfig(v interface{}) *container.ContainerdConfig {
 
 	cc := &container.ContainerdConfig{}
 	cc.PrivateRegistryAccessConfig = expandPrivateRegistryAccessConfig(cfg["private_registry_access_config"])
+	cc.WritableCgroups = expandWritableCgroups(cfg["writable_cgroups"])
 	return cc
 }
 
@@ -1977,6 +1993,26 @@ func expandGCPSecretManagerCertificateConfig(v interface{}) *container.GCPSecret
 		gcpSMConfig.SecretUri = v.(string)
 	}
 	return gcpSMConfig
+}
+
+func expandWritableCgroups(v interface{}) *container.WritableCgroups {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.WritableCgroups{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	wcg := &container.WritableCgroups{}
+	if enabled, ok := cfg["enabled"]; ok {
+		wcg.Enabled = enabled.(bool)
+	}
+	return wcg
 }
 
 func expandSoleTenantConfig(v interface{}) *container.SoleTenantConfig {
@@ -2485,6 +2521,9 @@ func flattenContainerdConfig(c *container.ContainerdConfig) []map[string]interfa
 	if c.PrivateRegistryAccessConfig != nil {
 		r["private_registry_access_config"] = flattenPrivateRegistryAccessConfig(c.PrivateRegistryAccessConfig)
 	}
+	if c.WritableCgroups != nil {
+		r["writable_cgroups"] = flattenWritableCgroups(c.WritableCgroups)
+	}
 	return append(result, r)
 }
 
@@ -2540,6 +2579,17 @@ func flattenGCPSecretManagerCertificateConfig(c *container.GCPSecretManagerCerti
 	}
 	r := map[string]interface{}{
 		"secret_uri": c.SecretUri,
+	}
+	return append(result, r)
+}
+
+func flattenWritableCgroups(c *container.WritableCgroups) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c == nil {
+		return result
+	}
+	r := map[string]interface{}{
+		"enabled": c.Enabled,
 	}
 	return append(result, r)
 }

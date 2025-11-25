@@ -139,14 +139,14 @@ func ResourceGKEHub2ScopeRBACRoleBinding() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Description:  `CustomRole is the custom Kubernetes ClusterRole to be used. The custom role format must be allowlisted in the rbacrolebindingactuation feature and RFC 1123 compliant.`,
-							ExactlyOneOf: []string{"role.0.predefined_role", "role.0.custom_role"},
+							ExactlyOneOf: []string{"role.0.custom_role", "role.0.predefined_role"},
 						},
 						"predefined_role": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"UNKNOWN", "ADMIN", "EDIT", "VIEW", ""}),
 							Description:  `PredefinedRole is an ENUM representation of the default Kubernetes Roles Possible values: ["UNKNOWN", "ADMIN", "EDIT", "VIEW"]`,
-							ExactlyOneOf: []string{"role.0.predefined_role", "role.0.custom_role"},
+							ExactlyOneOf: []string{"role.0.custom_role", "role.0.predefined_role"},
 						},
 					},
 				},
@@ -169,7 +169,7 @@ func ResourceGKEHub2ScopeRBACRoleBinding() *schema.Resource {
 				Description: `Principal that is be authorized in the cluster (at least of one the oneof
 is required). Updating one will unset the other automatically.
 group is the group, as seen by the kubernetes cluster.`,
-				ExactlyOneOf: []string{"user", "group"},
+				ExactlyOneOf: []string{"group", "user"},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -188,7 +188,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 is required). Updating one will unset the other automatically.
 user is the name of the user as seen by the kubernetes cluster, example
 "alice" or "alice@domain.tld"`,
-				ExactlyOneOf: []string{"user", "group"},
+				ExactlyOneOf: []string{"group", "user"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,

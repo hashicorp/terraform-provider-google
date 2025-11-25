@@ -91,6 +91,7 @@ type ProviderModel struct {
 	CloudRunCustomEndpoint                 types.String `tfsdk:"cloud_run_custom_endpoint"`
 	CloudRunV2CustomEndpoint               types.String `tfsdk:"cloud_run_v2_custom_endpoint"`
 	CloudSchedulerCustomEndpoint           types.String `tfsdk:"cloud_scheduler_custom_endpoint"`
+	CloudSecurityComplianceCustomEndpoint  types.String `tfsdk:"cloud_security_compliance_custom_endpoint"`
 	CloudTasksCustomEndpoint               types.String `tfsdk:"cloud_tasks_custom_endpoint"`
 	ColabCustomEndpoint                    types.String `tfsdk:"colab_custom_endpoint"`
 	ComposerCustomEndpoint                 types.String `tfsdk:"composer_custom_endpoint"`
@@ -183,6 +184,7 @@ type ProviderModel struct {
 	SecurityCenterManagementCustomEndpoint types.String `tfsdk:"security_center_management_custom_endpoint"`
 	SecurityCenterV2CustomEndpoint         types.String `tfsdk:"security_center_v2_custom_endpoint"`
 	SecuritypostureCustomEndpoint          types.String `tfsdk:"securityposture_custom_endpoint"`
+	ServiceDirectoryCustomEndpoint         types.String `tfsdk:"service_directory_custom_endpoint"`
 	ServiceManagementCustomEndpoint        types.String `tfsdk:"service_management_custom_endpoint"`
 	ServiceNetworkingCustomEndpoint        types.String `tfsdk:"service_networking_custom_endpoint"`
 	ServiceUsageCustomEndpoint             types.String `tfsdk:"service_usage_custom_endpoint"`

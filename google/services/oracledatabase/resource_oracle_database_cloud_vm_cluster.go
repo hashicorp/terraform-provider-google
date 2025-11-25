@@ -382,6 +382,12 @@ NORMAL`,
 										ForceNew:    true,
 										Description: `IANA Time Zone Database time zone, e.g. "America/New_York".`,
 									},
+									"version": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `IANA Time Zone Database version number, e.g. "2019a".`,
+									},
 								},
 							},
 						},
@@ -975,9 +981,15 @@ func flattenOracleDatabaseCloudVmClusterPropertiesTimeZone(v interface{}, d *sch
 	transformed := make(map[string]interface{})
 	transformed["id"] =
 		flattenOracleDatabaseCloudVmClusterPropertiesTimeZoneId(original["id"], d, config)
+	transformed["version"] =
+		flattenOracleDatabaseCloudVmClusterPropertiesTimeZoneVersion(original["version"], d, config)
 	return []interface{}{transformed}
 }
 func flattenOracleDatabaseCloudVmClusterPropertiesTimeZoneId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterPropertiesTimeZoneVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1549,10 +1561,21 @@ func expandOracleDatabaseCloudVmClusterPropertiesTimeZone(v interface{}, d tpgre
 		transformed["id"] = transformedId
 	}
 
+	transformedVersion, err := expandOracleDatabaseCloudVmClusterPropertiesTimeZoneVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
 	return transformed, nil
 }
 
 func expandOracleDatabaseCloudVmClusterPropertiesTimeZoneId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseCloudVmClusterPropertiesTimeZoneVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -80,11 +80,22 @@ func NetworkEndpointsNetworkEndpointConvertToAny(endpoint NetworkEndpointsNetwor
 	return m
 }
 
-// Continues to read network endpoints as long as there are unread pages remaining
-func networkEndpointsPaginatedRead(d *schema.ResourceData, config *transport_tpg.Config, userAgent, url, project, billingProject, pt string) ([]interface{}, error) {
+// Read network endpoints as long as there are unread pages remaining
+func networkEndpointsPaginatedRead(d *schema.ResourceData, config *transport_tpg.Config, userAgent, url, project, billingProject string, res map[string]interface{}) ([]interface{}, error) {
 	var allEndpoints []interface{}
-	for len(pt) > 0 {
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+	var err error
+
+	for {
+		if items, ok := res["items"].([]interface{}); ok {
+			allEndpoints = append(allEndpoints, items...)
+		}
+
+		pt, ok := res["nextPageToken"].(string)
+		if !ok || pt == "" {
+			break
+		}
+
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
 			Project:   billingProject,
@@ -94,9 +105,6 @@ func networkEndpointsPaginatedRead(d *schema.ResourceData, config *transport_tpg
 		if err != nil {
 			return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpoints %q", d.Id()))
 		}
-		resEndpoints := res["items"].([]interface{})
-		allEndpoints = append(allEndpoints, resEndpoints...)
-		pt, _ = res["nextPageToken"].(string)
 	}
 	return allEndpoints, nil
 }
@@ -338,7 +346,11 @@ func resourceComputeNetworkEndpointsCreate(d *schema.ResourceData, meta interfac
 
 	headers := make(http.Header)
 	chunkSize := 500 // API only accepts 500 endpoints at a time
-	lastPage, err := networkEndpointsPaginatedMutate(d, obj["networkEndpoints"].([]interface{}), config, userAgent, url, project, billingProject, chunkSize, true)
+	var endpoints []interface{}
+	if v, ok := obj["networkEndpoints"].([]interface{}); ok {
+		endpoints = v
+	}
+	lastPage, err := networkEndpointsPaginatedMutate(d, endpoints, config, userAgent, url, project, billingProject, chunkSize, true)
 	if err != nil {
 		// networkEndpointsPaginatedMutate already adds error description
 		return err
@@ -858,22 +870,21 @@ func resourceComputeNetworkEndpointsDecoder(d *schema.ResourceData, meta interfa
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	// Read past the first page to get all endpoints.
-	pt, _ := res["nextPageToken"].(string)
-	allEndpoints, err := networkEndpointsPaginatedRead(d, config, userAgent, url, project, billingProject, pt)
+
+	allEndpoints, err := networkEndpointsPaginatedRead(d, config, userAgent, url, project, billingProject, res)
 	if err != nil {
-		// networkEndpointsPaginatedRead already adds error description
 		return nil, err
 	}
-	firstPage := res["items"].([]interface{})
-	allEndpoints = append(firstPage, allEndpoints...)
 
 	// listNetworkEndpoints returns data in a different structure, so we need to
 	// convert to the Terraform schema.
 	var transformed []interface{}
 	for _, e := range allEndpoints {
-		t := e.(map[string]interface{})["networkEndpoint"]
-		transformed = append(transformed, t)
+		if item, ok := e.(map[string]interface{}); ok {
+			if t, ok := item["networkEndpoint"]; ok {
+				transformed = append(transformed, t)
+			}
+		}
 	}
 
 	return map[string]interface{}{"networkEndpoints": transformed}, nil

@@ -265,7 +265,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ExactlyOneOf: []string{"pyspark_application_config", "spark_application_config", "spark_sql_application_config", "spark_r_application_config"},
+				ExactlyOneOf: []string{"pyspark_application_config", "spark_application_config", "spark_r_application_config", "spark_sql_application_config"},
 			},
 			"spark_application_config": {
 				Type:        schema.TypeList,
@@ -325,7 +325,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ExactlyOneOf: []string{"pyspark_application_config", "spark_application_config", "spark_sql_application_config", "spark_r_application_config"},
+				ExactlyOneOf: []string{"pyspark_application_config", "spark_application_config", "spark_r_application_config", "spark_sql_application_config"},
 			},
 			"spark_r_application_config": {
 				Type:        schema.TypeList,
@@ -370,7 +370,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ExactlyOneOf: []string{"pyspark_application_config", "spark_application_config", "spark_sql_application_config", "spark_r_application_config"},
+				ExactlyOneOf: []string{"pyspark_application_config", "spark_application_config", "spark_r_application_config", "spark_sql_application_config"},
 			},
 			"spark_sql_application_config": {
 				Type:        schema.TypeList,
@@ -424,7 +424,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ExactlyOneOf: []string{"pyspark_application_config", "spark_application_config", "spark_sql_application_config", "spark_r_application_config"},
+				ExactlyOneOf: []string{"pyspark_application_config", "spark_application_config", "spark_r_application_config", "spark_sql_application_config"},
 			},
 			"version": {
 				Type:        schema.TypeString,

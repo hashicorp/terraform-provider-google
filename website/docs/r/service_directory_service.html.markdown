@@ -23,12 +23,10 @@ description: |-
 
 An individual service. A service contains a name and optional metadata.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Service, see:
 
-* [API documentation](https://cloud.google.com/service-directory/docs/reference/rest/v1beta1/projects.locations.namespaces.services)
+* [API documentation](https://cloud.google.com/service-directory/docs/reference/rest/v1/projects.locations.namespaces.services)
 * How-to Guides
     * [Configuring a service](https://cloud.google.com/service-directory/docs/configuring-service-directory#configuring_a_service)
 
@@ -42,13 +40,11 @@ To get more information about Service, see:
 
 ```hcl
 resource "google_service_directory_namespace" "example" {
-  provider     = google-beta
   namespace_id = "example-namespace"
   location     = "us-central1"
 }
 
 resource "google_service_directory_service" "example" {
-  provider   = google-beta
   service_id = "example-service"
   namespace  = google_service_directory_namespace.example.id
 

@@ -339,7 +339,7 @@ This number is on a scale from 0 (no utilization) to 100 (full utilization).`,
 					},
 				},
 				ConflictsWith: []string{"num_nodes", "processing_units"},
-				AtLeastOneOf:  []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
+				AtLeastOneOf:  []string{"autoscaling_config", "instance_type", "num_nodes", "processing_units"},
 			},
 			"default_backup_schedule_type": {
 				Type:         schema.TypeString,
@@ -365,7 +365,7 @@ if unset or NONE, no default backup schedule will be created for new databases w
 				Description: `The type of this instance. The type can be used to distinguish product variants, that can affect aspects like:
 usage restrictions, quotas and billing. Currently this is used to distinguish FREE_INSTANCE vs PROVISIONED instances.
 When configured as FREE_INSTANCE, the field 'edition' should not be configured. Possible values: ["PROVISIONED", "FREE_INSTANCE"]`,
-				AtLeastOneOf: []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
+				AtLeastOneOf: []string{"autoscaling_config", "instance_type", "num_nodes", "processing_units"},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -395,8 +395,8 @@ If not provided, a random string starting with 'tf-' will be selected.`,
 				Optional: true,
 				Description: `The number of nodes allocated to this instance. Exactly one of either num_nodes, processing_units or
 autoscaling_config must be present in terraform except when instance_type = FREE_INSTANCE.`,
-				ConflictsWith: []string{"processing_units", "autoscaling_config"},
-				AtLeastOneOf:  []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
+				ConflictsWith: []string{"autoscaling_config", "processing_units"},
+				AtLeastOneOf:  []string{"autoscaling_config", "instance_type", "num_nodes", "processing_units"},
 			},
 			"processing_units": {
 				Type:     schema.TypeInt,
@@ -404,8 +404,8 @@ autoscaling_config must be present in terraform except when instance_type = FREE
 				Optional: true,
 				Description: `The number of processing units allocated to this instance. Exactly one of either num_nodes,
 processing_units or autoscaling_config must be present in terraform except when instance_type = FREE_INSTANCE.`,
-				ConflictsWith: []string{"num_nodes", "autoscaling_config"},
-				AtLeastOneOf:  []string{"num_nodes", "processing_units", "autoscaling_config", "instance_type"},
+				ConflictsWith: []string{"autoscaling_config", "num_nodes"},
+				AtLeastOneOf:  []string{"autoscaling_config", "instance_type", "num_nodes", "processing_units"},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,

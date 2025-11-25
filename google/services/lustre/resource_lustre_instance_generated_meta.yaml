@@ -15,6 +15,7 @@ fields:
   - api_field: 'gkeSupportEnabled'
   - field: 'instance_id'
     provider_only: true
+  - api_field: 'kmsKey'
   - api_field: 'labels'
   - field: 'location'
     provider_only: true
@@ -24,6 +25,7 @@ fields:
   - api_field: 'perUnitStorageThroughput'
   - api_field: 'placementPolicy'
   - api_field: 'state'
+  - api_field: 'stateReason'
   - field: 'terraform_labels'
     provider_only: true
   - api_field: 'updateTime'

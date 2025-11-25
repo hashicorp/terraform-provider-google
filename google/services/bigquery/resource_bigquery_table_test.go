@@ -1818,6 +1818,34 @@ func TestAccBigQueryTable_invalidSchemas(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryTable_schemaUnchangedWithRowAccessPolicy(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id": envvar.GetTestProjectFromEnv(),
+		"dataset_id": fmt.Sprintf("tf_test_dataset_%s", acctest.RandString(t, 10)),
+		"table_id":   fmt.Sprintf("tf_test_table_%s", acctest.RandString(t, 10)),
+		"policy_id":  fmt.Sprintf("tf_test_policy_%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithSchemaAndRowAccessPolicy(context),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryTable_schemaColumnDropWithRowAccessPolicy(t *testing.T) {
 	t.Parallel()
 

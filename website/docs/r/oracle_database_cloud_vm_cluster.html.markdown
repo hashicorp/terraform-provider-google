@@ -435,6 +435,10 @@ The following arguments are supported:
   (Optional)
   IANA Time Zone Database time zone, e.g. "America/New_York".
 
+* `version` -
+  (Optional)
+  IANA Time Zone Database version number, e.g. "2019a".
+
 <a name="nested_properties_diagnostics_data_collection_options"></a>The `diagnostics_data_collection_options` block supports:
 
 * `diagnostics_events_enabled` -

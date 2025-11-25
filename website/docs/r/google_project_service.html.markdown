@@ -62,7 +62,7 @@ is used.
 * `disable_on_destroy` - (Optional) If `true`, disable the service when the
 Terraform resource is destroyed. If `false` or unset, the service will be left enabled when
 the Terraform resource is destroyed. It should generally only 
-be `true` or unset in configurations that manage the `google_project` resource itself.
+be `true` in configurations that manage the `google_project` resource itself.
 
 * `disable_dependent_services` - (Optional) If `true`, services that are enabled
 and which depend on this service should also be disabled when this service is

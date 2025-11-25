@@ -251,7 +251,7 @@ func ResourceStorageControlProjectIntelligenceConfig() *schema.Resource {
 								},
 							},
 							ConflictsWith: []string{"filter.0.included_cloud_storage_buckets"},
-							AtLeastOneOf:  []string{"filter.0.included_cloud_storage_buckets", "filter.0.excluded_cloud_storage_buckets", "filter.0.included_cloud_storage_locations", "filter.0.excluded_cloud_storage_locations"},
+							AtLeastOneOf:  []string{"filter.0.excluded_cloud_storage_buckets", "filter.0.excluded_cloud_storage_locations", "filter.0.included_cloud_storage_buckets", "filter.0.included_cloud_storage_locations"},
 						},
 						"excluded_cloud_storage_locations": {
 							Type:             schema.TypeList,
@@ -272,7 +272,7 @@ func ResourceStorageControlProjectIntelligenceConfig() *schema.Resource {
 								},
 							},
 							ConflictsWith: []string{"filter.0.included_cloud_storage_locations"},
-							AtLeastOneOf:  []string{"filter.0.included_cloud_storage_buckets", "filter.0.excluded_cloud_storage_buckets", "filter.0.included_cloud_storage_locations", "filter.0.excluded_cloud_storage_locations"},
+							AtLeastOneOf:  []string{"filter.0.excluded_cloud_storage_buckets", "filter.0.excluded_cloud_storage_locations", "filter.0.included_cloud_storage_buckets", "filter.0.included_cloud_storage_locations"},
 						},
 						"included_cloud_storage_buckets": {
 							Type:             schema.TypeList,
@@ -293,7 +293,7 @@ func ResourceStorageControlProjectIntelligenceConfig() *schema.Resource {
 								},
 							},
 							ConflictsWith: []string{"filter.0.excluded_cloud_storage_buckets"},
-							AtLeastOneOf:  []string{"filter.0.included_cloud_storage_buckets", "filter.0.excluded_cloud_storage_buckets", "filter.0.included_cloud_storage_locations", "filter.0.excluded_cloud_storage_locations"},
+							AtLeastOneOf:  []string{"filter.0.excluded_cloud_storage_buckets", "filter.0.excluded_cloud_storage_locations", "filter.0.included_cloud_storage_buckets", "filter.0.included_cloud_storage_locations"},
 						},
 						"included_cloud_storage_locations": {
 							Type:             schema.TypeList,
@@ -314,7 +314,7 @@ func ResourceStorageControlProjectIntelligenceConfig() *schema.Resource {
 								},
 							},
 							ConflictsWith: []string{"filter.0.excluded_cloud_storage_locations"},
-							AtLeastOneOf:  []string{"filter.0.included_cloud_storage_buckets", "filter.0.excluded_cloud_storage_buckets", "filter.0.included_cloud_storage_locations", "filter.0.excluded_cloud_storage_locations"},
+							AtLeastOneOf:  []string{"filter.0.excluded_cloud_storage_buckets", "filter.0.excluded_cloud_storage_locations", "filter.0.included_cloud_storage_buckets", "filter.0.included_cloud_storage_locations"},
 						},
 					},
 				},

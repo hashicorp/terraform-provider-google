@@ -32,7 +32,6 @@ func TestAccDataSourceGoogleBackupDRDataSourceReferences_basic(t *testing.T) {
 	var projectID string
 	context := map[string]interface{}{
 		"location":      "us-central1",
-		"resource_type": "sqladmin.googleapis.com/Instance",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -54,7 +53,6 @@ func TestAccDataSourceGoogleBackupDRDataSourceReferences_basic(t *testing.T) {
 						// Basic attribute checks
 						resource.TestCheckResourceAttr("data.google_backup_dr_data_source_references.default", "project", projectID),
 						resource.TestCheckResourceAttr("data.google_backup_dr_data_source_references.default", "location", context["location"].(string)),
-						resource.TestCheckResourceAttr("data.google_backup_dr_data_source_references.default", "resource_type", context["resource_type"].(string)),
 
 						// Check that the list itself is populated
 						resource.TestCheckResourceAttrSet("data.google_backup_dr_data_source_references.default", "data_source_references.#"),
@@ -157,7 +155,6 @@ resource "google_backup_dr_backup_plan_association" "bpa" {
 data "google_backup_dr_data_source_references" "default" {
    project       = data.google_project.project.project_id
    location      = "%{location}"
-   resource_type = "%{resource_type}"
    depends_on= [ google_backup_dr_backup_plan_association.bpa ]
    }
 `, context)
@@ -267,7 +264,6 @@ resource "google_backup_dr_backup_plan_association" "bpa" {
 data "google_backup_dr_data_source_references" "all_refs" {
 	project       = data.google_project.project.project_id
 	location      = "us-central1"
-	resource_type = "sqladmin.googleapis.com/Instance"
 	depends_on    = [google_backup_dr_backup_plan_association.bpa]
 }
 

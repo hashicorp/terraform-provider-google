@@ -15,7 +15,7 @@
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
 description: |-
-  Get information about a Google Compute Engine Reservation Sub-Block.
+  Get information about a Google Compute Engine Reservation Sub-Block. Currnelty only relevent for GB200/A4X + reservetions
 ---
 
 # google_compute_reservation_sub_block

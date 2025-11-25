@@ -3250,6 +3250,37 @@ func TestAccContainerCluster_withMaintenanceExclusionOptions(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withMaintenanceExclusionOptions_untilEndOfSupport(t *testing.T) {
+	t.Parallel()
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	resourceName := "google_container_cluster.with_maintenance_exclusion_options"
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withExclusionOptions_RecurringMaintenanceWindow_untilEndOfSupport(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "NO_MINOR_UPGRADES", "NO_MINOR_OR_NODE_UPGRADES", networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.end_time_behavior", "UNTIL_END_OF_SUPPORT"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_deleteMaintenanceExclusionOptions(t *testing.T) {
 	t.Parallel()
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -3287,6 +3318,54 @@ func TestAccContainerCluster_deleteMaintenanceExclusionOptions(t *testing.T) {
 						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.scope"),
 					resource.TestCheckNoResourceAttr(resourceName,
 						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.scope"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_deleteMaintenanceExclusionOptions_untilEndOfSupport(t *testing.T) {
+	t.Parallel()
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	resourceName := "google_container_cluster.with_maintenance_exclusion_options"
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withExclusionOptions_RecurringMaintenanceWindow_untilEndOfSupport(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "NO_MINOR_UPGRADES", "NO_MINOR_OR_NODE_UPGRADES", networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.end_time_behavior", "UNTIL_END_OF_SUPPORT"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_NoExclusionOptions_RecurringMaintenanceWindow(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z", networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.end_time_behavior"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.end_time_behavior"),
 				),
 			},
 			{
@@ -3357,6 +3436,72 @@ func TestAccContainerCluster_updateMaintenanceExclusionOptions(t *testing.T) {
 						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.scope", "NO_UPGRADES"),
 					resource.TestCheckResourceAttr(resourceName,
 						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.scope", "NO_MINOR_UPGRADES"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_updateMaintenanceExclusionOptions_untilEndOfSupport(t *testing.T) {
+	t.Parallel()
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	resourceName := "google_container_cluster.with_maintenance_exclusion_options"
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	// step1: create a new cluster and initialize the maintenceExclusion without exclusion scopes,
+	// step2: add exclusion scopes to the maintenancePolicy,
+	// step3: update the maintenceExclusion with new scopes
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_NoExclusionOptions_RecurringMaintenanceWindow(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z", networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.end_time_behavior"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.1.exclusion_options.0.end_time_behavior"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withExclusionOptions_RecurringMaintenanceWindow_untilEndOfSupport(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "NO_MINOR_UPGRADES", "NO_MINOR_OR_NODE_UPGRADES", networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.end_time_behavior", "UNTIL_END_OF_SUPPORT"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_updateExclusionOptions_RecurringMaintenanceWindow_untilEndOfSupport(
+					cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z", "NO_MINOR_OR_NODE_UPGRADES", "NO_MINOR_UPGRADES", networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName,
+						"maintenance_policy.0.maintenance_exclusion.0.exclusion_options.0.end_time_behavior", "UNTIL_END_OF_SUPPORT"),
 				),
 			},
 			{
@@ -7748,6 +7893,11 @@ func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 			},
 			{
 				Config: testAccContainerCluster_withEnablePrivateEndpoint(clusterName, "false", networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.with_enable_private_endpoint", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_container_cluster.with_enable_private_endpoint",
@@ -7758,7 +7908,6 @@ func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 		},
 	})
 }
-
 func testAccContainerCluster_withEnablePrivateEndpoint(clusterName, flag, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "uscentral1a" {
@@ -9781,6 +9930,45 @@ resource "google_container_cluster" "with_maintenance_exclusion_options" {
 `, cclusterName, w1startTime, w1endTime, w1startTime, w1endTime, scope1, w2startTime, w2endTime, scope2, networkName, subnetworkName)
 }
 
+func testAccContainerCluster_withExclusionOptions_RecurringMaintenanceWindow_untilEndOfSupport(cclusterName, w1startTime, w1endTime, w2startTime, scope1, scope2, networkName, subnetworkName string) string {
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_maintenance_exclusion_options" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  maintenance_policy {
+    recurring_window {
+      start_time = "%s"
+      end_time   = "%s"
+      recurrence = "FREQ=DAILY"
+    }
+    maintenance_exclusion {
+      exclusion_name = "batch job"
+      start_time     = "%s"
+      end_time       = "%s"
+      exclusion_options {
+        scope = "%s"
+      }
+    }
+    maintenance_exclusion {
+      exclusion_name = "holiday data load"
+      start_time     = "%s"
+      exclusion_options {
+        scope = "%s"
+        end_time_behavior = "UNTIL_END_OF_SUPPORT"
+      }
+    }
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, cclusterName, w1startTime, w1endTime, w1startTime, w1endTime, scope1, w2startTime, scope2, networkName, subnetworkName)
+}
+
 func testAccContainerCluster_NoExclusionOptions_RecurringMaintenanceWindow(cclusterName, w1startTime, w1endTime, w2startTime, w2endTime, networkName, subnetworkName string) string {
 
 	return fmt.Sprintf(`
@@ -9851,6 +10039,45 @@ resource "google_container_cluster" "with_maintenance_exclusion_options" {
   deletion_protection = false
 }
 `, cclusterName, w1startTime, w1endTime, w1startTime, w1endTime, scope1, w2startTime, w2endTime, scope2, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_updateExclusionOptions_RecurringMaintenanceWindow_untilEndOfSupport(cclusterName, w1startTime, w1endTime, w2startTime, w2endTime, scope1, scope2, networkName, subnetworkName string) string {
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_maintenance_exclusion_options" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  maintenance_policy {
+    recurring_window {
+      start_time = "%s"
+      end_time   = "%s"
+      recurrence = "FREQ=DAILY"
+    }
+    maintenance_exclusion {
+      exclusion_name = "batch job"
+      start_time     = "%s"
+      exclusion_options {
+        scope = "%s"
+        end_time_behavior = "UNTIL_END_OF_SUPPORT"
+      }
+    }
+    maintenance_exclusion {
+      exclusion_name = "holiday data load"
+      start_time     = "%s"
+      end_time       = "%s"
+      exclusion_options {
+        scope = "%s"
+      }
+    }
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, cclusterName, w1startTime, w1endTime, w1startTime, scope1, w2startTime, w2endTime, scope2, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withExclusion_NoMaintenanceWindow(clusterName string, w1startTime, w1endTime, networkName, subnetworkName string) string {
@@ -12707,6 +12934,208 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 }
 `, secretID, clusterName, customDomain, networkName, subnetworkName)
+}
+
+func TestAccContainerCluster_writableCgroups(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePoolName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Test enabling writable_cgroups for new node pools via node_pool_defaults.
+			{
+				Config: testAccContainerCluster_writableCgroupsEnabled(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_pool_defaults.0.node_config_defaults.0.containerd_config.0.writable_cgroups.0.enabled",
+						"true",
+					),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Test disabling writable_cgroups for new node pools via node_pool_defaults.
+			{
+				Config: testAccContainerCluster_writableCgroupsDisabled(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_pool_defaults.0.node_config_defaults.0.containerd_config.0.writable_cgroups.0.enabled",
+						"false",
+					),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Test configuring writable_cgroups on the cluster's default node pool directly via node_config.
+			{
+				Config: testAccContainerCluster_withNodeConfigWritableCgroups(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_config.0.containerd_config.0.writable_cgroups.0.enabled",
+						"true",
+					),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Test configuring writable_cgroups on a named node pool defined within the cluster.
+			// This change from a default to a named node pool is expected to force recreation.
+			{
+				Config: testAccContainerCluster_withNodePoolWritableCgroups(clusterName, nodePoolName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_writableCgroupsEnabled(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_pool_defaults {
+    node_config_defaults {
+      containerd_config {
+        writable_cgroups {
+          enabled = true
+        }
+      }
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_writableCgroupsDisabled(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_pool_defaults {
+    node_config_defaults {
+      containerd_config {
+        writable_cgroups {
+          enabled = false
+        }
+      }
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodePoolWritableCgroups(clusterName, nodePoolName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 1
+    node_config {
+      containerd_config {
+        writable_cgroups {
+          enabled = true
+        }
+      }
+    }
+  }
+
+}
+`, clusterName, networkName, subnetworkName, nodePoolName)
+}
+
+func testAccContainerCluster_withNodeConfigWritableCgroups(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_config {
+    containerd_config {
+      writable_cgroups {
+        enabled = true
+      }
+    }
+  }
+
+}
+`, clusterName, networkName, subnetworkName)
 }
 
 func TestAccContainerCluster_withProviderDefaultLabels(t *testing.T) {

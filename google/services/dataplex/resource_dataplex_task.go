@@ -366,7 +366,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ExactlyOneOf: []string{"spark", "notebook"},
+				ExactlyOneOf: []string{"notebook", "spark"},
 			},
 			"spark": {
 				Type:        schema.TypeList,
@@ -522,7 +522,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ExactlyOneOf: []string{"spark", "notebook"},
+				ExactlyOneOf: []string{"notebook", "spark"},
 			},
 			"task_id": {
 				Type:        schema.TypeString,

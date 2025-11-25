@@ -707,8 +707,11 @@ func resourceDialogflowCXTestCaseCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -776,8 +779,11 @@ func resourceDialogflowCXTestCaseRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -925,8 +931,11 @@ func resourceDialogflowCXTestCaseUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -994,8 +1003,11 @@ func resourceDialogflowCXTestCaseDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	// only insert location into url if the base_url in products/dialogflowcx/product.yaml is used
-	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") {
-		url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+	if strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3/") ||
+		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
+		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
+		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 	}
 
 	log.Printf("[DEBUG] Deleting TestCase %q", d.Id())
