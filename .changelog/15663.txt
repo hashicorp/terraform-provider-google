@@ -1,0 +1,3 @@
+```release-note:enhancement
+modelarmor: added `google_mcp_server_floor_setting` field to `google_model_armor_floorsetting ` resource
+```
