@@ -9,6 +9,10 @@ fields:
   - api_field: 'deletionProtectionEnabled'
   - api_field: 'deletionProtectionReason'
   - api_field: 'description'
+  - api_field: 'directoryServices.ldap.domain'
+  - api_field: 'directoryServices.ldap.groupsOu'
+  - api_field: 'directoryServices.ldap.servers'
+  - api_field: 'directoryServices.ldap.usersOu'
   - field: 'effective_labels'
     provider_only: true
   - api_field: 'replication.replicas.lastActiveSyncTime'
