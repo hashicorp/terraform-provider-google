@@ -19,6 +19,9 @@ fields:
   - api_field: 'filterConfig.sdpSettings.advancedConfig.inspectTemplate'
   - api_field: 'filterConfig.sdpSettings.basicConfig.filterEnforcement'
   - api_field: 'floorSettingMetadata.multiLanguageDetection.enableMultiLanguageDetection'
+  - api_field: 'googleMcpServerFloorSetting.enableCloudLogging'
+  - api_field: 'googleMcpServerFloorSetting.inspectAndBlock'
+  - api_field: 'googleMcpServerFloorSetting.inspectOnly'
   - api_field: 'integratedServices'
   - field: 'location'
     provider_only: true

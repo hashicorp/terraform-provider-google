@@ -134,6 +134,11 @@ The following arguments are supported:
   AI Platform floor setting.
   Structure is [documented below](#nested_ai_platform_floor_setting).
 
+* `google_mcp_server_floor_setting` -
+  (Optional)
+  Google MCP Server floor setting.
+  Structure is [documented below](#nested_google_mcp_server_floor_setting).
+
 * `floor_setting_metadata` -
   (Optional)
   Metadata to enable multi language detection via floor setting.
@@ -262,6 +267,22 @@ The following arguments are supported:
   HIGH
 
 <a name="nested_ai_platform_floor_setting"></a>The `ai_platform_floor_setting` block supports:
+
+* `inspect_only` -
+  (Optional)
+  If true, Model Armor filters will be run in inspect only mode. No action
+  will be taken on the request.
+
+* `inspect_and_block` -
+  (Optional)
+  If true, Model Armor filters will be run in inspect and block mode.
+  Requests that trip Model Armor filters will be blocked.
+
+* `enable_cloud_logging` -
+  (Optional)
+  If true, log Model Armor filter results to Cloud Logging.
+
+<a name="nested_google_mcp_server_floor_setting"></a>The `google_mcp_server_floor_setting` block supports:
 
 * `inspect_only` -
   (Optional)
