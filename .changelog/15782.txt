@@ -1,0 +1,7 @@
+```release-note:enhancement
+ces: added `client_function.parameters.max_items`, `client_function.parameters.min_items`, `client_function.parameters.maximum`, `client_function.parameters.minimum`, `client_function.parameters.title`, `client_function.response.max_items`, `client_function.response.min_items`, `client_function.response.maximum`, `client_function.response.minimum`, and `client_function.response.title` fields to `google_ces_tool` resource
+```
+
+```release-note:enhancement
+ces: added `google_search_tool.context_urls`, `google_search_tool.preferred_domains`, and `open_api_tool.api_authentication.bearer_token_config` fields to `google_ces_tool` resource
+```

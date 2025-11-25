@@ -51,18 +51,10 @@ resource "google_ces_tool" "ces_tool_client_function_basic" {
         name = "ces_tool_client_function_basic"
         description = "example-description"
         parameters {
-            description = "schema description"
-            type        = "ARRAY"
-            nullable    = true
-            required = ["some_property"]
-            enum = ["VALUE_A", "VALUE_B"]
-            ref = "#/defs/MyDefinition"
-            unique_items = true
-            defs = jsonencode({
-                SimpleString = {
-                type        = "STRING"
-                description = "A simple string definition"
-            }})
+            additional_properties = jsonencode(
+                {
+                type        = "BOOLEAN"
+                })
             any_of = jsonencode([
                 {
                 type        = "STRING"
@@ -70,38 +62,43 @@ resource "google_ces_tool" "ces_tool_client_function_basic" {
                 },])
             default = jsonencode(
                 false)
+            defs = jsonencode({
+                SimpleString = {
+                type        = "STRING"
+                description = "A simple string definition"
+            }})
+            description = "schema description"
+            enum = ["VALUE_A", "VALUE_B"]
+            items = jsonencode({
+                type        = "ARRAY"
+                description = "An array"
+            })
+            max_items   = 32
+            maximum     = 64
+            min_items   = 1
+            minimum     = 2
+            nullable    = true
             prefix_items = jsonencode([
                 {
                 type        = "ARRAY"
                 description = "prefix item 1"
                 },])
-            additional_properties = jsonencode(
-                {
-                type        = "BOOLEAN"
-                })
             properties = jsonencode({
                 name = {
                 type        = "STRING"
                 description = "A name"
             }})
-            items = jsonencode({
-                type        = "ARRAY"
-                description = "An array"
-            })
+            ref = "#/defs/MyDefinition"
+            required = ["some_property"]
+            title        = "Title"
+            type         = "ARRAY"
+            unique_items = true
         }
         response {
-            description = "schema description"
-            type        = "ARRAY"
-            nullable    = true
-            required = ["some_property"]
-            enum = ["VALUE_A", "VALUE_B"]
-            ref = "#/defs/MyDefinition"
-            unique_items = true
-            defs = jsonencode({
-                SimpleString = {
-                type        = "STRING"
-                description = "A simple string definition"
-            }})
+            additional_properties = jsonencode(
+                {
+                type        = "BOOLEAN"
+                })
             any_of = jsonencode([
                 {
                 type        = "STRING"
@@ -109,24 +106,37 @@ resource "google_ces_tool" "ces_tool_client_function_basic" {
                 },])
             default = jsonencode(
                 false)
+            defs = jsonencode({
+                SimpleString = {
+                type        = "STRING"
+                description = "A simple string definition"
+            }})
+            description = "schema description"
+            enum = ["VALUE_A", "VALUE_B"]
+            items = jsonencode({
+                type        = "ARRAY"
+                description = "An array"
+            })
+            max_items   = 32
+            maximum     = 64
+            min_items   = 1
+            minimum     = 2
+            nullable    = true
             prefix_items = jsonencode([
                 {
                 type        = "ARRAY"
                 description = "prefix item 1"
                 },])
-            additional_properties = jsonencode(
-                {
-                type        = "BOOLEAN"
-                })
             properties = jsonencode({
                 name = {
                 type        = "STRING"
                 description = "A name"
             }})
-            items = jsonencode({
-                type        = "ARRAY"
-                description = "An array"
-            })
+            ref = "#/defs/MyDefinition"
+            required = ["some_property"]
+            title        = "Title"
+            type         = "ARRAY"
+            unique_items = true
         }
     }
 }
@@ -256,8 +266,10 @@ resource "google_ces_tool" "ces_tool_google_search_tool_basic" {
     execution_type = "SYNCHRONOUS"
     google_search_tool {
         name            = "example-tool"
+        context_urls    = ["example.com", "example2.com"]
         description     = "example-description"
         exclude_domains = ["example.com", "example2.com"]
+        preferred_domains = ["example3.com", "example4.com"]
     }
 }
 ```
@@ -372,6 +384,27 @@ The following arguments are supported:
 
 <a name="nested_client_function_parameters"></a>The `parameters` block supports:
 
+* `additional_properties` -
+  (Optional)
+  Defines the schema for additional properties allowed in an object.
+  The value must be a valid JSON string representing the Schema object.
+  (Note: OpenAPI also allows a boolean, this definition expects a Schema JSON).
+
+* `any_of` -
+  (Optional)
+  The instance value should be valid against at least one of the schemas in this list.
+
+* `default` -
+  (Optional)
+  Default value of the data. Represents a dynamically typed value
+  which can be either null, a number, a string, a boolean, a struct,
+  or a list of values. The provided default value must be compatible
+  with the defined 'type' and other schema constraints.
+
+* `defs` -
+  (Optional)
+  A map of definitions for use by ref. Only allowed at the root of the schema.
+
 * `description` -
   (Optional)
   The description of the data.
@@ -385,9 +418,37 @@ The following arguments are supported:
   2. We can define apartment number as :
   {type:INTEGER, format:enum, enum:["101", "201", "301"]}
 
+* `items` -
+  (Optional)
+  Schema of the elements of Type.ARRAY.
+
+* `max_items` -
+  (Optional)
+  Maximum number of the elements for Type.ARRAY. (int64 format)
+
+* `maximum` -
+  (Optional)
+  Maximum value for Type.INTEGER and Type.NUMBER.
+
+* `min_items` -
+  (Optional)
+  Minimum number of the elements for Type.ARRAY. (int64 format)
+
+* `minimum` -
+  (Optional)
+  Minimum value for Type.INTEGER and Type.NUMBER.
+
 * `nullable` -
   (Optional)
   Indicates if the value may be null.
+
+* `prefix_items` -
+  (Optional)
+  Schemas of initial elements of Type.ARRAY.
+
+* `properties` -
+  (Optional)
+  Properties of Type.OBJECT.
 
 * `ref` -
   (Optional)
@@ -414,6 +475,10 @@ The following arguments are supported:
   (Optional)
   Required properties of Type.OBJECT.
 
+* `title` -
+  (Optional)
+  The title of the schema.
+
 * `type` -
   (Required)
   The type of the data.
@@ -428,42 +493,30 @@ The following arguments are supported:
 * `unique_items` -
   (Optional)
   Indicate the items in the array must be unique. Only applies to TYPE.ARRAY.
-
-* `defs` -
-  (Optional)
-  A map of definitions for use by ref. Only allowed at the root of the schema.
-
-* `default` -
-  (Optional)
-  Optional. Default value of the data. Represents a dynamically typed value
-  which can be either null, a number, a string, a boolean, a struct,
-  or a list of values. The provided default value must be compatible
-  with the defined 'type' and other schema constraints.
-
-* `additional_properties` -
-  (Optional)
-  Optional. Defines the schema for additional properties allowed in an object.
-  The value must be a valid JSON string representing the Schema object.
-  (Note: OpenAPI also allows a boolean, this definition expects a Schema JSON).
-
-* `any_of` -
-  (Optional)
-  Optional. The instance value should be valid against at least one of the schemas in this list.
-
-* `prefix_items` -
-  (Optional)
-  Optional. Schemas of initial elements of Type.ARRAY.
-
-* `properties` -
-  (Optional)
-  Properties of Type.OBJECT.
-
-* `items` -
-  (Optional)
-  Schema of the elements of Type.ARRAY.
 
 <a name="nested_client_function_response"></a>The `response` block supports:
 
+* `additional_properties` -
+  (Optional)
+  Defines the schema for additional properties allowed in an object.
+  The value must be a valid JSON string representing the Schema object.
+  (Note: OpenAPI also allows a boolean, this definition expects a Schema JSON).
+
+* `any_of` -
+  (Optional)
+  The instance value should be valid against at least one of the schemas in this list.
+
+* `default` -
+  (Optional)
+  Default value of the data. Represents a dynamically typed value
+  which can be either null, a number, a string, a boolean, a struct,
+  or a list of values. The provided default value must be compatible
+  with the defined 'type' and other schema constraints.
+
+* `defs` -
+  (Optional)
+  A map of definitions for use by ref. Only allowed at the root of the schema.
+
 * `description` -
   (Optional)
   The description of the data.
@@ -477,9 +530,37 @@ The following arguments are supported:
   2. We can define apartment number as :
   {type:INTEGER, format:enum, enum:["101", "201", "301"]}
 
+* `items` -
+  (Optional)
+  Schema of the elements of Type.ARRAY.
+
+* `max_items` -
+  (Optional)
+  Maximum number of the elements for Type.ARRAY. (int64 format)
+
+* `maximum` -
+  (Optional)
+  Maximum value for Type.INTEGER and Type.NUMBER.
+
+* `min_items` -
+  (Optional)
+  Minimum number of the elements for Type.ARRAY. (int64 format)
+
+* `minimum` -
+  (Optional)
+  Minimum value for Type.INTEGER and Type.NUMBER.
+
 * `nullable` -
   (Optional)
   Indicates if the value may be null.
+
+* `prefix_items` -
+  (Optional)
+  Schemas of initial elements of Type.ARRAY.
+
+* `properties` -
+  (Optional)
+  Properties of Type.OBJECT.
 
 * `ref` -
   (Optional)
@@ -506,6 +587,10 @@ The following arguments are supported:
   (Optional)
   Required properties of Type.OBJECT.
 
+* `title` -
+  (Optional)
+  The title of the schema.
+
 * `type` -
   (Required)
   The type of the data.
@@ -520,39 +605,6 @@ The following arguments are supported:
 * `unique_items` -
   (Optional)
   Indicate the items in the array must be unique. Only applies to TYPE.ARRAY.
-
-* `defs` -
-  (Optional)
-  A map of definitions for use by ref. Only allowed at the root of the schema.
-
-* `default` -
-  (Optional)
-  Optional. Default value of the data. Represents a dynamically typed value
-  which can be either null, a number, a string, a boolean, a struct,
-  or a list of values. The provided default value must be compatible
-  with the defined 'type' and other schema constraints.
-
-* `additional_properties` -
-  (Optional)
-  Optional. Defines the schema for additional properties allowed in an object.
-  The value must be a valid JSON string representing the Schema object.
-  (Note: OpenAPI also allows a boolean, this definition expects a Schema JSON).
-
-* `any_of` -
-  (Optional)
-  Optional. The instance value should be valid against at least one of the schemas in this list.
-
-* `prefix_items` -
-  (Optional)
-  Optional. Schemas of initial elements of Type.ARRAY.
-
-* `properties` -
-  (Optional)
-  Properties of Type.OBJECT.
-
-* `items` -
-  (Optional)
-  Schema of the elements of Type.ARRAY.
 
 <a name="nested_data_store_tool"></a>The `data_store_tool` block supports:
 
@@ -881,6 +933,12 @@ The following arguments are supported:
 
 <a name="nested_google_search_tool"></a>The `google_search_tool` block supports:
 
+* `context_urls` -
+  (Optional)
+  Content will be fetched directly from these URLs for context and grounding.
+  More details: https://cloud.google.com/vertex-ai/generative-ai/docs/url-context.
+  Example: "https://example.com/path.html". A maximum of 20 URLs are allowed.
+
 * `description` -
   (Optional)
   Description of the tool's purpose.
@@ -894,6 +952,16 @@ The following arguments are supported:
 * `name` -
   (Required)
   The name of the tool.
+
+* `preferred_domains` -
+  (Optional)
+  Specifies domain names to guide the search.
+  The model will be instructed to prioritize these domains
+  when formulating queries for google search.
+  This is a best-effort hint and these domains may or may
+  not be exclusively reflected in the final search results.
+  Example: "example.com", "another.site".
+  A maximum of 20 domains can be specified.
 
 <a name="nested_python_function"></a>The `python_function` block supports:
 
@@ -1004,6 +1072,11 @@ In addition to the arguments listed above, the following computed attributes are
   Configurations for authentication with API key.
   Structure is [documented below](#nested_open_api_tool_api_authentication_api_key_config).
 
+* `bearer_token_config` -
+  (Output)
+  Configurations for authentication with a bearer token.
+  Structure is [documented below](#nested_open_api_tool_api_authentication_bearer_token_config).
+
 * `oauth_config` -
   (Output)
   Configurations for authentication with OAuth.
@@ -1042,6 +1115,12 @@ In addition to the arguments listed above, the following computed attributes are
   Possible values:
   HEADER
   QUERY_STRING
+
+<a name="nested_open_api_tool_api_authentication_bearer_token_config"></a>The `bearer_token_config` block contains:
+
+* `token` -
+  (Output)
+  The bearer token. Must be in the format $context.variables.<name_of_variable>.
 
 <a name="nested_open_api_tool_api_authentication_oauth_config"></a>The `oauth_config` block contains:
 
