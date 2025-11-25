@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed the permadiff when email field values contain non-lower-case characters in `access` in `google_bigquery_dataset`
+```
