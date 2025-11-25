@@ -1,0 +1,3 @@
+```release-note:enhancement
+filestore: add support for updating `directory_services` fields in place in `google_filestore_instance`
+```
