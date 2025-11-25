@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -32,13 +33,18 @@ func TestAccDataSourceGoogleGkeHubFeature_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckGoogleGkeHubFeatureDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckGoogleGkeHubFeatureDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleGkeHubFeature_basic(context),
@@ -51,15 +57,18 @@ func TestAccDataSourceGoogleGkeHubFeature_basic(t *testing.T) {
 }
 
 func testAccDataSourceGoogleGkeHubFeature_basic(context map[string]interface{}) string {
-	return acctest.Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "example" {
-  location = "global"
-  name     = "servicemesh"
+  location   = "global"
+  name       = "servicemesh"
+  depends_on = [time_sleep.wait_for_gkehub_enablement]
+  project    = google_project.project.project_id
 }
 
 data "google_gke_hub_feature" "example" {
   location = google_gke_hub_feature.example.location
   name     = google_gke_hub_feature.example.name
+  project  = google_project.project.project_id
 }
 `, context)
 }
