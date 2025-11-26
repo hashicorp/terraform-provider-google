@@ -23,12 +23,10 @@ description: |-
 
 Organization security policies are used to control incoming/outgoing traffic.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about OrganizationSecurityPolicy, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/organizationSecurityPolicies)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/organizationSecurityPolicies)
 * How-to Guides
     * [Creating a firewall policy](https://cloud.google.com/vpc/docs/using-firewall-policies#create-policy)
 
@@ -37,9 +35,9 @@ To get more information about OrganizationSecurityPolicy, see:
 
 ```hcl
 resource "google_compute_organization_security_policy" "policy" {
-  provider = google-beta
-  display_name = "tf-test%{random_suffix}"
-  parent       = "organizations/123456789"
+  short_name = "my-short-name"
+  parent     = "organizations/123456789"
+  type       = "CLOUD_ARMOR"
 }
 ```
 
@@ -69,7 +67,7 @@ The following arguments are supported:
 * `type` -
   (Optional)
   The type indicates the intended use of the security policy. This field can be set only at resource creation time.
-  Default value is `FIREWALL`.
+  **NOTE** : 'FIREWALL' type is deprecated and will be removed in a future major release. Please use 'google_compute_firewall_policy' instead."
   Possible values are: `FIREWALL`, `CLOUD_ARMOR`, `CLOUD_ARMOR_EDGE`, `CLOUD_ARMOR_INTERNAL_SERVICE`, `CLOUD_ARMOR_NETWORK`.
 
 
