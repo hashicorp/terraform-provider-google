@@ -2148,8 +2148,8 @@ func ResourceContainerCluster() *schema.Resource {
 			"enable_l4_ilb_subsetting": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Computed:    true,
 				Description: `Whether L4ILB Subsetting is enabled for this cluster.`,
-				Default:     false,
 			},
 			"disable_l4_lb_firewall_reconciliation": {
 				Type:        schema.TypeBool,
