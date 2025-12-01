@@ -1,0 +1,30 @@
+resource: 'google_network_services_multicast_group_range'
+generation_type: 'mmv1'
+source_file: 'products/networkservices/MulticastGroupRange.yaml'
+api_service_name: 'networkservices.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'MulticastGroupRange'
+autogen_status: true
+fields:
+  - api_field: 'consumerAcceptList'
+  - api_field: 'createTime'
+  - api_field: 'description'
+  - api_field: 'distributionScope'
+  - field: 'effective_labels'
+    provider_only: true
+  - api_field: 'ipCidrRange'
+  - api_field: 'labels'
+  - field: 'location'
+    provider_only: true
+  - api_field: 'logConfig.enabled'
+  - api_field: 'multicastDomain'
+  - field: 'multicast_group_range_id'
+    provider_only: true
+  - api_field: 'name'
+  - api_field: 'requireExplicitAccept'
+  - api_field: 'reservedInternalRange'
+  - api_field: 'state.state'
+  - field: 'terraform_labels'
+    provider_only: true
+  - api_field: 'uniqueId'
+  - api_field: 'updateTime'
