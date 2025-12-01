@@ -69,7 +69,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testi
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
@@ -82,8 +82,55 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   description  = "A basic reasoning engine"
   region       = "us-central1"
 }
+`, context)
+}
 
-data "google_project" "project" {
+func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeploymentExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeploymentExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeploymentExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-reasoning-engine%{random_suffix}"
+  description  = "A basic reasoning engine"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/source.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+        requirements_file = "./test-fixtures/requirements.txt"
+        version           = "3.11"
+      }
+    }
+  }
 }
 `, context)
 }
@@ -117,7 +164,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testin
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
@@ -167,6 +214,14 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
     service_account = google_service_account.service_account.email
 
     deployment_spec {
+      min_instances         = 1
+      max_instances         = 3
+      container_concurrency = 5
+
+      resource_limits = {
+        cpu    = "4"
+        memory = "4Gi"
+      }
 
       env {
         name  = "var_1"

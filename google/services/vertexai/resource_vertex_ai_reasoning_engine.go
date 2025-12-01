@@ -100,7 +100,7 @@ func ResourceVertexAIReasoningEngine() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Update: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -123,16 +123,19 @@ func ResourceVertexAIReasoningEngine() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Description: `Optional. Customer-managed encryption key spec for a ReasoningEngine.
-If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.`,
+If set, this ReasoningEngine and all sub-resources of this ReasoningEngine
+will be secured by this key.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"kms_key_name": {
 							Type:     schema.TypeString,
 							Required: true,
-							Description: `Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
-Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key.
-The key needs to be in the same region as where the compute resource is created.`,
+							Description: `Required. The Cloud KMS resource identifier of the customer managed
+encryption key used to protect a resource. Has the form:
+projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key.
+The key needs to be in the same region as where the compute resource
+is created.`,
 						},
 					},
 				},
@@ -160,7 +163,8 @@ The key needs to be in the same region as where the compute resource is created.
 							Optional:     true,
 							ValidateFunc: validation.StringIsJSON,
 							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-							Description:  `Optional. Declarations for object class methods in OpenAPI specification format.`,
+							Description: `Optional. Declarations for object class methods in OpenAPI
+specification format.`,
 						},
 						"deployment_spec": {
 							Type:        schema.TypeList,
@@ -169,18 +173,63 @@ The key needs to be in the same region as where the compute resource is created.
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"container_concurrency": {
+										Type:     schema.TypeInt,
+										Computed: true,
+										Optional: true,
+										Description: `Optional. Concurrency for each container and agent server.
+Recommended value: 2 * cpu + 1. Defaults to 9.`,
+									},
 									"env": {
-										Type:        schema.TypeSet,
-										Optional:    true,
-										Description: `Optional. Environment variables to be set with the Reasoning Engine deployment.`,
-										Elem:        vertexaiReasoningEngineSpecDeploymentSpecEnvSchema(),
+										Type:     schema.TypeSet,
+										Optional: true,
+										Description: `Optional. Environment variables to be set with the Reasoning
+Engine deployment.`,
+										Elem: vertexaiReasoningEngineSpecDeploymentSpecEnvSchema(),
 										// Default schema.HashSchema is used.
 									},
+									"max_instances": {
+										Type:     schema.TypeInt,
+										Computed: true,
+										Optional: true,
+										Description: `Optional. The minimum number of application instances that will be
+kept running at all times. Defaults to 1. Range: [0, 10].`,
+									},
+									"min_instances": {
+										Type:     schema.TypeInt,
+										Computed: true,
+										Optional: true,
+										Description: `Optional. The maximum number of application instances that can be
+launched to handle increased traffic. Defaults to 100.
+Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable
+range is [1, 100].`,
+									},
+									"resource_limits": {
+										Type:     schema.TypeMap,
+										Computed: true,
+										Optional: true,
+										Description: `Optional. Resource limits for each container.
+Only 'cpu' and 'memory' keys are supported.
+
+Defaults to {"cpu": "4", "memory": "4Gi"}.
+
+The only supported values for CPU are '1', '2', '4', '6' and '8'.
+For more information, go to
+https://cloud.google.com/run/docs/configuring/cpu.
+
+The only supported values for memory are '1Gi', '2Gi', ... '32 Gi'.
+For more information, go to
+https://cloud.google.com/run/docs/configuring/memory-limits.`,
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
 									"secret_env": {
-										Type:        schema.TypeSet,
-										Optional:    true,
-										Description: `Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine service Agent.`,
-										Elem:        vertexaiReasoningEngineSpecDeploymentSpecSecretEnvSchema(),
+										Type:     schema.TypeSet,
+										Optional: true,
+										Description: `Optional. Environment variables where the value is a secret in
+Cloud Secret Manager. To use this feature, add 'Secret Manager
+Secret Accessor' role (roles/secretmanager.secretAccessor) to AI
+Platform Reasoning Engine service Agent.`,
+										Elem: vertexaiReasoningEngineSpecDeploymentSpecSecretEnvSchema(),
 										// Default schema.HashSchema is used.
 									},
 								},
@@ -197,9 +246,10 @@ field_behavior to avoid introducing breaking changes.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"dependency_files_gcs_uri": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Optional. The Cloud Storage URI of the dependency files in tar.gz format.`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Optional. The Cloud Storage URI of the dependency files in tar.gz
+format.`,
 									},
 									"pickle_object_gcs_uri": {
 										Type:        schema.TypeString,
@@ -207,14 +257,15 @@ field_behavior to avoid introducing breaking changes.`,
 										Description: `Optional. The Cloud Storage URI of the pickled python object.`,
 									},
 									"python_version": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Optional. The Python version.`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Optional. The Python version. Currently support 3.8, 3.9, 3.10,
+3.11, 3.12, 3.13. If not specified, default value is 3.10.`,
 									},
 									"requirements_gcs_uri": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: `Optional. The Cloud Storage URI of the requirements.txt file`,
+										Description: `Optional. The Cloud Storage URI of the requirements.txtfile`,
 									},
 								},
 							},
@@ -222,10 +273,77 @@ field_behavior to avoid introducing breaking changes.`,
 						"service_account": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `Optional. The service account that the Reasoning Engine artifact runs as.
-It should have "roles/storage.objectViewer" for reading the user project's
-Cloud Storage and "roles/aiplatform.user" for using Vertex extensions.
-If not specified, the Vertex AI Reasoning Engine service Agent in the project will be used.`,
+							Description: `Optional. The service account that the Reasoning Engine artifact runs
+as. It should have "roles/storage.objectViewer" for reading the user
+project's Cloud Storage and "roles/aiplatform.user" for using Vertex
+extensions. If not specified, the Vertex AI Reasoning Engine service
+Agent in the project will be used.`,
+						},
+						"source_code_spec": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Specification for deploying from source code.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"inline_source": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Source code is provided directly in the request.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"source_archive": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Required. Input only.
+The application source code archive, provided as a compressed
+tarball (.tar.gz) file. A base64-encoded string.`,
+												},
+											},
+										},
+									},
+									"python_spec": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Specification for running a Python application from source.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"entrypoint_module": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Optional. The Python module to load as the entrypoint,
+specified as a fully qualified module name. For example:
+path.to.agent. If not specified, defaults to "agent".
+The project root will be added to Python sys.path, allowing
+imports to be specified relative to the root.`,
+												},
+												"entrypoint_object": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Optional. The name of the callable object within the
+entrypointModule to use as the application If not specified,
+defaults to "root_agent".`,
+												},
+												"requirements_file": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Optional. The path to the requirements file, relative to the
+source root. If not specified, defaults to "requirements.txt".`,
+												},
+												"version": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Optional. The version of Python to use. Support version
+includes 3.9, 3.10, 3.11, 3.12, 3.13. If not specified,
+default value is 3.10.`,
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -240,13 +358,13 @@ with nanosecond resolution and up to nine fractional digits.`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The generated name of the ReasoningEngine, in the format
-'projects/{project}/locations/{location}/reasoningEngines/{reasoningEngine}'`,
+projects/{project}/locations/{location}/reasoningEngines/{reasoningEngine}`,
 			},
 			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The timestamp of when the Index was last updated in RFC3339 UTC "Zulu" format,
-with nanosecond resolution and up to nine fractional digits.`,
+				Description: `The timestamp of when the Index was last updated in RFC3339 UTC "Zulu"
+format, with nanosecond resolution and up to nine fractional digits.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -263,14 +381,22 @@ func vertexaiReasoningEngineSpecDeploymentSpecEnvSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The name of the environment variable. Must be a valid C identifier.`,
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The name of the environment variable. Must be a valid
+C identifier.`,
 			},
 			"value": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not.`,
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `Variables that reference a $(VAR_NAME) are expanded using
+the previous defined environment variables in the container
+and any service environment variables. If a variable cannot
+be resolved, the reference in the input string will be
+unchanged. The $(VAR_NAME) syntax can be escaped with a
+double $$, ie: $$(VAR_NAME). Escaped references will never
+be expanded, regardless of whether the variable exists
+or not.`,
 			},
 		},
 	}
@@ -280,26 +406,31 @@ func vertexaiReasoningEngineSpecDeploymentSpecSecretEnvSchema() *schema.Resource
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The name of the environment variable. Must be a valid C identifier.`,
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The name of the environment variable. Must be a valid C
+identifier.`,
 			},
 			"secret_ref": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Description: `Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable.`,
-				MaxItems:    1,
+				Type:     schema.TypeList,
+				Required: true,
+				Description: `Reference to a secret stored in the Cloud Secret Manager
+that will provide the value for this environment variable.`,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"secret": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The name of the secret in Cloud Secret Manager. Format: {secret_name}.`,
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The name of the secret in Cloud Secret Manager.
+Format: {secret_name}.`,
 						},
 						"version": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `The Cloud Secret Manager secret version. Can be 'latest' for the latest version, an integer for a specific version, or a version alias.`,
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The Cloud Secret Manager secret version. Can be 'latest'
+for the latest version, an integer for a specific
+version, or a version alias.`,
 						},
 					},
 				},
@@ -710,6 +841,8 @@ func flattenVertexAIReasoningEngineSpec(v interface{}, d *schema.ResourceData, c
 		flattenVertexAIReasoningEngineSpecDeploymentSpec(original["deploymentSpec"], d, config)
 	transformed["package_spec"] =
 		flattenVertexAIReasoningEngineSpecPackageSpec(original["packageSpec"], d, config)
+	transformed["source_code_spec"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpec(original["sourceCodeSpec"], d, config)
 	transformed["service_account"] =
 		flattenVertexAIReasoningEngineSpecServiceAccount(original["serviceAccount"], d, config)
 	return []interface{}{transformed}
@@ -743,6 +876,14 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpec(v interface{}, d *schema.R
 		flattenVertexAIReasoningEngineSpecDeploymentSpecEnv(original["env"], d, config)
 	transformed["secret_env"] =
 		flattenVertexAIReasoningEngineSpecDeploymentSpecSecretEnv(original["secretEnv"], d, config)
+	transformed["resource_limits"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecResourceLimits(original["resourceLimits"], d, config)
+	transformed["min_instances"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecMinInstances(original["minInstances"], d, config)
+	transformed["max_instances"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecMaxInstances(original["maxInstances"], d, config)
+	transformed["container_concurrency"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecContainerConcurrency(original["containerConcurrency"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIReasoningEngineSpecDeploymentSpecEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -818,6 +959,61 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpecSecretEnvSecretRefVersion(v
 	return v
 }
 
+func flattenVertexAIReasoningEngineSpecDeploymentSpecResourceLimits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecDeploymentSpecMinInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIReasoningEngineSpecDeploymentSpecMaxInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIReasoningEngineSpecDeploymentSpecContainerConcurrency(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenVertexAIReasoningEngineSpecPackageSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -850,6 +1046,63 @@ func flattenVertexAIReasoningEngineSpecPackageSpecPythonVersion(v interface{}, d
 }
 
 func flattenVertexAIReasoningEngineSpecPackageSpecRequirementsGcsUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["inline_source"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(original["inlineSource"], d, config)
+	transformed["python_spec"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(original["pythonSpec"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("spec.0.source_code_spec.0.inline_source")
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSourceSourceArchive(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("spec.0.source_code_spec.0.inline_source.0.source_archive")
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["entrypoint_module"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecEntrypointModule(original["entrypointModule"], d, config)
+	transformed["entrypoint_object"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecEntrypointObject(original["entrypointObject"], d, config)
+	transformed["requirements_file"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecRequirementsFile(original["requirementsFile"], d, config)
+	transformed["version"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecVersion(original["version"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecEntrypointModule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecEntrypointObject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecRequirementsFile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -931,6 +1184,13 @@ func expandVertexAIReasoningEngineSpec(v interface{}, d tpgresource.TerraformRes
 		transformed["packageSpec"] = transformedPackageSpec
 	}
 
+	transformedSourceCodeSpec, err := expandVertexAIReasoningEngineSpecSourceCodeSpec(original["source_code_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceCodeSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceCodeSpec"] = transformedSourceCodeSpec
+	}
+
 	transformedServiceAccount, err := expandVertexAIReasoningEngineSpecServiceAccount(original["service_account"], d, config)
 	if err != nil {
 		return nil, err
@@ -981,6 +1241,34 @@ func expandVertexAIReasoningEngineSpecDeploymentSpec(v interface{}, d tpgresourc
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSecretEnv); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["secretEnv"] = transformedSecretEnv
+	}
+
+	transformedResourceLimits, err := expandVertexAIReasoningEngineSpecDeploymentSpecResourceLimits(original["resource_limits"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceLimits); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceLimits"] = transformedResourceLimits
+	}
+
+	transformedMinInstances, err := expandVertexAIReasoningEngineSpecDeploymentSpecMinInstances(original["min_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinInstances); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minInstances"] = transformedMinInstances
+	}
+
+	transformedMaxInstances, err := expandVertexAIReasoningEngineSpecDeploymentSpecMaxInstances(original["max_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxInstances); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxInstances"] = transformedMaxInstances
+	}
+
+	transformedContainerConcurrency, err := expandVertexAIReasoningEngineSpecDeploymentSpecContainerConcurrency(original["container_concurrency"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContainerConcurrency); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["containerConcurrency"] = transformedContainerConcurrency
 	}
 
 	return transformed, nil
@@ -1101,6 +1389,29 @@ func expandVertexAIReasoningEngineSpecDeploymentSpecSecretEnvSecretRefVersion(v 
 	return v, nil
 }
 
+func expandVertexAIReasoningEngineSpecDeploymentSpecResourceLimits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecMinInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecMaxInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecContainerConcurrency(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandVertexAIReasoningEngineSpecPackageSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1157,6 +1468,120 @@ func expandVertexAIReasoningEngineSpecPackageSpecPythonVersion(v interface{}, d 
 }
 
 func expandVertexAIReasoningEngineSpecPackageSpecRequirementsGcsUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInlineSource, err := expandVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(original["inline_source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInlineSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["inlineSource"] = transformedInlineSource
+	}
+
+	transformedPythonSpec, err := expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(original["python_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPythonSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pythonSpec"] = transformedPythonSpec
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSourceArchive, err := expandVertexAIReasoningEngineSpecSourceCodeSpecInlineSourceSourceArchive(original["source_archive"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceArchive); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceArchive"] = transformedSourceArchive
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecInlineSourceSourceArchive(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEntrypointModule, err := expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecEntrypointModule(original["entrypoint_module"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEntrypointModule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["entrypointModule"] = transformedEntrypointModule
+	}
+
+	transformedEntrypointObject, err := expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecEntrypointObject(original["entrypoint_object"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEntrypointObject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["entrypointObject"] = transformedEntrypointObject
+	}
+
+	transformedRequirementsFile, err := expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecRequirementsFile(original["requirements_file"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequirementsFile); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["requirementsFile"] = transformedRequirementsFile
+	}
+
+	transformedVersion, err := expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecEntrypointModule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecEntrypointObject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecRequirementsFile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
