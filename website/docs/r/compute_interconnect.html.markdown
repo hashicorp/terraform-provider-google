@@ -97,6 +97,11 @@ The following arguments are supported:
   functional and can carry traffic. When set to false, no packets can be carried over the
   interconnect and no BGP routes are exchanged over it. By default, the status is set to true.
 
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `noc_contact_email` -
   (Optional)
   Email address to contact the customer NOC for operations and maintenance notifications
@@ -158,6 +163,14 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the interconnect. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
 
 <a name="nested_macsec"></a>The `macsec` block supports:
 
