@@ -154,6 +154,11 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `snapshot_type` -
+  (Optional)
+  Indicates the type of the snapshot.
+  Possible values are: `ARCHIVE`, `STANDARD`.
+
 * `zone` -
   (Optional)
   A reference to the zone where the disk is hosted.
