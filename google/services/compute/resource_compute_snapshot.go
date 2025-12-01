@@ -212,6 +212,13 @@ encryption key that protects this resource.`,
 					},
 				},
 			},
+			"snapshot_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ARCHIVE", "STANDARD", ""}),
+				Description:  `Indicates the type of the snapshot. Possible values: ["ARCHIVE", "STANDARD"]`,
+			},
 			"source_disk_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -376,6 +383,12 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
 		obj["labelFingerprint"] = labelFingerprintProp
+	}
+	snapshotTypeProp, err := expandComputeSnapshotSnapshotType(d.Get("snapshot_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("snapshot_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(snapshotTypeProp)) && (ok || !reflect.DeepEqual(v, snapshotTypeProp)) {
+		obj["snapshotType"] = snapshotTypeProp
 	}
 	effectiveLabelsProp, err := expandComputeSnapshotEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -551,6 +564,9 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
 	if err := d.Set("label_fingerprint", flattenComputeSnapshotLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
+	if err := d.Set("snapshot_type", flattenComputeSnapshotSnapshotType(res["snapshotType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenComputeSnapshotTerraformLabels(res["labels"], d, config)); err != nil {
@@ -819,6 +835,10 @@ func flattenComputeSnapshotLabelFingerprint(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenComputeSnapshotSnapshotType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeSnapshotTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -903,6 +923,10 @@ func expandComputeSnapshotStorageLocations(v interface{}, d tpgresource.Terrafor
 }
 
 func expandComputeSnapshotLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSnapshotSnapshotType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
