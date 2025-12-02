@@ -1,0 +1,3 @@
+```release-note:deprecation
+networkservices: remove `google_service_binding` resource due to service binding support being disabled
+```
