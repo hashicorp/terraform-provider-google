@@ -32,6 +32,7 @@ fields:
   - api_field: 'serviceProperties.extendedMetadata.value.metadataStruct'
   - api_field: 'serviceProperties.functionalType.type'
   - api_field: 'serviceProperties.gcpProject'
+  - api_field: 'serviceProperties.identity.principal'
   - api_field: 'serviceProperties.location'
   - api_field: 'serviceProperties.registrationType.type'
   - api_field: 'serviceProperties.zone'
