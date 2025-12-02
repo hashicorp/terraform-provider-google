@@ -456,6 +456,11 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. Additional metadata specific to the resource type.
   Structure is [documented below](#nested_service_properties_extended_metadata).
 
+* `identity` -
+  (Output)
+  The identity associated with the service.
+  Structure is [documented below](#nested_service_properties_identity).
+
 
 <a name="nested_service_properties_functional_type"></a>The `functional_type` block contains:
 
@@ -490,6 +495,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `extended_metadata_schema` -
   (Output)
   The resource name for the Extended Metadata Schema.
+
+<a name="nested_service_properties_identity"></a>The `identity` block contains:
+
+* `principal` -
+  (Output)
+  The principal of the identity.
 
 ## Timeouts
 
