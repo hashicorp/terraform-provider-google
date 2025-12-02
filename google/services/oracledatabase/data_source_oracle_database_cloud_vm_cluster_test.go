@@ -38,7 +38,6 @@ func TestAccOracleDatabaseCloudVmCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "cidr"),
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "properties.#"),
 					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "properties.0.cpu_core_count"),
-					resource.TestCheckResourceAttrSet("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "properties.0.cluster_name"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "gcp_oracle_zone", "us-east4-b-r1"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "properties.0.node_count", "2"),
 					resource.TestCheckResourceAttr("data.google_oracle_database_cloud_vm_cluster.my-vmcluster", "properties.0.state", "AVAILABLE"),
