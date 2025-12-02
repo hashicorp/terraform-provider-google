@@ -84,10 +84,6 @@ resource "google_alloydb_cluster" "default" {
     network = google_compute_network.default.id
   }
 
-  initial_user {
-    password = "tf-test-alloydb-cluster%{random_suffix}"
-  }
-
   deletion_protection = false
 }
 
@@ -337,10 +333,6 @@ resource "google_alloydb_cluster" "primary" {
   location   = "us-central1"
   network_config {
     network = data.google_compute_network.default.id
-  }
-
-  initial_user {
-    password = "tf-test-alloydb-primary-cluster%{random_suffix}"
   }
 
   deletion_protection = false

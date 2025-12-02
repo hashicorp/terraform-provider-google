@@ -54,19 +54,6 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func alloydbClusterCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
-	_, nType := diff.GetChange("cluster_type")
-	// Only check on new resource creation for primary clusters
-	if diff.Id() == "" && nType == "PRIMARY" {
-		_, n := diff.GetChange("initial_user.0.password")
-		// If the value is not computed and is still empty, throw error
-		if n == "" && diff.NewValueKnown("initial_user.0.password") {
-			return fmt.Errorf("New AlloyDB Clusters must have initial_user.password specified")
-		}
-	}
-	return nil
-}
-
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -117,7 +104,6 @@ func ResourceAlloydbCluster() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			alloydbClusterCustomizeDiff,
 			tpgresource.SetLabelsDiff,
 			tpgresource.SetAnnotationsDiff,
 			tpgresource.DefaultProviderProject,
@@ -369,20 +355,22 @@ Note: Changing this field to a higer version results in upgrading the AlloyDB cl
 			"initial_user": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: `Initial user to setup during cluster creation. This must be set for all new Clusters.`,
+				Description: `Initial user to setup during cluster creation. If unset for new Clusters, a postgres role with null password is created. You will need to create additional users or set the password in order to log in.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"password": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The initial password for the user.`,
-							Sensitive:   true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The initial password for the user.`,
+							Sensitive:    true,
+							AtLeastOneOf: []string{"initial_user.0.password", "initial_user.0.user"},
 						},
 						"user": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `The database username.`,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The database username.`,
+							AtLeastOneOf: []string{"initial_user.0.password", "initial_user.0.user"},
 						},
 					},
 				},
