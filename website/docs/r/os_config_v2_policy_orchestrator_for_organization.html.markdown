@@ -1398,6 +1398,17 @@ PolicyOrchestratorForOrganization can be imported using any of these accepted fo
 * `organizations/{{organization_id}}/locations/global/policyOrchestrators/{{policy_orchestrator_id}}`
 * `{{organization_id}}/{{policy_orchestrator_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import PolicyOrchestratorForOrganization using identity values. For example:
+
+```tf
+import {
+  identity = {
+    organizationId = "<-required value->"
+    policyOrchestratorId = "<-required value->"
+  }
+  to = google_os_config_v2_policy_orchestrator_for_organization.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import PolicyOrchestratorForOrganization using one of the formats above. For example:
 

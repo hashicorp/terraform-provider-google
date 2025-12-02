@@ -122,6 +122,18 @@ TraceScope can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{trace_scope_id}}`
 * `{{location}}/{{trace_scope_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import TraceScope using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    traceScopeId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_observability_trace_scope.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import TraceScope using one of the formats above. For example:
 

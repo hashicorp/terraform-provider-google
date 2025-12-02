@@ -105,6 +105,16 @@ OrganizationSecurityPolicy can be imported using any of these accepted formats:
 * `locations/global/securityPolicies/{{policy_id}}`
 * `{{policy_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import OrganizationSecurityPolicy using identity values. For example:
+
+```tf
+import {
+  identity = {
+    policy_id = "<-optional value->"
+  }
+  to = google_compute_organization_security_policy.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import OrganizationSecurityPolicy using one of the formats above. For example:
 

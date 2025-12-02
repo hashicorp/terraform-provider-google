@@ -136,6 +136,19 @@ CodeToolsSettingBinding can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{code_tools_setting_id}}/{{setting_binding_id}}`
 * `{{location}}/{{code_tools_setting_id}}/{{setting_binding_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import CodeToolsSettingBinding using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-optional value->"
+    codeToolsSettingId = "<-required value->"
+    settingBindingId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_gemini_code_tools_setting_binding.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CodeToolsSettingBinding using one of the formats above. For example:
 

@@ -209,6 +209,19 @@ SearchEngine can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{collection_id}}/{{engine_id}}`
 * `{{location}}/{{collection_id}}/{{engine_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import SearchEngine using identity values. For example:
+
+```tf
+import {
+  identity = {
+    engineId = "<-required value->"
+    collectionId = "<-required value->"
+    location = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_discovery_engine_search_engine.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import SearchEngine using one of the formats above. For example:
 

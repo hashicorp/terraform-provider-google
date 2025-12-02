@@ -162,6 +162,17 @@ QuotaPreference can be imported using any of these accepted formats:
 
 * `{{parent}}/locations/global/quotaPreferences/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import QuotaPreference using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-optional value->"
+    parent = "<-required value->"
+  }
+  to = google_cloud_quotas_quota_preference.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import QuotaPreference using one of the formats above. For example:
 

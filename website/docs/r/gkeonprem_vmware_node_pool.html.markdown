@@ -421,6 +421,19 @@ VmwareNodePool can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{vmware_cluster}}/{{name}}`
 * `{{location}}/{{vmware_cluster}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import VmwareNodePool using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+    vmwareCluster = "<-required value->"
+    location = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_gkeonprem_vmware_node_pool.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import VmwareNodePool using one of the formats above. For example:
 

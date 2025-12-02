@@ -92,6 +92,16 @@ ProcessorDefaultVersion can be imported using any of these accepted formats:
 
 * `{{processor}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ProcessorDefaultVersion using identity values. For example:
+
+```tf
+import {
+  identity = {
+    processor = "<-required value->"
+  }
+  to = google_document_ai_processor_default_version.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ProcessorDefaultVersion using one of the formats above. For example:
 

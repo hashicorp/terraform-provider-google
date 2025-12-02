@@ -134,6 +134,18 @@ FolderMuteConfig can be imported using any of these accepted formats:
 * `folders/{{folder}}/locations/{{location}}/muteConfigs/{{mute_config_id}}`
 * `{{folder}}/{{location}}/{{mute_config_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import FolderMuteConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    folder = "<-required value->"
+    location = "<-optional value->"
+    mute_config_id = "<-required value->"
+  }
+  to = google_scc_v2_folder_mute_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FolderMuteConfig using one of the formats above. For example:
 

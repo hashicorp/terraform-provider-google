@@ -391,6 +391,18 @@ SecurityGatewayApplication can be imported using any of these accepted formats:
 * `{{project}}/{{security_gateway_id}}/{{application_id}}`
 * `{{security_gateway_id}}/{{application_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import SecurityGatewayApplication using identity values. For example:
+
+```tf
+import {
+  identity = {
+    securityGatewayId = "<-required value->"
+    applicationId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_beyondcorp_security_gateway_application.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import SecurityGatewayApplication using one of the formats above. For example:
 

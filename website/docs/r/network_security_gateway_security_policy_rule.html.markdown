@@ -177,6 +177,19 @@ GatewaySecurityPolicyRule can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{gateway_security_policy}}/{{name}}`
 * `{{location}}/{{gateway_security_policy}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import GatewaySecurityPolicyRule using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+    location = "<-required value->"
+    gateway_security_policy = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_network_security_gateway_security_policy_rule.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import GatewaySecurityPolicyRule using one of the formats above. For example:
 

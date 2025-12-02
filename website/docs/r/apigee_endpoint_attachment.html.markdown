@@ -88,6 +88,17 @@ EndpointAttachment can be imported using any of these accepted formats:
 * `{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}`
 * `{{org_id}}/{{endpoint_attachment_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import EndpointAttachment using identity values. For example:
+
+```tf
+import {
+  identity = {
+    orgId = "<-required value->"
+    endpointAttachmentId = "<-required value->"
+  }
+  to = google_apigee_endpoint_attachment.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EndpointAttachment using one of the formats above. For example:
 

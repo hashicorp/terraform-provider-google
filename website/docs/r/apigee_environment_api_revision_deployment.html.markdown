@@ -113,6 +113,19 @@ EnvironmentApiRevisionDeployment can be imported using any of these accepted for
 * `{{org_id}}/{{environment}}/{{api}}/{{revision}}`
 * `{{id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import EnvironmentApiRevisionDeployment using identity values. For example:
+
+```tf
+import {
+  identity = {
+    org_id = "<-required value->"
+    environment = "<-required value->"
+    api = "<-required value->"
+    revision = "<-required value->"
+  }
+  to = google_apigee_environment_api_revision_deployment.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EnvironmentApiRevisionDeployment using one of the formats above. For example:
 

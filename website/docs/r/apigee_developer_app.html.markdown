@@ -359,6 +359,18 @@ DeveloperApp can be imported using any of these accepted formats:
 * `{{org_id}}/developers/{{developer_email}}/apps/{{name}}`
 * `{{org_id}}/{{developer_email}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import DeveloperApp using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+    orgId = "<-required value->"
+    developer_email = "<-required value->"
+  }
+  to = google_apigee_developer_app.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DeveloperApp using one of the formats above. For example:
 

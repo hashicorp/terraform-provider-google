@@ -602,6 +602,19 @@ Listing can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{data_exchange_id}}/{{listing_id}}`
 * `{{location}}/{{data_exchange_id}}/{{listing_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Listing using identity values. For example:
+
+```tf
+import {
+  identity = {
+    data_exchange_id = "<-required value->"
+    listing_id = "<-required value->"
+    location = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_bigquery_analytics_hub_listing.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Listing using one of the formats above. For example:
 

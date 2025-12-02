@@ -110,6 +110,16 @@ OrganizationSettings can be imported using any of these accepted formats:
 * `organizations/{{organization}}/settings`
 * `{{organization}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import OrganizationSettings using identity values. For example:
+
+```tf
+import {
+  identity = {
+    organization = "<-required value->"
+  }
+  to = google_logging_organization_settings.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import OrganizationSettings using one of the formats above. For example:
 

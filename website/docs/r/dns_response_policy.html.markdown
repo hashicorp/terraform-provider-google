@@ -178,6 +178,17 @@ ResponsePolicy can be imported using any of these accepted formats:
 * `{{project}}/{{response_policy_name}}`
 * `{{response_policy_name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ResponsePolicy using identity values. For example:
+
+```tf
+import {
+  identity = {
+    responsePolicyName = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_dns_response_policy.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ResponsePolicy using one of the formats above. For example:
 

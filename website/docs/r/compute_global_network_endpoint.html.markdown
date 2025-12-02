@@ -101,6 +101,20 @@ GlobalNetworkEndpoint can be imported using any of these accepted formats:
 * `{{project}}/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}`
 * `{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import GlobalNetworkEndpoint using identity values. For example:
+
+```tf
+import {
+  identity = {
+    port = "<-required value->"
+    ipAddress = "<-optional value->"
+    fqdn = "<-optional value->"
+    globalNetworkEndpointGroup = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_compute_global_network_endpoint.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import GlobalNetworkEndpoint using one of the formats above. For example:
 

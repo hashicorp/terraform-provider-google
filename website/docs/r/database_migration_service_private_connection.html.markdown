@@ -164,6 +164,18 @@ PrivateConnection can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{private_connection_id}}`
 * `{{location}}/{{private_connection_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import PrivateConnection using identity values. For example:
+
+```tf
+import {
+  identity = {
+    privateConnectionId = "<-required value->"
+    location = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_database_migration_service_private_connection.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import PrivateConnection using one of the formats above. For example:
 

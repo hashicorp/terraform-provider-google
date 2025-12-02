@@ -117,6 +117,17 @@ AclConfig can be imported using any of these accepted formats:
 * `{{project}}/{{location}}`
 * `{{location}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import AclConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_discovery_engine_acl_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import AclConfig using one of the formats above. For example:
 

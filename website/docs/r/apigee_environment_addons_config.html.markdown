@@ -95,6 +95,16 @@ EnvironmentAddonsConfig can be imported using any of these accepted formats:
 
 * `{{env_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import EnvironmentAddonsConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    envId = "<-required value->"
+  }
+  to = google_apigee_environment_addons_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EnvironmentAddonsConfig using one of the formats above. For example:
 

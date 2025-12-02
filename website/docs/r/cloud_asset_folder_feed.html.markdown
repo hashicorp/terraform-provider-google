@@ -205,6 +205,17 @@ FolderFeed can be imported using any of these accepted formats:
 * `folders/{{folder_id}}/feeds/{{name}}`
 * `{{folder_id}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import FolderFeed using identity values. For example:
+
+```tf
+import {
+  identity = {
+    folder_id = "<-optional value->"
+    name = "<-optional value->"
+  }
+  to = google_cloud_asset_folder_feed.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FolderFeed using one of the formats above. For example:
 

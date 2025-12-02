@@ -157,6 +157,18 @@ Saas can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{saas_id}}`
 * `{{location}}/{{saas_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Saas using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    saasId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_saas_runtime_saas.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Saas using one of the formats above. For example:
 
