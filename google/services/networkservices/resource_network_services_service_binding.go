@@ -117,6 +117,8 @@ func ResourceNetworkServicesServiceBinding() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "Cloud Service Mesh's integration with Service Directory is going to be deprecated. [Learn more](https://docs.cloud.google.com/service-mesh/docs/service-routing/service-directory-integration-setup). Creating new service binding resources will be disabled.",
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
