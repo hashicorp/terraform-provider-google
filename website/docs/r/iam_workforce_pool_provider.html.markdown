@@ -767,6 +767,18 @@ WorkforcePoolProvider can be imported using any of these accepted formats:
 * `locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}`
 * `{{location}}/{{workforce_pool_id}}/{{provider_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import WorkforcePoolProvider using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    workforcePoolId = "<-required value->"
+    providerId = "<-required value->"
+  }
+  to = google_iam_workforce_pool_provider.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import WorkforcePoolProvider using one of the formats above. For example:
 

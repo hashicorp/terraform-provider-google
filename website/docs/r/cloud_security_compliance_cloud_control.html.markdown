@@ -497,6 +497,18 @@ CloudControl can be imported using any of these accepted formats:
 * `organizations/{{organization}}/locations/{{location}}/cloudControls/{{cloud_control_id}}`
 * `{{organization}}/{{location}}/{{cloud_control_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import CloudControl using identity values. For example:
+
+```tf
+import {
+  identity = {
+    organization = "<-required value->"
+    location = "<-required value->"
+    cloudControlId = "<-required value->"
+  }
+  to = google_cloud_security_compliance_cloud_control.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CloudControl using one of the formats above. For example:
 

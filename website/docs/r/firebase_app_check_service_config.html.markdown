@@ -157,6 +157,17 @@ ServiceConfig can be imported using any of these accepted formats:
 * `{{project}}/{{service_id}}`
 * `{{service_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ServiceConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    service_id = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_firebase_app_check_service_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ServiceConfig using one of the formats above. For example:
 

@@ -443,6 +443,19 @@ SparkApplication can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{serviceinstance}}/{{spark_application_id}}`
 * `{{location}}/{{serviceinstance}}/{{spark_application_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import SparkApplication using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    serviceinstance = "<-required value->"
+    sparkApplicationId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_dataproc_gdc_spark_application.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import SparkApplication using one of the formats above. For example:
 

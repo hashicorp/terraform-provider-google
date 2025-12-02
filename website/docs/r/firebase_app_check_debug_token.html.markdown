@@ -128,6 +128,18 @@ DebugToken can be imported using any of these accepted formats:
 * `{{project}}/{{app_id}}/{{debug_token_id}}`
 * `{{app_id}}/{{debug_token_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import DebugToken using identity values. For example:
+
+```tf
+import {
+  identity = {
+    debugTokenId = "<-optional value->"
+    app_id = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_firebase_app_check_debug_token.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DebugToken using one of the formats above. For example:
 

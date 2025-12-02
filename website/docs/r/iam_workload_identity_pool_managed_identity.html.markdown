@@ -196,6 +196,19 @@ WorkloadIdentityPoolManagedIdentity can be imported using any of these accepted 
 * `{{project}}/{{workload_identity_pool_id}}/{{workload_identity_pool_namespace_id}}/{{workload_identity_pool_managed_identity_id}}`
 * `{{workload_identity_pool_id}}/{{workload_identity_pool_namespace_id}}/{{workload_identity_pool_managed_identity_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import WorkloadIdentityPoolManagedIdentity using identity values. For example:
+
+```tf
+import {
+  identity = {
+    workload_identity_pool_id = "<-required value->"
+    workload_identity_pool_namespace_id = "<-required value->"
+    workload_identity_pool_managed_identity_id = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_iam_workload_identity_pool_managed_identity.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import WorkloadIdentityPoolManagedIdentity using one of the formats above. For example:
 

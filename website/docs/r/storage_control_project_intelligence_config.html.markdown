@@ -164,6 +164,16 @@ ProjectIntelligenceConfig can be imported using any of these accepted formats:
 * `projects/{{name}}/locations/global/intelligenceConfig`
 * `{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ProjectIntelligenceConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    name = "<-required value->"
+  }
+  to = google_storage_control_project_intelligence_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ProjectIntelligenceConfig using one of the formats above. For example:
 

@@ -1101,6 +1101,19 @@ WorkstationConfig can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{workstation_cluster_id}}/{{workstation_config_id}}`
 * `{{location}}/{{workstation_cluster_id}}/{{workstation_config_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import WorkstationConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    workstationConfigId = "<-required value->"
+    workstationClusterId = "<-required value->"
+    location = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_workstations_workstation_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import WorkstationConfig using one of the formats above. For example:
 

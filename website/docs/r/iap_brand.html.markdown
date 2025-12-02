@@ -118,6 +118,16 @@ Brand can be imported using any of these accepted formats:
 * `projects/{{project_number}}/brands/{{brand_id}}`
 * `{{project_number}}/{{brand_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import Brand using identity values. For example:
+
+```tf
+import {
+  identity = {
+    project = "<-required value->"
+  }
+  to = google_iap_brand.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Brand using one of the formats above. For example:
 

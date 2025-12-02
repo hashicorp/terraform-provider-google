@@ -94,6 +94,18 @@ VPCSCConfig can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{name}}`
 * `{{location}}/{{name}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import VPCSCConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-optional value->"
+    name = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_artifact_registry_vpcsc_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import VPCSCConfig using one of the formats above. For example:
 

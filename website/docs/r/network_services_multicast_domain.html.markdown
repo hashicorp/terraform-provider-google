@@ -171,6 +171,18 @@ MulticastDomain can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{multicast_domain_id}}`
 * `{{location}}/{{multicast_domain_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import MulticastDomain using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    multicastDomainId = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_network_services_multicast_domain.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import MulticastDomain using one of the formats above. For example:
 

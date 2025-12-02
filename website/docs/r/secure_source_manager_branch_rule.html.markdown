@@ -198,6 +198,19 @@ BranchRule can be imported using any of these accepted formats:
 * `{{location}}/{{repository_id}}/{{branch_rule_id}}`
 * `{{branch_rule_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import BranchRule using identity values. For example:
+
+```tf
+import {
+  identity = {
+    branch_rule_id = "<-required value->"
+    location = "<-required value->"
+    repository_id = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_secure_source_manager_branch_rule.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import BranchRule using one of the formats above. For example:
 

@@ -285,6 +285,18 @@ ApiConfig can be imported using any of these accepted formats:
 * `{{project}}/{{api}}/{{api_config_id}}`
 * `{{api}}/{{api_config_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ApiConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    api = "<-required value->"
+    apiConfigId = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_api_gateway_api_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ApiConfig using one of the formats above. For example:
 

@@ -132,6 +132,18 @@ EntryGroup can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{entry_group_id}}`
 * `{{location}}/{{entry_group_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import EntryGroup using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-optional value->"
+    entryGroupId = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_dataplex_entry_group.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EntryGroup using one of the formats above. For example:
 

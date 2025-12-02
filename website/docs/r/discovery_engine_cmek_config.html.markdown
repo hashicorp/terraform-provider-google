@@ -145,6 +145,18 @@ CmekConfig can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{cmek_config_id}}`
 * `{{location}}/{{cmek_config_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import CmekConfig using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    cmekConfigId = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_discovery_engine_cmek_config.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CmekConfig using one of the formats above. For example:
 

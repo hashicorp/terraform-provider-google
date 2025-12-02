@@ -210,6 +210,18 @@ BackupPlanAssociation can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{backup_plan_association_id}}`
 * `{{location}}/{{backup_plan_association_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import BackupPlanAssociation using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    backup_plan_association_id = "<-required value->"
+    project = "<-optional value->"
+  }
+  to = google_backup_dr_backup_plan_association.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import BackupPlanAssociation using one of the formats above. For example:
 

@@ -126,6 +126,18 @@ CapacityCommitment can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{capacity_commitment_id}}`
 * `{{location}}/{{capacity_commitment_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import CapacityCommitment using identity values. For example:
+
+```tf
+import {
+  identity = {
+    capacityCommitmentId = "<-optional value->"
+    location = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_bigquery_capacity_commitment.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CapacityCommitment using one of the formats above. For example:
 

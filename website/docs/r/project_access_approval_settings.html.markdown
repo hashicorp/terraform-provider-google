@@ -187,6 +187,16 @@ ProjectSettings can be imported using any of these accepted formats:
 * `projects/{{project_id}}/accessApprovalSettings`
 * `{{project_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import ProjectSettings using identity values. For example:
+
+```tf
+import {
+  identity = {
+    project_id = "<-required value->"
+  }
+  to = google_project_access_approval_settings.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ProjectSettings using one of the formats above. For example:
 

@@ -409,6 +409,18 @@ NotebookExecution can be imported using any of these accepted formats:
 * `{{project}}/{{location}}/{{notebook_execution_job_id}}`
 * `{{location}}/{{notebook_execution_job_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import NotebookExecution using identity values. For example:
+
+```tf
+import {
+  identity = {
+    location = "<-required value->"
+    notebookExecutionJobId = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_colab_notebook_execution.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import NotebookExecution using one of the formats above. For example:
 

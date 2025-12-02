@@ -137,6 +137,19 @@ SchemaBundle can be imported using any of these accepted formats:
 * `{{project}}/{{instance}}/{{table}}/{{schema_bundle_id}}`
 * `{{instance}}/{{table}}/{{schema_bundle_id}}`
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/resources/identities) to import SchemaBundle using identity values. For example:
+
+```tf
+import {
+  identity = {
+    schemaBundleId = "<-required value->"
+    instance = "<-optional value->"
+    table = "<-optional value->"
+    project = "<-optional value->"
+  }
+  to = google_bigtable_schema_bundle.default
+}
+```
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import SchemaBundle using one of the formats above. For example:
 
