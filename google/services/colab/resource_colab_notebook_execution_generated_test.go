@@ -159,6 +159,129 @@ resource "google_colab_notebook_execution" "notebook-execution" {
 `, context)
 }
 
+func TestAccColabNotebookExecution_colabNotebookExecutionCustomEnvExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":      envvar.GetTestProjectFromEnv(),
+		"service_account": envvar.GetTestServiceAccountFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckColabNotebookExecutionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccColabNotebookExecution_colabNotebookExecutionCustomEnvExample(context),
+			},
+			{
+				ResourceName:            "google_colab_notebook_execution.notebook-execution",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"direct_notebook_source", "direct_notebook_source.0.content", "location", "notebook_execution_job_id"},
+			},
+		},
+	})
+}
+
+func testAccColabNotebookExecution_colabNotebookExecutionCustomEnvExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "my_network" {
+  name = "tf-test-colab-test-default%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "my_subnetwork" {
+  name   = "tf-test-colab-test-default%{random_suffix}"
+  network = google_compute_network.my_network.id
+  region = "us-central1"
+  ip_cidr_range = "10.0.1.0/24"
+}
+
+resource "google_storage_bucket" "output_bucket" {
+  name          = "tf_test_my_bucket%{random_suffix}"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_colab_notebook_execution" "notebook-execution" {
+  display_name = "Notebook execution basic"
+  location = "us-central1"
+
+  direct_notebook_source {
+    content = base64encode(<<EOT
+    {
+      "cells": [
+        {
+          "cell_type": "code",
+          "execution_count": null,
+          "metadata": {},
+          "outputs": [],
+          "source": [
+            "print(\"Hello, World!\")"
+          ]
+        }
+      ],
+      "metadata": {
+        "kernelspec": {
+          "display_name": "Python 3",
+          "language": "python",
+          "name": "python3"
+        },
+        "language_info": {
+          "codemirror_mode": {
+            "name": "ipython",
+            "version": 3
+          },
+          "file_extension": ".py",
+          "mimetype": "text/x-python",
+          "name": "python",
+          "nbconvert_exporter": "python",
+          "pygments_lexer": "ipython3",
+          "version": "3.8.5"
+        }
+      },
+      "nbformat": 4,
+      "nbformat_minor": 4
+    }
+    EOT
+    )
+  }
+  
+  custom_environment_spec {
+    machine_spec {
+      machine_type     = "n1-standard-2"
+      accelerator_type = "NVIDIA_TESLA_T4"
+      accelerator_count = "1"
+    }
+
+    persistent_disk_spec {
+      disk_type    = "pd-standard"
+      disk_size_gb = 200
+    }
+
+    network_spec {
+      enable_internet_access = true
+      network = google_compute_network.my_network.id
+      subnetwork = google_compute_subnetwork.my_subnetwork.id
+    }
+  }
+  
+  gcs_output_uri = "gs://${google_storage_bucket.output_bucket.name}"
+  
+  service_account = "%{service_account}"
+
+  depends_on = [
+    google_storage_bucket.output_bucket,
+  ]
+  
+}
+`, context)
+}
+
 func testAccCheckColabNotebookExecutionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

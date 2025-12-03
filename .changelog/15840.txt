@@ -1,0 +1,3 @@
+```release-note:enhancement
+colab: added `custom_environment_spec` field to `google_colab_notebook_execution` resource
+```

@@ -112,6 +112,102 @@ resource "google_colab_notebook_execution" "notebook-execution" {
   
 }
 ```
+## Example Usage - Colab Notebook Execution Custom Env
+
+
+```hcl
+resource "google_compute_network" "my_network" {
+  name = "colab-test-default"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "my_subnetwork" {
+  name   = "colab-test-default"
+  network = google_compute_network.my_network.id
+  region = "us-central1"
+  ip_cidr_range = "10.0.1.0/24"
+}
+
+resource "google_storage_bucket" "output_bucket" {
+  name          = "my_bucket"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_colab_notebook_execution" "notebook-execution" {
+  display_name = "Notebook execution basic"
+  location = "us-central1"
+
+  direct_notebook_source {
+    content = base64encode(<<EOT
+    {
+      "cells": [
+        {
+          "cell_type": "code",
+          "execution_count": null,
+          "metadata": {},
+          "outputs": [],
+          "source": [
+            "print(\"Hello, World!\")"
+          ]
+        }
+      ],
+      "metadata": {
+        "kernelspec": {
+          "display_name": "Python 3",
+          "language": "python",
+          "name": "python3"
+        },
+        "language_info": {
+          "codemirror_mode": {
+            "name": "ipython",
+            "version": 3
+          },
+          "file_extension": ".py",
+          "mimetype": "text/x-python",
+          "name": "python",
+          "nbconvert_exporter": "python",
+          "pygments_lexer": "ipython3",
+          "version": "3.8.5"
+        }
+      },
+      "nbformat": 4,
+      "nbformat_minor": 4
+    }
+    EOT
+    )
+  }
+  
+  custom_environment_spec {
+    machine_spec {
+      machine_type     = "n1-standard-2"
+      accelerator_type = "NVIDIA_TESLA_T4"
+      accelerator_count = "1"
+    }
+
+    persistent_disk_spec {
+      disk_type    = "pd-standard"
+      disk_size_gb = 200
+    }
+
+    network_spec {
+      enable_internet_access = true
+      network = google_compute_network.my_network.id
+      subnetwork = google_compute_subnetwork.my_subnetwork.id
+    }
+  }
+  
+  gcs_output_uri = "gs://${google_storage_bucket.output_bucket.name}"
+  
+  service_account = "my@service-account.com"
+
+  depends_on = [
+    google_storage_bucket.output_bucket,
+  ]
+  
+}
+```
 ## Example Usage - Colab Notebook Execution Full
 
 
@@ -342,6 +438,11 @@ The following arguments are supported:
   (Optional)
   The NotebookRuntimeTemplate to source compute configuration from.
 
+* `custom_environment_spec` -
+  (Optional)
+  Compute configuration to use for an execution job
+  Structure is [documented below](#nested_custom_environment_spec).
+
 * `execution_user` -
   (Optional)
   The user email to run the execution as.
@@ -384,6 +485,62 @@ The following arguments are supported:
 * `content` -
   (Required)
   The base64-encoded contents of the input notebook file.
+
+<a name="nested_custom_environment_spec"></a>The `custom_environment_spec` block supports:
+
+* `machine_spec` -
+  (Optional)
+  'The machine configuration of the runtime.'
+  Structure is [documented below](#nested_custom_environment_spec_machine_spec).
+
+* `persistent_disk_spec` -
+  (Optional)
+  The configuration for the data disk of the runtime.
+  Structure is [documented below](#nested_custom_environment_spec_persistent_disk_spec).
+
+* `network_spec` -
+  (Optional)
+  The network configuration for the runtime.
+  Structure is [documented below](#nested_custom_environment_spec_network_spec).
+
+
+<a name="nested_custom_environment_spec_machine_spec"></a>The `machine_spec` block supports:
+
+* `machine_type` -
+  (Optional)
+  The Compute Engine machine type selected for the runtime.
+
+* `accelerator_type` -
+  (Optional)
+  The type of hardware accelerator used by the runtime. If specified, acceleratorCount must also be specified.
+
+* `accelerator_count` -
+  (Optional)
+  The number of accelerators used by the runtime.
+
+<a name="nested_custom_environment_spec_persistent_disk_spec"></a>The `persistent_disk_spec` block supports:
+
+* `disk_type` -
+  (Optional)
+  The type of the persistent disk.
+
+* `disk_size_gb` -
+  (Optional)
+  The disk size of the runtime in GB. If specified, the diskType must also be specified. The minimum size is 10GB and the maximum is 65536GB.
+
+<a name="nested_custom_environment_spec_network_spec"></a>The `network_spec` block supports:
+
+* `enable_internet_access` -
+  (Optional)
+  Enable public internet access for the runtime.
+
+* `network` -
+  (Optional)
+  The name of the VPC that this runtime is in.
+
+* `subnetwork` -
+  (Optional)
+  The name of the subnetwork that this runtime is in.
 
 ## Attributes Reference
 
