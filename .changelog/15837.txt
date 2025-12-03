@@ -1,0 +1,7 @@
+```release-note:enhancement
+cloudsecuritycompliance: added `cloud_control_details.parameters.parameter_value.oneof_value` fields to `google_cloud_security_compliance_framework` resource
+```
+
+```release-note:enhancement
+cloudsecuritycompliance: added `cloud_control_details.parameters.parameter_value.oneof_value` fields to `google_cloud_security_compliance_framework_deployment` resource
+```
