@@ -2023,7 +2023,7 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 		Steps: []resource.TestStep{
 			// First test with empty `node_config.linux_node_config` (should result in "CGROUP_MODE_UNSPECIFIED")
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", false),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", false, ""),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						acctest.ExpectNoDelete(),
@@ -2038,7 +2038,7 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 			},
 			// Then add a config and make sure it updates.
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2", false),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2", false, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
@@ -2059,7 +2059,7 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 			},
 			// Lastly, update the setting in-place. V1 since UNSPECIFIED is default
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1", false),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1", false, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
@@ -2080,7 +2080,7 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 			},
 			// Update linux config transparent hugepage
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", true),
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", true, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
@@ -2089,6 +2089,52 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"google_container_cluster.with_linux_node_config",
 						"node_config.0.linux_node_config.0.transparent_hugepage_defrag", "TRANSPARENT_HUGEPAGE_DEFRAG_ALWAYS",
+					),
+				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_linux_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Update node kernel module loading policy
+			{
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V2", false, "ENFORCE_SIGNED_MODULES"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_linux_node_config",
+						"node_config.0.linux_node_config.0.node_kernel_module_loading.0.policy", "ENFORCE_SIGNED_MODULES",
+					),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_linux_node_config",
+						"node_config.0.linux_node_config.0.cgroup_mode", "CGROUP_MODE_V2",
+					),
+				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_linux_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Unset node kernel module loading policy
+			{
+				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "", false, "DO_NOT_ENFORCE_SIGNED_MODULES"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.with_linux_node_config",
+						"node_config.0.linux_node_config.0.node_kernel_module_loading.0.policy", "DO_NOT_ENFORCE_SIGNED_MODULES",
 					),
 				),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
@@ -4279,7 +4325,7 @@ func TestAccContainerCluster_withAutopilot_withNodePoolAutoConfig(t *testing.T) 
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -8739,24 +8785,30 @@ resource "google_container_cluster" "with_node_config" {
 `, clusterName, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, cgroupMode string, thpEnabled bool) string {
-	// Empty block inside node_config if cgroupMode is empty
+func testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, cgroupMode string, thpEnabled bool, nkmlPolicy string) string {
+	// Empty block inside node_config if sub-fields are empty
 	linuxNodeConfig := ""
 
-	if cgroupMode != "" {
-		linuxNodeConfig = fmt.Sprintf(`
-    linux_node_config {
-      cgroup_mode = "%s"
-    }
-`, cgroupMode)
-	}
-
-	if cgroupMode == "" && thpEnabled {
-		linuxNodeConfig = `
-    linux_node_config {
-      transparent_hugepage_defrag = "TRANSPARENT_HUGEPAGE_DEFRAG_ALWAYS"
-      transparent_hugepage_enabled = "TRANSPARENT_HUGEPAGE_ENABLED_ALWAYS"
-    }`
+	if cgroupMode != "" || thpEnabled || nkmlPolicy != "" {
+		linuxNodeConfig = `linux_node_config {
+  		`
+		if cgroupMode != "" {
+			linuxNodeConfig = linuxNodeConfig + fmt.Sprintf(`cgroup_mode="%s"
+			`, cgroupMode)
+		}
+		if thpEnabled {
+			linuxNodeConfig = linuxNodeConfig + `
+			transparent_hugepage_defrag = "TRANSPARENT_HUGEPAGE_DEFRAG_ALWAYS"
+			transparent_hugepage_enabled = "TRANSPARENT_HUGEPAGE_ENABLED_ALWAYS"
+			`
+		}
+		if nkmlPolicy != "" {
+			linuxNodeConfig = linuxNodeConfig + fmt.Sprintf(`node_kernel_module_loading {
+				policy = "%s"
+			}
+			`, nkmlPolicy)
+		}
+		linuxNodeConfig = linuxNodeConfig + "}"
 	}
 
 	return fmt.Sprintf(`
@@ -8767,7 +8819,11 @@ resource "google_container_cluster" "with_linux_node_config" {
   name               = "%s"
   location           = "us-central1-f"
   initial_node_count = 1
-  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  min_master_version = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+
+	release_channel {
+    channel = "RAPID"
+  }
 
   node_config {
     disk_size_gb = 15
@@ -12338,15 +12394,29 @@ resource "google_container_cluster" "primary" {
 
 func testAccContainerCluster_withAutopilot_withNodePoolAutoConfig(name, networkName, subnetworkName string, insecureKubeletReadonlyPortEnabled string) string {
 	return fmt.Sprintf(`
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
 resource "google_container_cluster" "primary" {
   name             = "%s"
   location         = "us-central1"
   enable_autopilot = true
+	min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["RAPID"]
+
+	release_channel {
+    channel = "RAPID"
+  }
 
 	node_pool_auto_config {
     node_kubelet_config {
       insecure_kubelet_readonly_port_enabled = "%s"
     }
+		linux_node_config {
+			node_kernel_module_loading {
+				policy = "ENFORCE_SIGNED_MODULES"
+			}
+		}
   }
 
   deletion_protection = false

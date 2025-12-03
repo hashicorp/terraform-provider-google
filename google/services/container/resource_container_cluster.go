@@ -6419,7 +6419,30 @@ func expandNodePoolAutoConfig(configured interface{}) *container.NodePoolAutoCon
 		npac.ResourceManagerTags = expandResourceManagerTags(v)
 	}
 
+	if v, ok := config["linux_node_config"]; ok {
+		npac.LinuxNodeConfig = expandNodePoolAutoConfigLinuxNodeConfig(v)
+	}
+
 	return npac
+}
+
+func expandNodePoolAutoConfigLinuxNodeConfig(configured interface{}) *container.LinuxNodeConfig {
+	if configured == nil {
+		return nil
+	}
+	ls := configured.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.LinuxNodeConfig{}
+	}
+	config := ls[0].(map[string]interface{})
+	linuxNodeConfig := &container.LinuxNodeConfig{}
+	if v, ok := config["node_kernel_module_loading"]; ok {
+		linuxNodeConfig.NodeKernelModuleLoading = expandNodeKernelModuleLoading(v)
+	}
+	return linuxNodeConfig
 }
 
 func expandNodePoolAutoConfigNetworkTags(configured interface{}) *container.NetworkTags {
@@ -7421,9 +7444,13 @@ func flattenNodePoolAutoConfig(c *container.NodePoolAutoConfig) []map[string]int
 		result["resource_manager_tags"] = flattenResourceManagerTags(c.ResourceManagerTags)
 	}
 	if c.LinuxNodeConfig != nil {
-		result["linux_node_config"] = []map[string]interface{}{
-			{"cgroup_mode": c.LinuxNodeConfig.CgroupMode},
+		linuxNodeConfig := map[string]interface{}{
+			"cgroup_mode": c.LinuxNodeConfig.CgroupMode,
 		}
+		if c.LinuxNodeConfig.NodeKernelModuleLoading != nil {
+			linuxNodeConfig["node_kernel_module_loading"] = flattenNodeKernelModuleLoading(c.LinuxNodeConfig.NodeKernelModuleLoading)
+		}
+		result["linux_node_config"] = []map[string]interface{}{linuxNodeConfig}
 	}
 
 	return []map[string]interface{}{result}
