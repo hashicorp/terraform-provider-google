@@ -180,8 +180,51 @@ The following arguments are supported:
   (Optional)
   Represents a string value.
 
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values.
+  Structure is [documented below](#nested_cloud_control_details_cloud_control_details_parameters_parameters_parameter_value_oneof_value).
+
 
 <a name="nested_cloud_control_details_cloud_control_details_parameters_parameters_parameter_value_string_list_value"></a>The `string_list_value` block supports:
+
+* `values` -
+  (Required)
+  The strings in the list.
+
+<a name="nested_cloud_control_details_cloud_control_details_parameters_parameters_parameter_value_oneof_value"></a>The `oneof_value` block supports:
+
+* `name` -
+  (Optional)
+  The name of the parameter.
+
+* `parameter_value` -
+  (Optional)
+  The value of the parameter.
+  Structure is [documented below](#nested_cloud_control_details_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value).
+
+
+<a name="nested_cloud_control_details_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value"></a>The `parameter_value` block supports:
+
+* `bool_value` -
+  (Optional)
+  Represents a boolean value.
+
+* `number_value` -
+  (Optional)
+  Represents a double value.
+
+* `string_list_value` -
+  (Optional)
+  A list of strings.
+  Structure is [documented below](#nested_cloud_control_details_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value_string_list_value).
+
+* `string_value` -
+  (Optional)
+  Represents a string value.
+
+
+<a name="nested_cloud_control_details_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value_string_list_value"></a>The `string_list_value` block supports:
 
 * `values` -
   (Required)

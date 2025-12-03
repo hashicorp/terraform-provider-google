@@ -50,6 +50,52 @@ resource "google_cloud_security_compliance_framework" "example" {
         string_value = "us-central1"
       }
     }
+    parameters {
+      name = "oneof-parameter"
+      parameter_value {
+        oneof_value {
+          name = "test-oneof"
+          parameter_value {
+            string_value = "test-value"
+          }
+        }
+      }
+    }
+    parameters {
+      name = "bool-parameter"
+      parameter_value {
+        oneof_value {
+          name = "bool-oneof"
+          parameter_value {
+            bool_value = true
+          }
+        }
+      }
+    }
+    parameters {
+      name = "number-parameter"
+      parameter_value {
+        oneof_value {
+          name = "number-oneof"
+          parameter_value {
+            number_value = 123.45
+          }
+        }
+      }
+    }
+    parameters {
+      name = "string-list-parameter"
+      parameter_value {
+        oneof_value {
+          name = "string-list-oneof"
+          parameter_value {
+            string_list_value {
+              values = ["value1", "value2"]
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -95,6 +141,52 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
         name = "location"
         parameter_value {
           string_value = "us-central1"
+        }
+      }
+      parameters {
+        name = "oneof-parameter"
+        parameter_value {
+          oneof_value {
+            name = "test-oneof"
+            parameter_value {
+              string_value = "test-value"
+            }
+          }
+        }
+      }
+      parameters {
+        name = "bool-parameter"
+        parameter_value {
+          oneof_value {
+            name = "bool-oneof"
+            parameter_value {
+              bool_value = true
+            }
+          }
+        }
+      }
+      parameters {
+        name = "number-parameter"
+        parameter_value {
+          oneof_value {
+            name = "number-oneof"
+            parameter_value {
+              number_value = 123.45
+            }
+          }
+        }
+      }
+      parameters {
+        name = "string-list-parameter"
+        parameter_value {
+          oneof_value {
+            name = "string-list-oneof"
+            parameter_value {
+              string_list_value {
+                values = ["value1", "value2"]
+              }
+            }
+          }
         }
       }
     }
@@ -369,8 +461,51 @@ The following arguments are supported:
   (Optional)
   Represents a string value.
 
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values.
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value).
+
 
 <a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_string_list_value"></a>The `string_list_value` block supports:
+
+* `values` -
+  (Required)
+  The strings in the list.
+
+<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value"></a>The `oneof_value` block supports:
+
+* `name` -
+  (Optional)
+  The name of the parameter.
+
+* `parameter_value` -
+  (Optional)
+  The value of the parameter.
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value).
+
+
+<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value"></a>The `parameter_value` block supports:
+
+* `bool_value` -
+  (Optional)
+  Represents a boolean value.
+
+* `number_value` -
+  (Optional)
+  Represents a double value.
+
+* `string_list_value` -
+  (Optional)
+  A list of strings.
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value_string_list_value).
+
+* `string_value` -
+  (Optional)
+  Represents a string value.
+
+
+<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value_string_list_value"></a>The `string_list_value` block supports:
 
 * `values` -
   (Required)
