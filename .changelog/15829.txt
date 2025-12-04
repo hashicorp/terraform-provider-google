@@ -1,0 +1,7 @@
+```release-note:enhancement
+cloudsecuritycompliance: added `sub_parameters` field to `google_cloud_security_compliance_cloud_control ` resource
+```
+
+```release-note:enhancement
+cloudsecuritycompliance: added `parameter_spec.default_value.oneof_value` and `validation.allowed_values.values.oneof_value` fields to `google_cloud_security_compliance_cloud_control ` resource
+```
