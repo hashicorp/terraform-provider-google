@@ -143,6 +143,7 @@ only be one of "global", "us" and "eu".`,
 			},
 			"advanced_site_search_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Configuration data for advance site search.`,
