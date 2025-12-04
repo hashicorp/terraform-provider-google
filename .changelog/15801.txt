@@ -1,0 +1,3 @@
+```release-note:enhancement
+netapp: added 'nfsv4' to custom update export_policy object in `google_netapp_volume` resource
+```
