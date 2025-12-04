@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added new field `instance_flexibility_policy.instance_selection.min_cpu_platform` & `instance_flexibility_policy.instance_selection.disks` to `google_compute_region_instance_group_manager`
+```
