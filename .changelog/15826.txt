@@ -1,0 +1,3 @@
+```release-note:deprecation
+cloudquotas: deprecated `effective_container` and `effective_enablement` fields in the `google_cloud_quotas_quota_adjuster_settings` resource
+```

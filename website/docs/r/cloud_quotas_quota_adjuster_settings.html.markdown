@@ -67,10 +67,18 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{parent}}/locations/global/quotaAdjusterSettings`
 
 * `effective_container` -
+  (Deprecated)
   The resource container that determines if the quota adjuster is set for this project.
+  Expect this field to be empty currently.
+
+  ~> **Warning:** `effectiveContainer` is deprecated and will be removed in a future major release. Use `inherited_from` instead.
 
 * `effective_enablement` -
+  (Deprecated)
   Based on the effective container`s setting above, determines Whether this resource container has the quota adjuster enabled.
+  Expect this field to be empty currently.
+
+  ~> **Warning:** `effectiveEnablement` is deprecated and will be removed in a future major release. Use `inherited` instead.
 
 * `inherited` -
   Indicates whether the setting is inherited or explicitly specified.
