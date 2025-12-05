@@ -45,6 +45,8 @@ fields:
   - field: 'cluster_config.initialization_action.timeout_sec'
   - field: 'cluster_config.lifecycle_config.auto_delete_time'
   - field: 'cluster_config.lifecycle_config.idle_delete_ttl'
+  - field: 'cluster_config.lifecycle_config.auto_stop_time'
+  - field: 'cluster_config.lifecycle_config.idle_stop_ttl'
   - field: 'cluster_config.lifecycle_config.idle_start_time'
   - field: 'cluster_config.master_config.accelerators.accelerator_count'
   - field: 'cluster_config.master_config.accelerators.accelerator_type'
