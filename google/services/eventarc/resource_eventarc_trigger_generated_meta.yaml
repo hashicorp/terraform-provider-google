@@ -37,6 +37,7 @@ fields:
   - api_field: 'eventFilters.value'
     field: 'matching_criteria.value'
   - api_field: 'name'
+  - api_field: 'retryPolicy.maxAttempts'
   - api_field: 'serviceAccount'
   - field: 'terraform_labels'
     provider_only: true

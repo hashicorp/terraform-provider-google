@@ -60,6 +60,9 @@ resource "google_eventarc_trigger" "primary" {
       topic = google_pubsub_topic.foo.id
     }
   }
+  retry_policy {
+    max_attempts = 1
+  }
 }
 
 resource "google_pubsub_topic" "foo" {
@@ -136,6 +139,12 @@ The following arguments are supported:
 * `event_data_content_type` -
   (Optional)
   Optional. EventDataContentType specifies the type of payload in MIME format that is expected from the CloudEvent data field. This is set to `application/json` if the value is not defined.
+
+* `retry_policy` -
+  (Optional)
+  The retry policy configuration for the Trigger.
+  Can only be set with Cloud Run destinations.
+  Structure is [documented below](#nested_retry_policy).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -252,6 +261,13 @@ The following arguments are supported:
 * `subscription` -
   (Output)
   Output only. The name of the Pub/Sub subscription created and managed by Eventarc system as a transport for the event delivery. Format: `projects/{PROJECT_ID}/subscriptions/{SUBSCRIPTION_NAME}`.
+
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
+
+* `max_attempts` -
+  (Optional)
+  The maximum number of delivery attempts for any message. The only valid
+  value is 1.
 
 ## Attributes Reference
 
