@@ -301,6 +301,15 @@ instance_flexibility_policy {
     name = "instance_selection_name"
     rank = 1
     machine_types = ["n1-standard-16"]
+    min_cpu_platform = "Intel Skylake"      //google-beta only
+    disks {                                 //google-beta only
+        auto_delete = true
+        boot        = true
+        device_name = "boot-disk"
+        source_image = "projects/debian-cloud/global/images/debian-11-bullseye-v20251111"
+        architecture = "ARM64"
+        disk_size_gb = 375
+    }
   }
 }
 ```
@@ -314,14 +323,186 @@ instance_selections {
   name = "instance_selection_name"
   rank = 1
   machine_types = ["n1-standard-1", "n1-standard-16"]
+  min_cpu_platform = "Intel Skylake"      //google-beta only
+  disks {                                 //google-beta only
+    auto_delete = true
+    boot        = true
+    device_name = "boot-disk"
+    source_image = data.google_compute_image.my_image.self_link
+    architecture = "ARM64"
+    disk_size_gb = 375
+  }
 }
 ```
 
 * `name` - (Required), Name of the instance selection, e.g. instance_selection_with_n1_machines_types. Instance selection names must be unique within the flexibility policy.
 * `rank` - (Optional), Preference of this instance selection. Lower number means higher preference. Managed instance group will first try to create a VM based on the machine-type with lowest rank and fallback to next rank based on availability. Machine types and instance selections with the same rank have the same preference.
 * `machine_types` - (Required), A list of full machine-type names, e.g. "n1-standard-16".
+* `min_cpu_platform` - (Optional [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), Name of the minimum CPU platform to be used by this instance selection. e.g. "Intel Ice Lake".
+* `disks` - (Optional [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), List of disks to be attached to the instances created from this selection. Structure is [documented below](#nested_disks).
 
 - - -
+
+<a name="nested_disks"></a>The `disks` block supports:
+
+```hcl
+disks {
+  auto_delete = true
+  boot        = true
+  device_name = "boot-disk"
+  disk_name   = "boot-disk-name"
+  source_image = data.google_compute_image.my_image.self_link
+  architecture = "ARM64"
+  disk_size_gb = 375
+  disk_type    = "pd-balanced"
+  provisioned_iops = 10
+  provisioned_throughput = 100
+  guest_os_features = ["GVNIC"]
+  labels {
+    key = "label-key1"
+    value = "label-value1"
+  }
+  mode = "READ_WRITE"
+  type = "SCRATCH"
+  source_image_encryption_key {
+    kms_key_service_account = google_service_account.test.email
+    kms_key_self_link = data.google_kms_crypto_key.key.id
+  }
+}
+```
+
+
+*  `auto_delete` -  (Optional), Whether or not the disk should be auto-deleted. This defaults to true.
+*  `boot` -  (Optional), Indicates that this is a boot disk. This defaults to false.
+*  `device_name` - (Optional), A unique device name that is reflected into the /dev/ tree of a Linux operating system running within the instance. If not specified, the server chooses a default device name to apply to this disk.
+*  `disk_name` -  (Optional), Name of the disk. When not provided, this defaults to the name of the instance.
+*  `architecture` - (Optional), The architecture of the image. Allowed values are ARM64 or X86_64.
+*  `disk_size_gb` - (Optional), The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be one of 375 or 3000 GB, with a default of 375 GB.
+*  `disk_type` - (Optional), The Google Compute Engine disk type. Such as "pd-ssd", "local-ssd", "pd-balanced" or "pd-standard".
+*  `provisioned_iops` - (Optional), Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk) or the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks) depending on the selected disk_type.
+*  `provisioned_throughput` - (Optional), Indicates how much throughput to provision for the disk, in MB/s. This sets the amount of data that can be read or written from the disk per second. Values must greater than or equal to 1. For more details, see the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks).
+*  `interface` - (Optional), Specifies the disk interface to use for attaching this disk.
+*  `mode` - (Optional), The mode in which to attach this disk, either READ_WRITE or READ_ONLY. If you are attaching or creating a boot disk, this must read-write mode.
+*  `source` - (Optional), The name (not self_link) of the disk (such as those managed by google_compute_disk) to attach. ~> Note: Either source or source_image is required when creating a new instance except for when creating a local SSD.
+*  `type` - (Optional), The type of Google Compute Engine disk, can be either "SCRATCH" or "PERSISTENT".
+*  `resource_policies` - (Optional), A list (short name or id) of resource policies to attach to this disk. Currently a max of 1 resource policy is supported.
+*  `labels` -  (Optional), A set of key/value label pairs to assign to disks. Structure is [documented below](#nested_labels).
+*  `resource_manager_tags` - (Optional), A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty. Structure is [documented below](#nested_resource_manager_tags).
+*  `guest_os_features` -  (Optional), A list of features to enable on the guest operating system. Applicable only for bootable images.
+*  `disk_encryption_key` -  (Optional), Encrypts or decrypts a disk using a customer-supplied encryption key.  Structure is [documented below](#nested_disk_encryption_key).
+*  `source_image` -  (Optional), The image from which to initialize this disk. This can be one of: the image's self_link, projects/{project}/global/images/{image}, projects/{project}/global/images/family/{family}, global/images/{image}, global/images/family/{family}, family/{family}, {project}/{family}, {project}/{image}, {family}, or {image}. ~> Note: Either source or source_image is required when creating a new instance except for when creating a local SSD.
+*  `source_image_encryption_key` - (Optional), The customer-supplied encryption key of the source image. Required if the source image is protected by a customer-supplied encryption key. Instance templates do not store customer-supplied encryption keys, so you cannot create disks for instances in a managed instance group if the source images are encrypted with your own keys. Structure is [documented below](#nested_source_image_encryption_key).
+*  `source_snapshot` -  (Optional), The source snapshot to create this disk. When creating a new instance, one of initializeParams.sourceSnapshot, initializeParams.sourceImage, or disks.source is required except for local SSD.
+*  `source_snapshot_encryption_key` - (Optional), The customer-supplied encryption key of the source snapshot. Structure is [documented below](#nested_source_snapshot_encryption_key).
+- - -
+
+<a name="nested_labels"></a>The `labels` block supports:
+
+```hcl
+labels {
+  key = "label-key1"
+  value = "label-value1"
+}
+```
+
+*  `key` -  (Required), The unique key of the label to assign to disks.
+*  `value` - (Required), The value of the label to assign to disks.
+- - -
+
+<a name="nested_resource_manager_tags"></a>The `resource_manager_tags` block supports:
+
+```hcl
+resource_manager_tags {
+  key = "resource_manager_tags-key1"
+  value = "resource_manager_tags-value1"
+}
+```
+
+*  `key` -  (Required), The unique key of the resource manager tag to assign to disks. Keys must be in the format tagKeys/{tag_key_id}.
+*  `value` - (Required), The value of the resource manager tag to assign to disks. Values must be in the format tagValues/456.
+- - -
+
+
+<a name="nested_disk_encryption_key"></a>The `disk_encryption_key` block supports:
+
+```hcl
+disk_encryption_key {
+  raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+}
+```
+```hcl
+disk_encryption_key {
+  rsa_encrypted_key = "fB6BS8tJGhGVDZDjGt1pwUo2wyNbkzNxgH1avfOtiwB9X6oPG94gWgenygitnsYJyKjdOJ7DyXLmxwQOSmnCYCUBWdKCSssyLV5907HL2mb5TfqmgHk5JcArI/t6QADZWiuGtR+XVXqiLa5B9usxFT2BTmbHvSKfkpJ7McCNc/3U0PQR8euFRZ9i75o/w+pLHFMJ05IX3JB0zHbXMV173PjObiV3ItSJm2j3mp5XKabRGSA5rmfMnHIAMz6stGhcuom6+bMri2u/axmPsdxmC6MeWkCkCmPjaKsVz1+uQUNCJkAnzesluhoD+R6VjFDm4WI7yYabu4MOOAOTaQXdEg=="
+}
+```
+```hcl
+disk_encryption_key {
+  kms_key_service_account = google_service_account.test.email
+  kms_key_self_link = data.google_kms_crypto_key.key.id
+}
+```
+
+*  `raw_key` -  (Optional), Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.
+*  `rsa_encrypted_key` - (Optional), Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.
+*  `kms_key_service_account` -  (Optional), The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.
+*  `kms_key_self_link` - (Optional), The self link of the encryption key that is stored in Google Cloud KMS.
+- - -
+
+
+
+<a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
+
+```hcl
+source_image_encryption_key {
+  raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+}
+```
+```hcl
+source_image_encryption_key {
+  rsa_encrypted_key = "fB6BS8tJGhGVDZDjGt1pwUo2wyNbkzNxgH1avfOtiwB9X6oPG94gWgenygitnsYJyKjdOJ7DyXLmxwQOSmnCYCUBWdKCSssyLV5907HL2mb5TfqmgHk5JcArI/t6QADZWiuGtR+XVXqiLa5B9usxFT2BTmbHvSKfkpJ7McCNc/3U0PQR8euFRZ9i75o/w+pLHFMJ05IX3JB0zHbXMV173PjObiV3ItSJm2j3mp5XKabRGSA5rmfMnHIAMz6stGhcuom6+bMri2u/axmPsdxmC6MeWkCkCmPjaKsVz1+uQUNCJkAnzesluhoD+R6VjFDm4WI7yYabu4MOOAOTaQXdEg=="
+}
+
+```
+```hcl
+source_image_encryption_key {
+  kms_key_service_account = google_service_account.test.email
+  kms_key_self_link = data.google_kms_crypto_key.key.id
+}
+```
+
+*  `raw_key` -  (Optional), Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.
+*  `rsa_encrypted_key` - (Optional), Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.
+*  `kms_key_service_account` -  (Optional), The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.
+*  `kms_key_self_link` - (Optional), The self link of the encryption key that is stored in Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.
+- - -
+
+
+<a name="nested_source_snapshot_encryption_key"></a>The `source_snapshot_encryption_key` block supports:
+
+```hcl
+source_snapshot_encryption_key {
+  raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+}
+```
+```hcl
+source_snapshot_encryption_key {
+  rsa_encrypted_key = "fB6BS8tJGhGVDZDjGt1pwUo2wyNbkzNxgH1avfOtiwB9X6oPG94gWgenygitnsYJyKjdOJ7DyXLmxwQOSmnCYCUBWdKCSssyLV5907HL2mb5TfqmgHk5JcArI/t6QADZWiuGtR+XVXqiLa5B9usxFT2BTmbHvSKfkpJ7McCNc/3U0PQR8euFRZ9i75o/w+pLHFMJ05IX3JB0zHbXMV173PjObiV3ItSJm2j3mp5XKabRGSA5rmfMnHIAMz6stGhcuom6+bMri2u/axmPsdxmC6MeWkCkCmPjaKsVz1+uQUNCJkAnzesluhoD+R6VjFDm4WI7yYabu4MOOAOTaQXdEg=="
+}
+```
+```hcl
+source_snapshot_encryption_key {
+  kms_key_service_account = google_service_account.test.email
+  kms_key_self_link = data.google_kms_crypto_key.key.id
+}
+```
+
+
+*  `raw_key` -  (Optional), Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.
+*  `rsa_encrypted_key` - (Optional), Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.
+*  `kms_key_service_account` -  (Optional), The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.
+*  `kms_key_self_link` - (Optional), The self link of the encryption key that is stored in Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.
+- - -
+
 <a name="nested_all_instances_config"></a>The `all_instances_config` block supports:
 
 ```hcl

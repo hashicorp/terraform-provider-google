@@ -1254,3 +1254,102 @@ func testAccNetappVolume_volumeExportPolicyWithSquashMode_switchMutipleExportRul
   }
   `, context)
 }
+
+func TestAccNetappVolume_NetappVolumeNfsv4Example_update(t *testing.T) {
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetappVolumeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetappVolume_volumeNfsv4BasicExample_basic(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappVolume_volumeNfsv4BasicExample_update(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetappVolume_volumeNfsv4BasicExample_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+    resource "google_netapp_storage_pool" "default" {
+        name = "tf-test-test-pool%{random_suffix}"
+        location = "us-west4"
+        service_level = "PREMIUM"
+        capacity_gib = "2048"
+        network = data.google_compute_network.default.id
+    }
+
+    resource "google_netapp_volume" "test_volume" {
+        location = "us-west4"
+        name = "tf-test-test-volume%{random_suffix}"
+        capacity_gib = "100"
+        share_name = "tf-test-test-volume%{random_suffix}"
+        storage_pool = google_netapp_storage_pool.default.name
+        protocols = ["NFSV4"]
+        export_policy {
+            rules {
+            access_type     = "READ_WRITE"
+            allowed_clients = "10.0.0.0/24"
+            has_root_access = true
+            nfsv4           = true
+            }
+        }
+    }
+
+    data "google_compute_network" "default" {
+        name = "%{network_name}"
+    }
+    `, context)
+}
+
+func testAccNetappVolume_volumeNfsv4BasicExample_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+    resource "google_netapp_storage_pool" "default" {
+        name = "tf-test-test-pool%{random_suffix}"
+        location = "us-west4"
+        service_level = "PREMIUM"
+        capacity_gib = "2048"
+        network = data.google_compute_network.default.id
+    }
+
+    resource "google_netapp_volume" "test_volume" {
+        location = "us-west4"
+        name = "tf-test-test-volume%{random_suffix}"
+        capacity_gib = "100"
+        share_name = "tf-test-test-volume%{random_suffix}"
+        storage_pool = google_netapp_storage_pool.default.name
+        protocols = ["NFSV4"]
+        export_policy {
+            rules {
+            access_type     = "READ_WRITE"
+            allowed_clients = "10.0.0.0/24"
+            has_root_access = false
+            nfsv4           = true
+            }
+        }
+    }
+
+    data "google_compute_network" "default" {
+        name = "%{network_name}"
+    }
+  `, context)
+}

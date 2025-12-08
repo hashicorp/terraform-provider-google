@@ -643,6 +643,11 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		return err
 	}
 
+	flexibilityPolicy, err := expandInstanceFlexibilityPolicy(d)
+	if err != nil {
+		return err
+	}
+
 	manager := &compute.InstanceGroupManager{
 		Name:                        d.Get("name").(string),
 		Description:                 d.Get("description").(string),
@@ -656,7 +661,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		StandbyPolicy:               expandStandbyPolicy(d),
 		TargetSuspendedSize:         int64(d.Get("target_suspended_size").(int)),
 		TargetStoppedSize:           int64(d.Get("target_stopped_size").(int)),
-		InstanceFlexibilityPolicy:   expandInstanceFlexibilityPolicy(d),
+		InstanceFlexibilityPolicy:   flexibilityPolicy,
 		UpdatePolicy:                expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
 		InstanceLifecyclePolicy:     expandInstanceLifecyclePolicy(d.Get("instance_lifecycle_policy").([]interface{})),
 		AllInstancesConfig:          expandAllInstancesConfig(nil, d.Get("all_instances_config").([]interface{})),
@@ -936,7 +941,12 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	var targetSizePatchUpdate bool
 	if d.HasChange("instance_flexibility_policy") {
-		updatedManager.InstanceFlexibilityPolicy = expandInstanceFlexibilityPolicy(d)
+		flexibilityPolicy, err := expandInstanceFlexibilityPolicy(d)
+		if err != nil {
+			return err
+		}
+
+		updatedManager.InstanceFlexibilityPolicy = flexibilityPolicy
 		change = true
 
 		// target size update should be done by patch instead of using resize
@@ -1177,12 +1187,16 @@ func flattenRegionUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdateP
 	return results
 }
 
-func expandInstanceFlexibilityPolicy(d *schema.ResourceData) *compute.InstanceGroupManagerInstanceFlexibilityPolicy {
+func expandInstanceFlexibilityPolicy(d *schema.ResourceData) (*compute.InstanceGroupManagerInstanceFlexibilityPolicy, error) {
 	instanceFlexibilityPolicy := &compute.InstanceGroupManagerInstanceFlexibilityPolicy{}
 	oldFlexibilityPolicy, newFlexibilityPolicy := d.GetChange("instance_flexibility_policy")
 	for _, flexibilityPolicy := range newFlexibilityPolicy.([]any) {
 		flexibilityPolicyData := flexibilityPolicy.(map[string]any)
-		instanceFlexibilityPolicy.InstanceSelections = expandInstanceSelections(flexibilityPolicyData["instance_selections"].(*schema.Set).List())
+		instanceSelections, err := expandInstanceSelections(flexibilityPolicyData["instance_selections"].(*schema.Set).List())
+		if err != nil {
+			return nil, err
+		}
+		instanceFlexibilityPolicy.InstanceSelections = instanceSelections
 	}
 	for _, flexibilityPolicy := range oldFlexibilityPolicy.([]any) {
 		flexibilityPolicyData := flexibilityPolicy.(map[string]any)
@@ -1195,20 +1209,21 @@ func expandInstanceFlexibilityPolicy(d *schema.ResourceData) *compute.InstanceGr
 		}
 		instanceFlexibilityPolicy.ForceSendFields = append(instanceFlexibilityPolicy.ForceSendFields, "InstanceSelections")
 	}
-	return instanceFlexibilityPolicy
+	return instanceFlexibilityPolicy, nil
 }
 
-func expandInstanceSelections(instanceSelections []any) map[string]compute.InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection {
+func expandInstanceSelections(instanceSelections []any) (map[string]compute.InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection, error) {
 	instanceSelectionsMap := make(map[string]compute.InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection)
 	for _, instanceSelectionRaw := range instanceSelections {
 		instanceSelectionData := instanceSelectionRaw.(map[string]any)
+
 		instanceSelection := compute.InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection{
 			Rank:         int64(instanceSelectionData["rank"].(int)),
 			MachineTypes: tpgresource.ConvertStringSet(instanceSelectionData["machine_types"].(*schema.Set)),
 		}
 		instanceSelectionsMap[instanceSelectionData["name"].(string)] = instanceSelection
 	}
-	return instanceSelectionsMap
+	return instanceSelectionsMap, nil
 }
 
 func expandDistributionPolicyForUpdate(d *schema.ResourceData) *compute.DistributionPolicy {

@@ -657,6 +657,28 @@ func testAccCheckComputeNetworkIsCustomSubnet(t *testing.T, n string, network *c
 	}
 }
 
+func testAccCheckComputeNetworkIsUlaInternalIpv6Enabled(t *testing.T, n string, network *compute.Network, expectEnabled bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		found, err := config.NewComputeClient(config.UserAgent).Networks.Get(
+			config.Project, network.Name).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.EnableUlaInternalIpv6 != expectEnabled {
+			return fmt.Errorf("does not match expected EnableUlaInternalIpv6 value")
+		}
+
+		if expectEnabled && found.InternalIpv6Range == "" {
+			return fmt.Errorf("should have InternalIPv6Range")
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeNetworkHasMtu(t *testing.T, n string, network *compute.Network, mtu int32) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -855,6 +877,38 @@ func TestAccComputeNetwork_networkBgpStandardModeDeleteMed(t *testing.T) {
 	})
 }
 
+func TestAccComputeNetwork_updateEnableUlaInternalIpv6(t *testing.T) {
+	t.Parallel()
+
+	var network compute.Network
+	var updatedNetwork compute.Network
+	suffixName := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-test-network-enable-ula-%s", suffixName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_custom_subnet(networkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.baz", &network),
+				),
+			},
+			{
+				Config: testAccComputeNetwork_ula(networkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.baz", &updatedNetwork),
+					testAccCheckComputeNetworkWasUpdated(&updatedNetwork, &network),
+				),
+			},
+		},
+	})
+}
+
 func testAccComputeNetwork_basic(networkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "bar" {
@@ -869,6 +923,16 @@ func testAccComputeNetwork_custom_subnet(networkName string) string {
 resource "google_compute_network" "baz" {
   name                    = "%s"
   auto_create_subnetworks = false
+}
+`, networkName)
+}
+
+func testAccComputeNetwork_ula(networkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "baz" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+  enable_ula_internal_ipv6 = true
 }
 `, networkName)
 }

@@ -159,6 +159,9 @@ resource "google_compute_router_peer" "peer" {
   router_appliance_instance = google_compute_instance.instance.self_link
   peer_asn                  = 65513
   peer_ip_address           = google_compute_address.addr_peer.address
+  depends_on = [
+    google_network_connectivity_spoke.spoke
+  ]
 }
 `, context)
 }

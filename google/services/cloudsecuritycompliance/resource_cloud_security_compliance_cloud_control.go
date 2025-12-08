@@ -214,6 +214,64 @@ ONEOF`,
 										Optional:    true,
 										Description: `Represents a double value.`,
 									},
+									"oneof_value": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Sub-parameter values.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The name of the parameter.`,
+												},
+												"parameter_value": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The value of the parameter.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"bool_value": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `Represents a boolean value.`,
+															},
+															"number_value": {
+																Type:        schema.TypeFloat,
+																Optional:    true,
+																Description: `Represents a double value.`,
+															},
+															"string_list_value": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `A list of strings.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"values": {
+																			Type:        schema.TypeList,
+																			Required:    true,
+																			Description: `The strings in the list.`,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																		},
+																	},
+																},
+															},
+															"string_value": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Represents a string value.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"string_list_value": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -249,6 +307,342 @@ ONEOF`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `The display name of the parameter. The maximum length is 200 characters.`,
+						},
+						"sub_parameters": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The parameter spec of the cloud control.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"is_required": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `if the parameter is required`,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The name of the parameter.`,
+									},
+									"value_type": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Parameter value type.
+Possible values:
+STRING
+BOOLEAN
+STRINGLIST
+NUMBER
+ONEOF`,
+									},
+									"default_value": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Possible parameter value types.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"bool_value": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Represents a boolean value.`,
+												},
+												"number_value": {
+													Type:        schema.TypeFloat,
+													Optional:    true,
+													Description: `Represents a double value.`,
+												},
+												"oneof_value": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Sub-parameter values.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The name of the parameter.`,
+															},
+															"parameter_value": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `The value of the parameter.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"bool_value": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `Represents a boolean value.`,
+																		},
+																		"number_value": {
+																			Type:        schema.TypeFloat,
+																			Optional:    true,
+																			Description: `Represents a double value.`,
+																		},
+																		"string_list_value": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `A list of strings.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"values": {
+																						Type:        schema.TypeList,
+																						Required:    true,
+																						Description: `The strings in the list.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																		"string_value": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Represents a string value.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"string_list_value": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `A list of strings.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"values": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `The strings in the list.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+												"string_value": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Represents a string value.`,
+												},
+											},
+										},
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The description of the parameter. The maximum length is 2000 characters.`,
+									},
+									"display_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The display name of the parameter. The maximum length is 200 characters.`,
+									},
+									"substitution_rules": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `List of parameter substitutions.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"attribute_substitution_rule": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Attribute at the given path is substituted entirely.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"attribute": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `Fully qualified proto attribute path (in dot notation).
+Example: rules[0].cel_expression.resource_types_values`,
+															},
+														},
+													},
+												},
+												"placeholder_substitution_rule": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Placeholder is substituted in the rendered string.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"attribute": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Fully qualified proto attribute path (e.g., dot notation)`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"validation": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Validation of the parameter.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"allowed_values": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Allowed set of values for the parameter.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"values": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `List of allowed values for the parameter.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"bool_value": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `Represents a boolean value.`,
+																		},
+																		"number_value": {
+																			Type:        schema.TypeFloat,
+																			Optional:    true,
+																			Description: `Represents a double value.`,
+																		},
+																		"oneof_value": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Sub-parameter values.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The name of the parameter.`,
+																					},
+																					"parameter_value": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `The value of the parameter.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"bool_value": {
+																									Type:        schema.TypeBool,
+																									Optional:    true,
+																									Description: `Represents a boolean value.`,
+																								},
+																								"number_value": {
+																									Type:        schema.TypeFloat,
+																									Optional:    true,
+																									Description: `Represents a double value.`,
+																								},
+																								"string_list_value": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `A list of strings.`,
+																									MaxItems:    1,
+																									Elem: &schema.Resource{
+																										Schema: map[string]*schema.Schema{
+																											"values": {
+																												Type:        schema.TypeList,
+																												Required:    true,
+																												Description: `The strings in the list.`,
+																												Elem: &schema.Schema{
+																													Type: schema.TypeString,
+																												},
+																											},
+																										},
+																									},
+																								},
+																								"string_value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Represents a string value.`,
+																								},
+																							},
+																						},
+																					},
+																				},
+																			},
+																		},
+																		"string_list_value": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `A list of strings.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"values": {
+																						Type:        schema.TypeList,
+																						Required:    true,
+																						Description: `The strings in the list.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																		"string_value": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Represents a string value.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"int_range": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Number range for number parameters.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"max": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Maximum allowed value for the numeric parameter (inclusive).`,
+															},
+															"min": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Minimum allowed value for the numeric parameter (inclusive).`,
+															},
+														},
+													},
+												},
+												"regexp_pattern": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Regular Expression Validator for parameter values.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"pattern": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Regex Pattern to match the value(s) of parameter.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 						"substitution_rules": {
 							Type:        schema.TypeList,
@@ -319,6 +713,64 @@ Example: rules[0].cel_expression.resource_types_values`,
 																Type:        schema.TypeFloat,
 																Optional:    true,
 																Description: `Represents a double value.`,
+															},
+															"oneof_value": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Sub-parameter values.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"name": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `The name of the parameter.`,
+																		},
+																		"parameter_value": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `The value of the parameter.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"bool_value": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Description: `Represents a boolean value.`,
+																					},
+																					"number_value": {
+																						Type:        schema.TypeFloat,
+																						Optional:    true,
+																						Description: `Represents a double value.`,
+																					},
+																					"string_list_value": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `A list of strings.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"values": {
+																									Type:        schema.TypeList,
+																									Required:    true,
+																									Description: `The strings in the list.`,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																							},
+																						},
+																					},
+																					"string_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Represents a string value.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
 															},
 															"string_list_value": {
 																Type:        schema.TypeList,
@@ -959,6 +1411,7 @@ func flattenCloudSecurityComplianceCloudControlParameterSpec(v interface{}, d *s
 			"is_required":        flattenCloudSecurityComplianceCloudControlParameterSpecIsRequired(original["isRequired"], d, config),
 			"name":               flattenCloudSecurityComplianceCloudControlParameterSpecName(original["name"], d, config),
 			"substitution_rules": flattenCloudSecurityComplianceCloudControlParameterSpecSubstitutionRules(original["substitutionRules"], d, config),
+			"sub_parameters":     flattenCloudSecurityComplianceCloudControlParameterSpecSubParameters(original["subParameters"], d, config),
 			"validation":         flattenCloudSecurityComplianceCloudControlParameterSpecValidation(original["validation"], d, config),
 			"value_type":         flattenCloudSecurityComplianceCloudControlParameterSpecValueType(original["valueType"], d, config),
 		})
@@ -978,6 +1431,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValue(v inter
 		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueBoolValue(original["boolValue"], d, config)
 	transformed["number_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueNumberValue(original["numberValue"], d, config)
+	transformed["oneof_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValue(original["oneofValue"], d, config)
 	transformed["string_list_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueStringListValue(original["stringListValue"], d, config)
 	transformed["string_value"] =
@@ -989,6 +1444,73 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueBoolValu
 }
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueName(original["name"], d, config)
+	transformed["parameter_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValue(original["parameterValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bool_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueBoolValue(original["boolValue"], d, config)
+	transformed["number_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["string_list_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
+	transformed["string_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringValue(original["stringValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueBoolValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["values"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringListValueValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringListValueValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1082,6 +1604,409 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubstitutionRulesPla
 	return v
 }
 
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"default_value":      flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValue(original["defaultValue"], d, config),
+			"description":        flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDescription(original["description"], d, config),
+			"display_name":       flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDisplayName(original["displayName"], d, config),
+			"is_required":        flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersIsRequired(original["isRequired"], d, config),
+			"name":               flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersName(original["name"], d, config),
+			"substitution_rules": flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRules(original["substitutionRules"], d, config),
+			"validation":         flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidation(original["validation"], d, config),
+			"value_type":         flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValueType(original["valueType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bool_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueBoolValue(original["boolValue"], d, config)
+	transformed["number_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueNumberValue(original["numberValue"], d, config)
+	transformed["oneof_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValue(original["oneofValue"], d, config)
+	transformed["string_list_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringListValue(original["stringListValue"], d, config)
+	transformed["string_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringValue(original["stringValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueBoolValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueName(original["name"], d, config)
+	transformed["parameter_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValue(original["parameterValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bool_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueBoolValue(original["boolValue"], d, config)
+	transformed["number_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["string_list_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
+	transformed["string_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringValue(original["stringValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueBoolValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["values"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringListValueValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringListValueValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["values"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringListValueValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringListValueValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersIsRequired(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"attribute_substitution_rule":   flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesAttributeSubstitutionRule(original["attributeSubstitutionRule"], d, config),
+			"placeholder_substitution_rule": flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesPlaceholderSubstitutionRule(original["placeholderSubstitutionRule"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesAttributeSubstitutionRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["attribute"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesAttributeSubstitutionRuleAttribute(original["attribute"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesAttributeSubstitutionRuleAttribute(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesPlaceholderSubstitutionRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["attribute"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesPlaceholderSubstitutionRuleAttribute(original["attribute"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesPlaceholderSubstitutionRuleAttribute(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["allowed_values"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValues(original["allowedValues"], d, config)
+	transformed["int_range"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRange(original["intRange"], d, config)
+	transformed["regexp_pattern"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationRegexpPattern(original["regexpPattern"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["values"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"bool_value":        flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesBoolValue(original["boolValue"], d, config),
+			"number_value":      flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesNumberValue(original["numberValue"], d, config),
+			"oneof_value":       flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValue(original["oneofValue"], d, config),
+			"string_list_value": flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringListValue(original["stringListValue"], d, config),
+			"string_value":      flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringValue(original["stringValue"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesBoolValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueName(original["name"], d, config)
+	transformed["parameter_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValue(original["parameterValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bool_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueBoolValue(original["boolValue"], d, config)
+	transformed["number_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["string_list_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
+	transformed["string_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringValue(original["stringValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueBoolValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["values"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValueValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValueValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["values"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringListValueValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringListValueValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["max"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRangeMax(original["max"], d, config)
+	transformed["min"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRangeMin(original["min"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRangeMax(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRangeMin(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationRegexpPattern(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["pattern"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationRegexpPatternPattern(original["pattern"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationRegexpPatternPattern(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValueType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudSecurityComplianceCloudControlParameterSpecValidation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1127,6 +2052,7 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedVal
 		transformed = append(transformed, map[string]interface{}{
 			"bool_value":        flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesBoolValue(original["boolValue"], d, config),
 			"number_value":      flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesNumberValue(original["numberValue"], d, config),
+			"oneof_value":       flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValue(original["oneofValue"], d, config),
 			"string_list_value": flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesStringListValue(original["stringListValue"], d, config),
 			"string_value":      flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesStringValue(original["stringValue"], d, config),
 		})
@@ -1138,6 +2064,73 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedVal
 }
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueName(original["name"], d, config)
+	transformed["parameter_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValue(original["parameterValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bool_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueBoolValue(original["boolValue"], d, config)
+	transformed["number_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["string_list_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
+	transformed["string_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringValue(original["stringValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueBoolValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["values"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringListValueValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringListValueValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1365,6 +2358,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpec(v interface{}, d tpg
 			transformed["substitutionRules"] = transformedSubstitutionRules
 		}
 
+		transformedSubParameters, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParameters(original["sub_parameters"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subParameters"] = transformedSubParameters
+		}
+
 		transformedValidation, err := expandCloudSecurityComplianceCloudControlParameterSpecValidation(original["validation"], d, config)
 		if err != nil {
 			return nil, err
@@ -1410,6 +2410,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValue(v interf
 		transformed["numberValue"] = transformedNumberValue
 	}
 
+	transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValue(original["oneof_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oneofValue"] = transformedOneofValue
+	}
+
 	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueStringListValue(original["string_list_value"], d, config)
 	if err != nil {
 		return nil, err
@@ -1432,6 +2439,120 @@ func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueBoolValue
 }
 
 func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedParameterValue, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValue(original["parameter_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParameterValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parameterValue"] = transformedParameterValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBoolValue, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueBoolValue(original["bool_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBoolValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["boolValue"] = transformedBoolValue
+	}
+
+	transformedNumberValue, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueNumberValue(original["number_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNumberValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["numberValue"] = transformedNumberValue
+	}
+
+	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringListValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringListValue"] = transformedStringListValue
+	}
+
+	transformedStringValue, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueBoolValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValues, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringListValueValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringListValueValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1565,6 +2686,712 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubstitutionRulesPlac
 	return v, nil
 }
 
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDefaultValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValue(original["default_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDefaultValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["defaultValue"] = transformedDefaultValue
+		}
+
+		transformedDescription, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedDisplayName, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDisplayName(original["display_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["displayName"] = transformedDisplayName
+		}
+
+		transformedIsRequired, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersIsRequired(original["is_required"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIsRequired); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["isRequired"] = transformedIsRequired
+		}
+
+		transformedName, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedSubstitutionRules, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRules(original["substitution_rules"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubstitutionRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["substitutionRules"] = transformedSubstitutionRules
+		}
+
+		transformedValidation, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidation(original["validation"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValidation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["validation"] = transformedValidation
+		}
+
+		transformedValueType, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValueType(original["value_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValueType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["valueType"] = transformedValueType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBoolValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueBoolValue(original["bool_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBoolValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["boolValue"] = transformedBoolValue
+	}
+
+	transformedNumberValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueNumberValue(original["number_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNumberValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["numberValue"] = transformedNumberValue
+	}
+
+	transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValue(original["oneof_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oneofValue"] = transformedOneofValue
+	}
+
+	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringListValue(original["string_list_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringListValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringListValue"] = transformedStringListValue
+	}
+
+	transformedStringValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueBoolValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedParameterValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValue(original["parameter_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParameterValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parameterValue"] = transformedParameterValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBoolValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueBoolValue(original["bool_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBoolValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["boolValue"] = transformedBoolValue
+	}
+
+	transformedNumberValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueNumberValue(original["number_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNumberValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["numberValue"] = transformedNumberValue
+	}
+
+	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringListValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringListValue"] = transformedStringListValue
+	}
+
+	transformedStringValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueBoolValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValues, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringListValueValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringListValueValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValues, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringListValueValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringListValueValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersIsRequired(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedAttributeSubstitutionRule, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesAttributeSubstitutionRule(original["attribute_substitution_rule"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAttributeSubstitutionRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["attributeSubstitutionRule"] = transformedAttributeSubstitutionRule
+		}
+
+		transformedPlaceholderSubstitutionRule, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesPlaceholderSubstitutionRule(original["placeholder_substitution_rule"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPlaceholderSubstitutionRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["placeholderSubstitutionRule"] = transformedPlaceholderSubstitutionRule
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesAttributeSubstitutionRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAttribute, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesAttributeSubstitutionRuleAttribute(original["attribute"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAttribute); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["attribute"] = transformedAttribute
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesAttributeSubstitutionRuleAttribute(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesPlaceholderSubstitutionRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAttribute, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesPlaceholderSubstitutionRuleAttribute(original["attribute"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAttribute); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["attribute"] = transformedAttribute
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstitutionRulesPlaceholderSubstitutionRuleAttribute(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAllowedValues, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValues(original["allowed_values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowedValues"] = transformedAllowedValues
+	}
+
+	transformedIntRange, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRange(original["int_range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntRange); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["intRange"] = transformedIntRange
+	}
+
+	transformedRegexpPattern, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationRegexpPattern(original["regexp_pattern"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRegexpPattern); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["regexpPattern"] = transformedRegexpPattern
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValues, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedBoolValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesBoolValue(original["bool_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedBoolValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["boolValue"] = transformedBoolValue
+		}
+
+		transformedNumberValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesNumberValue(original["number_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNumberValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["numberValue"] = transformedNumberValue
+		}
+
+		transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValue(original["oneof_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["oneofValue"] = transformedOneofValue
+		}
+
+		transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringListValue(original["string_list_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStringListValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["stringListValue"] = transformedStringListValue
+		}
+
+		transformedStringValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringValue(original["string_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["stringValue"] = transformedStringValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesBoolValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedParameterValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValue(original["parameter_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParameterValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parameterValue"] = transformedParameterValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBoolValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueBoolValue(original["bool_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBoolValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["boolValue"] = transformedBoolValue
+	}
+
+	transformedNumberValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueNumberValue(original["number_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNumberValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["numberValue"] = transformedNumberValue
+	}
+
+	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringListValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringListValue"] = transformedStringListValue
+	}
+
+	transformedStringValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueBoolValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValues, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValueValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValueValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValues, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringListValueValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringListValueValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMax, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRangeMax(original["max"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMax); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["max"] = transformedMax
+	}
+
+	transformedMin, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRangeMin(original["min"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMin); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["min"] = transformedMin
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRangeMax(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationIntRangeMin(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationRegexpPattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPattern, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationRegexpPatternPattern(original["pattern"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPattern); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pattern"] = transformedPattern
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationRegexpPatternPattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValueType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandCloudSecurityComplianceCloudControlParameterSpecValidation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1650,6 +3477,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValu
 			transformed["numberValue"] = transformedNumberValue
 		}
 
+		transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValue(original["oneof_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["oneofValue"] = transformedOneofValue
+		}
+
 		transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesStringListValue(original["string_list_value"], d, config)
 		if err != nil {
 			return nil, err
@@ -1674,6 +3508,120 @@ func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValu
 }
 
 func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedParameterValue, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValue(original["parameter_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParameterValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parameterValue"] = transformedParameterValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBoolValue, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueBoolValue(original["bool_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBoolValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["boolValue"] = transformedBoolValue
+	}
+
+	transformedNumberValue, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueNumberValue(original["number_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNumberValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["numberValue"] = transformedNumberValue
+	}
+
+	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringListValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringListValue"] = transformedStringListValue
+	}
+
+	transformedStringValue, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueBoolValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValues, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringListValueValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringListValueValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
