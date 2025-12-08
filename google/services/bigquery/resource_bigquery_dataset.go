@@ -87,8 +87,10 @@ func validateDefaultTableExpirationMs(v interface{}, k string) (ws []string, err
 }
 
 // bigqueryDatasetAccessHash is a custom hash function for the access block.
-// It normalizes the 'role' field before hashing, treating legacy roles
-// and their modern IAM equivalents as the same.
+// It normalizes
+// 1) the 'role' field before hashing, treating legacy roles
+// and their modern IAM equivalents as the same,
+// 2) the 'user_by_email' and 'group_by_email' fields to be case-insensitive.
 func resourceBigqueryDatasetAccessHash(v interface{}) int {
 	m, ok := v.(map[string]interface{})
 	if !ok {
@@ -98,6 +100,14 @@ func resourceBigqueryDatasetAccessHash(v interface{}) int {
 	copy := make(map[string]interface{}, len(m))
 	for k, val := range m {
 		copy[k] = val
+	}
+
+	// Normalize user_by_email and group_by_email to be case-insensitive
+	if email, ok := copy["user_by_email"].(string); ok && email != "" {
+		copy["user_by_email"] = strings.ToLower(email)
+	}
+	if email, ok := copy["group_by_email"].(string); ok && email != "" {
+		copy["group_by_email"] = strings.ToLower(email)
 	}
 
 	// Normalize the role if it exists and matches a legacy role.
@@ -1164,7 +1174,11 @@ func flattenBigQueryDatasetAccessDomain(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenBigQueryDatasetAccessGroupByEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+
+	return strings.ToLower(v.(string))
 }
 
 func flattenBigQueryDatasetAccessRole(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1180,7 +1194,11 @@ func flattenBigQueryDatasetAccessIamMember(v interface{}, d *schema.ResourceData
 }
 
 func flattenBigQueryDatasetAccessUserByEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+
+	return strings.ToLower(v.(string))
 }
 
 func flattenBigQueryDatasetAccessView(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1636,7 +1654,11 @@ func expandBigQueryDatasetAccessDomain(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandBigQueryDatasetAccessGroupByEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	if v == nil {
+		return nil, nil
+	}
+
+	return strings.ToLower(v.(string)), nil
 }
 
 func expandBigQueryDatasetAccessRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1652,7 +1674,11 @@ func expandBigQueryDatasetAccessIamMember(v interface{}, d tpgresource.Terraform
 }
 
 func expandBigQueryDatasetAccessUserByEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	if v == nil {
+		return nil, nil
+	}
+
+	return strings.ToLower(v.(string)), nil
 }
 
 func expandBigQueryDatasetAccessView(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

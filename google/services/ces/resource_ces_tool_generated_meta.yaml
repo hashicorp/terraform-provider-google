@@ -21,6 +21,10 @@ fields:
   - api_field: 'clientFunction.parameters.enum'
   - api_field: 'clientFunction.parameters.items'
     json: true
+  - api_field: 'clientFunction.parameters.maxItems'
+  - api_field: 'clientFunction.parameters.maximum'
+  - api_field: 'clientFunction.parameters.minItems'
+  - api_field: 'clientFunction.parameters.minimum'
   - api_field: 'clientFunction.parameters.nullable'
   - api_field: 'clientFunction.parameters.prefixItems'
     json: true
@@ -28,6 +32,7 @@ fields:
     json: true
   - api_field: 'clientFunction.parameters.ref'
   - api_field: 'clientFunction.parameters.required'
+  - api_field: 'clientFunction.parameters.title'
   - api_field: 'clientFunction.parameters.type'
   - api_field: 'clientFunction.parameters.uniqueItems'
   - api_field: 'clientFunction.response.additionalProperties'
@@ -41,6 +46,10 @@ fields:
   - api_field: 'clientFunction.response.enum'
   - api_field: 'clientFunction.response.items'
     json: true
+  - api_field: 'clientFunction.response.maxItems'
+  - api_field: 'clientFunction.response.maximum'
+  - api_field: 'clientFunction.response.minItems'
+  - api_field: 'clientFunction.response.minimum'
   - api_field: 'clientFunction.response.nullable'
   - api_field: 'clientFunction.response.prefixItems'
     json: true
@@ -48,6 +57,7 @@ fields:
     json: true
   - api_field: 'clientFunction.response.ref'
   - api_field: 'clientFunction.response.required'
+  - api_field: 'clientFunction.response.title'
   - api_field: 'clientFunction.response.type'
   - api_field: 'clientFunction.response.uniqueItems'
   - api_field: 'createTime'
@@ -88,15 +98,18 @@ fields:
   - api_field: 'etag'
   - api_field: 'executionType'
   - api_field: 'generatedSummary'
+  - api_field: 'googleSearchTool.contextUrls'
   - api_field: 'googleSearchTool.description'
   - api_field: 'googleSearchTool.excludeDomains'
   - api_field: 'googleSearchTool.name'
+  - api_field: 'googleSearchTool.preferredDomains'
   - field: 'location'
     provider_only: true
   - api_field: 'name'
   - api_field: 'openApiTool.apiAuthentication.apiKeyConfig.apiKeySecretVersion'
   - api_field: 'openApiTool.apiAuthentication.apiKeyConfig.keyName'
   - api_field: 'openApiTool.apiAuthentication.apiKeyConfig.requestLocation'
+  - api_field: 'openApiTool.apiAuthentication.bearerTokenConfig.token'
   - api_field: 'openApiTool.apiAuthentication.oauthConfig.clientId'
   - api_field: 'openApiTool.apiAuthentication.oauthConfig.clientSecretVersion'
   - api_field: 'openApiTool.apiAuthentication.oauthConfig.oauthGrantType'

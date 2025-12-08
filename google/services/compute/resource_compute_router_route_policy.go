@@ -147,7 +147,6 @@ func ResourceComputeRouterRoutePolicy() *schema.Resource {
 			"terms": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: `List of terms (the order in the list is not important, they are evaluated in order of priority).`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

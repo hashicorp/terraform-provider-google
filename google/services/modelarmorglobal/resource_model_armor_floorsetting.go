@@ -353,6 +353,35 @@ will be taken on the request.`,
 					},
 				},
 			},
+			"google_mcp_server_floor_setting": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Google MCP Server floor setting.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_cloud_logging": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, log Model Armor filter results to Cloud Logging.`,
+						},
+						"inspect_and_block": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `If true, Model Armor filters will be run in inspect and block mode.
+Requests that trip Model Armor filters will be blocked.`,
+							ExactlyOneOf: []string{"google_mcp_server_floor_setting.0.inspect_and_block", "google_mcp_server_floor_setting.0.inspect_only"},
+						},
+						"inspect_only": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `If true, Model Armor filters will be run in inspect only mode. No action
+will be taken on the request.`,
+							ExactlyOneOf: []string{"google_mcp_server_floor_setting.0.inspect_and_block", "google_mcp_server_floor_setting.0.inspect_only"},
+						},
+					},
+				},
+			},
 			"integrated_services": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -412,6 +441,12 @@ func resourceModelArmorGlobalFloorsettingCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("ai_platform_floor_setting"); !tpgresource.IsEmptyValue(reflect.ValueOf(aiPlatformFloorSettingProp)) && (ok || !reflect.DeepEqual(v, aiPlatformFloorSettingProp)) {
 		obj["aiPlatformFloorSetting"] = aiPlatformFloorSettingProp
+	}
+	googleMcpServerFloorSettingProp, err := expandModelArmorGlobalFloorsettingGoogleMcpServerFloorSetting(d.Get("google_mcp_server_floor_setting"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("google_mcp_server_floor_setting"); !tpgresource.IsEmptyValue(reflect.ValueOf(googleMcpServerFloorSettingProp)) && (ok || !reflect.DeepEqual(v, googleMcpServerFloorSettingProp)) {
+		obj["googleMcpServerFloorSetting"] = googleMcpServerFloorSettingProp
 	}
 	floorSettingMetadataProp, err := expandModelArmorGlobalFloorsettingFloorSettingMetadata(d.Get("floor_setting_metadata"), d, config)
 	if err != nil {
@@ -518,6 +553,9 @@ func resourceModelArmorGlobalFloorsettingRead(d *schema.ResourceData, meta inter
 	if err := d.Set("ai_platform_floor_setting", flattenModelArmorGlobalFloorsettingAiPlatformFloorSetting(res["aiPlatformFloorSetting"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Floorsetting: %s", err)
 	}
+	if err := d.Set("google_mcp_server_floor_setting", flattenModelArmorGlobalFloorsettingGoogleMcpServerFloorSetting(res["googleMcpServerFloorSetting"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Floorsetting: %s", err)
+	}
 	if err := d.Set("floor_setting_metadata", flattenModelArmorGlobalFloorsettingFloorSettingMetadata(res["floorSettingMetadata"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Floorsetting: %s", err)
 	}
@@ -576,6 +614,12 @@ func resourceModelArmorGlobalFloorsettingUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("ai_platform_floor_setting"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, aiPlatformFloorSettingProp)) {
 		obj["aiPlatformFloorSetting"] = aiPlatformFloorSettingProp
 	}
+	googleMcpServerFloorSettingProp, err := expandModelArmorGlobalFloorsettingGoogleMcpServerFloorSetting(d.Get("google_mcp_server_floor_setting"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("google_mcp_server_floor_setting"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, googleMcpServerFloorSettingProp)) {
+		obj["googleMcpServerFloorSetting"] = googleMcpServerFloorSettingProp
+	}
 	floorSettingMetadataProp, err := expandModelArmorGlobalFloorsettingFloorSettingMetadata(d.Get("floor_setting_metadata"), d, config)
 	if err != nil {
 		return err
@@ -606,6 +650,10 @@ func resourceModelArmorGlobalFloorsettingUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("ai_platform_floor_setting") {
 		updateMask = append(updateMask, "aiPlatformFloorSetting")
+	}
+
+	if d.HasChange("google_mcp_server_floor_setting") {
+		updateMask = append(updateMask, "googleMcpServerFloorSetting")
 	}
 
 	if d.HasChange("floor_setting_metadata") {
@@ -858,6 +906,9 @@ func flattenModelArmorGlobalFloorsettingAiPlatformFloorSetting(v interface{}, d 
 		return nil
 	}
 	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
 	transformed := make(map[string]interface{})
 	transformed["inspect_only"] =
 		flattenModelArmorGlobalFloorsettingAiPlatformFloorSettingInspectOnly(original["inspectOnly"], d, config)
@@ -876,6 +927,35 @@ func flattenModelArmorGlobalFloorsettingAiPlatformFloorSettingInspectAndBlock(v 
 }
 
 func flattenModelArmorGlobalFloorsettingAiPlatformFloorSettingEnableCloudLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenModelArmorGlobalFloorsettingGoogleMcpServerFloorSetting(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["inspect_only"] =
+		flattenModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingInspectOnly(original["inspectOnly"], d, config)
+	transformed["inspect_and_block"] =
+		flattenModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingInspectAndBlock(original["inspectAndBlock"], d, config)
+	transformed["enable_cloud_logging"] =
+		flattenModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingEnableCloudLogging(original["enableCloudLogging"], d, config)
+	return []interface{}{transformed}
+}
+func flattenModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingInspectOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingInspectAndBlock(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingEnableCloudLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1190,13 +1270,8 @@ func expandModelArmorGlobalFloorsettingAiPlatformFloorSetting(v interface{}, d t
 		return nil, nil
 	}
 	l := v.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil, nil
-	}
-
-	if l[0] == nil {
-		transformed := make(map[string]interface{})
-		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
@@ -1235,6 +1310,54 @@ func expandModelArmorGlobalFloorsettingAiPlatformFloorSettingInspectAndBlock(v i
 }
 
 func expandModelArmorGlobalFloorsettingAiPlatformFloorSettingEnableCloudLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandModelArmorGlobalFloorsettingGoogleMcpServerFloorSetting(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInspectOnly, err := expandModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingInspectOnly(original["inspect_only"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInspectOnly); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["inspectOnly"] = transformedInspectOnly
+	}
+
+	transformedInspectAndBlock, err := expandModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingInspectAndBlock(original["inspect_and_block"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInspectAndBlock); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["inspectAndBlock"] = transformedInspectAndBlock
+	}
+
+	transformedEnableCloudLogging, err := expandModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingEnableCloudLogging(original["enable_cloud_logging"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableCloudLogging); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableCloudLogging"] = transformedEnableCloudLogging
+	}
+
+	return transformed, nil
+}
+
+func expandModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingInspectOnly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingInspectAndBlock(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandModelArmorGlobalFloorsettingGoogleMcpServerFloorSettingEnableCloudLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

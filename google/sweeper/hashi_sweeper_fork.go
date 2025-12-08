@@ -17,9 +17,9 @@
 package sweeper
 
 import (
+	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"testing"
 
@@ -49,21 +49,46 @@ type SweeperListFunc func(ResourceAction) error
 type ResourceAction func(*transport_tpg.Config, *tpgresource.ResourceDataMock, map[string]interface{}) error
 
 var (
-	sweeperInventory map[string]*Sweeper
+	flagSweep              *string
+	flagSweepAllowFailures *bool
+	flagSweepRun           *string
+	sweeperInventory       map[string]*Sweeper
 )
 
 func init() {
 	sweeperInventory = make(map[string]*Sweeper)
 }
 
-// getSweeperConfig reads sweeper configuration from environment variables.
-func getSweeperConfig() (string, bool, string) {
-	envSweepRegions := os.Getenv("SWEEPER_REGIONS")
-
-	envSweepAllowFailures := os.Getenv("SWEEP_ALLOW_FAILURES") == "true"
-
-	envSweepRun := os.Getenv("SWEEP_RUN")
-	return envSweepRegions, envSweepAllowFailures, envSweepRun
+// registerFlags checks for and gets existing flag definitions before trying to redefine them.
+func registerFlags() {
+	// Check for existing flags in global CommandLine
+	if f := flag.Lookup("sweep"); f != nil {
+		// Use the Value.Get() interface to get the values
+		if getter, ok := f.Value.(flag.Getter); ok {
+			vs := getter.Get().(string)
+			flagSweep = &vs
+		}
+		if f := flag.Lookup("sweep-allow-failures"); f != nil {
+			if getter, ok := f.Value.(flag.Getter); ok {
+				vb := getter.Get().(bool)
+				flagSweepAllowFailures = &vb
+			}
+		}
+		if f := flag.Lookup("sweep-run"); f != nil {
+			if getter, ok := f.Value.(flag.Getter); ok {
+				vs := getter.Get().(string)
+				flagSweepRun = &vs
+			}
+		}
+	} else {
+		// Define our flags if they don't exist
+		fsDefault := ""
+		fsafDefault := true
+		fsrDefault := ""
+		flagSweep = &fsDefault
+		flagSweepAllowFailures = &fsafDefault
+		flagSweepRun = &fsrDefault
+	}
 }
 
 // AddTestSweepers function adds a sweeper configuration to the inventory
@@ -95,16 +120,16 @@ func GetSweeper(name string) (*Sweeper, bool) {
 
 // ExecuteSweepers runs registered sweepers for specified regions
 func ExecuteSweepers(t *testing.T) {
-	sweepRegions, allowFailures, sweepRun := getSweeperConfig()
+	registerFlags()
+	flag.Parse()
+	if *flagSweep != "" {
+		// parse flagSweep contents for regions to run
+		regions := strings.Split(*flagSweep, ",")
 
-	if sweepRegions != "" {
-		// parse sweepRegions contents for regions to run
-		regions := strings.Split(sweepRegions, ",")
+		// get filtered list of sweepers to run based on sweep-run flag
+		sweepers := filterSweepers(*flagSweepRun, sweeperInventory)
 
-		// get filtered list of sweepers to run based on sweep-run
-		sweepers := filterSweepers(sweepRun, sweeperInventory)
-
-		if err := runSweepers(t, regions, sweepers, allowFailures); err != nil {
+		if err := runSweepers(t, regions, sweepers, *flagSweepAllowFailures); err != nil {
 			t.Errorf("error running sweepers: %v", err)
 		}
 	} else {

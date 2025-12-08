@@ -1363,7 +1363,7 @@ func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 2, 3, "SURGE", "", 0, 0.0, ""),
+				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 2, 3, "SURGE", "", "", 0, 0.0, "", ""),
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_upgrade_settings",
@@ -1371,7 +1371,7 @@ func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 2, 1, "SURGE", "", 0, 0.0, ""),
+				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 2, 1, "SURGE", "", "", 0, 0.0, "", ""),
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_upgrade_settings",
@@ -1379,7 +1379,7 @@ func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 1, 1, "SURGE", "", 0, 0.0, ""),
+				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 1, 1, "SURGE", "", "", 0, 0.0, "", ""),
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_upgrade_settings",
@@ -1387,7 +1387,7 @@ func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 0, 0, "BLUE_GREEN", "100s", 1, 0.0, "0s"),
+				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 0, 0, "BLUE_GREEN", "STANDARD", "100s", 1, 0.0, "0s", ""),
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_upgrade_settings",
@@ -1395,7 +1395,7 @@ func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 0, 0, "BLUE_GREEN", "100s", 0, 0.5, "1s"),
+				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, networkName, subnetworkName, 0, 0, "BLUE_GREEN", "STANDARD", "100s", 0, 0.5, "1s", ""),
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_upgrade_settings",
@@ -4300,32 +4300,46 @@ resource "google_container_cluster" "cluster" {
 `, network, network, network, network, network, network, cluster)
 }
 
-func makeUpgradeSettings(maxSurge int, maxUnavailable int, strategy string, nodePoolSoakDuration string, batchNodeCount int, batchPercentage float64, batchSoakDuration string) string {
+func makeUpgradeSettings(maxSurge int, maxUnavailable int, strategy, policy string, nodePoolSoakDuration string, batchNodeCount int, batchPercentage float64, batchSoakDuration string, waitForDrainDuration string) string {
 	if strategy == "BLUE_GREEN" {
+		policyBlock := ""
+		if policy == "STANDARD" {
+			policyBlock = fmt.Sprintf(`
+			standard_rollout_policy {
+				batch_node_count = %d
+				batch_percentage = %f
+				batch_soak_duration = "%s"
+			}
+			node_pool_soak_duration = "%s"
+			`, batchNodeCount, batchPercentage, batchSoakDuration, nodePoolSoakDuration)
+		} else if policy == "AUTOSCALED" {
+			policyBlock = fmt.Sprintf(`
+			autoscaled_rollout_policy {
+				wait_for_drain_duration = "%s"
+			}
+			node_pool_soak_duration = "%s"
+			`, waitForDrainDuration, nodePoolSoakDuration)
+		}
 		return fmt.Sprintf(`
-upgrade_settings {
-	strategy = "%s"
-	blue_green_settings {
-		node_pool_soak_duration = "%s"
-		standard_rollout_policy {
-			batch_node_count = %d
-			batch_percentage = %f
-			batch_soak_duration = "%s"
+	upgrade_settings {
+		strategy = "%s"
+		blue_green_settings {
+			%s
 		}
 	}
-}
-`, strategy, nodePoolSoakDuration, batchNodeCount, batchPercentage, batchSoakDuration)
+	`, strategy, policyBlock)
 	}
 	return fmt.Sprintf(`
-upgrade_settings {
-	max_surge = %d
-	max_unavailable = %d
-	strategy = "%s"
-}
-`, maxSurge, maxUnavailable, strategy)
+	upgrade_settings {
+		max_surge       = %d
+		max_unavailable = %d
+		strategy        = "%s"
+	}
+	`, maxSurge, maxUnavailable, strategy)
 }
 
-func testAccContainerNodePool_withUpgradeSettings(clusterName, nodePoolName, networkName, subnetworkName string, maxSurge int, maxUnavailable int, strategy string, nodePoolSoakDuration string, batchNodeCount int, batchPercentage float64, batchSoakDuration string) string {
+func testAccContainerNodePool_withUpgradeSettings(clusterName, nodePoolName, networkName, subnetworkName string, maxSurge int, maxUnavailable int, strategy, policy string, nodePoolSoakDuration string, batchNodeCount int, batchPercentage float64, batchSoakDuration, waitForDrainDuration string) string {
+	upgradeSettings := makeUpgradeSettings(maxSurge, maxUnavailable, strategy, policy, nodePoolSoakDuration, batchNodeCount, batchPercentage, batchSoakDuration, waitForDrainDuration)
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1" {
   location = "us-central1"
@@ -4346,9 +4360,13 @@ resource "google_container_node_pool" "with_upgrade_settings" {
   location = "us-central1"
   cluster = google_container_cluster.cluster.name
   initial_node_count = 1
+  autoscaling {
+	  min_node_count = 1
+	  max_node_count = 3
+  }
   %s
 }
-`, clusterName, networkName, subnetworkName, nodePoolName, makeUpgradeSettings(maxSurge, maxUnavailable, strategy, nodePoolSoakDuration, batchNodeCount, batchPercentage, batchSoakDuration))
+`, clusterName, networkName, subnetworkName, nodePoolName, upgradeSettings)
 }
 
 func testAccContainerNodePool_withGPU(cluster, np, networkName, subnetworkName string) string {

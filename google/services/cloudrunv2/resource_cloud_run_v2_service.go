@@ -1050,6 +1050,7 @@ For example, if ALPHA is provided as input, but only BETA and GA-level features 
 			},
 			"scaling": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Scaling settings that apply to the whole service`,
 				MaxItems:    1,
@@ -1057,16 +1058,19 @@ For example, if ALPHA is provided as input, but only BETA and GA-level features 
 					Schema: map[string]*schema.Schema{
 						"manual_instance_count": {
 							Type:        schema.TypeInt,
+							Computed:    true,
 							Optional:    true,
 							Description: `Total instance count for the service in manual scaling mode. This number of instances is divided among all revisions with specified traffic based on the percent of traffic they are receiving.`,
 						},
 						"max_instance_count": {
 							Type:        schema.TypeInt,
+							Computed:    true,
 							Optional:    true,
 							Description: `Combined maximum number of instances for all revisions receiving traffic.`,
 						},
 						"min_instance_count": {
 							Type:        schema.TypeInt,
+							Computed:    true,
 							Optional:    true,
 							Description: `Minimum number of instances for the service, to be divided among all revisions receiving traffic.`,
 						},

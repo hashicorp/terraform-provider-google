@@ -1081,6 +1081,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 
 				np.UpgradeSettings.BlueGreenSettings.StandardRolloutPolicy = standardRolloutPolicy
 			}
+
 		}
 	}
 
@@ -1602,6 +1603,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					}
 					blueGreenSettings.StandardRolloutPolicy = standardRolloutPolicy
 				}
+
 				upgradeSettings.BlueGreenSettings = blueGreenSettings
 			}
 		}

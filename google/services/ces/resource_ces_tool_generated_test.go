@@ -100,18 +100,10 @@ resource "google_ces_tool" "ces_tool_client_function_basic" {
         name = "tf_test_ces_tool_client_function_basic%{random_suffix}"
         description = "example-description"
         parameters {
-            description = "schema description"
-            type        = "ARRAY"
-            nullable    = true
-            required = ["some_property"]
-            enum = ["VALUE_A", "VALUE_B"]
-            ref = "#/defs/MyDefinition"
-            unique_items = true
-            defs = jsonencode({
-                SimpleString = {
-                type        = "STRING"
-                description = "A simple string definition"
-            }})
+            additional_properties = jsonencode(
+                {
+                type        = "BOOLEAN"
+                })
             any_of = jsonencode([
                 {
                 type        = "STRING"
@@ -119,38 +111,43 @@ resource "google_ces_tool" "ces_tool_client_function_basic" {
                 },])
             default = jsonencode(
                 false)
+            defs = jsonencode({
+                SimpleString = {
+                type        = "STRING"
+                description = "A simple string definition"
+            }})
+            description = "schema description"
+            enum = ["VALUE_A", "VALUE_B"]
+            items = jsonencode({
+                type        = "ARRAY"
+                description = "An array"
+            })
+            max_items   = 32
+            maximum     = 64
+            min_items   = 1
+            minimum     = 2
+            nullable    = true
             prefix_items = jsonencode([
                 {
                 type        = "ARRAY"
                 description = "prefix item 1"
                 },])
-            additional_properties = jsonencode(
-                {
-                type        = "BOOLEAN"
-                })
             properties = jsonencode({
                 name = {
                 type        = "STRING"
                 description = "A name"
             }})
-            items = jsonencode({
-                type        = "ARRAY"
-                description = "An array"
-            })
+            ref = "#/defs/MyDefinition"
+            required = ["some_property"]
+            title        = "Title"
+            type         = "ARRAY"
+            unique_items = true
         }
         response {
-            description = "schema description"
-            type        = "ARRAY"
-            nullable    = true
-            required = ["some_property"]
-            enum = ["VALUE_A", "VALUE_B"]
-            ref = "#/defs/MyDefinition"
-            unique_items = true
-            defs = jsonencode({
-                SimpleString = {
-                type        = "STRING"
-                description = "A simple string definition"
-            }})
+            additional_properties = jsonencode(
+                {
+                type        = "BOOLEAN"
+                })
             any_of = jsonencode([
                 {
                 type        = "STRING"
@@ -158,24 +155,37 @@ resource "google_ces_tool" "ces_tool_client_function_basic" {
                 },])
             default = jsonencode(
                 false)
+            defs = jsonencode({
+                SimpleString = {
+                type        = "STRING"
+                description = "A simple string definition"
+            }})
+            description = "schema description"
+            enum = ["VALUE_A", "VALUE_B"]
+            items = jsonencode({
+                type        = "ARRAY"
+                description = "An array"
+            })
+            max_items   = 32
+            maximum     = 64
+            min_items   = 1
+            minimum     = 2
+            nullable    = true
             prefix_items = jsonencode([
                 {
                 type        = "ARRAY"
                 description = "prefix item 1"
                 },])
-            additional_properties = jsonencode(
-                {
-                type        = "BOOLEAN"
-                })
             properties = jsonencode({
                 name = {
                 type        = "STRING"
                 description = "A name"
             }})
-            items = jsonencode({
-                type        = "ARRAY"
-                description = "An array"
-            })
+            ref = "#/defs/MyDefinition"
+            required = ["some_property"]
+            title        = "Title"
+            type         = "ARRAY"
+            unique_items = true
         }
     }
 }
@@ -357,8 +367,10 @@ resource "google_ces_tool" "ces_tool_google_search_tool_basic" {
     execution_type = "SYNCHRONOUS"
     google_search_tool {
         name            = "example-tool"
+        context_urls    = ["example.com", "example2.com"]
         description     = "example-description"
         exclude_domains = ["example.com", "example2.com"]
+        preferred_domains = ["example3.com", "example4.com"]
     }
 }
 `, context)

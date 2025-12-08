@@ -28,7 +28,7 @@ import (
 func TestAccComputeRegionHealthCheck_tcp_update(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-tcp-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -62,7 +62,7 @@ func TestAccComputeRegionHealthCheck_tcp_update(t *testing.T) {
 func TestAccComputeRegionHealthCheck_grpcWithTls_create(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-grpc1-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -88,7 +88,7 @@ func TestAccComputeRegionHealthCheck_grpcWithTls_create(t *testing.T) {
 func TestAccComputeRegionHealthCheck_grpcWithTls_update(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-grpc2-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -122,7 +122,7 @@ func TestAccComputeRegionHealthCheck_grpcWithTls_update(t *testing.T) {
 func TestAccComputeRegionHealthCheck_ssl_port_spec(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-ssl-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -144,7 +144,7 @@ func TestAccComputeRegionHealthCheck_ssl_port_spec(t *testing.T) {
 func TestAccComputeRegionHealthCheck_http_port_spec(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-http1-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -170,7 +170,7 @@ func TestAccComputeRegionHealthCheck_http_port_spec(t *testing.T) {
 func TestAccComputeRegionHealthCheck_https_serving_port(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-http2-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -192,7 +192,7 @@ func TestAccComputeRegionHealthCheck_https_serving_port(t *testing.T) {
 func TestAccComputeRegionHealthCheck_typeTransition(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-type-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -224,7 +224,7 @@ func TestAccComputeRegionHealthCheck_typeTransition(t *testing.T) {
 func TestAccComputeRegionHealthCheck_logConfigDisabled(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-log-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -268,7 +268,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   tcp_health_check {
@@ -283,7 +283,7 @@ func testAccComputeRegionHealthCheck_tcp_update(hckName string) string {
 resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   healthy_threshold   = 10
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 10
   tcp_health_check {
@@ -299,7 +299,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "tf-test-health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   grpc_tls_health_check {
@@ -314,7 +314,7 @@ func testAccComputeRegionHealthCheck_grpcWithTls_update(hckName string) string {
 resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   healthy_threshold   = 10
-  name                = "tf-test-health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 10
   grpc_tls_health_check {
@@ -330,7 +330,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   ssl_health_check {
@@ -346,7 +346,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   ssl_health_check {
@@ -363,7 +363,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   http_health_check {
@@ -379,7 +379,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   http_health_check {
@@ -395,7 +395,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   http_health_check {
@@ -412,7 +412,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   https_health_check {
@@ -428,7 +428,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   https_health_check {
@@ -444,7 +444,7 @@ resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
   description         = "Resource created for Terraform acceptance testing"
   healthy_threshold   = 3
-  name                = "health-test-%s"
+  name                = "%s"
   timeout_sec         = 2
   unhealthy_threshold = 3
   http2_health_check {

@@ -23,6 +23,7 @@ fields:
   - api_field: 'snapshotEncryptionKey.sha256'
   - api_field: 'id'
     field: 'snapshot_id'
+  - api_field: 'snapshotType'
   - api_field: 'sourceDisk'
   - api_field: 'sourceDiskEncryptionKey.kmsKeyName'
     field: 'source_disk_encryption_key.kms_key_self_link'

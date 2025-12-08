@@ -17,6 +17,7 @@
 package vertexai_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -68,6 +69,39 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineUpdate(t *testing.T) 
 	})
 }
 
+func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceUpdate(t *testing.T) {
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIEndpointDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasic(),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels", "spec.0.source_code_spec.0.inline_source"},
+			},
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceUpdate(),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels", "spec.0.source_code_spec.0.inline_source"},
+			},
+		},
+	})
+}
+
 func testAccVertexAIReasoningEngine_vertexAiReasoningEngineBasic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 locals {
@@ -100,6 +134,14 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
     service_account = google_service_account.service_account.email
 
     deployment_spec {
+      min_instances         = 1
+      max_instances         = 3
+      container_concurrency = 5
+
+      resource_limits = {
+        cpu    = "2"
+        memory = "2Gi"
+      }
 
       env {
         name  = "var_1"
@@ -271,6 +313,14 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
     service_account = google_service_account.service_account_new.email
 
     deployment_spec {
+      min_instances         = 2
+      max_instances         = 4
+      container_concurrency = 6
+
+      resource_limits = {
+        cpu    = "4"
+        memory = "4Gi"
+      }
 
       env {
         name  = "var_1"
@@ -471,4 +521,54 @@ resource "google_project_iam_member" "sa_iam_viewer_new" {
 
 data "google_project" "project" {}
 `, context)
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasic() string {
+	return fmt.Sprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "sample-reasoning-engine"
+  description  = "A basic reasoning engine"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/source.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+        requirements_file = "./requirements.txt"
+        version           = "3.11"
+      }
+    }
+  }
+}
+`)
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceUpdate() string {
+	return fmt.Sprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "sample-reasoning-engine"
+  description  = "A basic reasoning engine"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/source_updated.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "updated_agent"
+        entrypoint_object = "updated_name_generator"
+        requirements_file = "./updated_requirements.txt"
+        version           = "3.12"
+      }
+    }
+  }
+}
+`)
 }
