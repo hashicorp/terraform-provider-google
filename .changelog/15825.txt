@@ -1,0 +1,3 @@
+```release-note:bug
+iam: fixed error 409 concurrency policy changes by correctly detecting the error type.
+```
