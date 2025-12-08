@@ -1325,7 +1325,7 @@ notification_config {
 <a name="rotation_config"></a>The `rotation_config` block supports:
 
 * `enabled` (Optional) - Enable the roation in Secret Manager add-on for this cluster.
-* `rotation_interval` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - The interval between two consecutive rotations. Default rotation interval is 2 minutes.
+* `rotation_interval` (Optional) - The interval between two consecutive rotations. Default rotation interval is 2 minutes.
 
 <a name="nested_secret_sync_config"></a>The `secret_sync_config` block supports:
 
