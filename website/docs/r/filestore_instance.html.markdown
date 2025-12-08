@@ -241,7 +241,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_initial_replication).
 
 * `directory_services` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Directory Services configuration.
   Should only be set if protocol is "NFS_V4_1".
   Structure is [documented below](#nested_directory_services).

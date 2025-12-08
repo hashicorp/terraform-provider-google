@@ -44,31 +44,10 @@ resource "google_folder" "security_policy_target" {
 }
 
 resource "google_compute_organization_security_policy" "policy" {
-  provider = google-beta
+  provider     = google-beta
   display_name = "tf-test%{random_suffix}"
   parent       = google_folder.security_policy_target.name
-}
-
-resource "google_compute_organization_security_policy_rule" "policy" {
-  provider = google-beta
-  policy_id = google_compute_organization_security_policy.policy.id
-  action = "allow"
-
-  direction = "INGRESS"
-  enable_logging = true
-  match {
-    config {
-      src_ip_ranges = ["192.168.0.0/16", "10.0.0.0/8"]
-      layer4_config {
-        ip_protocol = "tcp"
-        ports = ["22"]
-      }
-      layer4_config {
-        ip_protocol = "icmp"
-      }
-    }
-  }
-  priority = 100
+  type         = "FIREWALL"
 }
 
 resource "google_compute_organization_security_policy_association" "policy" {

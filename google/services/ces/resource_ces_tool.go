@@ -195,7 +195,7 @@ ARRAY`,
 										Optional:     true,
 										ValidateFunc: validation.StringIsJSON,
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-										Description: `Optional. Defines the schema for additional properties allowed in an object.
+										Description: `Defines the schema for additional properties allowed in an object.
 The value must be a valid JSON string representing the Schema object.
 (Note: OpenAPI also allows a boolean, this definition expects a Schema JSON).`,
 									},
@@ -204,12 +204,12 @@ The value must be a valid JSON string representing the Schema object.
 										Optional:     true,
 										ValidateFunc: validation.StringIsJSON,
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-										Description:  `Optional. The instance value should be valid against at least one of the schemas in this list.`,
+										Description:  `The instance value should be valid against at least one of the schemas in this list.`,
 									},
 									"default": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `Optional. Default value of the data. Represents a dynamically typed value
+										Description: `Default value of the data. Represents a dynamically typed value
 which can be either null, a number, a string, a boolean, a struct,
 or a list of values. The provided default value must be compatible
 with the defined 'type' and other schema constraints.`,
@@ -246,6 +246,26 @@ Examples:
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 										Description:  `Schema of the elements of Type.ARRAY.`,
 									},
+									"max_items": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Maximum number of the elements for Type.ARRAY. (int64 format)`,
+									},
+									"maximum": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Maximum value for Type.INTEGER and Type.NUMBER.`,
+									},
+									"min_items": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Minimum number of the elements for Type.ARRAY. (int64 format)`,
+									},
+									"minimum": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Minimum value for Type.INTEGER and Type.NUMBER.`,
+									},
 									"nullable": {
 										Type:        schema.TypeBool,
 										Optional:    true,
@@ -256,7 +276,7 @@ Examples:
 										Optional:     true,
 										ValidateFunc: validation.StringIsJSON,
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-										Description:  `Optional. Schemas of initial elements of Type.ARRAY.`,
+										Description:  `Schemas of initial elements of Type.ARRAY.`,
 									},
 									"properties": {
 										Type:         schema.TypeString,
@@ -294,6 +314,11 @@ https://json-schema.org/understanding-json-schema/structuring.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+									},
+									"title": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The title of the schema.`,
 									},
 									"unique_items": {
 										Type:        schema.TypeBool,
@@ -327,7 +352,7 @@ ARRAY`,
 										Optional:     true,
 										ValidateFunc: validation.StringIsJSON,
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-										Description: `Optional. Defines the schema for additional properties allowed in an object.
+										Description: `Defines the schema for additional properties allowed in an object.
 The value must be a valid JSON string representing the Schema object.
 (Note: OpenAPI also allows a boolean, this definition expects a Schema JSON).`,
 									},
@@ -336,12 +361,12 @@ The value must be a valid JSON string representing the Schema object.
 										Optional:     true,
 										ValidateFunc: validation.StringIsJSON,
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-										Description:  `Optional. The instance value should be valid against at least one of the schemas in this list.`,
+										Description:  `The instance value should be valid against at least one of the schemas in this list.`,
 									},
 									"default": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `Optional. Default value of the data. Represents a dynamically typed value
+										Description: `Default value of the data. Represents a dynamically typed value
 which can be either null, a number, a string, a boolean, a struct,
 or a list of values. The provided default value must be compatible
 with the defined 'type' and other schema constraints.`,
@@ -378,6 +403,26 @@ Examples:
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 										Description:  `Schema of the elements of Type.ARRAY.`,
 									},
+									"max_items": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Maximum number of the elements for Type.ARRAY. (int64 format)`,
+									},
+									"maximum": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Maximum value for Type.INTEGER and Type.NUMBER.`,
+									},
+									"min_items": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Minimum number of the elements for Type.ARRAY. (int64 format)`,
+									},
+									"minimum": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Minimum value for Type.INTEGER and Type.NUMBER.`,
+									},
 									"nullable": {
 										Type:        schema.TypeBool,
 										Optional:    true,
@@ -388,7 +433,7 @@ Examples:
 										Optional:     true,
 										ValidateFunc: validation.StringIsJSON,
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-										Description:  `Optional. Schemas of initial elements of Type.ARRAY.`,
+										Description:  `Schemas of initial elements of Type.ARRAY.`,
 									},
 									"properties": {
 										Type:         schema.TypeString,
@@ -426,6 +471,11 @@ https://json-schema.org/understanding-json-schema/structuring.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+									},
+									"title": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The title of the schema.`,
 									},
 									"unique_items": {
 										Type:        schema.TypeBool,
@@ -858,6 +908,16 @@ https://cloud.google.com/vertex-ai/generative-ai/docs/grounding/grounding-with-g
 							Required:    true,
 							Description: `The name of the tool.`,
 						},
+						"context_urls": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Content will be fetched directly from these URLs for context and grounding.
+More details: https://cloud.google.com/vertex-ai/generative-ai/docs/url-context.
+Example: "https://example.com/path.html". A maximum of 20 URLs are allowed.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"description": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -869,6 +929,20 @@ https://cloud.google.com/vertex-ai/generative-ai/docs/grounding/grounding-with-g
 							Description: `List of domains to be excluded from the search results.
 Example: "example.com".
 A maximum of 2000 domains can be excluded.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"preferred_domains": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Specifies domain names to guide the search.
+The model will be instructed to prioritize these domains
+when formulating queries for google search.
+This is a best-effort hint and these domains may or may
+not be exclusively reflected in the final search results.
+Example: "example.com", "another.site".
+A maximum of 20 domains can be specified.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -976,6 +1050,20 @@ E.g., If the API request is "https://example.com/act?X-Api-Key=", "X-Api-Key" wo
 Possible values:
 HEADER
 QUERY_STRING`,
+												},
+											},
+										},
+									},
+									"bearer_token_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Configurations for authentication with a bearer token.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"token": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The bearer token. Must be in the format $context.variables.<name_of_variable>.`,
 												},
 											},
 										},
@@ -1607,80 +1695,46 @@ func flattenCESToolClientFunctionParameters(v interface{}, d *schema.ResourceDat
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["description"] =
-		flattenCESToolClientFunctionParametersDescription(original["description"], d, config)
-	transformed["enum"] =
-		flattenCESToolClientFunctionParametersEnum(original["enum"], d, config)
-	transformed["nullable"] =
-		flattenCESToolClientFunctionParametersNullable(original["nullable"], d, config)
-	transformed["ref"] =
-		flattenCESToolClientFunctionParametersRef(original["ref"], d, config)
-	transformed["required"] =
-		flattenCESToolClientFunctionParametersRequired(original["required"], d, config)
-	transformed["type"] =
-		flattenCESToolClientFunctionParametersType(original["type"], d, config)
-	transformed["unique_items"] =
-		flattenCESToolClientFunctionParametersUniqueItems(original["uniqueItems"], d, config)
-	transformed["defs"] =
-		flattenCESToolClientFunctionParametersDefs(original["defs"], d, config)
-	transformed["default"] =
-		flattenCESToolClientFunctionParametersDefault(original["default"], d, config)
 	transformed["additional_properties"] =
 		flattenCESToolClientFunctionParametersAdditionalProperties(original["additionalProperties"], d, config)
 	transformed["any_of"] =
 		flattenCESToolClientFunctionParametersAnyOf(original["anyOf"], d, config)
+	transformed["default"] =
+		flattenCESToolClientFunctionParametersDefault(original["default"], d, config)
+	transformed["defs"] =
+		flattenCESToolClientFunctionParametersDefs(original["defs"], d, config)
+	transformed["description"] =
+		flattenCESToolClientFunctionParametersDescription(original["description"], d, config)
+	transformed["enum"] =
+		flattenCESToolClientFunctionParametersEnum(original["enum"], d, config)
+	transformed["items"] =
+		flattenCESToolClientFunctionParametersItems(original["items"], d, config)
+	transformed["max_items"] =
+		flattenCESToolClientFunctionParametersMaxItems(original["maxItems"], d, config)
+	transformed["maximum"] =
+		flattenCESToolClientFunctionParametersMaximum(original["maximum"], d, config)
+	transformed["min_items"] =
+		flattenCESToolClientFunctionParametersMinItems(original["minItems"], d, config)
+	transformed["minimum"] =
+		flattenCESToolClientFunctionParametersMinimum(original["minimum"], d, config)
+	transformed["nullable"] =
+		flattenCESToolClientFunctionParametersNullable(original["nullable"], d, config)
 	transformed["prefix_items"] =
 		flattenCESToolClientFunctionParametersPrefixItems(original["prefixItems"], d, config)
 	transformed["properties"] =
 		flattenCESToolClientFunctionParametersProperties(original["properties"], d, config)
-	transformed["items"] =
-		flattenCESToolClientFunctionParametersItems(original["items"], d, config)
+	transformed["ref"] =
+		flattenCESToolClientFunctionParametersRef(original["ref"], d, config)
+	transformed["required"] =
+		flattenCESToolClientFunctionParametersRequired(original["required"], d, config)
+	transformed["title"] =
+		flattenCESToolClientFunctionParametersTitle(original["title"], d, config)
+	transformed["type"] =
+		flattenCESToolClientFunctionParametersType(original["type"], d, config)
+	transformed["unique_items"] =
+		flattenCESToolClientFunctionParametersUniqueItems(original["uniqueItems"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCESToolClientFunctionParametersDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionParametersEnum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionParametersNullable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionParametersRef(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionParametersRequired(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionParametersType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionParametersUniqueItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionParametersDefs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	b, err := json.Marshal(v)
-	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
-		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
-	}
-	return string(b)
-}
-
-func flattenCESToolClientFunctionParametersDefault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenCESToolClientFunctionParametersAdditionalProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1703,6 +1757,88 @@ func flattenCESToolClientFunctionParametersAnyOf(v interface{}, d *schema.Resour
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
+}
+
+func flattenCESToolClientFunctionParametersDefault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionParametersDefs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolClientFunctionParametersDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionParametersEnum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionParametersItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolClientFunctionParametersMaxItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCESToolClientFunctionParametersMaximum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionParametersMinItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCESToolClientFunctionParametersMinimum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionParametersNullable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCESToolClientFunctionParametersPrefixItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1729,16 +1865,24 @@ func flattenCESToolClientFunctionParametersProperties(v interface{}, d *schema.R
 	return string(b)
 }
 
-func flattenCESToolClientFunctionParametersItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	b, err := json.Marshal(v)
-	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
-		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
-	}
-	return string(b)
+func flattenCESToolClientFunctionParametersRef(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionParametersRequired(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionParametersTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionParametersType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionParametersUniqueItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCESToolClientFunctionResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1750,80 +1894,46 @@ func flattenCESToolClientFunctionResponse(v interface{}, d *schema.ResourceData,
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["description"] =
-		flattenCESToolClientFunctionResponseDescription(original["description"], d, config)
-	transformed["enum"] =
-		flattenCESToolClientFunctionResponseEnum(original["enum"], d, config)
-	transformed["nullable"] =
-		flattenCESToolClientFunctionResponseNullable(original["nullable"], d, config)
-	transformed["ref"] =
-		flattenCESToolClientFunctionResponseRef(original["ref"], d, config)
-	transformed["required"] =
-		flattenCESToolClientFunctionResponseRequired(original["required"], d, config)
-	transformed["type"] =
-		flattenCESToolClientFunctionResponseType(original["type"], d, config)
-	transformed["unique_items"] =
-		flattenCESToolClientFunctionResponseUniqueItems(original["uniqueItems"], d, config)
-	transformed["defs"] =
-		flattenCESToolClientFunctionResponseDefs(original["defs"], d, config)
-	transformed["default"] =
-		flattenCESToolClientFunctionResponseDefault(original["default"], d, config)
 	transformed["additional_properties"] =
 		flattenCESToolClientFunctionResponseAdditionalProperties(original["additionalProperties"], d, config)
 	transformed["any_of"] =
 		flattenCESToolClientFunctionResponseAnyOf(original["anyOf"], d, config)
+	transformed["default"] =
+		flattenCESToolClientFunctionResponseDefault(original["default"], d, config)
+	transformed["defs"] =
+		flattenCESToolClientFunctionResponseDefs(original["defs"], d, config)
+	transformed["description"] =
+		flattenCESToolClientFunctionResponseDescription(original["description"], d, config)
+	transformed["enum"] =
+		flattenCESToolClientFunctionResponseEnum(original["enum"], d, config)
+	transformed["items"] =
+		flattenCESToolClientFunctionResponseItems(original["items"], d, config)
+	transformed["max_items"] =
+		flattenCESToolClientFunctionResponseMaxItems(original["maxItems"], d, config)
+	transformed["maximum"] =
+		flattenCESToolClientFunctionResponseMaximum(original["maximum"], d, config)
+	transformed["min_items"] =
+		flattenCESToolClientFunctionResponseMinItems(original["minItems"], d, config)
+	transformed["minimum"] =
+		flattenCESToolClientFunctionResponseMinimum(original["minimum"], d, config)
+	transformed["nullable"] =
+		flattenCESToolClientFunctionResponseNullable(original["nullable"], d, config)
 	transformed["prefix_items"] =
 		flattenCESToolClientFunctionResponsePrefixItems(original["prefixItems"], d, config)
 	transformed["properties"] =
 		flattenCESToolClientFunctionResponseProperties(original["properties"], d, config)
-	transformed["items"] =
-		flattenCESToolClientFunctionResponseItems(original["items"], d, config)
+	transformed["ref"] =
+		flattenCESToolClientFunctionResponseRef(original["ref"], d, config)
+	transformed["required"] =
+		flattenCESToolClientFunctionResponseRequired(original["required"], d, config)
+	transformed["title"] =
+		flattenCESToolClientFunctionResponseTitle(original["title"], d, config)
+	transformed["type"] =
+		flattenCESToolClientFunctionResponseType(original["type"], d, config)
+	transformed["unique_items"] =
+		flattenCESToolClientFunctionResponseUniqueItems(original["uniqueItems"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCESToolClientFunctionResponseDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionResponseEnum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionResponseNullable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionResponseRef(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionResponseRequired(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionResponseType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionResponseUniqueItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCESToolClientFunctionResponseDefs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	b, err := json.Marshal(v)
-	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
-		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
-	}
-	return string(b)
-}
-
-func flattenCESToolClientFunctionResponseDefault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenCESToolClientFunctionResponseAdditionalProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1846,6 +1956,88 @@ func flattenCESToolClientFunctionResponseAnyOf(v interface{}, d *schema.Resource
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
+}
+
+func flattenCESToolClientFunctionResponseDefault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionResponseDefs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolClientFunctionResponseDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionResponseEnum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionResponseItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenCESToolClientFunctionResponseMaxItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCESToolClientFunctionResponseMaximum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionResponseMinItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCESToolClientFunctionResponseMinimum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionResponseNullable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCESToolClientFunctionResponsePrefixItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1872,16 +2064,24 @@ func flattenCESToolClientFunctionResponseProperties(v interface{}, d *schema.Res
 	return string(b)
 }
 
-func flattenCESToolClientFunctionResponseItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	b, err := json.Marshal(v)
-	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
-		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
-	}
-	return string(b)
+func flattenCESToolClientFunctionResponseRef(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionResponseRequired(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionResponseTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionResponseType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolClientFunctionResponseUniqueItems(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCESToolCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2352,14 +2552,22 @@ func flattenCESToolGoogleSearchTool(v interface{}, d *schema.ResourceData, confi
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["context_urls"] =
+		flattenCESToolGoogleSearchToolContextUrls(original["contextUrls"], d, config)
 	transformed["description"] =
 		flattenCESToolGoogleSearchToolDescription(original["description"], d, config)
 	transformed["exclude_domains"] =
 		flattenCESToolGoogleSearchToolExcludeDomains(original["excludeDomains"], d, config)
 	transformed["name"] =
 		flattenCESToolGoogleSearchToolName(original["name"], d, config)
+	transformed["preferred_domains"] =
+		flattenCESToolGoogleSearchToolPreferredDomains(original["preferredDomains"], d, config)
 	return []interface{}{transformed}
 }
+func flattenCESToolGoogleSearchToolContextUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESToolGoogleSearchToolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2369,6 +2577,10 @@ func flattenCESToolGoogleSearchToolExcludeDomains(v interface{}, d *schema.Resou
 }
 
 func flattenCESToolGoogleSearchToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolGoogleSearchToolPreferredDomains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2417,6 +2629,8 @@ func flattenCESToolOpenApiToolApiAuthentication(v interface{}, d *schema.Resourc
 	transformed := make(map[string]interface{})
 	transformed["api_key_config"] =
 		flattenCESToolOpenApiToolApiAuthenticationApiKeyConfig(original["apiKeyConfig"], d, config)
+	transformed["bearer_token_config"] =
+		flattenCESToolOpenApiToolApiAuthenticationBearerTokenConfig(original["bearerTokenConfig"], d, config)
 	transformed["oauth_config"] =
 		flattenCESToolOpenApiToolApiAuthenticationOauthConfig(original["oauthConfig"], d, config)
 	transformed["service_account_auth_config"] =
@@ -2451,6 +2665,23 @@ func flattenCESToolOpenApiToolApiAuthenticationApiKeyConfigKeyName(v interface{}
 }
 
 func flattenCESToolOpenApiToolApiAuthenticationApiKeyConfigRequestLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolOpenApiToolApiAuthenticationBearerTokenConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["token"] =
+		flattenCESToolOpenApiToolApiAuthenticationBearerTokenConfigToken(original["token"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolOpenApiToolApiAuthenticationBearerTokenConfigToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2716,6 +2947,34 @@ func expandCESToolClientFunctionParameters(v interface{}, d tpgresource.Terrafor
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedAdditionalProperties, err := expandCESToolClientFunctionParametersAdditionalProperties(original["additional_properties"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdditionalProperties); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["additionalProperties"] = transformedAdditionalProperties
+	}
+
+	transformedAnyOf, err := expandCESToolClientFunctionParametersAnyOf(original["any_of"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAnyOf); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["anyOf"] = transformedAnyOf
+	}
+
+	transformedDefault, err := expandCESToolClientFunctionParametersDefault(original["default"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefault); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["default"] = transformedDefault
+	}
+
+	transformedDefs, err := expandCESToolClientFunctionParametersDefs(original["defs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defs"] = transformedDefs
+	}
+
 	transformedDescription, err := expandCESToolClientFunctionParametersDescription(original["description"], d, config)
 	if err != nil {
 		return nil, err
@@ -2730,67 +2989,46 @@ func expandCESToolClientFunctionParameters(v interface{}, d tpgresource.Terrafor
 		transformed["enum"] = transformedEnum
 	}
 
+	transformedItems, err := expandCESToolClientFunctionParametersItems(original["items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["items"] = transformedItems
+	}
+
+	transformedMaxItems, err := expandCESToolClientFunctionParametersMaxItems(original["max_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxItems"] = transformedMaxItems
+	}
+
+	transformedMaximum, err := expandCESToolClientFunctionParametersMaximum(original["maximum"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaximum); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maximum"] = transformedMaximum
+	}
+
+	transformedMinItems, err := expandCESToolClientFunctionParametersMinItems(original["min_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minItems"] = transformedMinItems
+	}
+
+	transformedMinimum, err := expandCESToolClientFunctionParametersMinimum(original["minimum"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinimum); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minimum"] = transformedMinimum
+	}
+
 	transformedNullable, err := expandCESToolClientFunctionParametersNullable(original["nullable"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedNullable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["nullable"] = transformedNullable
-	}
-
-	transformedRef, err := expandCESToolClientFunctionParametersRef(original["ref"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedRef); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["ref"] = transformedRef
-	}
-
-	transformedRequired, err := expandCESToolClientFunctionParametersRequired(original["required"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedRequired); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["required"] = transformedRequired
-	}
-
-	transformedType, err := expandCESToolClientFunctionParametersType(original["type"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["type"] = transformedType
-	}
-
-	transformedUniqueItems, err := expandCESToolClientFunctionParametersUniqueItems(original["unique_items"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedUniqueItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["uniqueItems"] = transformedUniqueItems
-	}
-
-	transformedDefs, err := expandCESToolClientFunctionParametersDefs(original["defs"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDefs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["defs"] = transformedDefs
-	}
-
-	transformedDefault, err := expandCESToolClientFunctionParametersDefault(original["default"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDefault); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["default"] = transformedDefault
-	}
-
-	transformedAdditionalProperties, err := expandCESToolClientFunctionParametersAdditionalProperties(original["additional_properties"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAdditionalProperties); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["additionalProperties"] = transformedAdditionalProperties
-	}
-
-	transformedAnyOf, err := expandCESToolClientFunctionParametersAnyOf(original["any_of"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAnyOf); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["anyOf"] = transformedAnyOf
 	}
 
 	transformedPrefixItems, err := expandCESToolClientFunctionParametersPrefixItems(original["prefix_items"], d, config)
@@ -2807,58 +3045,42 @@ func expandCESToolClientFunctionParameters(v interface{}, d tpgresource.Terrafor
 		transformed["properties"] = transformedProperties
 	}
 
-	transformedItems, err := expandCESToolClientFunctionParametersItems(original["items"], d, config)
+	transformedRef, err := expandCESToolClientFunctionParametersRef(original["ref"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["items"] = transformedItems
+	} else if val := reflect.ValueOf(transformedRef); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ref"] = transformedRef
+	}
+
+	transformedRequired, err := expandCESToolClientFunctionParametersRequired(original["required"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequired); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["required"] = transformedRequired
+	}
+
+	transformedTitle, err := expandCESToolClientFunctionParametersTitle(original["title"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["title"] = transformedTitle
+	}
+
+	transformedType, err := expandCESToolClientFunctionParametersType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	transformedUniqueItems, err := expandCESToolClientFunctionParametersUniqueItems(original["unique_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUniqueItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uniqueItems"] = transformedUniqueItems
 	}
 
 	return transformed, nil
-}
-
-func expandCESToolClientFunctionParametersDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionParametersEnum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionParametersNullable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionParametersRef(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionParametersRequired(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionParametersType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionParametersUniqueItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionParametersDefs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	b := []byte(v.(string))
-	if len(b) == 0 {
-		return nil, nil
-	}
-	var j interface{}
-	if err := json.Unmarshal(b, &j); err != nil {
-		return nil, err
-	}
-	return j, nil
-}
-
-func expandCESToolClientFunctionParametersDefault(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandCESToolClientFunctionParametersAdditionalProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2885,6 +3107,62 @@ func expandCESToolClientFunctionParametersAnyOf(v interface{}, d tpgresource.Ter
 	return j, nil
 }
 
+func expandCESToolClientFunctionParametersDefault(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersDefs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolClientFunctionParametersDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersEnum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolClientFunctionParametersMaxItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersMaximum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersMinItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersMinimum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersNullable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandCESToolClientFunctionParametersPrefixItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
@@ -2909,16 +3187,24 @@ func expandCESToolClientFunctionParametersProperties(v interface{}, d tpgresourc
 	return j, nil
 }
 
-func expandCESToolClientFunctionParametersItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	b := []byte(v.(string))
-	if len(b) == 0 {
-		return nil, nil
-	}
-	var j interface{}
-	if err := json.Unmarshal(b, &j); err != nil {
-		return nil, err
-	}
-	return j, nil
+func expandCESToolClientFunctionParametersRef(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersRequired(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionParametersUniqueItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESToolClientFunctionResponse(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2932,6 +3218,34 @@ func expandCESToolClientFunctionResponse(v interface{}, d tpgresource.TerraformR
 	raw := l[0]
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
+
+	transformedAdditionalProperties, err := expandCESToolClientFunctionResponseAdditionalProperties(original["additional_properties"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdditionalProperties); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["additionalProperties"] = transformedAdditionalProperties
+	}
+
+	transformedAnyOf, err := expandCESToolClientFunctionResponseAnyOf(original["any_of"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAnyOf); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["anyOf"] = transformedAnyOf
+	}
+
+	transformedDefault, err := expandCESToolClientFunctionResponseDefault(original["default"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefault); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["default"] = transformedDefault
+	}
+
+	transformedDefs, err := expandCESToolClientFunctionResponseDefs(original["defs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defs"] = transformedDefs
+	}
 
 	transformedDescription, err := expandCESToolClientFunctionResponseDescription(original["description"], d, config)
 	if err != nil {
@@ -2947,67 +3261,46 @@ func expandCESToolClientFunctionResponse(v interface{}, d tpgresource.TerraformR
 		transformed["enum"] = transformedEnum
 	}
 
+	transformedItems, err := expandCESToolClientFunctionResponseItems(original["items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["items"] = transformedItems
+	}
+
+	transformedMaxItems, err := expandCESToolClientFunctionResponseMaxItems(original["max_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxItems"] = transformedMaxItems
+	}
+
+	transformedMaximum, err := expandCESToolClientFunctionResponseMaximum(original["maximum"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaximum); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maximum"] = transformedMaximum
+	}
+
+	transformedMinItems, err := expandCESToolClientFunctionResponseMinItems(original["min_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minItems"] = transformedMinItems
+	}
+
+	transformedMinimum, err := expandCESToolClientFunctionResponseMinimum(original["minimum"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinimum); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minimum"] = transformedMinimum
+	}
+
 	transformedNullable, err := expandCESToolClientFunctionResponseNullable(original["nullable"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedNullable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["nullable"] = transformedNullable
-	}
-
-	transformedRef, err := expandCESToolClientFunctionResponseRef(original["ref"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedRef); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["ref"] = transformedRef
-	}
-
-	transformedRequired, err := expandCESToolClientFunctionResponseRequired(original["required"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedRequired); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["required"] = transformedRequired
-	}
-
-	transformedType, err := expandCESToolClientFunctionResponseType(original["type"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["type"] = transformedType
-	}
-
-	transformedUniqueItems, err := expandCESToolClientFunctionResponseUniqueItems(original["unique_items"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedUniqueItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["uniqueItems"] = transformedUniqueItems
-	}
-
-	transformedDefs, err := expandCESToolClientFunctionResponseDefs(original["defs"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDefs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["defs"] = transformedDefs
-	}
-
-	transformedDefault, err := expandCESToolClientFunctionResponseDefault(original["default"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDefault); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["default"] = transformedDefault
-	}
-
-	transformedAdditionalProperties, err := expandCESToolClientFunctionResponseAdditionalProperties(original["additional_properties"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAdditionalProperties); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["additionalProperties"] = transformedAdditionalProperties
-	}
-
-	transformedAnyOf, err := expandCESToolClientFunctionResponseAnyOf(original["any_of"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAnyOf); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["anyOf"] = transformedAnyOf
 	}
 
 	transformedPrefixItems, err := expandCESToolClientFunctionResponsePrefixItems(original["prefix_items"], d, config)
@@ -3024,58 +3317,42 @@ func expandCESToolClientFunctionResponse(v interface{}, d tpgresource.TerraformR
 		transformed["properties"] = transformedProperties
 	}
 
-	transformedItems, err := expandCESToolClientFunctionResponseItems(original["items"], d, config)
+	transformedRef, err := expandCESToolClientFunctionResponseRef(original["ref"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["items"] = transformedItems
+	} else if val := reflect.ValueOf(transformedRef); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ref"] = transformedRef
+	}
+
+	transformedRequired, err := expandCESToolClientFunctionResponseRequired(original["required"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequired); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["required"] = transformedRequired
+	}
+
+	transformedTitle, err := expandCESToolClientFunctionResponseTitle(original["title"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["title"] = transformedTitle
+	}
+
+	transformedType, err := expandCESToolClientFunctionResponseType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	transformedUniqueItems, err := expandCESToolClientFunctionResponseUniqueItems(original["unique_items"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUniqueItems); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uniqueItems"] = transformedUniqueItems
 	}
 
 	return transformed, nil
-}
-
-func expandCESToolClientFunctionResponseDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionResponseEnum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionResponseNullable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionResponseRef(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionResponseRequired(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionResponseType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionResponseUniqueItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCESToolClientFunctionResponseDefs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	b := []byte(v.(string))
-	if len(b) == 0 {
-		return nil, nil
-	}
-	var j interface{}
-	if err := json.Unmarshal(b, &j); err != nil {
-		return nil, err
-	}
-	return j, nil
-}
-
-func expandCESToolClientFunctionResponseDefault(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandCESToolClientFunctionResponseAdditionalProperties(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -3102,6 +3379,62 @@ func expandCESToolClientFunctionResponseAnyOf(v interface{}, d tpgresource.Terra
 	return j, nil
 }
 
+func expandCESToolClientFunctionResponseDefault(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseDefs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolClientFunctionResponseDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseEnum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandCESToolClientFunctionResponseMaxItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseMaximum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseMinItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseMinimum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseNullable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandCESToolClientFunctionResponsePrefixItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
@@ -3126,16 +3459,24 @@ func expandCESToolClientFunctionResponseProperties(v interface{}, d tpgresource.
 	return j, nil
 }
 
-func expandCESToolClientFunctionResponseItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	b := []byte(v.(string))
-	if len(b) == 0 {
-		return nil, nil
-	}
-	var j interface{}
-	if err := json.Unmarshal(b, &j); err != nil {
-		return nil, err
-	}
-	return j, nil
+func expandCESToolClientFunctionResponseRef(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseRequired(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolClientFunctionResponseUniqueItems(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESToolDataStoreTool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -3880,6 +4221,13 @@ func expandCESToolGoogleSearchTool(v interface{}, d tpgresource.TerraformResourc
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedContextUrls, err := expandCESToolGoogleSearchToolContextUrls(original["context_urls"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContextUrls); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["contextUrls"] = transformedContextUrls
+	}
+
 	transformedDescription, err := expandCESToolGoogleSearchToolDescription(original["description"], d, config)
 	if err != nil {
 		return nil, err
@@ -3901,7 +4249,18 @@ func expandCESToolGoogleSearchTool(v interface{}, d tpgresource.TerraformResourc
 		transformed["name"] = transformedName
 	}
 
+	transformedPreferredDomains, err := expandCESToolGoogleSearchToolPreferredDomains(original["preferred_domains"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPreferredDomains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["preferredDomains"] = transformedPreferredDomains
+	}
+
 	return transformed, nil
+}
+
+func expandCESToolGoogleSearchToolContextUrls(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESToolGoogleSearchToolDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -3913,6 +4272,10 @@ func expandCESToolGoogleSearchToolExcludeDomains(v interface{}, d tpgresource.Te
 }
 
 func expandCESToolGoogleSearchToolName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolGoogleSearchToolPreferredDomains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

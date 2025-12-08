@@ -334,6 +334,20 @@ func ResourceApphubService() *schema.Resource {
 							Computed:    true,
 							Description: `Output only. The service project identifier that the underlying cloud resource resides in.`,
 						},
+						"identity": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The identity associated with the service.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"principal": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The principal of the identity.`,
+									},
+								},
+							},
+						},
 						"location": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -824,6 +838,8 @@ func flattenApphubServiceServiceProperties(v interface{}, d *schema.ResourceData
 		flattenApphubServiceServicePropertiesRegistrationType(original["registrationType"], d, config)
 	transformed["extended_metadata"] =
 		flattenApphubServiceServicePropertiesExtendedMetadata(original["extendedMetadata"], d, config)
+	transformed["identity"] =
+		flattenApphubServiceServicePropertiesIdentity(original["identity"], d, config)
 	return []interface{}{transformed}
 }
 func flattenApphubServiceServicePropertiesGcpProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -915,6 +931,23 @@ func flattenApphubServiceServicePropertiesExtendedMetadataValueMetadataStruct(v 
 }
 
 func flattenApphubServiceServicePropertiesExtendedMetadataValueExtendedMetadataSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubServiceServicePropertiesIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["principal"] =
+		flattenApphubServiceServicePropertiesIdentityPrincipal(original["principal"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApphubServiceServicePropertiesIdentityPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

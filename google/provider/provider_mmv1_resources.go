@@ -584,9 +584,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 687
+// Generated resources: 695
 // Generated IAM resources: 324
-// Total generated resources: 1011
+// Total generated resources: 1019
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -739,6 +739,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_certificate_manager_trust_config":                                    certificatemanager.ResourceCertificateManagerTrustConfig(),
 	"google_ces_agent":                                                           ces.ResourceCESAgent(),
 	"google_ces_app":                                                             ces.ResourceCESApp(),
+	"google_ces_app_version":                                                     ces.ResourceCESAppVersion(),
 	"google_ces_deployment":                                                      ces.ResourceCESDeployment(),
 	"google_ces_example":                                                         ces.ResourceCESExample(),
 	"google_ces_guardrail":                                                       ces.ResourceCESGuardrail(),
@@ -878,6 +879,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_network_peering_routes_config":                               compute.ResourceComputeNetworkPeeringRoutesConfig(),
 	"google_compute_node_group":                                                  compute.ResourceComputeNodeGroup(),
 	"google_compute_node_template":                                               compute.ResourceComputeNodeTemplate(),
+	"google_compute_organization_security_policy":                                compute.ResourceComputeOrganizationSecurityPolicy(),
 	"google_compute_packet_mirroring":                                            compute.ResourceComputePacketMirroring(),
 	"google_compute_per_instance_config":                                         compute.ResourceComputePerInstanceConfig(),
 	"google_compute_preview_feature":                                             compute.ResourceComputePreviewFeature(),
@@ -1056,6 +1058,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dialogflow_encryption_spec":                                          dialogflow.ResourceDialogflowEncryptionSpec(),
 	"google_dialogflow_entity_type":                                              dialogflow.ResourceDialogflowEntityType(),
 	"google_dialogflow_fulfillment":                                              dialogflow.ResourceDialogflowFulfillment(),
+	"google_dialogflow_generator":                                                dialogflow.ResourceDialogflowGenerator(),
 	"google_dialogflow_intent":                                                   dialogflow.ResourceDialogflowIntent(),
 	"google_dialogflow_version":                                                  dialogflow.ResourceDialogflowVersion(),
 	"google_dialogflow_cx_agent":                                                 dialogflowcx.ResourceDialogflowCXAgent(),
@@ -1087,6 +1090,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_discovery_engine_sitemap":                                            discoveryengine.ResourceDiscoveryEngineSitemap(),
 	"google_discovery_engine_target_site":                                        discoveryengine.ResourceDiscoveryEngineTargetSite(),
 	"google_discovery_engine_user_store":                                         discoveryengine.ResourceDiscoveryEngineUserStore(),
+	"google_discovery_engine_widget_config":                                      discoveryengine.ResourceDiscoveryEngineWidgetConfig(),
 	"google_dns_managed_zone":                                                    dns.ResourceDNSManagedZone(),
 	"google_dns_managed_zone_iam_binding":                                        tpgiamresource.ResourceIamBinding(dns.DNSManagedZoneIamSchema, dns.DNSManagedZoneIamUpdaterProducer, dns.DNSManagedZoneIdParseFunc),
 	"google_dns_managed_zone_iam_member":                                         tpgiamresource.ResourceIamMember(dns.DNSManagedZoneIamSchema, dns.DNSManagedZoneIamUpdaterProducer, dns.DNSManagedZoneIdParseFunc),
@@ -1362,12 +1366,16 @@ var generatedResources = map[string]*schema.Resource{
 	"google_network_services_gateway":                                            networkservices.ResourceNetworkServicesGateway(),
 	"google_network_services_grpc_route":                                         networkservices.ResourceNetworkServicesGrpcRoute(),
 	"google_network_services_http_route":                                         networkservices.ResourceNetworkServicesHttpRoute(),
+	"google_network_services_lb_edge_extension":                                  networkservices.ResourceNetworkServicesLbEdgeExtension(),
 	"google_network_services_lb_route_extension":                                 networkservices.ResourceNetworkServicesLbRouteExtension(),
 	"google_network_services_lb_traffic_extension":                               networkservices.ResourceNetworkServicesLbTrafficExtension(),
 	"google_network_services_mesh":                                               networkservices.ResourceNetworkServicesMesh(),
+	"google_network_services_multicast_consumer_association":                     networkservices.ResourceNetworkServicesMulticastConsumerAssociation(),
 	"google_network_services_multicast_domain":                                   networkservices.ResourceNetworkServicesMulticastDomain(),
 	"google_network_services_multicast_domain_activation":                        networkservices.ResourceNetworkServicesMulticastDomainActivation(),
 	"google_network_services_multicast_domain_group":                             networkservices.ResourceNetworkServicesMulticastDomainGroup(),
+	"google_network_services_multicast_group_range":                              networkservices.ResourceNetworkServicesMulticastGroupRange(),
+	"google_network_services_multicast_producer_association":                     networkservices.ResourceNetworkServicesMulticastProducerAssociation(),
 	"google_network_services_service_binding":                                    networkservices.ResourceNetworkServicesServiceBinding(),
 	"google_network_services_tcp_route":                                          networkservices.ResourceNetworkServicesTcpRoute(),
 	"google_network_services_tls_route":                                          networkservices.ResourceNetworkServicesTlsRoute(),

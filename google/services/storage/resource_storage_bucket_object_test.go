@@ -609,6 +609,47 @@ func TestAccStorageObject_objectDeletionPolicy(t *testing.T) {
 	})
 }
 
+func TestAccStorageObject_addUpdateObjectContexts(t *testing.T) {
+	t.Parallel()
+
+	bucketName := acctest.TestBucketName(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleStorageBucketsObjectContent(bucketName),
+			},
+			{
+				Config: testGoogleStorageBucketsObjectContexts(bucketName, "testKey", "value"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectContexts(t, bucketName, "testKey"),
+				),
+			},
+			{
+				Config: testGoogleStorageBucketsObjectContexts(bucketName, "testKey1", "value1"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectContexts(t, bucketName, "testKey"),
+				),
+			},
+			{
+				Config: testGoogleStorageBucketsMultipleObjectContexts(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectContextsExists(t, bucketName, 2),
+				),
+			},
+			{
+				Config: testGoogleStorageBucketsObjectContent(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectContextsExists(t, bucketName, 0),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleStorageObjectCrc32cHash(t *testing.T, bucket, object, crc32 string) resource.TestCheckFunc {
 	return testAccCheckGoogleStorageObjectCrc32cWithEncryption(t, bucket, object, crc32, "")
 }
@@ -1112,4 +1153,88 @@ func testAccCheckStorageObjectExists(t *testing.T, bucketName string) resource.T
 		}
 		return nil
 	}
+}
+
+func testAccCheckStorageObjectContextsExists(t *testing.T, bucketName string, customKeys int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		config := acctest.GoogleProviderConfig(t)
+
+		res, err := config.NewStorageClient(config.UserAgent).Objects.Get(bucketName, objectName).Do()
+		if err != nil {
+			return err
+		}
+
+		if res.Contexts != nil && len(res.Contexts.Custom) == customKeys {
+			return nil
+		}
+		return nil
+	}
+}
+
+func testAccCheckStorageObjectContexts(t *testing.T, bucketName, customKey string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		res, err := config.NewStorageClient(config.UserAgent).Objects.Get(bucketName, objectName).Do()
+		if err != nil {
+			return err
+		}
+
+		if res.Contexts != nil && len(res.Contexts.Custom) > 0 {
+			kvPairs := res.Contexts.Custom
+			for k := range kvPairs {
+				if k == customKey {
+					return nil
+				}
+			}
+		}
+		return nil
+	}
+}
+
+func testGoogleStorageBucketsObjectContexts(bucketName string, key, value string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+}
+
+resource "google_storage_bucket_object" "object" {
+  name            = "%s"
+  bucket          = google_storage_bucket.bucket.name
+  content         = "%s"
+  contexts {
+    custom{
+		key="%s"
+		value="%s"
+	}
+  }
+}
+`, bucketName, objectName, content, key, value)
+}
+
+func testGoogleStorageBucketsMultipleObjectContexts(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+}
+
+resource "google_storage_bucket_object" "object" {
+  name            = "%s"
+  bucket          = google_storage_bucket.bucket.name
+  content         = "%s"
+  contexts {
+    custom {
+		key="cloud"
+		value="gcp"
+	}
+    custom {
+		key="backup"
+		value="storage"
+	}
+  }
+}
+`, bucketName, objectName, content)
 }

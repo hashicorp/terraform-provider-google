@@ -35,6 +35,7 @@ fields:
   - api_field: 'workloadProperties.extendedMetadata.value.metadataStruct'
   - api_field: 'workloadProperties.functionalType.type'
   - api_field: 'workloadProperties.gcpProject'
+  - api_field: 'workloadProperties.identity.principal'
   - api_field: 'workloadProperties.location'
   - api_field: 'workloadProperties.zone'
   - api_field: 'workloadReference.uri'

@@ -81,6 +81,14 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
     service_account = google_service_account.service_account.email
 
     deployment_spec {
+      min_instances         = 1
+      max_instances         = 3
+      container_concurrency = 5
+
+      resource_limits = {
+        cpu    = "4"
+        memory = "4Gi"
+      }
 
       env {
         name  = "var_1"
@@ -224,7 +232,8 @@ The following arguments are supported:
 * `encryption_spec` -
   (Optional)
   Optional. Customer-managed encryption key spec for a ReasoningEngine.
-  If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.
+  If set, this ReasoningEngine and all sub-resources of this ReasoningEngine
+  will be secured by this key.
   Structure is [documented below](#nested_encryption_spec).
 
 * `spec` -
@@ -245,9 +254,11 @@ The following arguments are supported:
 
 * `kms_key_name` -
   (Required)
-  Required. The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
-  Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key.
-  The key needs to be in the same region as where the compute resource is created.
+  Required. The Cloud KMS resource identifier of the customer managed
+  encryption key used to protect a resource. Has the form:
+  projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key.
+  The key needs to be in the same region as where the compute resource
+  is created.
 
 <a name="nested_spec"></a>The `spec` block supports:
 
@@ -257,7 +268,8 @@ The following arguments are supported:
 
 * `class_methods` -
   (Optional)
-  Optional. Declarations for object class methods in OpenAPI specification format.
+  Optional. Declarations for object class methods in OpenAPI
+  specification format.
 
 * `deployment_spec` -
   (Optional)
@@ -272,46 +284,95 @@ The following arguments are supported:
   field_behavior to avoid introducing breaking changes.
   Structure is [documented below](#nested_spec_package_spec).
 
+* `source_code_spec` -
+  (Optional)
+  Specification for deploying from source code.
+  Structure is [documented below](#nested_spec_source_code_spec).
+
 * `service_account` -
   (Optional)
-  Optional. The service account that the Reasoning Engine artifact runs as.
-  It should have "roles/storage.objectViewer" for reading the user project's
-  Cloud Storage and "roles/aiplatform.user" for using Vertex extensions.
-  If not specified, the Vertex AI Reasoning Engine service Agent in the project will be used.
+  Optional. The service account that the Reasoning Engine artifact runs
+  as. It should have "roles/storage.objectViewer" for reading the user
+  project's Cloud Storage and "roles/aiplatform.user" for using Vertex
+  extensions. If not specified, the Vertex AI Reasoning Engine service
+  Agent in the project will be used.
 
 
 <a name="nested_spec_deployment_spec"></a>The `deployment_spec` block supports:
 
 * `env` -
   (Optional)
-  Optional. Environment variables to be set with the Reasoning Engine deployment.
+  Optional. Environment variables to be set with the Reasoning
+  Engine deployment.
   Structure is [documented below](#nested_spec_deployment_spec_env).
 
 * `secret_env` -
   (Optional)
-  Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine service Agent.
+  Optional. Environment variables where the value is a secret in
+  Cloud Secret Manager. To use this feature, add 'Secret Manager
+  Secret Accessor' role (roles/secretmanager.secretAccessor) to AI
+  Platform Reasoning Engine service Agent.
   Structure is [documented below](#nested_spec_deployment_spec_secret_env).
+
+* `resource_limits` -
+  (Optional)
+  Optional. Resource limits for each container.
+  Only 'cpu' and 'memory' keys are supported.
+  Defaults to {"cpu": "4", "memory": "4Gi"}.
+  The only supported values for CPU are '1', '2', '4', '6' and '8'.
+  For more information, go to
+  https://cloud.google.com/run/docs/configuring/cpu.
+  The only supported values for memory are '1Gi', '2Gi', ... '32 Gi'.
+  For more information, go to
+  https://cloud.google.com/run/docs/configuring/memory-limits.
+
+* `min_instances` -
+  (Optional)
+  Optional. The maximum number of application instances that can be
+  launched to handle increased traffic. Defaults to 100.
+  Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable
+  range is [1, 100].
+
+* `max_instances` -
+  (Optional)
+  Optional. The minimum number of application instances that will be
+  kept running at all times. Defaults to 1. Range: [0, 10].
+
+* `container_concurrency` -
+  (Optional)
+  Optional. Concurrency for each container and agent server.
+  Recommended value: 2 * cpu + 1. Defaults to 9.
 
 
 <a name="nested_spec_deployment_spec_env"></a>The `env` block supports:
 
 * `name` -
   (Required)
-  The name of the environment variable. Must be a valid C identifier.
+  The name of the environment variable. Must be a valid
+  C identifier.
 
 * `value` -
   (Required)
-  Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not.
+  Variables that reference a $(VAR_NAME) are expanded using
+  the previous defined environment variables in the container
+  and any service environment variables. If a variable cannot
+  be resolved, the reference in the input string will be
+  unchanged. The $(VAR_NAME) syntax can be escaped with a
+  double $$, ie: $$(VAR_NAME). Escaped references will never
+  be expanded, regardless of whether the variable exists
+  or not.
 
 <a name="nested_spec_deployment_spec_secret_env"></a>The `secret_env` block supports:
 
 * `name` -
   (Required)
-  The name of the environment variable. Must be a valid C identifier.
+  The name of the environment variable. Must be a valid C
+  identifier.
 
 * `secret_ref` -
   (Required)
-  Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable.
+  Reference to a secret stored in the Cloud Secret Manager
+  that will provide the value for this environment variable.
   Structure is [documented below](#nested_spec_deployment_spec_secret_env_secret_env_secret_ref).
 
 
@@ -319,17 +380,21 @@ The following arguments are supported:
 
 * `secret` -
   (Required)
-  The name of the secret in Cloud Secret Manager. Format: {secret_name}.
+  The name of the secret in Cloud Secret Manager.
+  Format: {secret_name}.
 
 * `version` -
   (Optional)
-  The Cloud Secret Manager secret version. Can be 'latest' for the latest version, an integer for a specific version, or a version alias.
+  The Cloud Secret Manager secret version. Can be 'latest'
+  for the latest version, an integer for a specific
+  version, or a version alias.
 
 <a name="nested_spec_package_spec"></a>The `package_spec` block supports:
 
 * `dependency_files_gcs_uri` -
   (Optional)
-  Optional. The Cloud Storage URI of the dependency files in tar.gz format.
+  Optional. The Cloud Storage URI of the dependency files in tar.gz
+  format.
 
 * `pickle_object_gcs_uri` -
   (Optional)
@@ -337,11 +402,60 @@ The following arguments are supported:
 
 * `python_version` -
   (Optional)
-  Optional. The Python version.
+  Optional. The Python version. Currently support 3.8, 3.9, 3.10,
+  3.11, 3.12, 3.13. If not specified, default value is 3.10.
 
 * `requirements_gcs_uri` -
   (Optional)
-  Optional. The Cloud Storage URI of the requirements.txt file
+  Optional. The Cloud Storage URI of the requirements.txtfile
+
+<a name="nested_spec_source_code_spec"></a>The `source_code_spec` block supports:
+
+* `inline_source` -
+  (Optional)
+  Source code is provided directly in the request.
+  Structure is [documented below](#nested_spec_source_code_spec_inline_source).
+
+* `python_spec` -
+  (Optional)
+  Specification for running a Python application from source.
+  Structure is [documented below](#nested_spec_source_code_spec_python_spec).
+
+
+<a name="nested_spec_source_code_spec_inline_source"></a>The `inline_source` block supports:
+
+* `source_archive` -
+  (Optional)
+  Required. Input only.
+  The application source code archive, provided as a compressed
+  tarball (.tar.gz) file. A base64-encoded string.
+
+<a name="nested_spec_source_code_spec_python_spec"></a>The `python_spec` block supports:
+
+* `entrypoint_module` -
+  (Optional)
+  Optional. The Python module to load as the entrypoint,
+  specified as a fully qualified module name. For example:
+  path.to.agent. If not specified, defaults to "agent".
+  The project root will be added to Python sys.path, allowing
+  imports to be specified relative to the root.
+
+* `entrypoint_object` -
+  (Optional)
+  Optional. The name of the callable object within the
+  entrypointModule to use as the application If not specified,
+  defaults to "root_agent".
+
+* `requirements_file` -
+  (Optional)
+  Optional. The path to the requirements file, relative to the
+  source root. If not specified, defaults to "requirements.txt".
+
+* `version` -
+  (Optional)
+  Optional. The version of Python to use. Support version
+  includes 3.9, 3.10, 3.11, 3.12, 3.13. If not specified,
+  default value is 3.10.
 
 ## Attributes Reference
 
@@ -351,15 +465,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The generated name of the ReasoningEngine, in the format
-  'projects/{project}/locations/{location}/reasoningEngines/{reasoningEngine}'
+  projects/{project}/locations/{location}/reasoningEngines/{reasoningEngine}
 
 * `create_time` -
   The timestamp of when the Index was created in RFC3339 UTC "Zulu" format,
   with nanosecond resolution and up to nine fractional digits.
 
 * `update_time` -
-  The timestamp of when the Index was last updated in RFC3339 UTC "Zulu" format,
-  with nanosecond resolution and up to nine fractional digits.
+  The timestamp of when the Index was last updated in RFC3339 UTC "Zulu"
+  format, with nanosecond resolution and up to nine fractional digits.
 
 
 ## Timeouts
@@ -369,7 +483,7 @@ This resource provides the following
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `delete` - Default is 60 minutes.
 
 ## Import
 

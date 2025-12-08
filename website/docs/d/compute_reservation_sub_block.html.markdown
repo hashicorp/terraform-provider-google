@@ -54,12 +54,12 @@ The following arguments are supported:
 
 * `reservation` - (Required) The name of the parent reservation.
 
-* `zone` - (Required) The zone where the reservation sub-block resides.
-
 - - -
+* `zone` - (Optional) The zone where the reservation sub-block resides.
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
+
 
 ## Attributes Reference
 

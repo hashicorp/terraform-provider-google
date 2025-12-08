@@ -69,7 +69,7 @@ func TestAccComputeInterconnect_computeInterconnectBasicTestExample(t *testing.T
 				ResourceName:            "google_compute_interconnect.example-interconnect",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "params", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_compute_interconnect.example-interconnect",

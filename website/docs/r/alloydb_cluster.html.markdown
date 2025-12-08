@@ -61,10 +61,6 @@ resource "google_alloydb_cluster" "default" {
     network = google_compute_network.default.id
   }
 
-  initial_user {
-    password = "alloydb-cluster"
-  }
-
   deletion_protection = false
 }
 
@@ -311,10 +307,6 @@ resource "google_alloydb_cluster" "primary" {
     network = google_compute_network.default.id
   }
 
-  initial_user {
-    password = "alloydb-primary-cluster"
-  }
-
   deletion_protection = false
 }
 
@@ -429,7 +421,7 @@ The following arguments are supported:
 
 * `initial_user` -
   (Optional)
-  Initial user to setup during cluster creation. This must be set for all new Clusters.
+  Initial user to setup during cluster creation. If unset for new Clusters, a postgres role with null password is created. You will need to create additional users or set the password in order to log in.
   Structure is [documented below](#nested_initial_user).
 
 * `restore_backup_source` -
@@ -529,7 +521,7 @@ Default value: "true"
   The database username.
 
 * `password` -
-  (Required)
+  (Optional)
   The initial password for the user.
   **Note**: This property is sensitive and will not be displayed in the plan.
 

@@ -348,6 +348,20 @@ func ResourceApphubWorkload() *schema.Resource {
 							Computed:    true,
 							Description: `Output only. The service project identifier that the underlying cloud resource resides in. Empty for non cloud resources.`,
 						},
+						"identity": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `The identity associated with the workload.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"principal": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The principal of the identity.`,
+									},
+								},
+							},
+						},
 						"location": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -805,6 +819,8 @@ func flattenApphubWorkloadWorkloadProperties(v interface{}, d *schema.ResourceDa
 		flattenApphubWorkloadWorkloadPropertiesFunctionalType(original["functionalType"], d, config)
 	transformed["extended_metadata"] =
 		flattenApphubWorkloadWorkloadPropertiesExtendedMetadata(original["extendedMetadata"], d, config)
+	transformed["identity"] =
+		flattenApphubWorkloadWorkloadPropertiesIdentity(original["identity"], d, config)
 	return []interface{}{transformed}
 }
 func flattenApphubWorkloadWorkloadPropertiesGcpProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -879,6 +895,23 @@ func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValueMetadataStruct(
 }
 
 func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValueExtendedMetadataSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApphubWorkloadWorkloadPropertiesIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["principal"] =
+		flattenApphubWorkloadWorkloadPropertiesIdentityPrincipal(original["principal"], d, config)
+	return []interface{}{transformed}
+}
+func flattenApphubWorkloadWorkloadPropertiesIdentityPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

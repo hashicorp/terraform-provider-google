@@ -282,12 +282,13 @@ func resizeWorkbenchInstanceDisk(config *transport_tpg.Config, d *schema.Resourc
 	}
 
 	dRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		RawURL:    resizeUrl,
-		UserAgent: userAgent,
-		Body:      diskObj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Config:               config,
+		Method:               "POST",
+		RawURL:               resizeUrl,
+		UserAgent:            userAgent,
+		Body:                 diskObj,
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
 	})
 
 	if err != nil {

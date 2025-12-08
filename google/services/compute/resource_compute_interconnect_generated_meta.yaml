@@ -40,6 +40,7 @@ fields:
   - api_field: 'name'
   - api_field: 'nocContactEmail'
   - api_field: 'operationalStatus'
+  - api_field: 'params.resourceManagerTags'
   - api_field: 'peerIpAddress'
   - api_field: 'provisionedLinkCount'
   - api_field: 'remoteLocation'

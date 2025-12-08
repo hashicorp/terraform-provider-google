@@ -1,0 +1,26 @@
+resource: 'google_network_services_lb_edge_extension'
+generation_type: 'mmv1'
+source_file: 'products/networkservices/LbEdgeExtension.yaml'
+api_service_name: 'networkservices.googleapis.com'
+api_version: 'v1'
+api_resource_type_kind: 'LbEdgeExtension'
+fields:
+  - api_field: 'description'
+  - field: 'effective_labels'
+    provider_only: true
+  - api_field: 'extensionChains.extensions.failOpen'
+  - api_field: 'extensionChains.extensions.forwardHeaders'
+  - api_field: 'extensionChains.extensions.name'
+  - api_field: 'extensionChains.extensions.service'
+  - api_field: 'extensionChains.extensions.supportedEvents'
+  - api_field: 'extensionChains.matchCondition.celExpression'
+  - api_field: 'extensionChains.name'
+  - api_field: 'forwardingRules'
+  - api_field: 'labels'
+  - api_field: 'loadBalancingScheme'
+  - field: 'location'
+    provider_only: true
+  - field: 'name'
+    provider_only: true
+  - field: 'terraform_labels'
+    provider_only: true

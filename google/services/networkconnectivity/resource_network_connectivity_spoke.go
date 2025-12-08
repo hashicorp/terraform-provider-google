@@ -887,7 +887,8 @@ func resourceNetworkConnectivitySpokeImport(d *schema.ResourceData, meta interfa
 }
 
 func flattenNetworkConnectivitySpokeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	parts := strings.Split(d.Get("name").(string), "/")
+	return parts[len(parts)-1]
 }
 
 func flattenNetworkConnectivitySpokeCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

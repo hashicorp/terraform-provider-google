@@ -637,6 +637,50 @@ func TestAccContainerCluster_withILBSubsetting(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_omittedILBSubsetting(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-cluster-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_omittedILBSubSetting(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withILBSubSetting(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_omittedILBSubSetting(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_disableL4LbFirewallReconciliation(t *testing.T) {
 	t.Parallel()
 
@@ -1686,6 +1730,73 @@ func TestAccContainerCluster_regionalWithNodeLocations(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccContainerCluster_nodePoolWithUpgradeSettings(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_nodePoolWithUpgradeSettings(clusterName, npName, networkName, subnetworkName, 2, 3, "SURGE", "", 0, 0.0, "", "", ""),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_nodePoolWithUpgradeSettings(clusterName, npName, networkName, subnetworkName, 0, 0, "BLUE_GREEN", "STANDARD", 1, 0.0, "100s", "100s", ""),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_nodePoolWithUpgradeSettings(clusterName, npName, networkName, subnetworkName, 0, 0, "BLUE_GREEN", "STANDARD", 0, 0.5, "100s", "100s", ""),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_nodePoolWithUpgradeSettings(cluster, np, network, subnetwork string, maxSurge, maxUnavailable int, strategy, policy string, batchNodeCount int, batchPercentage float64, batchSoakDuration, nodePoolSoakDuration, waitForDrainDuration string) string {
+	upgradeSettings := makeUpgradeSettings(maxSurge, maxUnavailable, strategy, policy, nodePoolSoakDuration, batchNodeCount, batchPercentage, batchSoakDuration, waitForDrainDuration)
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name               = "%s"
+	location           = "us-central1-f"
+	network            = "%s"
+	subnetwork         = "%s"
+	deletion_protection = false
+
+	node_pool {
+		name = "%s"
+		initial_node_count = 1
+		autoscaling {
+      min_node_count = 1
+      max_node_count = 3
+    }
+		%s
+	}
+}
+`, cluster, network, subnetwork, np, upgradeSettings)
 }
 
 func TestAccContainerCluster_withPrivateClusterConfigBasic(t *testing.T) {
@@ -7311,6 +7422,33 @@ resource "google_container_cluster" "confidential_nodes" {
   }
 
   enable_l4_ilb_subsetting = true
+
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, clusterName, npName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_omittedILBSubSetting(clusterName, npName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "confidential_nodes" {
+  name     = "%s"
+  location = "us-central1-a"
+  release_channel {
+    channel = "RAPID"
+  }
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 1
+    node_config {
+      machine_type = "e2-medium"
+    }
+  }
+
+  // enable_l4_ilb_subsetting omitted
 
   network    = "%s"
   subnetwork = "%s"
