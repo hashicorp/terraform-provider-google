@@ -279,6 +279,11 @@ The following arguments are supported:
   List of parameter substitutions.
   Structure is [documented below](#nested_parameter_spec_parameter_spec_substitution_rules).
 
+* `sub_parameters` -
+  (Optional)
+  The parameter spec of the cloud control.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters).
+
 * `validation` -
   (Optional)
   Validation of the parameter.
@@ -305,6 +310,11 @@ The following arguments are supported:
   (Optional)
   Represents a double value.
 
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_default_value_oneof_value).
+
 * `string_list_value` -
   (Optional)
   A list of strings.
@@ -314,6 +324,44 @@ The following arguments are supported:
   (Optional)
   Represents a string value.
 
+
+<a name="nested_parameter_spec_parameter_spec_default_value_oneof_value"></a>The `oneof_value` block supports:
+
+* `name` -
+  (Optional)
+  The name of the parameter.
+
+* `parameter_value` -
+  (Optional)
+  The value of the parameter.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_default_value_oneof_value_parameter_value).
+
+
+<a name="nested_parameter_spec_parameter_spec_default_value_oneof_value_parameter_value"></a>The `parameter_value` block supports:
+
+* `bool_value` -
+  (Optional)
+  Represents a boolean value.
+
+* `number_value` -
+  (Optional)
+  Represents a double value.
+
+* `string_list_value` -
+  (Optional)
+  A list of strings.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_default_value_oneof_value_parameter_value_string_list_value).
+
+* `string_value` -
+  (Optional)
+  Represents a string value.
+
+
+<a name="nested_parameter_spec_parameter_spec_default_value_oneof_value_parameter_value_string_list_value"></a>The `string_list_value` block supports:
+
+* `values` -
+  (Required)
+  The strings in the list.
 
 <a name="nested_parameter_spec_parameter_spec_default_value_string_list_value"></a>The `string_list_value` block supports:
 
@@ -346,6 +394,256 @@ The following arguments are supported:
 * `attribute` -
   (Optional)
   Fully qualified proto attribute path (e.g., dot notation)
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters"></a>The `sub_parameters` block supports:
+
+* `default_value` -
+  (Optional)
+  Possible parameter value types.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value).
+
+* `description` -
+  (Optional)
+  The description of the parameter. The maximum length is 2000 characters.
+
+* `display_name` -
+  (Optional)
+  The display name of the parameter. The maximum length is 200 characters.
+
+* `is_required` -
+  (Required)
+  if the parameter is required
+
+* `name` -
+  (Required)
+  The name of the parameter.
+
+* `substitution_rules` -
+  (Optional)
+  List of parameter substitutions.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_substitution_rules).
+
+* `validation` -
+  (Optional)
+  Validation of the parameter.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation).
+
+* `value_type` -
+  (Required)
+  Parameter value type.
+  Possible values:
+  STRING
+  BOOLEAN
+  STRINGLIST
+  NUMBER
+  ONEOF
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value"></a>The `default_value` block supports:
+
+* `bool_value` -
+  (Optional)
+  Represents a boolean value.
+
+* `number_value` -
+  (Optional)
+  Represents a double value.
+
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value_oneof_value).
+
+* `string_list_value` -
+  (Optional)
+  A list of strings.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value_string_list_value).
+
+* `string_value` -
+  (Optional)
+  Represents a string value.
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value_oneof_value"></a>The `oneof_value` block supports:
+
+* `name` -
+  (Optional)
+  The name of the parameter.
+
+* `parameter_value` -
+  (Optional)
+  The value of the parameter.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value_oneof_value_parameter_value).
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value_oneof_value_parameter_value"></a>The `parameter_value` block supports:
+
+* `bool_value` -
+  (Optional)
+  Represents a boolean value.
+
+* `number_value` -
+  (Optional)
+  Represents a double value.
+
+* `string_list_value` -
+  (Optional)
+  A list of strings.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value_oneof_value_parameter_value_string_list_value).
+
+* `string_value` -
+  (Optional)
+  Represents a string value.
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value_oneof_value_parameter_value_string_list_value"></a>The `string_list_value` block supports:
+
+* `values` -
+  (Required)
+  The strings in the list.
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_default_value_string_list_value"></a>The `string_list_value` block supports:
+
+* `values` -
+  (Required)
+  The strings in the list.
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_substitution_rules"></a>The `substitution_rules` block supports:
+
+* `attribute_substitution_rule` -
+  (Optional)
+  Attribute at the given path is substituted entirely.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_substitution_rules_substitution_rules_attribute_substitution_rule).
+
+* `placeholder_substitution_rule` -
+  (Optional)
+  Placeholder is substituted in the rendered string.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_substitution_rules_substitution_rules_placeholder_substitution_rule).
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_substitution_rules_substitution_rules_attribute_substitution_rule"></a>The `attribute_substitution_rule` block supports:
+
+* `attribute` -
+  (Optional)
+  Fully qualified proto attribute path (in dot notation).
+  Example: rules[0].cel_expression.resource_types_values
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_substitution_rules_substitution_rules_placeholder_substitution_rule"></a>The `placeholder_substitution_rule` block supports:
+
+* `attribute` -
+  (Optional)
+  Fully qualified proto attribute path (e.g., dot notation)
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation"></a>The `validation` block supports:
+
+* `allowed_values` -
+  (Optional)
+  Allowed set of values for the parameter.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values).
+
+* `int_range` -
+  (Optional)
+  Number range for number parameters.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_int_range).
+
+* `regexp_pattern` -
+  (Optional)
+  Regular Expression Validator for parameter values.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_regexp_pattern).
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values"></a>The `allowed_values` block supports:
+
+* `values` -
+  (Required)
+  List of allowed values for the parameter.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values).
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values"></a>The `values` block supports:
+
+* `bool_value` -
+  (Optional)
+  Represents a boolean value.
+
+* `number_value` -
+  (Optional)
+  Represents a double value.
+
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values_values_oneof_value).
+
+* `string_list_value` -
+  (Optional)
+  A list of strings.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values_values_string_list_value).
+
+* `string_value` -
+  (Optional)
+  Represents a string value.
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values_values_oneof_value"></a>The `oneof_value` block supports:
+
+* `name` -
+  (Optional)
+  The name of the parameter.
+
+* `parameter_value` -
+  (Optional)
+  The value of the parameter.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values_values_oneof_value_parameter_value).
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values_values_oneof_value_parameter_value"></a>The `parameter_value` block supports:
+
+* `bool_value` -
+  (Optional)
+  Represents a boolean value.
+
+* `number_value` -
+  (Optional)
+  Represents a double value.
+
+* `string_list_value` -
+  (Optional)
+  A list of strings.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values_values_oneof_value_parameter_value_string_list_value).
+
+* `string_value` -
+  (Optional)
+  Represents a string value.
+
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values_values_oneof_value_parameter_value_string_list_value"></a>The `string_list_value` block supports:
+
+* `values` -
+  (Required)
+  The strings in the list.
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_allowed_values_values_values_string_list_value"></a>The `string_list_value` block supports:
+
+* `values` -
+  (Required)
+  The strings in the list.
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_int_range"></a>The `int_range` block supports:
+
+* `max` -
+  (Required)
+  Maximum allowed value for the numeric parameter (inclusive).
+
+* `min` -
+  (Required)
+  Minimum allowed value for the numeric parameter (inclusive).
+
+<a name="nested_parameter_spec_parameter_spec_sub_parameters_sub_parameters_validation_regexp_pattern"></a>The `regexp_pattern` block supports:
+
+* `pattern` -
+  (Required)
+  Regex Pattern to match the value(s) of parameter.
 
 <a name="nested_parameter_spec_parameter_spec_validation"></a>The `validation` block supports:
 
@@ -383,6 +681,11 @@ The following arguments are supported:
   (Optional)
   Represents a double value.
 
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_validation_allowed_values_values_values_oneof_value).
+
 * `string_list_value` -
   (Optional)
   A list of strings.
@@ -392,6 +695,44 @@ The following arguments are supported:
   (Optional)
   Represents a string value.
 
+
+<a name="nested_parameter_spec_parameter_spec_validation_allowed_values_values_values_oneof_value"></a>The `oneof_value` block supports:
+
+* `name` -
+  (Optional)
+  The name of the parameter.
+
+* `parameter_value` -
+  (Optional)
+  The value of the parameter.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_validation_allowed_values_values_values_oneof_value_parameter_value).
+
+
+<a name="nested_parameter_spec_parameter_spec_validation_allowed_values_values_values_oneof_value_parameter_value"></a>The `parameter_value` block supports:
+
+* `bool_value` -
+  (Optional)
+  Represents a boolean value.
+
+* `number_value` -
+  (Optional)
+  Represents a double value.
+
+* `string_list_value` -
+  (Optional)
+  A list of strings.
+  Structure is [documented below](#nested_parameter_spec_parameter_spec_validation_allowed_values_values_values_oneof_value_parameter_value_string_list_value).
+
+* `string_value` -
+  (Optional)
+  Represents a string value.
+
+
+<a name="nested_parameter_spec_parameter_spec_validation_allowed_values_values_values_oneof_value_parameter_value_string_list_value"></a>The `string_list_value` block supports:
+
+* `values` -
+  (Required)
+  The strings in the list.
 
 <a name="nested_parameter_spec_parameter_spec_validation_allowed_values_values_values_string_list_value"></a>The `string_list_value` block supports:
 

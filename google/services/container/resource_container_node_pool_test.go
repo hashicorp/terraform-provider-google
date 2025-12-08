@@ -1171,6 +1171,40 @@ func TestAccContainerNodePool_withHugepageConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withNodeKernelModuleLoading(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withNodeKernelModuleLoading(cluster, np, "CGROUP_MODE_V2", "ENFORCE_SIGNED_MODULES", networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Perform an update.
+			{
+				Config: testAccContainerNodePool_withNodeKernelModuleLoading(cluster, np, "CGROUP_MODE_UNSPECIFIED", "POLICY_UNSPECIFIED", networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withNetworkConfig(t *testing.T) {
 	t.Parallel()
 
@@ -4092,6 +4126,48 @@ resource "google_container_node_pool" "np" {
   }
 }
 `, cluster, networkName, subnetworkName, np, hugepage, hugepage)
+}
+
+func testAccContainerNodePool_withNodeKernelModuleLoading(cluster, np, mode, policy, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+	min_master_version = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+
+	release_channel {
+    channel = "RAPID"
+  }
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    image_type = "COS_CONTAINERD"
+    linux_node_config {
+      cgroup_mode = "%s"
+			node_kernel_module_loading {
+			  policy = "%s"
+			}
+    }
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+  }
+}
+`, cluster, networkName, subnetworkName, np, mode, policy)
 }
 
 func testAccContainerNodePool_withMultiNicNetworkConfig(cluster, np, network string) string {

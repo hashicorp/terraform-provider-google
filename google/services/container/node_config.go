@@ -858,6 +858,23 @@ func schemaNodeConfig() *schema.Schema {
 								Description:      `cgroupMode specifies the cgroup mode to be used on the node.`,
 								DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("CGROUP_MODE_UNSPECIFIED"),
 							},
+							"node_kernel_module_loading": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								MaxItems:    1,
+								Description: `The settings for kernel module loading.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"policy": {
+											Type:             schema.TypeString,
+											Optional:         true,
+											ValidateFunc:     validation.StringInSlice([]string{"POLICY_UNSPECIFIED", "ENFORCE_SIGNED_MODULES", "DO_NOT_ENFORCE_SIGNED_MODULES"}, false),
+											Description:      `The policy for kernel module loading.`,
+											DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("POLICY_UNSPECIFIED"),
+										},
+									},
+								},
+							},
 							"transparent_hugepage_enabled": {
 								Type:             schema.TypeString,
 								Optional:         true,
@@ -1144,8 +1161,8 @@ func schemaNodePoolAutoConfigNodeKubeletConfig() *schema.Schema {
 	}
 }
 
-// Separate since this currently only supports a single value -- a subset of
-// the overall LinuxNodeConfig
+// Separate since this currently only supports a subset of the overall
+// LinuxNodeConfig
 func schemaNodePoolAutoConfigLinuxNodeConfig() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
@@ -1161,6 +1178,23 @@ func schemaNodePoolAutoConfigLinuxNodeConfig() *schema.Schema {
 					ValidateFunc:     validation.StringInSlice([]string{"CGROUP_MODE_UNSPECIFIED", "CGROUP_MODE_V1", "CGROUP_MODE_V2"}, false),
 					Description:      `cgroupMode specifies the cgroup mode to be used on the node.`,
 					DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("CGROUP_MODE_UNSPECIFIED"),
+				},
+				"node_kernel_module_loading": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: `The settings for kernel module loading.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"policy": {
+								Type:             schema.TypeString,
+								Optional:         true,
+								ValidateFunc:     validation.StringInSlice([]string{"POLICY_UNSPECIFIED", "ENFORCE_SIGNED_MODULES", "DO_NOT_ENFORCE_SIGNED_MODULES"}, false),
+								Description:      `The policy for kernel module loading.`,
+								DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("POLICY_UNSPECIFIED"),
+							},
+						},
+					},
 				},
 			},
 		},
@@ -1840,6 +1874,10 @@ func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
 		linuxNodeConfig.Hugepages = expandHugepagesConfig(v)
 	}
 
+	if v, ok := cfg["node_kernel_module_loading"]; ok {
+		linuxNodeConfig.NodeKernelModuleLoading = expandNodeKernelModuleLoading(v)
+	}
+
 	return linuxNodeConfig
 }
 
@@ -1906,6 +1944,28 @@ func expandHugepagesConfig(v interface{}) *container.HugepagesConfig {
 	}
 
 	return hugepagesConfig
+}
+
+func expandNodeKernelModuleLoading(v interface{}) *container.NodeKernelModuleLoading {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.NodeKernelModuleLoading{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	NodeKernelModuleLoading := &container.NodeKernelModuleLoading{}
+
+	if v, ok := cfg["policy"]; ok {
+		NodeKernelModuleLoading.Policy = v.(string)
+	}
+
+	return NodeKernelModuleLoading
 }
 
 func expandContainerdConfig(v interface{}) *container.ContainerdConfig {
@@ -2486,6 +2546,7 @@ func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface
 			"hugepages_config":             flattenHugepagesConfig(c.Hugepages),
 			"transparent_hugepage_enabled": c.TransparentHugepageEnabled,
 			"transparent_hugepage_defrag":  c.TransparentHugepageDefrag,
+			"node_kernel_module_loading":   flattenNodeKernelModuleLoading(c.NodeKernelModuleLoading),
 		})
 	}
 	return result
@@ -2507,6 +2568,16 @@ func flattenHugepagesConfig(c *container.HugepagesConfig) []map[string]interface
 		result = append(result, map[string]interface{}{
 			"hugepage_size_2m": c.HugepageSize2m,
 			"hugepage_size_1g": c.HugepageSize1g,
+		})
+	}
+	return result
+}
+
+func flattenNodeKernelModuleLoading(c *container.NodeKernelModuleLoading) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"policy": c.Policy,
 		})
 	}
 	return result

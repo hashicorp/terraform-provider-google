@@ -1587,7 +1587,7 @@ by Dataproc`,
 							Optional:     true,
 							MaxItems:     1,
 							AtLeastOneOf: clusterConfigKeys,
-							Description:  `The settings for auto deletion cluster schedule.`,
+							Description:  `The settings for auto stop and deletion cluster schedule.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"idle_delete_ttl": {
@@ -1597,6 +1597,8 @@ by Dataproc`,
 										AtLeastOneOf: []string{
 											"cluster_config.0.lifecycle_config.0.idle_delete_ttl",
 											"cluster_config.0.lifecycle_config.0.auto_delete_time",
+											"cluster_config.0.lifecycle_config.0.idle_stop_ttl",
+											"cluster_config.0.lifecycle_config.0.auto_stop_time",
 										},
 									},
 									"idle_start_time": {
@@ -1616,6 +1618,35 @@ by Dataproc`,
 										AtLeastOneOf: []string{
 											"cluster_config.0.lifecycle_config.0.idle_delete_ttl",
 											"cluster_config.0.lifecycle_config.0.auto_delete_time",
+											"cluster_config.0.lifecycle_config.0.idle_stop_ttl",
+											"cluster_config.0.lifecycle_config.0.auto_stop_time",
+										},
+									},
+									"idle_stop_ttl": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The duration to keep the cluster started while idling (no jobs running). After this TTL, the cluster will be stopped. Valid range: [10m, 14d].`,
+										AtLeastOneOf: []string{
+											"cluster_config.0.lifecycle_config.0.idle_delete_ttl",
+											"cluster_config.0.lifecycle_config.0.auto_delete_time",
+											"cluster_config.0.lifecycle_config.0.idle_stop_ttl",
+											"cluster_config.0.lifecycle_config.0.auto_stop_time",
+										},
+									},
+									// the API also has the auto_stop_ttl option in its request, however,
+									// the value is not returned in the response, rather the auto_stop_time
+									// after calculating ttl with the update time is returned, thus, for now
+									// we will only allow auto_stop_time to updated.
+									"auto_stop_time": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										Description:      `The time when cluster will be auto-stopped. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".`,
+										DiffSuppressFunc: tpgresource.TimestampDiffSuppress(time.RFC3339Nano),
+										AtLeastOneOf: []string{
+											"cluster_config.0.lifecycle_config.0.idle_delete_ttl",
+											"cluster_config.0.lifecycle_config.0.auto_delete_time",
+											"cluster_config.0.lifecycle_config.0.idle_stop_ttl",
+											"cluster_config.0.lifecycle_config.0.auto_stop_time",
 										},
 									},
 								},
@@ -2478,6 +2509,12 @@ func expandLifecycleConfig(cfg map[string]interface{}) *dataproc.LifecycleConfig
 	if v, ok := cfg["auto_delete_time"]; ok {
 		conf.AutoDeleteTime = v.(string)
 	}
+	if v, ok := cfg["idle_stop_ttl"]; ok {
+		conf.IdleStopTtl = v.(string)
+	}
+	if v, ok := cfg["auto_stop_time"]; ok {
+		conf.AutoStopTime = v.(string)
+	}
 	return conf
 }
 
@@ -2794,6 +2831,28 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		updMask = append(updMask, "config.lifecycle_config.auto_delete_time")
+	}
+
+	if d.HasChange("cluster_config.0.lifecycle_config.0.idle_stop_ttl") {
+		idleStopTtl := d.Get("cluster_config.0.lifecycle_config.0.idle_stop_ttl").(string)
+		cluster.Config.LifecycleConfig = &dataproc.LifecycleConfig{
+			IdleStopTtl: idleStopTtl,
+		}
+
+		updMask = append(updMask, "config.lifecycle_config.idle_stop_ttl")
+	}
+
+	if d.HasChange("cluster_config.0.lifecycle_config.0.auto_stop_time") {
+		desiredStopTime := d.Get("cluster_config.0.lifecycle_config.0.auto_stop_time").(string)
+		if cluster.Config.LifecycleConfig != nil {
+			cluster.Config.LifecycleConfig.AutoStopTime = desiredStopTime
+		} else {
+			cluster.Config.LifecycleConfig = &dataproc.LifecycleConfig{
+				AutoStopTime: desiredStopTime,
+			}
+		}
+
+		updMask = append(updMask, "config.lifecycle_config.auto_stop_time")
 	}
 
 	if len(updMask) > 0 {
@@ -3140,6 +3199,8 @@ func flattenLifecycleConfig(d *schema.ResourceData, lc *dataproc.LifecycleConfig
 	data := map[string]interface{}{
 		"idle_delete_ttl":  lc.IdleDeleteTtl,
 		"auto_delete_time": lc.AutoDeleteTime,
+		"idle_stop_ttl":    lc.IdleStopTtl,
+		"auto_stop_time":   lc.AutoStopTime,
 	}
 
 	return []map[string]interface{}{data}

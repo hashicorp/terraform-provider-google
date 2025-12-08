@@ -104,6 +104,9 @@ resource "google_eventarc_trigger" "primary" {
       topic = google_pubsub_topic.foo.id
     }
   }
+  retry_policy {
+    max_attempts = 1
+  }
 }
 
 resource "google_pubsub_topic" "foo" {

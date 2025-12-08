@@ -69,6 +69,322 @@ resource "google_cloud_security_compliance_cloud_control" "example" {
 				pattern = "^[a-z]+-[a-z]+[0-9]$"
 			}
 		}
+
+		sub_parameters {
+			name         = "sub-location"
+			display_name = "Sub Location"
+			description  = "A sub-parameter for location"
+			value_type   = "STRING"
+			is_required  = true
+			default_value {
+				string_value = "us-central1-a"
+			}
+		}
+	}
+
+	parameter_spec {
+		name         = "oneof-parameter"
+		display_name = "Oneof Parameter"
+		description  = "A parameter testing oneof_value"
+		value_type   = "ONEOF"
+		is_required  = true
+		
+		default_value {
+			oneof_value {
+				name = "test-oneof"
+				parameter_value {
+					string_value = "test-value"
+				}
+			}
+		}
+		
+		validation {
+			allowed_values {
+				values {
+					oneof_value {
+						name = "test-oneof"
+						parameter_value {
+							string_value = "test-value"
+						}
+					}
+				}
+			}
+		}
+
+		sub_parameters {
+			name         = "sub-oneof"
+			display_name = "Sub Oneof"
+			description  = "A sub-parameter for oneof"
+			value_type   = "ONEOF"
+			is_required  = true
+			default_value {
+				oneof_value {
+					name = "sub-test-oneof"
+					parameter_value {
+						string_list_value {
+							values = ["val1", "val2"]
+						}
+					}
+				}
+			}
+			substitution_rules {
+				attribute_substitution_rule {
+					attribute = "resource.data.name"
+				}
+			}
+			validation {
+				allowed_values {
+					values {
+						oneof_value {
+							name = "sub-test-oneof"
+							parameter_value {
+								string_list_value {
+									values = ["val1", "val2"]
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		sub_parameters {
+			name         = "sub-bool"
+			display_name = "Sub Bool"
+			description  = "A sub-parameter for bool"
+			value_type   = "BOOLEAN"
+			is_required  = true
+			default_value {
+				bool_value = true
+			}
+			validation {
+				allowed_values {
+					values {
+						bool_value = true
+					}
+				}
+			}
+		}
+		sub_parameters {
+			name         = "sub-number"
+			display_name = "Sub Number"
+			description  = "A sub-parameter for number"
+			value_type   = "NUMBER"
+			is_required  = true
+			default_value {
+				number_value = 123.45
+			}
+			validation {
+				allowed_values {
+					values {
+						number_value = 123.45
+					}
+				}
+			}
+		}
+		sub_parameters {
+			name         = "sub-stringlist"
+			display_name = "Sub String List"
+			description  = "A sub-parameter for string list"
+			value_type   = "STRINGLIST"
+			is_required  = true
+			default_value {
+				string_list_value {
+					values = ["a", "b"]
+				}
+			}
+			validation {
+				allowed_values {
+					values {
+						string_list_value {
+							values = ["a", "b"]
+						}
+					}
+				}
+			}
+		}
+		sub_parameters {
+			name         = "sub-oneof-bool"
+			display_name = "Sub Oneof Bool"
+			description  = "A sub-parameter for oneof bool"
+			value_type   = "ONEOF"
+			is_required  = true
+			default_value {
+				oneof_value {
+					name = "sub-test-oneof-bool"
+					parameter_value {
+						bool_value = true
+					}
+				}
+			}
+			validation {
+				allowed_values {
+					values {
+						oneof_value {
+							name = "sub-test-oneof-bool"
+							parameter_value {
+								bool_value = true
+							}
+						}
+					}
+				}
+			}
+		}
+		sub_parameters {
+			name         = "sub-oneof-number"
+			display_name = "Sub Oneof Number"
+			description  = "A sub-parameter for oneof number"
+			value_type   = "ONEOF"
+			is_required  = true
+			default_value {
+				oneof_value {
+					name = "sub-test-oneof-number"
+					parameter_value {
+						number_value = 123.45
+					}
+				}
+			}
+			validation {
+				allowed_values {
+					values {
+						oneof_value {
+							name = "sub-test-oneof-number"
+							parameter_value {
+								number_value = 123.45
+							}
+						}
+					}
+				}
+			}
+		}
+		sub_parameters {
+			name         = "sub-oneof-string"
+			display_name = "Sub Oneof String"
+			description  = "A sub-parameter for oneof string"
+			value_type   = "ONEOF"
+			is_required  = true
+			default_value {
+				oneof_value {
+					name = "sub-test-oneof-string"
+					parameter_value {
+						string_value = "test"
+					}
+				}
+			}
+			validation {
+				allowed_values {
+					values {
+						oneof_value {
+							name = "sub-test-oneof-string"
+							parameter_value {
+								string_value = "test"
+							}
+						}
+					}
+				}
+			}
+		}
+		sub_parameters {
+			name         = "sub-placeholder"
+			display_name = "Sub Placeholder"
+			description  = "A sub-parameter for placeholder"
+			value_type   = "STRING"
+			is_required  = true
+			default_value {
+				string_value = "test"
+			}
+			substitution_rules {
+				placeholder_substitution_rule {
+					attribute = "{{name}}"
+				}
+			}
+		}
+	}
+
+	parameter_spec {
+		name         = "bool-parameter"
+		display_name = "Bool Parameter"
+		description  = "Testing bool fields"
+		value_type   = "ONEOF"
+		is_required  = true
+		default_value {
+			oneof_value {
+				name = "test-bool"
+				parameter_value {
+					bool_value = true
+				}
+			}
+		}
+		validation {
+			allowed_values {
+				values {
+					oneof_value {
+						name = "test-bool"
+						parameter_value {
+							bool_value = true
+						}
+					}
+				}
+			}
+		}
+		sub_parameters {
+			name         = "sub-allowed-values"
+			display_name = "Sub Allowed Values"
+			description  = "Testing sub-parameter allowed values"
+			value_type   = "STRING"
+			is_required  = true
+			default_value {
+				string_value = "allowed"
+			}
+			validation {
+				allowed_values {
+					values {
+						string_value = "allowed"
+					}
+				}
+			}
+		}
+		sub_parameters {
+			name         = "sub-regexp-pattern"
+			display_name = "Sub Regexp Pattern"
+			description  = "Testing sub-parameter regexp pattern"
+			value_type   = "STRING"
+			is_required  = true
+			default_value {
+				string_value = "match"
+			}
+			validation {
+				regexp_pattern {
+					pattern = "^match$"
+				}
+			}
+		}
+	}
+	parameter_spec {
+		name         = "number-parameter"
+		display_name = "Number Parameter"
+		description  = "Testing number fields"
+		value_type   = "ONEOF"
+		is_required  = true
+		default_value {
+			oneof_value {
+				name = "test-number"
+				parameter_value {
+					number_value = 123.45
+				}
+			}
+		}
+		validation {
+			allowed_values {
+				values {
+					oneof_value {
+						name = "test-number"
+						parameter_value {
+							number_value = 123.45
+						}
+					}
+				}
+			}
+		}
 	}
 }
 `, context)
@@ -155,6 +471,288 @@ resource "google_cloud_security_compliance_cloud_control" "example" {
     validation {
       regexp_pattern {
         pattern = "^[a-z]+-[a-z]$"
+      }
+    }
+
+    sub_parameters {
+      name         = "sub-region"
+      display_name = "Sub Region"
+      description  = "A sub-parameter for region"
+      value_type   = "STRING"
+      is_required  = true
+      default_value {
+        string_value = "eu-west"
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "oneof-parameter"
+    display_name = "Oneof Parameter"
+    description  = "A parameter testing oneof_value"
+    value_type   = "ONEOF"
+    is_required  = true
+    
+    default_value {
+      oneof_value {
+        name = "updated-oneof"
+        parameter_value {
+          string_value = "updated-value"
+        }
+      }
+    }
+    
+    validation {
+      allowed_values {
+        values {
+          oneof_value {
+            name = "updated-oneof"
+            parameter_value {
+              string_value = "updated-value"
+            }
+          }
+        }
+      }
+    }
+
+    sub_parameters {
+      name         = "sub-oneof"
+      display_name = "Sub Oneof"
+      description  = "A sub-parameter for oneof"
+      value_type   = "ONEOF"
+      is_required  = true
+      default_value {
+        oneof_value {
+          name = "sub-updated-oneof"
+          parameter_value {
+            string_list_value {
+              values = ["val1", "val2"]
+            }
+          }
+        }
+      }
+      substitution_rules {
+        attribute_substitution_rule {
+          attribute = "resource.data.name"
+        }
+      }
+      validation {
+        allowed_values {
+          values {
+            oneof_value {
+              name = "sub-updated-oneof"
+              parameter_value {
+                string_list_value {
+                  values = ["val1", "val2"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    sub_parameters {
+      name         = "sub-bool"
+      display_name = "Sub Bool"
+      description  = "A sub-parameter for bool"
+      value_type   = "BOOLEAN"
+      is_required  = true
+      default_value {
+        bool_value = true
+      }
+      validation {
+        allowed_values {
+          values {
+            bool_value = true
+          }
+        }
+      }
+    }
+    sub_parameters {
+      name         = "sub-number"
+      display_name = "Sub Number"
+      description  = "A sub-parameter for number"
+      value_type   = "NUMBER"
+      is_required  = true
+      default_value {
+        number_value = 123.45
+      }
+      validation {
+        allowed_values {
+          values {
+            number_value = 123.45
+          }
+        }
+      }
+    }
+    sub_parameters {
+      name         = "sub-stringlist"
+      display_name = "Sub String List"
+      description  = "A sub-parameter for string list"
+      value_type   = "STRINGLIST"
+      is_required  = true
+      default_value {
+        string_list_value {
+          values = ["a", "b"]
+        }
+      }
+      validation {
+        allowed_values {
+          values {
+            string_list_value {
+              values = ["a", "b"]
+            }
+          }
+        }
+      }
+    }
+    sub_parameters {
+      name         = "sub-oneof-bool"
+      display_name = "Sub Oneof Bool"
+      description  = "A sub-parameter for oneof bool"
+      value_type   = "ONEOF"
+      is_required  = true
+      default_value {
+        oneof_value {
+          name = "sub-test-oneof-bool"
+          parameter_value {
+            bool_value = true
+          }
+        }
+      }
+      validation {
+        allowed_values {
+          values {
+            oneof_value {
+              name = "sub-test-oneof-bool"
+              parameter_value {
+                bool_value = true
+              }
+            }
+          }
+        }
+      }
+    }
+    sub_parameters {
+      name         = "sub-oneof-number"
+      display_name = "Sub Oneof Number"
+      description  = "A sub-parameter for oneof number"
+      value_type   = "ONEOF"
+      is_required  = true
+      default_value {
+        oneof_value {
+          name = "sub-test-oneof-number"
+          parameter_value {
+            number_value = 123.45
+          }
+        }
+      }
+      validation {
+        allowed_values {
+          values {
+            oneof_value {
+              name = "sub-test-oneof-number"
+              parameter_value {
+                number_value = 123.45
+              }
+            }
+          }
+        }
+      }
+    }
+    sub_parameters {
+      name         = "sub-oneof-string"
+      display_name = "Sub Oneof String"
+      description  = "A sub-parameter for oneof string"
+      value_type   = "ONEOF"
+      is_required  = true
+      default_value {
+        oneof_value {
+          name = "sub-test-oneof-string"
+          parameter_value {
+            string_value = "test"
+          }
+        }
+      }
+      validation {
+        allowed_values {
+          values {
+            oneof_value {
+              name = "sub-test-oneof-string"
+              parameter_value {
+                string_value = "test"
+              }
+            }
+          }
+        }
+      }
+    }
+    sub_parameters {
+      name         = "sub-placeholder"
+      display_name = "Sub Placeholder"
+      description  = "A sub-parameter for placeholder"
+      value_type   = "STRING"
+      is_required  = true
+      default_value {
+        string_value = "test"
+      }
+      substitution_rules {
+        placeholder_substitution_rule {
+          attribute = "{{name}}"
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "full-parameter"
+    display_name = "Full Parameter"
+    description  = "A parameter testing all fields"
+    value_type   = "ONEOF"
+    is_required  = true
+    default_value {
+      oneof_value {
+        name = "test-oneof"
+        parameter_value {
+          string_list_value {
+            values = ["val1", "val2"]
+          }
+        }
+      }
+    }
+    sub_parameters {
+      name         = "sub-parameter"
+      display_name = "Sub Parameter"
+      description  = "A sub-parameter testing all fields"
+      value_type   = "ONEOF"
+      is_required  = true
+      default_value {
+        number_value = 50
+      }
+      substitution_rules {
+        placeholder_substitution_rule {
+          attribute = "{{name}}"
+        }
+      }
+      validation {
+        int_range {
+          max = "100"
+          min = "1"
+        }
+      }
+    }
+    validation {
+      allowed_values {
+        values {
+          oneof_value {
+            name = "test-oneof"
+            parameter_value {
+              string_list_value {
+                values = ["val1", "val2"]
+              }
+            }
+          }
+        }
       }
     }
   }

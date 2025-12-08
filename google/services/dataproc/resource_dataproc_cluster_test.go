@@ -984,6 +984,69 @@ func TestAccDataprocCluster_withLifecycleConfigAutoDeletion(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withLifecycleConfigIdleStopTtl(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	var cluster dataproc.Cluster
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withLifecycleConfigIdleStopTtl(rnd, "600s", subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
+				),
+			},
+			{
+				Config: testAccDataprocCluster_withLifecycleConfigIdleStopTtl(rnd, "610s", subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_withLifecycleConfigAutoStop(t *testing.T) {
+	// Uses time.Now
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	now := time.Now()
+	fmtString := "2006-01-02T15:04:05.072Z"
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
+	var cluster dataproc.Cluster
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withLifecycleConfigAutoStopTime(rnd, now.Add(time.Hour*10).Format(fmtString), subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
+				),
+			},
+			{
+				Config: testAccDataprocCluster_withLifecycleConfigAutoStopTime(rnd, now.Add(time.Hour*20).Format(fmtString), subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
+				),
+			},
+		},
+	})
+}
 func TestAccDataprocCluster_withLabels(t *testing.T) {
 	t.Parallel()
 
@@ -2679,6 +2742,44 @@ resource "google_dataproc_cluster" "with_lifecycle_config" {
 
    lifecycle_config {
      auto_delete_time = "%s"
+   }
+ }
+}
+`, rnd, subnetworkName, tm)
+}
+
+func testAccDataprocCluster_withLifecycleConfigIdleStopTtl(rnd, tm, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_lifecycle_config" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
+    lifecycle_config {
+      idle_stop_ttl = "%s"
+    }
+  }
+}
+`, rnd, subnetworkName, tm)
+}
+
+func testAccDataprocCluster_withLifecycleConfigAutoStopTime(rnd, tm, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_lifecycle_config" {
+ name   = "tf-test-dproc-%s"
+ region = "us-central1"
+
+ cluster_config {
+  gce_cluster_config {
+     subnetwork = "%s"
+   }
+
+   lifecycle_config {
+     auto_stop_time = "%s"
    }
  }
 }

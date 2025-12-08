@@ -1651,6 +1651,9 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 					if val, exists := ruleMapItemSet["nfsv3"]; exists {
 						newRuleMapItemSet["nfsv3"] = val
 					}
+					if val, exists := ruleMapItemSet["nfsv4"]; exists {
+						newRuleMapItemSet["nfsv4"] = val
+					}
 					if val, exists := ruleMapItemSet["kerberos5_read_only"]; exists {
 						newRuleMapItemSet["kerberos5ReadOnly"] = val
 					}
