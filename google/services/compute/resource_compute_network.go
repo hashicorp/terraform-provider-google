@@ -143,7 +143,6 @@ recreated to modify this field.`,
 			"enable_ula_internal_ipv6": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Description: `Enable ULA internal ipv6 on this network. Enabling this feature will assign
 a /48 from google defined ULA prefix fd20::/20.`,
 			},
@@ -593,6 +592,56 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 			return err
 		} else if v, ok := d.GetOkExists("network_firewall_policy_enforcement_order"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkFirewallPolicyEnforcementOrderProp)) {
 			obj["networkFirewallPolicyEnforcementOrder"] = networkFirewallPolicyEnforcementOrderProp
+		}
+
+		obj, err = resourceComputeNetworkUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating Network %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Network %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating Network", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("enable_ula_internal_ipv6") {
+		obj := make(map[string]interface{})
+
+		enableUlaInternalIpv6Prop, err := expandComputeNetworkEnableUlaInternalIpv6(d.Get("enable_ula_internal_ipv6"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("enable_ula_internal_ipv6"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableUlaInternalIpv6Prop)) {
+			obj["enableUlaInternalIpv6"] = enableUlaInternalIpv6Prop
 		}
 
 		obj, err = resourceComputeNetworkUpdateEncoder(d, meta, obj)
