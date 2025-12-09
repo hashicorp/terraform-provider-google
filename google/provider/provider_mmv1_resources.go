@@ -299,6 +299,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_snapshot":                                    compute.DataSourceGoogleComputeSnapshot(),
 	"google_compute_ssl_certificate":                             compute.DataSourceGoogleComputeSslCertificate(),
 	"google_compute_ssl_policy":                                  compute.DataSourceGoogleComputeSslPolicy(),
+	"google_compute_storage_pool":                                compute.DataSourceGoogleComputeStoragePool(),
 	"google_compute_storage_pool_types":                          compute.DataSourceGoogleComputeStoragePoolTypes(),
 	"google_compute_subnetwork":                                  compute.DataSourceGoogleComputeSubnetwork(),
 	"google_compute_subnetworks":                                 compute.DataSourceGoogleComputeSubnetworks(),
