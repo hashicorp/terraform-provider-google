@@ -23,12 +23,10 @@ description: |-
 
 Represents a cross-site-network resource. A CrossSiteNetwork is used to establish L2 connectivity between groups of Interconnects.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about CrossSiteNetwork, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/crossSiteNetworks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/crossSiteNetworks)
 * How-to Guides
     * [Create a Cross-Site Interconnect](https://cloud.google.com/network-connectivity/docs/interconnect/how-to/cross-site/create-network)
 
@@ -37,13 +35,11 @@ To get more information about CrossSiteNetwork, see:
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_compute_cross_site_network" "example-cross-site-network" {
   name                 = "test-cross-site-network"
   description         = "Example cross site network"
-  provider = google-beta
 }
 ```
 
