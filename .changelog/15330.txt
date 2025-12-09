@@ -1,0 +1,3 @@
+```release-note:enhancement
+alloydb: added `connection_pool_config`, `connection_pool_config.enabled` and `connection_pool_config.flags` in `google_alloydb_instance` resource
+```

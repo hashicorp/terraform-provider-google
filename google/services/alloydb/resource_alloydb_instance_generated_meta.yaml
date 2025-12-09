@@ -12,6 +12,9 @@ fields:
   - api_field: 'clientConnectionConfig.sslConfig.sslMode'
   - field: 'cluster'
     provider_only: true
+  - api_field: 'connectionPoolConfig.enabled'
+  - api_field: 'connectionPoolConfig.flags'
+  - api_field: 'connectionPoolConfig.poolerCount'
   - api_field: 'createTime'
   - api_field: 'databaseFlags'
   - api_field: 'displayName'
