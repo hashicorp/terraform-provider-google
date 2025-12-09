@@ -1,0 +1,3 @@
+```release-note:deprecation
+managedkafka: Added deprecation warning for `google_managed_kafka_connect_cluster` additionalSubnets` field
+```
