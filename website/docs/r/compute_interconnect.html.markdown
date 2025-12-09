@@ -346,7 +346,6 @@ In addition to the arguments listed above, the following computed attributes are
   ports and MACsec isn't supported and enabling MACsec fails).
 
 * `wire_groups` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   A list of the URLs of all CrossSiteNetwork WireGroups configured to use this Interconnect. The Interconnect cannot be deleted if this list is non-empty.
 
 * `interconnect_groups` -

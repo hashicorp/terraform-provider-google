@@ -506,6 +506,14 @@ This can be used only for ping tests.`,
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"wire_groups": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `A list of the URLs of all CrossSiteNetwork WireGroups configured to use this Interconnect. The Interconnect cannot be deleted if this list is non-empty.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -859,6 +867,9 @@ func resourceComputeInterconnectRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err := d.Set("available_features", flattenComputeInterconnectAvailableFeatures(res["availableFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err := d.Set("wire_groups", flattenComputeInterconnectWireGroups(res["wireGroups"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err := d.Set("interconnect_groups", flattenComputeInterconnectInterconnectGroups(res["interconnectGroups"], d, config)); err != nil {
@@ -1372,6 +1383,10 @@ func flattenComputeInterconnectRequestedFeatures(v interface{}, d *schema.Resour
 }
 
 func flattenComputeInterconnectAvailableFeatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectWireGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

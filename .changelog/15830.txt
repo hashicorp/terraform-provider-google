@@ -1,0 +1,6 @@
+```release-note:new-resource
+ `google_compute_wire_group` (GA)
+```
+```release-note:new-resource
+ `google_compute_cross_site_network` (GA)
+```

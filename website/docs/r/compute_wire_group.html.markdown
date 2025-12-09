@@ -23,12 +23,10 @@ description: |-
 
 The WireGroup resource represents a group of redundant wires between interconnects in two different metros. Each WireGroup belongs to a CrossSiteNetwork. A wire group defines endpoints and the wires which exist between them.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about WireGroup, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/wireGroups)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/wireGroups)
 * How-to Guides
     * [Create a WireGroup](https://cloud.google.com/network-connectivity/docs/interconnect/how-to/cross-site/modify-network#add-wire-group)
 
@@ -37,20 +35,47 @@ To get more information about WireGroup, see:
 
 ```hcl
 data "google_project" "project" {
-provider = google-beta
 }
 
 resource "google_compute_cross_site_network" "example-cross-site-network" {
   name        = "test-cross-site-network"
   description = "Example cross site network"
-  provider    = google-beta
 }
 
 resource "google_compute_wire_group" "example-test-wire-group" {
   name               = "test-wire-group"
   description        = "Example Wire Group"
   cross_site_network = "test-cross-site-network"
-  provider           = google-beta
+  depends_on = [
+    google_compute_cross_site_network.example-cross-site-network
+  ]
+  wire_properties {
+    bandwidth_unmetered = 10
+    fault_response =  "NONE"
+    bandwidth_allocation = "ALLOCATE_PER_WIRE"
+  }
+  admin_enabled = true
+}
+```
+## Example Usage - Compute Wire Group Basic Beta
+
+
+```hcl
+data "google_project" "project" {
+provider = "google-beta"
+}
+
+resource "google_compute_cross_site_network" "example-cross-site-network" {
+  provider = "google-beta"
+  name        = "test-cross-site-network-beta"
+  description = "Example cross site network"
+}
+
+resource "google_compute_wire_group" "example-test-wire-group-beta" {
+  provider = "google-beta"
+  name               = "test-wire-group-beta"
+  description        = "Example Wire Group Beta"
+  cross_site_network = "test-cross-site-network-beta"
   depends_on = [
     google_compute_cross_site_network.example-cross-site-network
   ]
@@ -98,7 +123,7 @@ The following arguments are supported:
   Indicates whether the wire group is administratively enabled.
 
 * `wire_group_properties` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Properties specific to the wire group.
   Structure is [documented below](#nested_wire_group_properties).
 
