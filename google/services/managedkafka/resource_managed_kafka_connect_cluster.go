@@ -164,6 +164,7 @@ func ResourceManagedKafkaConnectCluster() *schema.Resource {
 												"additional_subnets": {
 													Type:        schema.TypeList,
 													Optional:    true,
+													Deprecated:  "`additionalSubnets` is deprecated and will be removed in a future major release. Managed Kafka Connect clusters can now reach any endpoint accessible from the primary subnet without the need to define additional subnets. Please see https://cloud.google.com/managed-service-for-apache-kafka/docs/connect-cluster/create-connect-cluster#worker-subnet for more information.",
 													Description: `Additional subnets may be specified. They may be in another region, but must be in the same VPC network. The Connect workers can communicate with network endpoints in either the primary or additional subnets.`,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
