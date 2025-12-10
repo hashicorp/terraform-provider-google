@@ -15,6 +15,7 @@ fields:
   - api_field: 'autoscalingConfig.autoscalingLimits.minProcessingUnits'
   - api_field: 'autoscalingConfig.autoscalingTargets.highPriorityCpuUtilizationPercent'
   - api_field: 'autoscalingConfig.autoscalingTargets.storageUtilizationPercent'
+  - api_field: 'autoscalingConfig.autoscalingTargets.totalCpuUtilizationPercent'
   - api_field: 'config'
   - api_field: 'defaultBackupScheduleType'
   - api_field: 'displayName'

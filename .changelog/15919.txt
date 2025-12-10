@@ -1,0 +1,3 @@
+```release-note:enhancement
+spanner: added `autoscaling_config.autoscaling_targets.total_cpu_utilization_percent` field to  `google_spanner_instance` resource
+```
