@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccHealthcareConsentStoreIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s roles/viewer", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateIdFunc: generateHealthcareConsentStoreIAMBindingStateID("google_healthcare_consent_store_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccHealthcareConsentStoreIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s roles/viewer", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateIdFunc: generateHealthcareConsentStoreIAMBindingStateID("google_healthcare_consent_store_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccHealthcareConsentStoreIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s roles/viewer user:admin@hashicorptest.com", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateIdFunc: generateHealthcareConsentStoreIAMMemberStateID("google_healthcare_consent_store_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccHealthcareConsentStoreIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateIdFunc: generateHealthcareConsentStoreIAMPolicyStateID("google_healthcare_consent_store_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccHealthcareConsentStoreIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateIdFunc: generateHealthcareConsentStoreIAMPolicyStateID("google_healthcare_consent_store_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -253,4 +254,55 @@ resource "google_healthcare_consent_store_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateHealthcareConsentStoreIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		dataset := rawState["dataset"]
+		consent_store_id := tpgresource.GetResourceNameFromSelfLink(rawState["consent_store_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("%s/consentStores/%s", dataset, consent_store_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateHealthcareConsentStoreIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		dataset := rawState["dataset"]
+		consent_store_id := tpgresource.GetResourceNameFromSelfLink(rawState["consent_store_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("%s/consentStores/%s", dataset, consent_store_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateHealthcareConsentStoreIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		dataset := rawState["dataset"]
+		consent_store_id := tpgresource.GetResourceNameFromSelfLink(rawState["consent_store_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("%s/consentStores/%s", dataset, consent_store_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

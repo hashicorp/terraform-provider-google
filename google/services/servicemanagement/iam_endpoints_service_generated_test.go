@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -56,7 +57,7 @@ func TestAccServiceManagementServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_endpoints_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("services/%s roles/viewer", fmt.Sprintf("endpoint%s.endpoints.%s.cloud.goog", context["random_suffix"], context["project_name"])),
+				ImportStateIdFunc: generateServiceManagementServiceIAMBindingStateID("google_endpoints_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,7 +67,7 @@ func TestAccServiceManagementServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_endpoints_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("services/%s roles/viewer", fmt.Sprintf("endpoint%s.endpoints.%s.cloud.goog", context["random_suffix"], context["project_name"])),
+				ImportStateIdFunc: generateServiceManagementServiceIAMBindingStateID("google_endpoints_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -93,7 +94,7 @@ func TestAccServiceManagementServiceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_endpoints_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("services/%s roles/viewer user:admin@hashicorptest.com", fmt.Sprintf("endpoint%s.endpoints.%s.cloud.goog", context["random_suffix"], context["project_name"])),
+				ImportStateIdFunc: generateServiceManagementServiceIAMMemberStateID("google_endpoints_service_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -120,7 +121,7 @@ func TestAccServiceManagementServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_endpoints_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("services/%s", fmt.Sprintf("endpoint%s.endpoints.%s.cloud.goog", context["random_suffix"], context["project_name"])),
+				ImportStateIdFunc: generateServiceManagementServiceIAMPolicyStateID("google_endpoints_service_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -129,7 +130,7 @@ func TestAccServiceManagementServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_endpoints_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("services/%s", fmt.Sprintf("endpoint%s.endpoints.%s.cloud.goog", context["random_suffix"], context["project_name"])),
+				ImportStateIdFunc: generateServiceManagementServiceIAMPolicyStateID("google_endpoints_service_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -275,4 +276,52 @@ resource "google_endpoints_service_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateServiceManagementServiceIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		service_name := tpgresource.GetResourceNameFromSelfLink(rawState["service_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("services/%s", service_name), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateServiceManagementServiceIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		service_name := tpgresource.GetResourceNameFromSelfLink(rawState["service_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("services/%s", service_name), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateServiceManagementServiceIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		service_name := tpgresource.GetResourceNameFromSelfLink(rawState["service_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("services/%s", service_name), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

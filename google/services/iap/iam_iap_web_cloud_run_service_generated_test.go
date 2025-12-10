@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -60,7 +61,7 @@ func TestAccIapWebCloudRunServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMBindingStateID("google_iap_web_cloud_run_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +71,7 @@ func TestAccIapWebCloudRunServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMBindingStateID("google_iap_web_cloud_run_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +102,7 @@ func TestAccIapWebCloudRunServiceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMMemberStateID("google_iap_web_cloud_run_service_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -132,7 +133,7 @@ func TestAccIapWebCloudRunServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMPolicyStateID("google_iap_web_cloud_run_service_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -141,7 +142,7 @@ func TestAccIapWebCloudRunServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMPolicyStateID("google_iap_web_cloud_run_service_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -171,7 +172,7 @@ func TestAccIapWebCloudRunServiceIamBindingGenerated_withCondition(t *testing.T)
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMBindingStateID("google_iap_web_cloud_run_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -203,19 +204,19 @@ func TestAccIapWebCloudRunServiceIamBindingGenerated_withAndWithoutCondition(t *
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMBindingStateID("google_iap_web_cloud_run_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMBindingStateID("google_iap_web_cloud_run_service_iam_binding.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMBindingStateID("google_iap_web_cloud_run_service_iam_binding.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -245,7 +246,7 @@ func TestAccIapWebCloudRunServiceIamMemberGenerated_withCondition(t *testing.T) 
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMMemberStateID("google_iap_web_cloud_run_service_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -277,19 +278,19 @@ func TestAccIapWebCloudRunServiceIamMemberGenerated_withAndWithoutCondition(t *t
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMMemberStateID("google_iap_web_cloud_run_service_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMMemberStateID("google_iap_web_cloud_run_service_iam_member.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMMemberStateID("google_iap_web_cloud_run_service_iam_member.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -329,7 +330,7 @@ func TestAccIapWebCloudRunServiceIamPolicyGenerated_withCondition(t *testing.T) 
 			},
 			{
 				ResourceName:      "google_iap_web_cloud_run_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-run-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebCloudRunServiceIAMPolicyStateID("google_iap_web_cloud_run_service_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -727,4 +728,57 @@ resource "google_iap_web_cloud_run_service_iam_policy" "foo" {
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
+}
+func generateIapWebCloudRunServiceIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		cloud_run_service_name := tpgresource.GetResourceNameFromSelfLink(rawState["cloud_run_service_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s", project, location, cloud_run_service_name), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIapWebCloudRunServiceIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		cloud_run_service_name := tpgresource.GetResourceNameFromSelfLink(rawState["cloud_run_service_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s", project, location, cloud_run_service_name), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIapWebCloudRunServiceIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		cloud_run_service_name := tpgresource.GetResourceNameFromSelfLink(rawState["cloud_run_service_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/cloud_run-%s/services/%s", project, location, cloud_run_service_name), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

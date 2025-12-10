@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccColabRuntimeTemplateIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_colab_runtime_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-colab-runtime-template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateColabRuntimeTemplateIAMBindingStateID("google_colab_runtime_template_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccColabRuntimeTemplateIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_colab_runtime_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-colab-runtime-template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateColabRuntimeTemplateIAMBindingStateID("google_colab_runtime_template_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccColabRuntimeTemplateIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_colab_runtime_template_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-colab-runtime-template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateColabRuntimeTemplateIAMMemberStateID("google_colab_runtime_template_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccColabRuntimeTemplateIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_colab_runtime_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-colab-runtime-template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateColabRuntimeTemplateIAMPolicyStateID("google_colab_runtime_template_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccColabRuntimeTemplateIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_colab_runtime_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-colab-runtime-template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateColabRuntimeTemplateIAMPolicyStateID("google_colab_runtime_template_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -279,4 +280,58 @@ resource "google_colab_runtime_template_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateColabRuntimeTemplateIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		runtime_template := tpgresource.GetResourceNameFromSelfLink(rawState["runtime_template"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s", project, location, runtime_template), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateColabRuntimeTemplateIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		runtime_template := tpgresource.GetResourceNameFromSelfLink(rawState["runtime_template"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s", project, location, runtime_template), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateColabRuntimeTemplateIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		runtime_template := tpgresource.GetResourceNameFromSelfLink(rawState["runtime_template"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s", project, location, runtime_template), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

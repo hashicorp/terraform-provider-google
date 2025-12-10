@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccContainerAnalysisNoteIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s roles/containeranalysis.notes.occurrences.viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateIdFunc: generateContainerAnalysisNoteIAMBindingStateID("google_container_analysis_note_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccContainerAnalysisNoteIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s roles/containeranalysis.notes.occurrences.viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateIdFunc: generateContainerAnalysisNoteIAMBindingStateID("google_container_analysis_note_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccContainerAnalysisNoteIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s roles/containeranalysis.notes.occurrences.viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateIdFunc: generateContainerAnalysisNoteIAMMemberStateID("google_container_analysis_note_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccContainerAnalysisNoteIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateIdFunc: generateContainerAnalysisNoteIAMPolicyStateID("google_container_analysis_note_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccContainerAnalysisNoteIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateIdFunc: generateContainerAnalysisNoteIAMPolicyStateID("google_container_analysis_note_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -248,4 +249,55 @@ resource "google_container_analysis_note_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateContainerAnalysisNoteIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		note := tpgresource.GetResourceNameFromSelfLink(rawState["note"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/notes/%s", project, note), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateContainerAnalysisNoteIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		note := tpgresource.GetResourceNameFromSelfLink(rawState["note"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/notes/%s", project, note), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateContainerAnalysisNoteIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		note := tpgresource.GetResourceNameFromSelfLink(rawState["note"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/notes/%s", project, note), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -60,7 +61,7 @@ func TestAccComputeInstantSnapshotIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMBindingStateID("google_compute_instant_snapshot_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +71,7 @@ func TestAccComputeInstantSnapshotIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMBindingStateID("google_compute_instant_snapshot_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +102,7 @@ func TestAccComputeInstantSnapshotIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMMemberStateID("google_compute_instant_snapshot_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -132,7 +133,7 @@ func TestAccComputeInstantSnapshotIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMPolicyStateID("google_compute_instant_snapshot_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -141,7 +142,7 @@ func TestAccComputeInstantSnapshotIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMPolicyStateID("google_compute_instant_snapshot_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -171,7 +172,7 @@ func TestAccComputeInstantSnapshotIamBindingGenerated_withCondition(t *testing.T
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin %s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMBindingStateID("google_compute_instant_snapshot_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -203,19 +204,19 @@ func TestAccComputeInstantSnapshotIamBindingGenerated_withAndWithoutCondition(t 
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMBindingStateID("google_compute_instant_snapshot_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin %s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMBindingStateID("google_compute_instant_snapshot_iam_binding.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin %s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMBindingStateID("google_compute_instant_snapshot_iam_binding.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -245,7 +246,7 @@ func TestAccComputeInstantSnapshotIamMemberGenerated_withCondition(t *testing.T)
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMMemberStateID("google_compute_instant_snapshot_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -277,19 +278,19 @@ func TestAccComputeInstantSnapshotIamMemberGenerated_withAndWithoutCondition(t *
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMMemberStateID("google_compute_instant_snapshot_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMMemberStateID("google_compute_instant_snapshot_iam_member.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s roles/compute.storageAdmin user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMMemberStateID("google_compute_instant_snapshot_iam_member.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -329,7 +330,7 @@ func TestAccComputeInstantSnapshotIamPolicyGenerated_withCondition(t *testing.T)
 			},
 			{
 				ResourceName:      "google_compute_instant_snapshot_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), fmt.Sprintf("tf-test-instant-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeInstantSnapshotIAMPolicyStateID("google_compute_instant_snapshot_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -677,4 +678,57 @@ resource "google_compute_instant_snapshot_iam_policy" "foo" {
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
+}
+func generateComputeInstantSnapshotIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		zone := tpgresource.GetResourceNameFromSelfLink(rawState["zone"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s", project, zone, name), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateComputeInstantSnapshotIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		zone := tpgresource.GetResourceNameFromSelfLink(rawState["zone"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s", project, zone, name), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateComputeInstantSnapshotIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		zone := tpgresource.GetResourceNameFromSelfLink(rawState["zone"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/zones/%s/instantSnapshots/%s", project, zone, name), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

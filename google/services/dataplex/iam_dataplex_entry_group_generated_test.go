@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -212,4 +213,58 @@ resource "google_dataplex_entry_group_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateDataplexEntryGroupIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		entry_group_id := tpgresource.GetResourceNameFromSelfLink(rawState["entry_group_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s", project, location, entry_group_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataplexEntryGroupIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		entry_group_id := tpgresource.GetResourceNameFromSelfLink(rawState["entry_group_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s", project, location, entry_group_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataplexEntryGroupIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		entry_group_id := tpgresource.GetResourceNameFromSelfLink(rawState["entry_group_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s", project, location, entry_group_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

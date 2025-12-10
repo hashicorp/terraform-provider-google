@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccCloudRunV2JobIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudRunV2JobIAMBindingStateID("google_cloud_run_v2_job_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccCloudRunV2JobIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudRunV2JobIAMBindingStateID("google_cloud_run_v2_job_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccCloudRunV2JobIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudRunV2JobIAMMemberStateID("google_cloud_run_v2_job_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccCloudRunV2JobIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudRunV2JobIAMPolicyStateID("google_cloud_run_v2_job_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccCloudRunV2JobIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudRunV2JobIAMPolicyStateID("google_cloud_run_v2_job_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -279,4 +280,58 @@ resource "google_cloud_run_v2_job_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateCloudRunV2JobIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/jobs/%s", project, location, name), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateCloudRunV2JobIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/jobs/%s", project, location, name), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateCloudRunV2JobIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/jobs/%s", project, location, name), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

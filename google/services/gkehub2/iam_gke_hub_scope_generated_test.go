@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -56,7 +57,7 @@ func TestAccGKEHub2ScopeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHub2ScopeIAMBindingStateID("google_gke_hub_scope_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,7 +67,7 @@ func TestAccGKEHub2ScopeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHub2ScopeIAMBindingStateID("google_gke_hub_scope_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -93,7 +94,7 @@ func TestAccGKEHub2ScopeIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHub2ScopeIAMMemberStateID("google_gke_hub_scope_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -120,7 +121,7 @@ func TestAccGKEHub2ScopeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHub2ScopeIAMPolicyStateID("google_gke_hub_scope_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -129,7 +130,7 @@ func TestAccGKEHub2ScopeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHub2ScopeIAMPolicyStateID("google_gke_hub_scope_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -276,4 +277,55 @@ resource "google_gke_hub_scope_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateGKEHub2ScopeIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		scope_id := tpgresource.GetResourceNameFromSelfLink(rawState["scope_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/global/scopes/%s", project, scope_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateGKEHub2ScopeIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		scope_id := tpgresource.GetResourceNameFromSelfLink(rawState["scope_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/global/scopes/%s", project, scope_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateGKEHub2ScopeIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		scope_id := tpgresource.GetResourceNameFromSelfLink(rawState["scope_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/global/scopes/%s", project, scope_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

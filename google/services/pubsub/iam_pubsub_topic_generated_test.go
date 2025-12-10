@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccPubsubTopicIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-topic%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePubsubTopicIAMBindingStateID("google_pubsub_topic_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccPubsubTopicIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-topic%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePubsubTopicIAMBindingStateID("google_pubsub_topic_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccPubsubTopicIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-topic%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePubsubTopicIAMMemberStateID("google_pubsub_topic_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccPubsubTopicIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-topic%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePubsubTopicIAMPolicyStateID("google_pubsub_topic_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccPubsubTopicIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-topic%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePubsubTopicIAMPolicyStateID("google_pubsub_topic_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -253,4 +254,55 @@ resource "google_pubsub_topic_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generatePubsubTopicIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		topic := tpgresource.GetResourceNameFromSelfLink(rawState["topic"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/topics/%s", project, topic), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generatePubsubTopicIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		topic := tpgresource.GetResourceNameFromSelfLink(rawState["topic"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/topics/%s", project, topic), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generatePubsubTopicIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		topic := tpgresource.GetResourceNameFromSelfLink(rawState["topic"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/topics/%s", project, topic), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

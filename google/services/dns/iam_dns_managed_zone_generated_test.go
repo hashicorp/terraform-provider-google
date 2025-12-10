@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -56,7 +57,7 @@ func TestAccDNSManagedZoneIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dns_managed_zone_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/managedZones/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-zone-googlecloudexample%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDNSManagedZoneIAMBindingStateID("google_dns_managed_zone_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,7 +67,7 @@ func TestAccDNSManagedZoneIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dns_managed_zone_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/managedZones/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-zone-googlecloudexample%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDNSManagedZoneIAMBindingStateID("google_dns_managed_zone_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -93,7 +94,7 @@ func TestAccDNSManagedZoneIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dns_managed_zone_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/managedZones/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-zone-googlecloudexample%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDNSManagedZoneIAMMemberStateID("google_dns_managed_zone_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -120,7 +121,7 @@ func TestAccDNSManagedZoneIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dns_managed_zone_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/managedZones/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-zone-googlecloudexample%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDNSManagedZoneIAMPolicyStateID("google_dns_managed_zone_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -129,7 +130,7 @@ func TestAccDNSManagedZoneIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dns_managed_zone_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/managedZones/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-zone-googlecloudexample%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDNSManagedZoneIAMPolicyStateID("google_dns_managed_zone_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -481,4 +482,55 @@ resource "google_dns_managed_zone_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateDNSManagedZoneIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		managed_zone := tpgresource.GetResourceNameFromSelfLink(rawState["managed_zone"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/managedZones/%s", project, managed_zone), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDNSManagedZoneIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		managed_zone := tpgresource.GetResourceNameFromSelfLink(rawState["managed_zone"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/managedZones/%s", project, managed_zone), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDNSManagedZoneIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		managed_zone := tpgresource.GetResourceNameFromSelfLink(rawState["managed_zone"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/managedZones/%s", project, managed_zone), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

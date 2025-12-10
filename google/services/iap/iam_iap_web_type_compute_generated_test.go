@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -66,7 +67,7 @@ func TestAccIapWebTypeComputeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMBindingStateID("google_iap_web_type_compute_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -76,7 +77,7 @@ func TestAccIapWebTypeComputeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMBindingStateID("google_iap_web_type_compute_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -113,7 +114,7 @@ func TestAccIapWebTypeComputeIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMMemberStateID("google_iap_web_type_compute_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -150,7 +151,7 @@ func TestAccIapWebTypeComputeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMPolicyStateID("google_iap_web_type_compute_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -159,7 +160,7 @@ func TestAccIapWebTypeComputeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMPolicyStateID("google_iap_web_type_compute_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -195,7 +196,7 @@ func TestAccIapWebTypeComputeIamBindingGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor %s", fmt.Sprintf("tf-test%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMBindingStateID("google_iap_web_type_compute_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -233,19 +234,19 @@ func TestAccIapWebTypeComputeIamBindingGenerated_withAndWithoutCondition(t *test
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMBindingStateID("google_iap_web_type_compute_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor %s", fmt.Sprintf("tf-test%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMBindingStateID("google_iap_web_type_compute_iam_binding.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor %s", fmt.Sprintf("tf-test%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMBindingStateID("google_iap_web_type_compute_iam_binding.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -281,7 +282,7 @@ func TestAccIapWebTypeComputeIamMemberGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", fmt.Sprintf("tf-test%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMMemberStateID("google_iap_web_type_compute_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -319,19 +320,19 @@ func TestAccIapWebTypeComputeIamMemberGenerated_withAndWithoutCondition(t *testi
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMMemberStateID("google_iap_web_type_compute_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", fmt.Sprintf("tf-test%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMMemberStateID("google_iap_web_type_compute_iam_member.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", fmt.Sprintf("tf-test%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMMemberStateID("google_iap_web_type_compute_iam_member.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -377,7 +378,7 @@ func TestAccIapWebTypeComputeIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_compute_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebTypeComputeIAMPolicyStateID("google_iap_web_type_compute_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -785,4 +786,51 @@ resource "google_iap_web_type_compute_iam_policy" "foo" {
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
+}
+func generateIapWebTypeComputeIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/compute", project), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIapWebTypeComputeIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/compute", project), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIapWebTypeComputeIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/compute", project), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }
