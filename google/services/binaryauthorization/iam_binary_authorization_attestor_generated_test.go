@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBinaryAuthorizationAttestorIAMBindingStateID("google_binary_authorization_attestor_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBinaryAuthorizationAttestorIAMBindingStateID("google_binary_authorization_attestor_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccBinaryAuthorizationAttestorIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBinaryAuthorizationAttestorIAMMemberStateID("google_binary_authorization_attestor_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBinaryAuthorizationAttestorIAMPolicyStateID("google_binary_authorization_attestor_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBinaryAuthorizationAttestorIAMPolicyStateID("google_binary_authorization_attestor_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -383,4 +384,55 @@ resource "google_binary_authorization_attestor_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateBinaryAuthorizationAttestorIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		attestor := tpgresource.GetResourceNameFromSelfLink(rawState["attestor"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/attestors/%s", project, attestor), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateBinaryAuthorizationAttestorIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		attestor := tpgresource.GetResourceNameFromSelfLink(rawState["attestor"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/attestors/%s", project, attestor), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateBinaryAuthorizationAttestorIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		attestor := tpgresource.GetResourceNameFromSelfLink(rawState["attestor"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/attestors/%s", project, attestor), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

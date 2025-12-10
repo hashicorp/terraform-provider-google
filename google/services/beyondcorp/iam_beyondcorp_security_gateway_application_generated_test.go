@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -60,7 +61,7 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamBindingGenerated(t *testing.T
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMBindingStateID("google_beyondcorp_security_gateway_application_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +71,7 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamBindingGenerated(t *testing.T
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMBindingStateID("google_beyondcorp_security_gateway_application_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +102,7 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamMemberGenerated(t *testing.T)
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMMemberStateID("google_beyondcorp_security_gateway_application_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -132,7 +133,7 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamPolicyGenerated(t *testing.T)
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMPolicyStateID("google_beyondcorp_security_gateway_application_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -141,7 +142,7 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamPolicyGenerated(t *testing.T)
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMPolicyStateID("google_beyondcorp_security_gateway_application_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -171,7 +172,7 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamBindingGenerated_withConditio
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMBindingStateID("google_beyondcorp_security_gateway_application_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -203,19 +204,19 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamBindingGenerated_withAndWitho
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMBindingStateID("google_beyondcorp_security_gateway_application_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMBindingStateID("google_beyondcorp_security_gateway_application_iam_binding.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMBindingStateID("google_beyondcorp_security_gateway_application_iam_binding.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -245,7 +246,7 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamMemberGenerated_withCondition
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMMemberStateID("google_beyondcorp_security_gateway_application_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -277,19 +278,19 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamMemberGenerated_withAndWithou
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMMemberStateID("google_beyondcorp_security_gateway_application_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMMemberStateID("google_beyondcorp_security_gateway_application_iam_member.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s roles/beyondcorp.securityGatewayUser user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMMemberStateID("google_beyondcorp_security_gateway_application_iam_member.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -329,7 +330,7 @@ func TestAccBeyondcorpSecurityGatewayApplicationIamPolicyGenerated_withCondition
 			},
 			{
 				ResourceName:      "google_beyondcorp_security_gateway_application_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-default-sg%s", context["random_suffix"]), fmt.Sprintf("tf-test-google-sga%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBeyondcorpSecurityGatewayApplicationIAMPolicyStateID("google_beyondcorp_security_gateway_application_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -707,4 +708,57 @@ resource "google_beyondcorp_security_gateway_application_iam_policy" "foo" {
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
+}
+func generateBeyondcorpSecurityGatewayApplicationIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		security_gateway_id := tpgresource.GetResourceNameFromSelfLink(rawState["security_gateway_id"])
+		application_id := tpgresource.GetResourceNameFromSelfLink(rawState["application_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s", project, security_gateway_id, application_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateBeyondcorpSecurityGatewayApplicationIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		security_gateway_id := tpgresource.GetResourceNameFromSelfLink(rawState["security_gateway_id"])
+		application_id := tpgresource.GetResourceNameFromSelfLink(rawState["application_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s", project, security_gateway_id, application_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateBeyondcorpSecurityGatewayApplicationIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		security_gateway_id := tpgresource.GetResourceNameFromSelfLink(rawState["security_gateway_id"])
+		application_id := tpgresource.GetResourceNameFromSelfLink(rawState["application_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s", project, security_gateway_id, application_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

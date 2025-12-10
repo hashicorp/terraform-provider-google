@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -56,7 +57,7 @@ func TestAccDataCatalogTagTemplateIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogTagTemplateIAMBindingStateID("google_data_catalog_tag_template_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,7 +67,7 @@ func TestAccDataCatalogTagTemplateIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogTagTemplateIAMBindingStateID("google_data_catalog_tag_template_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -93,7 +94,7 @@ func TestAccDataCatalogTagTemplateIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogTagTemplateIAMMemberStateID("google_data_catalog_tag_template_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -120,7 +121,7 @@ func TestAccDataCatalogTagTemplateIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogTagTemplateIAMPolicyStateID("google_data_catalog_tag_template_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -129,7 +130,7 @@ func TestAccDataCatalogTagTemplateIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogTagTemplateIAMPolicyStateID("google_data_catalog_tag_template_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -415,4 +416,58 @@ resource "google_data_catalog_tag_template_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateDataCatalogTagTemplateIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		region := tpgresource.GetResourceNameFromSelfLink(rawState["region"])
+		tag_template := tpgresource.GetResourceNameFromSelfLink(rawState["tag_template"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", project, region, tag_template), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataCatalogTagTemplateIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		region := tpgresource.GetResourceNameFromSelfLink(rawState["region"])
+		tag_template := tpgresource.GetResourceNameFromSelfLink(rawState["tag_template"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", project, region, tag_template), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataCatalogTagTemplateIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		region := tpgresource.GetResourceNameFromSelfLink(rawState["region"])
+		tag_template := tpgresource.GetResourceNameFromSelfLink(rawState["tag_template"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", project, region, tag_template), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }
