@@ -665,3 +665,13 @@ func IsSiteVerificationRetryableError(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+// Retry when waiting for ingestion to create a 1P Dataplex entry corresponding to some other resource.
+func IsDataplex1PEntryIngestedError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 403 && strings.Contains(gerr.Body, "The action is not allowed on the Dataplex managed entry group") {
+			return true, fmt.Sprintf("Retry 403s for Dataplex Ingestion")
+		}
+	}
+	return false, ""
+}

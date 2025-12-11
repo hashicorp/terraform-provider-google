@@ -201,6 +201,171 @@ resource "google_dataplex_entry" "test_entry_full" {
  depends_on = [google_dataplex_aspect_type.aspect-type-full-two, google_dataplex_aspect_type.aspect-type-full-one]
 }
 ```
+## Example Usage - Dataplex Entry Bigquery Table
+
+
+```hcl
+resource "google_dataplex_aspect_type" "aspect-type-full-one" {
+  aspect_type_id         = "aspect-type-one"
+  location     = "us-central1"
+  project      = "1111111111111"
+
+  metadata_template = <<EOF
+{
+  "name": "tf-test-template",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "type",
+      "type": "enum",
+      "annotations": {
+        "displayName": "Type",
+        "description": "Specifies the type of view represented by the entry."
+      },
+      "index": 1,
+      "constraints": {
+        "required": true
+      },
+      "enumValues": [
+        {
+          "name": "VIEW",
+          "index": 1
+        }
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "google_dataplex_aspect_type" "aspect-type-full-two" {
+  aspect_type_id         = "aspect-type-two"
+  location     = "us-central1"
+  project      = "1111111111111"
+
+  metadata_template = <<EOF
+{
+  "name": "tf-test-template",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "story",
+      "type": "enum",
+      "annotations": {
+        "displayName": "Story",
+        "description": "Specifies the story of an entry."
+      },
+      "index": 1,
+      "constraints": {
+        "required": true
+      },
+      "enumValues": [
+        {
+          "name": "SEQUENCE",
+          "index": 1
+        }
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "google_bigquery_dataset" "example-dataset" {
+  dataset_id                  = "dataset-basic"
+  friendly_name               = "Example Dataset"
+  location                    = "us-central1"
+  delete_contents_on_destroy  = true
+}
+
+
+resource "google_bigquery_table" "example-table" {
+  dataset_id = google_bigquery_dataset.example-dataset.dataset_id
+  table_id   = "table-basic"
+  deletion_protection = false
+  # Define the table schema
+  schema = jsonencode([
+    {
+      name = "event_time"
+      type = "TIMESTAMP"
+      mode = "REQUIRED"
+    },
+    {
+      name = "user_id"
+      type = "STRING"
+      mode = "NULLABLE"
+    },
+    {
+      name = "event_type"
+      type = "STRING"
+      mode = "NULLABLE"
+    }
+  ])
+}
+
+resource "google_dataplex_entry" "tf_test_table" {
+  entry_group_id = "@bigquery"
+  project = "1111111111111"
+  location = "us-central1"
+  entry_id = "bigquery.googleapis.com/projects/my-project-name/datasets/${google_bigquery_dataset.example-dataset.dataset_id}/tables/${google_bigquery_table.example-table.table_id}"
+  entry_type = "projects/655216118709/locations/global/entryTypes/bigquery-table"
+  fully_qualified_name = "bigquery:my-project-name.${google_bigquery_dataset.example-dataset.dataset_id}.${google_bigquery_table.example-table.table_id}"
+  parent_entry = "projects/1111111111111/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/my-project-name/datasets/${google_bigquery_dataset.example-dataset.dataset_id}"
+
+  aspects {
+    aspect_key = "1111111111111.us-central1.aspect-type-one"
+    aspect {
+      data = <<EOF
+          {"type": "VIEW"    }
+        EOF
+    }
+  }
+
+  aspects {
+    aspect_key = "1111111111111.us-central1.aspect-type-two@Schema.event_type"
+    aspect {
+      data = <<EOF
+          {"story": "SEQUENCE"    }
+        EOF
+    }
+  }
+ depends_on = [google_dataplex_aspect_type.aspect-type-full-two, google_dataplex_aspect_type.aspect-type-full-one]
+}
+```
+## Example Usage - Dataplex Entry Glossary Term
+
+
+```hcl
+resource "google_dataplex_glossary" "example-glossary" {
+  glossary_id = "glossary-basic"
+  location    = "us-central1"
+}
+
+resource "google_dataplex_glossary_term" "example-glossary-term" {
+  parent = "projects/my-project-name/locations/us-central1/glossaries/${google_dataplex_glossary.example-glossary.glossary_id}"
+  glossary_id = google_dataplex_glossary.example-glossary.glossary_id
+  location = "us-central1"
+  term_id = "glossary-term"
+}
+
+resource "google_dataplex_entry" "tf_test_glossary_term" {
+  entry_group_id = "@dataplex"
+  project = "1111111111111"
+  location = "us-central1"
+  entry_id = "projects/1111111111111/locations/us-central1/glossaries/${google_dataplex_glossary.example-glossary.glossary_id}/terms/${google_dataplex_glossary_term.example-glossary-term.term_id}"
+  entry_type = "projects/655216118709/locations/global/entryTypes/glossary-term"
+  parent_entry = "projects/1111111111111/locations/us-central1/entryGroups/@dataplex/entries/projects/1111111111111/locations/us-central1/glossaries/${google_dataplex_glossary.example-glossary.glossary_id}"
+
+  aspects {
+     aspect_key = "655216118709.global.overview"
+     aspect {
+       data = <<EOF
+           {"content": "Term Content"    }
+         EOF
+     }
+   }
+}
+```
 
 ## Argument Reference
 
