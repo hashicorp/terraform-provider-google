@@ -141,7 +141,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `[Output only] The timestamp when the multicast domain group was created.`,
+				Description: `The timestamp when the multicast domain group was created.`,
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -152,7 +152,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"multicast_domains": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Description: `[Output only] Multicast domains associated with the group.
+				Description: `Multicast domains associated with the group.
 There can be at most 2 multicast domains in a group.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -173,7 +173,7 @@ Use the following format:
 					Schema: map[string]*schema.Schema{
 						"state": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Computed: true,
 							Description: `The state of the multicast resource.
 Possible values:
 CREATING
@@ -197,7 +197,7 @@ INACTIVE`,
 			"unique_id": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `[Output only] The Google-generated UUID for the resource. This value is
+				Description: `The Google-generated UUID for the resource. This value is
 unique across all multicast domain group resources. If a domain is deleted
 and another with the same name is created, the new domain is assigned a
 different unique_id.`,
@@ -205,7 +205,7 @@ different unique_id.`,
 			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `[Output only] The timestamp when the multicast domain group was most
+				Description: `The timestamp when the multicast domain group was most
 recently updated.`,
 			},
 			"project": {
