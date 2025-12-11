@@ -588,9 +588,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 699
+// Generated resources: 700
 // Generated IAM resources: 324
-// Total generated resources: 1023
+// Total generated resources: 1024
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1380,6 +1380,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_network_services_multicast_domain":                                   networkservices.ResourceNetworkServicesMulticastDomain(),
 	"google_network_services_multicast_domain_activation":                        networkservices.ResourceNetworkServicesMulticastDomainActivation(),
 	"google_network_services_multicast_domain_group":                             networkservices.ResourceNetworkServicesMulticastDomainGroup(),
+	"google_network_services_multicast_group_consumer_activation":                networkservices.ResourceNetworkServicesMulticastGroupConsumerActivation(),
 	"google_network_services_multicast_group_producer_activation":                networkservices.ResourceNetworkServicesMulticastGroupProducerActivation(),
 	"google_network_services_multicast_group_range":                              networkservices.ResourceNetworkServicesMulticastGroupRange(),
 	"google_network_services_multicast_group_range_activation":                   networkservices.ResourceNetworkServicesMulticastGroupRangeActivation(),
