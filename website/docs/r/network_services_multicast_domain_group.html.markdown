@@ -24,6 +24,11 @@ description: |-
 Create a multicast domain group in the current project.
 
 
+To get more information about MulticastDomainGroup, see:
+
+* [API documentation](https://docs.cloud.google.com/vpc/docs/multicast/reference/rest/v1/projects.locations.multicastDomainGroups)
+* How-to Guides
+    * [Create Multicast Domain Group](https://docs.cloud.google.com/vpc/docs/multicast/create-domains#create-domain-group)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_multicast_domain_group_basic&open_in_editor=main.tf" target="_blank">
@@ -106,10 +111,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/multicastDomainGroups/{{multicast_domain_group_id}}`
 
 * `create_time` -
-  [Output only] The timestamp when the multicast domain group was created.
+  The timestamp when the multicast domain group was created.
 
 * `multicast_domains` -
-  [Output only] Multicast domains associated with the group.
+  Multicast domains associated with the group.
   There can be at most 2 multicast domains in a group.
 
 * `name` -
@@ -122,13 +127,13 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_state).
 
 * `unique_id` -
-  [Output only] The Google-generated UUID for the resource. This value is
+  The Google-generated UUID for the resource. This value is
   unique across all multicast domain group resources. If a domain is deleted
   and another with the same name is created, the new domain is assigned a
   different unique_id.
 
 * `update_time` -
-  [Output only] The timestamp when the multicast domain group was most
+  The timestamp when the multicast domain group was most
   recently updated.
 
 * `terraform_labels` -
@@ -142,7 +147,7 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_state"></a>The `state` block contains:
 
 * `state` -
-  (Optional)
+  (Output)
   The state of the multicast resource.
   Possible values:
   CREATING
