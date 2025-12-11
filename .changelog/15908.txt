@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: enabled in-place update for `custom_mirroring_profile.mirroring_deployment_groups` on `google_network_security_security_profile`
+```
