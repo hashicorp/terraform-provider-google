@@ -28,5 +28,8 @@ fields:
   - api_field: 'shieldedVmConfig.enableSecureBoot'
   - api_field: 'softwareConfig.env.name'
   - api_field: 'softwareConfig.env.value'
+  - api_field: 'softwareConfig.postStartupScriptConfig.postStartupScript'
+  - api_field: 'softwareConfig.postStartupScriptConfig.postStartupScriptBehavior'
+  - api_field: 'softwareConfig.postStartupScriptConfig.postStartupScriptUrl'
   - field: 'terraform_labels'
     provider_only: true

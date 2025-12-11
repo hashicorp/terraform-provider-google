@@ -142,6 +142,19 @@ resource "google_colab_runtime_template" "runtime-template" {
   encryption_spec {
     kms_key_name = "my-crypto-key"
   }
+
+  software_config {
+    env {
+      name    = "TEST"
+      value   = 1
+    }
+
+    post_startup_script_config {
+      post_startup_script = "echo 'hello world'"
+      post_startup_script_url = "gs://colab-enterprise-pss-secure/secure_pss.sh"
+      post_startup_script_behavior = "RUN_ONCE"
+    }
+  }
 }
 ```
 
@@ -291,6 +304,11 @@ The following arguments are supported:
   Environment variables to be passed to the container.
   Structure is [documented below](#nested_software_config_env).
 
+* `post_startup_script_config` -
+  (Optional)
+  Post startup script config.
+  Structure is [documented below](#nested_software_config_post_startup_script_config).
+
 
 <a name="nested_software_config_env"></a>The `env` block supports:
 
@@ -301,6 +319,21 @@ The following arguments are supported:
 * `value` -
   (Optional)
   Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not.
+
+<a name="nested_software_config_post_startup_script_config"></a>The `post_startup_script_config` block supports:
+
+* `post_startup_script` -
+  (Optional)
+  Post startup script to run after runtime is started.
+
+* `post_startup_script_url` -
+  (Optional)
+  Post startup script url to download. Example: https://bucket/script.sh.
+
+* `post_startup_script_behavior` -
+  (Optional)
+  Post startup script behavior that defines download and execution behavior.
+  Possible values are: `RUN_ONCE`, `RUN_EVERY_START`, `DOWNLOAD_AND_RUN_EVERY_START`.
 
 ## Attributes Reference
 
