@@ -5771,6 +5771,11 @@ func verifyPscOperation(resourceName string, isPscConfigExpected bool, expectedP
 			if !ok || allowedConsumerProjects != len(expectedAllowedConsumerProjects) {
 				return fmt.Errorf("settings.0.ip_configuration.0.psc_config.0.allowed_consumer_projects property is not present or set as expected in state of %s", resourceName)
 			}
+
+			pscServiceAttachmentLink, ok := resourceAttributes["psc_service_attachment_link"]
+			if !ok || pscServiceAttachmentLink == "" {
+				return fmt.Errorf("psc_service_attachment_link property value is empty")
+			}
 		}
 
 		return nil
