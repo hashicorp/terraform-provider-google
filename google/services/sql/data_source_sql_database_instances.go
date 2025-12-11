@@ -195,6 +195,7 @@ func flattenDatasourceGoogleDatabaseInstancesList(fetchedInstances []*sqladmin.D
 		instance["master_instance_name"] = strings.TrimPrefix(rawInstance.MasterInstanceName, project+":")
 		instance["project"] = project
 		instance["self_link"] = rawInstance.SelfLink
+		instance["psc_service_attachment_link"] = rawInstance.PscServiceAttachmentLink
 
 		instances = append(instances, instance)
 	}

@@ -1529,7 +1529,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	if _, ok := d.GetOk("node_count"); ok {
 		instance.NodeCount = int64(d.Get("node_count").(int))
 	}
-
 	if _, ok := d.GetOk("root_password_wo_version"); ok {
 		instance.RootPassword = tpgresource.GetRawConfigAttributeAsString(d, "root_password_wo")
 	} else if _, ok := d.GetOk("root_password"); ok {
@@ -2179,6 +2178,9 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("maintenance_version", instance.MaintenanceVersion); err != nil {
 		return fmt.Errorf("Error setting maintenance_version: %s", err)
 	}
+	if err := d.Set("psc_service_attachment_link", instance.PscServiceAttachmentLink); err != nil {
+		return fmt.Errorf("Error setting psc_service_attachment_link: %s", err)
+	}
 	if err := d.Set("available_maintenance_versions", instance.AvailableMaintenanceVersions); err != nil {
 		return fmt.Errorf("Error setting available_maintenance_version: %s", err)
 	}
@@ -2564,6 +2566,10 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	if _, ok := d.GetOk("node_count"); ok {
 		instance.NodeCount = int64(d.Get("node_count").(int))
+	}
+
+	if _, ok := d.GetOk("psc_service_attachment_link"); ok {
+		instance.PscServiceAttachmentLink = d.Get("psc_service_attachment_link").(string)
 	}
 
 	// Database Version is required for all calls with Google ML integration enabled or it will be rejected by the API.
