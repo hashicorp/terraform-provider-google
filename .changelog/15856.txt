@@ -1,0 +1,3 @@
+```release-note:enhancement
+datastream: added support for the `rule_sets` field in the `google_datastream_stream` resource, allowing configuration of customization rules, such as BigQuery destinations partitioning and clustering (ga).
+```
