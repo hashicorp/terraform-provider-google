@@ -1,0 +1,3 @@
+```release-note:bug
+discoveryengine: marked `cmek_config_id` field in `google_discovery_engine_cmek_config` resource as required
+```
