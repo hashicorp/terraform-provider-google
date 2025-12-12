@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: Added changes to ignore changes in backup configuration's fields like enabled, binary_log_enabled, start_time, point_in_time_recovery_enabled, transaction_log_retention_days and backup_retention_settings.retained_backups if the instance is managed by Google Cloud Backup and Disaster (DR) Recovery Service.
+```

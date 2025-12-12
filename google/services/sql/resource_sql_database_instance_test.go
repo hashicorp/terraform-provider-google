@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
@@ -3894,6 +3895,261 @@ func TestAccSqlDatabaseInstance_DiskSizeAutoResizeWithDiskSize(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestEnhancedBackupManagerDiffSuppressFunc(t *testing.T) {
+	cases := map[string]struct {
+		key            string
+		old            string
+		new            string
+		backupTier     string
+		expectSuppress bool
+		description    string
+	}{
+		"suppress enabled diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.enabled",
+			old:            "true",
+			new:            "false",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "enabled should be suppressed when ENHANCED",
+		},
+		"suppress start_time diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.start_time",
+			old:            "03:00",
+			new:            "05:00",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "start_time should be suppressed when ENHANCED",
+		},
+		"suppress binary_log_enabled diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.binary_log_enabled",
+			old:            "true",
+			new:            "false",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "binary_log_enabled should be suppressed when ENHANCED",
+		},
+		"suppress point_in_time_recovery_enabled diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.point_in_time_recovery_enabled",
+			old:            "false",
+			new:            "true",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "point_in_time_recovery_enabled should be suppressed when ENHANCED",
+		},
+		"suppress transaction_log_retention_days diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.transaction_log_retention_days",
+			old:            "7",
+			new:            "14",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "transaction_log_retention_days should be suppressed when ENHANCED",
+		},
+		"suppress retained_backups diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.backup_retention_settings.0.retained_backups",
+			old:            "7",
+			new:            "14",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "retained_backups should be suppressed when ENHANCED",
+		},
+		"do not suppress diff when backup tier is standard": {
+			key:            "settings.0.backup_configuration.0.enabled",
+			old:            "true",
+			new:            "false",
+			backupTier:     "STANDARD",
+			expectSuppress: false,
+			description:    "enabled should NOT be suppressed when STANDARD",
+		},
+		"do not suppress diff when backup tier is empty": {
+			key:            "settings.0.backup_configuration.0.enabled",
+			old:            "true",
+			new:            "false",
+			backupTier:     "",
+			expectSuppress: false,
+			description:    "enabled should NOT be suppressed when backup_tier is empty",
+		},
+		"do not suppress when old and new are same": {
+			key:            "settings.0.backup_configuration.0.enabled",
+			old:            "true",
+			new:            "true",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "no diff to suppress when old and new are same",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			// Build real *schema.ResourceData using the resource schema and TestResourceDataRaw
+			// Put backup_tier into the nested settings->backup_configuration block (state)
+			rd := schema.TestResourceDataRaw(t, sql.ResourceSqlDatabaseInstance().Schema, map[string]interface{}{
+				"name": "test-instance",
+				"settings": []interface{}{
+					map[string]interface{}{
+						"backup_configuration": []interface{}{
+							map[string]interface{}{
+								"backup_tier": tc.backupTier,
+							},
+						},
+					},
+				},
+			})
+
+			suppressed := sql.EnhancedBackupManagerDiffSuppressFunc(tc.key, tc.old, tc.new, rd)
+
+			if suppressed != tc.expectSuppress {
+				t.Errorf("expected suppressed to be %v but got %v. Desc: %s", tc.expectSuppress, suppressed, tc.description)
+			}
+		})
+	}
+}
+
+func TestAccSqlDatabaseInstance_updateInstanceTierForEnhancedBackupTierInstance(t *testing.T) {
+	t.Parallel()
+
+	backupVaultID := "bv-test"
+	location := "us-central1"
+	project := envvar.GetTestProjectFromEnv()
+	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"project":         project,
+		"backup_vault_id": backupVaultID,
+		"backup_vault":    backupVault,
+		"db_version":      "MYSQL_8_0_41",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create backup plan and associate with instance
+				Config: testGoogleSqlDatabaseInstance_attachGCBDR(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_backup_dr_backup_plan_association.backup_association", "id"),
+				),
+			},
+			{
+				// Update instance backup tier to ENHANCED, which should ignore backup_configuration settings
+				Config: testGoogleSqlDatabaseInstance_updateTierForGcbdrManagedInstance(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.tier", "db-g1-small"),
+				),
+			},
+		},
+	})
+}
+
+func testGoogleSqlDatabaseInstance_attachGCBDR(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-instance-%{random_suffix}"
+  database_version = "%{db_version}"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-f1-micro"
+  }
+    deletion_protection = false
+}
+
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "backup_association" {
+  location                      = "us-central1" 
+  backup_plan_association_id    = "tf-test-bpa-test-%{random_suffix}"
+  resource                      = "projects/${data.google_project.project.project_id}/instances/${google_sql_database_instance.instance.name}"
+  resource_type                 = "sqladmin.googleapis.com/Instance"
+  backup_plan                   = google_backup_dr_backup_plan.plan.name
+}
+`, context)
+}
+
+func testGoogleSqlDatabaseInstance_updateTierForGcbdrManagedInstance(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-instance-%{random_suffix}"
+  database_version = "%{db_version}"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-g1-small"
+
+    backup_configuration {
+      enabled            = false
+      binary_log_enabled = false
+      start_time         = "05:00"
+      
+      backup_retention_settings {
+        retained_backups = 8
+		retention_unit   = "COUNT"
+      }
+    }
+  }
+	deletion_protection = false
+}
+
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "backup_association" {
+  location                      = "us-central1" 
+  backup_plan_association_id    = "tf-test-bpa-test-%{random_suffix}"
+  resource                      = "projects/${data.google_project.project.project_id}/instances/${google_sql_database_instance.instance.name}"
+  resource_type                 = "sqladmin.googleapis.com/Instance"
+  backup_plan                   = google_backup_dr_backup_plan.plan.name
+}
+`, context)
 }
 
 func testGoogleSqlDatabaseInstance_setCustomSubjectAlternateName(context map[string]interface{}) string {
