@@ -164,7 +164,6 @@ exceed 48 characters.`,
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `An optional text description of the multicast domain.`,
 			},
 			"labels": {
@@ -187,12 +186,11 @@ Use the following format:
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `[Output only] The timestamp when the multicast domain was created.`,
+				Description: `The timestamp when the multicast domain was created.`,
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -202,6 +200,28 @@ Use the following format:
 				Description: `Identifier. The resource name of the multicast domain.
 Use the following format:
 'projects/*/locations/global/multicastDomains/*'`,
+			},
+			"state": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The multicast resource's state.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"state": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The state of the multicast resource.
+Possible values:
+CREATING
+ACTIVE
+DELETING
+DELETE_FAILED
+UPDATING
+UPDATE_FAILED
+INACTIVE`,
+						},
+					},
+				},
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -213,7 +233,7 @@ Use the following format:
 			"unique_id": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `[Output only] The Google-generated UUID for the resource. This value is
+				Description: `The Google-generated UUID for the resource. This value is
 unique across all multicast domain resources. If a domain is deleted and
 another with the same name is created, the new domain is assigned a
 different unique_id.`,
@@ -221,7 +241,7 @@ different unique_id.`,
 			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `[Output only] The timestamp when the multicast domain was most recently
+				Description: `The timestamp when the multicast domain was most recently
 updated.`,
 			},
 			"project": {
@@ -396,6 +416,9 @@ func resourceNetworkServicesMulticastDomainRead(d *schema.ResourceData, meta int
 	if err := d.Set("unique_id", flattenNetworkServicesMulticastDomainUniqueId(res["uniqueId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MulticastDomain: %s", err)
 	}
+	if err := d.Set("state", flattenNetworkServicesMulticastDomainState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MulticastDomain: %s", err)
+	}
 	if err := d.Set("update_time", flattenNetworkServicesMulticastDomainUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MulticastDomain: %s", err)
 	}
@@ -410,7 +433,90 @@ func resourceNetworkServicesMulticastDomainRead(d *schema.ResourceData, meta int
 }
 
 func resourceNetworkServicesMulticastDomainUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "labels" and "terraform_labels" are mutable
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for MulticastDomain: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	descriptionProp, err := expandNetworkServicesMulticastDomainDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	effectiveLabelsProp, err := expandNetworkServicesMulticastDomainEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastDomains/{{multicast_domain_id}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating MulticastDomain %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("description") {
+		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating MulticastDomain %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating MulticastDomain %q: %#v", d.Id(), res)
+		}
+
+		err = NetworkServicesOperationWaitTime(
+			config, res, project, "Updating MulticastDomain", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceNetworkServicesMulticastDomainRead(d, meta)
 }
 
@@ -549,6 +655,23 @@ func flattenNetworkServicesMulticastDomainName(v interface{}, d *schema.Resource
 }
 
 func flattenNetworkServicesMulticastDomainUniqueId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesMulticastDomainState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["state"] =
+		flattenNetworkServicesMulticastDomainStateState(original["state"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesMulticastDomainStateState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
