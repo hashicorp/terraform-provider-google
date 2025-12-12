@@ -64,6 +64,7 @@ type ProviderModel struct {
 	BackupDRCustomEndpoint                 types.String `tfsdk:"backup_dr_custom_endpoint"`
 	BeyondcorpCustomEndpoint               types.String `tfsdk:"beyondcorp_custom_endpoint"`
 	BiglakeCustomEndpoint                  types.String `tfsdk:"biglake_custom_endpoint"`
+	BiglakeIcebergCustomEndpoint           types.String `tfsdk:"biglake_iceberg_custom_endpoint"`
 	BigQueryCustomEndpoint                 types.String `tfsdk:"big_query_custom_endpoint"`
 	BigqueryAnalyticsHubCustomEndpoint     types.String `tfsdk:"bigquery_analytics_hub_custom_endpoint"`
 	BigqueryConnectionCustomEndpoint       types.String `tfsdk:"bigquery_connection_custom_endpoint"`
