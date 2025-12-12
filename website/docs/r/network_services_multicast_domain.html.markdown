@@ -24,6 +24,11 @@ description: |-
 Create a multicast domain in the current project.
 
 
+To get more information about MulticastDomain, see:
+
+* [API documentation](https://docs.cloud.google.com/vpc/docs/multicast/reference/rest/v1/projects.locations.multicastDomains)
+* How-to Guides
+    * [Create Multicast Domain](https://docs.cloud.google.com/vpc/docs/multicast/create-domains#create-domain)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_multicast_domain_basic&open_in_editor=main.tf" target="_blank">
@@ -128,7 +133,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/multicastDomains/{{multicast_domain_id}}`
 
 * `create_time` -
-  [Output only] The timestamp when the multicast domain was created.
+  The timestamp when the multicast domain was created.
 
 * `name` -
   Identifier. The resource name of the multicast domain.
@@ -136,13 +141,17 @@ In addition to the arguments listed above, the following computed attributes are
   `projects/*/locations/global/multicastDomains/*`
 
 * `unique_id` -
-  [Output only] The Google-generated UUID for the resource. This value is
+  The Google-generated UUID for the resource. This value is
   unique across all multicast domain resources. If a domain is deleted and
   another with the same name is created, the new domain is assigned a
   different unique_id.
 
+* `state` -
+  The multicast resource's state.
+  Structure is [documented below](#nested_state).
+
 * `update_time` -
-  [Output only] The timestamp when the multicast domain was most recently
+  The timestamp when the multicast domain was most recently
   updated.
 
 * `terraform_labels` -
@@ -152,6 +161,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_state"></a>The `state` block contains:
+
+* `state` -
+  (Output)
+  The state of the multicast resource.
+  Possible values:
+  CREATING
+  ACTIVE
+  DELETING
+  DELETE_FAILED
+  UPDATING
+  UPDATE_FAILED
+  INACTIVE
 
 ## Timeouts
 

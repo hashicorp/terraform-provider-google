@@ -22,6 +22,7 @@ fields:
     - field: multicast_domain_id
       provider_only: true
     - api_field: name
+    - api_field: state.state
     - field: terraform_labels
       provider_only: true
     - api_field: uniqueId
