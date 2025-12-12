@@ -1,30 +1,30 @@
-resource: 'google_developer_connect_git_repository_link'
-generation_type: 'mmv1'
-source_file: 'products/developerconnect/GitRepositoryLink.yaml'
-api_service_name: 'developerconnect.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'GitRepositoryLink'
+resource: google_developer_connect_git_repository_link
+generation_type: mmv1
+source_file: products/developerconnect/GitRepositoryLink.yaml
+api_service_name: developerconnect.googleapis.com
+api_version: v1
+api_resource_type_kind: GitRepositoryLink
 autogen_status: true
 fields:
-  - api_field: 'annotations'
-  - api_field: 'cloneUri'
-  - api_field: 'createTime'
-  - api_field: 'deleteTime'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - field: 'git_repository_link_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'parent_connection'
-    provider_only: true
-  - api_field: 'reconciling'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: cloneUri
+    - api_field: createTime
+    - api_field: deleteTime
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - field: git_repository_link_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: parent_connection
+      provider_only: true
+    - api_field: reconciling
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

@@ -1,21 +1,21 @@
-resource: 'google_scc_management_organization_event_threat_detection_custom_module'
-generation_type: 'mmv1'
-source_file: 'products/securitycentermanagement/OrganizationEventThreatDetectionCustomModule.yaml'
-api_service_name: 'securitycentermanagement.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'EventThreatDetectionCustomModule'
+resource: google_scc_management_organization_event_threat_detection_custom_module
+generation_type: mmv1
+source_file: products/securitycentermanagement/OrganizationEventThreatDetectionCustomModule.yaml
+api_service_name: securitycentermanagement.googleapis.com
+api_version: v1
+api_resource_type_kind: EventThreatDetectionCustomModule
 api_variant_patterns:
-  - 'organizations/{organization}/locations/{location}/eventThreatDetectionCustomModules/{eventThreatDetectionCustomModule}'
+    - organizations/{organization}/locations/{location}/eventThreatDetectionCustomModules/{eventThreatDetectionCustomModule}
 fields:
-  - api_field: 'config'
-    json: true
-  - api_field: 'displayName'
-  - api_field: 'enablementState'
-  - api_field: 'lastEditor'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'organization'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'updateTime'
+    - api_field: config
+      json: true
+    - api_field: displayName
+    - api_field: enablementState
+    - api_field: lastEditor
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: organization
+      provider_only: true
+    - api_field: type
+    - api_field: updateTime

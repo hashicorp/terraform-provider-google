@@ -1,66 +1,66 @@
-resource: 'google_redis_instance'
-generation_type: 'mmv1'
-source_file: 'products/redis/Instance.yaml'
-api_service_name: 'redis.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Instance'
+resource: google_redis_instance
+generation_type: mmv1
+source_file: products/redis/Instance.yaml
+api_service_name: redis.googleapis.com
+api_version: v1
+api_resource_type_kind: Instance
 fields:
-  - api_field: 'alternativeLocationId'
-  - api_field: 'authEnabled'
-  - api_field: 'authorizedNetwork'
-  - api_field: 'connectMode'
-  - api_field: 'createTime'
-  - api_field: 'currentLocationId'
-  - api_field: 'customerManagedKey'
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'reservedIpRange'
-    field: 'effective_reserved_ip_range'
-  - api_field: 'host'
-  - api_field: 'labels'
-  - api_field: 'locationId'
-  - api_field: 'maintenancePolicy.createTime'
-  - api_field: 'maintenancePolicy.description'
-  - api_field: 'maintenancePolicy.updateTime'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.day'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.duration'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.hours'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.minutes'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.nanos'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.seconds'
-  - api_field: 'maintenanceSchedule.endTime'
-  - api_field: 'maintenanceSchedule.scheduleDeadlineTime'
-  - api_field: 'maintenanceSchedule.startTime'
-  - api_field: 'maintenanceVersion'
-  - api_field: 'memorySizeGb'
-  - api_field: 'name'
-  - api_field: 'nodes.id'
-  - api_field: 'nodes.zone'
-  - api_field: 'persistenceConfig.persistenceMode'
-  - api_field: 'persistenceConfig.rdbNextSnapshotTime'
-  - api_field: 'persistenceConfig.rdbSnapshotPeriod'
-  - api_field: 'persistenceConfig.rdbSnapshotStartTime'
-  - api_field: 'persistenceIamIdentity'
-  - api_field: 'port'
-  - api_field: 'readEndpoint'
-  - api_field: 'readEndpointPort'
-  - api_field: 'readReplicasMode'
-  - api_field: 'redisConfigs'
-  - api_field: 'redisVersion'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'replicaCount'
-  - api_field: 'reservedIpRange'
-  - api_field: 'secondaryIpRange'
-  - api_field: 'serverCaCerts.cert'
-  - api_field: 'serverCaCerts.createTime'
-  - api_field: 'serverCaCerts.expireTime'
-  - api_field: 'serverCaCerts.serialNumber'
-  - api_field: 'serverCaCerts.sha1Fingerprint'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'tier'
-  - api_field: 'transitEncryptionMode'
+    - api_field: alternativeLocationId
+    - api_field: authEnabled
+    - api_field: authorizedNetwork
+    - api_field: connectMode
+    - api_field: createTime
+    - api_field: currentLocationId
+    - api_field: customerManagedKey
+    - field: deletion_protection
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: reservedIpRange
+      field: effective_reserved_ip_range
+    - api_field: host
+    - api_field: labels
+    - api_field: locationId
+    - api_field: maintenancePolicy.createTime
+    - api_field: maintenancePolicy.description
+    - api_field: maintenancePolicy.updateTime
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.day
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.duration
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.hours
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.minutes
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.nanos
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.seconds
+    - api_field: maintenanceSchedule.endTime
+    - api_field: maintenanceSchedule.scheduleDeadlineTime
+    - api_field: maintenanceSchedule.startTime
+    - api_field: maintenanceVersion
+    - api_field: memorySizeGb
+    - api_field: name
+    - api_field: nodes.id
+    - api_field: nodes.zone
+    - api_field: persistenceConfig.persistenceMode
+    - api_field: persistenceConfig.rdbNextSnapshotTime
+    - api_field: persistenceConfig.rdbSnapshotPeriod
+    - api_field: persistenceConfig.rdbSnapshotStartTime
+    - api_field: persistenceIamIdentity
+    - api_field: port
+    - api_field: readEndpoint
+    - api_field: readEndpointPort
+    - api_field: readReplicasMode
+    - api_field: redisConfigs
+    - api_field: redisVersion
+    - field: region
+      provider_only: true
+    - api_field: replicaCount
+    - api_field: reservedIpRange
+    - api_field: secondaryIpRange
+    - api_field: serverCaCerts.cert
+    - api_field: serverCaCerts.createTime
+    - api_field: serverCaCerts.expireTime
+    - api_field: serverCaCerts.serialNumber
+    - api_field: serverCaCerts.sha1Fingerprint
+    - field: terraform_labels
+      provider_only: true
+    - api_field: tier
+    - api_field: transitEncryptionMode

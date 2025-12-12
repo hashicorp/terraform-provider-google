@@ -1,14 +1,14 @@
-resource: 'google_data_catalog_entry_group'
-generation_type: 'mmv1'
-source_file: 'products/datacatalog/EntryGroup.yaml'
-api_service_name: 'datacatalog.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'EntryGroup'
+resource: google_data_catalog_entry_group
+generation_type: mmv1
+source_file: products/datacatalog/EntryGroup.yaml
+api_service_name: datacatalog.googleapis.com
+api_version: v1
+api_resource_type_kind: EntryGroup
 fields:
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'entry_group_id'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'region'
-    provider_only: true
+    - api_field: description
+    - api_field: displayName
+    - field: entry_group_id
+      provider_only: true
+    - api_field: name
+    - field: region
+      provider_only: true

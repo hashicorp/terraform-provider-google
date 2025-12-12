@@ -1,38 +1,38 @@
-resource: 'google_compute_snapshot'
-generation_type: 'mmv1'
-source_file: 'products/compute/Snapshot.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Snapshot'
+resource: google_compute_snapshot
+generation_type: mmv1
+source_file: products/compute/Snapshot.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Snapshot
 fields:
-  - api_field: 'chainName'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'diskSizeGb'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'licenses'
-  - api_field: 'name'
-  - api_field: 'snapshotEncryptionKey.kmsKeyName'
-    field: 'snapshot_encryption_key.kms_key_self_link'
-  - api_field: 'snapshotEncryptionKey.kmsKeyServiceAccount'
-  - api_field: 'snapshotEncryptionKey.rawKey'
-  - api_field: 'snapshotEncryptionKey.rsaEncryptedKey'
-  - api_field: 'snapshotEncryptionKey.sha256'
-  - api_field: 'id'
-    field: 'snapshot_id'
-  - api_field: 'snapshotType'
-  - api_field: 'sourceDisk'
-  - api_field: 'sourceDiskEncryptionKey.kmsKeyName'
-    field: 'source_disk_encryption_key.kms_key_self_link'
-  - api_field: 'sourceDiskEncryptionKey.kmsKeyServiceAccount'
-  - api_field: 'sourceDiskEncryptionKey.rawKey'
-  - api_field: 'sourceDiskEncryptionKey.rsaEncryptedKey'
-  - api_field: 'storageBytes'
-  - api_field: 'storageLocations'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'zone'
-  - api_field: 'selfLink'
+    - api_field: chainName
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: diskSizeGb
+    - field: effective_labels
+      provider_only: true
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: licenses
+    - api_field: name
+    - api_field: snapshotEncryptionKey.kmsKeyName
+      field: snapshot_encryption_key.kms_key_self_link
+    - api_field: snapshotEncryptionKey.kmsKeyServiceAccount
+    - api_field: snapshotEncryptionKey.rawKey
+    - api_field: snapshotEncryptionKey.rsaEncryptedKey
+    - api_field: snapshotEncryptionKey.sha256
+    - api_field: id
+      field: snapshot_id
+    - api_field: snapshotType
+    - api_field: sourceDisk
+    - api_field: sourceDiskEncryptionKey.kmsKeyName
+      field: source_disk_encryption_key.kms_key_self_link
+    - api_field: sourceDiskEncryptionKey.kmsKeyServiceAccount
+    - api_field: sourceDiskEncryptionKey.rawKey
+    - api_field: sourceDiskEncryptionKey.rsaEncryptedKey
+    - api_field: storageBytes
+    - api_field: storageLocations
+    - field: terraform_labels
+      provider_only: true
+    - api_field: zone
+    - api_field: selfLink

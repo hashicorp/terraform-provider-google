@@ -1,16 +1,16 @@
-resource: 'google_discovery_engine_sitemap'
-generation_type: 'mmv1'
-source_file: 'products/discoveryengine/Sitemap.yaml'
-api_service_name: 'discoveryengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Sitemap'
+resource: google_discovery_engine_sitemap
+generation_type: mmv1
+source_file: products/discoveryengine/Sitemap.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Sitemap
 fields:
-  - api_field: 'createTime'
-  - field: 'data_store_id'
-    provider_only: true
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'sitemap_id'
-    provider_only: true
-  - api_field: 'uri'
+    - api_field: createTime
+    - field: data_store_id
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: sitemap_id
+      provider_only: true
+    - api_field: uri

@@ -1,158 +1,158 @@
-resource: 'google_integration_connectors_connection'
-generation_type: 'mmv1'
-source_file: 'products/integrationconnectors/Connection.yaml'
-api_service_name: 'connectors.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Connection'
+resource: google_integration_connectors_connection
+generation_type: mmv1
+source_file: products/integrationconnectors/Connection.yaml
+api_service_name: connectors.googleapis.com
+api_version: v1
+api_resource_type_kind: Connection
 fields:
-  - api_field: 'authConfig.additionalVariables.boolValue'
-    field: 'auth_config.additional_variable.boolean_value'
-  - api_field: 'authConfig.additionalVariables.encryptionKeyValue.kmsKeyName'
-    field: 'auth_config.additional_variable.encryption_key_value.kms_key_name'
-  - api_field: 'authConfig.additionalVariables.encryptionKeyValue.type'
-    field: 'auth_config.additional_variable.encryption_key_value.type'
-  - api_field: 'authConfig.additionalVariables.intValue'
-    field: 'auth_config.additional_variable.integer_value'
-  - api_field: 'authConfig.additionalVariables.key'
-    field: 'auth_config.additional_variable.key'
-  - api_field: 'authConfig.additionalVariables.secretValue.secretVersion'
-    field: 'auth_config.additional_variable.secret_value.secret_version'
-  - api_field: 'authConfig.additionalVariables.stringValue'
-    field: 'auth_config.additional_variable.string_value'
-  - api_field: 'authConfig.authKey'
-  - api_field: 'authConfig.authType'
-  - api_field: 'authConfig.oauth2AuthCodeFlow.authUri'
-  - api_field: 'authConfig.oauth2AuthCodeFlow.clientId'
-  - api_field: 'authConfig.oauth2AuthCodeFlow.clientSecret.secretVersion'
-  - api_field: 'authConfig.oauth2AuthCodeFlow.enablePkce'
-  - api_field: 'authConfig.oauth2AuthCodeFlow.scopes'
-  - api_field: 'authConfig.oauth2ClientCredentials.clientId'
-  - api_field: 'authConfig.oauth2ClientCredentials.clientSecret.secretVersion'
-  - api_field: 'authConfig.oauth2JwtBearer.clientKey.secretVersion'
-  - api_field: 'authConfig.oauth2JwtBearer.jwtClaims.audience'
-  - api_field: 'authConfig.oauth2JwtBearer.jwtClaims.issuer'
-  - api_field: 'authConfig.oauth2JwtBearer.jwtClaims.subject'
-  - api_field: 'authConfig.sshPublicKey.certType'
-  - api_field: 'authConfig.sshPublicKey.sshClientCert.secretVersion'
-  - api_field: 'authConfig.sshPublicKey.sshClientCertPass.secretVersion'
-  - api_field: 'authConfig.sshPublicKey.username'
-  - api_field: 'authConfig.userPassword.password.secretVersion'
-  - api_field: 'authConfig.userPassword.username'
-  - api_field: 'configVariables.boolValue'
-    field: 'config_variable.boolean_value'
-  - api_field: 'configVariables.encryptionKeyValue.kmsKeyName'
-    field: 'config_variable.encryption_key_value.kms_key_name'
-  - api_field: 'configVariables.encryptionKeyValue.type'
-    field: 'config_variable.encryption_key_value.type'
-  - api_field: 'configVariables.intValue'
-    field: 'config_variable.integer_value'
-  - api_field: 'configVariables.key'
-    field: 'config_variable.key'
-  - api_field: 'configVariables.secretValue.secretVersion'
-    field: 'config_variable.secret_value.secret_version'
-  - api_field: 'configVariables.stringValue'
-    field: 'config_variable.string_value'
-  - api_field: 'connectionRevision'
-  - api_field: 'connectorVersion'
-  - api_field: 'connectorVersionInfraConfig.ratelimitThreshold'
-  - api_field: 'connectorVersionLaunchStage'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'destinationConfigs.destinations.host'
-    field: 'destination_config.destination.host'
-  - api_field: 'destinationConfigs.destinations.port'
-    field: 'destination_config.destination.port'
-  - api_field: 'destinationConfigs.destinations.serviceAttachment'
-    field: 'destination_config.destination.service_attachment'
-  - api_field: 'destinationConfigs.key'
-    field: 'destination_config.key'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'eventingConfig.additionalVariables.boolValue'
-    field: 'eventing_config.additional_variable.boolean_value'
-  - api_field: 'eventingConfig.additionalVariables.encryptionKeyValue.kmsKeyName'
-    field: 'eventing_config.additional_variable.encryption_key_value.kms_key_name'
-  - api_field: 'eventingConfig.additionalVariables.encryptionKeyValue.type'
-    field: 'eventing_config.additional_variable.encryption_key_value.type'
-  - api_field: 'eventingConfig.additionalVariables.intValue'
-    field: 'eventing_config.additional_variable.integer_value'
-  - api_field: 'eventingConfig.additionalVariables.key'
-    field: 'eventing_config.additional_variable.key'
-  - api_field: 'eventingConfig.additionalVariables.secretValue.secretVersion'
-    field: 'eventing_config.additional_variable.secret_value.secret_version'
-  - api_field: 'eventingConfig.additionalVariables.stringValue'
-    field: 'eventing_config.additional_variable.string_value'
-  - api_field: 'eventingConfig.authConfig.additionalVariables.boolValue'
-    field: 'eventing_config.auth_config.additional_variable.boolean_value'
-  - api_field: 'eventingConfig.authConfig.additionalVariables.encryptionKeyValue.kmsKeyName'
-    field: 'eventing_config.auth_config.additional_variable.encryption_key_value.kms_key_name'
-  - api_field: 'eventingConfig.authConfig.additionalVariables.encryptionKeyValue.type'
-    field: 'eventing_config.auth_config.additional_variable.encryption_key_value.type'
-  - api_field: 'eventingConfig.authConfig.additionalVariables.intValue'
-    field: 'eventing_config.auth_config.additional_variable.integer_value'
-  - api_field: 'eventingConfig.authConfig.additionalVariables.key'
-    field: 'eventing_config.auth_config.additional_variable.key'
-  - api_field: 'eventingConfig.authConfig.additionalVariables.secretValue.secretVersion'
-    field: 'eventing_config.auth_config.additional_variable.secret_value.secret_version'
-  - api_field: 'eventingConfig.authConfig.additionalVariables.stringValue'
-    field: 'eventing_config.auth_config.additional_variable.string_value'
-  - api_field: 'eventingConfig.authConfig.authKey'
-  - api_field: 'eventingConfig.authConfig.authType'
-  - api_field: 'eventingConfig.authConfig.userPassword.password.secretVersion'
-  - api_field: 'eventingConfig.authConfig.userPassword.username'
-  - api_field: 'eventingConfig.enrichmentEnabled'
-  - api_field: 'eventingConfig.registrationDestinationConfig.destinations.host'
-    field: 'eventing_config.registration_destination_config.destination.host'
-  - api_field: 'eventingConfig.registrationDestinationConfig.destinations.port'
-    field: 'eventing_config.registration_destination_config.destination.port'
-  - api_field: 'eventingConfig.registrationDestinationConfig.destinations.serviceAttachment'
-    field: 'eventing_config.registration_destination_config.destination.service_attachment'
-  - api_field: 'eventingConfig.registrationDestinationConfig.key'
-  - api_field: 'eventingEnablementType'
-  - api_field: 'eventingRuntimeData.eventsListenerEndpoint'
-  - api_field: 'eventingRuntimeData.status.description'
-  - api_field: 'eventingRuntimeData.status.state'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'lockConfig.locked'
-  - api_field: 'lockConfig.reason'
-  - api_field: 'logConfig.enabled'
-  - api_field: 'logConfig.level'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'nodeConfig.maxNodeCount'
-  - api_field: 'nodeConfig.minNodeCount'
-  - api_field: 'serviceAccount'
-  - api_field: 'serviceDirectory'
-  - api_field: 'sslConfig.additionalVariables.boolValue'
-    field: 'ssl_config.additional_variable.boolean_value'
-  - api_field: 'sslConfig.additionalVariables.encryptionKeyValue.kmsKeyName'
-    field: 'ssl_config.additional_variable.encryption_key_value.kms_key_name'
-  - api_field: 'sslConfig.additionalVariables.encryptionKeyValue.type'
-    field: 'ssl_config.additional_variable.encryption_key_value.type'
-  - api_field: 'sslConfig.additionalVariables.intValue'
-    field: 'ssl_config.additional_variable.integer_value'
-  - api_field: 'sslConfig.additionalVariables.key'
-    field: 'ssl_config.additional_variable.key'
-  - api_field: 'sslConfig.additionalVariables.secretValue.secretVersion'
-    field: 'ssl_config.additional_variable.secret_value.secret_version'
-  - api_field: 'sslConfig.additionalVariables.stringValue'
-    field: 'ssl_config.additional_variable.string_value'
-  - api_field: 'sslConfig.clientCertType'
-  - api_field: 'sslConfig.clientCertificate.secretVersion'
-  - api_field: 'sslConfig.clientPrivateKey.secretVersion'
-  - api_field: 'sslConfig.clientPrivateKeyPass.secretVersion'
-  - api_field: 'sslConfig.privateServerCertificate.secretVersion'
-  - api_field: 'sslConfig.serverCertType'
-  - api_field: 'sslConfig.trustModel'
-  - api_field: 'sslConfig.type'
-  - api_field: 'sslConfig.useSsl'
-  - api_field: 'status.description'
-  - api_field: 'status.state'
-  - api_field: 'status.status'
-  - api_field: 'subscriptionType'
-  - api_field: 'suspended'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: authConfig.additionalVariables.boolValue
+      field: auth_config.additional_variable.boolean_value
+    - api_field: authConfig.additionalVariables.encryptionKeyValue.kmsKeyName
+      field: auth_config.additional_variable.encryption_key_value.kms_key_name
+    - api_field: authConfig.additionalVariables.encryptionKeyValue.type
+      field: auth_config.additional_variable.encryption_key_value.type
+    - api_field: authConfig.additionalVariables.intValue
+      field: auth_config.additional_variable.integer_value
+    - api_field: authConfig.additionalVariables.key
+      field: auth_config.additional_variable.key
+    - api_field: authConfig.additionalVariables.secretValue.secretVersion
+      field: auth_config.additional_variable.secret_value.secret_version
+    - api_field: authConfig.additionalVariables.stringValue
+      field: auth_config.additional_variable.string_value
+    - api_field: authConfig.authKey
+    - api_field: authConfig.authType
+    - api_field: authConfig.oauth2AuthCodeFlow.authUri
+    - api_field: authConfig.oauth2AuthCodeFlow.clientId
+    - api_field: authConfig.oauth2AuthCodeFlow.clientSecret.secretVersion
+    - api_field: authConfig.oauth2AuthCodeFlow.enablePkce
+    - api_field: authConfig.oauth2AuthCodeFlow.scopes
+    - api_field: authConfig.oauth2ClientCredentials.clientId
+    - api_field: authConfig.oauth2ClientCredentials.clientSecret.secretVersion
+    - api_field: authConfig.oauth2JwtBearer.clientKey.secretVersion
+    - api_field: authConfig.oauth2JwtBearer.jwtClaims.audience
+    - api_field: authConfig.oauth2JwtBearer.jwtClaims.issuer
+    - api_field: authConfig.oauth2JwtBearer.jwtClaims.subject
+    - api_field: authConfig.sshPublicKey.certType
+    - api_field: authConfig.sshPublicKey.sshClientCert.secretVersion
+    - api_field: authConfig.sshPublicKey.sshClientCertPass.secretVersion
+    - api_field: authConfig.sshPublicKey.username
+    - api_field: authConfig.userPassword.password.secretVersion
+    - api_field: authConfig.userPassword.username
+    - api_field: configVariables.boolValue
+      field: config_variable.boolean_value
+    - api_field: configVariables.encryptionKeyValue.kmsKeyName
+      field: config_variable.encryption_key_value.kms_key_name
+    - api_field: configVariables.encryptionKeyValue.type
+      field: config_variable.encryption_key_value.type
+    - api_field: configVariables.intValue
+      field: config_variable.integer_value
+    - api_field: configVariables.key
+      field: config_variable.key
+    - api_field: configVariables.secretValue.secretVersion
+      field: config_variable.secret_value.secret_version
+    - api_field: configVariables.stringValue
+      field: config_variable.string_value
+    - api_field: connectionRevision
+    - api_field: connectorVersion
+    - api_field: connectorVersionInfraConfig.ratelimitThreshold
+    - api_field: connectorVersionLaunchStage
+    - api_field: createTime
+    - api_field: description
+    - api_field: destinationConfigs.destinations.host
+      field: destination_config.destination.host
+    - api_field: destinationConfigs.destinations.port
+      field: destination_config.destination.port
+    - api_field: destinationConfigs.destinations.serviceAttachment
+      field: destination_config.destination.service_attachment
+    - api_field: destinationConfigs.key
+      field: destination_config.key
+    - field: effective_labels
+      provider_only: true
+    - api_field: eventingConfig.additionalVariables.boolValue
+      field: eventing_config.additional_variable.boolean_value
+    - api_field: eventingConfig.additionalVariables.encryptionKeyValue.kmsKeyName
+      field: eventing_config.additional_variable.encryption_key_value.kms_key_name
+    - api_field: eventingConfig.additionalVariables.encryptionKeyValue.type
+      field: eventing_config.additional_variable.encryption_key_value.type
+    - api_field: eventingConfig.additionalVariables.intValue
+      field: eventing_config.additional_variable.integer_value
+    - api_field: eventingConfig.additionalVariables.key
+      field: eventing_config.additional_variable.key
+    - api_field: eventingConfig.additionalVariables.secretValue.secretVersion
+      field: eventing_config.additional_variable.secret_value.secret_version
+    - api_field: eventingConfig.additionalVariables.stringValue
+      field: eventing_config.additional_variable.string_value
+    - api_field: eventingConfig.authConfig.additionalVariables.boolValue
+      field: eventing_config.auth_config.additional_variable.boolean_value
+    - api_field: eventingConfig.authConfig.additionalVariables.encryptionKeyValue.kmsKeyName
+      field: eventing_config.auth_config.additional_variable.encryption_key_value.kms_key_name
+    - api_field: eventingConfig.authConfig.additionalVariables.encryptionKeyValue.type
+      field: eventing_config.auth_config.additional_variable.encryption_key_value.type
+    - api_field: eventingConfig.authConfig.additionalVariables.intValue
+      field: eventing_config.auth_config.additional_variable.integer_value
+    - api_field: eventingConfig.authConfig.additionalVariables.key
+      field: eventing_config.auth_config.additional_variable.key
+    - api_field: eventingConfig.authConfig.additionalVariables.secretValue.secretVersion
+      field: eventing_config.auth_config.additional_variable.secret_value.secret_version
+    - api_field: eventingConfig.authConfig.additionalVariables.stringValue
+      field: eventing_config.auth_config.additional_variable.string_value
+    - api_field: eventingConfig.authConfig.authKey
+    - api_field: eventingConfig.authConfig.authType
+    - api_field: eventingConfig.authConfig.userPassword.password.secretVersion
+    - api_field: eventingConfig.authConfig.userPassword.username
+    - api_field: eventingConfig.enrichmentEnabled
+    - api_field: eventingConfig.registrationDestinationConfig.destinations.host
+      field: eventing_config.registration_destination_config.destination.host
+    - api_field: eventingConfig.registrationDestinationConfig.destinations.port
+      field: eventing_config.registration_destination_config.destination.port
+    - api_field: eventingConfig.registrationDestinationConfig.destinations.serviceAttachment
+      field: eventing_config.registration_destination_config.destination.service_attachment
+    - api_field: eventingConfig.registrationDestinationConfig.key
+    - api_field: eventingEnablementType
+    - api_field: eventingRuntimeData.eventsListenerEndpoint
+    - api_field: eventingRuntimeData.status.description
+    - api_field: eventingRuntimeData.status.state
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: lockConfig.locked
+    - api_field: lockConfig.reason
+    - api_field: logConfig.enabled
+    - api_field: logConfig.level
+    - field: name
+      provider_only: true
+    - api_field: nodeConfig.maxNodeCount
+    - api_field: nodeConfig.minNodeCount
+    - api_field: serviceAccount
+    - api_field: serviceDirectory
+    - api_field: sslConfig.additionalVariables.boolValue
+      field: ssl_config.additional_variable.boolean_value
+    - api_field: sslConfig.additionalVariables.encryptionKeyValue.kmsKeyName
+      field: ssl_config.additional_variable.encryption_key_value.kms_key_name
+    - api_field: sslConfig.additionalVariables.encryptionKeyValue.type
+      field: ssl_config.additional_variable.encryption_key_value.type
+    - api_field: sslConfig.additionalVariables.intValue
+      field: ssl_config.additional_variable.integer_value
+    - api_field: sslConfig.additionalVariables.key
+      field: ssl_config.additional_variable.key
+    - api_field: sslConfig.additionalVariables.secretValue.secretVersion
+      field: ssl_config.additional_variable.secret_value.secret_version
+    - api_field: sslConfig.additionalVariables.stringValue
+      field: ssl_config.additional_variable.string_value
+    - api_field: sslConfig.clientCertType
+    - api_field: sslConfig.clientCertificate.secretVersion
+    - api_field: sslConfig.clientPrivateKey.secretVersion
+    - api_field: sslConfig.clientPrivateKeyPass.secretVersion
+    - api_field: sslConfig.privateServerCertificate.secretVersion
+    - api_field: sslConfig.serverCertType
+    - api_field: sslConfig.trustModel
+    - api_field: sslConfig.type
+    - api_field: sslConfig.useSsl
+    - api_field: status.description
+    - api_field: status.state
+    - api_field: status.status
+    - api_field: subscriptionType
+    - api_field: suspended
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

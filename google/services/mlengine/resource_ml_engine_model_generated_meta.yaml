@@ -1,18 +1,18 @@
-resource: 'google_ml_engine_model'
-generation_type: 'mmv1'
-source_file: 'products/mlengine/Model.yaml'
-api_service_name: 'ml.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Model'
+resource: google_ml_engine_model
+generation_type: mmv1
+source_file: products/mlengine/Model.yaml
+api_service_name: ml.googleapis.com
+api_version: v1
+api_resource_type_kind: Model
 fields:
-  - api_field: 'defaultVersion.name'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'onlinePredictionConsoleLogging'
-  - api_field: 'onlinePredictionLogging'
-  - api_field: 'regions'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: defaultVersion.name
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: name
+    - api_field: onlinePredictionConsoleLogging
+    - api_field: onlinePredictionLogging
+    - api_field: regions
+    - field: terraform_labels
+      provider_only: true

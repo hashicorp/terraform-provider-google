@@ -1,24 +1,24 @@
-resource: 'google_apihub_curation'
-generation_type: 'mmv1'
-source_file: 'products/apihub/Curation.yaml'
-api_service_name: 'apihub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Curation'
+resource: google_apihub_curation
+generation_type: mmv1
+source_file: products/apihub/Curation.yaml
+api_service_name: apihub.googleapis.com
+api_version: v1
+api_resource_type_kind: Curation
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - field: 'curation_id'
-    provider_only: true
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'endpoint.applicationIntegrationEndpointDetails.triggerId'
-  - api_field: 'endpoint.applicationIntegrationEndpointDetails.uri'
-  - api_field: 'lastExecutionErrorCode'
-  - api_field: 'lastExecutionErrorMessage'
-  - api_field: 'lastExecutionState'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'pluginInstanceActions.actionId'
-  - api_field: 'pluginInstanceActions.pluginInstance'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - field: curation_id
+      provider_only: true
+    - api_field: description
+    - api_field: displayName
+    - api_field: endpoint.applicationIntegrationEndpointDetails.triggerId
+    - api_field: endpoint.applicationIntegrationEndpointDetails.uri
+    - api_field: lastExecutionErrorCode
+    - api_field: lastExecutionErrorMessage
+    - api_field: lastExecutionState
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: pluginInstanceActions.actionId
+    - api_field: pluginInstanceActions.pluginInstance
+    - api_field: updateTime

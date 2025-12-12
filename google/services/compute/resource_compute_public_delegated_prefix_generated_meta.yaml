@@ -1,28 +1,28 @@
-resource: 'google_compute_public_delegated_prefix'
-generation_type: 'mmv1'
-source_file: 'products/compute/PublicDelegatedPrefix.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PublicDelegatedPrefix'
+resource: google_compute_public_delegated_prefix
+generation_type: mmv1
+source_file: products/compute/PublicDelegatedPrefix.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: PublicDelegatedPrefix
 fields:
-  - api_field: 'allocatablePrefixLength'
-  - api_field: 'description'
-  - api_field: 'ipCidrRange'
-  - api_field: 'ipv6AccessType'
-  - api_field: 'isLiveMigration'
-  - api_field: 'mode'
-  - api_field: 'name'
-  - api_field: 'parentPrefix'
-  - api_field: 'publicDelegatedSubPrefixs.allocatablePrefixLength'
-  - api_field: 'publicDelegatedSubPrefixs.delegateeProject'
-  - api_field: 'publicDelegatedSubPrefixs.description'
-  - api_field: 'publicDelegatedSubPrefixs.ipCidrRange'
-  - api_field: 'publicDelegatedSubPrefixs.ipv6AccessType'
-  - api_field: 'publicDelegatedSubPrefixs.isAddress'
-  - api_field: 'publicDelegatedSubPrefixs.mode'
-  - api_field: 'publicDelegatedSubPrefixs.name'
-  - api_field: 'publicDelegatedSubPrefixs.region'
-  - api_field: 'publicDelegatedSubPrefixs.status'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'selfLink'
+    - api_field: allocatablePrefixLength
+    - api_field: description
+    - api_field: ipCidrRange
+    - api_field: ipv6AccessType
+    - api_field: isLiveMigration
+    - api_field: mode
+    - api_field: name
+    - api_field: parentPrefix
+    - api_field: publicDelegatedSubPrefixs.allocatablePrefixLength
+    - api_field: publicDelegatedSubPrefixs.delegateeProject
+    - api_field: publicDelegatedSubPrefixs.description
+    - api_field: publicDelegatedSubPrefixs.ipCidrRange
+    - api_field: publicDelegatedSubPrefixs.ipv6AccessType
+    - api_field: publicDelegatedSubPrefixs.isAddress
+    - api_field: publicDelegatedSubPrefixs.mode
+    - api_field: publicDelegatedSubPrefixs.name
+    - api_field: publicDelegatedSubPrefixs.region
+    - api_field: publicDelegatedSubPrefixs.status
+    - field: region
+      provider_only: true
+    - api_field: selfLink

@@ -1,18 +1,18 @@
-resource: 'google_scc_notification_config'
-generation_type: 'mmv1'
-source_file: 'products/securitycenter/NotificationConfig.yaml'
-api_service_name: 'securitycenter.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NotificationConfig'
+resource: google_scc_notification_config
+generation_type: mmv1
+source_file: products/securitycenter/NotificationConfig.yaml
+api_service_name: securitycenter.googleapis.com
+api_version: v1
+api_resource_type_kind: NotificationConfig
 api_variant_patterns:
-  - 'organizations/{organization}/notificationConfigs/{notificationConfig}'
+    - organizations/{organization}/notificationConfigs/{notificationConfig}
 fields:
-  - field: 'config_id'
-    provider_only: true
-  - api_field: 'description'
-  - api_field: 'name'
-  - field: 'organization'
-    provider_only: true
-  - api_field: 'pubsubTopic'
-  - api_field: 'serviceAccount'
-  - api_field: 'streamingConfig.filter'
+    - field: config_id
+      provider_only: true
+    - api_field: description
+    - api_field: name
+    - field: organization
+      provider_only: true
+    - api_field: pubsubTopic
+    - api_field: serviceAccount
+    - api_field: streamingConfig.filter

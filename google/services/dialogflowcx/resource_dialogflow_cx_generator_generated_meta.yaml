@@ -1,22 +1,22 @@
-resource: 'google_dialogflow_cx_generator'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/Generator.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Generator'
+resource: google_dialogflow_cx_generator
+generation_type: mmv1
+source_file: products/dialogflowcx/Generator.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: Generator
 fields:
-  - api_field: 'displayName'
-  - field: 'language_code'
-    provider_only: true
-  - api_field: 'llmModelSettings.model'
-  - api_field: 'llmModelSettings.promptText'
-  - api_field: 'modelParameter.maxDecodeSteps'
-  - api_field: 'modelParameter.temperature'
-  - api_field: 'modelParameter.topK'
-  - api_field: 'modelParameter.topP'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'placeholders.id'
-  - api_field: 'placeholders.name'
-  - api_field: 'promptText.text'
+    - api_field: displayName
+    - field: language_code
+      provider_only: true
+    - api_field: llmModelSettings.model
+    - api_field: llmModelSettings.promptText
+    - api_field: modelParameter.maxDecodeSteps
+    - api_field: modelParameter.temperature
+    - api_field: modelParameter.topK
+    - api_field: modelParameter.topP
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: placeholders.id
+    - api_field: placeholders.name
+    - api_field: promptText.text

@@ -1,35 +1,35 @@
-resource: 'google_apigee_security_action'
-generation_type: 'mmv1'
-source_file: 'products/apigee/SecurityAction.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SecurityAction'
+resource: google_apigee_security_action
+generation_type: mmv1
+source_file: products/apigee/SecurityAction.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityAction
 fields:
-  - api_field: 'allow'
-  - api_field: 'apiProxies'
-  - api_field: 'conditionConfig.accessTokens'
-  - api_field: 'conditionConfig.apiKeys'
-  - api_field: 'conditionConfig.apiProducts'
-  - api_field: 'conditionConfig.asns'
-  - api_field: 'conditionConfig.botReasons'
-  - api_field: 'conditionConfig.developerApps'
-  - api_field: 'conditionConfig.developers'
-  - api_field: 'conditionConfig.httpMethods'
-  - api_field: 'conditionConfig.ipAddressRanges'
-  - api_field: 'conditionConfig.regionCodes'
-  - api_field: 'conditionConfig.userAgents'
-  - api_field: 'createTime'
-  - api_field: 'deny.responseCode'
-  - api_field: 'description'
-  - field: 'env_id'
-    provider_only: true
-  - api_field: 'expireTime'
-  - api_field: 'flag.headers.name'
-  - api_field: 'flag.headers.value'
-  - field: 'org_id'
-    provider_only: true
-  - field: 'security_action_id'
-    provider_only: true
-  - api_field: 'state'
-  - api_field: 'ttl'
-  - api_field: 'updateTime'
+    - api_field: allow
+    - api_field: apiProxies
+    - api_field: conditionConfig.accessTokens
+    - api_field: conditionConfig.apiKeys
+    - api_field: conditionConfig.apiProducts
+    - api_field: conditionConfig.asns
+    - api_field: conditionConfig.botReasons
+    - api_field: conditionConfig.developerApps
+    - api_field: conditionConfig.developers
+    - api_field: conditionConfig.httpMethods
+    - api_field: conditionConfig.ipAddressRanges
+    - api_field: conditionConfig.regionCodes
+    - api_field: conditionConfig.userAgents
+    - api_field: createTime
+    - api_field: deny.responseCode
+    - api_field: description
+    - field: env_id
+      provider_only: true
+    - api_field: expireTime
+    - api_field: flag.headers.name
+    - api_field: flag.headers.value
+    - field: org_id
+      provider_only: true
+    - field: security_action_id
+      provider_only: true
+    - api_field: state
+    - api_field: ttl
+    - api_field: updateTime

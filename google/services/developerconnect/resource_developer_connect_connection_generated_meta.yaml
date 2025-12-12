@@ -1,76 +1,76 @@
-resource: 'google_developer_connect_connection'
-generation_type: 'mmv1'
-source_file: 'products/developerconnect/Connection.yaml'
-api_service_name: 'developerconnect.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Connection'
+resource: google_developer_connect_connection
+generation_type: mmv1
+source_file: products/developerconnect/Connection.yaml
+api_service_name: developerconnect.googleapis.com
+api_version: v1
+api_resource_type_kind: Connection
 autogen_status: true
 fields:
-  - api_field: 'annotations'
-  - api_field: 'bitbucketCloudConfig.authorizerCredential.userTokenSecretVersion'
-  - api_field: 'bitbucketCloudConfig.authorizerCredential.username'
-  - api_field: 'bitbucketCloudConfig.readAuthorizerCredential.userTokenSecretVersion'
-  - api_field: 'bitbucketCloudConfig.readAuthorizerCredential.username'
-  - api_field: 'bitbucketCloudConfig.webhookSecretSecretVersion'
-  - api_field: 'bitbucketCloudConfig.workspace'
-  - api_field: 'bitbucketDataCenterConfig.authorizerCredential.userTokenSecretVersion'
-  - api_field: 'bitbucketDataCenterConfig.authorizerCredential.username'
-  - api_field: 'bitbucketDataCenterConfig.hostUri'
-  - api_field: 'bitbucketDataCenterConfig.readAuthorizerCredential.userTokenSecretVersion'
-  - api_field: 'bitbucketDataCenterConfig.readAuthorizerCredential.username'
-  - api_field: 'bitbucketDataCenterConfig.serverVersion'
-  - api_field: 'bitbucketDataCenterConfig.serviceDirectoryConfig.service'
-  - api_field: 'bitbucketDataCenterConfig.sslCaCertificate'
-  - api_field: 'bitbucketDataCenterConfig.webhookSecretSecretVersion'
-  - field: 'connection_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'cryptoKeyConfig.keyReference'
-  - api_field: 'deleteTime'
-  - api_field: 'disabled'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'githubConfig.appInstallationId'
-  - api_field: 'githubConfig.authorizerCredential.oauthTokenSecretVersion'
-  - api_field: 'githubConfig.authorizerCredential.username'
-  - api_field: 'githubConfig.githubApp'
-  - api_field: 'githubConfig.installationUri'
-  - api_field: 'githubEnterpriseConfig.appId'
-  - api_field: 'githubEnterpriseConfig.appInstallationId'
-  - api_field: 'githubEnterpriseConfig.appSlug'
-  - api_field: 'githubEnterpriseConfig.hostUri'
-  - api_field: 'githubEnterpriseConfig.installationUri'
-  - api_field: 'githubEnterpriseConfig.privateKeySecretVersion'
-  - api_field: 'githubEnterpriseConfig.serverVersion'
-  - api_field: 'githubEnterpriseConfig.serviceDirectoryConfig.service'
-  - api_field: 'githubEnterpriseConfig.sslCaCertificate'
-  - api_field: 'githubEnterpriseConfig.webhookSecretSecretVersion'
-  - api_field: 'gitlabConfig.authorizerCredential.userTokenSecretVersion'
-  - api_field: 'gitlabConfig.authorizerCredential.username'
-  - api_field: 'gitlabConfig.readAuthorizerCredential.userTokenSecretVersion'
-  - api_field: 'gitlabConfig.readAuthorizerCredential.username'
-  - api_field: 'gitlabConfig.webhookSecretSecretVersion'
-  - api_field: 'gitlabEnterpriseConfig.authorizerCredential.userTokenSecretVersion'
-  - api_field: 'gitlabEnterpriseConfig.authorizerCredential.username'
-  - api_field: 'gitlabEnterpriseConfig.hostUri'
-  - api_field: 'gitlabEnterpriseConfig.readAuthorizerCredential.userTokenSecretVersion'
-  - api_field: 'gitlabEnterpriseConfig.readAuthorizerCredential.username'
-  - api_field: 'gitlabEnterpriseConfig.serverVersion'
-  - api_field: 'gitlabEnterpriseConfig.serviceDirectoryConfig.service'
-  - api_field: 'gitlabEnterpriseConfig.sslCaCertificate'
-  - api_field: 'gitlabEnterpriseConfig.webhookSecretSecretVersion'
-  - api_field: 'installationState.actionUri'
-  - api_field: 'installationState.message'
-  - api_field: 'installationState.stage'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'reconciling'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: bitbucketCloudConfig.authorizerCredential.userTokenSecretVersion
+    - api_field: bitbucketCloudConfig.authorizerCredential.username
+    - api_field: bitbucketCloudConfig.readAuthorizerCredential.userTokenSecretVersion
+    - api_field: bitbucketCloudConfig.readAuthorizerCredential.username
+    - api_field: bitbucketCloudConfig.webhookSecretSecretVersion
+    - api_field: bitbucketCloudConfig.workspace
+    - api_field: bitbucketDataCenterConfig.authorizerCredential.userTokenSecretVersion
+    - api_field: bitbucketDataCenterConfig.authorizerCredential.username
+    - api_field: bitbucketDataCenterConfig.hostUri
+    - api_field: bitbucketDataCenterConfig.readAuthorizerCredential.userTokenSecretVersion
+    - api_field: bitbucketDataCenterConfig.readAuthorizerCredential.username
+    - api_field: bitbucketDataCenterConfig.serverVersion
+    - api_field: bitbucketDataCenterConfig.serviceDirectoryConfig.service
+    - api_field: bitbucketDataCenterConfig.sslCaCertificate
+    - api_field: bitbucketDataCenterConfig.webhookSecretSecretVersion
+    - field: connection_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: cryptoKeyConfig.keyReference
+    - api_field: deleteTime
+    - api_field: disabled
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: githubConfig.appInstallationId
+    - api_field: githubConfig.authorizerCredential.oauthTokenSecretVersion
+    - api_field: githubConfig.authorizerCredential.username
+    - api_field: githubConfig.githubApp
+    - api_field: githubConfig.installationUri
+    - api_field: githubEnterpriseConfig.appId
+    - api_field: githubEnterpriseConfig.appInstallationId
+    - api_field: githubEnterpriseConfig.appSlug
+    - api_field: githubEnterpriseConfig.hostUri
+    - api_field: githubEnterpriseConfig.installationUri
+    - api_field: githubEnterpriseConfig.privateKeySecretVersion
+    - api_field: githubEnterpriseConfig.serverVersion
+    - api_field: githubEnterpriseConfig.serviceDirectoryConfig.service
+    - api_field: githubEnterpriseConfig.sslCaCertificate
+    - api_field: githubEnterpriseConfig.webhookSecretSecretVersion
+    - api_field: gitlabConfig.authorizerCredential.userTokenSecretVersion
+    - api_field: gitlabConfig.authorizerCredential.username
+    - api_field: gitlabConfig.readAuthorizerCredential.userTokenSecretVersion
+    - api_field: gitlabConfig.readAuthorizerCredential.username
+    - api_field: gitlabConfig.webhookSecretSecretVersion
+    - api_field: gitlabEnterpriseConfig.authorizerCredential.userTokenSecretVersion
+    - api_field: gitlabEnterpriseConfig.authorizerCredential.username
+    - api_field: gitlabEnterpriseConfig.hostUri
+    - api_field: gitlabEnterpriseConfig.readAuthorizerCredential.userTokenSecretVersion
+    - api_field: gitlabEnterpriseConfig.readAuthorizerCredential.username
+    - api_field: gitlabEnterpriseConfig.serverVersion
+    - api_field: gitlabEnterpriseConfig.serviceDirectoryConfig.service
+    - api_field: gitlabEnterpriseConfig.sslCaCertificate
+    - api_field: gitlabEnterpriseConfig.webhookSecretSecretVersion
+    - api_field: installationState.actionUri
+    - api_field: installationState.message
+    - api_field: installationState.stage
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: reconciling
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

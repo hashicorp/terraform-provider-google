@@ -1,37 +1,37 @@
-resource: 'google_model_armor_template'
-generation_type: 'mmv1'
-source_file: 'products/modelarmor/Template.yaml'
-api_service_name: 'modelarmor.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Template'
+resource: google_model_armor_template
+generation_type: mmv1
+source_file: products/modelarmor/Template.yaml
+api_service_name: modelarmor.googleapis.com
+api_version: v1
+api_resource_type_kind: Template
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'filterConfig.maliciousUriFilterSettings.filterEnforcement'
-  - api_field: 'filterConfig.piAndJailbreakFilterSettings.confidenceLevel'
-  - api_field: 'filterConfig.piAndJailbreakFilterSettings.filterEnforcement'
-  - api_field: 'filterConfig.raiSettings.raiFilters.confidenceLevel'
-  - api_field: 'filterConfig.raiSettings.raiFilters.filterType'
-  - api_field: 'filterConfig.sdpSettings.advancedConfig.deidentifyTemplate'
-  - api_field: 'filterConfig.sdpSettings.advancedConfig.inspectTemplate'
-  - api_field: 'filterConfig.sdpSettings.basicConfig.filterEnforcement'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'template_id'
-    provider_only: true
-  - api_field: 'templateMetadata.customLlmResponseSafetyErrorCode'
-  - api_field: 'templateMetadata.customLlmResponseSafetyErrorMessage'
-  - api_field: 'templateMetadata.customPromptSafetyErrorCode'
-  - api_field: 'templateMetadata.customPromptSafetyErrorMessage'
-  - api_field: 'templateMetadata.enforcementType'
-  - api_field: 'templateMetadata.ignorePartialInvocationFailures'
-  - api_field: 'templateMetadata.logSanitizeOperations'
-  - api_field: 'templateMetadata.logTemplateOperations'
-  - api_field: 'templateMetadata.multiLanguageDetection.enableMultiLanguageDetection'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: filterConfig.maliciousUriFilterSettings.filterEnforcement
+    - api_field: filterConfig.piAndJailbreakFilterSettings.confidenceLevel
+    - api_field: filterConfig.piAndJailbreakFilterSettings.filterEnforcement
+    - api_field: filterConfig.raiSettings.raiFilters.confidenceLevel
+    - api_field: filterConfig.raiSettings.raiFilters.filterType
+    - api_field: filterConfig.sdpSettings.advancedConfig.deidentifyTemplate
+    - api_field: filterConfig.sdpSettings.advancedConfig.inspectTemplate
+    - api_field: filterConfig.sdpSettings.basicConfig.filterEnforcement
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: template_id
+      provider_only: true
+    - api_field: templateMetadata.customLlmResponseSafetyErrorCode
+    - api_field: templateMetadata.customLlmResponseSafetyErrorMessage
+    - api_field: templateMetadata.customPromptSafetyErrorCode
+    - api_field: templateMetadata.customPromptSafetyErrorMessage
+    - api_field: templateMetadata.enforcementType
+    - api_field: templateMetadata.ignorePartialInvocationFailures
+    - api_field: templateMetadata.logSanitizeOperations
+    - api_field: templateMetadata.logTemplateOperations
+    - api_field: templateMetadata.multiLanguageDetection.enableMultiLanguageDetection
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

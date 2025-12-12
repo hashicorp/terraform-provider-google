@@ -1,22 +1,22 @@
-resource: 'google_vertex_ai_tensorboard'
-generation_type: 'mmv1'
-source_file: 'products/vertexai/Tensorboard.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Tensorboard'
+resource: google_vertex_ai_tensorboard
+generation_type: mmv1
+source_file: products/vertexai/Tensorboard.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: Tensorboard
 fields:
-  - api_field: 'blobStoragePathPrefix'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionSpec.kmsKeyName'
-  - api_field: 'labels'
-  - api_field: 'name'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'runCount'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: blobStoragePathPrefix
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: labels
+    - api_field: name
+    - field: region
+      provider_only: true
+    - api_field: runCount
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

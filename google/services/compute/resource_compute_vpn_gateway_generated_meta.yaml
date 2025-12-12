@@ -1,15 +1,15 @@
-resource: 'google_compute_vpn_gateway'
-generation_type: 'mmv1'
-source_file: 'products/compute/VpnGateway.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'VpnGateway'
+resource: google_compute_vpn_gateway
+generation_type: mmv1
+source_file: products/compute/VpnGateway.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: VpnGateway
 fields:
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'id'
-    field: 'gateway_id'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'region'
-  - api_field: 'selfLink'
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: id
+      field: gateway_id
+    - api_field: name
+    - api_field: network
+    - api_field: region
+    - api_field: selfLink

@@ -1,24 +1,24 @@
-resource: 'google_network_security_address_group'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/AddressGroup.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AddressGroup'
+resource: google_network_security_address_group
+generation_type: mmv1
+source_file: products/networksecurity/AddressGroup.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: AddressGroup
 fields:
-  - api_field: 'capacity'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'items'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - field: 'parent'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'updateTime'
+    - api_field: capacity
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: items
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - field: parent
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: updateTime

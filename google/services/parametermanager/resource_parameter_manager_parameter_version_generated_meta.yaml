@@ -1,18 +1,18 @@
-resource: 'google_parameter_manager_parameter_version'
-generation_type: 'mmv1'
-source_file: 'products/parametermanager/ParameterVersion.yaml'
-api_service_name: 'parametermanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ParameterVersion'
+resource: google_parameter_manager_parameter_version
+generation_type: mmv1
+source_file: products/parametermanager/ParameterVersion.yaml
+api_service_name: parametermanager.googleapis.com
+api_version: v1
+api_resource_type_kind: ParameterVersion
 fields:
-  - api_field: 'createTime'
-  - api_field: 'disabled'
-  - api_field: 'kmsKeyVersion'
-  - api_field: 'name'
-  - field: 'parameter'
-    provider_only: true
-  - api_field: 'payload.data'
-    field: 'parameter_data'
-  - field: 'parameter_version_id'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: disabled
+    - api_field: kmsKeyVersion
+    - api_field: name
+    - field: parameter
+      provider_only: true
+    - api_field: payload.data
+      field: parameter_data
+    - field: parameter_version_id
+      provider_only: true
+    - api_field: updateTime

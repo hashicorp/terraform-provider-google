@@ -1,20 +1,20 @@
-resource: 'google_apigee_app_group'
-generation_type: 'mmv1'
-source_file: 'products/apigee/AppGroup.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AppGroup'
+resource: google_apigee_app_group
+generation_type: mmv1
+source_file: products/apigee/AppGroup.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: AppGroup
 fields:
-  - api_field: 'appGroupId'
-  - api_field: 'attributes.name'
-  - api_field: 'attributes.value'
-  - api_field: 'channelId'
-  - api_field: 'channelUri'
-  - api_field: 'createdAt'
-  - api_field: 'displayName'
-  - api_field: 'lastModifiedAt'
-  - api_field: 'name'
-  - field: 'org_id'
-    provider_only: true
-  - api_field: 'organization'
-  - api_field: 'status'
+    - api_field: appGroupId
+    - api_field: attributes.name
+    - api_field: attributes.value
+    - api_field: channelId
+    - api_field: channelUri
+    - api_field: createdAt
+    - api_field: displayName
+    - api_field: lastModifiedAt
+    - api_field: name
+    - field: org_id
+      provider_only: true
+    - api_field: organization
+    - api_field: status

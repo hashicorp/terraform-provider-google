@@ -1,15 +1,15 @@
-resource: 'google_dns_policy'
-generation_type: 'mmv1'
-source_file: 'products/dns/Policy.yaml'
-api_service_name: 'dns.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Policy'
+resource: google_dns_policy
+generation_type: mmv1
+source_file: products/dns/Policy.yaml
+api_service_name: dns.googleapis.com
+api_version: v1
+api_resource_type_kind: Policy
 fields:
-  - api_field: 'alternativeNameServerConfig.targetNameServers.forwardingPath'
-  - api_field: 'alternativeNameServerConfig.targetNameServers.ipv4Address'
-  - api_field: 'description'
-  - api_field: 'dns64Config.scope.allQueries'
-  - api_field: 'enableInboundForwarding'
-  - api_field: 'enableLogging'
-  - api_field: 'name'
-  - api_field: 'networks.networkUrl'
+    - api_field: alternativeNameServerConfig.targetNameServers.forwardingPath
+    - api_field: alternativeNameServerConfig.targetNameServers.ipv4Address
+    - api_field: description
+    - api_field: dns64Config.scope.allQueries
+    - api_field: enableInboundForwarding
+    - api_field: enableLogging
+    - api_field: name
+    - api_field: networks.networkUrl

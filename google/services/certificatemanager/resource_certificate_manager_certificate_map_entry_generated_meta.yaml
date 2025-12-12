@@ -1,22 +1,22 @@
-resource: 'google_certificate_manager_certificate_map_entry'
-generation_type: 'mmv1'
-source_file: 'products/certificatemanager/CertificateMapEntry.yaml'
-api_service_name: 'certificatemanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CertificateMapEntry'
+resource: google_certificate_manager_certificate_map_entry
+generation_type: mmv1
+source_file: products/certificatemanager/CertificateMapEntry.yaml
+api_service_name: certificatemanager.googleapis.com
+api_version: v1
+api_resource_type_kind: CertificateMapEntry
 fields:
-  - api_field: 'certificates'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'hostname'
-  - api_field: 'labels'
-  - field: 'map'
-    provider_only: true
-  - api_field: 'matcher'
-  - api_field: 'name'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: certificates
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: hostname
+    - api_field: labels
+    - field: map
+      provider_only: true
+    - api_field: matcher
+    - api_field: name
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

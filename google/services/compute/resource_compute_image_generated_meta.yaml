@@ -1,58 +1,58 @@
-resource: 'google_compute_image'
-generation_type: 'mmv1'
-source_file: 'products/compute/Image.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Image'
+resource: google_compute_image
+generation_type: mmv1
+source_file: products/compute/Image.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Image
 fields:
-  - api_field: 'archiveSizeBytes'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'diskSizeGb'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'family'
-  - api_field: 'guestOsFeatures.type'
-  - api_field: 'imageEncryptionKey.kmsKeyName'
-    field: 'image_encryption_key.kms_key_self_link'
-  - api_field: 'imageEncryptionKey.kmsKeyServiceAccount'
-  - api_field: 'imageEncryptionKey.rawKey'
-  - api_field: 'imageEncryptionKey.rsaEncryptedKey'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'licenses'
-  - api_field: 'name'
-  - api_field: 'rawDisk.containerType'
-  - api_field: 'rawDisk.sha1Checksum'
-    field: 'raw_disk.sha1'
-  - api_field: 'rawDisk.source'
-  - api_field: 'shieldedInstanceInitialState.dbs.content'
-  - api_field: 'shieldedInstanceInitialState.dbs.fileType'
-  - api_field: 'shieldedInstanceInitialState.dbxs.content'
-  - api_field: 'shieldedInstanceInitialState.dbxs.fileType'
-  - api_field: 'shieldedInstanceInitialState.keks.content'
-  - api_field: 'shieldedInstanceInitialState.keks.fileType'
-  - api_field: 'shieldedInstanceInitialState.pk.content'
-  - api_field: 'shieldedInstanceInitialState.pk.fileType'
-  - api_field: 'sourceDisk'
-  - api_field: 'sourceDiskEncryptionKey.kmsKeyName'
-    field: 'source_disk_encryption_key.kms_key_self_link'
-  - api_field: 'sourceDiskEncryptionKey.kmsKeyServiceAccount'
-  - api_field: 'sourceDiskEncryptionKey.rawKey'
-  - api_field: 'sourceDiskEncryptionKey.rsaEncryptedKey'
-  - api_field: 'sourceImage'
-  - api_field: 'sourceImageEncryptionKey.kmsKeyName'
-    field: 'source_image_encryption_key.kms_key_self_link'
-  - api_field: 'sourceImageEncryptionKey.kmsKeyServiceAccount'
-  - api_field: 'sourceImageEncryptionKey.rawKey'
-  - api_field: 'sourceImageEncryptionKey.rsaEncryptedKey'
-  - api_field: 'sourceSnapshot'
-  - api_field: 'sourceSnapshotEncryptionKey.kmsKeyName'
-    field: 'source_snapshot_encryption_key.kms_key_self_link'
-  - api_field: 'sourceSnapshotEncryptionKey.kmsKeyServiceAccount'
-  - api_field: 'sourceSnapshotEncryptionKey.rawKey'
-  - api_field: 'sourceSnapshotEncryptionKey.rsaEncryptedKey'
-  - api_field: 'storageLocations'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'selfLink'
+    - api_field: archiveSizeBytes
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: diskSizeGb
+    - field: effective_labels
+      provider_only: true
+    - api_field: family
+    - api_field: guestOsFeatures.type
+    - api_field: imageEncryptionKey.kmsKeyName
+      field: image_encryption_key.kms_key_self_link
+    - api_field: imageEncryptionKey.kmsKeyServiceAccount
+    - api_field: imageEncryptionKey.rawKey
+    - api_field: imageEncryptionKey.rsaEncryptedKey
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: licenses
+    - api_field: name
+    - api_field: rawDisk.containerType
+    - api_field: rawDisk.sha1Checksum
+      field: raw_disk.sha1
+    - api_field: rawDisk.source
+    - api_field: shieldedInstanceInitialState.dbs.content
+    - api_field: shieldedInstanceInitialState.dbs.fileType
+    - api_field: shieldedInstanceInitialState.dbxs.content
+    - api_field: shieldedInstanceInitialState.dbxs.fileType
+    - api_field: shieldedInstanceInitialState.keks.content
+    - api_field: shieldedInstanceInitialState.keks.fileType
+    - api_field: shieldedInstanceInitialState.pk.content
+    - api_field: shieldedInstanceInitialState.pk.fileType
+    - api_field: sourceDisk
+    - api_field: sourceDiskEncryptionKey.kmsKeyName
+      field: source_disk_encryption_key.kms_key_self_link
+    - api_field: sourceDiskEncryptionKey.kmsKeyServiceAccount
+    - api_field: sourceDiskEncryptionKey.rawKey
+    - api_field: sourceDiskEncryptionKey.rsaEncryptedKey
+    - api_field: sourceImage
+    - api_field: sourceImageEncryptionKey.kmsKeyName
+      field: source_image_encryption_key.kms_key_self_link
+    - api_field: sourceImageEncryptionKey.kmsKeyServiceAccount
+    - api_field: sourceImageEncryptionKey.rawKey
+    - api_field: sourceImageEncryptionKey.rsaEncryptedKey
+    - api_field: sourceSnapshot
+    - api_field: sourceSnapshotEncryptionKey.kmsKeyName
+      field: source_snapshot_encryption_key.kms_key_self_link
+    - api_field: sourceSnapshotEncryptionKey.kmsKeyServiceAccount
+    - api_field: sourceSnapshotEncryptionKey.rawKey
+    - api_field: sourceSnapshotEncryptionKey.rsaEncryptedKey
+    - api_field: storageLocations
+    - field: terraform_labels
+      provider_only: true
+    - api_field: selfLink

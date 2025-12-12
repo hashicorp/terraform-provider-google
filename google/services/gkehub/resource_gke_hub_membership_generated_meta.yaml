@@ -1,19 +1,19 @@
-resource: 'google_gke_hub_membership'
-generation_type: 'mmv1'
-source_file: 'products/gkehub/Membership.yaml'
-api_service_name: 'gkehub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Membership'
+resource: google_gke_hub_membership
+generation_type: mmv1
+source_file: products/gkehub/Membership.yaml
+api_service_name: gkehub.googleapis.com
+api_version: v1
+api_resource_type_kind: Membership
 fields:
-  - api_field: 'authority.issuer'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'endpoint.gkeCluster.resourceLink'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'membership_id'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: authority.issuer
+    - field: effective_labels
+      provider_only: true
+    - api_field: endpoint.gkeCluster.resourceLink
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: membership_id
+      provider_only: true
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true

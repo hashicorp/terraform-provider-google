@@ -1,11 +1,11 @@
-resource: 'google_apigee_control_plane_access'
-generation_type: 'mmv1'
-source_file: 'products/apigee/ControlPlaneAccess.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ControlPlaneAccess'
+resource: google_apigee_control_plane_access
+generation_type: mmv1
+source_file: products/apigee/ControlPlaneAccess.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: ControlPlaneAccess
 fields:
-  - api_field: 'analyticsPublisherIdentities'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'synchronizerIdentities'
+    - api_field: analyticsPublisherIdentities
+    - field: name
+      provider_only: true
+    - api_field: synchronizerIdentities

@@ -1,36 +1,36 @@
-resource: 'google_privileged_access_manager_entitlement'
-generation_type: 'mmv1'
-source_file: 'products/privilegedaccessmanager/Entitlement.yaml'
-api_service_name: 'privilegedaccessmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Entitlement'
+resource: google_privileged_access_manager_entitlement
+generation_type: mmv1
+source_file: products/privilegedaccessmanager/Entitlement.yaml
+api_service_name: privilegedaccessmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: Entitlement
 api_variant_patterns:
-  - 'folders/{folder}/locations/{location}/entitlements/{entitlement}'
-  - 'organizations/{organization}/locations/{location}/entitlements/{entitlement}'
-  - 'projects/{project}/locations/{location}/entitlements/{entitlement}'
+    - folders/{folder}/locations/{location}/entitlements/{entitlement}
+    - organizations/{organization}/locations/{location}/entitlements/{entitlement}
+    - projects/{project}/locations/{location}/entitlements/{entitlement}
 fields:
-  - api_field: 'additionalNotificationTargets.adminEmailRecipients'
-  - api_field: 'additionalNotificationTargets.requesterEmailRecipients'
-  - api_field: 'approvalWorkflow.manualApprovals.requireApproverJustification'
-  - api_field: 'approvalWorkflow.manualApprovals.steps.approvalsNeeded'
-  - api_field: 'approvalWorkflow.manualApprovals.steps.approverEmailRecipients'
-  - api_field: 'approvalWorkflow.manualApprovals.steps.approvers.principals'
-  - api_field: 'createTime'
-  - api_field: 'eligibleUsers.principals'
-  - field: 'entitlement_id'
-    provider_only: true
-  - api_field: 'etag'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'maxRequestDuration'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'privilegedAccess.gcpIamAccess.resource'
-  - api_field: 'privilegedAccess.gcpIamAccess.resourceType'
-  - api_field: 'privilegedAccess.gcpIamAccess.roleBindings.conditionExpression'
-  - api_field: 'privilegedAccess.gcpIamAccess.roleBindings.role'
-  - api_field: 'requesterJustificationConfig.notMandatory'
-  - api_field: 'requesterJustificationConfig.unstructured'
-  - api_field: 'state'
-  - api_field: 'updateTime'
+    - api_field: additionalNotificationTargets.adminEmailRecipients
+    - api_field: additionalNotificationTargets.requesterEmailRecipients
+    - api_field: approvalWorkflow.manualApprovals.requireApproverJustification
+    - api_field: approvalWorkflow.manualApprovals.steps.approvalsNeeded
+    - api_field: approvalWorkflow.manualApprovals.steps.approverEmailRecipients
+    - api_field: approvalWorkflow.manualApprovals.steps.approvers.principals
+    - api_field: createTime
+    - api_field: eligibleUsers.principals
+    - field: entitlement_id
+      provider_only: true
+    - api_field: etag
+    - field: location
+      provider_only: true
+    - api_field: maxRequestDuration
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: privilegedAccess.gcpIamAccess.resource
+    - api_field: privilegedAccess.gcpIamAccess.resourceType
+    - api_field: privilegedAccess.gcpIamAccess.roleBindings.conditionExpression
+    - api_field: privilegedAccess.gcpIamAccess.roleBindings.role
+    - api_field: requesterJustificationConfig.notMandatory
+    - api_field: requesterJustificationConfig.unstructured
+    - api_field: state
+    - api_field: updateTime

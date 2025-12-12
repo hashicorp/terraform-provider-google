@@ -1,18 +1,18 @@
-resource: 'google_healthcare_dicom_store'
-generation_type: 'mmv1'
-source_file: 'products/healthcare/DicomStore.yaml'
-api_service_name: 'healthcare.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DicomStore'
+resource: google_healthcare_dicom_store
+generation_type: mmv1
+source_file: products/healthcare/DicomStore.yaml
+api_service_name: healthcare.googleapis.com
+api_version: v1
+api_resource_type_kind: DicomStore
 fields:
-  - field: 'dataset'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'notificationConfig.pubsubTopic'
-  - api_field: 'notificationConfig.sendForBulkImport'
-  - api_field: 'selfLink'
-  - field: 'terraform_labels'
-    provider_only: true
+    - field: dataset
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: name
+    - api_field: notificationConfig.pubsubTopic
+    - api_field: notificationConfig.sendForBulkImport
+    - api_field: selfLink
+    - field: terraform_labels
+      provider_only: true

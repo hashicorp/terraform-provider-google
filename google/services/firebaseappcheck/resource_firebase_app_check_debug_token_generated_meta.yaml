@@ -1,13 +1,13 @@
-resource: 'google_firebase_app_check_debug_token'
-generation_type: 'mmv1'
-source_file: 'products/firebaseappcheck/DebugToken.yaml'
-api_service_name: 'firebaseappcheck.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DebugToken'
+resource: google_firebase_app_check_debug_token
+generation_type: mmv1
+source_file: products/firebaseappcheck/DebugToken.yaml
+api_service_name: firebaseappcheck.googleapis.com
+api_version: v1
+api_resource_type_kind: DebugToken
 fields:
-  - field: 'app_id'
-    provider_only: true
-  - api_field: 'name'
-    field: 'debug_token_id'
-  - api_field: 'displayName'
-  - api_field: 'token'
+    - field: app_id
+      provider_only: true
+    - api_field: name
+      field: debug_token_id
+    - api_field: displayName
+    - api_field: token

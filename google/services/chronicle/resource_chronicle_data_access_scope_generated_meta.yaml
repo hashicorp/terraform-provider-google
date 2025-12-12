@@ -1,34 +1,34 @@
-resource: 'google_chronicle_data_access_scope'
-generation_type: 'mmv1'
-source_file: 'products/chronicle/DataAccessScope.yaml'
-api_service_name: 'chronicle.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DataAccessScope'
+resource: google_chronicle_data_access_scope
+generation_type: mmv1
+source_file: products/chronicle/DataAccessScope.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: DataAccessScope
 autogen_status: true
 fields:
-  - api_field: 'allowAll'
-  - api_field: 'allowedDataAccessLabels.assetNamespace'
-  - api_field: 'allowedDataAccessLabels.dataAccessLabel'
-  - api_field: 'allowedDataAccessLabels.displayName'
-  - api_field: 'allowedDataAccessLabels.ingestionLabel.ingestionLabelKey'
-  - api_field: 'allowedDataAccessLabels.ingestionLabel.ingestionLabelValue'
-  - api_field: 'allowedDataAccessLabels.logType'
-  - api_field: 'author'
-  - api_field: 'createTime'
-  - field: 'data_access_scope_id'
-    provider_only: true
-  - api_field: 'deniedDataAccessLabels.assetNamespace'
-  - api_field: 'deniedDataAccessLabels.dataAccessLabel'
-  - api_field: 'deniedDataAccessLabels.displayName'
-  - api_field: 'deniedDataAccessLabels.ingestionLabel.ingestionLabelKey'
-  - api_field: 'deniedDataAccessLabels.ingestionLabel.ingestionLabelValue'
-  - api_field: 'deniedDataAccessLabels.logType'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'instance'
-    provider_only: true
-  - api_field: 'lastEditor'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'updateTime'
+    - api_field: allowAll
+    - api_field: allowedDataAccessLabels.assetNamespace
+    - api_field: allowedDataAccessLabels.dataAccessLabel
+    - api_field: allowedDataAccessLabels.displayName
+    - api_field: allowedDataAccessLabels.ingestionLabel.ingestionLabelKey
+    - api_field: allowedDataAccessLabels.ingestionLabel.ingestionLabelValue
+    - api_field: allowedDataAccessLabels.logType
+    - api_field: author
+    - api_field: createTime
+    - field: data_access_scope_id
+      provider_only: true
+    - api_field: deniedDataAccessLabels.assetNamespace
+    - api_field: deniedDataAccessLabels.dataAccessLabel
+    - api_field: deniedDataAccessLabels.displayName
+    - api_field: deniedDataAccessLabels.ingestionLabel.ingestionLabelKey
+    - api_field: deniedDataAccessLabels.ingestionLabel.ingestionLabelValue
+    - api_field: deniedDataAccessLabels.logType
+    - api_field: description
+    - api_field: displayName
+    - field: instance
+      provider_only: true
+    - api_field: lastEditor
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: updateTime

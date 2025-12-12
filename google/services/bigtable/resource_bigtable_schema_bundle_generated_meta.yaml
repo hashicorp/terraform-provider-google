@@ -1,18 +1,18 @@
-resource: 'google_bigtable_schema_bundle'
-generation_type: 'mmv1'
-source_file: 'products/bigtable/SchemaBundle.yaml'
-api_service_name: 'bigtableadmin.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'SchemaBundle'
-cai_asset_name_format: '//bigtable.googleapis.com/projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles/{{schema_bundle_id}}'
+resource: google_bigtable_schema_bundle
+generation_type: mmv1
+source_file: products/bigtable/SchemaBundle.yaml
+api_service_name: bigtableadmin.googleapis.com
+api_version: v2
+api_resource_type_kind: SchemaBundle
+cai_asset_name_format: //bigtable.googleapis.com/projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles/{{schema_bundle_id}}
 fields:
-  - field: 'ignore_warnings'
-    provider_only: true
-  - field: 'instance'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'protoSchema.protoDescriptors'
-  - field: 'schema_bundle_id'
-    provider_only: true
-  - field: 'table'
-    provider_only: true
+    - field: ignore_warnings
+      provider_only: true
+    - field: instance
+      provider_only: true
+    - api_field: name
+    - api_field: protoSchema.protoDescriptors
+    - field: schema_bundle_id
+      provider_only: true
+    - field: table
+      provider_only: true

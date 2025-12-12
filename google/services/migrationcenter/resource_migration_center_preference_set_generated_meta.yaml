@@ -1,31 +1,31 @@
-resource: 'google_migration_center_preference_set'
-generation_type: 'mmv1'
-source_file: 'products/migrationcenter/PreferenceSet.yaml'
-api_service_name: 'migrationcenter.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PreferenceSet'
+resource: google_migration_center_preference_set
+generation_type: mmv1
+source_file: products/migrationcenter/PreferenceSet.yaml
+api_service_name: migrationcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: PreferenceSet
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'preference_set_id'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'virtualMachinePreferences.commitmentPlan'
-  - api_field: 'virtualMachinePreferences.computeEnginePreferences.licenseType'
-  - api_field: 'virtualMachinePreferences.computeEnginePreferences.machinePreferences.allowedMachineSeries.code'
-  - api_field: 'virtualMachinePreferences.regionPreferences.preferredRegions'
-  - api_field: 'virtualMachinePreferences.sizingOptimizationStrategy'
-  - api_field: 'virtualMachinePreferences.soleTenancyPreferences.commitmentPlan'
-  - api_field: 'virtualMachinePreferences.soleTenancyPreferences.cpuOvercommitRatio'
-  - api_field: 'virtualMachinePreferences.soleTenancyPreferences.hostMaintenancePolicy'
-  - api_field: 'virtualMachinePreferences.soleTenancyPreferences.nodeTypes.nodeName'
-  - api_field: 'virtualMachinePreferences.targetProduct'
-  - api_field: 'virtualMachinePreferences.vmwareEnginePreferences.commitmentPlan'
-  - api_field: 'virtualMachinePreferences.vmwareEnginePreferences.cpuOvercommitRatio'
-  - api_field: 'virtualMachinePreferences.vmwareEnginePreferences.memoryOvercommitRatio'
-  - api_field: 'virtualMachinePreferences.vmwareEnginePreferences.storageDeduplicationCompressionRatio'
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: preference_set_id
+      provider_only: true
+    - api_field: updateTime
+    - api_field: virtualMachinePreferences.commitmentPlan
+    - api_field: virtualMachinePreferences.computeEnginePreferences.licenseType
+    - api_field: virtualMachinePreferences.computeEnginePreferences.machinePreferences.allowedMachineSeries.code
+    - api_field: virtualMachinePreferences.regionPreferences.preferredRegions
+    - api_field: virtualMachinePreferences.sizingOptimizationStrategy
+    - api_field: virtualMachinePreferences.soleTenancyPreferences.commitmentPlan
+    - api_field: virtualMachinePreferences.soleTenancyPreferences.cpuOvercommitRatio
+    - api_field: virtualMachinePreferences.soleTenancyPreferences.hostMaintenancePolicy
+    - api_field: virtualMachinePreferences.soleTenancyPreferences.nodeTypes.nodeName
+    - api_field: virtualMachinePreferences.targetProduct
+    - api_field: virtualMachinePreferences.vmwareEnginePreferences.commitmentPlan
+    - api_field: virtualMachinePreferences.vmwareEnginePreferences.cpuOvercommitRatio
+    - api_field: virtualMachinePreferences.vmwareEnginePreferences.memoryOvercommitRatio
+    - api_field: virtualMachinePreferences.vmwareEnginePreferences.storageDeduplicationCompressionRatio

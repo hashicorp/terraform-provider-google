@@ -1,87 +1,87 @@
-resource: 'google_ces_app'
-generation_type: 'mmv1'
-source_file: 'products/ces/App.yaml'
-api_service_name: 'ces.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'App'
+resource: google_ces_app
+generation_type: mmv1
+source_file: products/ces/App.yaml
+api_service_name: ces.googleapis.com
+api_version: v1
+api_resource_type_kind: App
 autogen_status: true
 fields:
-  - field: 'app_id'
-    provider_only: true
-  - api_field: 'audioProcessingConfig.ambientSoundConfig.gcsUri'
-  - api_field: 'audioProcessingConfig.ambientSoundConfig.prebuiltAmbientSound'
-  - api_field: 'audioProcessingConfig.ambientSoundConfig.volumeGainDb'
-  - api_field: 'audioProcessingConfig.bargeInConfig.bargeInAwareness'
-  - api_field: 'audioProcessingConfig.inactivityTimeout'
-  - api_field: 'audioProcessingConfig.synthesizeSpeechConfigs.SynthesizeSpeechConfig.speakingRate'
-  - api_field: 'audioProcessingConfig.synthesizeSpeechConfigs.SynthesizeSpeechConfig.voice'
-  - api_field: 'clientCertificateSettings.passphrase'
-  - api_field: 'clientCertificateSettings.privateKey'
-  - api_field: 'clientCertificateSettings.tlsCertificate'
-  - api_field: 'createTime'
-  - api_field: 'dataStoreSettings.engines.name'
-  - api_field: 'dataStoreSettings.engines.type'
-  - api_field: 'defaultChannelProfile.channelType'
-  - api_field: 'defaultChannelProfile.disableBargeInControl'
-  - api_field: 'defaultChannelProfile.disableDtmf'
-  - api_field: 'defaultChannelProfile.personaProperty.persona'
-  - api_field: 'defaultChannelProfile.profileId'
-  - api_field: 'defaultChannelProfile.webWidgetConfig.modality'
-  - api_field: 'defaultChannelProfile.webWidgetConfig.theme'
-  - api_field: 'defaultChannelProfile.webWidgetConfig.webWidgetTitle'
-  - api_field: 'deploymentCount'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'etag'
-  - api_field: 'evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.expectationLevelMetricsThresholds.toolInvocationParameterCorrectnessThreshold'
-  - api_field: 'evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.overallToolInvocationCorrectnessThreshold'
-  - api_field: 'evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.semanticSimilaritySuccessThreshold'
-  - api_field: 'globalInstruction'
-  - api_field: 'guardrails'
-  - api_field: 'languageSettings.defaultLanguageCode'
-  - api_field: 'languageSettings.enableMultilingualSupport'
-  - api_field: 'languageSettings.fallbackAction'
-  - api_field: 'languageSettings.supportedLanguageCodes'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'loggingSettings.audioRecordingConfig.gcsBucket'
-  - api_field: 'loggingSettings.audioRecordingConfig.gcsPathPrefix'
-  - api_field: 'loggingSettings.bigqueryExportSettings.dataset'
-  - api_field: 'loggingSettings.bigqueryExportSettings.enabled'
-  - api_field: 'loggingSettings.bigqueryExportSettings.project'
-  - api_field: 'loggingSettings.cloudLoggingSettings.enableCloudLogging'
-  - api_field: 'loggingSettings.conversationLoggingSettings.disableConversationLogging'
-  - api_field: 'loggingSettings.redactionConfig.deidentifyTemplate'
-  - api_field: 'loggingSettings.redactionConfig.enableRedaction'
-  - api_field: 'loggingSettings.redactionConfig.inspectTemplate'
-  - api_field: 'metadata'
-  - api_field: 'modelSettings.model'
-  - api_field: 'modelSettings.temperature'
-  - api_field: 'name'
-  - api_field: 'pinned'
-  - api_field: 'rootAgent'
-  - api_field: 'timeZoneSettings.timeZone'
-  - api_field: 'updateTime'
-  - api_field: 'variableDeclarations.description'
-  - api_field: 'variableDeclarations.name'
-  - api_field: 'variableDeclarations.schema.additionalProperties'
-    json: true
-  - api_field: 'variableDeclarations.schema.anyOf'
-    json: true
-  - api_field: 'variableDeclarations.schema.default'
-  - api_field: 'variableDeclarations.schema.defs'
-    json: true
-  - api_field: 'variableDeclarations.schema.description'
-  - api_field: 'variableDeclarations.schema.enum'
-  - api_field: 'variableDeclarations.schema.items'
-    json: true
-  - api_field: 'variableDeclarations.schema.nullable'
-  - api_field: 'variableDeclarations.schema.prefixItems'
-    json: true
-  - api_field: 'variableDeclarations.schema.properties'
-    json: true
-  - api_field: 'variableDeclarations.schema.ref'
-  - api_field: 'variableDeclarations.schema.required'
-  - api_field: 'variableDeclarations.schema.title'
-  - api_field: 'variableDeclarations.schema.type'
-  - api_field: 'variableDeclarations.schema.uniqueItems'
+    - field: app_id
+      provider_only: true
+    - api_field: audioProcessingConfig.ambientSoundConfig.gcsUri
+    - api_field: audioProcessingConfig.ambientSoundConfig.prebuiltAmbientSound
+    - api_field: audioProcessingConfig.ambientSoundConfig.volumeGainDb
+    - api_field: audioProcessingConfig.bargeInConfig.bargeInAwareness
+    - api_field: audioProcessingConfig.inactivityTimeout
+    - api_field: audioProcessingConfig.synthesizeSpeechConfigs.SynthesizeSpeechConfig.speakingRate
+    - api_field: audioProcessingConfig.synthesizeSpeechConfigs.SynthesizeSpeechConfig.voice
+    - api_field: clientCertificateSettings.passphrase
+    - api_field: clientCertificateSettings.privateKey
+    - api_field: clientCertificateSettings.tlsCertificate
+    - api_field: createTime
+    - api_field: dataStoreSettings.engines.name
+    - api_field: dataStoreSettings.engines.type
+    - api_field: defaultChannelProfile.channelType
+    - api_field: defaultChannelProfile.disableBargeInControl
+    - api_field: defaultChannelProfile.disableDtmf
+    - api_field: defaultChannelProfile.personaProperty.persona
+    - api_field: defaultChannelProfile.profileId
+    - api_field: defaultChannelProfile.webWidgetConfig.modality
+    - api_field: defaultChannelProfile.webWidgetConfig.theme
+    - api_field: defaultChannelProfile.webWidgetConfig.webWidgetTitle
+    - api_field: deploymentCount
+    - api_field: description
+    - api_field: displayName
+    - api_field: etag
+    - api_field: evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.expectationLevelMetricsThresholds.toolInvocationParameterCorrectnessThreshold
+    - api_field: evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.overallToolInvocationCorrectnessThreshold
+    - api_field: evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.semanticSimilaritySuccessThreshold
+    - api_field: globalInstruction
+    - api_field: guardrails
+    - api_field: languageSettings.defaultLanguageCode
+    - api_field: languageSettings.enableMultilingualSupport
+    - api_field: languageSettings.fallbackAction
+    - api_field: languageSettings.supportedLanguageCodes
+    - field: location
+      provider_only: true
+    - api_field: loggingSettings.audioRecordingConfig.gcsBucket
+    - api_field: loggingSettings.audioRecordingConfig.gcsPathPrefix
+    - api_field: loggingSettings.bigqueryExportSettings.dataset
+    - api_field: loggingSettings.bigqueryExportSettings.enabled
+    - api_field: loggingSettings.bigqueryExportSettings.project
+    - api_field: loggingSettings.cloudLoggingSettings.enableCloudLogging
+    - api_field: loggingSettings.conversationLoggingSettings.disableConversationLogging
+    - api_field: loggingSettings.redactionConfig.deidentifyTemplate
+    - api_field: loggingSettings.redactionConfig.enableRedaction
+    - api_field: loggingSettings.redactionConfig.inspectTemplate
+    - api_field: metadata
+    - api_field: modelSettings.model
+    - api_field: modelSettings.temperature
+    - api_field: name
+    - api_field: pinned
+    - api_field: rootAgent
+    - api_field: timeZoneSettings.timeZone
+    - api_field: updateTime
+    - api_field: variableDeclarations.description
+    - api_field: variableDeclarations.name
+    - api_field: variableDeclarations.schema.additionalProperties
+      json: true
+    - api_field: variableDeclarations.schema.anyOf
+      json: true
+    - api_field: variableDeclarations.schema.default
+    - api_field: variableDeclarations.schema.defs
+      json: true
+    - api_field: variableDeclarations.schema.description
+    - api_field: variableDeclarations.schema.enum
+    - api_field: variableDeclarations.schema.items
+      json: true
+    - api_field: variableDeclarations.schema.nullable
+    - api_field: variableDeclarations.schema.prefixItems
+      json: true
+    - api_field: variableDeclarations.schema.properties
+      json: true
+    - api_field: variableDeclarations.schema.ref
+    - api_field: variableDeclarations.schema.required
+    - api_field: variableDeclarations.schema.title
+    - api_field: variableDeclarations.schema.type
+    - api_field: variableDeclarations.schema.uniqueItems

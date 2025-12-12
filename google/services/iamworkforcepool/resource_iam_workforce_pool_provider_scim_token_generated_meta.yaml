@@ -1,21 +1,21 @@
-resource: 'google_iam_workforce_pool_provider_scim_token'
-generation_type: 'mmv1'
-source_file: 'products/iamworkforcepool/WorkforcePoolProviderScimToken.yaml'
-api_service_name: 'iam.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'WorkforcePoolProviderScimToken'
+resource: google_iam_workforce_pool_provider_scim_token
+generation_type: mmv1
+source_file: products/iamworkforcepool/WorkforcePoolProviderScimToken.yaml
+api_service_name: iam.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkforcePoolProviderScimToken
 fields:
-  - api_field: 'displayName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'provider_id'
-    provider_only: true
-  - field: 'scim_tenant_id'
-    provider_only: true
-  - field: 'scim_token_id'
-    provider_only: true
-  - api_field: 'securityToken'
-  - api_field: 'state'
-  - field: 'workforce_pool_id'
-    provider_only: true
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: provider_id
+      provider_only: true
+    - field: scim_tenant_id
+      provider_only: true
+    - field: scim_token_id
+      provider_only: true
+    - api_field: securityToken
+    - api_field: state
+    - field: workforce_pool_id
+      provider_only: true

@@ -1,49 +1,49 @@
-resource: 'google_compute_resize_request'
-generation_type: 'mmv1'
-source_file: 'products/compute/ResizeRequest.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InstanceGroupManagerResizeRequest'
+resource: google_compute_resize_request
+generation_type: mmv1
+source_file: products/compute/ResizeRequest.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: InstanceGroupManagerResizeRequest
 fields:
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - field: 'instance_group_manager'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'requestedRunDuration.nanos'
-  - api_field: 'requestedRunDuration.seconds'
-  - api_field: 'resizeBy'
-  - api_field: 'state'
-  - api_field: 'status.error.errors.code'
-  - api_field: 'status.error.errors.errorDetails.errorInfo.domain'
-  - api_field: 'status.error.errors.errorDetails.errorInfo.metadatas'
-  - api_field: 'status.error.errors.errorDetails.errorInfo.reason'
-  - api_field: 'status.error.errors.errorDetails.help.links.description'
-  - api_field: 'status.error.errors.errorDetails.help.links.url'
-  - api_field: 'status.error.errors.errorDetails.localizedMessage.locale'
-  - api_field: 'status.error.errors.errorDetails.localizedMessage.message'
-  - api_field: 'status.error.errors.errorDetails.quotaInfo.dimensions'
-  - api_field: 'status.error.errors.errorDetails.quotaInfo.futureLimit'
-  - api_field: 'status.error.errors.errorDetails.quotaInfo.limit'
-  - api_field: 'status.error.errors.errorDetails.quotaInfo.limitName'
-  - api_field: 'status.error.errors.errorDetails.quotaInfo.metricName'
-  - api_field: 'status.error.errors.errorDetails.quotaInfo.rolloutStatus'
-  - api_field: 'status.error.errors.location'
-  - api_field: 'status.error.errors.message'
-  - api_field: 'status.lastAttempt.error.errors.code'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.errorInfo.domain'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.errorInfo.metadatas'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.errorInfo.reason'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.help.links.description'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.help.links.url'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.localizedMessage.locale'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.localizedMessage.message'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.quotaInfo.dimensions'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.quotaInfo.futureLimit'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.quotaInfo.limit'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.quotaInfo.limitName'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.quotaInfo.metricName'
-  - api_field: 'status.lastAttempt.error.errors.errorDetails.quotaInfo.rolloutStatus'
-  - api_field: 'status.lastAttempt.error.errors.location'
-  - api_field: 'status.lastAttempt.error.errors.message'
-  - api_field: 'zone'
+    - api_field: creationTimestamp
+    - api_field: description
+    - field: instance_group_manager
+      provider_only: true
+    - api_field: name
+    - api_field: requestedRunDuration.nanos
+    - api_field: requestedRunDuration.seconds
+    - api_field: resizeBy
+    - api_field: state
+    - api_field: status.error.errors.code
+    - api_field: status.error.errors.errorDetails.errorInfo.domain
+    - api_field: status.error.errors.errorDetails.errorInfo.metadatas
+    - api_field: status.error.errors.errorDetails.errorInfo.reason
+    - api_field: status.error.errors.errorDetails.help.links.description
+    - api_field: status.error.errors.errorDetails.help.links.url
+    - api_field: status.error.errors.errorDetails.localizedMessage.locale
+    - api_field: status.error.errors.errorDetails.localizedMessage.message
+    - api_field: status.error.errors.errorDetails.quotaInfo.dimensions
+    - api_field: status.error.errors.errorDetails.quotaInfo.futureLimit
+    - api_field: status.error.errors.errorDetails.quotaInfo.limit
+    - api_field: status.error.errors.errorDetails.quotaInfo.limitName
+    - api_field: status.error.errors.errorDetails.quotaInfo.metricName
+    - api_field: status.error.errors.errorDetails.quotaInfo.rolloutStatus
+    - api_field: status.error.errors.location
+    - api_field: status.error.errors.message
+    - api_field: status.lastAttempt.error.errors.code
+    - api_field: status.lastAttempt.error.errors.errorDetails.errorInfo.domain
+    - api_field: status.lastAttempt.error.errors.errorDetails.errorInfo.metadatas
+    - api_field: status.lastAttempt.error.errors.errorDetails.errorInfo.reason
+    - api_field: status.lastAttempt.error.errors.errorDetails.help.links.description
+    - api_field: status.lastAttempt.error.errors.errorDetails.help.links.url
+    - api_field: status.lastAttempt.error.errors.errorDetails.localizedMessage.locale
+    - api_field: status.lastAttempt.error.errors.errorDetails.localizedMessage.message
+    - api_field: status.lastAttempt.error.errors.errorDetails.quotaInfo.dimensions
+    - api_field: status.lastAttempt.error.errors.errorDetails.quotaInfo.futureLimit
+    - api_field: status.lastAttempt.error.errors.errorDetails.quotaInfo.limit
+    - api_field: status.lastAttempt.error.errors.errorDetails.quotaInfo.limitName
+    - api_field: status.lastAttempt.error.errors.errorDetails.quotaInfo.metricName
+    - api_field: status.lastAttempt.error.errors.errorDetails.quotaInfo.rolloutStatus
+    - api_field: status.lastAttempt.error.errors.location
+    - api_field: status.lastAttempt.error.errors.message
+    - api_field: zone

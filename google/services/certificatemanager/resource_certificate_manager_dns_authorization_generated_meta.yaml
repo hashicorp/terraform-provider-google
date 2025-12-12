@@ -1,22 +1,22 @@
-resource: 'google_certificate_manager_dns_authorization'
-generation_type: 'mmv1'
-source_file: 'products/certificatemanager/DnsAuthorization.yaml'
-api_service_name: 'certificatemanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DnsAuthorization'
+resource: google_certificate_manager_dns_authorization
+generation_type: mmv1
+source_file: products/certificatemanager/DnsAuthorization.yaml
+api_service_name: certificatemanager.googleapis.com
+api_version: v1
+api_resource_type_kind: DnsAuthorization
 fields:
-  - api_field: 'description'
-  - api_field: 'dnsResourceRecord.data'
-  - api_field: 'dnsResourceRecord.name'
-  - api_field: 'dnsResourceRecord.type'
-  - api_field: 'domain'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
+    - api_field: description
+    - api_field: dnsResourceRecord.data
+    - api_field: dnsResourceRecord.name
+    - api_field: dnsResourceRecord.type
+    - api_field: domain
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type

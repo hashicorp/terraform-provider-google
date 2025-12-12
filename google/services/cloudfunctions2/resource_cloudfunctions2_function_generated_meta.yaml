@@ -1,74 +1,74 @@
-resource: 'google_cloudfunctions2_function'
-generation_type: 'mmv1'
-source_file: 'products/cloudfunctions2/Function.yaml'
-api_service_name: 'cloudfunctions.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Function'
+resource: google_cloudfunctions2_function
+generation_type: mmv1
+source_file: products/cloudfunctions2/Function.yaml
+api_service_name: cloudfunctions.googleapis.com
+api_version: v2
+api_resource_type_kind: Function
 fields:
-  - api_field: 'buildConfig.automaticUpdatePolicy'
-  - api_field: 'buildConfig.build'
-  - api_field: 'buildConfig.dockerRepository'
-  - api_field: 'buildConfig.entryPoint'
-  - api_field: 'buildConfig.environmentVariables'
-  - api_field: 'buildConfig.onDeployUpdatePolicy.runtimeVersion'
-  - api_field: 'buildConfig.runtime'
-  - api_field: 'buildConfig.serviceAccount'
-  - api_field: 'buildConfig.source.repoSource.branchName'
-  - api_field: 'buildConfig.source.repoSource.commitSha'
-  - api_field: 'buildConfig.source.repoSource.dir'
-  - api_field: 'buildConfig.source.repoSource.invertRegex'
-  - api_field: 'buildConfig.source.repoSource.projectId'
-  - api_field: 'buildConfig.source.repoSource.repoName'
-  - api_field: 'buildConfig.source.repoSource.tagName'
-  - api_field: 'buildConfig.source.storageSource.bucket'
-  - api_field: 'buildConfig.source.storageSource.generation'
-  - api_field: 'buildConfig.source.storageSource.object'
-  - api_field: 'buildConfig.workerPool'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'environment'
-  - api_field: 'eventTrigger.eventFilters.attribute'
-  - api_field: 'eventTrigger.eventFilters.operator'
-  - api_field: 'eventTrigger.eventFilters.value'
-  - api_field: 'eventTrigger.eventType'
-  - api_field: 'eventTrigger.pubsubTopic'
-  - api_field: 'eventTrigger.retryPolicy'
-  - api_field: 'eventTrigger.serviceAccountEmail'
-  - api_field: 'eventTrigger.trigger'
-  - api_field: 'eventTrigger.triggerRegion'
-  - api_field: 'kmsKeyName'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'serviceConfig.allTrafficOnLatestRevision'
-  - api_field: 'serviceConfig.availableCpu'
-  - api_field: 'serviceConfig.availableMemory'
-  - api_field: 'serviceConfig.binaryAuthorizationPolicy'
-  - api_field: 'serviceConfig.environmentVariables'
-  - api_field: 'serviceConfig.gcfUri'
-  - api_field: 'serviceConfig.ingressSettings'
-  - api_field: 'serviceConfig.maxInstanceCount'
-  - api_field: 'serviceConfig.maxInstanceRequestConcurrency'
-  - api_field: 'serviceConfig.minInstanceCount'
-  - api_field: 'serviceConfig.secretEnvironmentVariables.key'
-  - api_field: 'serviceConfig.secretEnvironmentVariables.projectId'
-  - api_field: 'serviceConfig.secretEnvironmentVariables.secret'
-  - api_field: 'serviceConfig.secretEnvironmentVariables.version'
-  - api_field: 'serviceConfig.secretVolumes.mountPath'
-  - api_field: 'serviceConfig.secretVolumes.projectId'
-  - api_field: 'serviceConfig.secretVolumes.secret'
-  - api_field: 'serviceConfig.secretVolumes.versions.path'
-  - api_field: 'serviceConfig.secretVolumes.versions.version'
-  - api_field: 'serviceConfig.service'
-  - api_field: 'serviceConfig.serviceAccountEmail'
-  - api_field: 'serviceConfig.timeoutSeconds'
-  - api_field: 'serviceConfig.uri'
-  - api_field: 'serviceConfig.vpcConnector'
-  - api_field: 'serviceConfig.vpcConnectorEgressSettings'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'url'
+    - api_field: buildConfig.automaticUpdatePolicy
+    - api_field: buildConfig.build
+    - api_field: buildConfig.dockerRepository
+    - api_field: buildConfig.entryPoint
+    - api_field: buildConfig.environmentVariables
+    - api_field: buildConfig.onDeployUpdatePolicy.runtimeVersion
+    - api_field: buildConfig.runtime
+    - api_field: buildConfig.serviceAccount
+    - api_field: buildConfig.source.repoSource.branchName
+    - api_field: buildConfig.source.repoSource.commitSha
+    - api_field: buildConfig.source.repoSource.dir
+    - api_field: buildConfig.source.repoSource.invertRegex
+    - api_field: buildConfig.source.repoSource.projectId
+    - api_field: buildConfig.source.repoSource.repoName
+    - api_field: buildConfig.source.repoSource.tagName
+    - api_field: buildConfig.source.storageSource.bucket
+    - api_field: buildConfig.source.storageSource.generation
+    - api_field: buildConfig.source.storageSource.object
+    - api_field: buildConfig.workerPool
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: environment
+    - api_field: eventTrigger.eventFilters.attribute
+    - api_field: eventTrigger.eventFilters.operator
+    - api_field: eventTrigger.eventFilters.value
+    - api_field: eventTrigger.eventType
+    - api_field: eventTrigger.pubsubTopic
+    - api_field: eventTrigger.retryPolicy
+    - api_field: eventTrigger.serviceAccountEmail
+    - api_field: eventTrigger.trigger
+    - api_field: eventTrigger.triggerRegion
+    - api_field: kmsKeyName
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: serviceConfig.allTrafficOnLatestRevision
+    - api_field: serviceConfig.availableCpu
+    - api_field: serviceConfig.availableMemory
+    - api_field: serviceConfig.binaryAuthorizationPolicy
+    - api_field: serviceConfig.environmentVariables
+    - api_field: serviceConfig.gcfUri
+    - api_field: serviceConfig.ingressSettings
+    - api_field: serviceConfig.maxInstanceCount
+    - api_field: serviceConfig.maxInstanceRequestConcurrency
+    - api_field: serviceConfig.minInstanceCount
+    - api_field: serviceConfig.secretEnvironmentVariables.key
+    - api_field: serviceConfig.secretEnvironmentVariables.projectId
+    - api_field: serviceConfig.secretEnvironmentVariables.secret
+    - api_field: serviceConfig.secretEnvironmentVariables.version
+    - api_field: serviceConfig.secretVolumes.mountPath
+    - api_field: serviceConfig.secretVolumes.projectId
+    - api_field: serviceConfig.secretVolumes.secret
+    - api_field: serviceConfig.secretVolumes.versions.path
+    - api_field: serviceConfig.secretVolumes.versions.version
+    - api_field: serviceConfig.service
+    - api_field: serviceConfig.serviceAccountEmail
+    - api_field: serviceConfig.timeoutSeconds
+    - api_field: serviceConfig.uri
+    - api_field: serviceConfig.vpcConnector
+    - api_field: serviceConfig.vpcConnectorEgressSettings
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: url

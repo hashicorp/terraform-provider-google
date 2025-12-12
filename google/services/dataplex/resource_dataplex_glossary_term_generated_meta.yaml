@@ -1,25 +1,25 @@
-resource: 'google_dataplex_glossary_term'
-generation_type: 'mmv1'
-source_file: 'products/dataplex/GlossaryTerm.yaml'
-api_service_name: 'dataplex.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'GlossaryTerm'
+resource: google_dataplex_glossary_term
+generation_type: mmv1
+source_file: products/dataplex/GlossaryTerm.yaml
+api_service_name: dataplex.googleapis.com
+api_version: v1
+api_resource_type_kind: GlossaryTerm
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - field: 'glossary_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'parent'
-  - field: 'term_id'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - field: glossary_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: parent
+    - field: term_id
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

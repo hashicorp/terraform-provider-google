@@ -1,24 +1,24 @@
-resource: 'google_data_loss_prevention_stored_info_type'
-generation_type: 'mmv1'
-source_file: 'products/dlp/StoredInfoType.yaml'
-api_service_name: 'dlp.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'StoredInfoType'
+resource: google_data_loss_prevention_stored_info_type
+generation_type: mmv1
+source_file: products/dlp/StoredInfoType.yaml
+api_service_name: dlp.googleapis.com
+api_version: v2
+api_resource_type_kind: StoredInfoType
 fields:
-  - api_field: 'description'
-  - api_field: 'dictionary.cloudStoragePath.path'
-  - api_field: 'dictionary.wordList.words'
-  - api_field: 'displayName'
-  - api_field: 'largeCustomDictionary.bigQueryField.field.name'
-  - api_field: 'largeCustomDictionary.bigQueryField.table.datasetId'
-  - api_field: 'largeCustomDictionary.bigQueryField.table.projectId'
-  - api_field: 'largeCustomDictionary.bigQueryField.table.tableId'
-  - api_field: 'largeCustomDictionary.cloudStorageFileSet.url'
-  - api_field: 'largeCustomDictionary.outputPath.path'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'regex.groupIndexes'
-  - api_field: 'regex.pattern'
-  - field: 'stored_info_type_id'
-    provider_only: true
+    - api_field: description
+    - api_field: dictionary.cloudStoragePath.path
+    - api_field: dictionary.wordList.words
+    - api_field: displayName
+    - api_field: largeCustomDictionary.bigQueryField.field.name
+    - api_field: largeCustomDictionary.bigQueryField.table.datasetId
+    - api_field: largeCustomDictionary.bigQueryField.table.projectId
+    - api_field: largeCustomDictionary.bigQueryField.table.tableId
+    - api_field: largeCustomDictionary.cloudStorageFileSet.url
+    - api_field: largeCustomDictionary.outputPath.path
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: regex.groupIndexes
+    - api_field: regex.pattern
+    - field: stored_info_type_id
+      provider_only: true

@@ -1,23 +1,23 @@
-resource: 'google_gemini_code_repository_index'
-generation_type: 'mmv1'
-source_file: 'products/gemini/CodeRepositoryIndex.yaml'
-api_service_name: 'cloudaicompanion.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CodeRepositoryIndex'
+resource: google_gemini_code_repository_index
+generation_type: mmv1
+source_file: products/gemini/CodeRepositoryIndex.yaml
+api_service_name: cloudaicompanion.googleapis.com
+api_version: v1
+api_resource_type_kind: CodeRepositoryIndex
 fields:
-  - field: 'code_repository_index_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - field: 'force_destroy'
-    provider_only: true
-  - api_field: 'kmsKey'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: code_repository_index_id
+      provider_only: true
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - field: force_destroy
+      provider_only: true
+    - api_field: kmsKey
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

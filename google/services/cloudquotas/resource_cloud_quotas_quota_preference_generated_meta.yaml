@@ -1,27 +1,27 @@
-resource: 'google_cloud_quotas_quota_preference'
-generation_type: 'mmv1'
-source_file: 'products/cloudquotas/QuotaPreference.yaml'
-api_service_name: 'cloudquotas.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'QuotaPreference'
+resource: google_cloud_quotas_quota_preference
+generation_type: mmv1
+source_file: products/cloudquotas/QuotaPreference.yaml
+api_service_name: cloudquotas.googleapis.com
+api_version: v1
+api_resource_type_kind: QuotaPreference
 fields:
-  - api_field: 'contactEmail'
-  - api_field: 'createTime'
-  - api_field: 'dimensions'
-  - api_field: 'etag'
-  - field: 'ignore_safety_checks'
-    provider_only: true
-  - api_field: 'justification'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'quotaConfig.annotations'
-  - api_field: 'quotaConfig.grantedValue'
-  - api_field: 'quotaConfig.preferredValue'
-  - api_field: 'quotaConfig.requestOrigin'
-  - api_field: 'quotaConfig.stateDetail'
-  - api_field: 'quotaConfig.traceId'
-  - api_field: 'quotaId'
-  - api_field: 'reconciling'
-  - api_field: 'service'
-  - api_field: 'updateTime'
+    - api_field: contactEmail
+    - api_field: createTime
+    - api_field: dimensions
+    - api_field: etag
+    - field: ignore_safety_checks
+      provider_only: true
+    - api_field: justification
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: quotaConfig.annotations
+    - api_field: quotaConfig.grantedValue
+    - api_field: quotaConfig.preferredValue
+    - api_field: quotaConfig.requestOrigin
+    - api_field: quotaConfig.stateDetail
+    - api_field: quotaConfig.traceId
+    - api_field: quotaId
+    - api_field: reconciling
+    - api_field: service
+    - api_field: updateTime

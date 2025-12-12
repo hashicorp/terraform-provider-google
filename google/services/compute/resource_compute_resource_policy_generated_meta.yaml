@@ -1,36 +1,36 @@
-resource: 'google_compute_resource_policy'
-generation_type: 'mmv1'
-source_file: 'products/compute/ResourcePolicy.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ResourcePolicy'
+resource: google_compute_resource_policy
+generation_type: mmv1
+source_file: products/compute/ResourcePolicy.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: ResourcePolicy
 fields:
-  - api_field: 'description'
-  - api_field: 'diskConsistencyGroupPolicy.enabled'
-  - api_field: 'groupPlacementPolicy.availabilityDomainCount'
-  - api_field: 'groupPlacementPolicy.collocation'
-  - api_field: 'groupPlacementPolicy.gpuTopology'
-  - api_field: 'groupPlacementPolicy.vmCount'
-  - api_field: 'instanceSchedulePolicy.expirationTime'
-  - api_field: 'instanceSchedulePolicy.startTime'
-  - api_field: 'instanceSchedulePolicy.timeZone'
-  - api_field: 'instanceSchedulePolicy.vmStartSchedule.schedule'
-  - api_field: 'instanceSchedulePolicy.vmStopSchedule.schedule'
-  - api_field: 'name'
-  - api_field: 'region'
-  - api_field: 'snapshotSchedulePolicy.retentionPolicy.maxRetentionDays'
-  - api_field: 'snapshotSchedulePolicy.retentionPolicy.onSourceDiskDelete'
-  - api_field: 'snapshotSchedulePolicy.schedule.dailySchedule.daysInCycle'
-  - api_field: 'snapshotSchedulePolicy.schedule.dailySchedule.startTime'
-  - api_field: 'snapshotSchedulePolicy.schedule.hourlySchedule.hoursInCycle'
-  - api_field: 'snapshotSchedulePolicy.schedule.hourlySchedule.startTime'
-  - api_field: 'snapshotSchedulePolicy.schedule.weeklySchedule.dayOfWeeks.day'
-  - api_field: 'snapshotSchedulePolicy.schedule.weeklySchedule.dayOfWeeks.startTime'
-  - api_field: 'snapshotSchedulePolicy.snapshotProperties.chainName'
-  - api_field: 'snapshotSchedulePolicy.snapshotProperties.guestFlush'
-  - api_field: 'snapshotSchedulePolicy.snapshotProperties.labels'
-  - api_field: 'snapshotSchedulePolicy.snapshotProperties.storageLocations'
-  - api_field: 'workloadPolicy.acceleratorTopology'
-  - api_field: 'workloadPolicy.maxTopologyDistance'
-  - api_field: 'workloadPolicy.type'
-  - api_field: 'selfLink'
+    - api_field: description
+    - api_field: diskConsistencyGroupPolicy.enabled
+    - api_field: groupPlacementPolicy.availabilityDomainCount
+    - api_field: groupPlacementPolicy.collocation
+    - api_field: groupPlacementPolicy.gpuTopology
+    - api_field: groupPlacementPolicy.vmCount
+    - api_field: instanceSchedulePolicy.expirationTime
+    - api_field: instanceSchedulePolicy.startTime
+    - api_field: instanceSchedulePolicy.timeZone
+    - api_field: instanceSchedulePolicy.vmStartSchedule.schedule
+    - api_field: instanceSchedulePolicy.vmStopSchedule.schedule
+    - api_field: name
+    - api_field: region
+    - api_field: snapshotSchedulePolicy.retentionPolicy.maxRetentionDays
+    - api_field: snapshotSchedulePolicy.retentionPolicy.onSourceDiskDelete
+    - api_field: snapshotSchedulePolicy.schedule.dailySchedule.daysInCycle
+    - api_field: snapshotSchedulePolicy.schedule.dailySchedule.startTime
+    - api_field: snapshotSchedulePolicy.schedule.hourlySchedule.hoursInCycle
+    - api_field: snapshotSchedulePolicy.schedule.hourlySchedule.startTime
+    - api_field: snapshotSchedulePolicy.schedule.weeklySchedule.dayOfWeeks.day
+    - api_field: snapshotSchedulePolicy.schedule.weeklySchedule.dayOfWeeks.startTime
+    - api_field: snapshotSchedulePolicy.snapshotProperties.chainName
+    - api_field: snapshotSchedulePolicy.snapshotProperties.guestFlush
+    - api_field: snapshotSchedulePolicy.snapshotProperties.labels
+    - api_field: snapshotSchedulePolicy.snapshotProperties.storageLocations
+    - api_field: workloadPolicy.acceleratorTopology
+    - api_field: workloadPolicy.maxTopologyDistance
+    - api_field: workloadPolicy.type
+    - api_field: selfLink

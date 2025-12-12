@@ -1,12 +1,12 @@
-resource: 'google_monitoring_group'
-generation_type: 'mmv1'
-source_file: 'products/monitoring/Group.yaml'
-api_service_name: 'monitoring.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Group'
+resource: google_monitoring_group
+generation_type: mmv1
+source_file: products/monitoring/Group.yaml
+api_service_name: monitoring.googleapis.com
+api_version: v3
+api_resource_type_kind: Group
 fields:
-  - api_field: 'displayName'
-  - api_field: 'filter'
-  - api_field: 'isCluster'
-  - api_field: 'name'
-  - api_field: 'parentName'
+    - api_field: displayName
+    - api_field: filter
+    - api_field: isCluster
+    - api_field: name
+    - api_field: parentName

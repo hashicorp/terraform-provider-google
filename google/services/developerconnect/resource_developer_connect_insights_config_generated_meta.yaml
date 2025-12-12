@@ -1,40 +1,40 @@
-resource: 'google_developer_connect_insights_config'
-generation_type: 'mmv1'
-source_file: 'products/developerconnect/InsightsConfig.yaml'
-api_service_name: 'developerconnect.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InsightsConfig'
+resource: google_developer_connect_insights_config
+generation_type: mmv1
+source_file: products/developerconnect/InsightsConfig.yaml
+api_service_name: developerconnect.googleapis.com
+api_version: v1
+api_resource_type_kind: InsightsConfig
 autogen_status: true
 fields:
-  - api_field: 'annotations'
-  - api_field: 'appHubApplication'
-  - api_field: 'artifactConfigs.googleArtifactAnalysis.projectId'
-  - api_field: 'artifactConfigs.googleArtifactRegistry.artifactRegistryPackage'
-  - api_field: 'artifactConfigs.googleArtifactRegistry.projectId'
-  - api_field: 'artifactConfigs.uri'
-  - api_field: 'createTime'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'errors.code'
-  - api_field: 'errors.details.detail_message'
-  - api_field: 'errors.message'
-  - field: 'insights_config_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'reconciling'
-  - api_field: 'runtimeConfigs.appHubWorkload.criticality'
-  - api_field: 'runtimeConfigs.appHubWorkload.environment'
-  - api_field: 'runtimeConfigs.appHubWorkload.workload'
-  - api_field: 'runtimeConfigs.gkeWorkload.cluster'
-  - api_field: 'runtimeConfigs.gkeWorkload.deployment'
-  - api_field: 'runtimeConfigs.state'
-  - api_field: 'runtimeConfigs.uri'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: appHubApplication
+    - api_field: artifactConfigs.googleArtifactAnalysis.projectId
+    - api_field: artifactConfigs.googleArtifactRegistry.artifactRegistryPackage
+    - api_field: artifactConfigs.googleArtifactRegistry.projectId
+    - api_field: artifactConfigs.uri
+    - api_field: createTime
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: errors.code
+    - api_field: errors.details.detail_message
+    - api_field: errors.message
+    - field: insights_config_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: reconciling
+    - api_field: runtimeConfigs.appHubWorkload.criticality
+    - api_field: runtimeConfigs.appHubWorkload.environment
+    - api_field: runtimeConfigs.appHubWorkload.workload
+    - api_field: runtimeConfigs.gkeWorkload.cluster
+    - api_field: runtimeConfigs.gkeWorkload.deployment
+    - api_field: runtimeConfigs.state
+    - api_field: runtimeConfigs.uri
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

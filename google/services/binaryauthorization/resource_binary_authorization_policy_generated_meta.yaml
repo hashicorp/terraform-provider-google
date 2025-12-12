@@ -1,17 +1,17 @@
-resource: 'google_binary_authorization_policy'
-generation_type: 'mmv1'
-source_file: 'products/binaryauthorization/Policy.yaml'
-api_service_name: 'binaryauthorization.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Policy'
-cai_asset_name_format: '//binaryauthorization.googleapis.com/projects/{{project}}/policy'
+resource: google_binary_authorization_policy
+generation_type: mmv1
+source_file: products/binaryauthorization/Policy.yaml
+api_service_name: binaryauthorization.googleapis.com
+api_version: v1
+api_resource_type_kind: Policy
+cai_asset_name_format: //binaryauthorization.googleapis.com/projects/{{project}}/policy
 fields:
-  - api_field: 'admissionWhitelistPatterns.namePattern'
-  - api_field: 'clusterAdmissionRules.clusterAdmissionRule.enforcementMode'
-  - api_field: 'clusterAdmissionRules.clusterAdmissionRule.evaluationMode'
-  - api_field: 'clusterAdmissionRules.clusterAdmissionRule.requireAttestationsBy'
-  - api_field: 'defaultAdmissionRule.enforcementMode'
-  - api_field: 'defaultAdmissionRule.evaluationMode'
-  - api_field: 'defaultAdmissionRule.requireAttestationsBy'
-  - api_field: 'description'
-  - api_field: 'globalPolicyEvaluationMode'
+    - api_field: admissionWhitelistPatterns.namePattern
+    - api_field: clusterAdmissionRules.clusterAdmissionRule.enforcementMode
+    - api_field: clusterAdmissionRules.clusterAdmissionRule.evaluationMode
+    - api_field: clusterAdmissionRules.clusterAdmissionRule.requireAttestationsBy
+    - api_field: defaultAdmissionRule.enforcementMode
+    - api_field: defaultAdmissionRule.evaluationMode
+    - api_field: defaultAdmissionRule.requireAttestationsBy
+    - api_field: description
+    - api_field: globalPolicyEvaluationMode

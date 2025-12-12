@@ -1,11 +1,11 @@
-resource: 'google_firebase_app_check_service_config'
-generation_type: 'mmv1'
-source_file: 'products/firebaseappcheck/ServiceConfig.yaml'
-api_service_name: 'firebaseappcheck.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Service'
+resource: google_firebase_app_check_service_config
+generation_type: mmv1
+source_file: products/firebaseappcheck/ServiceConfig.yaml
+api_service_name: firebaseappcheck.googleapis.com
+api_version: v1
+api_resource_type_kind: Service
 fields:
-  - api_field: 'enforcementMode'
-  - api_field: 'name'
-  - field: 'service_id'
-    provider_only: true
+    - api_field: enforcementMode
+    - api_field: name
+    - field: service_id
+      provider_only: true

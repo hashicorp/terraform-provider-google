@@ -1,19 +1,19 @@
-resource: 'google_network_services_tls_route'
-generation_type: 'mmv1'
-source_file: 'products/networkservices/TlsRoute.yaml'
-api_service_name: 'networkservices.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TlsRoute'
+resource: google_network_services_tls_route
+generation_type: mmv1
+source_file: products/networkservices/TlsRoute.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: TlsRoute
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'gateways'
-  - api_field: 'meshes'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'rules.action.destinations.serviceName'
-  - api_field: 'rules.action.destinations.weight'
-  - api_field: 'rules.matches.alpn'
-  - api_field: 'rules.matches.sniHost'
-  - api_field: 'selfLink'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: gateways
+    - api_field: meshes
+    - field: name
+      provider_only: true
+    - api_field: rules.action.destinations.serviceName
+    - api_field: rules.action.destinations.weight
+    - api_field: rules.matches.alpn
+    - api_field: rules.matches.sniHost
+    - api_field: selfLink
+    - api_field: updateTime

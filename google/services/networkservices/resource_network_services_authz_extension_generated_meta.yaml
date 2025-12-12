@@ -1,26 +1,26 @@
-resource: 'google_network_services_authz_extension'
-generation_type: 'mmv1'
-source_file: 'products/networkservices/AuthzExtension.yaml'
-api_service_name: 'networkservices.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AuthzExtension'
+resource: google_network_services_authz_extension
+generation_type: mmv1
+source_file: products/networkservices/AuthzExtension.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: AuthzExtension
 fields:
-  - api_field: 'authority'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'failOpen'
-  - api_field: 'forwardHeaders'
-  - api_field: 'labels'
-  - api_field: 'loadBalancingScheme'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'metadata'
-  - api_field: 'name'
-  - api_field: 'service'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'timeout'
-  - api_field: 'updateTime'
-  - api_field: 'wireFormat'
+    - api_field: authority
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: failOpen
+    - api_field: forwardHeaders
+    - api_field: labels
+    - api_field: loadBalancingScheme
+    - field: location
+      provider_only: true
+    - api_field: metadata
+    - api_field: name
+    - api_field: service
+    - field: terraform_labels
+      provider_only: true
+    - api_field: timeout
+    - api_field: updateTime
+    - api_field: wireFormat

@@ -1,13 +1,13 @@
-resource: 'google_vertex_ai_rag_engine_config'
-generation_type: 'mmv1'
-source_file: 'products/vertexai/RagEngineConfig.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'RagEngineConfig'
+resource: google_vertex_ai_rag_engine_config
+generation_type: mmv1
+source_file: products/vertexai/RagEngineConfig.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: RagEngineConfig
 fields:
-  - api_field: 'name'
-  - api_field: 'ragManagedDbConfig.basic'
-  - api_field: 'ragManagedDbConfig.scaled'
-  - api_field: 'ragManagedDbConfig.unprovisioned'
-  - field: 'region'
-    provider_only: true
+    - api_field: name
+    - api_field: ragManagedDbConfig.basic
+    - api_field: ragManagedDbConfig.scaled
+    - api_field: ragManagedDbConfig.unprovisioned
+    - field: region
+      provider_only: true

@@ -1,46 +1,46 @@
-resource: 'google_discovery_engine_data_store'
-generation_type: 'mmv1'
-source_file: 'products/discoveryengine/DataStore.yaml'
-api_service_name: 'discoveryengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DataStore'
+resource: google_discovery_engine_data_store
+generation_type: mmv1
+source_file: products/discoveryengine/DataStore.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: DataStore
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}'
+    - projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}
 fields:
-  - api_field: 'advancedSiteSearchConfig.disableAutomaticRefresh'
-  - api_field: 'advancedSiteSearchConfig.disableInitialIndex'
-  - api_field: 'contentConfig'
-  - field: 'create_advanced_site_search'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'data_store_id'
-    provider_only: true
-  - api_field: 'defaultSchemaId'
-  - api_field: 'displayName'
-  - api_field: 'documentProcessingConfig.chunkingConfig.layoutBasedChunkingConfig.chunkSize'
-  - api_field: 'documentProcessingConfig.chunkingConfig.layoutBasedChunkingConfig.includeAncestorHeadings'
-  - api_field: 'documentProcessingConfig.defaultParsingConfig.digitalParsingConfig'
-  - api_field: 'documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.enableImageAnnotation'
-  - api_field: 'documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.enableTableAnnotation'
-  - api_field: 'documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.excludeHtmlClasses'
-  - api_field: 'documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.excludeHtmlElements'
-  - api_field: 'documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.excludeHtmlIds'
-  - api_field: 'documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.structuredContentTypes'
-  - api_field: 'documentProcessingConfig.defaultParsingConfig.ocrParsingConfig.useNativeText'
-  - api_field: 'documentProcessingConfig.name'
-  - api_field: 'documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.digitalParsingConfig'
-  - api_field: 'documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.enableImageAnnotation'
-  - api_field: 'documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.enableTableAnnotation'
-  - api_field: 'documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.excludeHtmlClasses'
-  - api_field: 'documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.excludeHtmlElements'
-  - api_field: 'documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.excludeHtmlIds'
-  - api_field: 'documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.structuredContentTypes'
-  - api_field: 'documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.ocrParsingConfig.useNativeText'
-  - api_field: 'industryVertical'
-  - api_field: 'kmsKeyName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'skip_default_schema_creation'
-    provider_only: true
-  - api_field: 'solutionTypes'
+    - api_field: advancedSiteSearchConfig.disableAutomaticRefresh
+    - api_field: advancedSiteSearchConfig.disableInitialIndex
+    - api_field: contentConfig
+    - field: create_advanced_site_search
+      provider_only: true
+    - api_field: createTime
+    - field: data_store_id
+      provider_only: true
+    - api_field: defaultSchemaId
+    - api_field: displayName
+    - api_field: documentProcessingConfig.chunkingConfig.layoutBasedChunkingConfig.chunkSize
+    - api_field: documentProcessingConfig.chunkingConfig.layoutBasedChunkingConfig.includeAncestorHeadings
+    - api_field: documentProcessingConfig.defaultParsingConfig.digitalParsingConfig
+    - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.enableImageAnnotation
+    - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.enableTableAnnotation
+    - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.excludeHtmlClasses
+    - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.excludeHtmlElements
+    - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.excludeHtmlIds
+    - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.structuredContentTypes
+    - api_field: documentProcessingConfig.defaultParsingConfig.ocrParsingConfig.useNativeText
+    - api_field: documentProcessingConfig.name
+    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.digitalParsingConfig
+    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.enableImageAnnotation
+    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.enableTableAnnotation
+    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.excludeHtmlClasses
+    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.excludeHtmlElements
+    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.excludeHtmlIds
+    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.structuredContentTypes
+    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.ocrParsingConfig.useNativeText
+    - api_field: industryVertical
+    - api_field: kmsKeyName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: skip_default_schema_creation
+      provider_only: true
+    - api_field: solutionTypes

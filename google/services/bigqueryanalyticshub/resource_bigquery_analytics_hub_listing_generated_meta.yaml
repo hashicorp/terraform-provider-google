@@ -1,40 +1,40 @@
-resource: 'google_bigquery_analytics_hub_listing'
-generation_type: 'mmv1'
-source_file: 'products/bigqueryanalyticshub/Listing.yaml'
-api_service_name: 'analyticshub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Listing'
+resource: google_bigquery_analytics_hub_listing
+generation_type: mmv1
+source_file: products/bigqueryanalyticshub/Listing.yaml
+api_service_name: analyticshub.googleapis.com
+api_version: v1
+api_resource_type_kind: Listing
 fields:
-  - api_field: 'allowOnlyMetadataSharing'
-  - api_field: 'bigqueryDataset.dataset'
-  - api_field: 'bigqueryDataset.selectedResources.table'
-  - api_field: 'categories'
-  - api_field: 'commercialInfo.cloudMarketplace.commercialState'
-  - api_field: 'commercialInfo.cloudMarketplace.service'
-  - field: 'data_exchange_id'
-    provider_only: true
-  - api_field: 'dataProvider.name'
-  - api_field: 'dataProvider.primaryContact'
-  - field: 'delete_commercial'
-    provider_only: true
-  - api_field: 'description'
-  - api_field: 'discoveryType'
-  - api_field: 'displayName'
-  - api_field: 'documentation'
-  - api_field: 'icon'
-  - field: 'listing_id'
-    provider_only: true
-  - field: 'location'
-    provider_only: true
-  - api_field: 'logLinkedDatasetQueryUserEmail'
-  - api_field: 'name'
-  - api_field: 'primaryContact'
-  - api_field: 'publisher.name'
-  - api_field: 'publisher.primaryContact'
-  - api_field: 'pubsubTopic.dataAffinityRegions'
-  - api_field: 'pubsubTopic.topic'
-  - api_field: 'requestAccess'
-  - api_field: 'restrictedExportConfig.enabled'
-  - api_field: 'restrictedExportConfig.restrictDirectTableAccess'
-  - api_field: 'restrictedExportConfig.restrictQueryResult'
-  - api_field: 'state'
+    - api_field: allowOnlyMetadataSharing
+    - api_field: bigqueryDataset.dataset
+    - api_field: bigqueryDataset.selectedResources.table
+    - api_field: categories
+    - api_field: commercialInfo.cloudMarketplace.commercialState
+    - api_field: commercialInfo.cloudMarketplace.service
+    - field: data_exchange_id
+      provider_only: true
+    - api_field: dataProvider.name
+    - api_field: dataProvider.primaryContact
+    - field: delete_commercial
+      provider_only: true
+    - api_field: description
+    - api_field: discoveryType
+    - api_field: displayName
+    - api_field: documentation
+    - api_field: icon
+    - field: listing_id
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: logLinkedDatasetQueryUserEmail
+    - api_field: name
+    - api_field: primaryContact
+    - api_field: publisher.name
+    - api_field: publisher.primaryContact
+    - api_field: pubsubTopic.dataAffinityRegions
+    - api_field: pubsubTopic.topic
+    - api_field: requestAccess
+    - api_field: restrictedExportConfig.enabled
+    - api_field: restrictedExportConfig.restrictDirectTableAccess
+    - api_field: restrictedExportConfig.restrictQueryResult
+    - api_field: state

@@ -1,37 +1,37 @@
-resource: 'google_dataplex_entry'
-generation_type: 'mmv1'
-source_file: 'products/dataplex/Entry.yaml'
-api_service_name: 'dataplex.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Entry'
+resource: google_dataplex_entry
+generation_type: mmv1
+source_file: products/dataplex/Entry.yaml
+api_service_name: dataplex.googleapis.com
+api_version: v1
+api_resource_type_kind: Entry
 fields:
-  - api_field: 'aspects.aspect.aspectType'
-  - api_field: 'aspects.aspect.createTime'
-  - api_field: 'aspects.aspect.data'
-    json: true
-  - api_field: 'aspects.aspect.path'
-  - api_field: 'aspects.aspect.updateTime'
-  - api_field: 'aspects.aspectKey'
-  - api_field: 'createTime'
-  - field: 'entry_group_id'
-    provider_only: true
-  - field: 'entry_id'
-    provider_only: true
-  - api_field: 'entrySource.ancestors.name'
-  - api_field: 'entrySource.ancestors.type'
-  - api_field: 'entrySource.createTime'
-  - api_field: 'entrySource.description'
-  - api_field: 'entrySource.displayName'
-  - api_field: 'entrySource.labels'
-  - api_field: 'entrySource.location'
-  - api_field: 'entrySource.platform'
-  - api_field: 'entrySource.resource'
-  - api_field: 'entrySource.system'
-  - api_field: 'entrySource.updateTime'
-  - api_field: 'entryType'
-  - api_field: 'fullyQualifiedName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'parentEntry'
-  - api_field: 'updateTime'
+    - api_field: aspects.aspect.aspectType
+    - api_field: aspects.aspect.createTime
+    - api_field: aspects.aspect.data
+      json: true
+    - api_field: aspects.aspect.path
+    - api_field: aspects.aspect.updateTime
+    - api_field: aspects.aspectKey
+    - api_field: createTime
+    - field: entry_group_id
+      provider_only: true
+    - field: entry_id
+      provider_only: true
+    - api_field: entrySource.ancestors.name
+    - api_field: entrySource.ancestors.type
+    - api_field: entrySource.createTime
+    - api_field: entrySource.description
+    - api_field: entrySource.displayName
+    - api_field: entrySource.labels
+    - api_field: entrySource.location
+    - api_field: entrySource.platform
+    - api_field: entrySource.resource
+    - api_field: entrySource.system
+    - api_field: entrySource.updateTime
+    - api_field: entryType
+    - api_field: fullyQualifiedName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: parentEntry
+    - api_field: updateTime

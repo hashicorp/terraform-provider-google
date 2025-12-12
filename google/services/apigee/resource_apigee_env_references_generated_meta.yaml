@@ -1,13 +1,13 @@
-resource: 'google_apigee_env_references'
-generation_type: 'mmv1'
-source_file: 'products/apigee/EnvReferences.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Reference'
+resource: google_apigee_env_references
+generation_type: mmv1
+source_file: products/apigee/EnvReferences.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: Reference
 fields:
-  - api_field: 'description'
-  - field: 'env_id'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'refers'
-  - api_field: 'resourceType'
+    - api_field: description
+    - field: env_id
+      provider_only: true
+    - api_field: name
+    - api_field: refers
+    - api_field: resourceType

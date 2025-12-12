@@ -1,44 +1,44 @@
-resource: 'google_bigquery_routine'
-generation_type: 'mmv1'
-source_file: 'products/bigquery/Routine.yaml'
-api_service_name: 'bigquery.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Routine'
+resource: google_bigquery_routine
+generation_type: mmv1
+source_file: products/bigquery/Routine.yaml
+api_service_name: bigquery.googleapis.com
+api_version: v2
+api_resource_type_kind: Routine
 fields:
-  - api_field: 'arguments.argumentKind'
-  - api_field: 'arguments.dataType'
-    json: true
-  - api_field: 'arguments.mode'
-  - api_field: 'arguments.name'
-  - api_field: 'creationTime'
-  - api_field: 'dataGovernanceType'
-  - api_field: 'routineReference.datasetId'
-    field: 'dataset_id'
-  - api_field: 'definitionBody'
-  - api_field: 'description'
-  - api_field: 'determinismLevel'
-  - api_field: 'importedLibraries'
-  - api_field: 'language'
-  - api_field: 'lastModifiedTime'
-  - api_field: 'remoteFunctionOptions.connection'
-  - api_field: 'remoteFunctionOptions.endpoint'
-  - api_field: 'remoteFunctionOptions.maxBatchingRows'
-  - api_field: 'remoteFunctionOptions.userDefinedContext'
-  - api_field: 'returnTableType'
-    json: true
-  - api_field: 'returnType'
-    json: true
-  - api_field: 'routineReference.routineId'
-    field: 'routine_id'
-  - api_field: 'routineType'
-  - api_field: 'securityMode'
-  - api_field: 'sparkOptions.archiveUris'
-  - api_field: 'sparkOptions.connection'
-  - api_field: 'sparkOptions.containerImage'
-  - api_field: 'sparkOptions.fileUris'
-  - api_field: 'sparkOptions.jarUris'
-  - api_field: 'sparkOptions.mainClass'
-  - api_field: 'sparkOptions.mainFileUri'
-  - api_field: 'sparkOptions.properties'
-  - api_field: 'sparkOptions.pyFileUris'
-  - api_field: 'sparkOptions.runtimeVersion'
+    - api_field: arguments.argumentKind
+    - api_field: arguments.dataType
+      json: true
+    - api_field: arguments.mode
+    - api_field: arguments.name
+    - api_field: creationTime
+    - api_field: dataGovernanceType
+    - api_field: routineReference.datasetId
+      field: dataset_id
+    - api_field: definitionBody
+    - api_field: description
+    - api_field: determinismLevel
+    - api_field: importedLibraries
+    - api_field: language
+    - api_field: lastModifiedTime
+    - api_field: remoteFunctionOptions.connection
+    - api_field: remoteFunctionOptions.endpoint
+    - api_field: remoteFunctionOptions.maxBatchingRows
+    - api_field: remoteFunctionOptions.userDefinedContext
+    - api_field: returnTableType
+      json: true
+    - api_field: returnType
+      json: true
+    - api_field: routineReference.routineId
+      field: routine_id
+    - api_field: routineType
+    - api_field: securityMode
+    - api_field: sparkOptions.archiveUris
+    - api_field: sparkOptions.connection
+    - api_field: sparkOptions.containerImage
+    - api_field: sparkOptions.fileUris
+    - api_field: sparkOptions.jarUris
+    - api_field: sparkOptions.mainClass
+    - api_field: sparkOptions.mainFileUri
+    - api_field: sparkOptions.properties
+    - api_field: sparkOptions.pyFileUris
+    - api_field: sparkOptions.runtimeVersion

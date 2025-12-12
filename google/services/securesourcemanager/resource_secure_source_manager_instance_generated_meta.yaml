@@ -1,33 +1,33 @@
-resource: 'google_secure_source_manager_instance'
-generation_type: 'mmv1'
-source_file: 'products/securesourcemanager/Instance.yaml'
-api_service_name: 'securesourcemanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Instance'
+resource: google_secure_source_manager_instance
+generation_type: mmv1
+source_file: products/securesourcemanager/Instance.yaml
+api_service_name: securesourcemanager.googleapis.com
+api_version: v1
+api_resource_type_kind: Instance
 fields:
-  - api_field: 'createTime'
-  - field: 'deletion_policy'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'hostConfig.api'
-  - api_field: 'hostConfig.gitHttp'
-  - api_field: 'hostConfig.gitSsh'
-  - api_field: 'hostConfig.html'
-  - field: 'instance_id'
-    provider_only: true
-  - api_field: 'kmsKey'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'privateConfig.caPool'
-  - api_field: 'privateConfig.httpServiceAttachment'
-  - api_field: 'privateConfig.isPrivate'
-  - api_field: 'privateConfig.sshServiceAttachment'
-  - api_field: 'state'
-  - api_field: 'stateNote'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'workforceIdentityFederationConfig.enabled'
+    - api_field: createTime
+    - field: deletion_policy
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: hostConfig.api
+    - api_field: hostConfig.gitHttp
+    - api_field: hostConfig.gitSsh
+    - api_field: hostConfig.html
+    - field: instance_id
+      provider_only: true
+    - api_field: kmsKey
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: privateConfig.caPool
+    - api_field: privateConfig.httpServiceAttachment
+    - api_field: privateConfig.isPrivate
+    - api_field: privateConfig.sshServiceAttachment
+    - api_field: state
+    - api_field: stateNote
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: workforceIdentityFederationConfig.enabled

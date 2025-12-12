@@ -1,33 +1,33 @@
-resource: 'google_certificate_manager_certificate'
-generation_type: 'mmv1'
-source_file: 'products/certificatemanager/Certificate.yaml'
-api_service_name: 'certificatemanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Certificate'
+resource: google_certificate_manager_certificate
+generation_type: mmv1
+source_file: products/certificatemanager/Certificate.yaml
+api_service_name: certificatemanager.googleapis.com
+api_version: v1
+api_resource_type_kind: Certificate
 fields:
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'managed.authorizationAttemptInfo.details'
-  - api_field: 'managed.authorizationAttemptInfo.domain'
-  - api_field: 'managed.authorizationAttemptInfo.failureReason'
-  - api_field: 'managed.authorizationAttemptInfo.state'
-  - api_field: 'managed.dnsAuthorizations'
-  - api_field: 'managed.domains'
-  - api_field: 'managed.issuanceConfig'
-  - api_field: 'managed.provisioningIssue.details'
-  - api_field: 'managed.provisioningIssue.reason'
-  - api_field: 'managed.state'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'sanDnsnames'
-  - api_field: 'scope'
-  - api_field: 'selfManaged.certificatePem'
-  - api_field: 'selfManaged.pemCertificate'
-  - api_field: 'selfManaged.pemPrivateKey'
-  - api_field: 'selfManaged.privateKeyPem'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: managed.authorizationAttemptInfo.details
+    - api_field: managed.authorizationAttemptInfo.domain
+    - api_field: managed.authorizationAttemptInfo.failureReason
+    - api_field: managed.authorizationAttemptInfo.state
+    - api_field: managed.dnsAuthorizations
+    - api_field: managed.domains
+    - api_field: managed.issuanceConfig
+    - api_field: managed.provisioningIssue.details
+    - api_field: managed.provisioningIssue.reason
+    - api_field: managed.state
+    - field: name
+      provider_only: true
+    - api_field: sanDnsnames
+    - api_field: scope
+    - api_field: selfManaged.certificatePem
+    - api_field: selfManaged.pemCertificate
+    - api_field: selfManaged.pemPrivateKey
+    - api_field: selfManaged.privateKeyPem
+    - field: terraform_labels
+      provider_only: true

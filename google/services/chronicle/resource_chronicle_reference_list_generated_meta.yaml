@@ -1,23 +1,23 @@
-resource: 'google_chronicle_reference_list'
-generation_type: 'mmv1'
-source_file: 'products/chronicle/ReferenceList.yaml'
-api_service_name: 'chronicle.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ReferenceList'
+resource: google_chronicle_reference_list
+generation_type: mmv1
+source_file: products/chronicle/ReferenceList.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: ReferenceList
 autogen_status: true
 fields:
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'entries.value'
-  - field: 'instance'
-    provider_only: true
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'reference_list_id'
-    provider_only: true
-  - api_field: 'revisionCreateTime'
-  - api_field: 'ruleAssociationsCount'
-  - api_field: 'rules'
-  - api_field: 'scopeInfo.referenceListScope.scopeNames'
-  - api_field: 'syntaxType'
+    - api_field: description
+    - api_field: displayName
+    - api_field: entries.value
+    - field: instance
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: reference_list_id
+      provider_only: true
+    - api_field: revisionCreateTime
+    - api_field: ruleAssociationsCount
+    - api_field: rules
+    - api_field: scopeInfo.referenceListScope.scopeNames
+    - api_field: syntaxType

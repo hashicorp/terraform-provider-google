@@ -1,27 +1,27 @@
-resource: 'google_vertex_ai_feature_online_store_featureview'
-generation_type: 'mmv1'
-source_file: 'products/vertexai/FeatureOnlineStoreFeatureview.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'FeatureView'
+resource: google_vertex_ai_feature_online_store_featureview
+generation_type: mmv1
+source_file: products/vertexai/FeatureOnlineStoreFeatureview.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: FeatureView
 fields:
-  - api_field: 'bigQuerySource.entityIdColumns'
-  - api_field: 'bigQuerySource.uri'
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - field: 'feature_online_store'
-    provider_only: true
-  - api_field: 'featureRegistrySource.featureGroups.featureGroupId'
-  - api_field: 'featureRegistrySource.featureGroups.featureIds'
-  - api_field: 'featureRegistrySource.projectNumber'
-  - api_field: 'labels'
-  - field: 'name'
-    provider_only: true
-  - field: 'region'
-    provider_only: true
-  - api_field: 'syncConfig.continuous'
-  - api_field: 'syncConfig.cron'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: bigQuerySource.entityIdColumns
+    - api_field: bigQuerySource.uri
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - field: feature_online_store
+      provider_only: true
+    - api_field: featureRegistrySource.featureGroups.featureGroupId
+    - api_field: featureRegistrySource.featureGroups.featureIds
+    - api_field: featureRegistrySource.projectNumber
+    - api_field: labels
+    - field: name
+      provider_only: true
+    - field: region
+      provider_only: true
+    - api_field: syncConfig.continuous
+    - api_field: syncConfig.cron
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

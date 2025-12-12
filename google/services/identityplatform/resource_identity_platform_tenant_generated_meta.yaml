@@ -1,14 +1,14 @@
-resource: 'google_identity_platform_tenant'
-generation_type: 'mmv1'
-source_file: 'products/identityplatform/Tenant.yaml'
-api_service_name: 'identitytoolkit.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Tenant'
+resource: google_identity_platform_tenant
+generation_type: mmv1
+source_file: products/identityplatform/Tenant.yaml
+api_service_name: identitytoolkit.googleapis.com
+api_version: v2
+api_resource_type_kind: Tenant
 fields:
-  - api_field: 'allowPasswordSignup'
-  - api_field: 'client.permissions.disabledUserDeletion'
-  - api_field: 'client.permissions.disabledUserSignup'
-  - api_field: 'disableAuth'
-  - api_field: 'displayName'
-  - api_field: 'enableEmailLinkSignin'
-  - api_field: 'name'
+    - api_field: allowPasswordSignup
+    - api_field: client.permissions.disabledUserDeletion
+    - api_field: client.permissions.disabledUserSignup
+    - api_field: disableAuth
+    - api_field: displayName
+    - api_field: enableEmailLinkSignin
+    - api_field: name

@@ -1,50 +1,50 @@
-resource: 'google_clouddeploy_automation'
-generation_type: 'mmv1'
-source_file: 'products/clouddeploy/Automation.yaml'
-api_service_name: 'clouddeploy.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Automation'
+resource: google_clouddeploy_automation
+generation_type: mmv1
+source_file: products/clouddeploy/Automation.yaml
+api_service_name: clouddeploy.googleapis.com
+api_version: v1
+api_resource_type_kind: Automation
 fields:
-  - api_field: 'annotations'
-  - api_field: 'createTime'
-  - field: 'delivery_pipeline'
-    provider_only: true
-  - api_field: 'description'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'rules.advanceRolloutRule.id'
-  - api_field: 'rules.advanceRolloutRule.sourcePhases'
-  - api_field: 'rules.advanceRolloutRule.wait'
-  - api_field: 'rules.promoteReleaseRule.destinationPhase'
-  - api_field: 'rules.promoteReleaseRule.destinationTargetId'
-  - api_field: 'rules.promoteReleaseRule.id'
-  - api_field: 'rules.promoteReleaseRule.wait'
-  - api_field: 'rules.repairRolloutRule.id'
-  - api_field: 'rules.repairRolloutRule.jobs'
-  - api_field: 'rules.repairRolloutRule.phases'
-  - api_field: 'rules.repairRolloutRule.repairPhases.retry.attempts'
-  - api_field: 'rules.repairRolloutRule.repairPhases.retry.backoffMode'
-  - api_field: 'rules.repairRolloutRule.repairPhases.retry.wait'
-  - api_field: 'rules.repairRolloutRule.repairPhases.rollback.destinationPhase'
-  - api_field: 'rules.repairRolloutRule.repairPhases.rollback.disableRollbackIfRolloutPending'
-  - api_field: 'rules.timedPromoteReleaseRule.destinationPhase'
-  - api_field: 'rules.timedPromoteReleaseRule.destinationTargetId'
-  - api_field: 'rules.timedPromoteReleaseRule.id'
-  - api_field: 'rules.timedPromoteReleaseRule.schedule'
-  - api_field: 'rules.timedPromoteReleaseRule.timeZone'
-  - api_field: 'selector.targets.id'
-  - api_field: 'selector.targets.labels'
-  - api_field: 'serviceAccount'
-  - api_field: 'suspended'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: createTime
+    - field: delivery_pipeline
+      provider_only: true
+    - api_field: description
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: rules.advanceRolloutRule.id
+    - api_field: rules.advanceRolloutRule.sourcePhases
+    - api_field: rules.advanceRolloutRule.wait
+    - api_field: rules.promoteReleaseRule.destinationPhase
+    - api_field: rules.promoteReleaseRule.destinationTargetId
+    - api_field: rules.promoteReleaseRule.id
+    - api_field: rules.promoteReleaseRule.wait
+    - api_field: rules.repairRolloutRule.id
+    - api_field: rules.repairRolloutRule.jobs
+    - api_field: rules.repairRolloutRule.phases
+    - api_field: rules.repairRolloutRule.repairPhases.retry.attempts
+    - api_field: rules.repairRolloutRule.repairPhases.retry.backoffMode
+    - api_field: rules.repairRolloutRule.repairPhases.retry.wait
+    - api_field: rules.repairRolloutRule.repairPhases.rollback.destinationPhase
+    - api_field: rules.repairRolloutRule.repairPhases.rollback.disableRollbackIfRolloutPending
+    - api_field: rules.timedPromoteReleaseRule.destinationPhase
+    - api_field: rules.timedPromoteReleaseRule.destinationTargetId
+    - api_field: rules.timedPromoteReleaseRule.id
+    - api_field: rules.timedPromoteReleaseRule.schedule
+    - api_field: rules.timedPromoteReleaseRule.timeZone
+    - api_field: selector.targets.id
+    - api_field: selector.targets.labels
+    - api_field: serviceAccount
+    - api_field: suspended
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

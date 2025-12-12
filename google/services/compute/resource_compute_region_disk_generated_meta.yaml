@@ -1,49 +1,49 @@
-resource: 'google_compute_region_disk'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionDisk.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Disk'
+resource: google_compute_region_disk
+generation_type: mmv1
+source_file: products/compute/RegionDisk.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Disk
 fields:
-  - api_field: 'accessMode'
-  - api_field: 'asyncPrimaryDisk.disk'
-  - field: 'create_snapshot_before_destroy'
-    provider_only: true
-  - field: 'create_snapshot_before_destroy_prefix'
-    provider_only: true
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'diskEncryptionKey.kmsKeyName'
-  - api_field: 'diskEncryptionKey.rawKey'
-  - api_field: 'diskEncryptionKey.rsaEncryptedKey'
-  - api_field: 'diskEncryptionKey.sha256'
-  - api_field: 'id'
-    field: 'disk_id'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'guestOsFeatures.type'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'lastAttachTimestamp'
-  - api_field: 'lastDetachTimestamp'
-  - api_field: 'licenses'
-  - api_field: 'name'
-  - api_field: 'physicalBlockSizeBytes'
-  - api_field: 'provisionedIops'
-  - api_field: 'provisionedThroughput'
-  - api_field: 'region'
-  - api_field: 'replicaZones'
-  - api_field: 'sizeGb'
-    field: 'size'
-  - api_field: 'sourceSnapshot'
-    field: 'snapshot'
-  - api_field: 'sourceDisk'
-  - api_field: 'sourceDiskId'
-  - api_field: 'sourceSnapshotEncryptionKey.rawKey'
-  - api_field: 'sourceSnapshotEncryptionKey.sha256'
-  - api_field: 'sourceSnapshotId'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'users'
-  - api_field: 'selfLink'
+    - api_field: accessMode
+    - api_field: asyncPrimaryDisk.disk
+    - field: create_snapshot_before_destroy
+      provider_only: true
+    - field: create_snapshot_before_destroy_prefix
+      provider_only: true
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: diskEncryptionKey.kmsKeyName
+    - api_field: diskEncryptionKey.rawKey
+    - api_field: diskEncryptionKey.rsaEncryptedKey
+    - api_field: diskEncryptionKey.sha256
+    - api_field: id
+      field: disk_id
+    - field: effective_labels
+      provider_only: true
+    - api_field: guestOsFeatures.type
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: lastAttachTimestamp
+    - api_field: lastDetachTimestamp
+    - api_field: licenses
+    - api_field: name
+    - api_field: physicalBlockSizeBytes
+    - api_field: provisionedIops
+    - api_field: provisionedThroughput
+    - api_field: region
+    - api_field: replicaZones
+    - api_field: sizeGb
+      field: size
+    - api_field: sourceSnapshot
+      field: snapshot
+    - api_field: sourceDisk
+    - api_field: sourceDiskId
+    - api_field: sourceSnapshotEncryptionKey.rawKey
+    - api_field: sourceSnapshotEncryptionKey.sha256
+    - api_field: sourceSnapshotId
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: users
+    - api_field: selfLink

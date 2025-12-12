@@ -1,13 +1,13 @@
-resource: 'google_iap_client'
-generation_type: 'mmv1'
-source_file: 'products/iap/Client.yaml'
-api_service_name: 'iap.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'IdentityAwareProxyClient'
+resource: google_iap_client
+generation_type: mmv1
+source_file: products/iap/Client.yaml
+api_service_name: iap.googleapis.com
+api_version: v1
+api_resource_type_kind: IdentityAwareProxyClient
 fields:
-  - field: 'brand'
-    provider_only: true
-  - api_field: 'name'
-    field: 'client_id'
-  - api_field: 'displayName'
-  - api_field: 'secret'
+    - field: brand
+      provider_only: true
+    - api_field: name
+      field: client_id
+    - api_field: displayName
+    - api_field: secret

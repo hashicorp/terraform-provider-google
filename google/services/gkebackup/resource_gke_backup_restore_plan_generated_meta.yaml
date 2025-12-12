@@ -1,51 +1,51 @@
-resource: 'google_gke_backup_restore_plan'
-generation_type: 'mmv1'
-source_file: 'products/gkebackup/RestorePlan.yaml'
-api_service_name: 'gkebackup.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'RestorePlan'
+resource: google_gke_backup_restore_plan
+generation_type: mmv1
+source_file: products/gkebackup/RestorePlan.yaml
+api_service_name: gkebackup.googleapis.com
+api_version: v1
+api_resource_type_kind: RestorePlan
 fields:
-  - api_field: 'backupPlan'
-  - api_field: 'cluster'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'restoreConfig.allNamespaces'
-  - api_field: 'restoreConfig.clusterResourceConflictPolicy'
-  - api_field: 'restoreConfig.clusterResourceRestoreScope.allGroupKinds'
-  - api_field: 'restoreConfig.clusterResourceRestoreScope.excludedGroupKinds.resourceGroup'
-  - api_field: 'restoreConfig.clusterResourceRestoreScope.excludedGroupKinds.resourceKind'
-  - api_field: 'restoreConfig.clusterResourceRestoreScope.noGroupKinds'
-  - api_field: 'restoreConfig.clusterResourceRestoreScope.selectedGroupKinds.resourceGroup'
-  - api_field: 'restoreConfig.clusterResourceRestoreScope.selectedGroupKinds.resourceKind'
-  - api_field: 'restoreConfig.excludedNamespaces.namespaces'
-  - api_field: 'restoreConfig.namespacedResourceRestoreMode'
-  - api_field: 'restoreConfig.noNamespaces'
-  - api_field: 'restoreConfig.restoreOrder.groupKindDependencies.requiring.resourceGroup'
-  - api_field: 'restoreConfig.restoreOrder.groupKindDependencies.requiring.resourceKind'
-  - api_field: 'restoreConfig.restoreOrder.groupKindDependencies.satisfying.resourceGroup'
-  - api_field: 'restoreConfig.restoreOrder.groupKindDependencies.satisfying.resourceKind'
-  - api_field: 'restoreConfig.selectedApplications.namespacedNames.name'
-  - api_field: 'restoreConfig.selectedApplications.namespacedNames.namespace'
-  - api_field: 'restoreConfig.selectedNamespaces.namespaces'
-  - api_field: 'restoreConfig.transformationRules.description'
-  - api_field: 'restoreConfig.transformationRules.fieldActions.fromPath'
-  - api_field: 'restoreConfig.transformationRules.fieldActions.op'
-  - api_field: 'restoreConfig.transformationRules.fieldActions.path'
-  - api_field: 'restoreConfig.transformationRules.fieldActions.value'
-  - api_field: 'restoreConfig.transformationRules.resourceFilter.groupKinds.resourceGroup'
-  - api_field: 'restoreConfig.transformationRules.resourceFilter.groupKinds.resourceKind'
-  - api_field: 'restoreConfig.transformationRules.resourceFilter.jsonPath'
-  - api_field: 'restoreConfig.transformationRules.resourceFilter.namespaces'
-  - api_field: 'restoreConfig.volumeDataRestorePolicy'
-  - api_field: 'restoreConfig.volumeDataRestorePolicyBindings.policy'
-  - api_field: 'restoreConfig.volumeDataRestorePolicyBindings.volumeType'
-  - api_field: 'state'
-  - api_field: 'stateReason'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
+    - api_field: backupPlan
+    - api_field: cluster
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: restoreConfig.allNamespaces
+    - api_field: restoreConfig.clusterResourceConflictPolicy
+    - api_field: restoreConfig.clusterResourceRestoreScope.allGroupKinds
+    - api_field: restoreConfig.clusterResourceRestoreScope.excludedGroupKinds.resourceGroup
+    - api_field: restoreConfig.clusterResourceRestoreScope.excludedGroupKinds.resourceKind
+    - api_field: restoreConfig.clusterResourceRestoreScope.noGroupKinds
+    - api_field: restoreConfig.clusterResourceRestoreScope.selectedGroupKinds.resourceGroup
+    - api_field: restoreConfig.clusterResourceRestoreScope.selectedGroupKinds.resourceKind
+    - api_field: restoreConfig.excludedNamespaces.namespaces
+    - api_field: restoreConfig.namespacedResourceRestoreMode
+    - api_field: restoreConfig.noNamespaces
+    - api_field: restoreConfig.restoreOrder.groupKindDependencies.requiring.resourceGroup
+    - api_field: restoreConfig.restoreOrder.groupKindDependencies.requiring.resourceKind
+    - api_field: restoreConfig.restoreOrder.groupKindDependencies.satisfying.resourceGroup
+    - api_field: restoreConfig.restoreOrder.groupKindDependencies.satisfying.resourceKind
+    - api_field: restoreConfig.selectedApplications.namespacedNames.name
+    - api_field: restoreConfig.selectedApplications.namespacedNames.namespace
+    - api_field: restoreConfig.selectedNamespaces.namespaces
+    - api_field: restoreConfig.transformationRules.description
+    - api_field: restoreConfig.transformationRules.fieldActions.fromPath
+    - api_field: restoreConfig.transformationRules.fieldActions.op
+    - api_field: restoreConfig.transformationRules.fieldActions.path
+    - api_field: restoreConfig.transformationRules.fieldActions.value
+    - api_field: restoreConfig.transformationRules.resourceFilter.groupKinds.resourceGroup
+    - api_field: restoreConfig.transformationRules.resourceFilter.groupKinds.resourceKind
+    - api_field: restoreConfig.transformationRules.resourceFilter.jsonPath
+    - api_field: restoreConfig.transformationRules.resourceFilter.namespaces
+    - api_field: restoreConfig.volumeDataRestorePolicy
+    - api_field: restoreConfig.volumeDataRestorePolicyBindings.policy
+    - api_field: restoreConfig.volumeDataRestorePolicyBindings.volumeType
+    - api_field: state
+    - api_field: stateReason
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid

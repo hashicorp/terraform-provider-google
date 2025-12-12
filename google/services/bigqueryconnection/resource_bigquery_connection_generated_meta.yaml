@@ -1,40 +1,40 @@
-resource: 'google_bigquery_connection'
-generation_type: 'mmv1'
-source_file: 'products/bigqueryconnection/Connection.yaml'
-api_service_name: 'bigqueryconnection.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Connection'
+resource: google_bigquery_connection
+generation_type: mmv1
+source_file: products/bigqueryconnection/Connection.yaml
+api_service_name: bigqueryconnection.googleapis.com
+api_version: v1
+api_resource_type_kind: Connection
 fields:
-  - api_field: 'aws.accessRole.iamRoleId'
-  - api_field: 'aws.accessRole.identity'
-  - api_field: 'azure.application'
-  - api_field: 'azure.clientId'
-  - api_field: 'azure.customerTenantId'
-  - api_field: 'azure.federatedApplicationClientId'
-  - api_field: 'azure.identity'
-  - api_field: 'azure.objectId'
-  - api_field: 'azure.redirectUri'
-  - api_field: 'cloudResource.serviceAccountId'
-  - api_field: 'cloudSpanner.database'
-  - api_field: 'cloudSpanner.databaseRole'
-  - api_field: 'cloudSpanner.maxParallelism'
-  - api_field: 'cloudSpanner.useDataBoost'
-  - api_field: 'cloudSpanner.useParallelism'
-  - api_field: 'cloudSpanner.useServerlessAnalytics'
-  - api_field: 'cloudSql.credential.password'
-  - api_field: 'cloudSql.credential.username'
-  - api_field: 'cloudSql.database'
-  - api_field: 'cloudSql.instanceId'
-  - api_field: 'cloudSql.serviceAccountId'
-  - api_field: 'cloudSql.type'
-  - api_field: 'connection_id'
-  - api_field: 'description'
-  - api_field: 'friendlyName'
-  - api_field: 'hasCredential'
-  - api_field: 'kmsKeyName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'spark.metastoreServiceConfig.metastoreService'
-  - api_field: 'spark.serviceAccountId'
-  - api_field: 'spark.sparkHistoryServerConfig.dataprocCluster'
+    - api_field: aws.accessRole.iamRoleId
+    - api_field: aws.accessRole.identity
+    - api_field: azure.application
+    - api_field: azure.clientId
+    - api_field: azure.customerTenantId
+    - api_field: azure.federatedApplicationClientId
+    - api_field: azure.identity
+    - api_field: azure.objectId
+    - api_field: azure.redirectUri
+    - api_field: cloudResource.serviceAccountId
+    - api_field: cloudSpanner.database
+    - api_field: cloudSpanner.databaseRole
+    - api_field: cloudSpanner.maxParallelism
+    - api_field: cloudSpanner.useDataBoost
+    - api_field: cloudSpanner.useParallelism
+    - api_field: cloudSpanner.useServerlessAnalytics
+    - api_field: cloudSql.credential.password
+    - api_field: cloudSql.credential.username
+    - api_field: cloudSql.database
+    - api_field: cloudSql.instanceId
+    - api_field: cloudSql.serviceAccountId
+    - api_field: cloudSql.type
+    - api_field: connection_id
+    - api_field: description
+    - api_field: friendlyName
+    - api_field: hasCredential
+    - api_field: kmsKeyName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: spark.metastoreServiceConfig.metastoreService
+    - api_field: spark.serviceAccountId
+    - api_field: spark.sparkHistoryServerConfig.dataprocCluster

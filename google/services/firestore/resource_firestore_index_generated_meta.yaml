@@ -1,20 +1,20 @@
-resource: 'google_firestore_index'
-generation_type: 'mmv1'
-source_file: 'products/firestore/Index.yaml'
-api_service_name: 'firestore.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Index'
+resource: google_firestore_index
+generation_type: mmv1
+source_file: products/firestore/Index.yaml
+api_service_name: firestore.googleapis.com
+api_version: v1
+api_resource_type_kind: Index
 fields:
-  - api_field: 'apiScope'
-  - api_field: 'collection'
-  - api_field: 'database'
-  - api_field: 'density'
-  - api_field: 'fields.arrayConfig'
-  - api_field: 'fields.fieldPath'
-  - api_field: 'fields.order'
-  - api_field: 'fields.vectorConfig.dimension'
-  - api_field: 'fields.vectorConfig.flat'
-  - api_field: 'multikey'
-  - api_field: 'name'
-  - api_field: 'queryScope'
-  - api_field: 'unique'
+    - api_field: apiScope
+    - api_field: collection
+    - api_field: database
+    - api_field: density
+    - api_field: fields.arrayConfig
+    - api_field: fields.fieldPath
+    - api_field: fields.order
+    - api_field: fields.vectorConfig.dimension
+    - api_field: fields.vectorConfig.flat
+    - api_field: multikey
+    - api_field: name
+    - api_field: queryScope
+    - api_field: unique

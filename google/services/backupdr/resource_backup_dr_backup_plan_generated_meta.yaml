@@ -1,32 +1,32 @@
-resource: 'google_backup_dr_backup_plan'
-generation_type: 'mmv1'
-source_file: 'products/backupdr/BackupPlan.yaml'
-api_service_name: 'backupdr.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BackupPlan'
+resource: google_backup_dr_backup_plan
+generation_type: mmv1
+source_file: products/backupdr/BackupPlan.yaml
+api_service_name: backupdr.googleapis.com
+api_version: v1
+api_resource_type_kind: BackupPlan
 fields:
-  - field: 'backup_plan_id'
-    provider_only: true
-  - api_field: 'backupRules.backupRetentionDays'
-  - api_field: 'backupRules.ruleId'
-  - api_field: 'backupRules.standardSchedule.backupWindow.endHourOfDay'
-  - api_field: 'backupRules.standardSchedule.backupWindow.startHourOfDay'
-  - api_field: 'backupRules.standardSchedule.daysOfMonth'
-  - api_field: 'backupRules.standardSchedule.daysOfWeek'
-  - api_field: 'backupRules.standardSchedule.hourlyFrequency'
-  - api_field: 'backupRules.standardSchedule.months'
-  - api_field: 'backupRules.standardSchedule.recurrenceType'
-  - api_field: 'backupRules.standardSchedule.timeZone'
-  - api_field: 'backupRules.standardSchedule.weekDayOfMonth.dayOfWeek'
-  - api_field: 'backupRules.standardSchedule.weekDayOfMonth.weekOfMonth'
-  - api_field: 'backupVault'
-  - api_field: 'backupVaultServiceAccount'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'logRetentionDays'
-  - api_field: 'name'
-  - api_field: 'resourceType'
-  - api_field: 'supportedResourceTypes'
-  - api_field: 'updateTime'
+    - field: backup_plan_id
+      provider_only: true
+    - api_field: backupRules.backupRetentionDays
+    - api_field: backupRules.ruleId
+    - api_field: backupRules.standardSchedule.backupWindow.endHourOfDay
+    - api_field: backupRules.standardSchedule.backupWindow.startHourOfDay
+    - api_field: backupRules.standardSchedule.daysOfMonth
+    - api_field: backupRules.standardSchedule.daysOfWeek
+    - api_field: backupRules.standardSchedule.hourlyFrequency
+    - api_field: backupRules.standardSchedule.months
+    - api_field: backupRules.standardSchedule.recurrenceType
+    - api_field: backupRules.standardSchedule.timeZone
+    - api_field: backupRules.standardSchedule.weekDayOfMonth.dayOfWeek
+    - api_field: backupRules.standardSchedule.weekDayOfMonth.weekOfMonth
+    - api_field: backupVault
+    - api_field: backupVaultServiceAccount
+    - api_field: createTime
+    - api_field: description
+    - field: location
+      provider_only: true
+    - api_field: logRetentionDays
+    - api_field: name
+    - api_field: resourceType
+    - api_field: supportedResourceTypes
+    - api_field: updateTime

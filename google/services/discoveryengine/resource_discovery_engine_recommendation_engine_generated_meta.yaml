@@ -1,25 +1,25 @@
-resource: 'google_discovery_engine_recommendation_engine'
-generation_type: 'mmv1'
-source_file: 'products/discoveryengine/RecommendationEngine.yaml'
-api_service_name: 'discoveryengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Engine'
+resource: google_discovery_engine_recommendation_engine
+generation_type: mmv1
+source_file: products/discoveryengine/RecommendationEngine.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Engine
 fields:
-  - api_field: 'commonConfig.companyName'
-  - api_field: 'createTime'
-  - api_field: 'dataStoreIds'
-  - api_field: 'displayName'
-  - field: 'engine_id'
-    provider_only: true
-  - api_field: 'industryVertical'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mediaRecommendationEngineConfig.engineFeaturesConfig.mostPopularConfig.timeWindowDays'
-  - api_field: 'mediaRecommendationEngineConfig.engineFeaturesConfig.recommendedForYouConfig.contextEventType'
-  - api_field: 'mediaRecommendationEngineConfig.optimizationObjective'
-  - api_field: 'mediaRecommendationEngineConfig.optimizationObjectiveConfig.targetField'
-  - api_field: 'mediaRecommendationEngineConfig.optimizationObjectiveConfig.targetFieldValueFloat'
-  - api_field: 'mediaRecommendationEngineConfig.trainingState'
-  - api_field: 'mediaRecommendationEngineConfig.type'
-  - api_field: 'name'
-  - api_field: 'updateTime'
+    - api_field: commonConfig.companyName
+    - api_field: createTime
+    - api_field: dataStoreIds
+    - api_field: displayName
+    - field: engine_id
+      provider_only: true
+    - api_field: industryVertical
+    - field: location
+      provider_only: true
+    - api_field: mediaRecommendationEngineConfig.engineFeaturesConfig.mostPopularConfig.timeWindowDays
+    - api_field: mediaRecommendationEngineConfig.engineFeaturesConfig.recommendedForYouConfig.contextEventType
+    - api_field: mediaRecommendationEngineConfig.optimizationObjective
+    - api_field: mediaRecommendationEngineConfig.optimizationObjectiveConfig.targetField
+    - api_field: mediaRecommendationEngineConfig.optimizationObjectiveConfig.targetFieldValueFloat
+    - api_field: mediaRecommendationEngineConfig.trainingState
+    - api_field: mediaRecommendationEngineConfig.type
+    - api_field: name
+    - api_field: updateTime

@@ -1,19 +1,19 @@
-resource: 'google_cloudbuildv2_repository'
-generation_type: 'mmv1'
-source_file: 'products/cloudbuildv2/Repository.yaml'
-api_service_name: 'cloudbuild.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Repository'
+resource: google_cloudbuildv2_repository
+generation_type: mmv1
+source_file: products/cloudbuildv2/Repository.yaml
+api_service_name: cloudbuild.googleapis.com
+api_version: v2
+api_resource_type_kind: Repository
 fields:
-  - api_field: 'annotations'
-  - api_field: 'createTime'
-  - field: 'effective_annotations'
-    provider_only: true
-  - api_field: 'etag'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'parent_connection'
-    provider_only: true
-  - api_field: 'remoteUri'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: createTime
+    - field: effective_annotations
+      provider_only: true
+    - api_field: etag
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: parent_connection
+      provider_only: true
+    - api_field: remoteUri
+    - api_field: updateTime

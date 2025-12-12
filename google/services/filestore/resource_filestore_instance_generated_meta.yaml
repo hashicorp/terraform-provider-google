@@ -1,62 +1,62 @@
-resource: 'google_filestore_instance'
-generation_type: 'mmv1'
-source_file: 'products/filestore/Instance.yaml'
-api_service_name: 'file.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Instance'
+resource: google_filestore_instance
+generation_type: mmv1
+source_file: products/filestore/Instance.yaml
+api_service_name: file.googleapis.com
+api_version: v1
+api_resource_type_kind: Instance
 fields:
-  - api_field: 'createTime'
-  - api_field: 'deletionProtectionEnabled'
-  - api_field: 'deletionProtectionReason'
-  - api_field: 'description'
-  - api_field: 'directoryServices.ldap.domain'
-  - api_field: 'directoryServices.ldap.groupsOu'
-  - api_field: 'directoryServices.ldap.servers'
-  - api_field: 'directoryServices.ldap.usersOu'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'replication.replicas.lastActiveSyncTime'
-    field: 'effective_replication.replicas.last_active_sync_time'
-  - api_field: 'replication.replicas.peerInstance'
-    field: 'effective_replication.replicas.peer_instance'
-  - api_field: 'replication.replicas.state'
-    field: 'effective_replication.replicas.state'
-  - api_field: 'replication.replicas.stateReasons'
-    field: 'effective_replication.replicas.state_reasons'
-  - api_field: 'replication.role'
-    field: 'effective_replication.role'
-  - api_field: 'etag'
-  - api_field: 'fileShares.capacityGb'
-  - api_field: 'fileShares.name'
-  - api_field: 'fileShares.nfsExportOptions.accessMode'
-  - api_field: 'fileShares.nfsExportOptions.anonGid'
-  - api_field: 'fileShares.nfsExportOptions.anonUid'
-  - api_field: 'fileShares.nfsExportOptions.ipRanges'
-  - api_field: 'fileShares.nfsExportOptions.network'
-  - api_field: 'fileShares.nfsExportOptions.squashMode'
-  - api_field: 'fileShares.sourceBackup'
-  - api_field: 'replication.replicas.peerInstance'
-    field: 'initial_replication.replicas.peer_instance'
-  - api_field: 'replication.role'
-    field: 'initial_replication.role'
-  - api_field: 'kmsKeyName'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'networks.connectMode'
-  - api_field: 'networks.ipAddresses'
-  - api_field: 'networks.modes'
-  - api_field: 'networks.network'
-  - api_field: 'networks.pscConfig.endpointProject'
-  - api_field: 'networks.reservedIpRange'
-  - api_field: 'performanceConfig.fixedIops.maxIops'
-  - api_field: 'performanceConfig.iopsPerTb.maxIopsPerTb'
-  - api_field: 'protocol'
-  - api_field: 'tags'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'tier'
-  - field: 'zone'
-    provider_only: true
+    - api_field: createTime
+    - api_field: deletionProtectionEnabled
+    - api_field: deletionProtectionReason
+    - api_field: description
+    - api_field: directoryServices.ldap.domain
+    - api_field: directoryServices.ldap.groupsOu
+    - api_field: directoryServices.ldap.servers
+    - api_field: directoryServices.ldap.usersOu
+    - field: effective_labels
+      provider_only: true
+    - api_field: replication.replicas.lastActiveSyncTime
+      field: effective_replication.replicas.last_active_sync_time
+    - api_field: replication.replicas.peerInstance
+      field: effective_replication.replicas.peer_instance
+    - api_field: replication.replicas.state
+      field: effective_replication.replicas.state
+    - api_field: replication.replicas.stateReasons
+      field: effective_replication.replicas.state_reasons
+    - api_field: replication.role
+      field: effective_replication.role
+    - api_field: etag
+    - api_field: fileShares.capacityGb
+    - api_field: fileShares.name
+    - api_field: fileShares.nfsExportOptions.accessMode
+    - api_field: fileShares.nfsExportOptions.anonGid
+    - api_field: fileShares.nfsExportOptions.anonUid
+    - api_field: fileShares.nfsExportOptions.ipRanges
+    - api_field: fileShares.nfsExportOptions.network
+    - api_field: fileShares.nfsExportOptions.squashMode
+    - api_field: fileShares.sourceBackup
+    - api_field: replication.replicas.peerInstance
+      field: initial_replication.replicas.peer_instance
+    - api_field: replication.role
+      field: initial_replication.role
+    - api_field: kmsKeyName
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: networks.connectMode
+    - api_field: networks.ipAddresses
+    - api_field: networks.modes
+    - api_field: networks.network
+    - api_field: networks.pscConfig.endpointProject
+    - api_field: networks.reservedIpRange
+    - api_field: performanceConfig.fixedIops.maxIops
+    - api_field: performanceConfig.iopsPerTb.maxIopsPerTb
+    - api_field: protocol
+    - api_field: tags
+    - field: terraform_labels
+      provider_only: true
+    - api_field: tier
+    - field: zone
+      provider_only: true

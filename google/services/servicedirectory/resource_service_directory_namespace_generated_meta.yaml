@@ -1,17 +1,17 @@
-resource: 'google_service_directory_namespace'
-generation_type: 'mmv1'
-source_file: 'products/servicedirectory/Namespace.yaml'
-api_service_name: 'servicedirectory.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Namespace'
+resource: google_service_directory_namespace
+generation_type: mmv1
+source_file: products/servicedirectory/Namespace.yaml
+api_service_name: servicedirectory.googleapis.com
+api_version: v1
+api_resource_type_kind: Namespace
 fields:
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'namespace_id'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: namespace_id
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true

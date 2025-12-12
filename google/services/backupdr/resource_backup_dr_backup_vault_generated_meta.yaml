@@ -1,45 +1,45 @@
-resource: 'google_backup_dr_backup_vault'
-generation_type: 'mmv1'
-source_file: 'products/backupdr/BackupVault.yaml'
-api_service_name: 'backupdr.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BackupVault'
+resource: google_backup_dr_backup_vault
+generation_type: mmv1
+source_file: products/backupdr/BackupVault.yaml
+api_service_name: backupdr.googleapis.com
+api_version: v1
+api_resource_type_kind: BackupVault
 fields:
-  - api_field: 'accessRestriction'
-  - field: 'allow_missing'
-    provider_only: true
-  - api_field: 'annotations'
-  - api_field: 'backupCount'
-  - api_field: 'backupMinimumEnforcedRetentionDuration'
-  - api_field: 'backupRetentionInheritance'
-  - field: 'backup_vault_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'deletable'
-  - api_field: 'description'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'effectiveTime'
-  - api_field: 'encryptionConfig.kmsKeyName'
-  - api_field: 'etag'
-  - field: 'force_delete'
-    provider_only: true
-  - field: 'force_update'
-    provider_only: true
-  - field: 'ignore_backup_plan_references'
-    provider_only: true
-  - field: 'ignore_inactive_datasources'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'serviceAccount'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'totalStoredBytes'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: accessRestriction
+    - field: allow_missing
+      provider_only: true
+    - api_field: annotations
+    - api_field: backupCount
+    - api_field: backupMinimumEnforcedRetentionDuration
+    - api_field: backupRetentionInheritance
+    - field: backup_vault_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: deletable
+    - api_field: description
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: effectiveTime
+    - api_field: encryptionConfig.kmsKeyName
+    - api_field: etag
+    - field: force_delete
+      provider_only: true
+    - field: force_update
+      provider_only: true
+    - field: ignore_backup_plan_references
+      provider_only: true
+    - field: ignore_inactive_datasources
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: serviceAccount
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: totalStoredBytes
+    - api_field: uid
+    - api_field: updateTime

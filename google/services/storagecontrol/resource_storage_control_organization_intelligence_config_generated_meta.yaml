@@ -1,20 +1,20 @@
-resource: 'google_storage_control_organization_intelligence_config'
-generation_type: 'mmv1'
-source_file: 'products/storagecontrol/OrganizationIntelligenceConfig.yaml'
-api_service_name: 'storage.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'IntelligenceConfig'
+resource: google_storage_control_organization_intelligence_config
+generation_type: mmv1
+source_file: products/storagecontrol/OrganizationIntelligenceConfig.yaml
+api_service_name: storage.googleapis.com
+api_version: v2
+api_resource_type_kind: IntelligenceConfig
 api_variant_patterns:
-  - 'organizations/{org}/locations/{location}/intelligenceConfig'
+    - organizations/{org}/locations/{location}/intelligenceConfig
 fields:
-  - api_field: 'editionConfig'
-  - api_field: 'effectiveIntelligenceConfig.effectiveEdition'
-  - api_field: 'effectiveIntelligenceConfig.intelligenceConfig'
-  - api_field: 'filter.excludedCloudStorageBuckets.bucketIdRegexes'
-  - api_field: 'filter.excludedCloudStorageLocations.locations'
-  - api_field: 'filter.includedCloudStorageBuckets.bucketIdRegexes'
-  - api_field: 'filter.includedCloudStorageLocations.locations'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'trialConfig.expireTime'
-  - api_field: 'updateTime'
+    - api_field: editionConfig
+    - api_field: effectiveIntelligenceConfig.effectiveEdition
+    - api_field: effectiveIntelligenceConfig.intelligenceConfig
+    - api_field: filter.excludedCloudStorageBuckets.bucketIdRegexes
+    - api_field: filter.excludedCloudStorageLocations.locations
+    - api_field: filter.includedCloudStorageBuckets.bucketIdRegexes
+    - api_field: filter.includedCloudStorageLocations.locations
+    - field: name
+      provider_only: true
+    - api_field: trialConfig.expireTime
+    - api_field: updateTime

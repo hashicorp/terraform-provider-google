@@ -1,29 +1,29 @@
-resource: 'google_managed_kafka_cluster'
-generation_type: 'mmv1'
-source_file: 'products/managedkafka/Cluster.yaml'
-api_service_name: 'managedkafka.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Cluster'
+resource: google_managed_kafka_cluster
+generation_type: mmv1
+source_file: products/managedkafka/Cluster.yaml
+api_service_name: managedkafka.googleapis.com
+api_version: v1
+api_resource_type_kind: Cluster
 autogen_status: true
 fields:
-  - api_field: 'brokerCapacityConfig.diskSizeGb'
-  - api_field: 'capacityConfig.memoryBytes'
-  - api_field: 'capacityConfig.vcpuCount'
-  - field: 'cluster_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'gcpConfig.accessConfig.networkConfigs.subnet'
-  - api_field: 'gcpConfig.kmsKey'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'rebalanceConfig.mode'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'tlsConfig.sslPrincipalMappingRules'
-  - api_field: 'tlsConfig.trustConfig.casConfigs.caPool'
-  - api_field: 'updateTime'
+    - api_field: brokerCapacityConfig.diskSizeGb
+    - api_field: capacityConfig.memoryBytes
+    - api_field: capacityConfig.vcpuCount
+    - field: cluster_id
+      provider_only: true
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: gcpConfig.accessConfig.networkConfigs.subnet
+    - api_field: gcpConfig.kmsKey
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: rebalanceConfig.mode
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: tlsConfig.sslPrincipalMappingRules
+    - api_field: tlsConfig.trustConfig.casConfigs.caPool
+    - api_field: updateTime

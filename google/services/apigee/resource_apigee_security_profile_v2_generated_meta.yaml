@@ -1,16 +1,16 @@
-resource: 'google_apigee_security_profile_v2'
-generation_type: 'mmv1'
-source_file: 'products/apigee/SecurityProfileV2.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SecurityProfileV2'
+resource: google_apigee_security_profile_v2
+generation_type: mmv1
+source_file: products/apigee/SecurityProfileV2.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityProfileV2
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'name'
-  - field: 'org_id'
-    provider_only: true
-  - api_field: 'profileAssessmentConfigs.profileAssessmentConfig.weight'
-  - field: 'profile_id'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: name
+    - field: org_id
+      provider_only: true
+    - api_field: profileAssessmentConfigs.profileAssessmentConfig.weight
+    - field: profile_id
+      provider_only: true
+    - api_field: updateTime

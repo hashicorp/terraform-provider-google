@@ -1,27 +1,27 @@
-resource: 'google_discovery_engine_assistant'
-generation_type: 'mmv1'
-source_file: 'products/discoveryengine/Assistant.yaml'
-api_service_name: 'discoveryengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Assistant'
+resource: google_discovery_engine_assistant
+generation_type: mmv1
+source_file: products/discoveryengine/Assistant.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Assistant
 fields:
-  - field: 'assistant_id'
-    provider_only: true
-  - field: 'collection_id'
-    provider_only: true
-  - api_field: 'customerPolicy.bannedPhrases.ignoreDiacritics'
-  - api_field: 'customerPolicy.bannedPhrases.matchType'
-  - api_field: 'customerPolicy.bannedPhrases.phrase'
-  - api_field: 'customerPolicy.modelArmorConfig.failureMode'
-  - api_field: 'customerPolicy.modelArmorConfig.responseTemplate'
-  - api_field: 'customerPolicy.modelArmorConfig.userPromptTemplate'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'engine_id'
-    provider_only: true
-  - api_field: 'generationConfig.defaultLanguage'
-  - api_field: 'generationConfig.systemInstruction.additionalSystemInstruction'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'webGroundingType'
+    - field: assistant_id
+      provider_only: true
+    - field: collection_id
+      provider_only: true
+    - api_field: customerPolicy.bannedPhrases.ignoreDiacritics
+    - api_field: customerPolicy.bannedPhrases.matchType
+    - api_field: customerPolicy.bannedPhrases.phrase
+    - api_field: customerPolicy.modelArmorConfig.failureMode
+    - api_field: customerPolicy.modelArmorConfig.responseTemplate
+    - api_field: customerPolicy.modelArmorConfig.userPromptTemplate
+    - api_field: description
+    - api_field: displayName
+    - field: engine_id
+      provider_only: true
+    - api_field: generationConfig.defaultLanguage
+    - api_field: generationConfig.systemInstruction.additionalSystemInstruction
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: webGroundingType

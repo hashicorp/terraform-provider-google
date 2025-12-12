@@ -1,37 +1,37 @@
-resource: 'google_cloud_run_domain_mapping'
-generation_type: 'mmv1'
-source_file: 'products/cloudrun/DomainMapping.yaml'
-api_service_name: 'run.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DomainMapping'
-cai_asset_name_format: '//run.googleapis.com/projects/{{project}}/locations/{{location}}/domainmappings/{{name}}'
+resource: google_cloud_run_domain_mapping
+generation_type: mmv1
+source_file: products/cloudrun/DomainMapping.yaml
+api_service_name: run.googleapis.com
+api_version: v1
+api_resource_type_kind: DomainMapping
+cai_asset_name_format: //run.googleapis.com/projects/{{project}}/locations/{{location}}/domainmappings/{{name}}
 fields:
-  - field: 'location'
-    provider_only: true
-  - api_field: 'metadata.annotations'
-  - field: 'metadata.effective_annotations'
-    provider_only: true
-  - field: 'metadata.effective_labels'
-    provider_only: true
-  - api_field: 'metadata.generation'
-  - api_field: 'metadata.labels'
-  - api_field: 'metadata.namespace'
-  - api_field: 'metadata.resourceVersion'
-  - api_field: 'metadata.selfLink'
-  - field: 'metadata.terraform_labels'
-    provider_only: true
-  - api_field: 'metadata.uid'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'spec.certificateMode'
-  - api_field: 'spec.forceOverride'
-  - api_field: 'spec.routeName'
-  - api_field: 'status.conditions.message'
-  - api_field: 'status.conditions.reason'
-  - api_field: 'status.conditions.status'
-  - api_field: 'status.conditions.type'
-  - api_field: 'status.mappedRouteName'
-  - api_field: 'status.observedGeneration'
-  - api_field: 'status.resourceRecords.name'
-  - api_field: 'status.resourceRecords.rrdata'
-  - api_field: 'status.resourceRecords.type'
+    - field: location
+      provider_only: true
+    - api_field: metadata.annotations
+    - field: metadata.effective_annotations
+      provider_only: true
+    - field: metadata.effective_labels
+      provider_only: true
+    - api_field: metadata.generation
+    - api_field: metadata.labels
+    - api_field: metadata.namespace
+    - api_field: metadata.resourceVersion
+    - api_field: metadata.selfLink
+    - field: metadata.terraform_labels
+      provider_only: true
+    - api_field: metadata.uid
+    - field: name
+      provider_only: true
+    - api_field: spec.certificateMode
+    - api_field: spec.forceOverride
+    - api_field: spec.routeName
+    - api_field: status.conditions.message
+    - api_field: status.conditions.reason
+    - api_field: status.conditions.status
+    - api_field: status.conditions.type
+    - api_field: status.mappedRouteName
+    - api_field: status.observedGeneration
+    - api_field: status.resourceRecords.name
+    - api_field: status.resourceRecords.rrdata
+    - api_field: status.resourceRecords.type

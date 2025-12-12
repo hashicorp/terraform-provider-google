@@ -1,139 +1,139 @@
-resource: 'google_privateca_certificate'
-generation_type: 'mmv1'
-source_file: 'products/privateca/Certificate.yaml'
-api_service_name: 'privateca.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Certificate'
+resource: google_privateca_certificate
+generation_type: mmv1
+source_file: products/privateca/Certificate.yaml
+api_service_name: privateca.googleapis.com
+api_version: v1
+api_resource_type_kind: Certificate
 fields:
-  - field: 'certificate_authority'
-    provider_only: true
-  - api_field: 'certificateDescription.aiaIssuingCertificateUrls'
-  - api_field: 'certificateDescription.authorityKeyId.keyId'
-  - api_field: 'certificateDescription.certFingerprint.sha256Hash'
-  - api_field: 'certificateDescription.crlDistributionPoints'
-  - api_field: 'certificateDescription.publicKey.format'
-  - api_field: 'certificateDescription.publicKey.key'
-  - api_field: 'certificateDescription.subjectDescription.hexSerialNumber'
-  - api_field: 'certificateDescription.subjectDescription.lifetime'
-  - api_field: 'certificateDescription.subjectDescription.notAfterTime'
-  - api_field: 'certificateDescription.subjectDescription.notBeforeTime'
-  - api_field: 'certificateDescription.subjectDescription.subject.commonName'
-  - api_field: 'certificateDescription.subjectDescription.subject.countryCode'
-  - api_field: 'certificateDescription.subjectDescription.subject.locality'
-  - api_field: 'certificateDescription.subjectDescription.subject.organization'
-  - api_field: 'certificateDescription.subjectDescription.subject.organizationalUnit'
-  - api_field: 'certificateDescription.subjectDescription.subject.postalCode'
-  - api_field: 'certificateDescription.subjectDescription.subject.province'
-  - api_field: 'certificateDescription.subjectDescription.subject.streetAddress'
-  - api_field: 'certificateDescription.subjectDescription.subjectAltName.customSans.critical'
-  - api_field: 'certificateDescription.subjectDescription.subjectAltName.customSans.obectId.objectIdPath'
-  - api_field: 'certificateDescription.subjectDescription.subjectAltName.customSans.value'
-  - api_field: 'certificateDescription.subjectDescription.subjectAltName.dnsNames'
-  - api_field: 'certificateDescription.subjectDescription.subjectAltName.emailAddresses'
-  - api_field: 'certificateDescription.subjectDescription.subjectAltName.ipAddresses'
-  - api_field: 'certificateDescription.subjectDescription.subjectAltName.uris'
-  - api_field: 'certificateDescription.subjectKeyId.keyId'
-  - api_field: 'certificateDescription.x509Description.additionalExtensions.critical'
-  - api_field: 'certificateDescription.x509Description.additionalExtensions.objectId.objectIdPath'
-  - api_field: 'certificateDescription.x509Description.additionalExtensions.value'
-  - api_field: 'certificateDescription.x509Description.aiaOcspServers'
-  - api_field: 'certificateDescription.x509Description.caOptions.isCa'
-  - api_field: 'certificateDescription.x509Description.caOptions.maxIssuerPathLength'
-  - api_field: 'certificateDescription.x509Description.keyUsage.baseKeyUsage.certSign'
-  - api_field: 'certificateDescription.x509Description.keyUsage.baseKeyUsage.contentCommitment'
-  - api_field: 'certificateDescription.x509Description.keyUsage.baseKeyUsage.crlSign'
-  - api_field: 'certificateDescription.x509Description.keyUsage.baseKeyUsage.dataEncipherment'
-  - api_field: 'certificateDescription.x509Description.keyUsage.baseKeyUsage.decipherOnly'
-  - api_field: 'certificateDescription.x509Description.keyUsage.baseKeyUsage.digitalSignature'
-  - api_field: 'certificateDescription.x509Description.keyUsage.baseKeyUsage.encipherOnly'
-  - api_field: 'certificateDescription.x509Description.keyUsage.baseKeyUsage.keyAgreement'
-  - api_field: 'certificateDescription.x509Description.keyUsage.baseKeyUsage.keyEncipherment'
-  - api_field: 'certificateDescription.x509Description.keyUsage.extendedKeyUsage.clientAuth'
-  - api_field: 'certificateDescription.x509Description.keyUsage.extendedKeyUsage.codeSigning'
-  - api_field: 'certificateDescription.x509Description.keyUsage.extendedKeyUsage.emailProtection'
-  - api_field: 'certificateDescription.x509Description.keyUsage.extendedKeyUsage.ocspSigning'
-  - api_field: 'certificateDescription.x509Description.keyUsage.extendedKeyUsage.serverAuth'
-  - api_field: 'certificateDescription.x509Description.keyUsage.extendedKeyUsage.timeStamping'
-  - api_field: 'certificateDescription.x509Description.keyUsage.unknownExtendedKeyUsages.objectIdPath'
-  - api_field: 'certificateDescription.x509Description.nameConstraints.critical'
-  - api_field: 'certificateDescription.x509Description.nameConstraints.excludedDnsNames'
-  - api_field: 'certificateDescription.x509Description.nameConstraints.excludedEmailAddresses'
-  - api_field: 'certificateDescription.x509Description.nameConstraints.excludedIpRanges'
-  - api_field: 'certificateDescription.x509Description.nameConstraints.excludedUris'
-  - api_field: 'certificateDescription.x509Description.nameConstraints.permittedDnsNames'
-  - api_field: 'certificateDescription.x509Description.nameConstraints.permittedEmailAddresses'
-  - api_field: 'certificateDescription.x509Description.nameConstraints.permittedIpRanges'
-  - api_field: 'certificateDescription.x509Description.nameConstraints.permittedUris'
-  - api_field: 'certificateDescription.x509Description.policyIds.objectIdPath'
-  - api_field: 'certificateTemplate'
-  - api_field: 'config.publicKey.format'
-  - api_field: 'config.publicKey.key'
-  - api_field: 'config.subjectConfig.subject.commonName'
-  - api_field: 'config.subjectConfig.subject.countryCode'
-  - api_field: 'config.subjectConfig.subject.locality'
-  - api_field: 'config.subjectConfig.subject.organization'
-  - api_field: 'config.subjectConfig.subject.organizationalUnit'
-  - api_field: 'config.subjectConfig.subject.postalCode'
-  - api_field: 'config.subjectConfig.subject.province'
-  - api_field: 'config.subjectConfig.subject.streetAddress'
-  - api_field: 'config.subjectConfig.subjectAltName.dnsNames'
-  - api_field: 'config.subjectConfig.subjectAltName.emailAddresses'
-  - api_field: 'config.subjectConfig.subjectAltName.ipAddresses'
-  - api_field: 'config.subjectConfig.subjectAltName.uris'
-  - api_field: 'config.subjectKeyId.keyId'
-  - api_field: 'config.x509Config.additionalExtensions.critical'
-  - api_field: 'config.x509Config.additionalExtensions.objectId.objectIdPath'
-  - api_field: 'config.x509Config.additionalExtensions.value'
-  - api_field: 'config.x509Config.aiaOcspServers'
-  - api_field: 'config.x509Config.caOptions.isCa'
-  - api_field: 'config.x509Config.caOptions.maxIssuerPathLength'
-  - field: 'config.x509_config.ca_options.non_ca'
-    provider_only: true
-  - field: 'config.x509_config.ca_options.zero_max_issuer_path_length'
-    provider_only: true
-  - api_field: 'config.x509Config.keyUsage.baseKeyUsage.certSign'
-  - api_field: 'config.x509Config.keyUsage.baseKeyUsage.contentCommitment'
-  - api_field: 'config.x509Config.keyUsage.baseKeyUsage.crlSign'
-  - api_field: 'config.x509Config.keyUsage.baseKeyUsage.dataEncipherment'
-  - api_field: 'config.x509Config.keyUsage.baseKeyUsage.decipherOnly'
-  - api_field: 'config.x509Config.keyUsage.baseKeyUsage.digitalSignature'
-  - api_field: 'config.x509Config.keyUsage.baseKeyUsage.encipherOnly'
-  - api_field: 'config.x509Config.keyUsage.baseKeyUsage.keyAgreement'
-  - api_field: 'config.x509Config.keyUsage.baseKeyUsage.keyEncipherment'
-  - api_field: 'config.x509Config.keyUsage.extendedKeyUsage.clientAuth'
-  - api_field: 'config.x509Config.keyUsage.extendedKeyUsage.codeSigning'
-  - api_field: 'config.x509Config.keyUsage.extendedKeyUsage.emailProtection'
-  - api_field: 'config.x509Config.keyUsage.extendedKeyUsage.ocspSigning'
-  - api_field: 'config.x509Config.keyUsage.extendedKeyUsage.serverAuth'
-  - api_field: 'config.x509Config.keyUsage.extendedKeyUsage.timeStamping'
-  - api_field: 'config.x509Config.keyUsage.unknownExtendedKeyUsages.objectIdPath'
-  - api_field: 'config.x509Config.nameConstraints.critical'
-  - api_field: 'config.x509Config.nameConstraints.excludedDnsNames'
-  - api_field: 'config.x509Config.nameConstraints.excludedEmailAddresses'
-  - api_field: 'config.x509Config.nameConstraints.excludedIpRanges'
-  - api_field: 'config.x509Config.nameConstraints.excludedUris'
-  - api_field: 'config.x509Config.nameConstraints.permittedDnsNames'
-  - api_field: 'config.x509Config.nameConstraints.permittedEmailAddresses'
-  - api_field: 'config.x509Config.nameConstraints.permittedIpRanges'
-  - api_field: 'config.x509Config.nameConstraints.permittedUris'
-  - api_field: 'config.x509Config.policyIds.objectIdPath'
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'issuerCertificateAuthority'
-  - api_field: 'labels'
-  - api_field: 'lifetime'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'pemCertificate'
-  - api_field: 'pemCertificateChain'
-  - api_field: 'pemCsr'
-  - field: 'pool'
-    provider_only: true
-  - api_field: 'revocationDetails.revocationState'
-  - api_field: 'revocationDetails.revocationTime'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: certificate_authority
+      provider_only: true
+    - api_field: certificateDescription.aiaIssuingCertificateUrls
+    - api_field: certificateDescription.authorityKeyId.keyId
+    - api_field: certificateDescription.certFingerprint.sha256Hash
+    - api_field: certificateDescription.crlDistributionPoints
+    - api_field: certificateDescription.publicKey.format
+    - api_field: certificateDescription.publicKey.key
+    - api_field: certificateDescription.subjectDescription.hexSerialNumber
+    - api_field: certificateDescription.subjectDescription.lifetime
+    - api_field: certificateDescription.subjectDescription.notAfterTime
+    - api_field: certificateDescription.subjectDescription.notBeforeTime
+    - api_field: certificateDescription.subjectDescription.subject.commonName
+    - api_field: certificateDescription.subjectDescription.subject.countryCode
+    - api_field: certificateDescription.subjectDescription.subject.locality
+    - api_field: certificateDescription.subjectDescription.subject.organization
+    - api_field: certificateDescription.subjectDescription.subject.organizationalUnit
+    - api_field: certificateDescription.subjectDescription.subject.postalCode
+    - api_field: certificateDescription.subjectDescription.subject.province
+    - api_field: certificateDescription.subjectDescription.subject.streetAddress
+    - api_field: certificateDescription.subjectDescription.subjectAltName.customSans.critical
+    - api_field: certificateDescription.subjectDescription.subjectAltName.customSans.obectId.objectIdPath
+    - api_field: certificateDescription.subjectDescription.subjectAltName.customSans.value
+    - api_field: certificateDescription.subjectDescription.subjectAltName.dnsNames
+    - api_field: certificateDescription.subjectDescription.subjectAltName.emailAddresses
+    - api_field: certificateDescription.subjectDescription.subjectAltName.ipAddresses
+    - api_field: certificateDescription.subjectDescription.subjectAltName.uris
+    - api_field: certificateDescription.subjectKeyId.keyId
+    - api_field: certificateDescription.x509Description.additionalExtensions.critical
+    - api_field: certificateDescription.x509Description.additionalExtensions.objectId.objectIdPath
+    - api_field: certificateDescription.x509Description.additionalExtensions.value
+    - api_field: certificateDescription.x509Description.aiaOcspServers
+    - api_field: certificateDescription.x509Description.caOptions.isCa
+    - api_field: certificateDescription.x509Description.caOptions.maxIssuerPathLength
+    - api_field: certificateDescription.x509Description.keyUsage.baseKeyUsage.certSign
+    - api_field: certificateDescription.x509Description.keyUsage.baseKeyUsage.contentCommitment
+    - api_field: certificateDescription.x509Description.keyUsage.baseKeyUsage.crlSign
+    - api_field: certificateDescription.x509Description.keyUsage.baseKeyUsage.dataEncipherment
+    - api_field: certificateDescription.x509Description.keyUsage.baseKeyUsage.decipherOnly
+    - api_field: certificateDescription.x509Description.keyUsage.baseKeyUsage.digitalSignature
+    - api_field: certificateDescription.x509Description.keyUsage.baseKeyUsage.encipherOnly
+    - api_field: certificateDescription.x509Description.keyUsage.baseKeyUsage.keyAgreement
+    - api_field: certificateDescription.x509Description.keyUsage.baseKeyUsage.keyEncipherment
+    - api_field: certificateDescription.x509Description.keyUsage.extendedKeyUsage.clientAuth
+    - api_field: certificateDescription.x509Description.keyUsage.extendedKeyUsage.codeSigning
+    - api_field: certificateDescription.x509Description.keyUsage.extendedKeyUsage.emailProtection
+    - api_field: certificateDescription.x509Description.keyUsage.extendedKeyUsage.ocspSigning
+    - api_field: certificateDescription.x509Description.keyUsage.extendedKeyUsage.serverAuth
+    - api_field: certificateDescription.x509Description.keyUsage.extendedKeyUsage.timeStamping
+    - api_field: certificateDescription.x509Description.keyUsage.unknownExtendedKeyUsages.objectIdPath
+    - api_field: certificateDescription.x509Description.nameConstraints.critical
+    - api_field: certificateDescription.x509Description.nameConstraints.excludedDnsNames
+    - api_field: certificateDescription.x509Description.nameConstraints.excludedEmailAddresses
+    - api_field: certificateDescription.x509Description.nameConstraints.excludedIpRanges
+    - api_field: certificateDescription.x509Description.nameConstraints.excludedUris
+    - api_field: certificateDescription.x509Description.nameConstraints.permittedDnsNames
+    - api_field: certificateDescription.x509Description.nameConstraints.permittedEmailAddresses
+    - api_field: certificateDescription.x509Description.nameConstraints.permittedIpRanges
+    - api_field: certificateDescription.x509Description.nameConstraints.permittedUris
+    - api_field: certificateDescription.x509Description.policyIds.objectIdPath
+    - api_field: certificateTemplate
+    - api_field: config.publicKey.format
+    - api_field: config.publicKey.key
+    - api_field: config.subjectConfig.subject.commonName
+    - api_field: config.subjectConfig.subject.countryCode
+    - api_field: config.subjectConfig.subject.locality
+    - api_field: config.subjectConfig.subject.organization
+    - api_field: config.subjectConfig.subject.organizationalUnit
+    - api_field: config.subjectConfig.subject.postalCode
+    - api_field: config.subjectConfig.subject.province
+    - api_field: config.subjectConfig.subject.streetAddress
+    - api_field: config.subjectConfig.subjectAltName.dnsNames
+    - api_field: config.subjectConfig.subjectAltName.emailAddresses
+    - api_field: config.subjectConfig.subjectAltName.ipAddresses
+    - api_field: config.subjectConfig.subjectAltName.uris
+    - api_field: config.subjectKeyId.keyId
+    - api_field: config.x509Config.additionalExtensions.critical
+    - api_field: config.x509Config.additionalExtensions.objectId.objectIdPath
+    - api_field: config.x509Config.additionalExtensions.value
+    - api_field: config.x509Config.aiaOcspServers
+    - api_field: config.x509Config.caOptions.isCa
+    - api_field: config.x509Config.caOptions.maxIssuerPathLength
+    - field: config.x509_config.ca_options.non_ca
+      provider_only: true
+    - field: config.x509_config.ca_options.zero_max_issuer_path_length
+      provider_only: true
+    - api_field: config.x509Config.keyUsage.baseKeyUsage.certSign
+    - api_field: config.x509Config.keyUsage.baseKeyUsage.contentCommitment
+    - api_field: config.x509Config.keyUsage.baseKeyUsage.crlSign
+    - api_field: config.x509Config.keyUsage.baseKeyUsage.dataEncipherment
+    - api_field: config.x509Config.keyUsage.baseKeyUsage.decipherOnly
+    - api_field: config.x509Config.keyUsage.baseKeyUsage.digitalSignature
+    - api_field: config.x509Config.keyUsage.baseKeyUsage.encipherOnly
+    - api_field: config.x509Config.keyUsage.baseKeyUsage.keyAgreement
+    - api_field: config.x509Config.keyUsage.baseKeyUsage.keyEncipherment
+    - api_field: config.x509Config.keyUsage.extendedKeyUsage.clientAuth
+    - api_field: config.x509Config.keyUsage.extendedKeyUsage.codeSigning
+    - api_field: config.x509Config.keyUsage.extendedKeyUsage.emailProtection
+    - api_field: config.x509Config.keyUsage.extendedKeyUsage.ocspSigning
+    - api_field: config.x509Config.keyUsage.extendedKeyUsage.serverAuth
+    - api_field: config.x509Config.keyUsage.extendedKeyUsage.timeStamping
+    - api_field: config.x509Config.keyUsage.unknownExtendedKeyUsages.objectIdPath
+    - api_field: config.x509Config.nameConstraints.critical
+    - api_field: config.x509Config.nameConstraints.excludedDnsNames
+    - api_field: config.x509Config.nameConstraints.excludedEmailAddresses
+    - api_field: config.x509Config.nameConstraints.excludedIpRanges
+    - api_field: config.x509Config.nameConstraints.excludedUris
+    - api_field: config.x509Config.nameConstraints.permittedDnsNames
+    - api_field: config.x509Config.nameConstraints.permittedEmailAddresses
+    - api_field: config.x509Config.nameConstraints.permittedIpRanges
+    - api_field: config.x509Config.nameConstraints.permittedUris
+    - api_field: config.x509Config.policyIds.objectIdPath
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: issuerCertificateAuthority
+    - api_field: labels
+    - api_field: lifetime
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: pemCertificate
+    - api_field: pemCertificateChain
+    - api_field: pemCsr
+    - field: pool
+      provider_only: true
+    - api_field: revocationDetails.revocationState
+    - api_field: revocationDetails.revocationTime
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

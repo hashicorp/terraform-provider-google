@@ -1,101 +1,101 @@
-resource: 'google_database_migration_service_connection_profile'
-generation_type: 'mmv1'
-source_file: 'products/databasemigrationservice/ConnectionProfile.yaml'
-api_service_name: 'datamigration.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ConnectionProfile'
+resource: google_database_migration_service_connection_profile
+generation_type: mmv1
+source_file: products/databasemigrationservice/ConnectionProfile.yaml
+api_service_name: datamigration.googleapis.com
+api_version: v1
+api_resource_type_kind: ConnectionProfile
 fields:
-  - api_field: 'alloydb.clusterId'
-  - api_field: 'alloydb.settings.initialUser.password'
-  - api_field: 'alloydb.settings.initialUser.passwordSet'
-  - api_field: 'alloydb.settings.initialUser.user'
-  - api_field: 'alloydb.settings.labels'
-  - api_field: 'alloydb.settings.primaryInstanceSettings.databaseFlags'
-  - api_field: 'alloydb.settings.primaryInstanceSettings.id'
-  - api_field: 'alloydb.settings.primaryInstanceSettings.labels'
-  - api_field: 'alloydb.settings.primaryInstanceSettings.machineConfig.cpuCount'
-  - api_field: 'alloydb.settings.primaryInstanceSettings.privateIp'
-  - api_field: 'alloydb.settings.vpcNetwork'
-  - api_field: 'cloudsql.cloudSqlId'
-  - api_field: 'cloudsql.privateIp'
-  - api_field: 'cloudsql.publicIp'
-  - api_field: 'cloudsql.settings.activationPolicy'
-  - api_field: 'cloudsql.settings.autoStorageIncrease'
-  - api_field: 'cloudsql.settings.cmekKeyName'
-  - api_field: 'cloudsql.settings.collation'
-  - api_field: 'cloudsql.settings.dataDiskSizeGb'
-  - api_field: 'cloudsql.settings.dataDiskType'
-  - api_field: 'cloudsql.settings.databaseFlags'
-  - api_field: 'cloudsql.settings.databaseVersion'
-  - api_field: 'cloudsql.settings.edition'
-  - api_field: 'cloudsql.settings.ipConfig.authorizedNetworks.expireTime'
-  - api_field: 'cloudsql.settings.ipConfig.authorizedNetworks.label'
-  - api_field: 'cloudsql.settings.ipConfig.authorizedNetworks.ttl'
-  - api_field: 'cloudsql.settings.ipConfig.authorizedNetworks.value'
-  - api_field: 'cloudsql.settings.ipConfig.enableIpv4'
-  - api_field: 'cloudsql.settings.ipConfig.privateNetwork'
-  - api_field: 'cloudsql.settings.ipConfig.requireSsl'
-  - api_field: 'cloudsql.settings.rootPassword'
-  - api_field: 'cloudsql.settings.rootPasswordSet'
-  - api_field: 'cloudsql.settings.sourceId'
-  - api_field: 'cloudsql.settings.storageAutoResizeLimit'
-  - api_field: 'cloudsql.settings.tier'
-  - api_field: 'cloudsql.settings.userLabels'
-  - api_field: 'cloudsql.settings.zone'
-  - field: 'connection_profile_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'provider'
-    field: 'dbprovider'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'error.code'
-  - api_field: 'error.details'
-  - api_field: 'error.message'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mysql.cloudSqlId'
-  - api_field: 'mysql.host'
-  - api_field: 'mysql.password'
-  - api_field: 'mysql.passwordSet'
-  - api_field: 'mysql.port'
-  - api_field: 'mysql.ssl.caCertificate'
-  - api_field: 'mysql.ssl.clientCertificate'
-  - api_field: 'mysql.ssl.clientKey'
-  - api_field: 'mysql.ssl.type'
-  - api_field: 'mysql.username'
-  - api_field: 'name'
-  - api_field: 'oracle.databaseService'
-  - api_field: 'oracle.forwardSshConnectivity.hostname'
-  - api_field: 'oracle.forwardSshConnectivity.password'
-  - api_field: 'oracle.forwardSshConnectivity.port'
-  - api_field: 'oracle.forwardSshConnectivity.privateKey'
-  - api_field: 'oracle.forwardSshConnectivity.username'
-  - api_field: 'oracle.host'
-  - api_field: 'oracle.password'
-  - api_field: 'oracle.passwordSet'
-  - api_field: 'oracle.port'
-  - api_field: 'oracle.privateConnectivity.privateConnection'
-  - api_field: 'oracle.ssl.caCertificate'
-  - api_field: 'oracle.ssl.clientCertificate'
-  - api_field: 'oracle.ssl.clientKey'
-  - api_field: 'oracle.ssl.type'
-  - api_field: 'oracle.staticServiceIpConnectivity'
-  - api_field: 'oracle.username'
-  - api_field: 'postgresql.alloydbClusterId'
-  - api_field: 'postgresql.cloudSqlId'
-  - api_field: 'postgresql.host'
-  - api_field: 'postgresql.networkArchitecture'
-  - api_field: 'postgresql.password'
-  - api_field: 'postgresql.passwordSet'
-  - api_field: 'postgresql.port'
-  - api_field: 'postgresql.ssl.caCertificate'
-  - api_field: 'postgresql.ssl.clientCertificate'
-  - api_field: 'postgresql.ssl.clientKey'
-  - api_field: 'postgresql.ssl.type'
-  - api_field: 'postgresql.username'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: alloydb.clusterId
+    - api_field: alloydb.settings.initialUser.password
+    - api_field: alloydb.settings.initialUser.passwordSet
+    - api_field: alloydb.settings.initialUser.user
+    - api_field: alloydb.settings.labels
+    - api_field: alloydb.settings.primaryInstanceSettings.databaseFlags
+    - api_field: alloydb.settings.primaryInstanceSettings.id
+    - api_field: alloydb.settings.primaryInstanceSettings.labels
+    - api_field: alloydb.settings.primaryInstanceSettings.machineConfig.cpuCount
+    - api_field: alloydb.settings.primaryInstanceSettings.privateIp
+    - api_field: alloydb.settings.vpcNetwork
+    - api_field: cloudsql.cloudSqlId
+    - api_field: cloudsql.privateIp
+    - api_field: cloudsql.publicIp
+    - api_field: cloudsql.settings.activationPolicy
+    - api_field: cloudsql.settings.autoStorageIncrease
+    - api_field: cloudsql.settings.cmekKeyName
+    - api_field: cloudsql.settings.collation
+    - api_field: cloudsql.settings.dataDiskSizeGb
+    - api_field: cloudsql.settings.dataDiskType
+    - api_field: cloudsql.settings.databaseFlags
+    - api_field: cloudsql.settings.databaseVersion
+    - api_field: cloudsql.settings.edition
+    - api_field: cloudsql.settings.ipConfig.authorizedNetworks.expireTime
+    - api_field: cloudsql.settings.ipConfig.authorizedNetworks.label
+    - api_field: cloudsql.settings.ipConfig.authorizedNetworks.ttl
+    - api_field: cloudsql.settings.ipConfig.authorizedNetworks.value
+    - api_field: cloudsql.settings.ipConfig.enableIpv4
+    - api_field: cloudsql.settings.ipConfig.privateNetwork
+    - api_field: cloudsql.settings.ipConfig.requireSsl
+    - api_field: cloudsql.settings.rootPassword
+    - api_field: cloudsql.settings.rootPasswordSet
+    - api_field: cloudsql.settings.sourceId
+    - api_field: cloudsql.settings.storageAutoResizeLimit
+    - api_field: cloudsql.settings.tier
+    - api_field: cloudsql.settings.userLabels
+    - api_field: cloudsql.settings.zone
+    - field: connection_profile_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: provider
+      field: dbprovider
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: error.code
+    - api_field: error.details
+    - api_field: error.message
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: mysql.cloudSqlId
+    - api_field: mysql.host
+    - api_field: mysql.password
+    - api_field: mysql.passwordSet
+    - api_field: mysql.port
+    - api_field: mysql.ssl.caCertificate
+    - api_field: mysql.ssl.clientCertificate
+    - api_field: mysql.ssl.clientKey
+    - api_field: mysql.ssl.type
+    - api_field: mysql.username
+    - api_field: name
+    - api_field: oracle.databaseService
+    - api_field: oracle.forwardSshConnectivity.hostname
+    - api_field: oracle.forwardSshConnectivity.password
+    - api_field: oracle.forwardSshConnectivity.port
+    - api_field: oracle.forwardSshConnectivity.privateKey
+    - api_field: oracle.forwardSshConnectivity.username
+    - api_field: oracle.host
+    - api_field: oracle.password
+    - api_field: oracle.passwordSet
+    - api_field: oracle.port
+    - api_field: oracle.privateConnectivity.privateConnection
+    - api_field: oracle.ssl.caCertificate
+    - api_field: oracle.ssl.clientCertificate
+    - api_field: oracle.ssl.clientKey
+    - api_field: oracle.ssl.type
+    - api_field: oracle.staticServiceIpConnectivity
+    - api_field: oracle.username
+    - api_field: postgresql.alloydbClusterId
+    - api_field: postgresql.cloudSqlId
+    - api_field: postgresql.host
+    - api_field: postgresql.networkArchitecture
+    - api_field: postgresql.password
+    - api_field: postgresql.passwordSet
+    - api_field: postgresql.port
+    - api_field: postgresql.ssl.caCertificate
+    - api_field: postgresql.ssl.clientCertificate
+    - api_field: postgresql.ssl.clientKey
+    - api_field: postgresql.ssl.type
+    - api_field: postgresql.username
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true

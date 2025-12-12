@@ -1,23 +1,23 @@
-resource: 'google_compute_router_route_policy'
-generation_type: 'mmv1'
-source_file: 'products/compute/RouterRoutePolicy.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Router'
+resource: google_compute_router_route_policy
+generation_type: mmv1
+source_file: products/compute/RouterRoutePolicy.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Router
 fields:
-  - api_field: 'fingerprint'
-  - api_field: 'name'
-  - field: 'region'
-    provider_only: true
-  - field: 'router'
-    provider_only: true
-  - api_field: 'terms.actions.description'
-  - api_field: 'terms.actions.expression'
-  - api_field: 'terms.actions.location'
-  - api_field: 'terms.actions.title'
-  - api_field: 'terms.match.description'
-  - api_field: 'terms.match.expression'
-  - api_field: 'terms.match.location'
-  - api_field: 'terms.match.title'
-  - api_field: 'terms.priority'
-  - api_field: 'type'
+    - api_field: fingerprint
+    - api_field: name
+    - field: region
+      provider_only: true
+    - field: router
+      provider_only: true
+    - api_field: terms.actions.description
+    - api_field: terms.actions.expression
+    - api_field: terms.actions.location
+    - api_field: terms.actions.title
+    - api_field: terms.match.description
+    - api_field: terms.match.expression
+    - api_field: terms.match.location
+    - api_field: terms.match.title
+    - api_field: terms.priority
+    - api_field: type

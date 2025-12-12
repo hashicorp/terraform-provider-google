@@ -1,10 +1,10 @@
-resource: 'google_pubsub_schema'
-generation_type: 'mmv1'
-source_file: 'products/pubsub/Schema.yaml'
-api_service_name: 'pubsub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Schema'
+resource: google_pubsub_schema
+generation_type: mmv1
+source_file: products/pubsub/Schema.yaml
+api_service_name: pubsub.googleapis.com
+api_version: v1
+api_resource_type_kind: Schema
 fields:
-  - api_field: 'definition'
-  - api_field: 'name'
-  - api_field: 'type'
+    - api_field: definition
+    - api_field: name
+    - api_field: type

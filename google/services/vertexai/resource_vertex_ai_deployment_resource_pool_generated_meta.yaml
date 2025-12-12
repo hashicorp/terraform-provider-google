@@ -1,18 +1,18 @@
-resource: 'google_vertex_ai_deployment_resource_pool'
-generation_type: 'mmv1'
-source_file: 'products/vertexai/DeploymentResourcePool.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DeploymentResourcePool'
+resource: google_vertex_ai_deployment_resource_pool
+generation_type: mmv1
+source_file: products/vertexai/DeploymentResourcePool.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: DeploymentResourcePool
 fields:
-  - api_field: 'createTime'
-  - api_field: 'dedicatedResources.autoscalingMetricSpecs.metricName'
-  - api_field: 'dedicatedResources.autoscalingMetricSpecs.target'
-  - api_field: 'dedicatedResources.machineSpec.acceleratorCount'
-  - api_field: 'dedicatedResources.machineSpec.acceleratorType'
-  - api_field: 'dedicatedResources.machineSpec.machineType'
-  - api_field: 'dedicatedResources.maxReplicaCount'
-  - api_field: 'dedicatedResources.minReplicaCount'
-  - api_field: 'name'
-  - field: 'region'
-    provider_only: true
+    - api_field: createTime
+    - api_field: dedicatedResources.autoscalingMetricSpecs.metricName
+    - api_field: dedicatedResources.autoscalingMetricSpecs.target
+    - api_field: dedicatedResources.machineSpec.acceleratorCount
+    - api_field: dedicatedResources.machineSpec.acceleratorType
+    - api_field: dedicatedResources.machineSpec.machineType
+    - api_field: dedicatedResources.maxReplicaCount
+    - api_field: dedicatedResources.minReplicaCount
+    - api_field: name
+    - field: region
+      provider_only: true

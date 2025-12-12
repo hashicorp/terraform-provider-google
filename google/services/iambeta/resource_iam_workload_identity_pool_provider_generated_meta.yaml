@@ -1,25 +1,25 @@
-resource: 'google_iam_workload_identity_pool_provider'
-generation_type: 'mmv1'
-source_file: 'products/iambeta/WorkloadIdentityPoolProvider.yaml'
-api_service_name: 'iam.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'WorkloadIdentityPoolProvider'
+resource: google_iam_workload_identity_pool_provider
+generation_type: mmv1
+source_file: products/iambeta/WorkloadIdentityPoolProvider.yaml
+api_service_name: iam.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkloadIdentityPoolProvider
 fields:
-  - api_field: 'attributeCondition'
-  - api_field: 'attributeMapping'
-  - api_field: 'aws.accountId'
-  - api_field: 'description'
-  - api_field: 'disabled'
-  - api_field: 'displayName'
-  - api_field: 'name'
-  - api_field: 'oidc.allowedAudiences'
-  - api_field: 'oidc.issuerUri'
-  - api_field: 'oidc.jwksJson'
-  - api_field: 'saml.idpMetadataXml'
-  - api_field: 'state'
-  - field: 'workload_identity_pool_id'
-    provider_only: true
-  - field: 'workload_identity_pool_provider_id'
-    provider_only: true
-  - api_field: 'x509.trustStore.intermediateCas.pemCertificate'
-  - api_field: 'x509.trustStore.trustAnchors.pemCertificate'
+    - api_field: attributeCondition
+    - api_field: attributeMapping
+    - api_field: aws.accountId
+    - api_field: description
+    - api_field: disabled
+    - api_field: displayName
+    - api_field: name
+    - api_field: oidc.allowedAudiences
+    - api_field: oidc.issuerUri
+    - api_field: oidc.jwksJson
+    - api_field: saml.idpMetadataXml
+    - api_field: state
+    - field: workload_identity_pool_id
+      provider_only: true
+    - field: workload_identity_pool_provider_id
+      provider_only: true
+    - api_field: x509.trustStore.intermediateCas.pemCertificate
+    - api_field: x509.trustStore.trustAnchors.pemCertificate

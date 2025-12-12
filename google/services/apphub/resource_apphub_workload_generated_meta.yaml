@@ -1,41 +1,41 @@
-resource: 'google_apphub_workload'
-generation_type: 'mmv1'
-source_file: 'products/apphub/Workload.yaml'
-api_service_name: 'apphub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Workload'
+resource: google_apphub_workload
+generation_type: mmv1
+source_file: products/apphub/Workload.yaml
+api_service_name: apphub.googleapis.com
+api_version: v1
+api_resource_type_kind: Workload
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/applications/{application}/workloads/{workload}'
+    - projects/{project}/locations/{location}/applications/{application}/workloads/{workload}
 autogen_status: true
 fields:
-  - field: 'application_id'
-    provider_only: true
-  - api_field: 'attributes.businessOwners.displayName'
-  - api_field: 'attributes.businessOwners.email'
-  - api_field: 'attributes.criticality.type'
-  - api_field: 'attributes.developerOwners.displayName'
-  - api_field: 'attributes.developerOwners.email'
-  - api_field: 'attributes.environment.type'
-  - api_field: 'attributes.operatorOwners.displayName'
-  - api_field: 'attributes.operatorOwners.email'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'discoveredWorkload'
-  - api_field: 'displayName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'state'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
-  - field: 'workload_id'
-    provider_only: true
-  - api_field: 'workloadProperties.extendedMetadata.key'
-  - api_field: 'workloadProperties.extendedMetadata.value.extendedMetadataSchema'
-  - api_field: 'workloadProperties.extendedMetadata.value.metadataStruct'
-  - api_field: 'workloadProperties.functionalType.type'
-  - api_field: 'workloadProperties.gcpProject'
-  - api_field: 'workloadProperties.identity.principal'
-  - api_field: 'workloadProperties.location'
-  - api_field: 'workloadProperties.zone'
-  - api_field: 'workloadReference.uri'
+    - field: application_id
+      provider_only: true
+    - api_field: attributes.businessOwners.displayName
+    - api_field: attributes.businessOwners.email
+    - api_field: attributes.criticality.type
+    - api_field: attributes.developerOwners.displayName
+    - api_field: attributes.developerOwners.email
+    - api_field: attributes.environment.type
+    - api_field: attributes.operatorOwners.displayName
+    - api_field: attributes.operatorOwners.email
+    - api_field: createTime
+    - api_field: description
+    - api_field: discoveredWorkload
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: state
+    - api_field: uid
+    - api_field: updateTime
+    - field: workload_id
+      provider_only: true
+    - api_field: workloadProperties.extendedMetadata.key
+    - api_field: workloadProperties.extendedMetadata.value.extendedMetadataSchema
+    - api_field: workloadProperties.extendedMetadata.value.metadataStruct
+    - api_field: workloadProperties.functionalType.type
+    - api_field: workloadProperties.gcpProject
+    - api_field: workloadProperties.identity.principal
+    - api_field: workloadProperties.location
+    - api_field: workloadProperties.zone
+    - api_field: workloadReference.uri

@@ -1,20 +1,20 @@
-resource: 'google_firebase_app_hosting_default_domain'
-generation_type: 'mmv1'
-source_file: 'products/firebaseapphosting/DefaultDomain.yaml'
-api_service_name: 'firebaseapphosting.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DefaultDomain'
+resource: google_firebase_app_hosting_default_domain
+generation_type: mmv1
+source_file: products/firebaseapphosting/DefaultDomain.yaml
+api_service_name: firebaseapphosting.googleapis.com
+api_version: v1
+api_resource_type_kind: DefaultDomain
 autogen_status: true
 fields:
-  - field: 'backend'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'disabled'
-  - field: 'domain_id'
-    provider_only: true
-  - api_field: 'etag'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - field: backend
+      provider_only: true
+    - api_field: createTime
+    - api_field: disabled
+    - field: domain_id
+      provider_only: true
+    - api_field: etag
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: uid
+    - api_field: updateTime

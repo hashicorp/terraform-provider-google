@@ -1,16 +1,16 @@
-resource: 'google_integrations_client'
-generation_type: 'mmv1'
-source_file: 'products/integrations/Client.yaml'
-api_service_name: 'integrations.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Client'
+resource: google_integrations_client
+generation_type: mmv1
+source_file: products/integrations/Client.yaml
+api_service_name: integrations.googleapis.com
+api_version: v1
+api_resource_type_kind: Client
 fields:
-  - api_field: 'cloudKmsConfig.key'
-  - api_field: 'cloudKmsConfig.keyVersion'
-  - api_field: 'cloudKmsConfig.kmsLocation'
-  - api_field: 'cloudKmsConfig.kmsProjectId'
-  - api_field: 'cloudKmsConfig.kmsRing'
-  - api_field: 'createSampleIntegrations'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'runAsServiceAccount'
+    - api_field: cloudKmsConfig.key
+    - api_field: cloudKmsConfig.keyVersion
+    - api_field: cloudKmsConfig.kmsLocation
+    - api_field: cloudKmsConfig.kmsProjectId
+    - api_field: cloudKmsConfig.kmsRing
+    - api_field: createSampleIntegrations
+    - field: location
+      provider_only: true
+    - api_field: runAsServiceAccount

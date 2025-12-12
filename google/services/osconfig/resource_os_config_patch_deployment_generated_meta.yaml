@@ -1,83 +1,83 @@
-resource: 'google_os_config_patch_deployment'
-generation_type: 'mmv1'
-source_file: 'products/osconfig/PatchDeployment.yaml'
-api_service_name: 'osconfig.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PatchDeployment'
+resource: google_os_config_patch_deployment
+generation_type: mmv1
+source_file: products/osconfig/PatchDeployment.yaml
+api_service_name: osconfig.googleapis.com
+api_version: v1
+api_resource_type_kind: PatchDeployment
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'duration'
-  - api_field: 'instanceFilter.all'
-  - api_field: 'instanceFilter.groupLabels.labels'
-  - api_field: 'instanceFilter.instanceNamePrefixes'
-  - api_field: 'instanceFilter.instances'
-  - api_field: 'instanceFilter.zones'
-  - api_field: 'lastExecuteTime'
-  - api_field: 'name'
-  - api_field: 'oneTimeSchedule.executeTime'
-  - api_field: 'patchConfig.apt.excludes'
-  - api_field: 'patchConfig.apt.exclusivePackages'
-  - api_field: 'patchConfig.apt.type'
-  - api_field: 'patchConfig.goo.enabled'
-  - api_field: 'patchConfig.migInstancesAllowed'
-  - api_field: 'patchConfig.postStep.linuxExecStepConfig.allowedSuccessCodes'
-  - api_field: 'patchConfig.postStep.linuxExecStepConfig.gcsObject.bucket'
-  - api_field: 'patchConfig.postStep.linuxExecStepConfig.gcsObject.generationNumber'
-  - api_field: 'patchConfig.postStep.linuxExecStepConfig.gcsObject.object'
-  - api_field: 'patchConfig.postStep.linuxExecStepConfig.interpreter'
-  - api_field: 'patchConfig.postStep.linuxExecStepConfig.localPath'
-  - api_field: 'patchConfig.postStep.windowsExecStepConfig.allowedSuccessCodes'
-  - api_field: 'patchConfig.postStep.windowsExecStepConfig.gcsObject.bucket'
-  - api_field: 'patchConfig.postStep.windowsExecStepConfig.gcsObject.generationNumber'
-  - api_field: 'patchConfig.postStep.windowsExecStepConfig.gcsObject.object'
-  - api_field: 'patchConfig.postStep.windowsExecStepConfig.interpreter'
-  - api_field: 'patchConfig.postStep.windowsExecStepConfig.localPath'
-  - api_field: 'patchConfig.preStep.linuxExecStepConfig.allowedSuccessCodes'
-  - api_field: 'patchConfig.preStep.linuxExecStepConfig.gcsObject.bucket'
-  - api_field: 'patchConfig.preStep.linuxExecStepConfig.gcsObject.generationNumber'
-  - api_field: 'patchConfig.preStep.linuxExecStepConfig.gcsObject.object'
-  - api_field: 'patchConfig.preStep.linuxExecStepConfig.interpreter'
-  - api_field: 'patchConfig.preStep.linuxExecStepConfig.localPath'
-  - api_field: 'patchConfig.preStep.windowsExecStepConfig.allowedSuccessCodes'
-  - api_field: 'patchConfig.preStep.windowsExecStepConfig.gcsObject.bucket'
-  - api_field: 'patchConfig.preStep.windowsExecStepConfig.gcsObject.generationNumber'
-  - api_field: 'patchConfig.preStep.windowsExecStepConfig.gcsObject.object'
-  - api_field: 'patchConfig.preStep.windowsExecStepConfig.interpreter'
-  - api_field: 'patchConfig.preStep.windowsExecStepConfig.localPath'
-  - api_field: 'patchConfig.rebootConfig'
-  - api_field: 'patchConfig.windowsUpdate.classifications'
-  - api_field: 'patchConfig.windowsUpdate.excludes'
-  - api_field: 'patchConfig.windowsUpdate.exclusivePatches'
-  - api_field: 'patchConfig.yum.excludes'
-  - api_field: 'patchConfig.yum.exclusivePackages'
-  - api_field: 'patchConfig.yum.minimal'
-  - api_field: 'patchConfig.yum.security'
-  - api_field: 'patchConfig.zypper.categories'
-  - api_field: 'patchConfig.zypper.excludes'
-  - api_field: 'patchConfig.zypper.exclusivePatches'
-  - api_field: 'patchConfig.zypper.severities'
-  - api_field: 'patchConfig.zypper.withOptional'
-  - api_field: 'patchConfig.zypper.withUpdate'
-  - field: 'patch_deployment_id'
-    provider_only: true
-  - api_field: 'recurringSchedule.endTime'
-  - api_field: 'recurringSchedule.lastExecuteTime'
-  - api_field: 'recurringSchedule.monthly.monthDay'
-  - api_field: 'recurringSchedule.monthly.weekDayOfMonth.dayOfWeek'
-  - api_field: 'recurringSchedule.monthly.weekDayOfMonth.dayOffset'
-  - api_field: 'recurringSchedule.monthly.weekDayOfMonth.weekOrdinal'
-  - api_field: 'recurringSchedule.nextExecuteTime'
-  - api_field: 'recurringSchedule.startTime'
-  - api_field: 'recurringSchedule.timeOfDay.hours'
-  - api_field: 'recurringSchedule.timeOfDay.minutes'
-  - api_field: 'recurringSchedule.timeOfDay.nanos'
-  - api_field: 'recurringSchedule.timeOfDay.seconds'
-  - api_field: 'recurringSchedule.timeZone.id'
-  - api_field: 'recurringSchedule.timeZone.version'
-  - api_field: 'recurringSchedule.weekly.dayOfWeek'
-  - api_field: 'rollout.disruptionBudget.fixed'
-  - api_field: 'rollout.disruptionBudget.percent'
-    field: 'rollout.disruption_budget.percentage'
-  - api_field: 'rollout.mode'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: duration
+    - api_field: instanceFilter.all
+    - api_field: instanceFilter.groupLabels.labels
+    - api_field: instanceFilter.instanceNamePrefixes
+    - api_field: instanceFilter.instances
+    - api_field: instanceFilter.zones
+    - api_field: lastExecuteTime
+    - api_field: name
+    - api_field: oneTimeSchedule.executeTime
+    - api_field: patchConfig.apt.excludes
+    - api_field: patchConfig.apt.exclusivePackages
+    - api_field: patchConfig.apt.type
+    - api_field: patchConfig.goo.enabled
+    - api_field: patchConfig.migInstancesAllowed
+    - api_field: patchConfig.postStep.linuxExecStepConfig.allowedSuccessCodes
+    - api_field: patchConfig.postStep.linuxExecStepConfig.gcsObject.bucket
+    - api_field: patchConfig.postStep.linuxExecStepConfig.gcsObject.generationNumber
+    - api_field: patchConfig.postStep.linuxExecStepConfig.gcsObject.object
+    - api_field: patchConfig.postStep.linuxExecStepConfig.interpreter
+    - api_field: patchConfig.postStep.linuxExecStepConfig.localPath
+    - api_field: patchConfig.postStep.windowsExecStepConfig.allowedSuccessCodes
+    - api_field: patchConfig.postStep.windowsExecStepConfig.gcsObject.bucket
+    - api_field: patchConfig.postStep.windowsExecStepConfig.gcsObject.generationNumber
+    - api_field: patchConfig.postStep.windowsExecStepConfig.gcsObject.object
+    - api_field: patchConfig.postStep.windowsExecStepConfig.interpreter
+    - api_field: patchConfig.postStep.windowsExecStepConfig.localPath
+    - api_field: patchConfig.preStep.linuxExecStepConfig.allowedSuccessCodes
+    - api_field: patchConfig.preStep.linuxExecStepConfig.gcsObject.bucket
+    - api_field: patchConfig.preStep.linuxExecStepConfig.gcsObject.generationNumber
+    - api_field: patchConfig.preStep.linuxExecStepConfig.gcsObject.object
+    - api_field: patchConfig.preStep.linuxExecStepConfig.interpreter
+    - api_field: patchConfig.preStep.linuxExecStepConfig.localPath
+    - api_field: patchConfig.preStep.windowsExecStepConfig.allowedSuccessCodes
+    - api_field: patchConfig.preStep.windowsExecStepConfig.gcsObject.bucket
+    - api_field: patchConfig.preStep.windowsExecStepConfig.gcsObject.generationNumber
+    - api_field: patchConfig.preStep.windowsExecStepConfig.gcsObject.object
+    - api_field: patchConfig.preStep.windowsExecStepConfig.interpreter
+    - api_field: patchConfig.preStep.windowsExecStepConfig.localPath
+    - api_field: patchConfig.rebootConfig
+    - api_field: patchConfig.windowsUpdate.classifications
+    - api_field: patchConfig.windowsUpdate.excludes
+    - api_field: patchConfig.windowsUpdate.exclusivePatches
+    - api_field: patchConfig.yum.excludes
+    - api_field: patchConfig.yum.exclusivePackages
+    - api_field: patchConfig.yum.minimal
+    - api_field: patchConfig.yum.security
+    - api_field: patchConfig.zypper.categories
+    - api_field: patchConfig.zypper.excludes
+    - api_field: patchConfig.zypper.exclusivePatches
+    - api_field: patchConfig.zypper.severities
+    - api_field: patchConfig.zypper.withOptional
+    - api_field: patchConfig.zypper.withUpdate
+    - field: patch_deployment_id
+      provider_only: true
+    - api_field: recurringSchedule.endTime
+    - api_field: recurringSchedule.lastExecuteTime
+    - api_field: recurringSchedule.monthly.monthDay
+    - api_field: recurringSchedule.monthly.weekDayOfMonth.dayOfWeek
+    - api_field: recurringSchedule.monthly.weekDayOfMonth.dayOffset
+    - api_field: recurringSchedule.monthly.weekDayOfMonth.weekOrdinal
+    - api_field: recurringSchedule.nextExecuteTime
+    - api_field: recurringSchedule.startTime
+    - api_field: recurringSchedule.timeOfDay.hours
+    - api_field: recurringSchedule.timeOfDay.minutes
+    - api_field: recurringSchedule.timeOfDay.nanos
+    - api_field: recurringSchedule.timeOfDay.seconds
+    - api_field: recurringSchedule.timeZone.id
+    - api_field: recurringSchedule.timeZone.version
+    - api_field: recurringSchedule.weekly.dayOfWeek
+    - api_field: rollout.disruptionBudget.fixed
+    - api_field: rollout.disruptionBudget.percent
+      field: rollout.disruption_budget.percentage
+    - api_field: rollout.mode
+    - api_field: updateTime

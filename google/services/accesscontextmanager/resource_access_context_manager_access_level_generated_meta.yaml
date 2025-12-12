@@ -1,32 +1,32 @@
-resource: 'google_access_context_manager_access_level'
-generation_type: 'mmv1'
-source_file: 'products/accesscontextmanager/AccessLevel.yaml'
-api_service_name: 'accesscontextmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AccessLevel'
+resource: google_access_context_manager_access_level
+generation_type: mmv1
+source_file: products/accesscontextmanager/AccessLevel.yaml
+api_service_name: accesscontextmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: AccessLevel
 fields:
-  - api_field: 'basic.combiningFunction'
-  - api_field: 'basic.conditions.devicePolicy.allowedDeviceManagementLevels'
-  - api_field: 'basic.conditions.devicePolicy.allowedEncryptionStatuses'
-  - api_field: 'basic.conditions.devicePolicy.osConstraints.minimumVersion'
-  - api_field: 'basic.conditions.devicePolicy.osConstraints.osType'
-  - api_field: 'basic.conditions.devicePolicy.osConstraints.requireVerifiedChromeOs'
-  - api_field: 'basic.conditions.devicePolicy.requireAdminApproval'
-  - api_field: 'basic.conditions.devicePolicy.requireCorpOwned'
-  - api_field: 'basic.conditions.devicePolicy.requireScreenlock'
-    field: 'basic.conditions.device_policy.require_screen_lock'
-  - api_field: 'basic.conditions.ipSubnetworks'
-  - api_field: 'basic.conditions.members'
-  - api_field: 'basic.conditions.negate'
-  - api_field: 'basic.conditions.regions'
-  - api_field: 'basic.conditions.requiredAccessLevels'
-  - api_field: 'basic.conditions.vpcNetworkSources.vpcSubnetwork.network'
-  - api_field: 'basic.conditions.vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks'
-  - api_field: 'custom.expr.description'
-  - api_field: 'custom.expr.expression'
-  - api_field: 'custom.expr.location'
-  - api_field: 'custom.expr.title'
-  - api_field: 'description'
-  - api_field: 'name'
-  - api_field: 'parent'
-  - api_field: 'title'
+    - api_field: basic.combiningFunction
+    - api_field: basic.conditions.devicePolicy.allowedDeviceManagementLevels
+    - api_field: basic.conditions.devicePolicy.allowedEncryptionStatuses
+    - api_field: basic.conditions.devicePolicy.osConstraints.minimumVersion
+    - api_field: basic.conditions.devicePolicy.osConstraints.osType
+    - api_field: basic.conditions.devicePolicy.osConstraints.requireVerifiedChromeOs
+    - api_field: basic.conditions.devicePolicy.requireAdminApproval
+    - api_field: basic.conditions.devicePolicy.requireCorpOwned
+    - api_field: basic.conditions.devicePolicy.requireScreenlock
+      field: basic.conditions.device_policy.require_screen_lock
+    - api_field: basic.conditions.ipSubnetworks
+    - api_field: basic.conditions.members
+    - api_field: basic.conditions.negate
+    - api_field: basic.conditions.regions
+    - api_field: basic.conditions.requiredAccessLevels
+    - api_field: basic.conditions.vpcNetworkSources.vpcSubnetwork.network
+    - api_field: basic.conditions.vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks
+    - api_field: custom.expr.description
+    - api_field: custom.expr.expression
+    - api_field: custom.expr.location
+    - api_field: custom.expr.title
+    - api_field: description
+    - api_field: name
+    - api_field: parent
+    - api_field: title

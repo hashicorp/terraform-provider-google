@@ -1,25 +1,25 @@
-resource: 'google_netapp_volume_quota_rule'
-generation_type: 'mmv1'
-source_file: 'products/netapp/VolumeQuotaRule.yaml'
-api_service_name: 'netapp.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'QuotaRule'
+resource: google_netapp_volume_quota_rule
+generation_type: mmv1
+source_file: products/netapp/VolumeQuotaRule.yaml
+api_service_name: netapp.googleapis.com
+api_version: v1
+api_resource_type_kind: QuotaRule
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'diskLimitMib'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'state'
-  - api_field: 'stateDetails'
-  - api_field: 'target'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - field: 'volume_name'
-    provider_only: true
+    - api_field: createTime
+    - api_field: description
+    - api_field: diskLimitMib
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: state
+    - api_field: stateDetails
+    - api_field: target
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - field: volume_name
+      provider_only: true

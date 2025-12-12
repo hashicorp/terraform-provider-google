@@ -1,122 +1,122 @@
-resource: 'google_compute_region_backend_service'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionBackendService.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BackendService'
+resource: google_compute_region_backend_service
+generation_type: mmv1
+source_file: products/compute/RegionBackendService.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: BackendService
 fields:
-  - api_field: 'affinityCookieTtlSec'
-  - api_field: 'backends.balancingMode'
-    field: 'backend.balancing_mode'
-  - api_field: 'backends.capacityScaler'
-    field: 'backend.capacity_scaler'
-  - api_field: 'backends.customMetrics.dryRun'
-    field: 'backend.custom_metrics.dry_run'
-  - api_field: 'backends.customMetrics.maxUtilization'
-    field: 'backend.custom_metrics.max_utilization'
-  - api_field: 'backends.customMetrics.name'
-    field: 'backend.custom_metrics.name'
-  - api_field: 'backends.description'
-    field: 'backend.description'
-  - api_field: 'backends.failover'
-    field: 'backend.failover'
-  - api_field: 'backends.group'
-    field: 'backend.group'
-  - api_field: 'backends.maxConnections'
-    field: 'backend.max_connections'
-  - api_field: 'backends.maxConnectionsPerEndpoint'
-    field: 'backend.max_connections_per_endpoint'
-  - api_field: 'backends.maxConnectionsPerInstance'
-    field: 'backend.max_connections_per_instance'
-  - api_field: 'backends.maxRate'
-    field: 'backend.max_rate'
-  - api_field: 'backends.maxRatePerEndpoint'
-    field: 'backend.max_rate_per_endpoint'
-  - api_field: 'backends.maxRatePerInstance'
-    field: 'backend.max_rate_per_instance'
-  - api_field: 'backends.maxUtilization'
-    field: 'backend.max_utilization'
-  - api_field: 'cdnPolicy.cacheKeyPolicy.includeHost'
-  - api_field: 'cdnPolicy.cacheKeyPolicy.includeNamedCookies'
-  - api_field: 'cdnPolicy.cacheKeyPolicy.includeProtocol'
-  - api_field: 'cdnPolicy.cacheKeyPolicy.includeQueryString'
-  - api_field: 'cdnPolicy.cacheKeyPolicy.queryStringBlacklist'
-  - api_field: 'cdnPolicy.cacheKeyPolicy.queryStringWhitelist'
-  - api_field: 'cdnPolicy.cacheMode'
-  - api_field: 'cdnPolicy.clientTtl'
-  - api_field: 'cdnPolicy.defaultTtl'
-  - api_field: 'cdnPolicy.maxTtl'
-  - api_field: 'cdnPolicy.negativeCaching'
-  - api_field: 'cdnPolicy.negativeCachingPolicy.code'
-  - api_field: 'cdnPolicy.serveWhileStale'
-  - api_field: 'cdnPolicy.signedUrlCacheMaxAgeSec'
-  - api_field: 'circuitBreakers.maxConnections'
-  - api_field: 'circuitBreakers.maxPendingRequests'
-  - api_field: 'circuitBreakers.maxRequests'
-  - api_field: 'circuitBreakers.maxRequestsPerConnection'
-  - api_field: 'circuitBreakers.maxRetries'
-  - api_field: 'connectionDraining.drainingTimeoutSec'
-    field: 'connection_draining_timeout_sec'
-  - api_field: 'consistentHash.httpCookie.name'
-  - api_field: 'consistentHash.httpCookie.path'
-  - api_field: 'consistentHash.httpCookie.ttl.nanos'
-  - api_field: 'consistentHash.httpCookie.ttl.seconds'
-  - api_field: 'consistentHash.httpHeaderName'
-  - api_field: 'consistentHash.minimumRingSize'
-  - api_field: 'creationTimestamp'
-  - api_field: 'customMetrics.dryRun'
-  - api_field: 'customMetrics.name'
-  - api_field: 'description'
-  - api_field: 'enableCDN'
-  - api_field: 'failoverPolicy.disableConnectionDrainOnFailover'
-  - api_field: 'failoverPolicy.dropTrafficIfUnhealthy'
-  - api_field: 'failoverPolicy.failoverRatio'
-  - api_field: 'fingerprint'
-  - api_field: 'id'
-    field: 'generated_id'
-  - api_field: 'haPolicy.fastIPMove'
-  - api_field: 'haPolicy.leader.backendGroup'
-  - api_field: 'haPolicy.leader.networkEndpoint.instance'
-  - api_field: 'healthChecks'
-  - api_field: 'iap.enabled'
-  - api_field: 'iap.oauth2ClientId'
-  - api_field: 'iap.oauth2ClientSecret'
-  - api_field: 'iap.oauth2ClientSecretSha256'
-  - api_field: 'ipAddressSelectionPolicy'
-  - api_field: 'loadBalancingScheme'
-  - api_field: 'localityLbPolicy'
-  - api_field: 'logConfig.enable'
-  - api_field: 'logConfig.optionalFields'
-  - api_field: 'logConfig.optionalMode'
-  - api_field: 'logConfig.sampleRate'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'outlierDetection.baseEjectionTime.nanos'
-  - api_field: 'outlierDetection.baseEjectionTime.seconds'
-  - api_field: 'outlierDetection.consecutiveErrors'
-  - api_field: 'outlierDetection.consecutiveGatewayFailure'
-  - api_field: 'outlierDetection.enforcingConsecutiveErrors'
-  - api_field: 'outlierDetection.enforcingConsecutiveGatewayFailure'
-  - api_field: 'outlierDetection.enforcingSuccessRate'
-  - api_field: 'outlierDetection.interval.nanos'
-  - api_field: 'outlierDetection.interval.seconds'
-  - api_field: 'outlierDetection.maxEjectionPercent'
-  - api_field: 'outlierDetection.successRateMinimumHosts'
-  - api_field: 'outlierDetection.successRateRequestVolume'
-  - api_field: 'outlierDetection.successRateStdevFactor'
-  - api_field: 'params.resourceManagerTags'
-  - api_field: 'portName'
-  - api_field: 'protocol'
-  - api_field: 'region'
-  - api_field: 'securityPolicy'
-  - api_field: 'sessionAffinity'
-  - api_field: 'strongSessionAffinityCookie.name'
-  - api_field: 'strongSessionAffinityCookie.path'
-  - api_field: 'strongSessionAffinityCookie.ttl.nanos'
-  - api_field: 'strongSessionAffinityCookie.ttl.seconds'
-  - api_field: 'timeoutSec'
-  - api_field: 'tlsSettings.authenticationConfig'
-  - api_field: 'tlsSettings.sni'
-  - api_field: 'tlsSettings.subjectAltNames.dnsName'
-  - api_field: 'tlsSettings.subjectAltNames.uniformResourceIdentifier'
-  - api_field: 'selfLink'
+    - api_field: affinityCookieTtlSec
+    - api_field: backends.balancingMode
+      field: backend.balancing_mode
+    - api_field: backends.capacityScaler
+      field: backend.capacity_scaler
+    - api_field: backends.customMetrics.dryRun
+      field: backend.custom_metrics.dry_run
+    - api_field: backends.customMetrics.maxUtilization
+      field: backend.custom_metrics.max_utilization
+    - api_field: backends.customMetrics.name
+      field: backend.custom_metrics.name
+    - api_field: backends.description
+      field: backend.description
+    - api_field: backends.failover
+      field: backend.failover
+    - api_field: backends.group
+      field: backend.group
+    - api_field: backends.maxConnections
+      field: backend.max_connections
+    - api_field: backends.maxConnectionsPerEndpoint
+      field: backend.max_connections_per_endpoint
+    - api_field: backends.maxConnectionsPerInstance
+      field: backend.max_connections_per_instance
+    - api_field: backends.maxRate
+      field: backend.max_rate
+    - api_field: backends.maxRatePerEndpoint
+      field: backend.max_rate_per_endpoint
+    - api_field: backends.maxRatePerInstance
+      field: backend.max_rate_per_instance
+    - api_field: backends.maxUtilization
+      field: backend.max_utilization
+    - api_field: cdnPolicy.cacheKeyPolicy.includeHost
+    - api_field: cdnPolicy.cacheKeyPolicy.includeNamedCookies
+    - api_field: cdnPolicy.cacheKeyPolicy.includeProtocol
+    - api_field: cdnPolicy.cacheKeyPolicy.includeQueryString
+    - api_field: cdnPolicy.cacheKeyPolicy.queryStringBlacklist
+    - api_field: cdnPolicy.cacheKeyPolicy.queryStringWhitelist
+    - api_field: cdnPolicy.cacheMode
+    - api_field: cdnPolicy.clientTtl
+    - api_field: cdnPolicy.defaultTtl
+    - api_field: cdnPolicy.maxTtl
+    - api_field: cdnPolicy.negativeCaching
+    - api_field: cdnPolicy.negativeCachingPolicy.code
+    - api_field: cdnPolicy.serveWhileStale
+    - api_field: cdnPolicy.signedUrlCacheMaxAgeSec
+    - api_field: circuitBreakers.maxConnections
+    - api_field: circuitBreakers.maxPendingRequests
+    - api_field: circuitBreakers.maxRequests
+    - api_field: circuitBreakers.maxRequestsPerConnection
+    - api_field: circuitBreakers.maxRetries
+    - api_field: connectionDraining.drainingTimeoutSec
+      field: connection_draining_timeout_sec
+    - api_field: consistentHash.httpCookie.name
+    - api_field: consistentHash.httpCookie.path
+    - api_field: consistentHash.httpCookie.ttl.nanos
+    - api_field: consistentHash.httpCookie.ttl.seconds
+    - api_field: consistentHash.httpHeaderName
+    - api_field: consistentHash.minimumRingSize
+    - api_field: creationTimestamp
+    - api_field: customMetrics.dryRun
+    - api_field: customMetrics.name
+    - api_field: description
+    - api_field: enableCDN
+    - api_field: failoverPolicy.disableConnectionDrainOnFailover
+    - api_field: failoverPolicy.dropTrafficIfUnhealthy
+    - api_field: failoverPolicy.failoverRatio
+    - api_field: fingerprint
+    - api_field: id
+      field: generated_id
+    - api_field: haPolicy.fastIPMove
+    - api_field: haPolicy.leader.backendGroup
+    - api_field: haPolicy.leader.networkEndpoint.instance
+    - api_field: healthChecks
+    - api_field: iap.enabled
+    - api_field: iap.oauth2ClientId
+    - api_field: iap.oauth2ClientSecret
+    - api_field: iap.oauth2ClientSecretSha256
+    - api_field: ipAddressSelectionPolicy
+    - api_field: loadBalancingScheme
+    - api_field: localityLbPolicy
+    - api_field: logConfig.enable
+    - api_field: logConfig.optionalFields
+    - api_field: logConfig.optionalMode
+    - api_field: logConfig.sampleRate
+    - api_field: name
+    - api_field: network
+    - api_field: outlierDetection.baseEjectionTime.nanos
+    - api_field: outlierDetection.baseEjectionTime.seconds
+    - api_field: outlierDetection.consecutiveErrors
+    - api_field: outlierDetection.consecutiveGatewayFailure
+    - api_field: outlierDetection.enforcingConsecutiveErrors
+    - api_field: outlierDetection.enforcingConsecutiveGatewayFailure
+    - api_field: outlierDetection.enforcingSuccessRate
+    - api_field: outlierDetection.interval.nanos
+    - api_field: outlierDetection.interval.seconds
+    - api_field: outlierDetection.maxEjectionPercent
+    - api_field: outlierDetection.successRateMinimumHosts
+    - api_field: outlierDetection.successRateRequestVolume
+    - api_field: outlierDetection.successRateStdevFactor
+    - api_field: params.resourceManagerTags
+    - api_field: portName
+    - api_field: protocol
+    - api_field: region
+    - api_field: securityPolicy
+    - api_field: sessionAffinity
+    - api_field: strongSessionAffinityCookie.name
+    - api_field: strongSessionAffinityCookie.path
+    - api_field: strongSessionAffinityCookie.ttl.nanos
+    - api_field: strongSessionAffinityCookie.ttl.seconds
+    - api_field: timeoutSec
+    - api_field: tlsSettings.authenticationConfig
+    - api_field: tlsSettings.sni
+    - api_field: tlsSettings.subjectAltNames.dnsName
+    - api_field: tlsSettings.subjectAltNames.uniformResourceIdentifier
+    - api_field: selfLink

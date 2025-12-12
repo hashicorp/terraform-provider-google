@@ -1,34 +1,34 @@
-resource: 'google_network_services_edge_cache_origin'
-generation_type: 'mmv1'
-source_file: 'products/networkservices/EdgeCacheOrigin.yaml'
-api_service_name: 'networkservices.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'EdgeCacheOrigin'
+resource: google_network_services_edge_cache_origin
+generation_type: mmv1
+source_file: products/networkservices/EdgeCacheOrigin.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: EdgeCacheOrigin
 fields:
-  - api_field: 'awsV4Authentication.accessKeyId'
-  - api_field: 'awsV4Authentication.originRegion'
-  - api_field: 'awsV4Authentication.secretAccessKeyVersion'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'failoverOrigin'
-  - api_field: 'flexShielding.flexShieldingRegions'
-  - api_field: 'labels'
-  - api_field: 'maxAttempts'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'originAddress'
-  - api_field: 'originOverrideAction.headerAction.requestHeadersToAdd.headerName'
-  - api_field: 'originOverrideAction.headerAction.requestHeadersToAdd.headerValue'
-  - api_field: 'originOverrideAction.headerAction.requestHeadersToAdd.replace'
-  - api_field: 'originOverrideAction.urlRewrite.hostRewrite'
-  - api_field: 'originRedirect.redirectConditions'
-  - api_field: 'port'
-  - api_field: 'protocol'
-  - api_field: 'retryConditions'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'timeout.connectTimeout'
-  - api_field: 'timeout.maxAttemptsTimeout'
-  - api_field: 'timeout.readTimeout'
-  - api_field: 'timeout.responseTimeout'
+    - api_field: awsV4Authentication.accessKeyId
+    - api_field: awsV4Authentication.originRegion
+    - api_field: awsV4Authentication.secretAccessKeyVersion
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: failoverOrigin
+    - api_field: flexShielding.flexShieldingRegions
+    - api_field: labels
+    - api_field: maxAttempts
+    - field: name
+      provider_only: true
+    - api_field: originAddress
+    - api_field: originOverrideAction.headerAction.requestHeadersToAdd.headerName
+    - api_field: originOverrideAction.headerAction.requestHeadersToAdd.headerValue
+    - api_field: originOverrideAction.headerAction.requestHeadersToAdd.replace
+    - api_field: originOverrideAction.urlRewrite.hostRewrite
+    - api_field: originRedirect.redirectConditions
+    - api_field: port
+    - api_field: protocol
+    - api_field: retryConditions
+    - field: terraform_labels
+      provider_only: true
+    - api_field: timeout.connectTimeout
+    - api_field: timeout.maxAttemptsTimeout
+    - api_field: timeout.readTimeout
+    - api_field: timeout.responseTimeout

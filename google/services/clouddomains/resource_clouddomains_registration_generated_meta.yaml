@@ -1,68 +1,68 @@
-resource: 'google_clouddomains_registration'
-generation_type: 'mmv1'
-source_file: 'products/clouddomains/Registration.yaml'
-api_service_name: 'domains.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Registration'
+resource: google_clouddomains_registration
+generation_type: mmv1
+source_file: products/clouddomains/Registration.yaml
+api_service_name: domains.googleapis.com
+api_version: v1
+api_resource_type_kind: Registration
 fields:
-  - api_field: 'contactNotices'
-  - api_field: 'contactSettings.adminContact.email'
-  - api_field: 'contactSettings.adminContact.faxNumber'
-  - api_field: 'contactSettings.adminContact.phoneNumber'
-  - api_field: 'contactSettings.adminContact.postalAddress.addressLines'
-  - api_field: 'contactSettings.adminContact.postalAddress.administrativeArea'
-  - api_field: 'contactSettings.adminContact.postalAddress.locality'
-  - api_field: 'contactSettings.adminContact.postalAddress.organization'
-  - api_field: 'contactSettings.adminContact.postalAddress.postalCode'
-  - api_field: 'contactSettings.adminContact.postalAddress.recipients'
-  - api_field: 'contactSettings.adminContact.postalAddress.regionCode'
-  - api_field: 'contactSettings.privacy'
-  - api_field: 'contactSettings.registrantContact.email'
-  - api_field: 'contactSettings.registrantContact.faxNumber'
-  - api_field: 'contactSettings.registrantContact.phoneNumber'
-  - api_field: 'contactSettings.registrantContact.postalAddress.addressLines'
-  - api_field: 'contactSettings.registrantContact.postalAddress.administrativeArea'
-  - api_field: 'contactSettings.registrantContact.postalAddress.locality'
-  - api_field: 'contactSettings.registrantContact.postalAddress.organization'
-  - api_field: 'contactSettings.registrantContact.postalAddress.postalCode'
-  - api_field: 'contactSettings.registrantContact.postalAddress.recipients'
-  - api_field: 'contactSettings.registrantContact.postalAddress.regionCode'
-  - api_field: 'contactSettings.technicalContact.email'
-  - api_field: 'contactSettings.technicalContact.faxNumber'
-  - api_field: 'contactSettings.technicalContact.phoneNumber'
-  - api_field: 'contactSettings.technicalContact.postalAddress.addressLines'
-  - api_field: 'contactSettings.technicalContact.postalAddress.administrativeArea'
-  - api_field: 'contactSettings.technicalContact.postalAddress.locality'
-  - api_field: 'contactSettings.technicalContact.postalAddress.organization'
-  - api_field: 'contactSettings.technicalContact.postalAddress.postalCode'
-  - api_field: 'contactSettings.technicalContact.postalAddress.recipients'
-  - api_field: 'contactSettings.technicalContact.postalAddress.regionCode'
-  - api_field: 'createTime'
-  - api_field: 'dnsSettings.customDns.dsRecords.algorithm'
-  - api_field: 'dnsSettings.customDns.dsRecords.digest'
-  - api_field: 'dnsSettings.customDns.dsRecords.digestType'
-  - api_field: 'dnsSettings.customDns.dsRecords.keyTag'
-  - api_field: 'dnsSettings.customDns.nameServers'
-  - api_field: 'dnsSettings.glueRecords.hostName'
-  - api_field: 'dnsSettings.glueRecords.ipv4Addresses'
-  - api_field: 'dnsSettings.glueRecords.ipv6Addresses'
-  - api_field: 'domainName'
-  - api_field: 'domainNotices'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'expireTime'
-  - api_field: 'issues'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'managementSettings.preferredRenewalMethod'
-  - api_field: 'managementSettings.renewalMethod'
-  - api_field: 'managementSettings.transferLockState'
-  - api_field: 'name'
-  - api_field: 'registerFailureReason'
-  - api_field: 'state'
-  - api_field: 'supportedPrivacy'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'yearlyPrice.currencyCode'
-  - api_field: 'yearlyPrice.units'
+    - api_field: contactNotices
+    - api_field: contactSettings.adminContact.email
+    - api_field: contactSettings.adminContact.faxNumber
+    - api_field: contactSettings.adminContact.phoneNumber
+    - api_field: contactSettings.adminContact.postalAddress.addressLines
+    - api_field: contactSettings.adminContact.postalAddress.administrativeArea
+    - api_field: contactSettings.adminContact.postalAddress.locality
+    - api_field: contactSettings.adminContact.postalAddress.organization
+    - api_field: contactSettings.adminContact.postalAddress.postalCode
+    - api_field: contactSettings.adminContact.postalAddress.recipients
+    - api_field: contactSettings.adminContact.postalAddress.regionCode
+    - api_field: contactSettings.privacy
+    - api_field: contactSettings.registrantContact.email
+    - api_field: contactSettings.registrantContact.faxNumber
+    - api_field: contactSettings.registrantContact.phoneNumber
+    - api_field: contactSettings.registrantContact.postalAddress.addressLines
+    - api_field: contactSettings.registrantContact.postalAddress.administrativeArea
+    - api_field: contactSettings.registrantContact.postalAddress.locality
+    - api_field: contactSettings.registrantContact.postalAddress.organization
+    - api_field: contactSettings.registrantContact.postalAddress.postalCode
+    - api_field: contactSettings.registrantContact.postalAddress.recipients
+    - api_field: contactSettings.registrantContact.postalAddress.regionCode
+    - api_field: contactSettings.technicalContact.email
+    - api_field: contactSettings.technicalContact.faxNumber
+    - api_field: contactSettings.technicalContact.phoneNumber
+    - api_field: contactSettings.technicalContact.postalAddress.addressLines
+    - api_field: contactSettings.technicalContact.postalAddress.administrativeArea
+    - api_field: contactSettings.technicalContact.postalAddress.locality
+    - api_field: contactSettings.technicalContact.postalAddress.organization
+    - api_field: contactSettings.technicalContact.postalAddress.postalCode
+    - api_field: contactSettings.technicalContact.postalAddress.recipients
+    - api_field: contactSettings.technicalContact.postalAddress.regionCode
+    - api_field: createTime
+    - api_field: dnsSettings.customDns.dsRecords.algorithm
+    - api_field: dnsSettings.customDns.dsRecords.digest
+    - api_field: dnsSettings.customDns.dsRecords.digestType
+    - api_field: dnsSettings.customDns.dsRecords.keyTag
+    - api_field: dnsSettings.customDns.nameServers
+    - api_field: dnsSettings.glueRecords.hostName
+    - api_field: dnsSettings.glueRecords.ipv4Addresses
+    - api_field: dnsSettings.glueRecords.ipv6Addresses
+    - api_field: domainName
+    - api_field: domainNotices
+    - field: effective_labels
+      provider_only: true
+    - api_field: expireTime
+    - api_field: issues
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: managementSettings.preferredRenewalMethod
+    - api_field: managementSettings.renewalMethod
+    - api_field: managementSettings.transferLockState
+    - api_field: name
+    - api_field: registerFailureReason
+    - api_field: state
+    - api_field: supportedPrivacy
+    - field: terraform_labels
+      provider_only: true
+    - api_field: yearlyPrice.currencyCode
+    - api_field: yearlyPrice.units

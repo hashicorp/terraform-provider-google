@@ -1,38 +1,38 @@
-resource: 'google_healthcare_fhir_store'
-generation_type: 'mmv1'
-source_file: 'products/healthcare/FhirStore.yaml'
-api_service_name: 'healthcare.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'FhirStore'
+resource: google_healthcare_fhir_store
+generation_type: mmv1
+source_file: products/healthcare/FhirStore.yaml
+api_service_name: healthcare.googleapis.com
+api_version: v1
+api_resource_type_kind: FhirStore
 fields:
-  - api_field: 'complexDataTypeReferenceParsing'
-  - field: 'dataset'
-    provider_only: true
-  - api_field: 'defaultSearchHandlingStrict'
-  - api_field: 'disableReferentialIntegrity'
-  - api_field: 'disableResourceVersioning'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enableHistoryImport'
-  - api_field: 'enableUpdateCreate'
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'notificationConfig.pubsubTopic'
-  - api_field: 'notificationConfigs.pubsubTopic'
-  - api_field: 'notificationConfigs.sendFullResource'
-  - api_field: 'notificationConfigs.sendPreviousResourceOnDelete'
-  - api_field: 'selfLink'
-  - api_field: 'streamConfigs.bigqueryDestination.datasetUri'
-  - api_field: 'streamConfigs.bigqueryDestination.schemaConfig.lastUpdatedPartitionConfig.expirationMs'
-  - api_field: 'streamConfigs.bigqueryDestination.schemaConfig.lastUpdatedPartitionConfig.type'
-  - api_field: 'streamConfigs.bigqueryDestination.schemaConfig.recursiveStructureDepth'
-  - api_field: 'streamConfigs.bigqueryDestination.schemaConfig.schemaType'
-  - api_field: 'streamConfigs.resourceTypes'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'validationConfig.disableFhirpathValidation'
-  - api_field: 'validationConfig.disableProfileValidation'
-  - api_field: 'validationConfig.disableReferenceTypeValidation'
-  - api_field: 'validationConfig.disableRequiredFieldValidation'
-  - api_field: 'validationConfig.enabledImplementationGuides'
-  - api_field: 'version'
+    - api_field: complexDataTypeReferenceParsing
+    - field: dataset
+      provider_only: true
+    - api_field: defaultSearchHandlingStrict
+    - api_field: disableReferentialIntegrity
+    - api_field: disableResourceVersioning
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableHistoryImport
+    - api_field: enableUpdateCreate
+    - api_field: labels
+    - api_field: name
+    - api_field: notificationConfig.pubsubTopic
+    - api_field: notificationConfigs.pubsubTopic
+    - api_field: notificationConfigs.sendFullResource
+    - api_field: notificationConfigs.sendPreviousResourceOnDelete
+    - api_field: selfLink
+    - api_field: streamConfigs.bigqueryDestination.datasetUri
+    - api_field: streamConfigs.bigqueryDestination.schemaConfig.lastUpdatedPartitionConfig.expirationMs
+    - api_field: streamConfigs.bigqueryDestination.schemaConfig.lastUpdatedPartitionConfig.type
+    - api_field: streamConfigs.bigqueryDestination.schemaConfig.recursiveStructureDepth
+    - api_field: streamConfigs.bigqueryDestination.schemaConfig.schemaType
+    - api_field: streamConfigs.resourceTypes
+    - field: terraform_labels
+      provider_only: true
+    - api_field: validationConfig.disableFhirpathValidation
+    - api_field: validationConfig.disableProfileValidation
+    - api_field: validationConfig.disableReferenceTypeValidation
+    - api_field: validationConfig.disableRequiredFieldValidation
+    - api_field: validationConfig.enabledImplementationGuides
+    - api_field: version

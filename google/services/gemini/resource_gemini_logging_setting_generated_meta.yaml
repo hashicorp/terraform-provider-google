@@ -1,22 +1,22 @@
-resource: 'google_gemini_logging_setting'
-generation_type: 'mmv1'
-source_file: 'products/gemini/LoggingSetting.yaml'
-api_service_name: 'cloudaicompanion.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'LoggingSetting'
+resource: google_gemini_logging_setting
+generation_type: mmv1
+source_file: products/gemini/LoggingSetting.yaml
+api_service_name: cloudaicompanion.googleapis.com
+api_version: v1
+api_resource_type_kind: LoggingSetting
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'logMetadata'
-  - api_field: 'logPromptsAndResponses'
-  - field: 'logging_setting_id'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: logMetadata
+    - api_field: logPromptsAndResponses
+    - field: logging_setting_id
+      provider_only: true
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

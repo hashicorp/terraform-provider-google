@@ -1,17 +1,17 @@
-resource: 'google_logging_folder_settings'
-generation_type: 'mmv1'
-source_file: 'products/logging/FolderSettings.yaml'
-api_service_name: 'logging.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Settings'
+resource: google_logging_folder_settings
+generation_type: mmv1
+source_file: products/logging/FolderSettings.yaml
+api_service_name: logging.googleapis.com
+api_version: v2
+api_resource_type_kind: Settings
 api_variant_patterns:
-  - 'folders/{folder}/settings'
+    - folders/{folder}/settings
 fields:
-  - api_field: 'disableDefaultSink'
-  - field: 'folder'
-    provider_only: true
-  - api_field: 'kmsKeyName'
-  - api_field: 'kmsServiceAccountId'
-  - api_field: 'loggingServiceAccountId'
-  - api_field: 'name'
-  - api_field: 'storageLocation'
+    - api_field: disableDefaultSink
+    - field: folder
+      provider_only: true
+    - api_field: kmsKeyName
+    - api_field: kmsServiceAccountId
+    - api_field: loggingServiceAccountId
+    - api_field: name
+    - api_field: storageLocation

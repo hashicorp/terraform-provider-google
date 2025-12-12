@@ -1,49 +1,49 @@
-resource: 'google_gke_backup_backup_plan'
-generation_type: 'mmv1'
-source_file: 'products/gkebackup/BackupPlan.yaml'
-api_service_name: 'gkebackup.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BackupPlan'
+resource: google_gke_backup_backup_plan
+generation_type: mmv1
+source_file: products/gkebackup/BackupPlan.yaml
+api_service_name: gkebackup.googleapis.com
+api_version: v1
+api_resource_type_kind: BackupPlan
 fields:
-  - api_field: 'backupConfig.allNamespaces'
-  - api_field: 'backupConfig.encryptionKey.gcpKmsEncryptionKey'
-  - api_field: 'backupConfig.includeSecrets'
-  - api_field: 'backupConfig.includeVolumeData'
-  - api_field: 'backupConfig.permissiveMode'
-  - api_field: 'backupConfig.selectedApplications.namespacedNames.name'
-  - api_field: 'backupConfig.selectedApplications.namespacedNames.namespace'
-  - api_field: 'backupConfig.selectedNamespaceLabels.resourceLabels.key'
-  - api_field: 'backupConfig.selectedNamespaceLabels.resourceLabels.value'
-  - api_field: 'backupConfig.selectedNamespaces.namespaces'
-  - api_field: 'backupSchedule.cronSchedule'
-  - api_field: 'backupSchedule.paused'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.daily'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.daysOfWeek.daysOfWeek'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.duration'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.singleOccurrenceDate.day'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.singleOccurrenceDate.month'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.singleOccurrenceDate.year'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.startTime.hours'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.startTime.minutes'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.startTime.nanos'
-  - api_field: 'backupSchedule.rpoConfig.exclusionWindows.startTime.seconds'
-  - api_field: 'backupSchedule.rpoConfig.targetRpoMinutes'
-  - api_field: 'cluster'
-  - api_field: 'deactivated'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'protectedPodCount'
-  - api_field: 'retentionPolicy.backupDeleteLockDays'
-  - api_field: 'retentionPolicy.backupRetainDays'
-  - api_field: 'retentionPolicy.locked'
-  - api_field: 'state'
-  - api_field: 'stateReason'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
+    - api_field: backupConfig.allNamespaces
+    - api_field: backupConfig.encryptionKey.gcpKmsEncryptionKey
+    - api_field: backupConfig.includeSecrets
+    - api_field: backupConfig.includeVolumeData
+    - api_field: backupConfig.permissiveMode
+    - api_field: backupConfig.selectedApplications.namespacedNames.name
+    - api_field: backupConfig.selectedApplications.namespacedNames.namespace
+    - api_field: backupConfig.selectedNamespaceLabels.resourceLabels.key
+    - api_field: backupConfig.selectedNamespaceLabels.resourceLabels.value
+    - api_field: backupConfig.selectedNamespaces.namespaces
+    - api_field: backupSchedule.cronSchedule
+    - api_field: backupSchedule.paused
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.daily
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.daysOfWeek.daysOfWeek
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.duration
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.singleOccurrenceDate.day
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.singleOccurrenceDate.month
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.singleOccurrenceDate.year
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.startTime.hours
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.startTime.minutes
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.startTime.nanos
+    - api_field: backupSchedule.rpoConfig.exclusionWindows.startTime.seconds
+    - api_field: backupSchedule.rpoConfig.targetRpoMinutes
+    - api_field: cluster
+    - api_field: deactivated
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: protectedPodCount
+    - api_field: retentionPolicy.backupDeleteLockDays
+    - api_field: retentionPolicy.backupRetainDays
+    - api_field: retentionPolicy.locked
+    - api_field: state
+    - api_field: stateReason
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid

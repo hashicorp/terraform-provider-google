@@ -1,21 +1,21 @@
-resource: 'google_bigtable_app_profile'
-generation_type: 'mmv1'
-source_file: 'products/bigtable/AppProfile.yaml'
-api_service_name: 'bigtableadmin.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'AppProfile'
-cai_asset_name_format: '//bigtable.googleapis.com/projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}'
+resource: google_bigtable_app_profile
+generation_type: mmv1
+source_file: products/bigtable/AppProfile.yaml
+api_service_name: bigtableadmin.googleapis.com
+api_version: v2
+api_resource_type_kind: AppProfile
+cai_asset_name_format: //bigtable.googleapis.com/projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}
 fields:
-  - field: 'app_profile_id'
-    provider_only: true
-  - api_field: 'dataBoostIsolationReadOnly.computeBillingOwner'
-  - api_field: 'description'
-  - field: 'ignore_warnings'
-    provider_only: true
-  - field: 'instance'
-    provider_only: true
-  - api_field: 'multiClusterRoutingUseAny'
-  - api_field: 'name'
-  - api_field: 'singleClusterRouting.allowTransactionalWrites'
-  - api_field: 'singleClusterRouting.clusterId'
-  - api_field: 'standardIsolation.priority'
+    - field: app_profile_id
+      provider_only: true
+    - api_field: dataBoostIsolationReadOnly.computeBillingOwner
+    - api_field: description
+    - field: ignore_warnings
+      provider_only: true
+    - field: instance
+      provider_only: true
+    - api_field: multiClusterRoutingUseAny
+    - api_field: name
+    - api_field: singleClusterRouting.allowTransactionalWrites
+    - api_field: singleClusterRouting.clusterId
+    - api_field: standardIsolation.priority

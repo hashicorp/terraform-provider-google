@@ -1,11 +1,11 @@
-resource: 'google_compute_backend_bucket_signed_url_key'
-generation_type: 'mmv1'
-source_file: 'products/compute/BackendBucketSignedUrlKey.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BackendBucket'
+resource: google_compute_backend_bucket_signed_url_key
+generation_type: mmv1
+source_file: products/compute/BackendBucketSignedUrlKey.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: BackendBucket
 fields:
-  - api_field: 'backendBucket'
-  - api_field: 'keyValue'
-  - api_field: 'keyName'
-    field: 'name'
+    - api_field: backendBucket
+    - api_field: keyValue
+    - api_field: keyName
+      field: name
