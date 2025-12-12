@@ -1,16 +1,16 @@
-resource: 'google_service_directory_endpoint'
-generation_type: 'mmv1'
-source_file: 'products/servicedirectory/Endpoint.yaml'
-api_service_name: 'servicedirectory.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Endpoint'
+resource: google_service_directory_endpoint
+generation_type: mmv1
+source_file: products/servicedirectory/Endpoint.yaml
+api_service_name: servicedirectory.googleapis.com
+api_version: v1
+api_resource_type_kind: Endpoint
 fields:
-  - api_field: 'address'
-  - field: 'endpoint_id'
-    provider_only: true
-  - api_field: 'metadata'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'port'
-  - field: 'service'
-    provider_only: true
+    - api_field: address
+    - field: endpoint_id
+      provider_only: true
+    - api_field: metadata
+    - api_field: name
+    - api_field: network
+    - api_field: port
+    - field: service
+      provider_only: true

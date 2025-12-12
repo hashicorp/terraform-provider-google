@@ -1,38 +1,38 @@
-resource: 'google_ces_toolset'
-generation_type: 'mmv1'
-source_file: 'products/ces/Toolset.yaml'
-api_service_name: 'ces.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Toolset'
+resource: google_ces_toolset
+generation_type: mmv1
+source_file: products/ces/Toolset.yaml
+api_service_name: ces.googleapis.com
+api_version: v1
+api_resource_type_kind: Toolset
 autogen_status: true
 fields:
-  - field: 'app'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'etag'
-  - api_field: 'executionType'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'openApiToolset.apiAuthentication.apiKeyConfig.apiKeySecretVersion'
-  - api_field: 'openApiToolset.apiAuthentication.apiKeyConfig.keyName'
-  - api_field: 'openApiToolset.apiAuthentication.apiKeyConfig.requestLocation'
-  - api_field: 'openApiToolset.apiAuthentication.bearerTokenConfig.token'
-  - api_field: 'openApiToolset.apiAuthentication.oauthConfig.clientId'
-  - api_field: 'openApiToolset.apiAuthentication.oauthConfig.clientSecretVersion'
-  - api_field: 'openApiToolset.apiAuthentication.oauthConfig.oauthGrantType'
-  - api_field: 'openApiToolset.apiAuthentication.oauthConfig.scopes'
-  - api_field: 'openApiToolset.apiAuthentication.oauthConfig.tokenEndpoint'
-  - api_field: 'openApiToolset.apiAuthentication.serviceAccountAuthConfig.serviceAccount'
-  - api_field: 'openApiToolset.apiAuthentication.serviceAgentIdTokenAuthConfig'
-  - api_field: 'openApiToolset.ignoreUnknownFields'
-  - api_field: 'openApiToolset.openApiSchema'
-  - api_field: 'openApiToolset.serviceDirectoryConfig.service'
-  - api_field: 'openApiToolset.tlsConfig.caCerts.cert'
-  - api_field: 'openApiToolset.tlsConfig.caCerts.displayName'
-  - api_field: 'openApiToolset.url'
-  - field: 'toolset_id'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: app
+      provider_only: true
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: etag
+    - api_field: executionType
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: openApiToolset.apiAuthentication.apiKeyConfig.apiKeySecretVersion
+    - api_field: openApiToolset.apiAuthentication.apiKeyConfig.keyName
+    - api_field: openApiToolset.apiAuthentication.apiKeyConfig.requestLocation
+    - api_field: openApiToolset.apiAuthentication.bearerTokenConfig.token
+    - api_field: openApiToolset.apiAuthentication.oauthConfig.clientId
+    - api_field: openApiToolset.apiAuthentication.oauthConfig.clientSecretVersion
+    - api_field: openApiToolset.apiAuthentication.oauthConfig.oauthGrantType
+    - api_field: openApiToolset.apiAuthentication.oauthConfig.scopes
+    - api_field: openApiToolset.apiAuthentication.oauthConfig.tokenEndpoint
+    - api_field: openApiToolset.apiAuthentication.serviceAccountAuthConfig.serviceAccount
+    - api_field: openApiToolset.apiAuthentication.serviceAgentIdTokenAuthConfig
+    - api_field: openApiToolset.ignoreUnknownFields
+    - api_field: openApiToolset.openApiSchema
+    - api_field: openApiToolset.serviceDirectoryConfig.service
+    - api_field: openApiToolset.tlsConfig.caCerts.cert
+    - api_field: openApiToolset.tlsConfig.caCerts.displayName
+    - api_field: openApiToolset.url
+    - field: toolset_id
+      provider_only: true
+    - api_field: updateTime

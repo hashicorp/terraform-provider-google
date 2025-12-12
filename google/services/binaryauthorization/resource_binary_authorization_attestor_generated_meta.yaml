@@ -1,23 +1,23 @@
-resource: 'google_binary_authorization_attestor'
-generation_type: 'mmv1'
-source_file: 'products/binaryauthorization/Attestor.yaml'
-api_service_name: 'binaryauthorization.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Attestor'
+resource: google_binary_authorization_attestor
+generation_type: mmv1
+source_file: products/binaryauthorization/Attestor.yaml
+api_service_name: binaryauthorization.googleapis.com
+api_version: v1
+api_resource_type_kind: Attestor
 fields:
-  - api_field: 'userOwnedGrafeasNote.delegationServiceAccountEmail'
-    field: 'attestation_authority_note.delegation_service_account_email'
-  - api_field: 'userOwnedGrafeasNote.noteReference'
-    field: 'attestation_authority_note.note_reference'
-  - api_field: 'userOwnedGrafeasNote.publicKeys.asciiArmoredPgpPublicKey'
-    field: 'attestation_authority_note.public_keys.ascii_armored_pgp_public_key'
-  - api_field: 'userOwnedGrafeasNote.publicKeys.comment'
-    field: 'attestation_authority_note.public_keys.comment'
-  - api_field: 'userOwnedGrafeasNote.publicKeys.id'
-    field: 'attestation_authority_note.public_keys.id'
-  - api_field: 'userOwnedGrafeasNote.publicKeys.pkixPublicKey.publicKeyPem'
-    field: 'attestation_authority_note.public_keys.pkix_public_key.public_key_pem'
-  - api_field: 'userOwnedGrafeasNote.publicKeys.pkixPublicKey.signatureAlgorithm'
-    field: 'attestation_authority_note.public_keys.pkix_public_key.signature_algorithm'
-  - api_field: 'description'
-  - api_field: 'name'
+    - api_field: userOwnedGrafeasNote.delegationServiceAccountEmail
+      field: attestation_authority_note.delegation_service_account_email
+    - api_field: userOwnedGrafeasNote.noteReference
+      field: attestation_authority_note.note_reference
+    - api_field: userOwnedGrafeasNote.publicKeys.asciiArmoredPgpPublicKey
+      field: attestation_authority_note.public_keys.ascii_armored_pgp_public_key
+    - api_field: userOwnedGrafeasNote.publicKeys.comment
+      field: attestation_authority_note.public_keys.comment
+    - api_field: userOwnedGrafeasNote.publicKeys.id
+      field: attestation_authority_note.public_keys.id
+    - api_field: userOwnedGrafeasNote.publicKeys.pkixPublicKey.publicKeyPem
+      field: attestation_authority_note.public_keys.pkix_public_key.public_key_pem
+    - api_field: userOwnedGrafeasNote.publicKeys.pkixPublicKey.signatureAlgorithm
+      field: attestation_authority_note.public_keys.pkix_public_key.signature_algorithm
+    - api_field: description
+    - api_field: name

@@ -1,27 +1,27 @@
-resource: 'google_dataproc_autoscaling_policy'
-generation_type: 'mmv1'
-source_file: 'products/dataproc/AutoscalingPolicy.yaml'
-api_service_name: 'dataproc.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AutoscalingPolicy'
-cai_asset_name_format: '//dataproc.googleapis.com/projects/{{project}}/regions/{{location}}/autoscalingPolicies/{{policy_id}}'
+resource: google_dataproc_autoscaling_policy
+generation_type: mmv1
+source_file: products/dataproc/AutoscalingPolicy.yaml
+api_service_name: dataproc.googleapis.com
+api_version: v1
+api_resource_type_kind: AutoscalingPolicy
+cai_asset_name_format: //dataproc.googleapis.com/projects/{{project}}/regions/{{location}}/autoscalingPolicies/{{policy_id}}
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/autoscalingPolicies/{autoscalingPolicy}'
+    - projects/{project}/locations/{location}/autoscalingPolicies/{autoscalingPolicy}
 fields:
-  - api_field: 'basicAlgorithm.cooldownPeriod'
-  - api_field: 'basicAlgorithm.yarnConfig.gracefulDecommissionTimeout'
-  - api_field: 'basicAlgorithm.yarnConfig.scaleDownFactor'
-  - api_field: 'basicAlgorithm.yarnConfig.scaleDownMinWorkerFraction'
-  - api_field: 'basicAlgorithm.yarnConfig.scaleUpFactor'
-  - api_field: 'basicAlgorithm.yarnConfig.scaleUpMinWorkerFraction'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'id'
-    field: 'policy_id'
-  - api_field: 'secondaryWorkerConfig.maxInstances'
-  - api_field: 'secondaryWorkerConfig.minInstances'
-  - api_field: 'secondaryWorkerConfig.weight'
-  - api_field: 'workerConfig.maxInstances'
-  - api_field: 'workerConfig.minInstances'
-  - api_field: 'workerConfig.weight'
+    - api_field: basicAlgorithm.cooldownPeriod
+    - api_field: basicAlgorithm.yarnConfig.gracefulDecommissionTimeout
+    - api_field: basicAlgorithm.yarnConfig.scaleDownFactor
+    - api_field: basicAlgorithm.yarnConfig.scaleDownMinWorkerFraction
+    - api_field: basicAlgorithm.yarnConfig.scaleUpFactor
+    - api_field: basicAlgorithm.yarnConfig.scaleUpMinWorkerFraction
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: id
+      field: policy_id
+    - api_field: secondaryWorkerConfig.maxInstances
+    - api_field: secondaryWorkerConfig.minInstances
+    - api_field: secondaryWorkerConfig.weight
+    - api_field: workerConfig.maxInstances
+    - api_field: workerConfig.minInstances
+    - api_field: workerConfig.weight

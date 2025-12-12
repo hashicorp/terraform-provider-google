@@ -1,23 +1,23 @@
-resource: 'google_parameter_manager_regional_parameter'
-generation_type: 'mmv1'
-source_file: 'products/parametermanagerregional/RegionalParameter.yaml'
-api_service_name: 'parametermanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Parameter'
+resource: google_parameter_manager_regional_parameter
+generation_type: mmv1
+source_file: products/parametermanagerregional/RegionalParameter.yaml
+api_service_name: parametermanager.googleapis.com
+api_version: v1
+api_resource_type_kind: Parameter
 fields:
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'format'
-  - api_field: 'kmsKey'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'parameter_id'
-    provider_only: true
-  - api_field: 'policyMember.iamPolicyNamePrincipal'
-  - api_field: 'policyMember.iamPolicyUidPrincipal'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: format
+    - api_field: kmsKey
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: parameter_id
+      provider_only: true
+    - api_field: policyMember.iamPolicyNamePrincipal
+    - api_field: policyMember.iamPolicyUidPrincipal
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

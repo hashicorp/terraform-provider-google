@@ -1,25 +1,25 @@
-resource: 'google_access_context_manager_access_level_condition'
-generation_type: 'mmv1'
-source_file: 'products/accesscontextmanager/AccessLevelCondition.yaml'
-api_service_name: 'accesscontextmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AccessLevel'
+resource: google_access_context_manager_access_level_condition
+generation_type: mmv1
+source_file: products/accesscontextmanager/AccessLevelCondition.yaml
+api_service_name: accesscontextmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: AccessLevel
 fields:
-  - field: 'access_level'
-    provider_only: true
-  - api_field: 'accessPolicyId'
-  - api_field: 'devicePolicy.allowedDeviceManagementLevels'
-  - api_field: 'devicePolicy.allowedEncryptionStatuses'
-  - api_field: 'devicePolicy.osConstraints.minimumVersion'
-  - api_field: 'devicePolicy.osConstraints.osType'
-  - api_field: 'devicePolicy.requireAdminApproval'
-  - api_field: 'devicePolicy.requireCorpOwned'
-  - api_field: 'devicePolicy.requireScreenlock'
-    field: 'device_policy.require_screen_lock'
-  - api_field: 'ipSubnetworks'
-  - api_field: 'members'
-  - api_field: 'negate'
-  - api_field: 'regions'
-  - api_field: 'requiredAccessLevels'
-  - api_field: 'vpcNetworkSources.vpcSubnetwork.network'
-  - api_field: 'vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks'
+    - field: access_level
+      provider_only: true
+    - api_field: accessPolicyId
+    - api_field: devicePolicy.allowedDeviceManagementLevels
+    - api_field: devicePolicy.allowedEncryptionStatuses
+    - api_field: devicePolicy.osConstraints.minimumVersion
+    - api_field: devicePolicy.osConstraints.osType
+    - api_field: devicePolicy.requireAdminApproval
+    - api_field: devicePolicy.requireCorpOwned
+    - api_field: devicePolicy.requireScreenlock
+      field: device_policy.require_screen_lock
+    - api_field: ipSubnetworks
+    - api_field: members
+    - api_field: negate
+    - api_field: regions
+    - api_field: requiredAccessLevels
+    - api_field: vpcNetworkSources.vpcSubnetwork.network
+    - api_field: vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks

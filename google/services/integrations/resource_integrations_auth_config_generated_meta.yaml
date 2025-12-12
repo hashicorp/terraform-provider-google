@@ -1,57 +1,57 @@
-resource: 'google_integrations_auth_config'
-generation_type: 'mmv1'
-source_file: 'products/integrations/AuthConfig.yaml'
-api_service_name: 'integrations.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AuthConfig'
+resource: google_integrations_auth_config
+generation_type: mmv1
+source_file: products/integrations/AuthConfig.yaml
+api_service_name: integrations.googleapis.com
+api_version: v1
+api_resource_type_kind: AuthConfig
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/authConfigs/{authConfig}'
+    - projects/{project}/locations/{location}/authConfigs/{authConfig}
 fields:
-  - api_field: 'certificateId'
-  - api_field: 'client_certificate.encrypted_private_key'
-  - api_field: 'client_certificate.passphrase'
-  - api_field: 'client_certificate.ssl_certificate'
-  - api_field: 'createTime'
-  - api_field: 'creatorEmail'
-  - api_field: 'credentialType'
-  - api_field: 'decryptedCredential.authToken.token'
-  - api_field: 'decryptedCredential.authToken.type'
-  - api_field: 'decryptedCredential.credentialType'
-  - api_field: 'decryptedCredential.jwt.jwt'
-  - api_field: 'decryptedCredential.jwt.jwtHeader'
-  - api_field: 'decryptedCredential.jwt.jwtPayload'
-  - api_field: 'decryptedCredential.jwt.secret'
-  - api_field: 'decryptedCredential.oauth2AuthorizationCode.authEndpoint'
-  - api_field: 'decryptedCredential.oauth2AuthorizationCode.clientId'
-  - api_field: 'decryptedCredential.oauth2AuthorizationCode.clientSecret'
-  - api_field: 'decryptedCredential.oauth2AuthorizationCode.scope'
-  - api_field: 'decryptedCredential.oauth2AuthorizationCode.tokenEndpoint'
-  - api_field: 'decryptedCredential.oauth2ClientCredentials.clientId'
-  - api_field: 'decryptedCredential.oauth2ClientCredentials.clientSecret'
-  - api_field: 'decryptedCredential.oauth2ClientCredentials.requestType'
-  - api_field: 'decryptedCredential.oauth2ClientCredentials.scope'
-  - api_field: 'decryptedCredential.oauth2ClientCredentials.tokenEndpoint'
-  - api_field: 'decryptedCredential.oauth2ClientCredentials.tokenParams.entries.key.literalValue.stringValue'
-  - api_field: 'decryptedCredential.oauth2ClientCredentials.tokenParams.entries.value.literalValue.stringValue'
-  - api_field: 'decryptedCredential.oidcToken.audience'
-  - api_field: 'decryptedCredential.oidcToken.serviceAccountEmail'
-  - api_field: 'decryptedCredential.oidcToken.token'
-  - api_field: 'decryptedCredential.oidcToken.tokenExpireTime'
-  - api_field: 'decryptedCredential.serviceAccountCredentials.scope'
-  - api_field: 'decryptedCredential.serviceAccountCredentials.serviceAccount'
-  - api_field: 'decryptedCredential.usernameAndPassword.password'
-  - api_field: 'decryptedCredential.usernameAndPassword.username'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'encryptedCredential'
-  - api_field: 'expiryNotificationDuration'
-  - api_field: 'lastModifierEmail'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'overrideValidTime'
-  - api_field: 'reason'
-  - api_field: 'state'
-  - api_field: 'updateTime'
-  - api_field: 'validTime'
-  - api_field: 'visibility'
+    - api_field: certificateId
+    - api_field: client_certificate.encrypted_private_key
+    - api_field: client_certificate.passphrase
+    - api_field: client_certificate.ssl_certificate
+    - api_field: createTime
+    - api_field: creatorEmail
+    - api_field: credentialType
+    - api_field: decryptedCredential.authToken.token
+    - api_field: decryptedCredential.authToken.type
+    - api_field: decryptedCredential.credentialType
+    - api_field: decryptedCredential.jwt.jwt
+    - api_field: decryptedCredential.jwt.jwtHeader
+    - api_field: decryptedCredential.jwt.jwtPayload
+    - api_field: decryptedCredential.jwt.secret
+    - api_field: decryptedCredential.oauth2AuthorizationCode.authEndpoint
+    - api_field: decryptedCredential.oauth2AuthorizationCode.clientId
+    - api_field: decryptedCredential.oauth2AuthorizationCode.clientSecret
+    - api_field: decryptedCredential.oauth2AuthorizationCode.scope
+    - api_field: decryptedCredential.oauth2AuthorizationCode.tokenEndpoint
+    - api_field: decryptedCredential.oauth2ClientCredentials.clientId
+    - api_field: decryptedCredential.oauth2ClientCredentials.clientSecret
+    - api_field: decryptedCredential.oauth2ClientCredentials.requestType
+    - api_field: decryptedCredential.oauth2ClientCredentials.scope
+    - api_field: decryptedCredential.oauth2ClientCredentials.tokenEndpoint
+    - api_field: decryptedCredential.oauth2ClientCredentials.tokenParams.entries.key.literalValue.stringValue
+    - api_field: decryptedCredential.oauth2ClientCredentials.tokenParams.entries.value.literalValue.stringValue
+    - api_field: decryptedCredential.oidcToken.audience
+    - api_field: decryptedCredential.oidcToken.serviceAccountEmail
+    - api_field: decryptedCredential.oidcToken.token
+    - api_field: decryptedCredential.oidcToken.tokenExpireTime
+    - api_field: decryptedCredential.serviceAccountCredentials.scope
+    - api_field: decryptedCredential.serviceAccountCredentials.serviceAccount
+    - api_field: decryptedCredential.usernameAndPassword.password
+    - api_field: decryptedCredential.usernameAndPassword.username
+    - api_field: description
+    - api_field: displayName
+    - api_field: encryptedCredential
+    - api_field: expiryNotificationDuration
+    - api_field: lastModifierEmail
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: overrideValidTime
+    - api_field: reason
+    - api_field: state
+    - api_field: updateTime
+    - api_field: validTime
+    - api_field: visibility

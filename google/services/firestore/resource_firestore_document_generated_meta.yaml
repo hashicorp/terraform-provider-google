@@ -1,19 +1,19 @@
-resource: 'google_firestore_document'
-generation_type: 'mmv1'
-source_file: 'products/firestore/Document.yaml'
-api_service_name: 'firestore.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Document'
+resource: google_firestore_document
+generation_type: mmv1
+source_file: products/firestore/Document.yaml
+api_service_name: firestore.googleapis.com
+api_version: v1
+api_resource_type_kind: Document
 fields:
-  - field: 'collection'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'database'
-    provider_only: true
-  - field: 'document_id'
-    provider_only: true
-  - api_field: 'fields'
-    json: true
-  - api_field: 'name'
-  - api_field: 'path'
-  - api_field: 'updateTime'
+    - field: collection
+      provider_only: true
+    - api_field: createTime
+    - field: database
+      provider_only: true
+    - field: document_id
+      provider_only: true
+    - api_field: fields
+      json: true
+    - api_field: name
+    - api_field: path
+    - api_field: updateTime

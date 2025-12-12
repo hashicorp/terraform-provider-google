@@ -1,19 +1,19 @@
-resource: 'google_compute_packet_mirroring'
-generation_type: 'mmv1'
-source_file: 'products/compute/PacketMirroring.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PacketMirroring'
+resource: google_compute_packet_mirroring
+generation_type: mmv1
+source_file: products/compute/PacketMirroring.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: PacketMirroring
 fields:
-  - api_field: 'collectorIlb.url'
-  - api_field: 'description'
-  - api_field: 'filter.cidrRanges'
-  - api_field: 'filter.direction'
-  - api_field: 'filter.IPProtocols'
-  - api_field: 'mirroredResources.instances.url'
-  - api_field: 'mirroredResources.subnetworks.url'
-  - api_field: 'mirroredResources.tags'
-  - api_field: 'name'
-  - api_field: 'network.url'
-  - api_field: 'priority'
-  - api_field: 'region'
+    - api_field: collectorIlb.url
+    - api_field: description
+    - api_field: filter.cidrRanges
+    - api_field: filter.direction
+    - api_field: filter.IPProtocols
+    - api_field: mirroredResources.instances.url
+    - api_field: mirroredResources.subnetworks.url
+    - api_field: mirroredResources.tags
+    - api_field: name
+    - api_field: network.url
+    - api_field: priority
+    - api_field: region

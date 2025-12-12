@@ -1,27 +1,27 @@
-resource: 'google_apihub_api_hub_instance'
-generation_type: 'mmv1'
-source_file: 'products/apihub/ApiHubInstance.yaml'
-api_service_name: 'apihub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ApiHubInstance'
+resource: google_apihub_api_hub_instance
+generation_type: mmv1
+source_file: products/apihub/ApiHubInstance.yaml
+api_service_name: apihub.googleapis.com
+api_version: v1
+api_resource_type_kind: ApiHubInstance
 autogen_status: true
 fields:
-  - field: 'api_hub_instance_id'
-    provider_only: true
-  - api_field: 'config.cmekKeyName'
-  - api_field: 'config.disableSearch'
-  - api_field: 'config.encryptionType'
-  - api_field: 'config.vertexLocation'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'state'
-  - api_field: 'stateMessage'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: api_hub_instance_id
+      provider_only: true
+    - api_field: config.cmekKeyName
+    - api_field: config.disableSearch
+    - api_field: config.encryptionType
+    - api_field: config.vertexLocation
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: state
+    - api_field: stateMessage
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

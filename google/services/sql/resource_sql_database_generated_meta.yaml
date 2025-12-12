@@ -1,14 +1,14 @@
-resource: 'google_sql_database'
-generation_type: 'mmv1'
-source_file: 'products/sql/Database.yaml'
-api_service_name: 'sqladmin.googleapis.com'
-api_version: 'v1beta4'
-api_resource_type_kind: 'Database'
+resource: google_sql_database
+generation_type: mmv1
+source_file: products/sql/Database.yaml
+api_service_name: sqladmin.googleapis.com
+api_version: v1beta4
+api_resource_type_kind: Database
 fields:
-  - api_field: 'charset'
-  - api_field: 'collation'
-  - field: 'deletion_policy'
-    provider_only: true
-  - api_field: 'instance'
-  - api_field: 'name'
-  - api_field: 'selfLink'
+    - api_field: charset
+    - api_field: collation
+    - field: deletion_policy
+      provider_only: true
+    - api_field: instance
+    - api_field: name
+    - api_field: selfLink

@@ -1,40 +1,40 @@
-resource: 'google_network_management_connectivity_test'
-generation_type: 'mmv1'
-source_file: 'products/networkmanagement/ConnectivityTest.yaml'
-api_service_name: 'networkmanagement.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ConnectivityTest'
+resource: google_network_management_connectivity_test
+generation_type: mmv1
+source_file: products/networkmanagement/ConnectivityTest.yaml
+api_service_name: networkmanagement.googleapis.com
+api_version: v1
+api_resource_type_kind: ConnectivityTest
 fields:
-  - api_field: 'bypassFirewallChecks'
-  - api_field: 'description'
-  - api_field: 'destination.cloudSqlInstance'
-  - api_field: 'destination.forwardingRule'
-  - api_field: 'destination.fqdn'
-  - api_field: 'destination.gkeMasterCluster'
-  - api_field: 'destination.instance'
-  - api_field: 'destination.ipAddress'
-  - api_field: 'destination.network'
-  - api_field: 'destination.port'
-  - api_field: 'destination.projectId'
-  - api_field: 'destination.redisCluster'
-  - api_field: 'destination.redisInstance'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'protocol'
-  - api_field: 'relatedProjects'
-  - api_field: 'roundTrip'
-  - api_field: 'source.appEngineVersion.uri'
-  - api_field: 'source.cloudFunction.uri'
-  - api_field: 'source.cloudRunRevision.uri'
-  - api_field: 'source.cloudSqlInstance'
-  - api_field: 'source.gkeMasterCluster'
-  - api_field: 'source.instance'
-  - api_field: 'source.ipAddress'
-  - api_field: 'source.network'
-  - api_field: 'source.networkType'
-  - api_field: 'source.port'
-  - api_field: 'source.projectId'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: bypassFirewallChecks
+    - api_field: description
+    - api_field: destination.cloudSqlInstance
+    - api_field: destination.forwardingRule
+    - api_field: destination.fqdn
+    - api_field: destination.gkeMasterCluster
+    - api_field: destination.instance
+    - api_field: destination.ipAddress
+    - api_field: destination.network
+    - api_field: destination.port
+    - api_field: destination.projectId
+    - api_field: destination.redisCluster
+    - api_field: destination.redisInstance
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: name
+    - api_field: protocol
+    - api_field: relatedProjects
+    - api_field: roundTrip
+    - api_field: source.appEngineVersion.uri
+    - api_field: source.cloudFunction.uri
+    - api_field: source.cloudRunRevision.uri
+    - api_field: source.cloudSqlInstance
+    - api_field: source.gkeMasterCluster
+    - api_field: source.instance
+    - api_field: source.ipAddress
+    - api_field: source.network
+    - api_field: source.networkType
+    - api_field: source.port
+    - api_field: source.projectId
+    - field: terraform_labels
+      provider_only: true

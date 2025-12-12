@@ -1,22 +1,22 @@
-resource: 'google_certificate_manager_trust_config'
-generation_type: 'mmv1'
-source_file: 'products/certificatemanager/TrustConfig.yaml'
-api_service_name: 'certificatemanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TrustConfig'
+resource: google_certificate_manager_trust_config
+generation_type: mmv1
+source_file: products/certificatemanager/TrustConfig.yaml
+api_service_name: certificatemanager.googleapis.com
+api_version: v1
+api_resource_type_kind: TrustConfig
 fields:
-  - api_field: 'allowlistedCertificates.pemCertificate'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'trustStores.intermediateCas.pemCertificate'
-  - api_field: 'trustStores.trustAnchors.pemCertificate'
-  - api_field: 'updateTime'
+    - api_field: allowlistedCertificates.pemCertificate
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: trustStores.intermediateCas.pemCertificate
+    - api_field: trustStores.trustAnchors.pemCertificate
+    - api_field: updateTime

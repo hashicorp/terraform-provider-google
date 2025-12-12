@@ -1,21 +1,21 @@
-resource: 'google_monitoring_metric_descriptor'
-generation_type: 'mmv1'
-source_file: 'products/monitoring/MetricDescriptor.yaml'
-api_service_name: 'monitoring.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'MetricDescriptor'
+resource: google_monitoring_metric_descriptor
+generation_type: mmv1
+source_file: products/monitoring/MetricDescriptor.yaml
+api_service_name: monitoring.googleapis.com
+api_version: v3
+api_resource_type_kind: MetricDescriptor
 fields:
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'labels.description'
-  - api_field: 'labels.key'
-  - api_field: 'labels.valueType'
-  - api_field: 'launchStage'
-  - api_field: 'metadata.ingestDelay'
-  - api_field: 'metadata.samplePeriod'
-  - api_field: 'metricKind'
-  - api_field: 'monitoredResourceTypes'
-  - api_field: 'name'
-  - api_field: 'type'
-  - api_field: 'unit'
-  - api_field: 'valueType'
+    - api_field: description
+    - api_field: displayName
+    - api_field: labels.description
+    - api_field: labels.key
+    - api_field: labels.valueType
+    - api_field: launchStage
+    - api_field: metadata.ingestDelay
+    - api_field: metadata.samplePeriod
+    - api_field: metricKind
+    - api_field: monitoredResourceTypes
+    - api_field: name
+    - api_field: type
+    - api_field: unit
+    - api_field: valueType

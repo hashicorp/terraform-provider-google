@@ -1,57 +1,57 @@
-resource: 'google_dataproc_gdc_spark_application'
-generation_type: 'mmv1'
-source_file: 'products/dataprocgdc/SparkApplication.yaml'
-api_service_name: 'dataprocgdc.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SparkApplication'
+resource: google_dataproc_gdc_spark_application
+generation_type: mmv1
+source_file: products/dataprocgdc/SparkApplication.yaml
+api_service_name: dataprocgdc.googleapis.com
+api_version: v1
+api_resource_type_kind: SparkApplication
 autogen_status: true
 fields:
-  - api_field: 'annotations'
-  - api_field: 'applicationEnvironment'
-  - api_field: 'createTime'
-  - api_field: 'dependencyImages'
-  - api_field: 'displayName'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'monitoringEndpoint'
-  - api_field: 'name'
-  - api_field: 'namespace'
-  - api_field: 'outputUri'
-  - api_field: 'properties'
-  - api_field: 'pysparkApplicationConfig.archiveUris'
-  - api_field: 'pysparkApplicationConfig.args'
-  - api_field: 'pysparkApplicationConfig.fileUris'
-  - api_field: 'pysparkApplicationConfig.jarFileUris'
-  - api_field: 'pysparkApplicationConfig.mainPythonFileUri'
-  - api_field: 'pysparkApplicationConfig.pythonFileUris'
-  - api_field: 'reconciling'
-  - field: 'serviceinstance'
-    provider_only: true
-  - api_field: 'sparkApplicationConfig.archiveUris'
-  - api_field: 'sparkApplicationConfig.args'
-  - api_field: 'sparkApplicationConfig.fileUris'
-  - api_field: 'sparkApplicationConfig.jarFileUris'
-  - api_field: 'sparkApplicationConfig.mainClass'
-  - api_field: 'sparkApplicationConfig.mainJarFileUri'
-  - field: 'spark_application_id'
-    provider_only: true
-  - api_field: 'sparkRApplicationConfig.archiveUris'
-  - api_field: 'sparkRApplicationConfig.args'
-  - api_field: 'sparkRApplicationConfig.fileUris'
-  - api_field: 'sparkRApplicationConfig.mainRFileUri'
-  - api_field: 'sparkSqlApplicationConfig.jarFileUris'
-  - api_field: 'sparkSqlApplicationConfig.queryFileUri'
-  - api_field: 'sparkSqlApplicationConfig.queryList.queries'
-  - api_field: 'sparkSqlApplicationConfig.scriptVariables'
-  - api_field: 'state'
-  - api_field: 'stateMessage'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
-  - api_field: 'version'
+    - api_field: annotations
+    - api_field: applicationEnvironment
+    - api_field: createTime
+    - api_field: dependencyImages
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: monitoringEndpoint
+    - api_field: name
+    - api_field: namespace
+    - api_field: outputUri
+    - api_field: properties
+    - api_field: pysparkApplicationConfig.archiveUris
+    - api_field: pysparkApplicationConfig.args
+    - api_field: pysparkApplicationConfig.fileUris
+    - api_field: pysparkApplicationConfig.jarFileUris
+    - api_field: pysparkApplicationConfig.mainPythonFileUri
+    - api_field: pysparkApplicationConfig.pythonFileUris
+    - api_field: reconciling
+    - field: serviceinstance
+      provider_only: true
+    - api_field: sparkApplicationConfig.archiveUris
+    - api_field: sparkApplicationConfig.args
+    - api_field: sparkApplicationConfig.fileUris
+    - api_field: sparkApplicationConfig.jarFileUris
+    - api_field: sparkApplicationConfig.mainClass
+    - api_field: sparkApplicationConfig.mainJarFileUri
+    - field: spark_application_id
+      provider_only: true
+    - api_field: sparkRApplicationConfig.archiveUris
+    - api_field: sparkRApplicationConfig.args
+    - api_field: sparkRApplicationConfig.fileUris
+    - api_field: sparkRApplicationConfig.mainRFileUri
+    - api_field: sparkSqlApplicationConfig.jarFileUris
+    - api_field: sparkSqlApplicationConfig.queryFileUri
+    - api_field: sparkSqlApplicationConfig.queryList.queries
+    - api_field: sparkSqlApplicationConfig.scriptVariables
+    - api_field: state
+    - api_field: stateMessage
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime
+    - api_field: version

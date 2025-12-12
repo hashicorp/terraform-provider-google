@@ -1,27 +1,27 @@
-resource: 'google_firestore_database'
-generation_type: 'mmv1'
-source_file: 'products/firestore/Database.yaml'
-api_service_name: 'firestore.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Database'
+resource: google_firestore_database
+generation_type: mmv1
+source_file: products/firestore/Database.yaml
+api_service_name: firestore.googleapis.com
+api_version: v1
+api_resource_type_kind: Database
 fields:
-  - api_field: 'appEngineIntegrationMode'
-  - api_field: 'cmekConfig.activeKeyVersion'
-  - api_field: 'cmekConfig.kmsKeyName'
-  - api_field: 'concurrencyMode'
-  - api_field: 'createTime'
-  - api_field: 'databaseEdition'
-  - api_field: 'deleteProtectionState'
-  - field: 'deletion_policy'
-    provider_only: true
-  - api_field: 'earliestVersionTime'
-  - api_field: 'etag'
-  - api_field: 'keyPrefix'
-  - api_field: 'locationId'
-  - api_field: 'name'
-  - api_field: 'pointInTimeRecoveryEnablement'
-  - api_field: 'tags'
-  - api_field: 'type'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
-  - api_field: 'versionRetentionPeriod'
+    - api_field: appEngineIntegrationMode
+    - api_field: cmekConfig.activeKeyVersion
+    - api_field: cmekConfig.kmsKeyName
+    - api_field: concurrencyMode
+    - api_field: createTime
+    - api_field: databaseEdition
+    - api_field: deleteProtectionState
+    - field: deletion_policy
+      provider_only: true
+    - api_field: earliestVersionTime
+    - api_field: etag
+    - api_field: keyPrefix
+    - api_field: locationId
+    - api_field: name
+    - api_field: pointInTimeRecoveryEnablement
+    - api_field: tags
+    - api_field: type
+    - api_field: uid
+    - api_field: updateTime
+    - api_field: versionRetentionPeriod

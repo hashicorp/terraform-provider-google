@@ -1,69 +1,69 @@
-resource: 'google_access_context_manager_service_perimeter'
-generation_type: 'mmv1'
-source_file: 'products/accesscontextmanager/ServicePerimeter.yaml'
-api_service_name: 'accesscontextmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ServicePerimeter'
+resource: google_access_context_manager_service_perimeter
+generation_type: mmv1
+source_file: products/accesscontextmanager/ServicePerimeter.yaml
+api_service_name: accesscontextmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: ServicePerimeter
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'name'
-  - api_field: 'parent'
-  - api_field: 'perimeterType'
-  - api_field: 'spec.accessLevels'
-  - api_field: 'spec.egressPolicies.egressFrom.identities'
-  - api_field: 'spec.egressPolicies.egressFrom.identityType'
-  - api_field: 'spec.egressPolicies.egressFrom.sourceRestriction'
-  - api_field: 'spec.egressPolicies.egressFrom.sources.accessLevel'
-  - api_field: 'spec.egressPolicies.egressFrom.sources.resource'
-  - api_field: 'spec.egressPolicies.egressTo.externalResources'
-  - api_field: 'spec.egressPolicies.egressTo.operations.methodSelectors.method'
-  - api_field: 'spec.egressPolicies.egressTo.operations.methodSelectors.permission'
-  - api_field: 'spec.egressPolicies.egressTo.operations.serviceName'
-  - api_field: 'spec.egressPolicies.egressTo.resources'
-  - api_field: 'spec.egressPolicies.egressTo.roles'
-  - api_field: 'spec.egressPolicies.title'
-  - api_field: 'spec.ingressPolicies.ingressFrom.identities'
-  - api_field: 'spec.ingressPolicies.ingressFrom.identityType'
-  - api_field: 'spec.ingressPolicies.ingressFrom.sources.accessLevel'
-  - api_field: 'spec.ingressPolicies.ingressFrom.sources.resource'
-  - api_field: 'spec.ingressPolicies.ingressTo.operations.methodSelectors.method'
-  - api_field: 'spec.ingressPolicies.ingressTo.operations.methodSelectors.permission'
-  - api_field: 'spec.ingressPolicies.ingressTo.operations.serviceName'
-  - api_field: 'spec.ingressPolicies.ingressTo.resources'
-  - api_field: 'spec.ingressPolicies.ingressTo.roles'
-  - api_field: 'spec.ingressPolicies.title'
-  - api_field: 'spec.resources'
-  - api_field: 'spec.restrictedServices'
-  - api_field: 'spec.vpcAccessibleServices.allowedServices'
-  - api_field: 'spec.vpcAccessibleServices.enableRestriction'
-  - api_field: 'status.accessLevels'
-  - api_field: 'status.egressPolicies.egressFrom.identities'
-  - api_field: 'status.egressPolicies.egressFrom.identityType'
-  - api_field: 'status.egressPolicies.egressFrom.sourceRestriction'
-  - api_field: 'status.egressPolicies.egressFrom.sources.accessLevel'
-  - api_field: 'status.egressPolicies.egressFrom.sources.resource'
-  - api_field: 'status.egressPolicies.egressTo.externalResources'
-  - api_field: 'status.egressPolicies.egressTo.operations.methodSelectors.method'
-  - api_field: 'status.egressPolicies.egressTo.operations.methodSelectors.permission'
-  - api_field: 'status.egressPolicies.egressTo.operations.serviceName'
-  - api_field: 'status.egressPolicies.egressTo.resources'
-  - api_field: 'status.egressPolicies.egressTo.roles'
-  - api_field: 'status.egressPolicies.title'
-  - api_field: 'status.ingressPolicies.ingressFrom.identities'
-  - api_field: 'status.ingressPolicies.ingressFrom.identityType'
-  - api_field: 'status.ingressPolicies.ingressFrom.sources.accessLevel'
-  - api_field: 'status.ingressPolicies.ingressFrom.sources.resource'
-  - api_field: 'status.ingressPolicies.ingressTo.operations.methodSelectors.method'
-  - api_field: 'status.ingressPolicies.ingressTo.operations.methodSelectors.permission'
-  - api_field: 'status.ingressPolicies.ingressTo.operations.serviceName'
-  - api_field: 'status.ingressPolicies.ingressTo.resources'
-  - api_field: 'status.ingressPolicies.ingressTo.roles'
-  - api_field: 'status.ingressPolicies.title'
-  - api_field: 'status.resources'
-  - api_field: 'status.restrictedServices'
-  - api_field: 'status.vpcAccessibleServices.allowedServices'
-  - api_field: 'status.vpcAccessibleServices.enableRestriction'
-  - api_field: 'title'
-  - api_field: 'updateTime'
-  - api_field: 'useExplicitDryRunSpec'
+    - api_field: createTime
+    - api_field: description
+    - api_field: name
+    - api_field: parent
+    - api_field: perimeterType
+    - api_field: spec.accessLevels
+    - api_field: spec.egressPolicies.egressFrom.identities
+    - api_field: spec.egressPolicies.egressFrom.identityType
+    - api_field: spec.egressPolicies.egressFrom.sourceRestriction
+    - api_field: spec.egressPolicies.egressFrom.sources.accessLevel
+    - api_field: spec.egressPolicies.egressFrom.sources.resource
+    - api_field: spec.egressPolicies.egressTo.externalResources
+    - api_field: spec.egressPolicies.egressTo.operations.methodSelectors.method
+    - api_field: spec.egressPolicies.egressTo.operations.methodSelectors.permission
+    - api_field: spec.egressPolicies.egressTo.operations.serviceName
+    - api_field: spec.egressPolicies.egressTo.resources
+    - api_field: spec.egressPolicies.egressTo.roles
+    - api_field: spec.egressPolicies.title
+    - api_field: spec.ingressPolicies.ingressFrom.identities
+    - api_field: spec.ingressPolicies.ingressFrom.identityType
+    - api_field: spec.ingressPolicies.ingressFrom.sources.accessLevel
+    - api_field: spec.ingressPolicies.ingressFrom.sources.resource
+    - api_field: spec.ingressPolicies.ingressTo.operations.methodSelectors.method
+    - api_field: spec.ingressPolicies.ingressTo.operations.methodSelectors.permission
+    - api_field: spec.ingressPolicies.ingressTo.operations.serviceName
+    - api_field: spec.ingressPolicies.ingressTo.resources
+    - api_field: spec.ingressPolicies.ingressTo.roles
+    - api_field: spec.ingressPolicies.title
+    - api_field: spec.resources
+    - api_field: spec.restrictedServices
+    - api_field: spec.vpcAccessibleServices.allowedServices
+    - api_field: spec.vpcAccessibleServices.enableRestriction
+    - api_field: status.accessLevels
+    - api_field: status.egressPolicies.egressFrom.identities
+    - api_field: status.egressPolicies.egressFrom.identityType
+    - api_field: status.egressPolicies.egressFrom.sourceRestriction
+    - api_field: status.egressPolicies.egressFrom.sources.accessLevel
+    - api_field: status.egressPolicies.egressFrom.sources.resource
+    - api_field: status.egressPolicies.egressTo.externalResources
+    - api_field: status.egressPolicies.egressTo.operations.methodSelectors.method
+    - api_field: status.egressPolicies.egressTo.operations.methodSelectors.permission
+    - api_field: status.egressPolicies.egressTo.operations.serviceName
+    - api_field: status.egressPolicies.egressTo.resources
+    - api_field: status.egressPolicies.egressTo.roles
+    - api_field: status.egressPolicies.title
+    - api_field: status.ingressPolicies.ingressFrom.identities
+    - api_field: status.ingressPolicies.ingressFrom.identityType
+    - api_field: status.ingressPolicies.ingressFrom.sources.accessLevel
+    - api_field: status.ingressPolicies.ingressFrom.sources.resource
+    - api_field: status.ingressPolicies.ingressTo.operations.methodSelectors.method
+    - api_field: status.ingressPolicies.ingressTo.operations.methodSelectors.permission
+    - api_field: status.ingressPolicies.ingressTo.operations.serviceName
+    - api_field: status.ingressPolicies.ingressTo.resources
+    - api_field: status.ingressPolicies.ingressTo.roles
+    - api_field: status.ingressPolicies.title
+    - api_field: status.resources
+    - api_field: status.restrictedServices
+    - api_field: status.vpcAccessibleServices.allowedServices
+    - api_field: status.vpcAccessibleServices.enableRestriction
+    - api_field: title
+    - api_field: updateTime
+    - api_field: useExplicitDryRunSpec

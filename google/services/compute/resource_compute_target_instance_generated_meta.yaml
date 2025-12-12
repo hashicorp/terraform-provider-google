@@ -1,14 +1,14 @@
-resource: 'google_compute_target_instance'
-generation_type: 'mmv1'
-source_file: 'products/compute/TargetInstance.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TargetInstance'
+resource: google_compute_target_instance
+generation_type: mmv1
+source_file: products/compute/TargetInstance.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: TargetInstance
 fields:
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'instance'
-  - api_field: 'name'
-  - api_field: 'natPolicy'
-  - api_field: 'zone'
-  - api_field: 'selfLink'
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: instance
+    - api_field: name
+    - api_field: natPolicy
+    - api_field: zone
+    - api_field: selfLink

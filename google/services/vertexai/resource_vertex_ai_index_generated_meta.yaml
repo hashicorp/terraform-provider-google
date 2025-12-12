@@ -1,37 +1,37 @@
-resource: 'google_vertex_ai_index'
-generation_type: 'mmv1'
-source_file: 'products/vertexai/Index.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Index'
+resource: google_vertex_ai_index
+generation_type: mmv1
+source_file: products/vertexai/Index.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: Index
 fields:
-  - api_field: 'createTime'
-  - api_field: 'deployedIndexes.deployedIndexId'
-  - api_field: 'deployedIndexes.indexEndpoint'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionSpec.kmsKeyName'
-  - api_field: 'etag'
-  - api_field: 'indexStats.shardsCount'
-  - api_field: 'indexStats.vectorsCount'
-  - api_field: 'indexUpdateMethod'
-  - api_field: 'labels'
-  - api_field: 'metadata.config.algorithmConfig.bruteForceConfig'
-  - api_field: 'metadata.config.algorithmConfig.treeAhConfig.leafNodeEmbeddingCount'
-  - api_field: 'metadata.config.algorithmConfig.treeAhConfig.leafNodesToSearchPercent'
-  - api_field: 'metadata.config.approximateNeighborsCount'
-  - api_field: 'metadata.config.dimensions'
-  - api_field: 'metadata.config.distanceMeasureType'
-  - api_field: 'metadata.config.featureNormType'
-  - api_field: 'metadata.config.shardSize'
-  - api_field: 'metadata.contentsDeltaUri'
-  - api_field: 'metadata.isCompleteOverwrite'
-  - api_field: 'metadataSchemaUri'
-  - api_field: 'name'
-  - field: 'region'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: deployedIndexes.deployedIndexId
+    - api_field: deployedIndexes.indexEndpoint
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: etag
+    - api_field: indexStats.shardsCount
+    - api_field: indexStats.vectorsCount
+    - api_field: indexUpdateMethod
+    - api_field: labels
+    - api_field: metadata.config.algorithmConfig.bruteForceConfig
+    - api_field: metadata.config.algorithmConfig.treeAhConfig.leafNodeEmbeddingCount
+    - api_field: metadata.config.algorithmConfig.treeAhConfig.leafNodesToSearchPercent
+    - api_field: metadata.config.approximateNeighborsCount
+    - api_field: metadata.config.dimensions
+    - api_field: metadata.config.distanceMeasureType
+    - api_field: metadata.config.featureNormType
+    - api_field: metadata.config.shardSize
+    - api_field: metadata.contentsDeltaUri
+    - api_field: metadata.isCompleteOverwrite
+    - api_field: metadataSchemaUri
+    - api_field: name
+    - field: region
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

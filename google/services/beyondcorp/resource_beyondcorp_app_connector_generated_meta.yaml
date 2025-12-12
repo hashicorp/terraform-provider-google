@@ -1,19 +1,19 @@
-resource: 'google_beyondcorp_app_connector'
-generation_type: 'mmv1'
-source_file: 'products/beyondcorp/AppConnector.yaml'
-api_service_name: 'beyondcorp.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AppConnector'
+resource: google_beyondcorp_app_connector
+generation_type: mmv1
+source_file: products/beyondcorp/AppConnector.yaml
+api_service_name: beyondcorp.googleapis.com
+api_version: v1
+api_resource_type_kind: AppConnector
 fields:
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'principalInfo.serviceAccount.email'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: name
+      provider_only: true
+    - api_field: principalInfo.serviceAccount.email
+    - field: region
+      provider_only: true
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true

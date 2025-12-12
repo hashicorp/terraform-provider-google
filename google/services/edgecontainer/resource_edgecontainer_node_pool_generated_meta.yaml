@@ -1,28 +1,28 @@
-resource: 'google_edgecontainer_node_pool'
-generation_type: 'mmv1'
-source_file: 'products/edgecontainer/NodePool.yaml'
-api_service_name: 'edgecontainer.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NodePool'
+resource: google_edgecontainer_node_pool
+generation_type: mmv1
+source_file: products/edgecontainer/NodePool.yaml
+api_service_name: edgecontainer.googleapis.com
+api_version: v1
+api_resource_type_kind: NodePool
 fields:
-  - field: 'cluster'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'localDiskEncryption.kmsKey'
-  - api_field: 'localDiskEncryption.kmsKeyActiveVersion'
-  - api_field: 'localDiskEncryption.kmsKeyState'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'machineFilter'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'nodeConfig.labels'
-  - api_field: 'nodeCount'
-  - api_field: 'nodeLocation'
-  - api_field: 'nodeVersion'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: cluster
+      provider_only: true
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: localDiskEncryption.kmsKey
+    - api_field: localDiskEncryption.kmsKeyActiveVersion
+    - api_field: localDiskEncryption.kmsKeyState
+    - field: location
+      provider_only: true
+    - api_field: machineFilter
+    - field: name
+      provider_only: true
+    - api_field: nodeConfig.labels
+    - api_field: nodeCount
+    - api_field: nodeLocation
+    - api_field: nodeVersion
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

@@ -1,20 +1,20 @@
-resource: 'google_network_security_tls_inspection_policy'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/TlsInspectionPolicy.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TlsInspectionPolicy'
+resource: google_network_security_tls_inspection_policy
+generation_type: mmv1
+source_file: products/networksecurity/TlsInspectionPolicy.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: TlsInspectionPolicy
 fields:
-  - api_field: 'caPool'
-  - api_field: 'createTime'
-  - api_field: 'customTlsFeatures'
-  - api_field: 'description'
-  - api_field: 'excludePublicCaSet'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'minTlsVersion'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'tlsFeatureProfile'
-  - api_field: 'trustConfig'
-  - api_field: 'updateTime'
+    - api_field: caPool
+    - api_field: createTime
+    - api_field: customTlsFeatures
+    - api_field: description
+    - api_field: excludePublicCaSet
+    - field: location
+      provider_only: true
+    - api_field: minTlsVersion
+    - field: name
+      provider_only: true
+    - api_field: tlsFeatureProfile
+    - api_field: trustConfig
+    - api_field: updateTime

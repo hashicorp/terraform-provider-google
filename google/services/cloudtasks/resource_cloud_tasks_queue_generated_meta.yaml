@@ -1,39 +1,39 @@
-resource: 'google_cloud_tasks_queue'
-generation_type: 'mmv1'
-source_file: 'products/cloudtasks/Queue.yaml'
-api_service_name: 'cloudtasks.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Queue'
+resource: google_cloud_tasks_queue
+generation_type: mmv1
+source_file: products/cloudtasks/Queue.yaml
+api_service_name: cloudtasks.googleapis.com
+api_version: v2
+api_resource_type_kind: Queue
 fields:
-  - api_field: 'appEngineRoutingOverride.host'
-  - api_field: 'appEngineRoutingOverride.instance'
-  - api_field: 'appEngineRoutingOverride.service'
-  - api_field: 'appEngineRoutingOverride.version'
-  - field: 'desired_state'
-    provider_only: true
-  - api_field: 'httpTarget.headerOverrides.header.key'
-  - api_field: 'httpTarget.headerOverrides.header.value'
-  - api_field: 'httpTarget.httpMethod'
-  - api_field: 'httpTarget.oauthToken.scope'
-  - api_field: 'httpTarget.oauthToken.serviceAccountEmail'
-  - api_field: 'httpTarget.oidcToken.audience'
-  - api_field: 'httpTarget.oidcToken.serviceAccountEmail'
-  - api_field: 'httpTarget.uriOverride.host'
-  - api_field: 'httpTarget.uriOverride.pathOverride.path'
-  - api_field: 'httpTarget.uriOverride.port'
-  - api_field: 'httpTarget.uriOverride.queryOverride.queryParams'
-  - api_field: 'httpTarget.uriOverride.scheme'
-  - api_field: 'httpTarget.uriOverride.uriOverrideEnforceMode'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'rateLimits.maxBurstSize'
-  - api_field: 'rateLimits.maxConcurrentDispatches'
-  - api_field: 'rateLimits.maxDispatchesPerSecond'
-  - api_field: 'retryConfig.maxAttempts'
-  - api_field: 'retryConfig.maxBackoff'
-  - api_field: 'retryConfig.maxDoublings'
-  - api_field: 'retryConfig.maxRetryDuration'
-  - api_field: 'retryConfig.minBackoff'
-  - api_field: 'stackdriverLoggingConfig.samplingRatio'
-  - api_field: 'state'
+    - api_field: appEngineRoutingOverride.host
+    - api_field: appEngineRoutingOverride.instance
+    - api_field: appEngineRoutingOverride.service
+    - api_field: appEngineRoutingOverride.version
+    - field: desired_state
+      provider_only: true
+    - api_field: httpTarget.headerOverrides.header.key
+    - api_field: httpTarget.headerOverrides.header.value
+    - api_field: httpTarget.httpMethod
+    - api_field: httpTarget.oauthToken.scope
+    - api_field: httpTarget.oauthToken.serviceAccountEmail
+    - api_field: httpTarget.oidcToken.audience
+    - api_field: httpTarget.oidcToken.serviceAccountEmail
+    - api_field: httpTarget.uriOverride.host
+    - api_field: httpTarget.uriOverride.pathOverride.path
+    - api_field: httpTarget.uriOverride.port
+    - api_field: httpTarget.uriOverride.queryOverride.queryParams
+    - api_field: httpTarget.uriOverride.scheme
+    - api_field: httpTarget.uriOverride.uriOverrideEnforceMode
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: rateLimits.maxBurstSize
+    - api_field: rateLimits.maxConcurrentDispatches
+    - api_field: rateLimits.maxDispatchesPerSecond
+    - api_field: retryConfig.maxAttempts
+    - api_field: retryConfig.maxBackoff
+    - api_field: retryConfig.maxDoublings
+    - api_field: retryConfig.maxRetryDuration
+    - api_field: retryConfig.minBackoff
+    - api_field: stackdriverLoggingConfig.samplingRatio
+    - api_field: state

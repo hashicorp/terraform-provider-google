@@ -1,56 +1,56 @@
-resource: 'google_clouddeploy_deploy_policy'
-generation_type: 'mmv1'
-source_file: 'products/clouddeploy/DeployPolicy.yaml'
-api_service_name: 'clouddeploy.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DeployPolicy'
+resource: google_clouddeploy_deploy_policy
+generation_type: mmv1
+source_file: products/clouddeploy/DeployPolicy.yaml
+api_service_name: clouddeploy.googleapis.com
+api_version: v1
+api_resource_type_kind: DeployPolicy
 fields:
-  - api_field: 'annotations'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'rules.rolloutRestriction.actions'
-  - api_field: 'rules.rolloutRestriction.id'
-  - api_field: 'rules.rolloutRestriction.invokers'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.endDate.day'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.endDate.month'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.endDate.year'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.endTime.hours'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.endTime.minutes'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.endTime.nanos'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.endTime.seconds'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.startDate.day'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.startDate.month'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.startDate.year'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.startTime.hours'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.startTime.minutes'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.startTime.nanos'
-  - api_field: 'rules.rolloutRestriction.timeWindows.oneTimeWindows.startTime.seconds'
-  - api_field: 'rules.rolloutRestriction.timeWindows.timeZone'
-  - api_field: 'rules.rolloutRestriction.timeWindows.weeklyWindows.daysOfWeek'
-  - api_field: 'rules.rolloutRestriction.timeWindows.weeklyWindows.endTime.hours'
-  - api_field: 'rules.rolloutRestriction.timeWindows.weeklyWindows.endTime.minutes'
-  - api_field: 'rules.rolloutRestriction.timeWindows.weeklyWindows.endTime.nanos'
-  - api_field: 'rules.rolloutRestriction.timeWindows.weeklyWindows.endTime.seconds'
-  - api_field: 'rules.rolloutRestriction.timeWindows.weeklyWindows.startTime.hours'
-  - api_field: 'rules.rolloutRestriction.timeWindows.weeklyWindows.startTime.minutes'
-  - api_field: 'rules.rolloutRestriction.timeWindows.weeklyWindows.startTime.nanos'
-  - api_field: 'rules.rolloutRestriction.timeWindows.weeklyWindows.startTime.seconds'
-  - api_field: 'selectors.deliveryPipeline.id'
-  - api_field: 'selectors.deliveryPipeline.labels'
-  - api_field: 'selectors.target.id'
-  - api_field: 'selectors.target.labels'
-  - api_field: 'suspended'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: createTime
+    - api_field: description
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: rules.rolloutRestriction.actions
+    - api_field: rules.rolloutRestriction.id
+    - api_field: rules.rolloutRestriction.invokers
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.endDate.day
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.endDate.month
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.endDate.year
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.endTime.hours
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.endTime.minutes
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.endTime.nanos
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.endTime.seconds
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.startDate.day
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.startDate.month
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.startDate.year
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.startTime.hours
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.startTime.minutes
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.startTime.nanos
+    - api_field: rules.rolloutRestriction.timeWindows.oneTimeWindows.startTime.seconds
+    - api_field: rules.rolloutRestriction.timeWindows.timeZone
+    - api_field: rules.rolloutRestriction.timeWindows.weeklyWindows.daysOfWeek
+    - api_field: rules.rolloutRestriction.timeWindows.weeklyWindows.endTime.hours
+    - api_field: rules.rolloutRestriction.timeWindows.weeklyWindows.endTime.minutes
+    - api_field: rules.rolloutRestriction.timeWindows.weeklyWindows.endTime.nanos
+    - api_field: rules.rolloutRestriction.timeWindows.weeklyWindows.endTime.seconds
+    - api_field: rules.rolloutRestriction.timeWindows.weeklyWindows.startTime.hours
+    - api_field: rules.rolloutRestriction.timeWindows.weeklyWindows.startTime.minutes
+    - api_field: rules.rolloutRestriction.timeWindows.weeklyWindows.startTime.nanos
+    - api_field: rules.rolloutRestriction.timeWindows.weeklyWindows.startTime.seconds
+    - api_field: selectors.deliveryPipeline.id
+    - api_field: selectors.deliveryPipeline.labels
+    - api_field: selectors.target.id
+    - api_field: selectors.target.labels
+    - api_field: suspended
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

@@ -1,11 +1,11 @@
-resource: 'google_firebase_app_check_play_integrity_config'
-generation_type: 'mmv1'
-source_file: 'products/firebaseappcheck/PlayIntegrityConfig.yaml'
-api_service_name: 'firebaseappcheck.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PlayIntegrityConfig'
+resource: google_firebase_app_check_play_integrity_config
+generation_type: mmv1
+source_file: products/firebaseappcheck/PlayIntegrityConfig.yaml
+api_service_name: firebaseappcheck.googleapis.com
+api_version: v1
+api_resource_type_kind: PlayIntegrityConfig
 fields:
-  - field: 'app_id'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'tokenTtl'
+    - field: app_id
+      provider_only: true
+    - api_field: name
+    - api_field: tokenTtl

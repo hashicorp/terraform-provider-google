@@ -1,14 +1,14 @@
-resource: 'google_scc_source'
-generation_type: 'mmv1'
-source_file: 'products/securitycenter/Source.yaml'
-api_service_name: 'securitycenter.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Source'
+resource: google_scc_source
+generation_type: mmv1
+source_file: products/securitycenter/Source.yaml
+api_service_name: securitycenter.googleapis.com
+api_version: v1
+api_resource_type_kind: Source
 api_variant_patterns:
-  - 'organizations/{organization}/sources/{source}'
+    - organizations/{organization}/sources/{source}
 fields:
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'name'
-  - field: 'organization'
-    provider_only: true
+    - api_field: description
+    - api_field: displayName
+    - api_field: name
+    - field: organization
+      provider_only: true

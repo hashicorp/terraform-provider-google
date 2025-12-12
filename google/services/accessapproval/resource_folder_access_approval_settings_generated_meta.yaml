@@ -1,19 +1,19 @@
-resource: 'google_folder_access_approval_settings'
-generation_type: 'mmv1'
-source_file: 'products/accessapproval/FolderSettings.yaml'
-api_service_name: 'accessapproval.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AccessApprovalSettings'
+resource: google_folder_access_approval_settings
+generation_type: mmv1
+source_file: products/accessapproval/FolderSettings.yaml
+api_service_name: accessapproval.googleapis.com
+api_version: v1
+api_resource_type_kind: AccessApprovalSettings
 api_variant_patterns:
-  - 'folders/{folder}/accessApprovalSettings'
+    - folders/{folder}/accessApprovalSettings
 fields:
-  - api_field: 'activeKeyVersion'
-  - api_field: 'ancestorHasActiveKeyVersion'
-  - api_field: 'enrolledAncestor'
-  - api_field: 'enrolledServices.cloudProduct'
-  - api_field: 'enrolledServices.enrollmentLevel'
-  - field: 'folder_id'
-    provider_only: true
-  - api_field: 'invalidKeyVersion'
-  - api_field: 'name'
-  - api_field: 'notificationEmails'
+    - api_field: activeKeyVersion
+    - api_field: ancestorHasActiveKeyVersion
+    - api_field: enrolledAncestor
+    - api_field: enrolledServices.cloudProduct
+    - api_field: enrolledServices.enrollmentLevel
+    - field: folder_id
+      provider_only: true
+    - api_field: invalidKeyVersion
+    - api_field: name
+    - api_field: notificationEmails

@@ -1,16 +1,16 @@
-resource: 'google_healthcare_workspace'
-generation_type: 'mmv1'
-source_file: 'products/healthcare/Workspace.yaml'
-api_service_name: 'healthcare.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DataMapperWorkspace'
+resource: google_healthcare_workspace
+generation_type: mmv1
+source_file: products/healthcare/Workspace.yaml
+api_service_name: healthcare.googleapis.com
+api_version: v1
+api_resource_type_kind: DataMapperWorkspace
 fields:
-  - field: 'dataset'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'settings.dataProjectIds'
-  - field: 'terraform_labels'
-    provider_only: true
+    - field: dataset
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: name
+    - api_field: settings.dataProjectIds
+    - field: terraform_labels
+      provider_only: true

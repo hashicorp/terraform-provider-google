@@ -1,23 +1,23 @@
-resource: 'google_dialogflow_cx_security_settings'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/SecuritySettings.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'SecuritySettings'
+resource: google_dialogflow_cx_security_settings
+generation_type: mmv1
+source_file: products/dialogflowcx/SecuritySettings.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: SecuritySettings
 fields:
-  - api_field: 'audioExportSettings.audioExportPattern'
-  - api_field: 'audioExportSettings.audioFormat'
-  - api_field: 'audioExportSettings.enableAudioRedaction'
-  - api_field: 'audioExportSettings.gcsBucket'
-  - api_field: 'deidentifyTemplate'
-  - api_field: 'displayName'
-  - api_field: 'insightsExportSettings.enableInsightsExport'
-  - api_field: 'inspectTemplate'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'purgeDataTypes'
-  - api_field: 'redactionScope'
-  - api_field: 'redactionStrategy'
-  - api_field: 'retentionStrategy'
-  - api_field: 'retentionWindowDays'
+    - api_field: audioExportSettings.audioExportPattern
+    - api_field: audioExportSettings.audioFormat
+    - api_field: audioExportSettings.enableAudioRedaction
+    - api_field: audioExportSettings.gcsBucket
+    - api_field: deidentifyTemplate
+    - api_field: displayName
+    - api_field: insightsExportSettings.enableInsightsExport
+    - api_field: inspectTemplate
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: purgeDataTypes
+    - api_field: redactionScope
+    - api_field: redactionStrategy
+    - api_field: retentionStrategy
+    - api_field: retentionWindowDays

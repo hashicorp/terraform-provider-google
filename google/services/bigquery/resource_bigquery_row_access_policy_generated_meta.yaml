@@ -1,17 +1,17 @@
-resource: 'google_bigquery_row_access_policy'
-generation_type: 'mmv1'
-source_file: 'products/bigquery/RowAccessPolicy.yaml'
-api_service_name: 'bigquery.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'RowAccessPolicy'
+resource: google_bigquery_row_access_policy
+generation_type: mmv1
+source_file: products/bigquery/RowAccessPolicy.yaml
+api_service_name: bigquery.googleapis.com
+api_version: v2
+api_resource_type_kind: RowAccessPolicy
 fields:
-  - api_field: 'creationTime'
-  - api_field: 'rowAccessPolicyReference.datasetId'
-    field: 'dataset_id'
-  - api_field: 'filterPredicate'
-  - api_field: 'grantees'
-  - api_field: 'lastModifiedTime'
-  - api_field: 'rowAccessPolicyReference.policyId'
-    field: 'policy_id'
-  - api_field: 'rowAccessPolicyReference.tableId'
-    field: 'table_id'
+    - api_field: creationTime
+    - api_field: rowAccessPolicyReference.datasetId
+      field: dataset_id
+    - api_field: filterPredicate
+    - api_field: grantees
+    - api_field: lastModifiedTime
+    - api_field: rowAccessPolicyReference.policyId
+      field: policy_id
+    - api_field: rowAccessPolicyReference.tableId
+      field: table_id

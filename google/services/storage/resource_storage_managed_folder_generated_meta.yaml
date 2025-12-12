@@ -1,15 +1,15 @@
-resource: 'google_storage_managed_folder'
-generation_type: 'mmv1'
-source_file: 'products/storage/ManagedFolder.yaml'
-api_service_name: 'storage.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ManagedFolder'
+resource: google_storage_managed_folder
+generation_type: mmv1
+source_file: products/storage/ManagedFolder.yaml
+api_service_name: storage.googleapis.com
+api_version: v1
+api_resource_type_kind: ManagedFolder
 fields:
-  - api_field: 'bucket'
-  - api_field: 'createTime'
-  - field: 'force_destroy'
-    provider_only: true
-  - api_field: 'metageneration'
-  - api_field: 'name'
-  - api_field: 'updateTime'
-  - api_field: 'selfLink'
+    - api_field: bucket
+    - api_field: createTime
+    - field: force_destroy
+      provider_only: true
+    - api_field: metageneration
+    - api_field: name
+    - api_field: updateTime
+    - api_field: selfLink

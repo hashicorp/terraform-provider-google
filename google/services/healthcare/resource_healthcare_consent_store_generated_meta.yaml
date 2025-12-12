@@ -1,18 +1,18 @@
-resource: 'google_healthcare_consent_store'
-generation_type: 'mmv1'
-source_file: 'products/healthcare/ConsentStore.yaml'
-api_service_name: 'healthcare.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ConsentStore'
+resource: google_healthcare_consent_store
+generation_type: mmv1
+source_file: products/healthcare/ConsentStore.yaml
+api_service_name: healthcare.googleapis.com
+api_version: v1
+api_resource_type_kind: ConsentStore
 fields:
-  - field: 'dataset'
-    provider_only: true
-  - api_field: 'defaultConsentTtl'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enableConsentCreateOnUpdate'
-  - api_field: 'labels'
-  - field: 'name'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
+    - field: dataset
+      provider_only: true
+    - api_field: defaultConsentTtl
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableConsentCreateOnUpdate
+    - api_field: labels
+    - field: name
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true

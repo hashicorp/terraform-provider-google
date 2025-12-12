@@ -1,13 +1,13 @@
-resource: 'google_apigee_nat_address'
-generation_type: 'mmv1'
-source_file: 'products/apigee/NatAddress.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NatAddress'
+resource: google_apigee_nat_address
+generation_type: mmv1
+source_file: products/apigee/NatAddress.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: NatAddress
 fields:
-  - api_field: 'activate'
-  - field: 'instance_id'
-    provider_only: true
-  - api_field: 'ipAddress'
-  - api_field: 'name'
-  - api_field: 'state'
+    - api_field: activate
+    - field: instance_id
+      provider_only: true
+    - api_field: ipAddress
+    - api_field: name
+    - api_field: state

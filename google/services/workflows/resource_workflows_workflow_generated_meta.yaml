@@ -1,29 +1,29 @@
-resource: 'google_workflows_workflow'
-generation_type: 'mmv1'
-source_file: 'products/workflows/Workflow.yaml'
-api_service_name: 'workflows.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Workflow'
+resource: google_workflows_workflow
+generation_type: mmv1
+source_file: products/workflows/Workflow.yaml
+api_service_name: workflows.googleapis.com
+api_version: v1
+api_resource_type_kind: Workflow
 fields:
-  - api_field: 'callLogLevel'
-  - api_field: 'createTime'
-  - api_field: 'cryptoKeyName'
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'executionHistoryLevel'
-  - api_field: 'labels'
-  - api_field: 'name'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'revisionId'
-  - api_field: 'serviceAccount'
-  - api_field: 'sourceContents'
-  - api_field: 'state'
-  - api_field: 'tags'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'userEnvVars'
+    - api_field: callLogLevel
+    - api_field: createTime
+    - api_field: cryptoKeyName
+    - field: deletion_protection
+      provider_only: true
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: executionHistoryLevel
+    - api_field: labels
+    - api_field: name
+    - field: region
+      provider_only: true
+    - api_field: revisionId
+    - api_field: serviceAccount
+    - api_field: sourceContents
+    - api_field: state
+    - api_field: tags
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: userEnvVars

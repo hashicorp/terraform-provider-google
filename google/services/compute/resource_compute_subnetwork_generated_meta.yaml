@@ -1,44 +1,44 @@
-resource: 'google_compute_subnetwork'
-generation_type: 'mmv1'
-source_file: 'products/compute/Subnetwork.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Subnetwork'
+resource: google_compute_subnetwork
+generation_type: mmv1
+source_file: products/compute/Subnetwork.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Subnetwork
 fields:
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'externalIpv6Prefix'
-  - api_field: 'gatewayAddress'
-  - api_field: 'internalIpv6Prefix'
-  - api_field: 'ipCidrRange'
-  - api_field: 'ipCollection'
-  - api_field: 'ipv6AccessType'
-  - api_field: 'ipv6CidrRange'
-  - api_field: 'ipv6GceEndpoint'
-  - api_field: 'logConfig.aggregationInterval'
-  - api_field: 'logConfig.filterExpr'
-  - api_field: 'logConfig.flowSampling'
-  - api_field: 'logConfig.metadata'
-  - api_field: 'logConfig.metadataFields'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'params.resourceManagerTags'
-  - api_field: 'privateIpGoogleAccess'
-  - api_field: 'privateIpv6GoogleAccess'
-  - api_field: 'purpose'
-  - api_field: 'region'
-  - api_field: 'reservedInternalRange'
-  - api_field: 'role'
-  - api_field: 'secondaryIpRanges.ipCidrRange'
-    field: 'secondary_ip_range.ip_cidr_range'
-  - api_field: 'secondaryIpRanges.rangeName'
-    field: 'secondary_ip_range.range_name'
-  - api_field: 'secondaryIpRanges.reservedInternalRange'
-    field: 'secondary_ip_range.reserved_internal_range'
-  - field: 'send_secondary_ip_range_if_empty'
-    provider_only: true
-  - api_field: 'stackType'
-  - api_field: 'state'
-  - api_field: 'id'
-    field: 'subnetwork_id'
-  - api_field: 'selfLink'
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: externalIpv6Prefix
+    - api_field: gatewayAddress
+    - api_field: internalIpv6Prefix
+    - api_field: ipCidrRange
+    - api_field: ipCollection
+    - api_field: ipv6AccessType
+    - api_field: ipv6CidrRange
+    - api_field: ipv6GceEndpoint
+    - api_field: logConfig.aggregationInterval
+    - api_field: logConfig.filterExpr
+    - api_field: logConfig.flowSampling
+    - api_field: logConfig.metadata
+    - api_field: logConfig.metadataFields
+    - api_field: name
+    - api_field: network
+    - api_field: params.resourceManagerTags
+    - api_field: privateIpGoogleAccess
+    - api_field: privateIpv6GoogleAccess
+    - api_field: purpose
+    - api_field: region
+    - api_field: reservedInternalRange
+    - api_field: role
+    - api_field: secondaryIpRanges.ipCidrRange
+      field: secondary_ip_range.ip_cidr_range
+    - api_field: secondaryIpRanges.rangeName
+      field: secondary_ip_range.range_name
+    - api_field: secondaryIpRanges.reservedInternalRange
+      field: secondary_ip_range.reserved_internal_range
+    - field: send_secondary_ip_range_if_empty
+      provider_only: true
+    - api_field: stackType
+    - api_field: state
+    - api_field: id
+      field: subnetwork_id
+    - api_field: selfLink

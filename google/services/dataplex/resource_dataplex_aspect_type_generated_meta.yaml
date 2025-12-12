@@ -1,26 +1,26 @@
-resource: 'google_dataplex_aspect_type'
-generation_type: 'mmv1'
-source_file: 'products/dataplex/AspectType.yaml'
-api_service_name: 'dataplex.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AspectType'
+resource: google_dataplex_aspect_type
+generation_type: mmv1
+source_file: products/dataplex/AspectType.yaml
+api_service_name: dataplex.googleapis.com
+api_version: v1
+api_resource_type_kind: AspectType
 fields:
-  - field: 'aspect_type_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'dataClassification'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'metadataTemplate'
-    json: true
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'transferStatus'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - field: aspect_type_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: dataClassification
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: metadataTemplate
+      json: true
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: transferStatus
+    - api_field: uid
+    - api_field: updateTime

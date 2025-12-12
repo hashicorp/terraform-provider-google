@@ -1,29 +1,29 @@
-resource: 'google_firebase_data_connect_service'
-generation_type: 'mmv1'
-source_file: 'products/firebasedataconnect/Service.yaml'
-api_service_name: 'firebasedataconnect.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Service'
+resource: google_firebase_data_connect_service
+generation_type: mmv1
+source_file: products/firebasedataconnect/Service.yaml
+api_service_name: firebasedataconnect.googleapis.com
+api_version: v1
+api_resource_type_kind: Service
 autogen_status: true
 fields:
-  - api_field: 'annotations'
-  - api_field: 'createTime'
-  - field: 'deletion_policy'
-    provider_only: true
-  - api_field: 'displayName'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'reconciling'
-  - field: 'service_id'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: createTime
+    - field: deletion_policy
+      provider_only: true
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: reconciling
+    - field: service_id
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

@@ -1,11 +1,11 @@
-resource: 'google_iap_brand'
-generation_type: 'mmv1'
-source_file: 'products/iap/Brand.yaml'
-api_service_name: 'iap.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Brand'
+resource: google_iap_brand
+generation_type: mmv1
+source_file: products/iap/Brand.yaml
+api_service_name: iap.googleapis.com
+api_version: v1
+api_resource_type_kind: Brand
 fields:
-  - api_field: 'applicationTitle'
-  - api_field: 'name'
-  - api_field: 'orgInternalOnly'
-  - api_field: 'supportEmail'
+    - api_field: applicationTitle
+    - api_field: name
+    - api_field: orgInternalOnly
+    - api_field: supportEmail

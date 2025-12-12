@@ -1,47 +1,47 @@
-resource: 'google_data_fusion_instance'
-generation_type: 'mmv1'
-source_file: 'products/datafusion/Instance.yaml'
-api_service_name: 'datafusion.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Instance'
+resource: google_data_fusion_instance
+generation_type: mmv1
+source_file: products/datafusion/Instance.yaml
+api_service_name: datafusion.googleapis.com
+api_version: v1
+api_resource_type_kind: Instance
 fields:
-  - api_field: 'accelerators.acceleratorType'
-  - api_field: 'accelerators.state'
-  - api_field: 'apiEndpoint'
-  - api_field: 'createTime'
-  - api_field: 'cryptoKeyConfig.keyReference'
-  - api_field: 'dataprocServiceAccount'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enableRbac'
-  - api_field: 'enableStackdriverLogging'
-  - api_field: 'enableStackdriverMonitoring'
-  - api_field: 'eventPublishConfig.enabled'
-  - api_field: 'eventPublishConfig.topic'
-  - api_field: 'gcsBucket'
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'networkConfig.connectionType'
-  - api_field: 'networkConfig.ipAllocation'
-  - api_field: 'networkConfig.network'
-  - api_field: 'networkConfig.privateServiceConnectConfig.effectiveUnreachableCidrBlock'
-  - api_field: 'networkConfig.privateServiceConnectConfig.networkAttachment'
-  - api_field: 'networkConfig.privateServiceConnectConfig.unreachableCidrBlock'
-  - api_field: 'options'
-  - api_field: 'p4ServiceAccount'
-  - api_field: 'privateInstance'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'serviceEndpoint'
-  - api_field: 'state'
-  - api_field: 'stateMessage'
-  - api_field: 'tags'
-  - api_field: 'tenantProjectId'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'updateTime'
-  - api_field: 'version'
-  - api_field: 'zone'
+    - api_field: accelerators.acceleratorType
+    - api_field: accelerators.state
+    - api_field: apiEndpoint
+    - api_field: createTime
+    - api_field: cryptoKeyConfig.keyReference
+    - api_field: dataprocServiceAccount
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableRbac
+    - api_field: enableStackdriverLogging
+    - api_field: enableStackdriverMonitoring
+    - api_field: eventPublishConfig.enabled
+    - api_field: eventPublishConfig.topic
+    - api_field: gcsBucket
+    - api_field: labels
+    - api_field: name
+    - api_field: networkConfig.connectionType
+    - api_field: networkConfig.ipAllocation
+    - api_field: networkConfig.network
+    - api_field: networkConfig.privateServiceConnectConfig.effectiveUnreachableCidrBlock
+    - api_field: networkConfig.privateServiceConnectConfig.networkAttachment
+    - api_field: networkConfig.privateServiceConnectConfig.unreachableCidrBlock
+    - api_field: options
+    - api_field: p4ServiceAccount
+    - api_field: privateInstance
+    - field: region
+      provider_only: true
+    - api_field: serviceEndpoint
+    - api_field: state
+    - api_field: stateMessage
+    - api_field: tags
+    - api_field: tenantProjectId
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: updateTime
+    - api_field: version
+    - api_field: zone

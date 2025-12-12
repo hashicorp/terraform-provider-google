@@ -1,21 +1,21 @@
-resource: 'google_bigquery_capacity_commitment'
-generation_type: 'mmv1'
-source_file: 'products/bigqueryreservation/CapacityCommitment.yaml'
-api_service_name: 'bigqueryreservation.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CapacityCommitment'
+resource: google_bigquery_capacity_commitment
+generation_type: mmv1
+source_file: products/bigqueryreservation/CapacityCommitment.yaml
+api_service_name: bigqueryreservation.googleapis.com
+api_version: v1
+api_resource_type_kind: CapacityCommitment
 fields:
-  - field: 'capacity_commitment_id'
-    provider_only: true
-  - api_field: 'commitmentEndTime'
-  - api_field: 'commitmentStartTime'
-  - api_field: 'edition'
-  - field: 'enforce_single_admin_project_per_org'
-    provider_only: true
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'plan'
-  - api_field: 'renewalPlan'
-  - api_field: 'slotCount'
-  - api_field: 'state'
+    - field: capacity_commitment_id
+      provider_only: true
+    - api_field: commitmentEndTime
+    - api_field: commitmentStartTime
+    - api_field: edition
+    - field: enforce_single_admin_project_per_org
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: plan
+    - api_field: renewalPlan
+    - api_field: slotCount
+    - api_field: state

@@ -1,51 +1,51 @@
-resource: 'google_pubsub_subscription'
-generation_type: 'mmv1'
-source_file: 'products/pubsub/Subscription.yaml'
-api_service_name: 'pubsub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Subscription'
+resource: google_pubsub_subscription
+generation_type: mmv1
+source_file: products/pubsub/Subscription.yaml
+api_service_name: pubsub.googleapis.com
+api_version: v1
+api_resource_type_kind: Subscription
 fields:
-  - api_field: 'ackDeadlineSeconds'
-  - api_field: 'bigqueryConfig.dropUnknownFields'
-  - api_field: 'bigqueryConfig.serviceAccountEmail'
-  - api_field: 'bigqueryConfig.table'
-  - api_field: 'bigqueryConfig.useTableSchema'
-  - api_field: 'bigqueryConfig.useTopicSchema'
-  - api_field: 'bigqueryConfig.writeMetadata'
-  - api_field: 'cloudStorageConfig.avroConfig.useTopicSchema'
-  - api_field: 'cloudStorageConfig.avroConfig.writeMetadata'
-  - api_field: 'cloudStorageConfig.bucket'
-  - api_field: 'cloudStorageConfig.filenameDatetimeFormat'
-  - api_field: 'cloudStorageConfig.filenamePrefix'
-  - api_field: 'cloudStorageConfig.filenameSuffix'
-  - api_field: 'cloudStorageConfig.maxBytes'
-  - api_field: 'cloudStorageConfig.maxDuration'
-  - api_field: 'cloudStorageConfig.maxMessages'
-  - api_field: 'cloudStorageConfig.serviceAccountEmail'
-  - api_field: 'cloudStorageConfig.state'
-  - api_field: 'deadLetterPolicy.deadLetterTopic'
-  - api_field: 'deadLetterPolicy.maxDeliveryAttempts'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enableExactlyOnceDelivery'
-  - api_field: 'enableMessageOrdering'
-  - api_field: 'expirationPolicy.ttl'
-  - api_field: 'filter'
-  - api_field: 'labels'
-  - api_field: 'messageRetentionDuration'
-  - api_field: 'messageTransforms.disabled'
-  - api_field: 'messageTransforms.javascriptUdf.code'
-  - api_field: 'messageTransforms.javascriptUdf.functionName'
-  - api_field: 'name'
-  - api_field: 'pushConfig.attributes'
-  - api_field: 'pushConfig.noWrapper.writeMetadata'
-  - api_field: 'pushConfig.oidcToken.audience'
-  - api_field: 'pushConfig.oidcToken.serviceAccountEmail'
-  - api_field: 'pushConfig.pushEndpoint'
-  - api_field: 'retainAckedMessages'
-  - api_field: 'retryPolicy.maximumBackoff'
-  - api_field: 'retryPolicy.minimumBackoff'
-  - api_field: 'tags'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'topic'
+    - api_field: ackDeadlineSeconds
+    - api_field: bigqueryConfig.dropUnknownFields
+    - api_field: bigqueryConfig.serviceAccountEmail
+    - api_field: bigqueryConfig.table
+    - api_field: bigqueryConfig.useTableSchema
+    - api_field: bigqueryConfig.useTopicSchema
+    - api_field: bigqueryConfig.writeMetadata
+    - api_field: cloudStorageConfig.avroConfig.useTopicSchema
+    - api_field: cloudStorageConfig.avroConfig.writeMetadata
+    - api_field: cloudStorageConfig.bucket
+    - api_field: cloudStorageConfig.filenameDatetimeFormat
+    - api_field: cloudStorageConfig.filenamePrefix
+    - api_field: cloudStorageConfig.filenameSuffix
+    - api_field: cloudStorageConfig.maxBytes
+    - api_field: cloudStorageConfig.maxDuration
+    - api_field: cloudStorageConfig.maxMessages
+    - api_field: cloudStorageConfig.serviceAccountEmail
+    - api_field: cloudStorageConfig.state
+    - api_field: deadLetterPolicy.deadLetterTopic
+    - api_field: deadLetterPolicy.maxDeliveryAttempts
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableExactlyOnceDelivery
+    - api_field: enableMessageOrdering
+    - api_field: expirationPolicy.ttl
+    - api_field: filter
+    - api_field: labels
+    - api_field: messageRetentionDuration
+    - api_field: messageTransforms.disabled
+    - api_field: messageTransforms.javascriptUdf.code
+    - api_field: messageTransforms.javascriptUdf.functionName
+    - api_field: name
+    - api_field: pushConfig.attributes
+    - api_field: pushConfig.noWrapper.writeMetadata
+    - api_field: pushConfig.oidcToken.audience
+    - api_field: pushConfig.oidcToken.serviceAccountEmail
+    - api_field: pushConfig.pushEndpoint
+    - api_field: retainAckedMessages
+    - api_field: retryPolicy.maximumBackoff
+    - api_field: retryPolicy.minimumBackoff
+    - api_field: tags
+    - field: terraform_labels
+      provider_only: true
+    - api_field: topic

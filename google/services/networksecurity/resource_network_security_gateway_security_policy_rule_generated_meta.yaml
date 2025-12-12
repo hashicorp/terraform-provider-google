@@ -1,23 +1,23 @@
-resource: 'google_network_security_gateway_security_policy_rule'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/GatewaySecurityPolicyRule.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'GatewaySecurityPolicyRule'
+resource: google_network_security_gateway_security_policy_rule
+generation_type: mmv1
+source_file: products/networksecurity/GatewaySecurityPolicyRule.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: GatewaySecurityPolicyRule
 fields:
-  - api_field: 'applicationMatcher'
-  - api_field: 'basicProfile'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'enabled'
-  - field: 'gateway_security_policy'
-    provider_only: true
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'priority'
-  - api_field: 'selfLink'
-  - api_field: 'sessionMatcher'
-  - api_field: 'tlsInspectionEnabled'
-  - api_field: 'updateTime'
+    - api_field: applicationMatcher
+    - api_field: basicProfile
+    - api_field: createTime
+    - api_field: description
+    - api_field: enabled
+    - field: gateway_security_policy
+      provider_only: true
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: priority
+    - api_field: selfLink
+    - api_field: sessionMatcher
+    - api_field: tlsInspectionEnabled
+    - api_field: updateTime

@@ -1,22 +1,22 @@
-resource: 'google_network_connectivity_group'
-generation_type: 'mmv1'
-source_file: 'products/networkconnectivity/Group.yaml'
-api_service_name: 'networkconnectivity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Group'
+resource: google_network_connectivity_group
+generation_type: mmv1
+source_file: products/networkconnectivity/Group.yaml
+api_service_name: networkconnectivity.googleapis.com
+api_version: v1
+api_resource_type_kind: Group
 fields:
-  - api_field: 'autoAccept.autoAcceptProjects'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - field: 'hub'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'routeTable'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: autoAccept.autoAcceptProjects
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - field: hub
+      provider_only: true
+    - api_field: labels
+    - api_field: name
+    - api_field: routeTable
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

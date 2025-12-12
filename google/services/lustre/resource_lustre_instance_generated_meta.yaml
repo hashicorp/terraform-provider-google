@@ -1,31 +1,31 @@
-resource: 'google_lustre_instance'
-generation_type: 'mmv1'
-source_file: 'products/lustre/Instance.yaml'
-api_service_name: 'lustre.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Instance'
+resource: google_lustre_instance
+generation_type: mmv1
+source_file: products/lustre/Instance.yaml
+api_service_name: lustre.googleapis.com
+api_version: v1
+api_resource_type_kind: Instance
 autogen_status: true
 fields:
-  - api_field: 'capacityGib'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'filesystem'
-  - api_field: 'gkeSupportEnabled'
-  - field: 'instance_id'
-    provider_only: true
-  - api_field: 'kmsKey'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mountPoint'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'perUnitStorageThroughput'
-  - api_field: 'placementPolicy'
-  - api_field: 'state'
-  - api_field: 'stateReason'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: capacityGib
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: filesystem
+    - api_field: gkeSupportEnabled
+    - field: instance_id
+      provider_only: true
+    - api_field: kmsKey
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: mountPoint
+    - api_field: name
+    - api_field: network
+    - api_field: perUnitStorageThroughput
+    - api_field: placementPolicy
+    - api_field: state
+    - api_field: stateReason
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

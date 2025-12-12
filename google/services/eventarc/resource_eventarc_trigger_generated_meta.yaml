@@ -1,47 +1,47 @@
-resource: 'google_eventarc_trigger'
-generation_type: 'mmv1'
-source_file: 'products/eventarc/Trigger.yaml'
-api_service_name: 'eventarc.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Trigger'
+resource: google_eventarc_trigger
+generation_type: mmv1
+source_file: products/eventarc/Trigger.yaml
+api_service_name: eventarc.googleapis.com
+api_version: v1
+api_resource_type_kind: Trigger
 fields:
-  - api_field: 'channel'
-  - api_field: 'conditions'
-  - api_field: 'createTime'
-  - api_field: 'destination.cloudFunction'
-  - api_field: 'destination.cloudRun.path'
-    field: 'destination.cloud_run_service.path'
-  - api_field: 'destination.cloudRun.region'
-    field: 'destination.cloud_run_service.region'
-  - api_field: 'destination.cloudRun.service'
-    field: 'destination.cloud_run_service.service'
-  - api_field: 'destination.gke.cluster'
-  - api_field: 'destination.gke.location'
-  - api_field: 'destination.gke.namespace'
-  - api_field: 'destination.gke.path'
-  - api_field: 'destination.gke.service'
-  - api_field: 'destination.httpEndpoint.uri'
-  - api_field: 'destination.networkConfig.networkAttachment'
-  - api_field: 'destination.workflow'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'eventDataContentType'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'eventFilters.attribute'
-    field: 'matching_criteria.attribute'
-  - api_field: 'eventFilters.operator'
-    field: 'matching_criteria.operator'
-  - api_field: 'eventFilters.value'
-    field: 'matching_criteria.value'
-  - api_field: 'name'
-  - api_field: 'retryPolicy.maxAttempts'
-  - api_field: 'serviceAccount'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'transport.pubsub.subscription'
-  - api_field: 'transport.pubsub.topic'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: channel
+    - api_field: conditions
+    - api_field: createTime
+    - api_field: destination.cloudFunction
+    - api_field: destination.cloudRun.path
+      field: destination.cloud_run_service.path
+    - api_field: destination.cloudRun.region
+      field: destination.cloud_run_service.region
+    - api_field: destination.cloudRun.service
+      field: destination.cloud_run_service.service
+    - api_field: destination.gke.cluster
+    - api_field: destination.gke.location
+    - api_field: destination.gke.namespace
+    - api_field: destination.gke.path
+    - api_field: destination.gke.service
+    - api_field: destination.httpEndpoint.uri
+    - api_field: destination.networkConfig.networkAttachment
+    - api_field: destination.workflow
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: eventDataContentType
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: eventFilters.attribute
+      field: matching_criteria.attribute
+    - api_field: eventFilters.operator
+      field: matching_criteria.operator
+    - api_field: eventFilters.value
+      field: matching_criteria.value
+    - api_field: name
+    - api_field: retryPolicy.maxAttempts
+    - api_field: serviceAccount
+    - field: terraform_labels
+      provider_only: true
+    - api_field: transport.pubsub.subscription
+    - api_field: transport.pubsub.topic
+    - api_field: uid
+    - api_field: updateTime

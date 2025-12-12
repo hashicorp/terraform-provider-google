@@ -1,9 +1,9 @@
-resource: 'google_kms_key_ring'
-generation_type: 'mmv1'
-source_file: 'products/kms/KeyRing.yaml'
-api_service_name: 'cloudkms.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'KeyRing'
+resource: google_kms_key_ring
+generation_type: mmv1
+source_file: products/kms/KeyRing.yaml
+api_service_name: cloudkms.googleapis.com
+api_version: v1
+api_resource_type_kind: KeyRing
 fields:
-  - api_field: 'location'
-  - api_field: 'name'
+    - api_field: location
+    - api_field: name

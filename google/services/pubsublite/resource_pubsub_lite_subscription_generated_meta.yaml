@@ -1,15 +1,15 @@
-resource: 'google_pubsub_lite_subscription'
-generation_type: 'mmv1'
-source_file: 'products/pubsublite/Subscription.yaml'
-api_service_name: 'pubsublite.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Subscription'
+resource: google_pubsub_lite_subscription
+generation_type: mmv1
+source_file: products/pubsublite/Subscription.yaml
+api_service_name: pubsublite.googleapis.com
+api_version: v1
+api_resource_type_kind: Subscription
 fields:
-  - api_field: 'deliveryConfig.deliveryRequirement'
-  - field: 'name'
-    provider_only: true
-  - field: 'region'
-    provider_only: true
-  - api_field: 'topic'
-  - field: 'zone'
-    provider_only: true
+    - api_field: deliveryConfig.deliveryRequirement
+    - field: name
+      provider_only: true
+    - field: region
+      provider_only: true
+    - api_field: topic
+    - field: zone
+      provider_only: true

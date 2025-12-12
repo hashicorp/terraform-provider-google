@@ -1,60 +1,60 @@
-resource: 'google_artifact_registry_repository'
-generation_type: 'mmv1'
-source_file: 'products/artifactregistry/Repository.yaml'
-api_service_name: 'artifactregistry.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Repository'
+resource: google_artifact_registry_repository
+generation_type: mmv1
+source_file: products/artifactregistry/Repository.yaml
+api_service_name: artifactregistry.googleapis.com
+api_version: v1
+api_resource_type_kind: Repository
 fields:
-  - api_field: 'cleanupPolicies.cleanupPolicies.action'
-  - api_field: 'cleanupPolicies.cleanupPolicies.condition.newerThan'
-  - api_field: 'cleanupPolicies.cleanupPolicies.condition.olderThan'
-  - api_field: 'cleanupPolicies.cleanupPolicies.condition.packageNamePrefixes'
-  - api_field: 'cleanupPolicies.cleanupPolicies.condition.tagPrefixes'
-  - api_field: 'cleanupPolicies.cleanupPolicies.condition.tagState'
-  - api_field: 'cleanupPolicies.cleanupPolicies.condition.versionNamePrefixes'
-  - api_field: 'cleanupPolicies.cleanupPolicies.mostRecentVersions.keepCount'
-  - api_field: 'cleanupPolicies.cleanupPolicies.mostRecentVersions.packageNamePrefixes'
-  - api_field: 'cleanupPolicyDryRun'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'dockerConfig.immutableTags'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'format'
-  - api_field: 'kmsKeyName'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mavenConfig.allowSnapshotOverwrites'
-  - api_field: 'mavenConfig.versionPolicy'
-  - api_field: 'mode'
-  - api_field: 'name'
-  - api_field: 'registryUri'
-  - api_field: 'remoteRepositoryConfig.aptRepository.publicRepository.repositoryBase'
-  - api_field: 'remoteRepositoryConfig.aptRepository.publicRepository.repositoryPath'
-  - api_field: 'remoteRepositoryConfig.commonRepository.uri'
-  - api_field: 'remoteRepositoryConfig.description'
-  - api_field: 'remoteRepositoryConfig.disableUpstreamValidation'
-  - api_field: 'remoteRepositoryConfig.dockerRepository.customRepository.uri'
-  - api_field: 'remoteRepositoryConfig.dockerRepository.publicRepository'
-  - api_field: 'remoteRepositoryConfig.mavenRepository.customRepository.uri'
-  - api_field: 'remoteRepositoryConfig.mavenRepository.publicRepository'
-  - api_field: 'remoteRepositoryConfig.npmRepository.customRepository.uri'
-  - api_field: 'remoteRepositoryConfig.npmRepository.publicRepository'
-  - api_field: 'remoteRepositoryConfig.pythonRepository.customRepository.uri'
-  - api_field: 'remoteRepositoryConfig.pythonRepository.publicRepository'
-  - api_field: 'remoteRepositoryConfig.upstreamCredentials.usernamePasswordCredentials.passwordSecretVersion'
-  - api_field: 'remoteRepositoryConfig.upstreamCredentials.usernamePasswordCredentials.username'
-  - api_field: 'remoteRepositoryConfig.yumRepository.publicRepository.repositoryBase'
-  - api_field: 'remoteRepositoryConfig.yumRepository.publicRepository.repositoryPath'
-  - field: 'repository_id'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'virtualRepositoryConfig.upstreamPolicies.id'
-  - api_field: 'virtualRepositoryConfig.upstreamPolicies.priority'
-  - api_field: 'virtualRepositoryConfig.upstreamPolicies.repository'
-  - api_field: 'vulnerabilityScanningConfig.enablementConfig'
-  - api_field: 'vulnerabilityScanningConfig.enablementState'
-  - api_field: 'vulnerabilityScanningConfig.enablementStateReason'
+    - api_field: cleanupPolicies.cleanupPolicies.action
+    - api_field: cleanupPolicies.cleanupPolicies.condition.newerThan
+    - api_field: cleanupPolicies.cleanupPolicies.condition.olderThan
+    - api_field: cleanupPolicies.cleanupPolicies.condition.packageNamePrefixes
+    - api_field: cleanupPolicies.cleanupPolicies.condition.tagPrefixes
+    - api_field: cleanupPolicies.cleanupPolicies.condition.tagState
+    - api_field: cleanupPolicies.cleanupPolicies.condition.versionNamePrefixes
+    - api_field: cleanupPolicies.cleanupPolicies.mostRecentVersions.keepCount
+    - api_field: cleanupPolicies.cleanupPolicies.mostRecentVersions.packageNamePrefixes
+    - api_field: cleanupPolicyDryRun
+    - api_field: createTime
+    - api_field: description
+    - api_field: dockerConfig.immutableTags
+    - field: effective_labels
+      provider_only: true
+    - api_field: format
+    - api_field: kmsKeyName
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: mavenConfig.allowSnapshotOverwrites
+    - api_field: mavenConfig.versionPolicy
+    - api_field: mode
+    - api_field: name
+    - api_field: registryUri
+    - api_field: remoteRepositoryConfig.aptRepository.publicRepository.repositoryBase
+    - api_field: remoteRepositoryConfig.aptRepository.publicRepository.repositoryPath
+    - api_field: remoteRepositoryConfig.commonRepository.uri
+    - api_field: remoteRepositoryConfig.description
+    - api_field: remoteRepositoryConfig.disableUpstreamValidation
+    - api_field: remoteRepositoryConfig.dockerRepository.customRepository.uri
+    - api_field: remoteRepositoryConfig.dockerRepository.publicRepository
+    - api_field: remoteRepositoryConfig.mavenRepository.customRepository.uri
+    - api_field: remoteRepositoryConfig.mavenRepository.publicRepository
+    - api_field: remoteRepositoryConfig.npmRepository.customRepository.uri
+    - api_field: remoteRepositoryConfig.npmRepository.publicRepository
+    - api_field: remoteRepositoryConfig.pythonRepository.customRepository.uri
+    - api_field: remoteRepositoryConfig.pythonRepository.publicRepository
+    - api_field: remoteRepositoryConfig.upstreamCredentials.usernamePasswordCredentials.passwordSecretVersion
+    - api_field: remoteRepositoryConfig.upstreamCredentials.usernamePasswordCredentials.username
+    - api_field: remoteRepositoryConfig.yumRepository.publicRepository.repositoryBase
+    - api_field: remoteRepositoryConfig.yumRepository.publicRepository.repositoryPath
+    - field: repository_id
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: virtualRepositoryConfig.upstreamPolicies.id
+    - api_field: virtualRepositoryConfig.upstreamPolicies.priority
+    - api_field: virtualRepositoryConfig.upstreamPolicies.repository
+    - api_field: vulnerabilityScanningConfig.enablementConfig
+    - api_field: vulnerabilityScanningConfig.enablementState
+    - api_field: vulnerabilityScanningConfig.enablementStateReason

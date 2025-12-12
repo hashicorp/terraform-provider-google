@@ -1,26 +1,26 @@
-resource: 'google_sql_source_representation_instance'
-generation_type: 'mmv1'
-source_file: 'products/sql/SourceRepresentationInstance.yaml'
-api_service_name: 'sqladmin.googleapis.com'
-api_version: 'v1beta4'
-api_resource_type_kind: 'DatabaseInstance'
+resource: google_sql_source_representation_instance
+generation_type: mmv1
+source_file: products/sql/SourceRepresentationInstance.yaml
+api_service_name: sqladmin.googleapis.com
+api_version: v1beta4
+api_resource_type_kind: DatabaseInstance
 fields:
-  - api_field: 'onPremisesConfiguration.caCertificate'
-    field: 'ca_certificate'
-  - api_field: 'onPremisesConfiguration.clientCertificate'
-    field: 'client_certificate'
-  - api_field: 'onPremisesConfiguration.clientKey'
-    field: 'client_key'
-  - api_field: 'databaseVersion'
-  - api_field: 'onPremisesConfiguration.dumpFilePath'
-    field: 'dump_file_path'
-  - api_field: 'onPremisesConfiguration.host'
-    field: 'host'
-  - api_field: 'name'
-  - api_field: 'onPremisesConfiguration.password'
-    field: 'password'
-  - api_field: 'onPremisesConfiguration.port'
-    field: 'port'
-  - api_field: 'region'
-  - api_field: 'onPremisesConfiguration.username'
-    field: 'username'
+    - api_field: onPremisesConfiguration.caCertificate
+      field: ca_certificate
+    - api_field: onPremisesConfiguration.clientCertificate
+      field: client_certificate
+    - api_field: onPremisesConfiguration.clientKey
+      field: client_key
+    - api_field: databaseVersion
+    - api_field: onPremisesConfiguration.dumpFilePath
+      field: dump_file_path
+    - api_field: onPremisesConfiguration.host
+      field: host
+    - api_field: name
+    - api_field: onPremisesConfiguration.password
+      field: password
+    - api_field: onPremisesConfiguration.port
+      field: port
+    - api_field: region
+    - api_field: onPremisesConfiguration.username
+      field: username

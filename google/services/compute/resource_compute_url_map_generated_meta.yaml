@@ -1,446 +1,446 @@
-resource: 'google_compute_url_map'
-generation_type: 'mmv1'
-source_file: 'products/compute/UrlMap.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'UrlMap'
+resource: google_compute_url_map
+generation_type: mmv1
+source_file: products/compute/UrlMap.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: UrlMap
 fields:
-  - api_field: 'creationTimestamp'
-  - api_field: 'defaultCustomErrorResponsePolicy.errorResponseRules.matchResponseCodes'
-    field: 'default_custom_error_response_policy.error_response_rule.match_response_codes'
-  - api_field: 'defaultCustomErrorResponsePolicy.errorResponseRules.overrideResponseCode'
-    field: 'default_custom_error_response_policy.error_response_rule.override_response_code'
-  - api_field: 'defaultCustomErrorResponsePolicy.errorResponseRules.path'
-    field: 'default_custom_error_response_policy.error_response_rule.path'
-  - api_field: 'defaultCustomErrorResponsePolicy.errorService'
-  - api_field: 'defaultRouteAction.corsPolicy.allowCredentials'
-  - api_field: 'defaultRouteAction.corsPolicy.allowHeaders'
-  - api_field: 'defaultRouteAction.corsPolicy.allowMethods'
-  - api_field: 'defaultRouteAction.corsPolicy.allowOriginRegexes'
-  - api_field: 'defaultRouteAction.corsPolicy.allowOrigins'
-  - api_field: 'defaultRouteAction.corsPolicy.disabled'
-  - api_field: 'defaultRouteAction.corsPolicy.exposeHeaders'
-  - api_field: 'defaultRouteAction.corsPolicy.maxAge'
-  - api_field: 'defaultRouteAction.faultInjectionPolicy.abort.httpStatus'
-  - api_field: 'defaultRouteAction.faultInjectionPolicy.abort.percentage'
-  - api_field: 'defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.nanos'
-  - api_field: 'defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.seconds'
-  - api_field: 'defaultRouteAction.faultInjectionPolicy.delay.percentage'
-  - api_field: 'defaultRouteAction.maxStreamDuration.nanos'
-  - api_field: 'defaultRouteAction.maxStreamDuration.seconds'
-  - api_field: 'defaultRouteAction.requestMirrorPolicy.backendService'
-  - api_field: 'defaultRouteAction.retryPolicy.numRetries'
-  - api_field: 'defaultRouteAction.retryPolicy.perTryTimeout.nanos'
-  - api_field: 'defaultRouteAction.retryPolicy.perTryTimeout.seconds'
-  - api_field: 'defaultRouteAction.retryPolicy.retryConditions'
-  - api_field: 'defaultRouteAction.timeout.nanos'
-  - api_field: 'defaultRouteAction.timeout.seconds'
-  - api_field: 'defaultRouteAction.urlRewrite.hostRewrite'
-  - api_field: 'defaultRouteAction.urlRewrite.pathPrefixRewrite'
-  - api_field: 'defaultRouteAction.weightedBackendServices.backendService'
-  - api_field: 'defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerName'
-  - api_field: 'defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerValue'
-  - api_field: 'defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.replace'
-  - api_field: 'defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToRemove'
-  - api_field: 'defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerName'
-  - api_field: 'defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerValue'
-  - api_field: 'defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.replace'
-  - api_field: 'defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToRemove'
-  - api_field: 'defaultRouteAction.weightedBackendServices.weight'
-  - api_field: 'defaultService'
-  - api_field: 'defaultUrlRedirect.hostRedirect'
-  - api_field: 'defaultUrlRedirect.httpsRedirect'
-  - api_field: 'defaultUrlRedirect.pathRedirect'
-  - api_field: 'defaultUrlRedirect.prefixRedirect'
-  - api_field: 'defaultUrlRedirect.redirectResponseCode'
-  - api_field: 'defaultUrlRedirect.stripQuery'
-  - api_field: 'description'
-  - api_field: 'fingerprint'
-  - api_field: 'headerAction.requestHeadersToAdd.headerName'
-  - api_field: 'headerAction.requestHeadersToAdd.headerValue'
-  - api_field: 'headerAction.requestHeadersToAdd.replace'
-  - api_field: 'headerAction.requestHeadersToRemove'
-  - api_field: 'headerAction.responseHeadersToAdd.headerName'
-  - api_field: 'headerAction.responseHeadersToAdd.headerValue'
-  - api_field: 'headerAction.responseHeadersToAdd.replace'
-  - api_field: 'headerAction.responseHeadersToRemove'
-  - api_field: 'hostRules.description'
-    field: 'host_rule.description'
-  - api_field: 'hostRules.hosts'
-    field: 'host_rule.hosts'
-  - api_field: 'hostRules.pathMatcher'
-    field: 'host_rule.path_matcher'
-  - api_field: 'id'
-    field: 'map_id'
-  - api_field: 'name'
-  - api_field: 'pathMatchers.defaultCustomErrorResponsePolicy.errorResponseRules.matchResponseCodes'
-    field: 'path_matcher.default_custom_error_response_policy.error_response_rule.match_response_codes'
-  - api_field: 'pathMatchers.defaultCustomErrorResponsePolicy.errorResponseRules.overrideResponseCode'
-    field: 'path_matcher.default_custom_error_response_policy.error_response_rule.override_response_code'
-  - api_field: 'pathMatchers.defaultCustomErrorResponsePolicy.errorResponseRules.path'
-    field: 'path_matcher.default_custom_error_response_policy.error_response_rule.path'
-  - api_field: 'pathMatchers.defaultCustomErrorResponsePolicy.errorService'
-    field: 'path_matcher.default_custom_error_response_policy.error_service'
-  - api_field: 'pathMatchers.defaultRouteAction.corsPolicy.allowCredentials'
-    field: 'path_matcher.default_route_action.cors_policy.allow_credentials'
-  - api_field: 'pathMatchers.defaultRouteAction.corsPolicy.allowHeaders'
-    field: 'path_matcher.default_route_action.cors_policy.allow_headers'
-  - api_field: 'pathMatchers.defaultRouteAction.corsPolicy.allowMethods'
-    field: 'path_matcher.default_route_action.cors_policy.allow_methods'
-  - api_field: 'pathMatchers.defaultRouteAction.corsPolicy.allowOriginRegexes'
-    field: 'path_matcher.default_route_action.cors_policy.allow_origin_regexes'
-  - api_field: 'pathMatchers.defaultRouteAction.corsPolicy.allowOrigins'
-    field: 'path_matcher.default_route_action.cors_policy.allow_origins'
-  - api_field: 'pathMatchers.defaultRouteAction.corsPolicy.disabled'
-    field: 'path_matcher.default_route_action.cors_policy.disabled'
-  - api_field: 'pathMatchers.defaultRouteAction.corsPolicy.exposeHeaders'
-    field: 'path_matcher.default_route_action.cors_policy.expose_headers'
-  - api_field: 'pathMatchers.defaultRouteAction.corsPolicy.maxAge'
-    field: 'path_matcher.default_route_action.cors_policy.max_age'
-  - api_field: 'pathMatchers.defaultRouteAction.faultInjectionPolicy.abort.httpStatus'
-    field: 'path_matcher.default_route_action.fault_injection_policy.abort.http_status'
-  - api_field: 'pathMatchers.defaultRouteAction.faultInjectionPolicy.abort.percentage'
-    field: 'path_matcher.default_route_action.fault_injection_policy.abort.percentage'
-  - api_field: 'pathMatchers.defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.nanos'
-    field: 'path_matcher.default_route_action.fault_injection_policy.delay.fixed_delay.nanos'
-  - api_field: 'pathMatchers.defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.seconds'
-    field: 'path_matcher.default_route_action.fault_injection_policy.delay.fixed_delay.seconds'
-  - api_field: 'pathMatchers.defaultRouteAction.faultInjectionPolicy.delay.percentage'
-    field: 'path_matcher.default_route_action.fault_injection_policy.delay.percentage'
-  - api_field: 'pathMatchers.defaultRouteAction.maxStreamDuration.nanos'
-    field: 'path_matcher.default_route_action.max_stream_duration.nanos'
-  - api_field: 'pathMatchers.defaultRouteAction.maxStreamDuration.seconds'
-    field: 'path_matcher.default_route_action.max_stream_duration.seconds'
-  - api_field: 'pathMatchers.defaultRouteAction.requestMirrorPolicy.backendService'
-    field: 'path_matcher.default_route_action.request_mirror_policy.backend_service'
-  - api_field: 'pathMatchers.defaultRouteAction.retryPolicy.numRetries'
-    field: 'path_matcher.default_route_action.retry_policy.num_retries'
-  - api_field: 'pathMatchers.defaultRouteAction.retryPolicy.perTryTimeout.nanos'
-    field: 'path_matcher.default_route_action.retry_policy.per_try_timeout.nanos'
-  - api_field: 'pathMatchers.defaultRouteAction.retryPolicy.perTryTimeout.seconds'
-    field: 'path_matcher.default_route_action.retry_policy.per_try_timeout.seconds'
-  - api_field: 'pathMatchers.defaultRouteAction.retryPolicy.retryConditions'
-    field: 'path_matcher.default_route_action.retry_policy.retry_conditions'
-  - api_field: 'pathMatchers.defaultRouteAction.timeout.nanos'
-    field: 'path_matcher.default_route_action.timeout.nanos'
-  - api_field: 'pathMatchers.defaultRouteAction.timeout.seconds'
-    field: 'path_matcher.default_route_action.timeout.seconds'
-  - api_field: 'pathMatchers.defaultRouteAction.urlRewrite.hostRewrite'
-    field: 'path_matcher.default_route_action.url_rewrite.host_rewrite'
-  - api_field: 'pathMatchers.defaultRouteAction.urlRewrite.pathPrefixRewrite'
-    field: 'path_matcher.default_route_action.url_rewrite.path_prefix_rewrite'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.backendService'
-    field: 'path_matcher.default_route_action.weighted_backend_services.backend_service'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerName'
-    field: 'path_matcher.default_route_action.weighted_backend_services.header_action.request_headers_to_add.header_name'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerValue'
-    field: 'path_matcher.default_route_action.weighted_backend_services.header_action.request_headers_to_add.header_value'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.replace'
-    field: 'path_matcher.default_route_action.weighted_backend_services.header_action.request_headers_to_add.replace'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToRemove'
-    field: 'path_matcher.default_route_action.weighted_backend_services.header_action.request_headers_to_remove'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerName'
-    field: 'path_matcher.default_route_action.weighted_backend_services.header_action.response_headers_to_add.header_name'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerValue'
-    field: 'path_matcher.default_route_action.weighted_backend_services.header_action.response_headers_to_add.header_value'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.replace'
-    field: 'path_matcher.default_route_action.weighted_backend_services.header_action.response_headers_to_add.replace'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToRemove'
-    field: 'path_matcher.default_route_action.weighted_backend_services.header_action.response_headers_to_remove'
-  - api_field: 'pathMatchers.defaultRouteAction.weightedBackendServices.weight'
-    field: 'path_matcher.default_route_action.weighted_backend_services.weight'
-  - api_field: 'pathMatchers.defaultService'
-    field: 'path_matcher.default_service'
-  - api_field: 'pathMatchers.defaultUrlRedirect.hostRedirect'
-    field: 'path_matcher.default_url_redirect.host_redirect'
-  - api_field: 'pathMatchers.defaultUrlRedirect.httpsRedirect'
-    field: 'path_matcher.default_url_redirect.https_redirect'
-  - api_field: 'pathMatchers.defaultUrlRedirect.pathRedirect'
-    field: 'path_matcher.default_url_redirect.path_redirect'
-  - api_field: 'pathMatchers.defaultUrlRedirect.prefixRedirect'
-    field: 'path_matcher.default_url_redirect.prefix_redirect'
-  - api_field: 'pathMatchers.defaultUrlRedirect.redirectResponseCode'
-    field: 'path_matcher.default_url_redirect.redirect_response_code'
-  - api_field: 'pathMatchers.defaultUrlRedirect.stripQuery'
-    field: 'path_matcher.default_url_redirect.strip_query'
-  - api_field: 'pathMatchers.description'
-    field: 'path_matcher.description'
-  - api_field: 'pathMatchers.headerAction.requestHeadersToAdd.headerName'
-    field: 'path_matcher.header_action.request_headers_to_add.header_name'
-  - api_field: 'pathMatchers.headerAction.requestHeadersToAdd.headerValue'
-    field: 'path_matcher.header_action.request_headers_to_add.header_value'
-  - api_field: 'pathMatchers.headerAction.requestHeadersToAdd.replace'
-    field: 'path_matcher.header_action.request_headers_to_add.replace'
-  - api_field: 'pathMatchers.headerAction.requestHeadersToRemove'
-    field: 'path_matcher.header_action.request_headers_to_remove'
-  - api_field: 'pathMatchers.headerAction.responseHeadersToAdd.headerName'
-    field: 'path_matcher.header_action.response_headers_to_add.header_name'
-  - api_field: 'pathMatchers.headerAction.responseHeadersToAdd.headerValue'
-    field: 'path_matcher.header_action.response_headers_to_add.header_value'
-  - api_field: 'pathMatchers.headerAction.responseHeadersToAdd.replace'
-    field: 'path_matcher.header_action.response_headers_to_add.replace'
-  - api_field: 'pathMatchers.headerAction.responseHeadersToRemove'
-    field: 'path_matcher.header_action.response_headers_to_remove'
-  - api_field: 'pathMatchers.name'
-    field: 'path_matcher.name'
-  - api_field: 'pathMatchers.pathRules.customErrorResponsePolicy.errorResponseRules.matchResponseCodes'
-    field: 'path_matcher.path_rule.custom_error_response_policy.error_response_rule.match_response_codes'
-  - api_field: 'pathMatchers.pathRules.customErrorResponsePolicy.errorResponseRules.overrideResponseCode'
-    field: 'path_matcher.path_rule.custom_error_response_policy.error_response_rule.override_response_code'
-  - api_field: 'pathMatchers.pathRules.customErrorResponsePolicy.errorResponseRules.path'
-    field: 'path_matcher.path_rule.custom_error_response_policy.error_response_rule.path'
-  - api_field: 'pathMatchers.pathRules.customErrorResponsePolicy.errorService'
-    field: 'path_matcher.path_rule.custom_error_response_policy.error_service'
-  - api_field: 'pathMatchers.pathRules.paths'
-    field: 'path_matcher.path_rule.paths'
-  - api_field: 'pathMatchers.pathRules.routeAction.corsPolicy.allowCredentials'
-    field: 'path_matcher.path_rule.route_action.cors_policy.allow_credentials'
-  - api_field: 'pathMatchers.pathRules.routeAction.corsPolicy.allowHeaders'
-    field: 'path_matcher.path_rule.route_action.cors_policy.allow_headers'
-  - api_field: 'pathMatchers.pathRules.routeAction.corsPolicy.allowMethods'
-    field: 'path_matcher.path_rule.route_action.cors_policy.allow_methods'
-  - api_field: 'pathMatchers.pathRules.routeAction.corsPolicy.allowOriginRegexes'
-    field: 'path_matcher.path_rule.route_action.cors_policy.allow_origin_regexes'
-  - api_field: 'pathMatchers.pathRules.routeAction.corsPolicy.allowOrigins'
-    field: 'path_matcher.path_rule.route_action.cors_policy.allow_origins'
-  - api_field: 'pathMatchers.pathRules.routeAction.corsPolicy.disabled'
-    field: 'path_matcher.path_rule.route_action.cors_policy.disabled'
-  - api_field: 'pathMatchers.pathRules.routeAction.corsPolicy.exposeHeaders'
-    field: 'path_matcher.path_rule.route_action.cors_policy.expose_headers'
-  - api_field: 'pathMatchers.pathRules.routeAction.corsPolicy.maxAge'
-    field: 'path_matcher.path_rule.route_action.cors_policy.max_age'
-  - api_field: 'pathMatchers.pathRules.routeAction.faultInjectionPolicy.abort.httpStatus'
-    field: 'path_matcher.path_rule.route_action.fault_injection_policy.abort.http_status'
-  - api_field: 'pathMatchers.pathRules.routeAction.faultInjectionPolicy.abort.percentage'
-    field: 'path_matcher.path_rule.route_action.fault_injection_policy.abort.percentage'
-  - api_field: 'pathMatchers.pathRules.routeAction.faultInjectionPolicy.delay.fixedDelay.nanos'
-    field: 'path_matcher.path_rule.route_action.fault_injection_policy.delay.fixed_delay.nanos'
-  - api_field: 'pathMatchers.pathRules.routeAction.faultInjectionPolicy.delay.fixedDelay.seconds'
-    field: 'path_matcher.path_rule.route_action.fault_injection_policy.delay.fixed_delay.seconds'
-  - api_field: 'pathMatchers.pathRules.routeAction.faultInjectionPolicy.delay.percentage'
-    field: 'path_matcher.path_rule.route_action.fault_injection_policy.delay.percentage'
-  - api_field: 'pathMatchers.pathRules.routeAction.maxStreamDuration.nanos'
-    field: 'path_matcher.path_rule.route_action.max_stream_duration.nanos'
-  - api_field: 'pathMatchers.pathRules.routeAction.maxStreamDuration.seconds'
-    field: 'path_matcher.path_rule.route_action.max_stream_duration.seconds'
-  - api_field: 'pathMatchers.pathRules.routeAction.requestMirrorPolicy.backendService'
-    field: 'path_matcher.path_rule.route_action.request_mirror_policy.backend_service'
-  - api_field: 'pathMatchers.pathRules.routeAction.retryPolicy.numRetries'
-    field: 'path_matcher.path_rule.route_action.retry_policy.num_retries'
-  - api_field: 'pathMatchers.pathRules.routeAction.retryPolicy.perTryTimeout.nanos'
-    field: 'path_matcher.path_rule.route_action.retry_policy.per_try_timeout.nanos'
-  - api_field: 'pathMatchers.pathRules.routeAction.retryPolicy.perTryTimeout.seconds'
-    field: 'path_matcher.path_rule.route_action.retry_policy.per_try_timeout.seconds'
-  - api_field: 'pathMatchers.pathRules.routeAction.retryPolicy.retryConditions'
-    field: 'path_matcher.path_rule.route_action.retry_policy.retry_conditions'
-  - api_field: 'pathMatchers.pathRules.routeAction.timeout.nanos'
-    field: 'path_matcher.path_rule.route_action.timeout.nanos'
-  - api_field: 'pathMatchers.pathRules.routeAction.timeout.seconds'
-    field: 'path_matcher.path_rule.route_action.timeout.seconds'
-  - api_field: 'pathMatchers.pathRules.routeAction.urlRewrite.hostRewrite'
-    field: 'path_matcher.path_rule.route_action.url_rewrite.host_rewrite'
-  - api_field: 'pathMatchers.pathRules.routeAction.urlRewrite.pathPrefixRewrite'
-    field: 'path_matcher.path_rule.route_action.url_rewrite.path_prefix_rewrite'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.backendService'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.backend_service'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerName'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.header_action.request_headers_to_add.header_name'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerValue'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.header_action.request_headers_to_add.header_value'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.replace'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.header_action.request_headers_to_add.replace'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.requestHeadersToRemove'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.header_action.request_headers_to_remove'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerName'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.header_action.response_headers_to_add.header_name'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerValue'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.header_action.response_headers_to_add.header_value'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.replace'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.header_action.response_headers_to_add.replace'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.responseHeadersToRemove'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.header_action.response_headers_to_remove'
-  - api_field: 'pathMatchers.pathRules.routeAction.weightedBackendServices.weight'
-    field: 'path_matcher.path_rule.route_action.weighted_backend_services.weight'
-  - api_field: 'pathMatchers.pathRules.service'
-    field: 'path_matcher.path_rule.service'
-  - api_field: 'pathMatchers.pathRules.urlRedirect.hostRedirect'
-    field: 'path_matcher.path_rule.url_redirect.host_redirect'
-  - api_field: 'pathMatchers.pathRules.urlRedirect.httpsRedirect'
-    field: 'path_matcher.path_rule.url_redirect.https_redirect'
-  - api_field: 'pathMatchers.pathRules.urlRedirect.pathRedirect'
-    field: 'path_matcher.path_rule.url_redirect.path_redirect'
-  - api_field: 'pathMatchers.pathRules.urlRedirect.prefixRedirect'
-    field: 'path_matcher.path_rule.url_redirect.prefix_redirect'
-  - api_field: 'pathMatchers.pathRules.urlRedirect.redirectResponseCode'
-    field: 'path_matcher.path_rule.url_redirect.redirect_response_code'
-  - api_field: 'pathMatchers.pathRules.urlRedirect.stripQuery'
-    field: 'path_matcher.path_rule.url_redirect.strip_query'
-  - api_field: 'pathMatchers.routeRules.customErrorResponsePolicy.errorResponseRules.matchResponseCodes'
-    field: 'path_matcher.route_rules.custom_error_response_policy.error_response_rule.match_response_codes'
-  - api_field: 'pathMatchers.routeRules.customErrorResponsePolicy.errorResponseRules.overrideResponseCode'
-    field: 'path_matcher.route_rules.custom_error_response_policy.error_response_rule.override_response_code'
-  - api_field: 'pathMatchers.routeRules.customErrorResponsePolicy.errorResponseRules.path'
-    field: 'path_matcher.route_rules.custom_error_response_policy.error_response_rule.path'
-  - api_field: 'pathMatchers.routeRules.customErrorResponsePolicy.errorService'
-    field: 'path_matcher.route_rules.custom_error_response_policy.error_service'
-  - api_field: 'pathMatchers.routeRules.headerAction.requestHeadersToAdd.headerName'
-    field: 'path_matcher.route_rules.header_action.request_headers_to_add.header_name'
-  - api_field: 'pathMatchers.routeRules.headerAction.requestHeadersToAdd.headerValue'
-    field: 'path_matcher.route_rules.header_action.request_headers_to_add.header_value'
-  - api_field: 'pathMatchers.routeRules.headerAction.requestHeadersToAdd.replace'
-    field: 'path_matcher.route_rules.header_action.request_headers_to_add.replace'
-  - api_field: 'pathMatchers.routeRules.headerAction.requestHeadersToRemove'
-    field: 'path_matcher.route_rules.header_action.request_headers_to_remove'
-  - api_field: 'pathMatchers.routeRules.headerAction.responseHeadersToAdd.headerName'
-    field: 'path_matcher.route_rules.header_action.response_headers_to_add.header_name'
-  - api_field: 'pathMatchers.routeRules.headerAction.responseHeadersToAdd.headerValue'
-    field: 'path_matcher.route_rules.header_action.response_headers_to_add.header_value'
-  - api_field: 'pathMatchers.routeRules.headerAction.responseHeadersToAdd.replace'
-    field: 'path_matcher.route_rules.header_action.response_headers_to_add.replace'
-  - api_field: 'pathMatchers.routeRules.headerAction.responseHeadersToRemove'
-    field: 'path_matcher.route_rules.header_action.response_headers_to_remove'
-  - api_field: 'pathMatchers.routeRules.matchRules.fullPathMatch'
-    field: 'path_matcher.route_rules.match_rules.full_path_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.headerMatches.exactMatch'
-    field: 'path_matcher.route_rules.match_rules.header_matches.exact_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.headerMatches.headerName'
-    field: 'path_matcher.route_rules.match_rules.header_matches.header_name'
-  - api_field: 'pathMatchers.routeRules.matchRules.headerMatches.invertMatch'
-    field: 'path_matcher.route_rules.match_rules.header_matches.invert_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.headerMatches.prefixMatch'
-    field: 'path_matcher.route_rules.match_rules.header_matches.prefix_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.headerMatches.presentMatch'
-    field: 'path_matcher.route_rules.match_rules.header_matches.present_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.headerMatches.rangeMatch.rangeEnd'
-    field: 'path_matcher.route_rules.match_rules.header_matches.range_match.range_end'
-  - api_field: 'pathMatchers.routeRules.matchRules.headerMatches.rangeMatch.rangeStart'
-    field: 'path_matcher.route_rules.match_rules.header_matches.range_match.range_start'
-  - api_field: 'pathMatchers.routeRules.matchRules.headerMatches.regexMatch'
-    field: 'path_matcher.route_rules.match_rules.header_matches.regex_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.headerMatches.suffixMatch'
-    field: 'path_matcher.route_rules.match_rules.header_matches.suffix_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.ignoreCase'
-    field: 'path_matcher.route_rules.match_rules.ignore_case'
-  - api_field: 'pathMatchers.routeRules.matchRules.metadataFilters.filterLabels.name'
-    field: 'path_matcher.route_rules.match_rules.metadata_filters.filter_labels.name'
-  - api_field: 'pathMatchers.routeRules.matchRules.metadataFilters.filterLabels.value'
-    field: 'path_matcher.route_rules.match_rules.metadata_filters.filter_labels.value'
-  - api_field: 'pathMatchers.routeRules.matchRules.metadataFilters.filterMatchCriteria'
-    field: 'path_matcher.route_rules.match_rules.metadata_filters.filter_match_criteria'
-  - api_field: 'pathMatchers.routeRules.matchRules.pathTemplateMatch'
-    field: 'path_matcher.route_rules.match_rules.path_template_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.prefixMatch'
-    field: 'path_matcher.route_rules.match_rules.prefix_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.queryParameterMatches.exactMatch'
-    field: 'path_matcher.route_rules.match_rules.query_parameter_matches.exact_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.queryParameterMatches.name'
-    field: 'path_matcher.route_rules.match_rules.query_parameter_matches.name'
-  - api_field: 'pathMatchers.routeRules.matchRules.queryParameterMatches.presentMatch'
-    field: 'path_matcher.route_rules.match_rules.query_parameter_matches.present_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.queryParameterMatches.regexMatch'
-    field: 'path_matcher.route_rules.match_rules.query_parameter_matches.regex_match'
-  - api_field: 'pathMatchers.routeRules.matchRules.regexMatch'
-    field: 'path_matcher.route_rules.match_rules.regex_match'
-  - api_field: 'pathMatchers.routeRules.priority'
-    field: 'path_matcher.route_rules.priority'
-  - api_field: 'pathMatchers.routeRules.routeAction.corsPolicy.allowCredentials'
-    field: 'path_matcher.route_rules.route_action.cors_policy.allow_credentials'
-  - api_field: 'pathMatchers.routeRules.routeAction.corsPolicy.allowHeaders'
-    field: 'path_matcher.route_rules.route_action.cors_policy.allow_headers'
-  - api_field: 'pathMatchers.routeRules.routeAction.corsPolicy.allowMethods'
-    field: 'path_matcher.route_rules.route_action.cors_policy.allow_methods'
-  - api_field: 'pathMatchers.routeRules.routeAction.corsPolicy.allowOriginRegexes'
-    field: 'path_matcher.route_rules.route_action.cors_policy.allow_origin_regexes'
-  - api_field: 'pathMatchers.routeRules.routeAction.corsPolicy.allowOrigins'
-    field: 'path_matcher.route_rules.route_action.cors_policy.allow_origins'
-  - api_field: 'pathMatchers.routeRules.routeAction.corsPolicy.disabled'
-    field: 'path_matcher.route_rules.route_action.cors_policy.disabled'
-  - api_field: 'pathMatchers.routeRules.routeAction.corsPolicy.exposeHeaders'
-    field: 'path_matcher.route_rules.route_action.cors_policy.expose_headers'
-  - api_field: 'pathMatchers.routeRules.routeAction.corsPolicy.maxAge'
-    field: 'path_matcher.route_rules.route_action.cors_policy.max_age'
-  - api_field: 'pathMatchers.routeRules.routeAction.faultInjectionPolicy.abort.httpStatus'
-    field: 'path_matcher.route_rules.route_action.fault_injection_policy.abort.http_status'
-  - api_field: 'pathMatchers.routeRules.routeAction.faultInjectionPolicy.abort.percentage'
-    field: 'path_matcher.route_rules.route_action.fault_injection_policy.abort.percentage'
-  - api_field: 'pathMatchers.routeRules.routeAction.faultInjectionPolicy.delay.fixedDelay.nanos'
-    field: 'path_matcher.route_rules.route_action.fault_injection_policy.delay.fixed_delay.nanos'
-  - api_field: 'pathMatchers.routeRules.routeAction.faultInjectionPolicy.delay.fixedDelay.seconds'
-    field: 'path_matcher.route_rules.route_action.fault_injection_policy.delay.fixed_delay.seconds'
-  - api_field: 'pathMatchers.routeRules.routeAction.faultInjectionPolicy.delay.percentage'
-    field: 'path_matcher.route_rules.route_action.fault_injection_policy.delay.percentage'
-  - api_field: 'pathMatchers.routeRules.routeAction.maxStreamDuration.nanos'
-    field: 'path_matcher.route_rules.route_action.max_stream_duration.nanos'
-  - api_field: 'pathMatchers.routeRules.routeAction.maxStreamDuration.seconds'
-    field: 'path_matcher.route_rules.route_action.max_stream_duration.seconds'
-  - api_field: 'pathMatchers.routeRules.routeAction.requestMirrorPolicy.backendService'
-    field: 'path_matcher.route_rules.route_action.request_mirror_policy.backend_service'
-  - api_field: 'pathMatchers.routeRules.routeAction.retryPolicy.numRetries'
-    field: 'path_matcher.route_rules.route_action.retry_policy.num_retries'
-  - api_field: 'pathMatchers.routeRules.routeAction.retryPolicy.perTryTimeout.nanos'
-    field: 'path_matcher.route_rules.route_action.retry_policy.per_try_timeout.nanos'
-  - api_field: 'pathMatchers.routeRules.routeAction.retryPolicy.perTryTimeout.seconds'
-    field: 'path_matcher.route_rules.route_action.retry_policy.per_try_timeout.seconds'
-  - api_field: 'pathMatchers.routeRules.routeAction.retryPolicy.retryConditions'
-    field: 'path_matcher.route_rules.route_action.retry_policy.retry_conditions'
-  - api_field: 'pathMatchers.routeRules.routeAction.timeout.nanos'
-    field: 'path_matcher.route_rules.route_action.timeout.nanos'
-  - api_field: 'pathMatchers.routeRules.routeAction.timeout.seconds'
-    field: 'path_matcher.route_rules.route_action.timeout.seconds'
-  - api_field: 'pathMatchers.routeRules.routeAction.urlRewrite.hostRewrite'
-    field: 'path_matcher.route_rules.route_action.url_rewrite.host_rewrite'
-  - api_field: 'pathMatchers.routeRules.routeAction.urlRewrite.pathPrefixRewrite'
-    field: 'path_matcher.route_rules.route_action.url_rewrite.path_prefix_rewrite'
-  - api_field: 'pathMatchers.routeRules.routeAction.urlRewrite.pathTemplateRewrite'
-    field: 'path_matcher.route_rules.route_action.url_rewrite.path_template_rewrite'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.backendService'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.backend_service'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerName'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.header_action.request_headers_to_add.header_name'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerValue'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.header_action.request_headers_to_add.header_value'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.replace'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.header_action.request_headers_to_add.replace'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.requestHeadersToRemove'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.header_action.request_headers_to_remove'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerName'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.header_action.response_headers_to_add.header_name'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerValue'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.header_action.response_headers_to_add.header_value'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.replace'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.header_action.response_headers_to_add.replace'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.responseHeadersToRemove'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.header_action.response_headers_to_remove'
-  - api_field: 'pathMatchers.routeRules.routeAction.weightedBackendServices.weight'
-    field: 'path_matcher.route_rules.route_action.weighted_backend_services.weight'
-  - api_field: 'pathMatchers.routeRules.service'
-    field: 'path_matcher.route_rules.service'
-  - api_field: 'pathMatchers.routeRules.urlRedirect.hostRedirect'
-    field: 'path_matcher.route_rules.url_redirect.host_redirect'
-  - api_field: 'pathMatchers.routeRules.urlRedirect.httpsRedirect'
-    field: 'path_matcher.route_rules.url_redirect.https_redirect'
-  - api_field: 'pathMatchers.routeRules.urlRedirect.pathRedirect'
-    field: 'path_matcher.route_rules.url_redirect.path_redirect'
-  - api_field: 'pathMatchers.routeRules.urlRedirect.prefixRedirect'
-    field: 'path_matcher.route_rules.url_redirect.prefix_redirect'
-  - api_field: 'pathMatchers.routeRules.urlRedirect.redirectResponseCode'
-    field: 'path_matcher.route_rules.url_redirect.redirect_response_code'
-  - api_field: 'pathMatchers.routeRules.urlRedirect.stripQuery'
-    field: 'path_matcher.route_rules.url_redirect.strip_query'
-  - api_field: 'tests.description'
-    field: 'test.description'
-  - api_field: 'tests.expectedOutputUrl'
-    field: 'test.expected_output_url'
-  - api_field: 'tests.expectedRedirectResponseCode'
-    field: 'test.expected_redirect_response_code'
-  - api_field: 'tests.headers.name'
-    field: 'test.headers.name'
-  - api_field: 'tests.headers.value'
-    field: 'test.headers.value'
-  - api_field: 'tests.host'
-    field: 'test.host'
-  - api_field: 'tests.path'
-    field: 'test.path'
-  - api_field: 'tests.service'
-    field: 'test.service'
-  - api_field: 'selfLink'
+    - api_field: creationTimestamp
+    - api_field: defaultCustomErrorResponsePolicy.errorResponseRules.matchResponseCodes
+      field: default_custom_error_response_policy.error_response_rule.match_response_codes
+    - api_field: defaultCustomErrorResponsePolicy.errorResponseRules.overrideResponseCode
+      field: default_custom_error_response_policy.error_response_rule.override_response_code
+    - api_field: defaultCustomErrorResponsePolicy.errorResponseRules.path
+      field: default_custom_error_response_policy.error_response_rule.path
+    - api_field: defaultCustomErrorResponsePolicy.errorService
+    - api_field: defaultRouteAction.corsPolicy.allowCredentials
+    - api_field: defaultRouteAction.corsPolicy.allowHeaders
+    - api_field: defaultRouteAction.corsPolicy.allowMethods
+    - api_field: defaultRouteAction.corsPolicy.allowOriginRegexes
+    - api_field: defaultRouteAction.corsPolicy.allowOrigins
+    - api_field: defaultRouteAction.corsPolicy.disabled
+    - api_field: defaultRouteAction.corsPolicy.exposeHeaders
+    - api_field: defaultRouteAction.corsPolicy.maxAge
+    - api_field: defaultRouteAction.faultInjectionPolicy.abort.httpStatus
+    - api_field: defaultRouteAction.faultInjectionPolicy.abort.percentage
+    - api_field: defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.nanos
+    - api_field: defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.seconds
+    - api_field: defaultRouteAction.faultInjectionPolicy.delay.percentage
+    - api_field: defaultRouteAction.maxStreamDuration.nanos
+    - api_field: defaultRouteAction.maxStreamDuration.seconds
+    - api_field: defaultRouteAction.requestMirrorPolicy.backendService
+    - api_field: defaultRouteAction.retryPolicy.numRetries
+    - api_field: defaultRouteAction.retryPolicy.perTryTimeout.nanos
+    - api_field: defaultRouteAction.retryPolicy.perTryTimeout.seconds
+    - api_field: defaultRouteAction.retryPolicy.retryConditions
+    - api_field: defaultRouteAction.timeout.nanos
+    - api_field: defaultRouteAction.timeout.seconds
+    - api_field: defaultRouteAction.urlRewrite.hostRewrite
+    - api_field: defaultRouteAction.urlRewrite.pathPrefixRewrite
+    - api_field: defaultRouteAction.weightedBackendServices.backendService
+    - api_field: defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerName
+    - api_field: defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerValue
+    - api_field: defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.replace
+    - api_field: defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToRemove
+    - api_field: defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerName
+    - api_field: defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerValue
+    - api_field: defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.replace
+    - api_field: defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToRemove
+    - api_field: defaultRouteAction.weightedBackendServices.weight
+    - api_field: defaultService
+    - api_field: defaultUrlRedirect.hostRedirect
+    - api_field: defaultUrlRedirect.httpsRedirect
+    - api_field: defaultUrlRedirect.pathRedirect
+    - api_field: defaultUrlRedirect.prefixRedirect
+    - api_field: defaultUrlRedirect.redirectResponseCode
+    - api_field: defaultUrlRedirect.stripQuery
+    - api_field: description
+    - api_field: fingerprint
+    - api_field: headerAction.requestHeadersToAdd.headerName
+    - api_field: headerAction.requestHeadersToAdd.headerValue
+    - api_field: headerAction.requestHeadersToAdd.replace
+    - api_field: headerAction.requestHeadersToRemove
+    - api_field: headerAction.responseHeadersToAdd.headerName
+    - api_field: headerAction.responseHeadersToAdd.headerValue
+    - api_field: headerAction.responseHeadersToAdd.replace
+    - api_field: headerAction.responseHeadersToRemove
+    - api_field: hostRules.description
+      field: host_rule.description
+    - api_field: hostRules.hosts
+      field: host_rule.hosts
+    - api_field: hostRules.pathMatcher
+      field: host_rule.path_matcher
+    - api_field: id
+      field: map_id
+    - api_field: name
+    - api_field: pathMatchers.defaultCustomErrorResponsePolicy.errorResponseRules.matchResponseCodes
+      field: path_matcher.default_custom_error_response_policy.error_response_rule.match_response_codes
+    - api_field: pathMatchers.defaultCustomErrorResponsePolicy.errorResponseRules.overrideResponseCode
+      field: path_matcher.default_custom_error_response_policy.error_response_rule.override_response_code
+    - api_field: pathMatchers.defaultCustomErrorResponsePolicy.errorResponseRules.path
+      field: path_matcher.default_custom_error_response_policy.error_response_rule.path
+    - api_field: pathMatchers.defaultCustomErrorResponsePolicy.errorService
+      field: path_matcher.default_custom_error_response_policy.error_service
+    - api_field: pathMatchers.defaultRouteAction.corsPolicy.allowCredentials
+      field: path_matcher.default_route_action.cors_policy.allow_credentials
+    - api_field: pathMatchers.defaultRouteAction.corsPolicy.allowHeaders
+      field: path_matcher.default_route_action.cors_policy.allow_headers
+    - api_field: pathMatchers.defaultRouteAction.corsPolicy.allowMethods
+      field: path_matcher.default_route_action.cors_policy.allow_methods
+    - api_field: pathMatchers.defaultRouteAction.corsPolicy.allowOriginRegexes
+      field: path_matcher.default_route_action.cors_policy.allow_origin_regexes
+    - api_field: pathMatchers.defaultRouteAction.corsPolicy.allowOrigins
+      field: path_matcher.default_route_action.cors_policy.allow_origins
+    - api_field: pathMatchers.defaultRouteAction.corsPolicy.disabled
+      field: path_matcher.default_route_action.cors_policy.disabled
+    - api_field: pathMatchers.defaultRouteAction.corsPolicy.exposeHeaders
+      field: path_matcher.default_route_action.cors_policy.expose_headers
+    - api_field: pathMatchers.defaultRouteAction.corsPolicy.maxAge
+      field: path_matcher.default_route_action.cors_policy.max_age
+    - api_field: pathMatchers.defaultRouteAction.faultInjectionPolicy.abort.httpStatus
+      field: path_matcher.default_route_action.fault_injection_policy.abort.http_status
+    - api_field: pathMatchers.defaultRouteAction.faultInjectionPolicy.abort.percentage
+      field: path_matcher.default_route_action.fault_injection_policy.abort.percentage
+    - api_field: pathMatchers.defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.nanos
+      field: path_matcher.default_route_action.fault_injection_policy.delay.fixed_delay.nanos
+    - api_field: pathMatchers.defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.seconds
+      field: path_matcher.default_route_action.fault_injection_policy.delay.fixed_delay.seconds
+    - api_field: pathMatchers.defaultRouteAction.faultInjectionPolicy.delay.percentage
+      field: path_matcher.default_route_action.fault_injection_policy.delay.percentage
+    - api_field: pathMatchers.defaultRouteAction.maxStreamDuration.nanos
+      field: path_matcher.default_route_action.max_stream_duration.nanos
+    - api_field: pathMatchers.defaultRouteAction.maxStreamDuration.seconds
+      field: path_matcher.default_route_action.max_stream_duration.seconds
+    - api_field: pathMatchers.defaultRouteAction.requestMirrorPolicy.backendService
+      field: path_matcher.default_route_action.request_mirror_policy.backend_service
+    - api_field: pathMatchers.defaultRouteAction.retryPolicy.numRetries
+      field: path_matcher.default_route_action.retry_policy.num_retries
+    - api_field: pathMatchers.defaultRouteAction.retryPolicy.perTryTimeout.nanos
+      field: path_matcher.default_route_action.retry_policy.per_try_timeout.nanos
+    - api_field: pathMatchers.defaultRouteAction.retryPolicy.perTryTimeout.seconds
+      field: path_matcher.default_route_action.retry_policy.per_try_timeout.seconds
+    - api_field: pathMatchers.defaultRouteAction.retryPolicy.retryConditions
+      field: path_matcher.default_route_action.retry_policy.retry_conditions
+    - api_field: pathMatchers.defaultRouteAction.timeout.nanos
+      field: path_matcher.default_route_action.timeout.nanos
+    - api_field: pathMatchers.defaultRouteAction.timeout.seconds
+      field: path_matcher.default_route_action.timeout.seconds
+    - api_field: pathMatchers.defaultRouteAction.urlRewrite.hostRewrite
+      field: path_matcher.default_route_action.url_rewrite.host_rewrite
+    - api_field: pathMatchers.defaultRouteAction.urlRewrite.pathPrefixRewrite
+      field: path_matcher.default_route_action.url_rewrite.path_prefix_rewrite
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.backendService
+      field: path_matcher.default_route_action.weighted_backend_services.backend_service
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerName
+      field: path_matcher.default_route_action.weighted_backend_services.header_action.request_headers_to_add.header_name
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerValue
+      field: path_matcher.default_route_action.weighted_backend_services.header_action.request_headers_to_add.header_value
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToAdd.replace
+      field: path_matcher.default_route_action.weighted_backend_services.header_action.request_headers_to_add.replace
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.requestHeadersToRemove
+      field: path_matcher.default_route_action.weighted_backend_services.header_action.request_headers_to_remove
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerName
+      field: path_matcher.default_route_action.weighted_backend_services.header_action.response_headers_to_add.header_name
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerValue
+      field: path_matcher.default_route_action.weighted_backend_services.header_action.response_headers_to_add.header_value
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToAdd.replace
+      field: path_matcher.default_route_action.weighted_backend_services.header_action.response_headers_to_add.replace
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.headerAction.responseHeadersToRemove
+      field: path_matcher.default_route_action.weighted_backend_services.header_action.response_headers_to_remove
+    - api_field: pathMatchers.defaultRouteAction.weightedBackendServices.weight
+      field: path_matcher.default_route_action.weighted_backend_services.weight
+    - api_field: pathMatchers.defaultService
+      field: path_matcher.default_service
+    - api_field: pathMatchers.defaultUrlRedirect.hostRedirect
+      field: path_matcher.default_url_redirect.host_redirect
+    - api_field: pathMatchers.defaultUrlRedirect.httpsRedirect
+      field: path_matcher.default_url_redirect.https_redirect
+    - api_field: pathMatchers.defaultUrlRedirect.pathRedirect
+      field: path_matcher.default_url_redirect.path_redirect
+    - api_field: pathMatchers.defaultUrlRedirect.prefixRedirect
+      field: path_matcher.default_url_redirect.prefix_redirect
+    - api_field: pathMatchers.defaultUrlRedirect.redirectResponseCode
+      field: path_matcher.default_url_redirect.redirect_response_code
+    - api_field: pathMatchers.defaultUrlRedirect.stripQuery
+      field: path_matcher.default_url_redirect.strip_query
+    - api_field: pathMatchers.description
+      field: path_matcher.description
+    - api_field: pathMatchers.headerAction.requestHeadersToAdd.headerName
+      field: path_matcher.header_action.request_headers_to_add.header_name
+    - api_field: pathMatchers.headerAction.requestHeadersToAdd.headerValue
+      field: path_matcher.header_action.request_headers_to_add.header_value
+    - api_field: pathMatchers.headerAction.requestHeadersToAdd.replace
+      field: path_matcher.header_action.request_headers_to_add.replace
+    - api_field: pathMatchers.headerAction.requestHeadersToRemove
+      field: path_matcher.header_action.request_headers_to_remove
+    - api_field: pathMatchers.headerAction.responseHeadersToAdd.headerName
+      field: path_matcher.header_action.response_headers_to_add.header_name
+    - api_field: pathMatchers.headerAction.responseHeadersToAdd.headerValue
+      field: path_matcher.header_action.response_headers_to_add.header_value
+    - api_field: pathMatchers.headerAction.responseHeadersToAdd.replace
+      field: path_matcher.header_action.response_headers_to_add.replace
+    - api_field: pathMatchers.headerAction.responseHeadersToRemove
+      field: path_matcher.header_action.response_headers_to_remove
+    - api_field: pathMatchers.name
+      field: path_matcher.name
+    - api_field: pathMatchers.pathRules.customErrorResponsePolicy.errorResponseRules.matchResponseCodes
+      field: path_matcher.path_rule.custom_error_response_policy.error_response_rule.match_response_codes
+    - api_field: pathMatchers.pathRules.customErrorResponsePolicy.errorResponseRules.overrideResponseCode
+      field: path_matcher.path_rule.custom_error_response_policy.error_response_rule.override_response_code
+    - api_field: pathMatchers.pathRules.customErrorResponsePolicy.errorResponseRules.path
+      field: path_matcher.path_rule.custom_error_response_policy.error_response_rule.path
+    - api_field: pathMatchers.pathRules.customErrorResponsePolicy.errorService
+      field: path_matcher.path_rule.custom_error_response_policy.error_service
+    - api_field: pathMatchers.pathRules.paths
+      field: path_matcher.path_rule.paths
+    - api_field: pathMatchers.pathRules.routeAction.corsPolicy.allowCredentials
+      field: path_matcher.path_rule.route_action.cors_policy.allow_credentials
+    - api_field: pathMatchers.pathRules.routeAction.corsPolicy.allowHeaders
+      field: path_matcher.path_rule.route_action.cors_policy.allow_headers
+    - api_field: pathMatchers.pathRules.routeAction.corsPolicy.allowMethods
+      field: path_matcher.path_rule.route_action.cors_policy.allow_methods
+    - api_field: pathMatchers.pathRules.routeAction.corsPolicy.allowOriginRegexes
+      field: path_matcher.path_rule.route_action.cors_policy.allow_origin_regexes
+    - api_field: pathMatchers.pathRules.routeAction.corsPolicy.allowOrigins
+      field: path_matcher.path_rule.route_action.cors_policy.allow_origins
+    - api_field: pathMatchers.pathRules.routeAction.corsPolicy.disabled
+      field: path_matcher.path_rule.route_action.cors_policy.disabled
+    - api_field: pathMatchers.pathRules.routeAction.corsPolicy.exposeHeaders
+      field: path_matcher.path_rule.route_action.cors_policy.expose_headers
+    - api_field: pathMatchers.pathRules.routeAction.corsPolicy.maxAge
+      field: path_matcher.path_rule.route_action.cors_policy.max_age
+    - api_field: pathMatchers.pathRules.routeAction.faultInjectionPolicy.abort.httpStatus
+      field: path_matcher.path_rule.route_action.fault_injection_policy.abort.http_status
+    - api_field: pathMatchers.pathRules.routeAction.faultInjectionPolicy.abort.percentage
+      field: path_matcher.path_rule.route_action.fault_injection_policy.abort.percentage
+    - api_field: pathMatchers.pathRules.routeAction.faultInjectionPolicy.delay.fixedDelay.nanos
+      field: path_matcher.path_rule.route_action.fault_injection_policy.delay.fixed_delay.nanos
+    - api_field: pathMatchers.pathRules.routeAction.faultInjectionPolicy.delay.fixedDelay.seconds
+      field: path_matcher.path_rule.route_action.fault_injection_policy.delay.fixed_delay.seconds
+    - api_field: pathMatchers.pathRules.routeAction.faultInjectionPolicy.delay.percentage
+      field: path_matcher.path_rule.route_action.fault_injection_policy.delay.percentage
+    - api_field: pathMatchers.pathRules.routeAction.maxStreamDuration.nanos
+      field: path_matcher.path_rule.route_action.max_stream_duration.nanos
+    - api_field: pathMatchers.pathRules.routeAction.maxStreamDuration.seconds
+      field: path_matcher.path_rule.route_action.max_stream_duration.seconds
+    - api_field: pathMatchers.pathRules.routeAction.requestMirrorPolicy.backendService
+      field: path_matcher.path_rule.route_action.request_mirror_policy.backend_service
+    - api_field: pathMatchers.pathRules.routeAction.retryPolicy.numRetries
+      field: path_matcher.path_rule.route_action.retry_policy.num_retries
+    - api_field: pathMatchers.pathRules.routeAction.retryPolicy.perTryTimeout.nanos
+      field: path_matcher.path_rule.route_action.retry_policy.per_try_timeout.nanos
+    - api_field: pathMatchers.pathRules.routeAction.retryPolicy.perTryTimeout.seconds
+      field: path_matcher.path_rule.route_action.retry_policy.per_try_timeout.seconds
+    - api_field: pathMatchers.pathRules.routeAction.retryPolicy.retryConditions
+      field: path_matcher.path_rule.route_action.retry_policy.retry_conditions
+    - api_field: pathMatchers.pathRules.routeAction.timeout.nanos
+      field: path_matcher.path_rule.route_action.timeout.nanos
+    - api_field: pathMatchers.pathRules.routeAction.timeout.seconds
+      field: path_matcher.path_rule.route_action.timeout.seconds
+    - api_field: pathMatchers.pathRules.routeAction.urlRewrite.hostRewrite
+      field: path_matcher.path_rule.route_action.url_rewrite.host_rewrite
+    - api_field: pathMatchers.pathRules.routeAction.urlRewrite.pathPrefixRewrite
+      field: path_matcher.path_rule.route_action.url_rewrite.path_prefix_rewrite
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.backendService
+      field: path_matcher.path_rule.route_action.weighted_backend_services.backend_service
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerName
+      field: path_matcher.path_rule.route_action.weighted_backend_services.header_action.request_headers_to_add.header_name
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerValue
+      field: path_matcher.path_rule.route_action.weighted_backend_services.header_action.request_headers_to_add.header_value
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.replace
+      field: path_matcher.path_rule.route_action.weighted_backend_services.header_action.request_headers_to_add.replace
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.requestHeadersToRemove
+      field: path_matcher.path_rule.route_action.weighted_backend_services.header_action.request_headers_to_remove
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerName
+      field: path_matcher.path_rule.route_action.weighted_backend_services.header_action.response_headers_to_add.header_name
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerValue
+      field: path_matcher.path_rule.route_action.weighted_backend_services.header_action.response_headers_to_add.header_value
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.replace
+      field: path_matcher.path_rule.route_action.weighted_backend_services.header_action.response_headers_to_add.replace
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.headerAction.responseHeadersToRemove
+      field: path_matcher.path_rule.route_action.weighted_backend_services.header_action.response_headers_to_remove
+    - api_field: pathMatchers.pathRules.routeAction.weightedBackendServices.weight
+      field: path_matcher.path_rule.route_action.weighted_backend_services.weight
+    - api_field: pathMatchers.pathRules.service
+      field: path_matcher.path_rule.service
+    - api_field: pathMatchers.pathRules.urlRedirect.hostRedirect
+      field: path_matcher.path_rule.url_redirect.host_redirect
+    - api_field: pathMatchers.pathRules.urlRedirect.httpsRedirect
+      field: path_matcher.path_rule.url_redirect.https_redirect
+    - api_field: pathMatchers.pathRules.urlRedirect.pathRedirect
+      field: path_matcher.path_rule.url_redirect.path_redirect
+    - api_field: pathMatchers.pathRules.urlRedirect.prefixRedirect
+      field: path_matcher.path_rule.url_redirect.prefix_redirect
+    - api_field: pathMatchers.pathRules.urlRedirect.redirectResponseCode
+      field: path_matcher.path_rule.url_redirect.redirect_response_code
+    - api_field: pathMatchers.pathRules.urlRedirect.stripQuery
+      field: path_matcher.path_rule.url_redirect.strip_query
+    - api_field: pathMatchers.routeRules.customErrorResponsePolicy.errorResponseRules.matchResponseCodes
+      field: path_matcher.route_rules.custom_error_response_policy.error_response_rule.match_response_codes
+    - api_field: pathMatchers.routeRules.customErrorResponsePolicy.errorResponseRules.overrideResponseCode
+      field: path_matcher.route_rules.custom_error_response_policy.error_response_rule.override_response_code
+    - api_field: pathMatchers.routeRules.customErrorResponsePolicy.errorResponseRules.path
+      field: path_matcher.route_rules.custom_error_response_policy.error_response_rule.path
+    - api_field: pathMatchers.routeRules.customErrorResponsePolicy.errorService
+      field: path_matcher.route_rules.custom_error_response_policy.error_service
+    - api_field: pathMatchers.routeRules.headerAction.requestHeadersToAdd.headerName
+      field: path_matcher.route_rules.header_action.request_headers_to_add.header_name
+    - api_field: pathMatchers.routeRules.headerAction.requestHeadersToAdd.headerValue
+      field: path_matcher.route_rules.header_action.request_headers_to_add.header_value
+    - api_field: pathMatchers.routeRules.headerAction.requestHeadersToAdd.replace
+      field: path_matcher.route_rules.header_action.request_headers_to_add.replace
+    - api_field: pathMatchers.routeRules.headerAction.requestHeadersToRemove
+      field: path_matcher.route_rules.header_action.request_headers_to_remove
+    - api_field: pathMatchers.routeRules.headerAction.responseHeadersToAdd.headerName
+      field: path_matcher.route_rules.header_action.response_headers_to_add.header_name
+    - api_field: pathMatchers.routeRules.headerAction.responseHeadersToAdd.headerValue
+      field: path_matcher.route_rules.header_action.response_headers_to_add.header_value
+    - api_field: pathMatchers.routeRules.headerAction.responseHeadersToAdd.replace
+      field: path_matcher.route_rules.header_action.response_headers_to_add.replace
+    - api_field: pathMatchers.routeRules.headerAction.responseHeadersToRemove
+      field: path_matcher.route_rules.header_action.response_headers_to_remove
+    - api_field: pathMatchers.routeRules.matchRules.fullPathMatch
+      field: path_matcher.route_rules.match_rules.full_path_match
+    - api_field: pathMatchers.routeRules.matchRules.headerMatches.exactMatch
+      field: path_matcher.route_rules.match_rules.header_matches.exact_match
+    - api_field: pathMatchers.routeRules.matchRules.headerMatches.headerName
+      field: path_matcher.route_rules.match_rules.header_matches.header_name
+    - api_field: pathMatchers.routeRules.matchRules.headerMatches.invertMatch
+      field: path_matcher.route_rules.match_rules.header_matches.invert_match
+    - api_field: pathMatchers.routeRules.matchRules.headerMatches.prefixMatch
+      field: path_matcher.route_rules.match_rules.header_matches.prefix_match
+    - api_field: pathMatchers.routeRules.matchRules.headerMatches.presentMatch
+      field: path_matcher.route_rules.match_rules.header_matches.present_match
+    - api_field: pathMatchers.routeRules.matchRules.headerMatches.rangeMatch.rangeEnd
+      field: path_matcher.route_rules.match_rules.header_matches.range_match.range_end
+    - api_field: pathMatchers.routeRules.matchRules.headerMatches.rangeMatch.rangeStart
+      field: path_matcher.route_rules.match_rules.header_matches.range_match.range_start
+    - api_field: pathMatchers.routeRules.matchRules.headerMatches.regexMatch
+      field: path_matcher.route_rules.match_rules.header_matches.regex_match
+    - api_field: pathMatchers.routeRules.matchRules.headerMatches.suffixMatch
+      field: path_matcher.route_rules.match_rules.header_matches.suffix_match
+    - api_field: pathMatchers.routeRules.matchRules.ignoreCase
+      field: path_matcher.route_rules.match_rules.ignore_case
+    - api_field: pathMatchers.routeRules.matchRules.metadataFilters.filterLabels.name
+      field: path_matcher.route_rules.match_rules.metadata_filters.filter_labels.name
+    - api_field: pathMatchers.routeRules.matchRules.metadataFilters.filterLabels.value
+      field: path_matcher.route_rules.match_rules.metadata_filters.filter_labels.value
+    - api_field: pathMatchers.routeRules.matchRules.metadataFilters.filterMatchCriteria
+      field: path_matcher.route_rules.match_rules.metadata_filters.filter_match_criteria
+    - api_field: pathMatchers.routeRules.matchRules.pathTemplateMatch
+      field: path_matcher.route_rules.match_rules.path_template_match
+    - api_field: pathMatchers.routeRules.matchRules.prefixMatch
+      field: path_matcher.route_rules.match_rules.prefix_match
+    - api_field: pathMatchers.routeRules.matchRules.queryParameterMatches.exactMatch
+      field: path_matcher.route_rules.match_rules.query_parameter_matches.exact_match
+    - api_field: pathMatchers.routeRules.matchRules.queryParameterMatches.name
+      field: path_matcher.route_rules.match_rules.query_parameter_matches.name
+    - api_field: pathMatchers.routeRules.matchRules.queryParameterMatches.presentMatch
+      field: path_matcher.route_rules.match_rules.query_parameter_matches.present_match
+    - api_field: pathMatchers.routeRules.matchRules.queryParameterMatches.regexMatch
+      field: path_matcher.route_rules.match_rules.query_parameter_matches.regex_match
+    - api_field: pathMatchers.routeRules.matchRules.regexMatch
+      field: path_matcher.route_rules.match_rules.regex_match
+    - api_field: pathMatchers.routeRules.priority
+      field: path_matcher.route_rules.priority
+    - api_field: pathMatchers.routeRules.routeAction.corsPolicy.allowCredentials
+      field: path_matcher.route_rules.route_action.cors_policy.allow_credentials
+    - api_field: pathMatchers.routeRules.routeAction.corsPolicy.allowHeaders
+      field: path_matcher.route_rules.route_action.cors_policy.allow_headers
+    - api_field: pathMatchers.routeRules.routeAction.corsPolicy.allowMethods
+      field: path_matcher.route_rules.route_action.cors_policy.allow_methods
+    - api_field: pathMatchers.routeRules.routeAction.corsPolicy.allowOriginRegexes
+      field: path_matcher.route_rules.route_action.cors_policy.allow_origin_regexes
+    - api_field: pathMatchers.routeRules.routeAction.corsPolicy.allowOrigins
+      field: path_matcher.route_rules.route_action.cors_policy.allow_origins
+    - api_field: pathMatchers.routeRules.routeAction.corsPolicy.disabled
+      field: path_matcher.route_rules.route_action.cors_policy.disabled
+    - api_field: pathMatchers.routeRules.routeAction.corsPolicy.exposeHeaders
+      field: path_matcher.route_rules.route_action.cors_policy.expose_headers
+    - api_field: pathMatchers.routeRules.routeAction.corsPolicy.maxAge
+      field: path_matcher.route_rules.route_action.cors_policy.max_age
+    - api_field: pathMatchers.routeRules.routeAction.faultInjectionPolicy.abort.httpStatus
+      field: path_matcher.route_rules.route_action.fault_injection_policy.abort.http_status
+    - api_field: pathMatchers.routeRules.routeAction.faultInjectionPolicy.abort.percentage
+      field: path_matcher.route_rules.route_action.fault_injection_policy.abort.percentage
+    - api_field: pathMatchers.routeRules.routeAction.faultInjectionPolicy.delay.fixedDelay.nanos
+      field: path_matcher.route_rules.route_action.fault_injection_policy.delay.fixed_delay.nanos
+    - api_field: pathMatchers.routeRules.routeAction.faultInjectionPolicy.delay.fixedDelay.seconds
+      field: path_matcher.route_rules.route_action.fault_injection_policy.delay.fixed_delay.seconds
+    - api_field: pathMatchers.routeRules.routeAction.faultInjectionPolicy.delay.percentage
+      field: path_matcher.route_rules.route_action.fault_injection_policy.delay.percentage
+    - api_field: pathMatchers.routeRules.routeAction.maxStreamDuration.nanos
+      field: path_matcher.route_rules.route_action.max_stream_duration.nanos
+    - api_field: pathMatchers.routeRules.routeAction.maxStreamDuration.seconds
+      field: path_matcher.route_rules.route_action.max_stream_duration.seconds
+    - api_field: pathMatchers.routeRules.routeAction.requestMirrorPolicy.backendService
+      field: path_matcher.route_rules.route_action.request_mirror_policy.backend_service
+    - api_field: pathMatchers.routeRules.routeAction.retryPolicy.numRetries
+      field: path_matcher.route_rules.route_action.retry_policy.num_retries
+    - api_field: pathMatchers.routeRules.routeAction.retryPolicy.perTryTimeout.nanos
+      field: path_matcher.route_rules.route_action.retry_policy.per_try_timeout.nanos
+    - api_field: pathMatchers.routeRules.routeAction.retryPolicy.perTryTimeout.seconds
+      field: path_matcher.route_rules.route_action.retry_policy.per_try_timeout.seconds
+    - api_field: pathMatchers.routeRules.routeAction.retryPolicy.retryConditions
+      field: path_matcher.route_rules.route_action.retry_policy.retry_conditions
+    - api_field: pathMatchers.routeRules.routeAction.timeout.nanos
+      field: path_matcher.route_rules.route_action.timeout.nanos
+    - api_field: pathMatchers.routeRules.routeAction.timeout.seconds
+      field: path_matcher.route_rules.route_action.timeout.seconds
+    - api_field: pathMatchers.routeRules.routeAction.urlRewrite.hostRewrite
+      field: path_matcher.route_rules.route_action.url_rewrite.host_rewrite
+    - api_field: pathMatchers.routeRules.routeAction.urlRewrite.pathPrefixRewrite
+      field: path_matcher.route_rules.route_action.url_rewrite.path_prefix_rewrite
+    - api_field: pathMatchers.routeRules.routeAction.urlRewrite.pathTemplateRewrite
+      field: path_matcher.route_rules.route_action.url_rewrite.path_template_rewrite
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.backendService
+      field: path_matcher.route_rules.route_action.weighted_backend_services.backend_service
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerName
+      field: path_matcher.route_rules.route_action.weighted_backend_services.header_action.request_headers_to_add.header_name
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerValue
+      field: path_matcher.route_rules.route_action.weighted_backend_services.header_action.request_headers_to_add.header_value
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.replace
+      field: path_matcher.route_rules.route_action.weighted_backend_services.header_action.request_headers_to_add.replace
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.requestHeadersToRemove
+      field: path_matcher.route_rules.route_action.weighted_backend_services.header_action.request_headers_to_remove
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerName
+      field: path_matcher.route_rules.route_action.weighted_backend_services.header_action.response_headers_to_add.header_name
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.headerValue
+      field: path_matcher.route_rules.route_action.weighted_backend_services.header_action.response_headers_to_add.header_value
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.responseHeadersToAdd.replace
+      field: path_matcher.route_rules.route_action.weighted_backend_services.header_action.response_headers_to_add.replace
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.responseHeadersToRemove
+      field: path_matcher.route_rules.route_action.weighted_backend_services.header_action.response_headers_to_remove
+    - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.weight
+      field: path_matcher.route_rules.route_action.weighted_backend_services.weight
+    - api_field: pathMatchers.routeRules.service
+      field: path_matcher.route_rules.service
+    - api_field: pathMatchers.routeRules.urlRedirect.hostRedirect
+      field: path_matcher.route_rules.url_redirect.host_redirect
+    - api_field: pathMatchers.routeRules.urlRedirect.httpsRedirect
+      field: path_matcher.route_rules.url_redirect.https_redirect
+    - api_field: pathMatchers.routeRules.urlRedirect.pathRedirect
+      field: path_matcher.route_rules.url_redirect.path_redirect
+    - api_field: pathMatchers.routeRules.urlRedirect.prefixRedirect
+      field: path_matcher.route_rules.url_redirect.prefix_redirect
+    - api_field: pathMatchers.routeRules.urlRedirect.redirectResponseCode
+      field: path_matcher.route_rules.url_redirect.redirect_response_code
+    - api_field: pathMatchers.routeRules.urlRedirect.stripQuery
+      field: path_matcher.route_rules.url_redirect.strip_query
+    - api_field: tests.description
+      field: test.description
+    - api_field: tests.expectedOutputUrl
+      field: test.expected_output_url
+    - api_field: tests.expectedRedirectResponseCode
+      field: test.expected_redirect_response_code
+    - api_field: tests.headers.name
+      field: test.headers.name
+    - api_field: tests.headers.value
+      field: test.headers.value
+    - api_field: tests.host
+      field: test.host
+    - api_field: tests.path
+      field: test.path
+    - api_field: tests.service
+      field: test.service
+    - api_field: selfLink

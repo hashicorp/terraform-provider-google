@@ -1,18 +1,18 @@
-resource: 'google_vmwareengine_external_address'
-generation_type: 'mmv1'
-source_file: 'products/vmwareengine/ExternalAddress.yaml'
-api_service_name: 'vmwareengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ExternalAddress'
+resource: google_vmwareengine_external_address
+generation_type: mmv1
+source_file: products/vmwareengine/ExternalAddress.yaml
+api_service_name: vmwareengine.googleapis.com
+api_version: v1
+api_resource_type_kind: ExternalAddress
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'externalIp'
-  - api_field: 'internalIp'
-  - field: 'name'
-    provider_only: true
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'state'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: externalIp
+    - api_field: internalIp
+    - field: name
+      provider_only: true
+    - field: parent
+      provider_only: true
+    - api_field: state
+    - api_field: uid
+    - api_field: updateTime

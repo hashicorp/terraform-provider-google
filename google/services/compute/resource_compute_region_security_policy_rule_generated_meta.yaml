@@ -1,85 +1,85 @@
-resource: 'google_compute_region_security_policy_rule'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionSecurityPolicyRule.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SecurityPolicy'
+resource: google_compute_region_security_policy_rule
+generation_type: mmv1
+source_file: products/compute/RegionSecurityPolicyRule.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityPolicy
 fields:
-  - api_field: 'rules.action'
-    field: 'action'
-  - api_field: 'rules.description'
-    field: 'description'
-  - api_field: 'rules.match.config.srcIpRanges'
-    field: 'match.config.src_ip_ranges'
-  - api_field: 'rules.match.expr.expression'
-    field: 'match.expr.expression'
-  - api_field: 'rules.match.versionedExpr'
-    field: 'match.versioned_expr'
-  - api_field: 'rules.networkMatch.destIpRanges'
-    field: 'network_match.dest_ip_ranges'
-  - api_field: 'rules.networkMatch.destPorts'
-    field: 'network_match.dest_ports'
-  - api_field: 'rules.networkMatch.ipProtocols'
-    field: 'network_match.ip_protocols'
-  - api_field: 'rules.networkMatch.srcAsns'
-    field: 'network_match.src_asns'
-  - api_field: 'rules.networkMatch.srcIpRanges'
-    field: 'network_match.src_ip_ranges'
-  - api_field: 'rules.networkMatch.srcPorts'
-    field: 'network_match.src_ports'
-  - api_field: 'rules.networkMatch.srcRegionCodes'
-    field: 'network_match.src_region_codes'
-  - api_field: 'rules.networkMatch.userDefinedFields.name'
-    field: 'network_match.user_defined_fields.name'
-  - api_field: 'rules.networkMatch.userDefinedFields.values'
-    field: 'network_match.user_defined_fields.values'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.op'
-    field: 'preconfigured_waf_config.exclusion.request_cookie.operator'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.val'
-    field: 'preconfigured_waf_config.exclusion.request_cookie.value'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.op'
-    field: 'preconfigured_waf_config.exclusion.request_header.operator'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.val'
-    field: 'preconfigured_waf_config.exclusion.request_header.value'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.op'
-    field: 'preconfigured_waf_config.exclusion.request_query_param.operator'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.val'
-    field: 'preconfigured_waf_config.exclusion.request_query_param.value'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.op'
-    field: 'preconfigured_waf_config.exclusion.request_uri.operator'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.val'
-    field: 'preconfigured_waf_config.exclusion.request_uri.value'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.targetRuleIds'
-    field: 'preconfigured_waf_config.exclusion.target_rule_ids'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.targetRuleSet'
-    field: 'preconfigured_waf_config.exclusion.target_rule_set'
-  - api_field: 'rules.preview'
-    field: 'preview'
-  - api_field: 'rules.priority'
-    field: 'priority'
-  - api_field: 'rules.rateLimitOptions.banDurationSec'
-    field: 'rate_limit_options.ban_duration_sec'
-  - api_field: 'rules.rateLimitOptions.banThreshold.count'
-    field: 'rate_limit_options.ban_threshold.count'
-  - api_field: 'rules.rateLimitOptions.banThreshold.intervalSec'
-    field: 'rate_limit_options.ban_threshold.interval_sec'
-  - api_field: 'rules.rateLimitOptions.conformAction'
-    field: 'rate_limit_options.conform_action'
-  - api_field: 'rules.rateLimitOptions.enforceOnKey'
-    field: 'rate_limit_options.enforce_on_key'
-  - api_field: 'rules.rateLimitOptions.enforceOnKeyConfigs.enforceOnKeyName'
-    field: 'rate_limit_options.enforce_on_key_configs.enforce_on_key_name'
-  - api_field: 'rules.rateLimitOptions.enforceOnKeyConfigs.enforceOnKeyType'
-    field: 'rate_limit_options.enforce_on_key_configs.enforce_on_key_type'
-  - api_field: 'rules.rateLimitOptions.enforceOnKeyName'
-    field: 'rate_limit_options.enforce_on_key_name'
-  - api_field: 'rules.rateLimitOptions.exceedAction'
-    field: 'rate_limit_options.exceed_action'
-  - api_field: 'rules.rateLimitOptions.rateLimitThreshold.count'
-    field: 'rate_limit_options.rate_limit_threshold.count'
-  - api_field: 'rules.rateLimitOptions.rateLimitThreshold.intervalSec'
-    field: 'rate_limit_options.rate_limit_threshold.interval_sec'
-  - field: 'region'
-    provider_only: true
-  - field: 'security_policy'
-    provider_only: true
+    - api_field: rules.action
+      field: action
+    - api_field: rules.description
+      field: description
+    - api_field: rules.match.config.srcIpRanges
+      field: match.config.src_ip_ranges
+    - api_field: rules.match.expr.expression
+      field: match.expr.expression
+    - api_field: rules.match.versionedExpr
+      field: match.versioned_expr
+    - api_field: rules.networkMatch.destIpRanges
+      field: network_match.dest_ip_ranges
+    - api_field: rules.networkMatch.destPorts
+      field: network_match.dest_ports
+    - api_field: rules.networkMatch.ipProtocols
+      field: network_match.ip_protocols
+    - api_field: rules.networkMatch.srcAsns
+      field: network_match.src_asns
+    - api_field: rules.networkMatch.srcIpRanges
+      field: network_match.src_ip_ranges
+    - api_field: rules.networkMatch.srcPorts
+      field: network_match.src_ports
+    - api_field: rules.networkMatch.srcRegionCodes
+      field: network_match.src_region_codes
+    - api_field: rules.networkMatch.userDefinedFields.name
+      field: network_match.user_defined_fields.name
+    - api_field: rules.networkMatch.userDefinedFields.values
+      field: network_match.user_defined_fields.values
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.op
+      field: preconfigured_waf_config.exclusion.request_cookie.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.val
+      field: preconfigured_waf_config.exclusion.request_cookie.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.op
+      field: preconfigured_waf_config.exclusion.request_header.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.val
+      field: preconfigured_waf_config.exclusion.request_header.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.op
+      field: preconfigured_waf_config.exclusion.request_query_param.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.val
+      field: preconfigured_waf_config.exclusion.request_query_param.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.op
+      field: preconfigured_waf_config.exclusion.request_uri.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.val
+      field: preconfigured_waf_config.exclusion.request_uri.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.targetRuleIds
+      field: preconfigured_waf_config.exclusion.target_rule_ids
+    - api_field: rules.preconfiguredWafConfig.exclusions.targetRuleSet
+      field: preconfigured_waf_config.exclusion.target_rule_set
+    - api_field: rules.preview
+      field: preview
+    - api_field: rules.priority
+      field: priority
+    - api_field: rules.rateLimitOptions.banDurationSec
+      field: rate_limit_options.ban_duration_sec
+    - api_field: rules.rateLimitOptions.banThreshold.count
+      field: rate_limit_options.ban_threshold.count
+    - api_field: rules.rateLimitOptions.banThreshold.intervalSec
+      field: rate_limit_options.ban_threshold.interval_sec
+    - api_field: rules.rateLimitOptions.conformAction
+      field: rate_limit_options.conform_action
+    - api_field: rules.rateLimitOptions.enforceOnKey
+      field: rate_limit_options.enforce_on_key
+    - api_field: rules.rateLimitOptions.enforceOnKeyConfigs.enforceOnKeyName
+      field: rate_limit_options.enforce_on_key_configs.enforce_on_key_name
+    - api_field: rules.rateLimitOptions.enforceOnKeyConfigs.enforceOnKeyType
+      field: rate_limit_options.enforce_on_key_configs.enforce_on_key_type
+    - api_field: rules.rateLimitOptions.enforceOnKeyName
+      field: rate_limit_options.enforce_on_key_name
+    - api_field: rules.rateLimitOptions.exceedAction
+      field: rate_limit_options.exceed_action
+    - api_field: rules.rateLimitOptions.rateLimitThreshold.count
+      field: rate_limit_options.rate_limit_threshold.count
+    - api_field: rules.rateLimitOptions.rateLimitThreshold.intervalSec
+      field: rate_limit_options.rate_limit_threshold.interval_sec
+    - field: region
+      provider_only: true
+    - field: security_policy
+      provider_only: true

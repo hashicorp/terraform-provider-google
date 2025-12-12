@@ -1,15 +1,15 @@
-resource: 'google_contact_center_insights_view'
-generation_type: 'mmv1'
-source_file: 'products/contactcenterinsights/View.yaml'
-api_service_name: 'contactcenterinsights.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'View'
+resource: google_contact_center_insights_view
+generation_type: mmv1
+source_file: products/contactcenterinsights/View.yaml
+api_service_name: contactcenterinsights.googleapis.com
+api_version: v1
+api_resource_type_kind: View
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - api_field: 'displayName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'updateTime'
-  - api_field: 'value'
+    - api_field: createTime
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: updateTime
+    - api_field: value

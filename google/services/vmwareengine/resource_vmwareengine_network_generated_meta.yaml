@@ -1,20 +1,20 @@
-resource: 'google_vmwareengine_network'
-generation_type: 'mmv1'
-source_file: 'products/vmwareengine/Network.yaml'
-api_service_name: 'vmwareengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'VmwareEngineNetwork'
+resource: google_vmwareengine_network
+generation_type: mmv1
+source_file: products/vmwareengine/Network.yaml
+api_service_name: vmwareengine.googleapis.com
+api_version: v1
+api_resource_type_kind: VmwareEngineNetwork
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'etag'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'state'
-  - api_field: 'type'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
-  - api_field: 'vpcNetworks.network'
-  - api_field: 'vpcNetworks.type'
+    - api_field: createTime
+    - api_field: description
+    - api_field: etag
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: state
+    - api_field: type
+    - api_field: uid
+    - api_field: updateTime
+    - api_field: vpcNetworks.network
+    - api_field: vpcNetworks.type

@@ -1,64 +1,64 @@
-resource: 'google_edgecontainer_cluster'
-generation_type: 'mmv1'
-source_file: 'products/edgecontainer/Cluster.yaml'
-api_service_name: 'edgecontainer.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Cluster'
+resource: google_edgecontainer_cluster
+generation_type: mmv1
+source_file: products/edgecontainer/Cluster.yaml
+api_service_name: edgecontainer.googleapis.com
+api_version: v1
+api_resource_type_kind: Cluster
 fields:
-  - api_field: 'authorization.adminUsers.username'
-  - api_field: 'clusterCaCertificate'
-  - api_field: 'controlPlane.local.machineFilter'
-  - api_field: 'controlPlane.local.nodeCount'
-  - api_field: 'controlPlane.local.nodeLocation'
-  - api_field: 'controlPlane.local.sharedDeploymentPolicy'
-  - api_field: 'controlPlane.remote.nodeLocation'
-  - api_field: 'controlPlaneEncryption.kmsKey'
-  - api_field: 'controlPlaneEncryption.kmsKeyActiveVersion'
-  - api_field: 'controlPlaneEncryption.kmsKeyState'
-  - api_field: 'controlPlaneEncryption.kmsStatus.code'
-  - api_field: 'controlPlaneEncryption.kmsStatus.message'
-  - api_field: 'controlPlaneVersion'
-  - api_field: 'createTime'
-  - api_field: 'defaultMaxPodsPerNode'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'endpoint'
-  - api_field: 'externalLoadBalancerIpv4AddressPools'
-  - api_field: 'fleet.membership'
-  - api_field: 'fleet.project'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'maintenanceEvents.createTime'
-  - api_field: 'maintenanceEvents.endTime'
-  - api_field: 'maintenanceEvents.operation'
-  - api_field: 'maintenanceEvents.schedule'
-  - api_field: 'maintenanceEvents.startTime'
-  - api_field: 'maintenanceEvents.state'
-  - api_field: 'maintenanceEvents.targetVersion'
-  - api_field: 'maintenanceEvents.type'
-  - api_field: 'maintenanceEvents.updateTime'
-  - api_field: 'maintenanceEvents.uuid'
-  - api_field: 'maintenancePolicy.maintenanceExclusions.id'
-  - api_field: 'maintenancePolicy.maintenanceExclusions.window.endTime'
-  - api_field: 'maintenancePolicy.maintenanceExclusions.window.startTime'
-  - api_field: 'maintenancePolicy.window.recurringWindow.recurrence'
-  - api_field: 'maintenancePolicy.window.recurringWindow.window.endTime'
-  - api_field: 'maintenancePolicy.window.recurringWindow.window.startTime'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'networking.clusterIpv4CidrBlocks'
-  - api_field: 'networking.clusterIpv6CidrBlocks'
-  - api_field: 'networking.networkType'
-  - api_field: 'networking.servicesIpv4CidrBlocks'
-  - api_field: 'networking.servicesIpv6CidrBlocks'
-  - api_field: 'nodeVersion'
-  - api_field: 'port'
-  - api_field: 'releaseChannel'
-  - api_field: 'status'
-  - api_field: 'systemAddonsConfig.ingress.disabled'
-  - api_field: 'systemAddonsConfig.ingress.ipv4Vip'
-  - api_field: 'targetVersion'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: authorization.adminUsers.username
+    - api_field: clusterCaCertificate
+    - api_field: controlPlane.local.machineFilter
+    - api_field: controlPlane.local.nodeCount
+    - api_field: controlPlane.local.nodeLocation
+    - api_field: controlPlane.local.sharedDeploymentPolicy
+    - api_field: controlPlane.remote.nodeLocation
+    - api_field: controlPlaneEncryption.kmsKey
+    - api_field: controlPlaneEncryption.kmsKeyActiveVersion
+    - api_field: controlPlaneEncryption.kmsKeyState
+    - api_field: controlPlaneEncryption.kmsStatus.code
+    - api_field: controlPlaneEncryption.kmsStatus.message
+    - api_field: controlPlaneVersion
+    - api_field: createTime
+    - api_field: defaultMaxPodsPerNode
+    - field: effective_labels
+      provider_only: true
+    - api_field: endpoint
+    - api_field: externalLoadBalancerIpv4AddressPools
+    - api_field: fleet.membership
+    - api_field: fleet.project
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: maintenanceEvents.createTime
+    - api_field: maintenanceEvents.endTime
+    - api_field: maintenanceEvents.operation
+    - api_field: maintenanceEvents.schedule
+    - api_field: maintenanceEvents.startTime
+    - api_field: maintenanceEvents.state
+    - api_field: maintenanceEvents.targetVersion
+    - api_field: maintenanceEvents.type
+    - api_field: maintenanceEvents.updateTime
+    - api_field: maintenanceEvents.uuid
+    - api_field: maintenancePolicy.maintenanceExclusions.id
+    - api_field: maintenancePolicy.maintenanceExclusions.window.endTime
+    - api_field: maintenancePolicy.maintenanceExclusions.window.startTime
+    - api_field: maintenancePolicy.window.recurringWindow.recurrence
+    - api_field: maintenancePolicy.window.recurringWindow.window.endTime
+    - api_field: maintenancePolicy.window.recurringWindow.window.startTime
+    - field: name
+      provider_only: true
+    - api_field: networking.clusterIpv4CidrBlocks
+    - api_field: networking.clusterIpv6CidrBlocks
+    - api_field: networking.networkType
+    - api_field: networking.servicesIpv4CidrBlocks
+    - api_field: networking.servicesIpv6CidrBlocks
+    - api_field: nodeVersion
+    - api_field: port
+    - api_field: releaseChannel
+    - api_field: status
+    - api_field: systemAddonsConfig.ingress.disabled
+    - api_field: systemAddonsConfig.ingress.ipv4Vip
+    - api_field: targetVersion
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

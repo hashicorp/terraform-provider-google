@@ -1,25 +1,25 @@
-resource: 'google_healthcare_hl7_v2_store'
-generation_type: 'mmv1'
-source_file: 'products/healthcare/Hl7V2Store.yaml'
-api_service_name: 'healthcare.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Hl7V2Store'
+resource: google_healthcare_hl7_v2_store
+generation_type: mmv1
+source_file: products/healthcare/Hl7V2Store.yaml
+api_service_name: healthcare.googleapis.com
+api_version: v1
+api_resource_type_kind: Hl7V2Store
 fields:
-  - field: 'dataset'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'notificationConfig.pubsubTopic'
-  - api_field: 'notificationConfigs.filter'
-  - api_field: 'notificationConfigs.pubsubTopic'
-  - api_field: 'parserConfig.allowNullHeader'
-  - api_field: 'parserConfig.schema'
-    json: true
-  - api_field: 'parserConfig.segmentTerminator'
-  - api_field: 'parserConfig.version'
-  - api_field: 'rejectDuplicateMessage'
-  - api_field: 'selfLink'
-  - field: 'terraform_labels'
-    provider_only: true
+    - field: dataset
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: name
+    - api_field: notificationConfig.pubsubTopic
+    - api_field: notificationConfigs.filter
+    - api_field: notificationConfigs.pubsubTopic
+    - api_field: parserConfig.allowNullHeader
+    - api_field: parserConfig.schema
+      json: true
+    - api_field: parserConfig.segmentTerminator
+    - api_field: parserConfig.version
+    - api_field: rejectDuplicateMessage
+    - api_field: selfLink
+    - field: terraform_labels
+      provider_only: true

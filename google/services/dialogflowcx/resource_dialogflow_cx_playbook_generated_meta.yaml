@@ -1,25 +1,25 @@
-resource: 'google_dialogflow_cx_playbook'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/Playbook.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Playbook'
+resource: google_dialogflow_cx_playbook
+generation_type: mmv1
+source_file: products/dialogflowcx/Playbook.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: Playbook
 fields:
-  - api_field: 'createTime'
-  - api_field: 'displayName'
-  - api_field: 'goal'
-  - api_field: 'instruction.guidelines'
-  - api_field: 'instruction.steps.steps'
-    json: true
-  - api_field: 'instruction.steps.text'
-  - api_field: 'llmModelSettings.model'
-  - api_field: 'llmModelSettings.promptText'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'playbookType'
-  - api_field: 'referencedFlows'
-  - api_field: 'referencedPlaybooks'
-  - api_field: 'referencedTools'
-  - api_field: 'tokenCount'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: displayName
+    - api_field: goal
+    - api_field: instruction.guidelines
+    - api_field: instruction.steps.steps
+      json: true
+    - api_field: instruction.steps.text
+    - api_field: llmModelSettings.model
+    - api_field: llmModelSettings.promptText
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: playbookType
+    - api_field: referencedFlows
+    - api_field: referencedPlaybooks
+    - api_field: referencedTools
+    - api_field: tokenCount
+    - api_field: updateTime

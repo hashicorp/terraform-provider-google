@@ -1,32 +1,32 @@
-resource: 'google_access_context_manager_access_levels'
-generation_type: 'mmv1'
-source_file: 'products/accesscontextmanager/AccessLevels.yaml'
-api_service_name: 'accesscontextmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AccessLevel'
+resource: google_access_context_manager_access_levels
+generation_type: mmv1
+source_file: products/accesscontextmanager/AccessLevels.yaml
+api_service_name: accesscontextmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: AccessLevel
 fields:
-  - api_field: 'accessLevels.basic.combiningFunction'
-  - api_field: 'accessLevels.basic.conditions.devicePolicy.allowedDeviceManagementLevels'
-  - api_field: 'accessLevels.basic.conditions.devicePolicy.allowedEncryptionStatuses'
-  - api_field: 'accessLevels.basic.conditions.devicePolicy.osConstraints.minimumVersion'
-  - api_field: 'accessLevels.basic.conditions.devicePolicy.osConstraints.osType'
-  - api_field: 'accessLevels.basic.conditions.devicePolicy.requireAdminApproval'
-  - api_field: 'accessLevels.basic.conditions.devicePolicy.requireCorpOwned'
-  - api_field: 'accessLevels.basic.conditions.devicePolicy.requireScreenlock'
-    field: 'access_levels.basic.conditions.device_policy.require_screen_lock'
-  - api_field: 'accessLevels.basic.conditions.ipSubnetworks'
-  - api_field: 'accessLevels.basic.conditions.members'
-  - api_field: 'accessLevels.basic.conditions.negate'
-  - api_field: 'accessLevels.basic.conditions.regions'
-  - api_field: 'accessLevels.basic.conditions.requiredAccessLevels'
-  - api_field: 'accessLevels.basic.conditions.vpcNetworkSources.vpcSubnetwork.network'
-  - api_field: 'accessLevels.basic.conditions.vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks'
-  - api_field: 'accessLevels.custom.expr.description'
-  - api_field: 'accessLevels.custom.expr.expression'
-  - api_field: 'accessLevels.custom.expr.location'
-  - api_field: 'accessLevels.custom.expr.title'
-  - api_field: 'accessLevels.description'
-  - api_field: 'accessLevels.name'
-  - api_field: 'accessLevels.title'
-  - field: 'parent'
-    provider_only: true
+    - api_field: accessLevels.basic.combiningFunction
+    - api_field: accessLevels.basic.conditions.devicePolicy.allowedDeviceManagementLevels
+    - api_field: accessLevels.basic.conditions.devicePolicy.allowedEncryptionStatuses
+    - api_field: accessLevels.basic.conditions.devicePolicy.osConstraints.minimumVersion
+    - api_field: accessLevels.basic.conditions.devicePolicy.osConstraints.osType
+    - api_field: accessLevels.basic.conditions.devicePolicy.requireAdminApproval
+    - api_field: accessLevels.basic.conditions.devicePolicy.requireCorpOwned
+    - api_field: accessLevels.basic.conditions.devicePolicy.requireScreenlock
+      field: access_levels.basic.conditions.device_policy.require_screen_lock
+    - api_field: accessLevels.basic.conditions.ipSubnetworks
+    - api_field: accessLevels.basic.conditions.members
+    - api_field: accessLevels.basic.conditions.negate
+    - api_field: accessLevels.basic.conditions.regions
+    - api_field: accessLevels.basic.conditions.requiredAccessLevels
+    - api_field: accessLevels.basic.conditions.vpcNetworkSources.vpcSubnetwork.network
+    - api_field: accessLevels.basic.conditions.vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks
+    - api_field: accessLevels.custom.expr.description
+    - api_field: accessLevels.custom.expr.expression
+    - api_field: accessLevels.custom.expr.location
+    - api_field: accessLevels.custom.expr.title
+    - api_field: accessLevels.description
+    - api_field: accessLevels.name
+    - api_field: accessLevels.title
+    - field: parent
+      provider_only: true

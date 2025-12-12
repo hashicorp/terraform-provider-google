@@ -1,17 +1,17 @@
-resource: 'google_discovery_engine_schema'
-generation_type: 'mmv1'
-source_file: 'products/discoveryengine/Schema.yaml'
-api_service_name: 'discoveryengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Schema'
+resource: google_discovery_engine_schema
+generation_type: mmv1
+source_file: products/discoveryengine/Schema.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Schema
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}/schemas/{schema}'
+    - projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}/schemas/{schema}
 fields:
-  - field: 'data_store_id'
-    provider_only: true
-  - api_field: 'jsonSchema'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'schema_id'
-    provider_only: true
+    - field: data_store_id
+      provider_only: true
+    - api_field: jsonSchema
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: schema_id
+      provider_only: true

@@ -1,19 +1,19 @@
-resource: 'google_apigee_developer'
-generation_type: 'mmv1'
-source_file: 'products/apigee/Developer.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Developer'
+resource: google_apigee_developer
+generation_type: mmv1
+source_file: products/apigee/Developer.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: Developer
 fields:
-  - api_field: 'attributes.name'
-  - api_field: 'attributes.value'
-  - api_field: 'createdAt'
-  - api_field: 'email'
-  - api_field: 'firstName'
-  - api_field: 'lastModifiedAt'
-  - api_field: 'lastName'
-  - field: 'org_id'
-    provider_only: true
-  - api_field: 'organizatioName'
-  - api_field: 'status'
-  - api_field: 'userName'
+    - api_field: attributes.name
+    - api_field: attributes.value
+    - api_field: createdAt
+    - api_field: email
+    - api_field: firstName
+    - api_field: lastModifiedAt
+    - api_field: lastName
+    - field: org_id
+      provider_only: true
+    - api_field: organizatioName
+    - api_field: status
+    - api_field: userName

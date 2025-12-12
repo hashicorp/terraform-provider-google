@@ -1,42 +1,42 @@
-resource: 'google_iam_workforce_pool_provider'
-generation_type: 'mmv1'
-source_file: 'products/iamworkforcepool/WorkforcePoolProvider.yaml'
-api_service_name: 'iam.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'WorkforcePoolProvider'
+resource: google_iam_workforce_pool_provider
+generation_type: mmv1
+source_file: products/iamworkforcepool/WorkforcePoolProvider.yaml
+api_service_name: iam.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkforcePoolProvider
 fields:
-  - api_field: 'attributeCondition'
-  - api_field: 'attributeMapping'
-  - api_field: 'description'
-  - api_field: 'disabled'
-  - api_field: 'displayName'
-  - api_field: 'extendedAttributesOauth2Client.attributesType'
-  - api_field: 'extendedAttributesOauth2Client.clientId'
-  - api_field: 'extendedAttributesOauth2Client.clientSecret.value.plainText'
-  - api_field: 'extendedAttributesOauth2Client.clientSecret.value.thumbprint'
-  - api_field: 'extendedAttributesOauth2Client.issuerUri'
-  - api_field: 'extendedAttributesOauth2Client.queryParameters.filter'
-  - api_field: 'extraAttributesOauth2Client.attributesType'
-  - api_field: 'extraAttributesOauth2Client.clientId'
-  - api_field: 'extraAttributesOauth2Client.clientSecret.value.plainText'
-  - api_field: 'extraAttributesOauth2Client.clientSecret.value.thumbprint'
-  - api_field: 'extraAttributesOauth2Client.issuerUri'
-  - api_field: 'extraAttributesOauth2Client.queryParameters.filter'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'oidc.clientId'
-  - api_field: 'oidc.clientSecret.value.plainText'
-  - api_field: 'oidc.clientSecret.value.thumbprint'
-  - api_field: 'oidc.issuerUri'
-  - api_field: 'oidc.jwksJson'
-  - api_field: 'oidc.webSsoConfig.additionalScopes'
-  - api_field: 'oidc.webSsoConfig.assertionClaimsBehavior'
-  - api_field: 'oidc.webSsoConfig.responseType'
-  - field: 'provider_id'
-    provider_only: true
-  - api_field: 'saml.idpMetadataXml'
-  - api_field: 'scimUsage'
-  - api_field: 'state'
-  - field: 'workforce_pool_id'
-    provider_only: true
+    - api_field: attributeCondition
+    - api_field: attributeMapping
+    - api_field: description
+    - api_field: disabled
+    - api_field: displayName
+    - api_field: extendedAttributesOauth2Client.attributesType
+    - api_field: extendedAttributesOauth2Client.clientId
+    - api_field: extendedAttributesOauth2Client.clientSecret.value.plainText
+    - api_field: extendedAttributesOauth2Client.clientSecret.value.thumbprint
+    - api_field: extendedAttributesOauth2Client.issuerUri
+    - api_field: extendedAttributesOauth2Client.queryParameters.filter
+    - api_field: extraAttributesOauth2Client.attributesType
+    - api_field: extraAttributesOauth2Client.clientId
+    - api_field: extraAttributesOauth2Client.clientSecret.value.plainText
+    - api_field: extraAttributesOauth2Client.clientSecret.value.thumbprint
+    - api_field: extraAttributesOauth2Client.issuerUri
+    - api_field: extraAttributesOauth2Client.queryParameters.filter
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: oidc.clientId
+    - api_field: oidc.clientSecret.value.plainText
+    - api_field: oidc.clientSecret.value.thumbprint
+    - api_field: oidc.issuerUri
+    - api_field: oidc.jwksJson
+    - api_field: oidc.webSsoConfig.additionalScopes
+    - api_field: oidc.webSsoConfig.assertionClaimsBehavior
+    - api_field: oidc.webSsoConfig.responseType
+    - field: provider_id
+      provider_only: true
+    - api_field: saml.idpMetadataXml
+    - api_field: scimUsage
+    - api_field: state
+    - field: workforce_pool_id
+      provider_only: true

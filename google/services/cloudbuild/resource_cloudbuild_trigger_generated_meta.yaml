@@ -1,165 +1,165 @@
-resource: 'google_cloudbuild_trigger'
-generation_type: 'mmv1'
-source_file: 'products/cloudbuild/Trigger.yaml'
-api_service_name: 'cloudbuild.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BuildTrigger'
+resource: google_cloudbuild_trigger
+generation_type: mmv1
+source_file: products/cloudbuild/Trigger.yaml
+api_service_name: cloudbuild.googleapis.com
+api_version: v1
+api_resource_type_kind: BuildTrigger
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/triggers/{trigger}'
+    - projects/{project}/locations/{location}/triggers/{trigger}
 fields:
-  - api_field: 'approvalConfig.approvalRequired'
-  - api_field: 'bitbucketServerTriggerConfig.bitbucketServerConfigResource'
-  - api_field: 'bitbucketServerTriggerConfig.projectKey'
-  - api_field: 'bitbucketServerTriggerConfig.pullRequest.branch'
-  - api_field: 'bitbucketServerTriggerConfig.pullRequest.commentControl'
-  - api_field: 'bitbucketServerTriggerConfig.pullRequest.invertRegex'
-  - api_field: 'bitbucketServerTriggerConfig.push.branch'
-  - api_field: 'bitbucketServerTriggerConfig.push.invertRegex'
-  - api_field: 'bitbucketServerTriggerConfig.push.tag'
-  - api_field: 'bitbucketServerTriggerConfig.repoSlug'
-  - api_field: 'build.artifacts.images'
-  - api_field: 'build.artifacts.mavenArtifacts.artifactId'
-  - api_field: 'build.artifacts.mavenArtifacts.groupId'
-  - api_field: 'build.artifacts.mavenArtifacts.path'
-  - api_field: 'build.artifacts.mavenArtifacts.repository'
-  - api_field: 'build.artifacts.mavenArtifacts.version'
-  - api_field: 'build.artifacts.npmPackages.packagePath'
-  - api_field: 'build.artifacts.npmPackages.repository'
-  - api_field: 'build.artifacts.objects.location'
-  - api_field: 'build.artifacts.objects.paths'
-  - api_field: 'build.artifacts.objects.timing.endTime'
-  - api_field: 'build.artifacts.objects.timing.startTime'
-  - api_field: 'build.artifacts.pythonPackages.paths'
-  - api_field: 'build.artifacts.pythonPackages.repository'
-  - api_field: 'build.availableSecrets.secretManager.env'
-  - api_field: 'build.availableSecrets.secretManager.versionName'
-  - api_field: 'build.images'
-  - api_field: 'build.logsBucket'
-  - api_field: 'build.options.diskSizeGb'
-  - api_field: 'build.options.dynamicSubstitutions'
-  - api_field: 'build.options.env'
-  - api_field: 'build.options.logStreamingOption'
-  - api_field: 'build.options.logging'
-  - api_field: 'build.options.machineType'
-  - api_field: 'build.options.requestedVerifyOption'
-  - api_field: 'build.options.secretEnv'
-  - api_field: 'build.options.sourceProvenanceHash'
-  - api_field: 'build.options.substitutionOption'
-  - api_field: 'build.options.volumes.name'
-  - api_field: 'build.options.volumes.path'
-  - api_field: 'build.options.workerPool'
-  - api_field: 'build.queueTtl'
-  - api_field: 'build.secrets.kmsKeyName'
-    field: 'build.secret.kms_key_name'
-  - api_field: 'build.secrets.secretEnv'
-    field: 'build.secret.secret_env'
-  - api_field: 'build.source.repoSource.branchName'
-  - api_field: 'build.source.repoSource.commitSha'
-  - api_field: 'build.source.repoSource.dir'
-  - api_field: 'build.source.repoSource.invertRegex'
-  - api_field: 'build.source.repoSource.projectId'
-  - api_field: 'build.source.repoSource.repoName'
-  - api_field: 'build.source.repoSource.substitutions'
-  - api_field: 'build.source.repoSource.tagName'
-  - api_field: 'build.source.storageSource.bucket'
-  - api_field: 'build.source.storageSource.generation'
-  - api_field: 'build.source.storageSource.object'
-  - api_field: 'build.steps.allowExitCodes'
-    field: 'build.step.allow_exit_codes'
-  - api_field: 'build.steps.allowFailure'
-    field: 'build.step.allow_failure'
-  - api_field: 'build.steps.args'
-    field: 'build.step.args'
-  - api_field: 'build.steps.dir'
-    field: 'build.step.dir'
-  - api_field: 'build.steps.entrypoint'
-    field: 'build.step.entrypoint'
-  - api_field: 'build.steps.env'
-    field: 'build.step.env'
-  - api_field: 'build.steps.id'
-    field: 'build.step.id'
-  - api_field: 'build.steps.name'
-    field: 'build.step.name'
-  - api_field: 'build.steps.script'
-    field: 'build.step.script'
-  - api_field: 'build.steps.secretEnv'
-    field: 'build.step.secret_env'
-  - api_field: 'build.steps.timeout'
-    field: 'build.step.timeout'
-  - api_field: 'build.steps.timing'
-    field: 'build.step.timing'
-  - api_field: 'build.steps.volumes.name'
-    field: 'build.step.volumes.name'
-  - api_field: 'build.steps.volumes.path'
-    field: 'build.step.volumes.path'
-  - api_field: 'build.steps.waitFor'
-    field: 'build.step.wait_for'
-  - api_field: 'build.substitutions'
-  - api_field: 'build.tags'
-  - api_field: 'build.timeout'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'developerConnectEventConfig.gitRepositoryLink'
-  - api_field: 'developerConnectEventConfig.gitRepositoryLinkType'
-  - api_field: 'developerConnectEventConfig.pullRequest.branch'
-  - api_field: 'developerConnectEventConfig.pullRequest.commentControl'
-  - api_field: 'developerConnectEventConfig.pullRequest.invertRegex'
-  - api_field: 'developerConnectEventConfig.push.branch'
-  - api_field: 'developerConnectEventConfig.push.invertRegex'
-  - api_field: 'developerConnectEventConfig.push.tag'
-  - api_field: 'disabled'
-  - api_field: 'filename'
-  - api_field: 'filter'
-  - api_field: 'gitFileSource.bitbucketServerConfig'
-  - api_field: 'gitFileSource.githubEnterpriseConfig'
-  - api_field: 'gitFileSource.path'
-  - api_field: 'gitFileSource.repoType'
-  - api_field: 'gitFileSource.repository'
-  - api_field: 'gitFileSource.revision'
-  - api_field: 'gitFileSource.uri'
-  - api_field: 'github.enterpriseConfigResourceName'
-  - api_field: 'github.name'
-  - api_field: 'github.owner'
-  - api_field: 'github.pullRequest.branch'
-  - api_field: 'github.pullRequest.commentControl'
-  - api_field: 'github.pullRequest.invertRegex'
-  - api_field: 'github.push.branch'
-  - api_field: 'github.push.invertRegex'
-  - api_field: 'github.push.tag'
-  - api_field: 'ignoredFiles'
-  - api_field: 'includeBuildLogs'
-  - api_field: 'includedFiles'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'pubsubConfig.service_account_email'
-  - api_field: 'pubsubConfig.state'
-  - api_field: 'pubsubConfig.subscription'
-  - api_field: 'pubsubConfig.topic'
-  - api_field: 'repositoryEventConfig.pullRequest.branch'
-  - api_field: 'repositoryEventConfig.pullRequest.commentControl'
-  - api_field: 'repositoryEventConfig.pullRequest.invertRegex'
-  - api_field: 'repositoryEventConfig.push.branch'
-  - api_field: 'repositoryEventConfig.push.invertRegex'
-  - api_field: 'repositoryEventConfig.push.tag'
-  - api_field: 'repositoryEventConfig.repository'
-  - api_field: 'serviceAccount'
-  - api_field: 'sourceToBuild.bitbucketServerConfig'
-  - api_field: 'sourceToBuild.githubEnterpriseConfig'
-  - api_field: 'sourceToBuild.ref'
-  - api_field: 'sourceToBuild.repoType'
-  - api_field: 'sourceToBuild.repository'
-  - api_field: 'sourceToBuild.uri'
-  - api_field: 'substitutions'
-  - api_field: 'tags'
-  - api_field: 'id'
-    field: 'trigger_id'
-  - api_field: 'triggerTemplate.branchName'
-  - api_field: 'triggerTemplate.commitSha'
-  - api_field: 'triggerTemplate.dir'
-  - api_field: 'triggerTemplate.invertRegex'
-  - api_field: 'triggerTemplate.projectId'
-  - api_field: 'triggerTemplate.repoName'
-  - api_field: 'triggerTemplate.tagName'
-  - api_field: 'webhookConfig.secret'
-  - api_field: 'webhookConfig.state'
+    - api_field: approvalConfig.approvalRequired
+    - api_field: bitbucketServerTriggerConfig.bitbucketServerConfigResource
+    - api_field: bitbucketServerTriggerConfig.projectKey
+    - api_field: bitbucketServerTriggerConfig.pullRequest.branch
+    - api_field: bitbucketServerTriggerConfig.pullRequest.commentControl
+    - api_field: bitbucketServerTriggerConfig.pullRequest.invertRegex
+    - api_field: bitbucketServerTriggerConfig.push.branch
+    - api_field: bitbucketServerTriggerConfig.push.invertRegex
+    - api_field: bitbucketServerTriggerConfig.push.tag
+    - api_field: bitbucketServerTriggerConfig.repoSlug
+    - api_field: build.artifacts.images
+    - api_field: build.artifacts.mavenArtifacts.artifactId
+    - api_field: build.artifacts.mavenArtifacts.groupId
+    - api_field: build.artifacts.mavenArtifacts.path
+    - api_field: build.artifacts.mavenArtifacts.repository
+    - api_field: build.artifacts.mavenArtifacts.version
+    - api_field: build.artifacts.npmPackages.packagePath
+    - api_field: build.artifacts.npmPackages.repository
+    - api_field: build.artifacts.objects.location
+    - api_field: build.artifacts.objects.paths
+    - api_field: build.artifacts.objects.timing.endTime
+    - api_field: build.artifacts.objects.timing.startTime
+    - api_field: build.artifacts.pythonPackages.paths
+    - api_field: build.artifacts.pythonPackages.repository
+    - api_field: build.availableSecrets.secretManager.env
+    - api_field: build.availableSecrets.secretManager.versionName
+    - api_field: build.images
+    - api_field: build.logsBucket
+    - api_field: build.options.diskSizeGb
+    - api_field: build.options.dynamicSubstitutions
+    - api_field: build.options.env
+    - api_field: build.options.logStreamingOption
+    - api_field: build.options.logging
+    - api_field: build.options.machineType
+    - api_field: build.options.requestedVerifyOption
+    - api_field: build.options.secretEnv
+    - api_field: build.options.sourceProvenanceHash
+    - api_field: build.options.substitutionOption
+    - api_field: build.options.volumes.name
+    - api_field: build.options.volumes.path
+    - api_field: build.options.workerPool
+    - api_field: build.queueTtl
+    - api_field: build.secrets.kmsKeyName
+      field: build.secret.kms_key_name
+    - api_field: build.secrets.secretEnv
+      field: build.secret.secret_env
+    - api_field: build.source.repoSource.branchName
+    - api_field: build.source.repoSource.commitSha
+    - api_field: build.source.repoSource.dir
+    - api_field: build.source.repoSource.invertRegex
+    - api_field: build.source.repoSource.projectId
+    - api_field: build.source.repoSource.repoName
+    - api_field: build.source.repoSource.substitutions
+    - api_field: build.source.repoSource.tagName
+    - api_field: build.source.storageSource.bucket
+    - api_field: build.source.storageSource.generation
+    - api_field: build.source.storageSource.object
+    - api_field: build.steps.allowExitCodes
+      field: build.step.allow_exit_codes
+    - api_field: build.steps.allowFailure
+      field: build.step.allow_failure
+    - api_field: build.steps.args
+      field: build.step.args
+    - api_field: build.steps.dir
+      field: build.step.dir
+    - api_field: build.steps.entrypoint
+      field: build.step.entrypoint
+    - api_field: build.steps.env
+      field: build.step.env
+    - api_field: build.steps.id
+      field: build.step.id
+    - api_field: build.steps.name
+      field: build.step.name
+    - api_field: build.steps.script
+      field: build.step.script
+    - api_field: build.steps.secretEnv
+      field: build.step.secret_env
+    - api_field: build.steps.timeout
+      field: build.step.timeout
+    - api_field: build.steps.timing
+      field: build.step.timing
+    - api_field: build.steps.volumes.name
+      field: build.step.volumes.name
+    - api_field: build.steps.volumes.path
+      field: build.step.volumes.path
+    - api_field: build.steps.waitFor
+      field: build.step.wait_for
+    - api_field: build.substitutions
+    - api_field: build.tags
+    - api_field: build.timeout
+    - api_field: createTime
+    - api_field: description
+    - api_field: developerConnectEventConfig.gitRepositoryLink
+    - api_field: developerConnectEventConfig.gitRepositoryLinkType
+    - api_field: developerConnectEventConfig.pullRequest.branch
+    - api_field: developerConnectEventConfig.pullRequest.commentControl
+    - api_field: developerConnectEventConfig.pullRequest.invertRegex
+    - api_field: developerConnectEventConfig.push.branch
+    - api_field: developerConnectEventConfig.push.invertRegex
+    - api_field: developerConnectEventConfig.push.tag
+    - api_field: disabled
+    - api_field: filename
+    - api_field: filter
+    - api_field: gitFileSource.bitbucketServerConfig
+    - api_field: gitFileSource.githubEnterpriseConfig
+    - api_field: gitFileSource.path
+    - api_field: gitFileSource.repoType
+    - api_field: gitFileSource.repository
+    - api_field: gitFileSource.revision
+    - api_field: gitFileSource.uri
+    - api_field: github.enterpriseConfigResourceName
+    - api_field: github.name
+    - api_field: github.owner
+    - api_field: github.pullRequest.branch
+    - api_field: github.pullRequest.commentControl
+    - api_field: github.pullRequest.invertRegex
+    - api_field: github.push.branch
+    - api_field: github.push.invertRegex
+    - api_field: github.push.tag
+    - api_field: ignoredFiles
+    - api_field: includeBuildLogs
+    - api_field: includedFiles
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: pubsubConfig.service_account_email
+    - api_field: pubsubConfig.state
+    - api_field: pubsubConfig.subscription
+    - api_field: pubsubConfig.topic
+    - api_field: repositoryEventConfig.pullRequest.branch
+    - api_field: repositoryEventConfig.pullRequest.commentControl
+    - api_field: repositoryEventConfig.pullRequest.invertRegex
+    - api_field: repositoryEventConfig.push.branch
+    - api_field: repositoryEventConfig.push.invertRegex
+    - api_field: repositoryEventConfig.push.tag
+    - api_field: repositoryEventConfig.repository
+    - api_field: serviceAccount
+    - api_field: sourceToBuild.bitbucketServerConfig
+    - api_field: sourceToBuild.githubEnterpriseConfig
+    - api_field: sourceToBuild.ref
+    - api_field: sourceToBuild.repoType
+    - api_field: sourceToBuild.repository
+    - api_field: sourceToBuild.uri
+    - api_field: substitutions
+    - api_field: tags
+    - api_field: id
+      field: trigger_id
+    - api_field: triggerTemplate.branchName
+    - api_field: triggerTemplate.commitSha
+    - api_field: triggerTemplate.dir
+    - api_field: triggerTemplate.invertRegex
+    - api_field: triggerTemplate.projectId
+    - api_field: triggerTemplate.repoName
+    - api_field: triggerTemplate.tagName
+    - api_field: webhookConfig.secret
+    - api_field: webhookConfig.state

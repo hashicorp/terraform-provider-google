@@ -1,26 +1,26 @@
-resource: 'google_discovery_engine_target_site'
-generation_type: 'mmv1'
-source_file: 'products/discoveryengine/TargetSite.yaml'
-api_service_name: 'discoveryengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TargetSite'
+resource: google_discovery_engine_target_site
+generation_type: mmv1
+source_file: products/discoveryengine/TargetSite.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: TargetSite
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}/siteSearchEngine/targetSites/{targetSite}'
+    - projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}/siteSearchEngine/targetSites/{targetSite}
 fields:
-  - field: 'data_store_id'
-    provider_only: true
-  - api_field: 'exactMatch'
-  - api_field: 'failureReason.quotaFailure.totalRequiredQuota'
-  - api_field: 'generatedUriPattern'
-  - api_field: 'indexingStatus'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'providedUriPattern'
-  - api_field: 'rootDomainUri'
-  - api_field: 'siteVerificationInfo.siteVerificationState'
-  - api_field: 'siteVerificationInfo.verifyTime'
-  - field: 'target_site_id'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'updateTime'
+    - field: data_store_id
+      provider_only: true
+    - api_field: exactMatch
+    - api_field: failureReason.quotaFailure.totalRequiredQuota
+    - api_field: generatedUriPattern
+    - api_field: indexingStatus
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: providedUriPattern
+    - api_field: rootDomainUri
+    - api_field: siteVerificationInfo.siteVerificationState
+    - api_field: siteVerificationInfo.verifyTime
+    - field: target_site_id
+      provider_only: true
+    - api_field: type
+    - api_field: updateTime

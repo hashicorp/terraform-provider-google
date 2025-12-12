@@ -1,45 +1,45 @@
-resource: 'google_org_policy_policy'
-generation_type: 'mmv1'
-source_file: 'products/orgpolicy/Policy.yaml'
-api_service_name: 'orgpolicy.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Policy'
+resource: google_org_policy_policy
+generation_type: mmv1
+source_file: products/orgpolicy/Policy.yaml
+api_service_name: orgpolicy.googleapis.com
+api_version: v2
+api_resource_type_kind: Policy
 api_variant_patterns:
-  - 'folders/{folder}/policies/{policy}'
-  - 'organizations/{organization}/policies/{policy}'
-  - 'projects/{project}/policies/{policy}'
+    - folders/{folder}/policies/{policy}
+    - organizations/{organization}/policies/{policy}
+    - projects/{project}/policies/{policy}
 fields:
-  - api_field: 'dryRunSpec.etag'
-  - api_field: 'dryRunSpec.inheritFromParent'
-  - api_field: 'dryRunSpec.reset'
-  - api_field: 'dryRunSpec.rules.allowAll'
-  - api_field: 'dryRunSpec.rules.condition.description'
-  - api_field: 'dryRunSpec.rules.condition.expression'
-  - api_field: 'dryRunSpec.rules.condition.location'
-  - api_field: 'dryRunSpec.rules.condition.title'
-  - api_field: 'dryRunSpec.rules.denyAll'
-  - api_field: 'dryRunSpec.rules.enforce'
-  - api_field: 'dryRunSpec.rules.parameters'
-    json: true
-  - api_field: 'dryRunSpec.rules.values.allowedValues'
-  - api_field: 'dryRunSpec.rules.values.deniedValues'
-  - api_field: 'dryRunSpec.updateTime'
-  - api_field: 'etag'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'spec.etag'
-  - api_field: 'spec.inheritFromParent'
-  - api_field: 'spec.reset'
-  - api_field: 'spec.rules.allowAll'
-  - api_field: 'spec.rules.condition.description'
-  - api_field: 'spec.rules.condition.expression'
-  - api_field: 'spec.rules.condition.location'
-  - api_field: 'spec.rules.condition.title'
-  - api_field: 'spec.rules.denyAll'
-  - api_field: 'spec.rules.enforce'
-  - api_field: 'spec.rules.parameters'
-    json: true
-  - api_field: 'spec.rules.values.allowedValues'
-  - api_field: 'spec.rules.values.deniedValues'
-  - api_field: 'spec.updateTime'
+    - api_field: dryRunSpec.etag
+    - api_field: dryRunSpec.inheritFromParent
+    - api_field: dryRunSpec.reset
+    - api_field: dryRunSpec.rules.allowAll
+    - api_field: dryRunSpec.rules.condition.description
+    - api_field: dryRunSpec.rules.condition.expression
+    - api_field: dryRunSpec.rules.condition.location
+    - api_field: dryRunSpec.rules.condition.title
+    - api_field: dryRunSpec.rules.denyAll
+    - api_field: dryRunSpec.rules.enforce
+    - api_field: dryRunSpec.rules.parameters
+      json: true
+    - api_field: dryRunSpec.rules.values.allowedValues
+    - api_field: dryRunSpec.rules.values.deniedValues
+    - api_field: dryRunSpec.updateTime
+    - api_field: etag
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: spec.etag
+    - api_field: spec.inheritFromParent
+    - api_field: spec.reset
+    - api_field: spec.rules.allowAll
+    - api_field: spec.rules.condition.description
+    - api_field: spec.rules.condition.expression
+    - api_field: spec.rules.condition.location
+    - api_field: spec.rules.condition.title
+    - api_field: spec.rules.denyAll
+    - api_field: spec.rules.enforce
+    - api_field: spec.rules.parameters
+      json: true
+    - api_field: spec.rules.values.allowedValues
+    - api_field: spec.rules.values.deniedValues
+    - api_field: spec.updateTime

@@ -1,14 +1,14 @@
-resource: 'google_tags_tag_value'
-generation_type: 'mmv1'
-source_file: 'products/tags/TagValue.yaml'
-api_service_name: 'cloudresourcemanager.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'TagValue'
+resource: google_tags_tag_value
+generation_type: mmv1
+source_file: products/tags/TagValue.yaml
+api_service_name: cloudresourcemanager.googleapis.com
+api_version: v3
+api_resource_type_kind: TagValue
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'name'
-  - api_field: 'namespacedName'
-  - api_field: 'parent'
-  - api_field: 'shortName'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: name
+    - api_field: namespacedName
+    - api_field: parent
+    - api_field: shortName
+    - api_field: updateTime

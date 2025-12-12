@@ -1,22 +1,22 @@
-resource: 'google_spanner_database'
-generation_type: 'mmv1'
-source_file: 'products/spanner/Database.yaml'
-api_service_name: 'spanner.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Database'
-cai_asset_name_format: '//spanner.googleapis.com/projects/{{project}}/instances/{{instance}}/databases/{{name}}'
+resource: google_spanner_database
+generation_type: mmv1
+source_file: products/spanner/Database.yaml
+api_service_name: spanner.googleapis.com
+api_version: v1
+api_resource_type_kind: Database
+cai_asset_name_format: //spanner.googleapis.com/projects/{{project}}/instances/{{instance}}/databases/{{name}}
 fields:
-  - api_field: 'databaseDialect'
-  - api_field: 'extraStatements'
-    field: 'ddl'
-  - field: 'default_time_zone'
-    provider_only: true
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'enableDropProtection'
-  - api_field: 'encryptionConfig.kmsKeyName'
-  - api_field: 'encryptionConfig.kmsKeyNames'
-  - api_field: 'instance'
-  - api_field: 'name'
-  - api_field: 'state'
-  - api_field: 'versionRetentionPeriod'
+    - api_field: databaseDialect
+    - api_field: extraStatements
+      field: ddl
+    - field: default_time_zone
+      provider_only: true
+    - field: deletion_protection
+      provider_only: true
+    - api_field: enableDropProtection
+    - api_field: encryptionConfig.kmsKeyName
+    - api_field: encryptionConfig.kmsKeyNames
+    - api_field: instance
+    - api_field: name
+    - api_field: state
+    - api_field: versionRetentionPeriod

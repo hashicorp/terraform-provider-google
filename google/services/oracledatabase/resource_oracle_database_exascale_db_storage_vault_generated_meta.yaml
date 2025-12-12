@@ -1,36 +1,36 @@
-resource: 'google_oracle_database_exascale_db_storage_vault'
-generation_type: 'mmv1'
-source_file: 'products/oracledatabase/ExascaleDbStorageVault.yaml'
-api_service_name: 'oracledatabase.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ExascaleDbStorageVault'
+resource: google_oracle_database_exascale_db_storage_vault
+generation_type: mmv1
+source_file: products/oracledatabase/ExascaleDbStorageVault.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: ExascaleDbStorageVault
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'entitlementId'
-  - field: 'exascale_db_storage_vault_id'
-    provider_only: true
-  - api_field: 'gcpOracleZone'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'properties.additionalFlashCachePercent'
-  - api_field: 'properties.attachedShapeAttributes'
-  - api_field: 'properties.availableShapeAttributes'
-  - api_field: 'properties.exascaleDbStorageDetails.availableSizeGbs'
-  - api_field: 'properties.exascaleDbStorageDetails.totalSizeGbs'
-  - api_field: 'properties.ociUri'
-  - api_field: 'properties.ocid'
-  - api_field: 'properties.state'
-  - api_field: 'properties.timeZone.id'
-  - api_field: 'properties.timeZone.version'
-  - api_field: 'properties.vmClusterCount'
-  - api_field: 'properties.vmClusterIds'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: createTime
+    - field: deletion_protection
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: entitlementId
+    - field: exascale_db_storage_vault_id
+      provider_only: true
+    - api_field: gcpOracleZone
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: properties.additionalFlashCachePercent
+    - api_field: properties.attachedShapeAttributes
+    - api_field: properties.availableShapeAttributes
+    - api_field: properties.exascaleDbStorageDetails.availableSizeGbs
+    - api_field: properties.exascaleDbStorageDetails.totalSizeGbs
+    - api_field: properties.ociUri
+    - api_field: properties.ocid
+    - api_field: properties.state
+    - api_field: properties.timeZone.id
+    - api_field: properties.timeZone.version
+    - api_field: properties.vmClusterCount
+    - api_field: properties.vmClusterIds
+    - field: terraform_labels
+      provider_only: true

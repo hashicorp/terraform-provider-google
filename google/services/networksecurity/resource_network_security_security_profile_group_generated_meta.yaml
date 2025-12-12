@@ -1,25 +1,25 @@
-resource: 'google_network_security_security_profile_group'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/SecurityProfileGroup.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SecurityProfileGroup'
+resource: google_network_security_security_profile_group
+generation_type: mmv1
+source_file: products/networksecurity/SecurityProfileGroup.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityProfileGroup
 fields:
-  - api_field: 'createTime'
-  - api_field: 'customInterceptProfile'
-  - api_field: 'customMirroringProfile'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - field: 'parent'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'threatPreventionProfile'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: customInterceptProfile
+    - api_field: customMirroringProfile
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - field: parent
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: threatPreventionProfile
+    - api_field: updateTime

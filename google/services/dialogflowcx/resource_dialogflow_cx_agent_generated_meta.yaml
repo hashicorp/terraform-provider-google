@@ -1,53 +1,53 @@
-resource: 'google_dialogflow_cx_agent'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/Agent.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Agent'
+resource: google_dialogflow_cx_agent
+generation_type: mmv1
+source_file: products/dialogflowcx/Agent.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: Agent
 fields:
-  - api_field: 'advancedSettings.audioExportGcsDestination.uri'
-  - api_field: 'advancedSettings.dtmfSettings.enabled'
-  - api_field: 'advancedSettings.dtmfSettings.finishDigit'
-  - api_field: 'advancedSettings.dtmfSettings.maxDigits'
-  - api_field: 'advancedSettings.loggingSettings.enableConsentBasedRedaction'
-  - api_field: 'advancedSettings.loggingSettings.enableInteractionLogging'
-  - api_field: 'advancedSettings.loggingSettings.enableStackdriverLogging'
-  - api_field: 'advancedSettings.speechSettings.endpointerSensitivity'
-  - api_field: 'advancedSettings.speechSettings.models'
-  - api_field: 'advancedSettings.speechSettings.noSpeechTimeout'
-  - api_field: 'advancedSettings.speechSettings.useTimeoutBasedEndpointing'
-  - api_field: 'answerFeedbackSettings.enableAnswerFeedback'
-  - api_field: 'avatarUri'
-  - api_field: 'clientCertificateSettings.passphrase'
-  - api_field: 'clientCertificateSettings.privateKey'
-  - api_field: 'clientCertificateSettings.sslCertificate'
-  - api_field: 'defaultLanguageCode'
-  - field: 'delete_chat_engine_on_destroy'
-    provider_only: true
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'enableMultiLanguageTraining'
-  - api_field: 'enableSpellCorrection'
-  - api_field: 'enableStackdriverLogging'
-  - api_field: 'genAppBuilderSettings.engine'
-  - api_field: 'gitIntegrationSettings.githubSettings.accessToken'
-  - api_field: 'gitIntegrationSettings.githubSettings.branches'
-  - api_field: 'gitIntegrationSettings.githubSettings.displayName'
-  - api_field: 'gitIntegrationSettings.githubSettings.repositoryUri'
-  - api_field: 'gitIntegrationSettings.githubSettings.trackingBranch'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'locked'
-  - api_field: 'name'
-  - api_field: 'personalizationSettings.defaultEndUserMetadata'
-    json: true
-  - api_field: 'satisfiesPzi'
-  - api_field: 'satisfiesPzs'
-  - api_field: 'securitySettings'
-  - api_field: 'speechToTextSettings.enableSpeechAdaptation'
-  - api_field: 'startFlow'
-  - api_field: 'startPlaybook'
-  - api_field: 'supportedLanguageCodes'
-  - api_field: 'textToSpeechSettings.synthesizeSpeechConfigs'
-    json: true
-  - api_field: 'timeZone'
+    - api_field: advancedSettings.audioExportGcsDestination.uri
+    - api_field: advancedSettings.dtmfSettings.enabled
+    - api_field: advancedSettings.dtmfSettings.finishDigit
+    - api_field: advancedSettings.dtmfSettings.maxDigits
+    - api_field: advancedSettings.loggingSettings.enableConsentBasedRedaction
+    - api_field: advancedSettings.loggingSettings.enableInteractionLogging
+    - api_field: advancedSettings.loggingSettings.enableStackdriverLogging
+    - api_field: advancedSettings.speechSettings.endpointerSensitivity
+    - api_field: advancedSettings.speechSettings.models
+    - api_field: advancedSettings.speechSettings.noSpeechTimeout
+    - api_field: advancedSettings.speechSettings.useTimeoutBasedEndpointing
+    - api_field: answerFeedbackSettings.enableAnswerFeedback
+    - api_field: avatarUri
+    - api_field: clientCertificateSettings.passphrase
+    - api_field: clientCertificateSettings.privateKey
+    - api_field: clientCertificateSettings.sslCertificate
+    - api_field: defaultLanguageCode
+    - field: delete_chat_engine_on_destroy
+      provider_only: true
+    - api_field: description
+    - api_field: displayName
+    - api_field: enableMultiLanguageTraining
+    - api_field: enableSpellCorrection
+    - api_field: enableStackdriverLogging
+    - api_field: genAppBuilderSettings.engine
+    - api_field: gitIntegrationSettings.githubSettings.accessToken
+    - api_field: gitIntegrationSettings.githubSettings.branches
+    - api_field: gitIntegrationSettings.githubSettings.displayName
+    - api_field: gitIntegrationSettings.githubSettings.repositoryUri
+    - api_field: gitIntegrationSettings.githubSettings.trackingBranch
+    - field: location
+      provider_only: true
+    - api_field: locked
+    - api_field: name
+    - api_field: personalizationSettings.defaultEndUserMetadata
+      json: true
+    - api_field: satisfiesPzi
+    - api_field: satisfiesPzs
+    - api_field: securitySettings
+    - api_field: speechToTextSettings.enableSpeechAdaptation
+    - api_field: startFlow
+    - api_field: startPlaybook
+    - api_field: supportedLanguageCodes
+    - api_field: textToSpeechSettings.synthesizeSpeechConfigs
+      json: true
+    - api_field: timeZone

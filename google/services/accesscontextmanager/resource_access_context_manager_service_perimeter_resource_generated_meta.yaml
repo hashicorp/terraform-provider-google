@@ -1,12 +1,12 @@
-resource: 'google_access_context_manager_service_perimeter_resource'
-generation_type: 'mmv1'
-source_file: 'products/accesscontextmanager/ServicePerimeterResource.yaml'
-api_service_name: 'accesscontextmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ServicePerimeter'
+resource: google_access_context_manager_service_perimeter_resource
+generation_type: mmv1
+source_file: products/accesscontextmanager/ServicePerimeterResource.yaml
+api_service_name: accesscontextmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: ServicePerimeter
 fields:
-  - api_field: 'accessPolicyId'
-  - api_field: 'etag'
-  - field: 'perimeter_name'
-    provider_only: true
-  - api_field: 'resource'
+    - api_field: accessPolicyId
+    - api_field: etag
+    - field: perimeter_name
+      provider_only: true
+    - api_field: resource

@@ -1,18 +1,18 @@
-resource: 'google_container_analysis_note'
-generation_type: 'mmv1'
-source_file: 'products/containeranalysis/Note.yaml'
-api_service_name: 'containeranalysis.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Note'
+resource: google_container_analysis_note
+generation_type: mmv1
+source_file: products/containeranalysis/Note.yaml
+api_service_name: containeranalysis.googleapis.com
+api_version: v1
+api_resource_type_kind: Note
 fields:
-  - api_field: 'attestationAuthority.hint.humanReadableName'
-  - api_field: 'createTime'
-  - api_field: 'expirationTime'
-  - api_field: 'kind'
-  - api_field: 'longDescription'
-  - api_field: 'name'
-  - api_field: 'relatedNoteNames'
-  - api_field: 'relatedUrl.label'
-  - api_field: 'relatedUrl.url'
-  - api_field: 'shortDescription'
-  - api_field: 'updateTime'
+    - api_field: attestationAuthority.hint.humanReadableName
+    - api_field: createTime
+    - api_field: expirationTime
+    - api_field: kind
+    - api_field: longDescription
+    - api_field: name
+    - api_field: relatedNoteNames
+    - api_field: relatedUrl.label
+    - api_field: relatedUrl.url
+    - api_field: shortDescription
+    - api_field: updateTime

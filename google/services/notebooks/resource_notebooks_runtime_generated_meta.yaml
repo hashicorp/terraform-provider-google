@@ -1,70 +1,70 @@
-resource: 'google_notebooks_runtime'
-generation_type: 'mmv1'
-source_file: 'products/notebooks/Runtime.yaml'
-api_service_name: 'notebooks.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Runtime'
+resource: google_notebooks_runtime
+generation_type: mmv1
+source_file: products/notebooks/Runtime.yaml
+api_service_name: notebooks.googleapis.com
+api_version: v1
+api_resource_type_kind: Runtime
 fields:
-  - api_field: 'accessConfig.accessType'
-  - api_field: 'accessConfig.proxyUri'
-  - api_field: 'accessConfig.runtimeOwner'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'healthState'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'metrics.systemMetrics'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'softwareConfig.customGpuDriverPath'
-  - api_field: 'softwareConfig.enableHealthMonitoring'
-  - api_field: 'softwareConfig.idleShutdown'
-  - api_field: 'softwareConfig.idleShutdownTimeout'
-  - api_field: 'softwareConfig.installGpuDriver'
-  - api_field: 'softwareConfig.kernels.repository'
-  - api_field: 'softwareConfig.kernels.tag'
-  - api_field: 'softwareConfig.notebookUpgradeSchedule'
-  - api_field: 'softwareConfig.postStartupScript'
-  - api_field: 'softwareConfig.postStartupScriptBehavior'
-  - api_field: 'softwareConfig.upgradeable'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'virtualMachine.instanceId'
-  - api_field: 'virtualMachine.instanceName'
-  - api_field: 'virtualMachine.virtualMachineConfig.acceleratorConfig.coreCount'
-  - api_field: 'virtualMachine.virtualMachineConfig.acceleratorConfig.type'
-  - api_field: 'virtualMachine.virtualMachineConfig.containerImages.repository'
-  - api_field: 'virtualMachine.virtualMachineConfig.containerImages.tag'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.autoDelete'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.boot'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.deviceName'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.guestOsFeatures'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.index'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.initializeParams.description'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.initializeParams.diskName'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.initializeParams.diskSizeGb'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.initializeParams.diskType'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.initializeParams.labels'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.interface'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.kind'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.licenses'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.mode'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.source'
-  - api_field: 'virtualMachine.virtualMachineConfig.dataDisk.type'
-  - api_field: 'virtualMachine.virtualMachineConfig.encryptionConfig.kmsKey'
-  - api_field: 'virtualMachine.virtualMachineConfig.guestAttributes'
-  - api_field: 'virtualMachine.virtualMachineConfig.internalIpOnly'
-  - api_field: 'virtualMachine.virtualMachineConfig.labels'
-  - api_field: 'virtualMachine.virtualMachineConfig.machineType'
-  - api_field: 'virtualMachine.virtualMachineConfig.metadata'
-  - api_field: 'virtualMachine.virtualMachineConfig.network'
-  - api_field: 'virtualMachine.virtualMachineConfig.nicType'
-  - api_field: 'virtualMachine.virtualMachineConfig.reservedIpRange'
-  - api_field: 'virtualMachine.virtualMachineConfig.shieldedInstanceConfig.enableIntegrityMonitoring'
-  - api_field: 'virtualMachine.virtualMachineConfig.shieldedInstanceConfig.enableSecureBoot'
-  - api_field: 'virtualMachine.virtualMachineConfig.shieldedInstanceConfig.enableVtpm'
-  - api_field: 'virtualMachine.virtualMachineConfig.subnet'
-  - api_field: 'virtualMachine.virtualMachineConfig.tags'
-  - api_field: 'virtualMachine.virtualMachineConfig.zone'
+    - api_field: accessConfig.accessType
+    - api_field: accessConfig.proxyUri
+    - api_field: accessConfig.runtimeOwner
+    - field: effective_labels
+      provider_only: true
+    - api_field: healthState
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: metrics.systemMetrics
+    - field: name
+      provider_only: true
+    - api_field: softwareConfig.customGpuDriverPath
+    - api_field: softwareConfig.enableHealthMonitoring
+    - api_field: softwareConfig.idleShutdown
+    - api_field: softwareConfig.idleShutdownTimeout
+    - api_field: softwareConfig.installGpuDriver
+    - api_field: softwareConfig.kernels.repository
+    - api_field: softwareConfig.kernels.tag
+    - api_field: softwareConfig.notebookUpgradeSchedule
+    - api_field: softwareConfig.postStartupScript
+    - api_field: softwareConfig.postStartupScriptBehavior
+    - api_field: softwareConfig.upgradeable
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: virtualMachine.instanceId
+    - api_field: virtualMachine.instanceName
+    - api_field: virtualMachine.virtualMachineConfig.acceleratorConfig.coreCount
+    - api_field: virtualMachine.virtualMachineConfig.acceleratorConfig.type
+    - api_field: virtualMachine.virtualMachineConfig.containerImages.repository
+    - api_field: virtualMachine.virtualMachineConfig.containerImages.tag
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.autoDelete
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.boot
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.deviceName
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.guestOsFeatures
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.index
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.initializeParams.description
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.initializeParams.diskName
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.initializeParams.diskSizeGb
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.initializeParams.diskType
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.initializeParams.labels
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.interface
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.kind
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.licenses
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.mode
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.source
+    - api_field: virtualMachine.virtualMachineConfig.dataDisk.type
+    - api_field: virtualMachine.virtualMachineConfig.encryptionConfig.kmsKey
+    - api_field: virtualMachine.virtualMachineConfig.guestAttributes
+    - api_field: virtualMachine.virtualMachineConfig.internalIpOnly
+    - api_field: virtualMachine.virtualMachineConfig.labels
+    - api_field: virtualMachine.virtualMachineConfig.machineType
+    - api_field: virtualMachine.virtualMachineConfig.metadata
+    - api_field: virtualMachine.virtualMachineConfig.network
+    - api_field: virtualMachine.virtualMachineConfig.nicType
+    - api_field: virtualMachine.virtualMachineConfig.reservedIpRange
+    - api_field: virtualMachine.virtualMachineConfig.shieldedInstanceConfig.enableIntegrityMonitoring
+    - api_field: virtualMachine.virtualMachineConfig.shieldedInstanceConfig.enableSecureBoot
+    - api_field: virtualMachine.virtualMachineConfig.shieldedInstanceConfig.enableVtpm
+    - api_field: virtualMachine.virtualMachineConfig.subnet
+    - api_field: virtualMachine.virtualMachineConfig.tags
+    - api_field: virtualMachine.virtualMachineConfig.zone

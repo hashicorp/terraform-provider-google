@@ -1,20 +1,20 @@
-resource: 'google_notebooks_environment'
-generation_type: 'mmv1'
-source_file: 'products/notebooks/Environment.yaml'
-api_service_name: 'notebooks.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Environment'
+resource: google_notebooks_environment
+generation_type: mmv1
+source_file: products/notebooks/Environment.yaml
+api_service_name: notebooks.googleapis.com
+api_version: v1
+api_resource_type_kind: Environment
 fields:
-  - api_field: 'containerImage.repository'
-  - api_field: 'containerImage.tag'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'postStartupScript'
-  - api_field: 'vmImage.imageFamily'
-  - api_field: 'vmImage.imageName'
-  - api_field: 'vmImage.project'
+    - api_field: containerImage.repository
+    - api_field: containerImage.tag
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: postStartupScript
+    - api_field: vmImage.imageFamily
+    - api_field: vmImage.imageName
+    - api_field: vmImage.project

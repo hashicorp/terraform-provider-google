@@ -1,11 +1,11 @@
-resource: 'google_access_context_manager_ingress_policy'
-generation_type: 'mmv1'
-source_file: 'products/accesscontextmanager/IngressPolicy.yaml'
-api_service_name: 'accesscontextmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ServicePerimeter'
+resource: google_access_context_manager_ingress_policy
+generation_type: mmv1
+source_file: products/accesscontextmanager/IngressPolicy.yaml
+api_service_name: accesscontextmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: ServicePerimeter
 fields:
-  - api_field: 'accessPolicyId'
-  - field: 'ingress_policy_name'
-    provider_only: true
-  - api_field: 'resource'
+    - api_field: accessPolicyId
+    - field: ingress_policy_name
+      provider_only: true
+    - api_field: resource

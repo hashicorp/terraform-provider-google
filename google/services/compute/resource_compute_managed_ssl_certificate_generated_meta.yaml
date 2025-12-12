@@ -1,17 +1,17 @@
-resource: 'google_compute_managed_ssl_certificate'
-generation_type: 'mmv1'
-source_file: 'products/compute/ManagedSslCertificate.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SslCertificate'
+resource: google_compute_managed_ssl_certificate
+generation_type: mmv1
+source_file: products/compute/ManagedSslCertificate.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: SslCertificate
 fields:
-  - api_field: 'id'
-    field: 'certificate_id'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'expireTime'
-  - api_field: 'managed.domains'
-  - api_field: 'name'
-  - api_field: 'subjectAlternativeNames'
-  - api_field: 'type'
-  - api_field: 'selfLink'
+    - api_field: id
+      field: certificate_id
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: expireTime
+    - api_field: managed.domains
+    - api_field: name
+    - api_field: subjectAlternativeNames
+    - api_field: type
+    - api_field: selfLink

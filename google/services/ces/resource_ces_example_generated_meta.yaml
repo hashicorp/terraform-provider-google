@@ -1,44 +1,44 @@
-resource: 'google_ces_example'
-generation_type: 'mmv1'
-source_file: 'products/ces/Example.yaml'
-api_service_name: 'ces.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Example'
+resource: google_ces_example
+generation_type: mmv1
+source_file: products/ces/Example.yaml
+api_service_name: ces.googleapis.com
+api_version: v1
+api_resource_type_kind: Example
 autogen_status: true
 fields:
-  - field: 'app'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'entryAgent'
-  - api_field: 'etag'
-  - field: 'example_id'
-    provider_only: true
-  - api_field: 'invalid'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'messages.chunks.agentTransfer.displayName'
-  - api_field: 'messages.chunks.agentTransfer.targetAgent'
-  - api_field: 'messages.chunks.image.data'
-  - api_field: 'messages.chunks.image.mimeType'
-  - api_field: 'messages.chunks.text'
-  - api_field: 'messages.chunks.toolCall.args'
-    json: true
-  - api_field: 'messages.chunks.toolCall.displayName'
-  - api_field: 'messages.chunks.toolCall.id'
-  - api_field: 'messages.chunks.toolCall.tool'
-  - api_field: 'messages.chunks.toolCall.toolsetTool.toolId'
-  - api_field: 'messages.chunks.toolCall.toolsetTool.toolset'
-  - api_field: 'messages.chunks.toolResponse.displayName'
-  - api_field: 'messages.chunks.toolResponse.id'
-  - api_field: 'messages.chunks.toolResponse.response'
-    json: true
-  - api_field: 'messages.chunks.toolResponse.tool'
-  - api_field: 'messages.chunks.toolResponse.toolsetTool.toolId'
-  - api_field: 'messages.chunks.toolResponse.toolsetTool.toolset'
-  - api_field: 'messages.chunks.updatedVariables'
-    json: true
-  - api_field: 'messages.role'
-  - api_field: 'name'
-  - api_field: 'updateTime'
+    - field: app
+      provider_only: true
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: entryAgent
+    - api_field: etag
+    - field: example_id
+      provider_only: true
+    - api_field: invalid
+    - field: location
+      provider_only: true
+    - api_field: messages.chunks.agentTransfer.displayName
+    - api_field: messages.chunks.agentTransfer.targetAgent
+    - api_field: messages.chunks.image.data
+    - api_field: messages.chunks.image.mimeType
+    - api_field: messages.chunks.text
+    - api_field: messages.chunks.toolCall.args
+      json: true
+    - api_field: messages.chunks.toolCall.displayName
+    - api_field: messages.chunks.toolCall.id
+    - api_field: messages.chunks.toolCall.tool
+    - api_field: messages.chunks.toolCall.toolsetTool.toolId
+    - api_field: messages.chunks.toolCall.toolsetTool.toolset
+    - api_field: messages.chunks.toolResponse.displayName
+    - api_field: messages.chunks.toolResponse.id
+    - api_field: messages.chunks.toolResponse.response
+      json: true
+    - api_field: messages.chunks.toolResponse.tool
+    - api_field: messages.chunks.toolResponse.toolsetTool.toolId
+    - api_field: messages.chunks.toolResponse.toolsetTool.toolset
+    - api_field: messages.chunks.updatedVariables
+      json: true
+    - api_field: messages.role
+    - api_field: name
+    - api_field: updateTime

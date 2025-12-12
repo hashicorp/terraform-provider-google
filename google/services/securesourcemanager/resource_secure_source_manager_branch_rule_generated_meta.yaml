@@ -1,25 +1,25 @@
-resource: 'google_secure_source_manager_branch_rule'
-generation_type: 'mmv1'
-source_file: 'products/securesourcemanager/BranchRule.yaml'
-api_service_name: 'securesourcemanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BranchRule'
+resource: google_secure_source_manager_branch_rule
+generation_type: mmv1
+source_file: products/securesourcemanager/BranchRule.yaml
+api_service_name: securesourcemanager.googleapis.com
+api_version: v1
+api_resource_type_kind: BranchRule
 fields:
-  - api_field: 'allowStaleReviews'
-  - field: 'branch_rule_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'disabled'
-  - api_field: 'includePattern'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'minimumApprovalsCount'
-  - api_field: 'minimumReviewsCount'
-  - api_field: 'name'
-  - field: 'repository_id'
-    provider_only: true
-  - api_field: 'requireCommentsResolved'
-  - api_field: 'requireLinearHistory'
-  - api_field: 'requirePullRequest'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: allowStaleReviews
+    - field: branch_rule_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: disabled
+    - api_field: includePattern
+    - field: location
+      provider_only: true
+    - api_field: minimumApprovalsCount
+    - api_field: minimumReviewsCount
+    - api_field: name
+    - field: repository_id
+      provider_only: true
+    - api_field: requireCommentsResolved
+    - api_field: requireLinearHistory
+    - api_field: requirePullRequest
+    - api_field: uid
+    - api_field: updateTime

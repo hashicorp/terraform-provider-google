@@ -1,133 +1,133 @@
-resource: 'google_dialogflow_cx_flow'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/Flow.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Flow'
+resource: google_dialogflow_cx_flow
+generation_type: mmv1
+source_file: products/dialogflowcx/Flow.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: Flow
 fields:
-  - api_field: 'advancedSettings.audioExportGcsDestination.uri'
-  - api_field: 'advancedSettings.dtmfSettings.enabled'
-  - api_field: 'advancedSettings.dtmfSettings.finishDigit'
-  - api_field: 'advancedSettings.dtmfSettings.maxDigits'
-  - api_field: 'advancedSettings.loggingSettings.enableConsentBasedRedaction'
-  - api_field: 'advancedSettings.loggingSettings.enableInteractionLogging'
-  - api_field: 'advancedSettings.loggingSettings.enableStackdriverLogging'
-  - api_field: 'advancedSettings.speechSettings.endpointerSensitivity'
-  - api_field: 'advancedSettings.speechSettings.models'
-  - api_field: 'advancedSettings.speechSettings.noSpeechTimeout'
-  - api_field: 'advancedSettings.speechSettings.useTimeoutBasedEndpointing'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'eventHandlers.event'
-  - api_field: 'eventHandlers.name'
-  - api_field: 'eventHandlers.targetFlow'
-  - api_field: 'eventHandlers.targetPage'
-  - api_field: 'eventHandlers.triggerFulfillment.conditionalCases.cases'
-    json: true
-  - api_field: 'eventHandlers.triggerFulfillment.enableGenerativeFallback'
-  - api_field: 'eventHandlers.triggerFulfillment.messages.channel'
-  - api_field: 'eventHandlers.triggerFulfillment.messages.conversationSuccess.metadata'
-    json: true
-  - api_field: 'eventHandlers.triggerFulfillment.messages.liveAgentHandoff.metadata'
-    json: true
-  - api_field: 'eventHandlers.triggerFulfillment.messages.outputAudioText.allowPlaybackInterruption'
-  - api_field: 'eventHandlers.triggerFulfillment.messages.outputAudioText.ssml'
-  - api_field: 'eventHandlers.triggerFulfillment.messages.outputAudioText.text'
-  - api_field: 'eventHandlers.triggerFulfillment.messages.payload'
-    json: true
-  - api_field: 'eventHandlers.triggerFulfillment.messages.playAudio.allowPlaybackInterruption'
-  - api_field: 'eventHandlers.triggerFulfillment.messages.playAudio.audioUri'
-  - api_field: 'eventHandlers.triggerFulfillment.messages.telephonyTransferCall.phoneNumber'
-  - api_field: 'eventHandlers.triggerFulfillment.messages.text.allowPlaybackInterruption'
-  - api_field: 'eventHandlers.triggerFulfillment.messages.text.text'
-  - api_field: 'eventHandlers.triggerFulfillment.returnPartialResponses'
-  - api_field: 'eventHandlers.triggerFulfillment.setParameterActions.parameter'
-  - api_field: 'eventHandlers.triggerFulfillment.setParameterActions.value'
-    json: true
-  - api_field: 'eventHandlers.triggerFulfillment.tag'
-  - api_field: 'eventHandlers.triggerFulfillment.webhook'
-  - field: 'is_default_start_flow'
-    provider_only: true
-  - api_field: 'knowledgeConnectorSettings.dataStoreConnections.dataStore'
-  - api_field: 'knowledgeConnectorSettings.dataStoreConnections.dataStoreType'
-  - api_field: 'knowledgeConnectorSettings.dataStoreConnections.documentProcessingMode'
-  - api_field: 'knowledgeConnectorSettings.enabled'
-  - api_field: 'knowledgeConnectorSettings.targetFlow'
-  - api_field: 'knowledgeConnectorSettings.targetPage'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.enabled'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.endpointingTimeoutDuration'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.finishDigit'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.interdigitTimeoutDuration'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.maxDigits'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.loggingSettings.enableConsentBasedRedaction'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.loggingSettings.enableInteractionLogging'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.loggingSettings.enableStackdriverLogging'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.speechSettings.endpointerSensitivity'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.speechSettings.models'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.speechSettings.noSpeechTimeout'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.advancedSettings.speechSettings.useTimeoutBasedEndpointing'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.conditionalCases.cases'
-    json: true
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.enableGenerativeFallback'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.channel'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.conversationSuccess.metadata'
-    json: true
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.endInteraction'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.knowledgeInfoCard'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.liveAgentHandoff.metadata'
-    json: true
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.mixedAudio.segments.allowPlaybackInterruption'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.mixedAudio.segments.audio'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.mixedAudio.segments.uri'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.outputAudioText.allowPlaybackInterruption'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.outputAudioText.ssml'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.outputAudioText.text'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.payload'
-    json: true
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.playAudio.allowPlaybackInterruption'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.playAudio.audioUri'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.telephonyTransferCall.phoneNumber'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.text.allowPlaybackInterruption'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.messages.text.text'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.returnPartialResponses'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.setParameterActions.parameter'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.setParameterActions.value'
-    json: true
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.tag'
-  - api_field: 'knowledgeConnectorSettings.triggerFulfillment.webhook'
-  - api_field: 'languageCode'
-  - api_field: 'name'
-  - api_field: 'nluSettings.classificationThreshold'
-  - api_field: 'nluSettings.modelTrainingMode'
-  - api_field: 'nluSettings.modelType'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'transitionRouteGroups'
-  - api_field: 'transitionRoutes.condition'
-  - api_field: 'transitionRoutes.intent'
-  - api_field: 'transitionRoutes.name'
-  - api_field: 'transitionRoutes.targetFlow'
-  - api_field: 'transitionRoutes.targetPage'
-  - api_field: 'transitionRoutes.triggerFulfillment.conditionalCases.cases'
-    json: true
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.channel'
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.conversationSuccess.metadata'
-    json: true
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.liveAgentHandoff.metadata'
-    json: true
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.outputAudioText.allowPlaybackInterruption'
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.outputAudioText.ssml'
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.outputAudioText.text'
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.payload'
-    json: true
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.playAudio.allowPlaybackInterruption'
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.playAudio.audioUri'
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.telephonyTransferCall.phoneNumber'
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.text.allowPlaybackInterruption'
-  - api_field: 'transitionRoutes.triggerFulfillment.messages.text.text'
-  - api_field: 'transitionRoutes.triggerFulfillment.returnPartialResponses'
-  - api_field: 'transitionRoutes.triggerFulfillment.setParameterActions.parameter'
-  - api_field: 'transitionRoutes.triggerFulfillment.setParameterActions.value'
-    json: true
-  - api_field: 'transitionRoutes.triggerFulfillment.tag'
-  - api_field: 'transitionRoutes.triggerFulfillment.webhook'
+    - api_field: advancedSettings.audioExportGcsDestination.uri
+    - api_field: advancedSettings.dtmfSettings.enabled
+    - api_field: advancedSettings.dtmfSettings.finishDigit
+    - api_field: advancedSettings.dtmfSettings.maxDigits
+    - api_field: advancedSettings.loggingSettings.enableConsentBasedRedaction
+    - api_field: advancedSettings.loggingSettings.enableInteractionLogging
+    - api_field: advancedSettings.loggingSettings.enableStackdriverLogging
+    - api_field: advancedSettings.speechSettings.endpointerSensitivity
+    - api_field: advancedSettings.speechSettings.models
+    - api_field: advancedSettings.speechSettings.noSpeechTimeout
+    - api_field: advancedSettings.speechSettings.useTimeoutBasedEndpointing
+    - api_field: description
+    - api_field: displayName
+    - api_field: eventHandlers.event
+    - api_field: eventHandlers.name
+    - api_field: eventHandlers.targetFlow
+    - api_field: eventHandlers.targetPage
+    - api_field: eventHandlers.triggerFulfillment.conditionalCases.cases
+      json: true
+    - api_field: eventHandlers.triggerFulfillment.enableGenerativeFallback
+    - api_field: eventHandlers.triggerFulfillment.messages.channel
+    - api_field: eventHandlers.triggerFulfillment.messages.conversationSuccess.metadata
+      json: true
+    - api_field: eventHandlers.triggerFulfillment.messages.liveAgentHandoff.metadata
+      json: true
+    - api_field: eventHandlers.triggerFulfillment.messages.outputAudioText.allowPlaybackInterruption
+    - api_field: eventHandlers.triggerFulfillment.messages.outputAudioText.ssml
+    - api_field: eventHandlers.triggerFulfillment.messages.outputAudioText.text
+    - api_field: eventHandlers.triggerFulfillment.messages.payload
+      json: true
+    - api_field: eventHandlers.triggerFulfillment.messages.playAudio.allowPlaybackInterruption
+    - api_field: eventHandlers.triggerFulfillment.messages.playAudio.audioUri
+    - api_field: eventHandlers.triggerFulfillment.messages.telephonyTransferCall.phoneNumber
+    - api_field: eventHandlers.triggerFulfillment.messages.text.allowPlaybackInterruption
+    - api_field: eventHandlers.triggerFulfillment.messages.text.text
+    - api_field: eventHandlers.triggerFulfillment.returnPartialResponses
+    - api_field: eventHandlers.triggerFulfillment.setParameterActions.parameter
+    - api_field: eventHandlers.triggerFulfillment.setParameterActions.value
+      json: true
+    - api_field: eventHandlers.triggerFulfillment.tag
+    - api_field: eventHandlers.triggerFulfillment.webhook
+    - field: is_default_start_flow
+      provider_only: true
+    - api_field: knowledgeConnectorSettings.dataStoreConnections.dataStore
+    - api_field: knowledgeConnectorSettings.dataStoreConnections.dataStoreType
+    - api_field: knowledgeConnectorSettings.dataStoreConnections.documentProcessingMode
+    - api_field: knowledgeConnectorSettings.enabled
+    - api_field: knowledgeConnectorSettings.targetFlow
+    - api_field: knowledgeConnectorSettings.targetPage
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.enabled
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.endpointingTimeoutDuration
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.finishDigit
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.interdigitTimeoutDuration
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.dtmfSettings.maxDigits
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.loggingSettings.enableConsentBasedRedaction
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.loggingSettings.enableInteractionLogging
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.loggingSettings.enableStackdriverLogging
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.speechSettings.endpointerSensitivity
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.speechSettings.models
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.speechSettings.noSpeechTimeout
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.advancedSettings.speechSettings.useTimeoutBasedEndpointing
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.conditionalCases.cases
+      json: true
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.enableGenerativeFallback
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.channel
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.conversationSuccess.metadata
+      json: true
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.endInteraction
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.knowledgeInfoCard
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.liveAgentHandoff.metadata
+      json: true
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.mixedAudio.segments.allowPlaybackInterruption
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.mixedAudio.segments.audio
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.mixedAudio.segments.uri
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.outputAudioText.allowPlaybackInterruption
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.outputAudioText.ssml
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.outputAudioText.text
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.payload
+      json: true
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.playAudio.allowPlaybackInterruption
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.playAudio.audioUri
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.telephonyTransferCall.phoneNumber
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.text.allowPlaybackInterruption
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.messages.text.text
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.returnPartialResponses
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.setParameterActions.parameter
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.setParameterActions.value
+      json: true
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.tag
+    - api_field: knowledgeConnectorSettings.triggerFulfillment.webhook
+    - api_field: languageCode
+    - api_field: name
+    - api_field: nluSettings.classificationThreshold
+    - api_field: nluSettings.modelTrainingMode
+    - api_field: nluSettings.modelType
+    - field: parent
+      provider_only: true
+    - api_field: transitionRouteGroups
+    - api_field: transitionRoutes.condition
+    - api_field: transitionRoutes.intent
+    - api_field: transitionRoutes.name
+    - api_field: transitionRoutes.targetFlow
+    - api_field: transitionRoutes.targetPage
+    - api_field: transitionRoutes.triggerFulfillment.conditionalCases.cases
+      json: true
+    - api_field: transitionRoutes.triggerFulfillment.messages.channel
+    - api_field: transitionRoutes.triggerFulfillment.messages.conversationSuccess.metadata
+      json: true
+    - api_field: transitionRoutes.triggerFulfillment.messages.liveAgentHandoff.metadata
+      json: true
+    - api_field: transitionRoutes.triggerFulfillment.messages.outputAudioText.allowPlaybackInterruption
+    - api_field: transitionRoutes.triggerFulfillment.messages.outputAudioText.ssml
+    - api_field: transitionRoutes.triggerFulfillment.messages.outputAudioText.text
+    - api_field: transitionRoutes.triggerFulfillment.messages.payload
+      json: true
+    - api_field: transitionRoutes.triggerFulfillment.messages.playAudio.allowPlaybackInterruption
+    - api_field: transitionRoutes.triggerFulfillment.messages.playAudio.audioUri
+    - api_field: transitionRoutes.triggerFulfillment.messages.telephonyTransferCall.phoneNumber
+    - api_field: transitionRoutes.triggerFulfillment.messages.text.allowPlaybackInterruption
+    - api_field: transitionRoutes.triggerFulfillment.messages.text.text
+    - api_field: transitionRoutes.triggerFulfillment.returnPartialResponses
+    - api_field: transitionRoutes.triggerFulfillment.setParameterActions.parameter
+    - api_field: transitionRoutes.triggerFulfillment.setParameterActions.value
+      json: true
+    - api_field: transitionRoutes.triggerFulfillment.tag
+    - api_field: transitionRoutes.triggerFulfillment.webhook

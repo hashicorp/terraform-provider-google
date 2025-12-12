@@ -1,16 +1,16 @@
-resource: 'google_compute_region_target_http_proxy'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionTargetHttpProxy.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TargetHttpProxy'
+resource: google_compute_region_target_http_proxy
+generation_type: mmv1
+source_file: products/compute/RegionTargetHttpProxy.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: TargetHttpProxy
 fields:
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'httpKeepAliveTimeoutSec'
-  - api_field: 'name'
-  - api_field: 'id'
-    field: 'proxy_id'
-  - api_field: 'region'
-  - api_field: 'urlMap'
-  - api_field: 'selfLink'
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: httpKeepAliveTimeoutSec
+    - api_field: name
+    - api_field: id
+      field: proxy_id
+    - api_field: region
+    - api_field: urlMap
+    - api_field: selfLink

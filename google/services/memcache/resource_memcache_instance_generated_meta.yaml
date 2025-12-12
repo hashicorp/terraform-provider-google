@@ -1,50 +1,50 @@
-resource: 'google_memcache_instance'
-generation_type: 'mmv1'
-source_file: 'products/memcache/Instance.yaml'
-api_service_name: 'memcache.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Instance'
+resource: google_memcache_instance
+generation_type: mmv1
+source_file: products/memcache/Instance.yaml
+api_service_name: memcache.googleapis.com
+api_version: v1
+api_resource_type_kind: Instance
 fields:
-  - api_field: 'authorizedNetwork'
-  - api_field: 'createTime'
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'discoveryEndpoint'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'maintenancePolicy.createTime'
-  - api_field: 'maintenancePolicy.description'
-  - api_field: 'maintenancePolicy.updateTime'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.day'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.duration'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.hours'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.minutes'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.nanos'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.seconds'
-  - api_field: 'maintenanceSchedule.endTime'
-  - api_field: 'maintenanceSchedule.scheduleDeadlineTime'
-  - api_field: 'maintenanceSchedule.startTime'
-  - api_field: 'memcacheFullVersion'
-  - api_field: 'memcacheNodes.host'
-  - api_field: 'memcacheNodes.nodeId'
-  - api_field: 'memcacheNodes.port'
-  - api_field: 'memcacheNodes.state'
-  - api_field: 'memcacheNodes.zone'
-  - api_field: 'parameters.id'
-    field: 'memcache_parameters.id'
-  - api_field: 'parameters.params'
-    field: 'memcache_parameters.params'
-  - api_field: 'memcacheVersion'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'nodeConfig.cpuCount'
-  - api_field: 'nodeConfig.memorySizeMb'
-  - api_field: 'nodeCount'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'reservedIpRangeId'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'zones'
+    - api_field: authorizedNetwork
+    - api_field: createTime
+    - field: deletion_protection
+      provider_only: true
+    - api_field: discoveryEndpoint
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: maintenancePolicy.createTime
+    - api_field: maintenancePolicy.description
+    - api_field: maintenancePolicy.updateTime
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.day
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.duration
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.hours
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.minutes
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.nanos
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.seconds
+    - api_field: maintenanceSchedule.endTime
+    - api_field: maintenanceSchedule.scheduleDeadlineTime
+    - api_field: maintenanceSchedule.startTime
+    - api_field: memcacheFullVersion
+    - api_field: memcacheNodes.host
+    - api_field: memcacheNodes.nodeId
+    - api_field: memcacheNodes.port
+    - api_field: memcacheNodes.state
+    - api_field: memcacheNodes.zone
+    - api_field: parameters.id
+      field: memcache_parameters.id
+    - api_field: parameters.params
+      field: memcache_parameters.params
+    - api_field: memcacheVersion
+    - field: name
+      provider_only: true
+    - api_field: nodeConfig.cpuCount
+    - api_field: nodeConfig.memorySizeMb
+    - api_field: nodeCount
+    - field: region
+      provider_only: true
+    - api_field: reservedIpRangeId
+    - field: terraform_labels
+      provider_only: true
+    - api_field: zones

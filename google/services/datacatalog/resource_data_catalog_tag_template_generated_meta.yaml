@@ -1,22 +1,22 @@
-resource: 'google_data_catalog_tag_template'
-generation_type: 'mmv1'
-source_file: 'products/datacatalog/TagTemplate.yaml'
-api_service_name: 'datacatalog.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TagTemplate'
+resource: google_data_catalog_tag_template
+generation_type: mmv1
+source_file: products/datacatalog/TagTemplate.yaml
+api_service_name: datacatalog.googleapis.com
+api_version: v1
+api_resource_type_kind: TagTemplate
 fields:
-  - api_field: 'displayName'
-  - api_field: 'fields.field.description'
-  - api_field: 'fields.field.displayName'
-  - api_field: 'fields.field.isRequired'
-  - api_field: 'fields.field.name'
-  - api_field: 'fields.field.order'
-  - api_field: 'fields.field.type.enumType.allowedValues.displayName'
-  - api_field: 'fields.field.type.primitiveType'
-  - field: 'force_delete'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'region'
-    provider_only: true
-  - field: 'tag_template_id'
-    provider_only: true
+    - api_field: displayName
+    - api_field: fields.field.description
+    - api_field: fields.field.displayName
+    - api_field: fields.field.isRequired
+    - api_field: fields.field.name
+    - api_field: fields.field.order
+    - api_field: fields.field.type.enumType.allowedValues.displayName
+    - api_field: fields.field.type.primitiveType
+    - field: force_delete
+      provider_only: true
+    - api_field: name
+    - field: region
+      provider_only: true
+    - field: tag_template_id
+      provider_only: true

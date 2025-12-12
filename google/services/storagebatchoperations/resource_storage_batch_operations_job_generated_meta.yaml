@@ -1,30 +1,30 @@
-resource: 'google_storage_batch_operations_job'
-generation_type: 'mmv1'
-source_file: 'products/storagebatchoperations/Job.yaml'
-api_service_name: 'storagebatchoperations.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Job'
+resource: google_storage_batch_operations_job
+generation_type: mmv1
+source_file: products/storagebatchoperations/Job.yaml
+api_service_name: storagebatchoperations.googleapis.com
+api_version: v1
+api_resource_type_kind: Job
 fields:
-  - api_field: 'bucketList.buckets.bucket'
-  - api_field: 'bucketList.buckets.manifest.manifestLocation'
-  - api_field: 'bucketList.buckets.prefixList.includedObjectPrefixes'
-  - api_field: 'completeTime'
-  - api_field: 'createTime'
-  - api_field: 'deleteObject.permanentObjectDeletionEnabled'
-  - field: 'delete_protection'
-    provider_only: true
-  - field: 'job_id'
-    provider_only: true
-  - api_field: 'putMetadata.cacheControl'
-  - api_field: 'putMetadata.contentDisposition'
-  - api_field: 'putMetadata.contentEncoding'
-  - api_field: 'putMetadata.contentLanguage'
-  - api_field: 'putMetadata.contentType'
-  - api_field: 'putMetadata.customMetadata'
-  - api_field: 'putMetadata.customTime'
-  - api_field: 'putObjectHold.eventBasedHold'
-  - api_field: 'putObjectHold.temporaryHold'
-  - api_field: 'rewriteObject.kmsKey'
-  - api_field: 'scheduleTime'
-  - api_field: 'state'
-  - api_field: 'updateTime'
+    - api_field: bucketList.buckets.bucket
+    - api_field: bucketList.buckets.manifest.manifestLocation
+    - api_field: bucketList.buckets.prefixList.includedObjectPrefixes
+    - api_field: completeTime
+    - api_field: createTime
+    - api_field: deleteObject.permanentObjectDeletionEnabled
+    - field: delete_protection
+      provider_only: true
+    - field: job_id
+      provider_only: true
+    - api_field: putMetadata.cacheControl
+    - api_field: putMetadata.contentDisposition
+    - api_field: putMetadata.contentEncoding
+    - api_field: putMetadata.contentLanguage
+    - api_field: putMetadata.contentType
+    - api_field: putMetadata.customMetadata
+    - api_field: putMetadata.customTime
+    - api_field: putObjectHold.eventBasedHold
+    - api_field: putObjectHold.temporaryHold
+    - api_field: rewriteObject.kmsKey
+    - api_field: scheduleTime
+    - api_field: state
+    - api_field: updateTime

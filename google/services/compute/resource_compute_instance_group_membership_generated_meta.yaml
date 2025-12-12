@@ -1,14 +1,14 @@
-resource: 'google_compute_instance_group_membership'
-generation_type: 'mmv1'
-source_file: 'products/compute/InstanceGroupMembership.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InstanceGroup'
+resource: google_compute_instance_group_membership
+generation_type: mmv1
+source_file: products/compute/InstanceGroupMembership.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: InstanceGroup
 api_variant_patterns:
-  - 'projects/{project}/zones/{zone}/instanceGroups/{instanceGroup}'
+    - projects/{project}/zones/{zone}/instanceGroups/{instanceGroup}
 fields:
-  - api_field: 'instance'
-  - field: 'instance_group'
-    provider_only: true
-  - field: 'zone'
-    provider_only: true
+    - api_field: instance
+    - field: instance_group
+      provider_only: true
+    - field: zone
+      provider_only: true

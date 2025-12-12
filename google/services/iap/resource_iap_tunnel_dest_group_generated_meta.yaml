@@ -1,14 +1,14 @@
-resource: 'google_iap_tunnel_dest_group'
-generation_type: 'mmv1'
-source_file: 'products/iap/TunnelDestGroup.yaml'
-api_service_name: 'iap.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TunnelDestGroup'
+resource: google_iap_tunnel_dest_group
+generation_type: mmv1
+source_file: products/iap/TunnelDestGroup.yaml
+api_service_name: iap.googleapis.com
+api_version: v1
+api_resource_type_kind: TunnelDestGroup
 fields:
-  - api_field: 'cidrs'
-  - api_field: 'fqdns'
-  - field: 'group_name'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'region'
-    provider_only: true
+    - api_field: cidrs
+    - api_field: fqdns
+    - field: group_name
+      provider_only: true
+    - api_field: name
+    - field: region
+      provider_only: true

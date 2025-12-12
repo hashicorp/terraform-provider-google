@@ -1,13 +1,13 @@
-resource: 'google_app_engine_service_split_traffic'
-generation_type: 'mmv1'
-source_file: 'products/appengine/ServiceSplitTraffic.yaml'
-api_service_name: 'appengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Service'
+resource: google_app_engine_service_split_traffic
+generation_type: mmv1
+source_file: products/appengine/ServiceSplitTraffic.yaml
+api_service_name: appengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Service
 fields:
-  - field: 'migrate_traffic'
-    provider_only: true
-  - api_field: 'id'
-    field: 'service'
-  - api_field: 'split.allocations'
-  - api_field: 'split.shardBy'
+    - field: migrate_traffic
+      provider_only: true
+    - api_field: id
+      field: service
+    - api_field: split.allocations
+    - api_field: split.shardBy

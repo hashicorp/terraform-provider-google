@@ -1,26 +1,26 @@
-resource: 'google_gemini_gemini_gcp_enablement_setting_binding'
-generation_type: 'mmv1'
-source_file: 'products/gemini/GeminiGcpEnablementSettingBinding.yaml'
-api_service_name: 'cloudaicompanion.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SettingBinding'
+resource: google_gemini_gemini_gcp_enablement_setting_binding
+generation_type: mmv1
+source_file: products/gemini/GeminiGcpEnablementSettingBinding.yaml
+api_service_name: cloudaicompanion.googleapis.com
+api_version: v1
+api_resource_type_kind: SettingBinding
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/geminiGcpEnablementSettings/{geminiGcpEnablementSetting}/settingBindings/{settingBinding}'
+    - projects/{project}/locations/{location}/geminiGcpEnablementSettings/{geminiGcpEnablementSetting}/settingBindings/{settingBinding}
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - field: 'gemini_gcp_enablement_setting_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'product'
-  - field: 'setting_binding_id'
-    provider_only: true
-  - api_field: 'target'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - field: gemini_gcp_enablement_setting_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: product
+    - field: setting_binding_id
+      provider_only: true
+    - api_field: target
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

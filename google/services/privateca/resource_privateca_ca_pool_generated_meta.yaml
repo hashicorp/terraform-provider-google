@@ -1,70 +1,70 @@
-resource: 'google_privateca_ca_pool'
-generation_type: 'mmv1'
-source_file: 'products/privateca/CaPool.yaml'
-api_service_name: 'privateca.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CaPool'
+resource: google_privateca_ca_pool
+generation_type: mmv1
+source_file: products/privateca/CaPool.yaml
+api_service_name: privateca.googleapis.com
+api_version: v1
+api_resource_type_kind: CaPool
 fields:
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionSpec.cloudKmsKey'
-  - api_field: 'issuancePolicy.allowedIssuanceModes.allowConfigBasedIssuance'
-  - api_field: 'issuancePolicy.allowedIssuanceModes.allowCsrBasedIssuance'
-  - api_field: 'issuancePolicy.allowedKeyTypes.ellipticCurve.signatureAlgorithm'
-  - api_field: 'issuancePolicy.allowedKeyTypes.rsa.maxModulusSize'
-  - api_field: 'issuancePolicy.allowedKeyTypes.rsa.minModulusSize'
-  - api_field: 'issuancePolicy.backdateDuration'
-  - api_field: 'issuancePolicy.baselineValues.additionalExtensions.critical'
-  - api_field: 'issuancePolicy.baselineValues.additionalExtensions.objectId.objectIdPath'
-  - api_field: 'issuancePolicy.baselineValues.additionalExtensions.value'
-  - api_field: 'issuancePolicy.baselineValues.aiaOcspServers'
-  - api_field: 'issuancePolicy.baselineValues.caOptions.isCa'
-  - api_field: 'issuancePolicy.baselineValues.caOptions.maxIssuerPathLength'
-  - field: 'issuance_policy.baseline_values.ca_options.non_ca'
-    provider_only: true
-  - field: 'issuance_policy.baseline_values.ca_options.zero_max_issuer_path_length'
-    provider_only: true
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.baseKeyUsage.certSign'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.baseKeyUsage.contentCommitment'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.baseKeyUsage.crlSign'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.baseKeyUsage.dataEncipherment'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.baseKeyUsage.decipherOnly'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.baseKeyUsage.digitalSignature'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.baseKeyUsage.encipherOnly'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.baseKeyUsage.keyAgreement'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.baseKeyUsage.keyEncipherment'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.clientAuth'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.codeSigning'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.emailProtection'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.ocspSigning'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.serverAuth'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.timeStamping'
-  - api_field: 'issuancePolicy.baselineValues.keyUsage.unknownExtendedKeyUsages.objectIdPath'
-  - api_field: 'issuancePolicy.baselineValues.nameConstraints.critical'
-  - api_field: 'issuancePolicy.baselineValues.nameConstraints.excludedDnsNames'
-  - api_field: 'issuancePolicy.baselineValues.nameConstraints.excludedEmailAddresses'
-  - api_field: 'issuancePolicy.baselineValues.nameConstraints.excludedIpRanges'
-  - api_field: 'issuancePolicy.baselineValues.nameConstraints.excludedUris'
-  - api_field: 'issuancePolicy.baselineValues.nameConstraints.permittedDnsNames'
-  - api_field: 'issuancePolicy.baselineValues.nameConstraints.permittedEmailAddresses'
-  - api_field: 'issuancePolicy.baselineValues.nameConstraints.permittedIpRanges'
-  - api_field: 'issuancePolicy.baselineValues.nameConstraints.permittedUris'
-  - api_field: 'issuancePolicy.baselineValues.policyIds.objectIdPath'
-  - api_field: 'issuancePolicy.identityConstraints.allowSubjectAltNamesPassthrough'
-  - api_field: 'issuancePolicy.identityConstraints.allowSubjectPassthrough'
-  - api_field: 'issuancePolicy.identityConstraints.celExpression.description'
-  - api_field: 'issuancePolicy.identityConstraints.celExpression.expression'
-  - api_field: 'issuancePolicy.identityConstraints.celExpression.location'
-  - api_field: 'issuancePolicy.identityConstraints.celExpression.title'
-  - api_field: 'issuancePolicy.maximumLifetime'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'publishingOptions.encodingFormat'
-  - api_field: 'publishingOptions.publishCaCert'
-  - api_field: 'publishingOptions.publishCrl'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'tier'
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.cloudKmsKey
+    - api_field: issuancePolicy.allowedIssuanceModes.allowConfigBasedIssuance
+    - api_field: issuancePolicy.allowedIssuanceModes.allowCsrBasedIssuance
+    - api_field: issuancePolicy.allowedKeyTypes.ellipticCurve.signatureAlgorithm
+    - api_field: issuancePolicy.allowedKeyTypes.rsa.maxModulusSize
+    - api_field: issuancePolicy.allowedKeyTypes.rsa.minModulusSize
+    - api_field: issuancePolicy.backdateDuration
+    - api_field: issuancePolicy.baselineValues.additionalExtensions.critical
+    - api_field: issuancePolicy.baselineValues.additionalExtensions.objectId.objectIdPath
+    - api_field: issuancePolicy.baselineValues.additionalExtensions.value
+    - api_field: issuancePolicy.baselineValues.aiaOcspServers
+    - api_field: issuancePolicy.baselineValues.caOptions.isCa
+    - api_field: issuancePolicy.baselineValues.caOptions.maxIssuerPathLength
+    - field: issuance_policy.baseline_values.ca_options.non_ca
+      provider_only: true
+    - field: issuance_policy.baseline_values.ca_options.zero_max_issuer_path_length
+      provider_only: true
+    - api_field: issuancePolicy.baselineValues.keyUsage.baseKeyUsage.certSign
+    - api_field: issuancePolicy.baselineValues.keyUsage.baseKeyUsage.contentCommitment
+    - api_field: issuancePolicy.baselineValues.keyUsage.baseKeyUsage.crlSign
+    - api_field: issuancePolicy.baselineValues.keyUsage.baseKeyUsage.dataEncipherment
+    - api_field: issuancePolicy.baselineValues.keyUsage.baseKeyUsage.decipherOnly
+    - api_field: issuancePolicy.baselineValues.keyUsage.baseKeyUsage.digitalSignature
+    - api_field: issuancePolicy.baselineValues.keyUsage.baseKeyUsage.encipherOnly
+    - api_field: issuancePolicy.baselineValues.keyUsage.baseKeyUsage.keyAgreement
+    - api_field: issuancePolicy.baselineValues.keyUsage.baseKeyUsage.keyEncipherment
+    - api_field: issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.clientAuth
+    - api_field: issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.codeSigning
+    - api_field: issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.emailProtection
+    - api_field: issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.ocspSigning
+    - api_field: issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.serverAuth
+    - api_field: issuancePolicy.baselineValues.keyUsage.extendedKeyUsage.timeStamping
+    - api_field: issuancePolicy.baselineValues.keyUsage.unknownExtendedKeyUsages.objectIdPath
+    - api_field: issuancePolicy.baselineValues.nameConstraints.critical
+    - api_field: issuancePolicy.baselineValues.nameConstraints.excludedDnsNames
+    - api_field: issuancePolicy.baselineValues.nameConstraints.excludedEmailAddresses
+    - api_field: issuancePolicy.baselineValues.nameConstraints.excludedIpRanges
+    - api_field: issuancePolicy.baselineValues.nameConstraints.excludedUris
+    - api_field: issuancePolicy.baselineValues.nameConstraints.permittedDnsNames
+    - api_field: issuancePolicy.baselineValues.nameConstraints.permittedEmailAddresses
+    - api_field: issuancePolicy.baselineValues.nameConstraints.permittedIpRanges
+    - api_field: issuancePolicy.baselineValues.nameConstraints.permittedUris
+    - api_field: issuancePolicy.baselineValues.policyIds.objectIdPath
+    - api_field: issuancePolicy.identityConstraints.allowSubjectAltNamesPassthrough
+    - api_field: issuancePolicy.identityConstraints.allowSubjectPassthrough
+    - api_field: issuancePolicy.identityConstraints.celExpression.description
+    - api_field: issuancePolicy.identityConstraints.celExpression.expression
+    - api_field: issuancePolicy.identityConstraints.celExpression.location
+    - api_field: issuancePolicy.identityConstraints.celExpression.title
+    - api_field: issuancePolicy.maximumLifetime
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: publishingOptions.encodingFormat
+    - api_field: publishingOptions.publishCaCert
+    - api_field: publishingOptions.publishCrl
+    - field: terraform_labels
+      provider_only: true
+    - api_field: tier

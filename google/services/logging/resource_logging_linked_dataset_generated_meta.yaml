@@ -1,25 +1,25 @@
-resource: 'google_logging_linked_dataset'
-generation_type: 'mmv1'
-source_file: 'products/logging/LinkedDataset.yaml'
-api_service_name: 'logging.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Link'
+resource: google_logging_linked_dataset
+generation_type: mmv1
+source_file: products/logging/LinkedDataset.yaml
+api_service_name: logging.googleapis.com
+api_version: v2
+api_resource_type_kind: Link
 api_variant_patterns:
-  - 'billingAccounts/{billingAccount}/locations/{location}/buckets/{bucket}/links/{link}'
-  - 'folders/{folder}/locations/{location}/buckets/{bucket}/links/{link}'
-  - 'organizations/{organization}/locations/{location}/buckets/{bucket}/links/{link}'
-  - 'projects/{project}/locations/{location}/buckets/{bucket}/links/{link}'
+    - billingAccounts/{billingAccount}/locations/{location}/buckets/{bucket}/links/{link}
+    - folders/{folder}/locations/{location}/buckets/{bucket}/links/{link}
+    - organizations/{organization}/locations/{location}/buckets/{bucket}/links/{link}
+    - projects/{project}/locations/{location}/buckets/{bucket}/links/{link}
 fields:
-  - api_field: 'bigqueryDataset.datasetId'
-  - field: 'bucket'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'lifecycleState'
-  - field: 'link_id'
-    provider_only: true
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
+    - api_field: bigqueryDataset.datasetId
+    - field: bucket
+      provider_only: true
+    - api_field: createTime
+    - api_field: description
+    - api_field: lifecycleState
+    - field: link_id
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: parent
+      provider_only: true

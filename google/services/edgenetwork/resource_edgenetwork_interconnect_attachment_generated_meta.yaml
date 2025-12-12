@@ -1,26 +1,26 @@
-resource: 'google_edgenetwork_interconnect_attachment'
-generation_type: 'mmv1'
-source_file: 'products/edgenetwork/InterconnectAttachment.yaml'
-api_service_name: 'edgenetwork.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InterconnectAttachment'
+resource: google_edgenetwork_interconnect_attachment
+generation_type: mmv1
+source_file: products/edgenetwork/InterconnectAttachment.yaml
+api_service_name: edgenetwork.googleapis.com
+api_version: v1
+api_resource_type_kind: InterconnectAttachment
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'interconnect'
-  - field: 'interconnect_attachment_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mtu'
-  - api_field: 'name'
-  - api_field: 'network'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'vlanId'
-  - field: 'zone'
-    provider_only: true
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: interconnect
+    - field: interconnect_attachment_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: mtu
+    - api_field: name
+    - api_field: network
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: vlanId
+    - field: zone
+      provider_only: true

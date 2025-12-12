@@ -1,101 +1,101 @@
-resource: 'google_compute_network_firewall_policy_with_rules'
-generation_type: 'mmv1'
-source_file: 'products/compute/NetworkFirewallPolicyWithRules.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'FirewallPolicy'
+resource: google_compute_network_firewall_policy_with_rules
+generation_type: mmv1
+source_file: products/compute/NetworkFirewallPolicyWithRules.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: FirewallPolicy
 fields:
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'fingerprint'
-  - api_field: 'name'
-  - api_field: 'id'
-    field: 'network_firewall_policy_id'
-  - api_field: 'policyType'
-  - api_field: 'predefinedRules.action'
-  - api_field: 'predefinedRules.description'
-  - api_field: 'predefinedRules.direction'
-  - api_field: 'predefinedRules.disabled'
-  - api_field: 'predefinedRules.enableLogging'
-  - api_field: 'predefinedRules.match.destAddressGroups'
-  - api_field: 'predefinedRules.match.destFqdns'
-  - api_field: 'predefinedRules.match.destIpRanges'
-  - api_field: 'predefinedRules.match.destRegionCodes'
-  - api_field: 'predefinedRules.match.destThreatIntelligences'
-  - api_field: 'predefinedRules.match.layer4Configs.ipProtocol'
-    field: 'predefined_rules.match.layer4_config.ip_protocol'
-  - api_field: 'predefinedRules.match.layer4Configs.ports'
-    field: 'predefined_rules.match.layer4_config.ports'
-  - api_field: 'predefinedRules.match.srcAddressGroups'
-  - api_field: 'predefinedRules.match.srcFqdns'
-  - api_field: 'predefinedRules.match.srcIpRanges'
-  - api_field: 'predefinedRules.match.srcRegionCodes'
-  - api_field: 'predefinedRules.match.srcSecureTags.name'
-    field: 'predefined_rules.match.src_secure_tag.name'
-  - api_field: 'predefinedRules.match.srcSecureTags.state'
-    field: 'predefined_rules.match.src_secure_tag.state'
-  - api_field: 'predefinedRules.match.srcThreatIntelligences'
-  - api_field: 'predefinedRules.priority'
-  - api_field: 'predefinedRules.ruleName'
-  - api_field: 'predefinedRules.securityProfileGroup'
-  - api_field: 'predefinedRules.targetSecureTags.name'
-    field: 'predefined_rules.target_secure_tag.name'
-  - api_field: 'predefinedRules.targetSecureTags.state'
-    field: 'predefined_rules.target_secure_tag.state'
-  - api_field: 'predefinedRules.targetServiceAccounts'
-  - api_field: 'predefinedRules.tlsInspect'
-  - api_field: 'rules.action'
-    field: 'rule.action'
-  - api_field: 'rules.description'
-    field: 'rule.description'
-  - api_field: 'rules.direction'
-    field: 'rule.direction'
-  - api_field: 'rules.disabled'
-    field: 'rule.disabled'
-  - api_field: 'rules.enableLogging'
-    field: 'rule.enable_logging'
-  - api_field: 'rules.match.destAddressGroups'
-    field: 'rule.match.dest_address_groups'
-  - api_field: 'rules.match.destFqdns'
-    field: 'rule.match.dest_fqdns'
-  - api_field: 'rules.match.destIpRanges'
-    field: 'rule.match.dest_ip_ranges'
-  - api_field: 'rules.match.destRegionCodes'
-    field: 'rule.match.dest_region_codes'
-  - api_field: 'rules.match.destThreatIntelligences'
-    field: 'rule.match.dest_threat_intelligences'
-  - api_field: 'rules.match.layer4Configs.ipProtocol'
-    field: 'rule.match.layer4_config.ip_protocol'
-  - api_field: 'rules.match.layer4Configs.ports'
-    field: 'rule.match.layer4_config.ports'
-  - api_field: 'rules.match.srcAddressGroups'
-    field: 'rule.match.src_address_groups'
-  - api_field: 'rules.match.srcFqdns'
-    field: 'rule.match.src_fqdns'
-  - api_field: 'rules.match.srcIpRanges'
-    field: 'rule.match.src_ip_ranges'
-  - api_field: 'rules.match.srcRegionCodes'
-    field: 'rule.match.src_region_codes'
-  - api_field: 'rules.match.srcSecureTags.name'
-    field: 'rule.match.src_secure_tag.name'
-  - api_field: 'rules.match.srcSecureTags.state'
-    field: 'rule.match.src_secure_tag.state'
-  - api_field: 'rules.match.srcThreatIntelligences'
-    field: 'rule.match.src_threat_intelligences'
-  - api_field: 'rules.priority'
-    field: 'rule.priority'
-  - api_field: 'rules.ruleName'
-    field: 'rule.rule_name'
-  - api_field: 'rules.securityProfileGroup'
-    field: 'rule.security_profile_group'
-  - api_field: 'rules.targetSecureTags.name'
-    field: 'rule.target_secure_tag.name'
-  - api_field: 'rules.targetSecureTags.state'
-    field: 'rule.target_secure_tag.state'
-  - api_field: 'rules.targetServiceAccounts'
-    field: 'rule.target_service_accounts'
-  - api_field: 'rules.tlsInspect'
-    field: 'rule.tls_inspect'
-  - api_field: 'ruleTupleCount'
-  - api_field: 'selfLink'
-  - api_field: 'selfLinkWithId'
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: fingerprint
+    - api_field: name
+    - api_field: id
+      field: network_firewall_policy_id
+    - api_field: policyType
+    - api_field: predefinedRules.action
+    - api_field: predefinedRules.description
+    - api_field: predefinedRules.direction
+    - api_field: predefinedRules.disabled
+    - api_field: predefinedRules.enableLogging
+    - api_field: predefinedRules.match.destAddressGroups
+    - api_field: predefinedRules.match.destFqdns
+    - api_field: predefinedRules.match.destIpRanges
+    - api_field: predefinedRules.match.destRegionCodes
+    - api_field: predefinedRules.match.destThreatIntelligences
+    - api_field: predefinedRules.match.layer4Configs.ipProtocol
+      field: predefined_rules.match.layer4_config.ip_protocol
+    - api_field: predefinedRules.match.layer4Configs.ports
+      field: predefined_rules.match.layer4_config.ports
+    - api_field: predefinedRules.match.srcAddressGroups
+    - api_field: predefinedRules.match.srcFqdns
+    - api_field: predefinedRules.match.srcIpRanges
+    - api_field: predefinedRules.match.srcRegionCodes
+    - api_field: predefinedRules.match.srcSecureTags.name
+      field: predefined_rules.match.src_secure_tag.name
+    - api_field: predefinedRules.match.srcSecureTags.state
+      field: predefined_rules.match.src_secure_tag.state
+    - api_field: predefinedRules.match.srcThreatIntelligences
+    - api_field: predefinedRules.priority
+    - api_field: predefinedRules.ruleName
+    - api_field: predefinedRules.securityProfileGroup
+    - api_field: predefinedRules.targetSecureTags.name
+      field: predefined_rules.target_secure_tag.name
+    - api_field: predefinedRules.targetSecureTags.state
+      field: predefined_rules.target_secure_tag.state
+    - api_field: predefinedRules.targetServiceAccounts
+    - api_field: predefinedRules.tlsInspect
+    - api_field: rules.action
+      field: rule.action
+    - api_field: rules.description
+      field: rule.description
+    - api_field: rules.direction
+      field: rule.direction
+    - api_field: rules.disabled
+      field: rule.disabled
+    - api_field: rules.enableLogging
+      field: rule.enable_logging
+    - api_field: rules.match.destAddressGroups
+      field: rule.match.dest_address_groups
+    - api_field: rules.match.destFqdns
+      field: rule.match.dest_fqdns
+    - api_field: rules.match.destIpRanges
+      field: rule.match.dest_ip_ranges
+    - api_field: rules.match.destRegionCodes
+      field: rule.match.dest_region_codes
+    - api_field: rules.match.destThreatIntelligences
+      field: rule.match.dest_threat_intelligences
+    - api_field: rules.match.layer4Configs.ipProtocol
+      field: rule.match.layer4_config.ip_protocol
+    - api_field: rules.match.layer4Configs.ports
+      field: rule.match.layer4_config.ports
+    - api_field: rules.match.srcAddressGroups
+      field: rule.match.src_address_groups
+    - api_field: rules.match.srcFqdns
+      field: rule.match.src_fqdns
+    - api_field: rules.match.srcIpRanges
+      field: rule.match.src_ip_ranges
+    - api_field: rules.match.srcRegionCodes
+      field: rule.match.src_region_codes
+    - api_field: rules.match.srcSecureTags.name
+      field: rule.match.src_secure_tag.name
+    - api_field: rules.match.srcSecureTags.state
+      field: rule.match.src_secure_tag.state
+    - api_field: rules.match.srcThreatIntelligences
+      field: rule.match.src_threat_intelligences
+    - api_field: rules.priority
+      field: rule.priority
+    - api_field: rules.ruleName
+      field: rule.rule_name
+    - api_field: rules.securityProfileGroup
+      field: rule.security_profile_group
+    - api_field: rules.targetSecureTags.name
+      field: rule.target_secure_tag.name
+    - api_field: rules.targetSecureTags.state
+      field: rule.target_secure_tag.state
+    - api_field: rules.targetServiceAccounts
+      field: rule.target_service_accounts
+    - api_field: rules.tlsInspect
+      field: rule.tls_inspect
+    - api_field: ruleTupleCount
+    - api_field: selfLink
+    - api_field: selfLinkWithId

@@ -1,27 +1,27 @@
-resource: 'google_kms_crypto_key'
-generation_type: 'mmv1'
-source_file: 'products/kms/CryptoKey.yaml'
-api_service_name: 'cloudkms.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CryptoKey'
+resource: google_kms_crypto_key
+generation_type: mmv1
+source_file: products/kms/CryptoKey.yaml
+api_service_name: cloudkms.googleapis.com
+api_version: v1
+api_resource_type_kind: CryptoKey
 fields:
-  - api_field: 'cryptoKeyBackend'
-  - api_field: 'destroyScheduledDuration'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'importOnly'
-  - field: 'key_ring'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'primary.name'
-  - api_field: 'primary.state'
-  - api_field: 'purpose'
-  - api_field: 'rotationPeriod'
-  - field: 'skip_initial_version_creation'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'versionTemplate.algorithm'
-  - api_field: 'versionTemplate.protectionLevel'
+    - api_field: cryptoKeyBackend
+    - api_field: destroyScheduledDuration
+    - field: effective_labels
+      provider_only: true
+    - api_field: importOnly
+    - field: key_ring
+      provider_only: true
+    - api_field: labels
+    - field: name
+      provider_only: true
+    - api_field: primary.name
+    - api_field: primary.state
+    - api_field: purpose
+    - api_field: rotationPeriod
+    - field: skip_initial_version_creation
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: versionTemplate.algorithm
+    - api_field: versionTemplate.protectionLevel
