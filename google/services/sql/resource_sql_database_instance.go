@@ -86,6 +86,7 @@ var (
 		"settings.0.backup_configuration.0.point_in_time_recovery_enabled",
 		"settings.0.backup_configuration.0.backup_retention_settings",
 		"settings.0.backup_configuration.0.transaction_log_retention_days",
+		"settings.0.backup_configuration.0.backup_tier",
 	}
 
 	connectionPoolConfigKeys = []string{
@@ -426,24 +427,27 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"binary_log_enabled": {
-										Type:         schema.TypeBool,
-										Optional:     true,
-										AtLeastOneOf: backupConfigurationKeys,
-										Description:  `True if binary logging is enabled. If settings.backup_configuration.enabled is false, this must be as well. Can only be used with MySQL.`,
+										Type:             schema.TypeBool,
+										Optional:         true,
+										AtLeastOneOf:     backupConfigurationKeys,
+										DiffSuppressFunc: EnhancedBackupManagerDiffSuppressFunc,
+										Description:      `True if binary logging is enabled. If settings.backup_configuration.enabled is false, this must be as well. Can only be used with MySQL.`,
 									},
 									"enabled": {
-										Type:         schema.TypeBool,
-										Optional:     true,
-										AtLeastOneOf: backupConfigurationKeys,
-										Description:  `True if backup configuration is enabled.`,
+										Type:             schema.TypeBool,
+										Optional:         true,
+										AtLeastOneOf:     backupConfigurationKeys,
+										DiffSuppressFunc: EnhancedBackupManagerDiffSuppressFunc,
+										Description:      `True if backup configuration is enabled.`,
 									},
 									"start_time": {
 										Type:     schema.TypeString,
 										Optional: true,
 										// start_time is randomly assigned if not set
-										Computed:     true,
-										AtLeastOneOf: backupConfigurationKeys,
-										Description:  `HH:MM format time indicating when backup configuration starts.`,
+										Computed:         true,
+										AtLeastOneOf:     backupConfigurationKeys,
+										DiffSuppressFunc: EnhancedBackupManagerDiffSuppressFunc,
+										Description:      `HH:MM format time indicating when backup configuration starts.`,
 									},
 									"location": {
 										Type:         schema.TypeString,
@@ -452,24 +456,27 @@ API (for read pools, effective_availability_type may differ from availability_ty
 										Description:  `Location of the backup configuration.`,
 									},
 									"point_in_time_recovery_enabled": {
-										Type:         schema.TypeBool,
-										Optional:     true,
-										AtLeastOneOf: backupConfigurationKeys,
-										Description:  `True if Point-in-time recovery is enabled.`,
+										Type:             schema.TypeBool,
+										Optional:         true,
+										AtLeastOneOf:     backupConfigurationKeys,
+										DiffSuppressFunc: EnhancedBackupManagerDiffSuppressFunc,
+										Description:      `True if Point-in-time recovery is enabled.`,
 									},
 									"transaction_log_retention_days": {
-										Type:         schema.TypeInt,
-										Computed:     true,
-										Optional:     true,
-										AtLeastOneOf: backupConfigurationKeys,
-										Description:  `The number of days of transaction logs we retain for point in time restore, from 1-7. (For PostgreSQL Enterprise Plus instances, from 1 to 35.)`,
+										Type:             schema.TypeInt,
+										Computed:         true,
+										Optional:         true,
+										AtLeastOneOf:     backupConfigurationKeys,
+										DiffSuppressFunc: EnhancedBackupManagerDiffSuppressFunc,
+										Description:      `The number of days of transaction logs we retain for point in time restore, from 1-7. (For PostgreSQL Enterprise Plus instances, from 1 to 35.)`,
 									},
 									"backup_retention_settings": {
-										Type:         schema.TypeList,
-										Optional:     true,
-										AtLeastOneOf: backupConfigurationKeys,
-										Computed:     true,
-										MaxItems:     1,
+										Type:             schema.TypeList,
+										Optional:         true,
+										AtLeastOneOf:     backupConfigurationKeys,
+										Computed:         true,
+										DiffSuppressFunc: EnhancedBackupManagerDiffSuppressFunc,
+										MaxItems:         1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"retained_backups": {
@@ -485,6 +492,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 												},
 											},
 										},
+									},
+									"backup_tier": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Backup tier that manages the backups for the instance.`,
 									},
 								},
 							},
@@ -1977,6 +1989,7 @@ func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfigu
 		Location:                    _backupConfiguration["location"].(string),
 		TransactionLogRetentionDays: int64(_backupConfiguration["transaction_log_retention_days"].(int)),
 		PointInTimeRecoveryEnabled:  _backupConfiguration["point_in_time_recovery_enabled"].(bool),
+		BackupTier:                  _backupConfiguration["backup_tier"].(string),
 		ForceSendFields:             []string{"BinaryLogEnabled", "Enabled", "PointInTimeRecoveryEnabled"},
 	}
 }
@@ -2656,6 +2669,25 @@ func maintenanceVersionDiffSuppress(_, old, new string, _ *schema.ResourceData) 
 	}
 }
 
+// enhancedBackupManagerDiffSuppressFunc suppresses diff changes to settings.backup_configuration
+// when the SQL instance is managed by Google Cloud Backup and Disaster Recovery (DR) Service.
+func EnhancedBackupManagerDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	// If the API marks this instance as ENHANCED-managed, suppress diffs for backup config fields.
+	tier, _ := d.Get("settings.0.backup_configuration.0.backup_tier").(string)
+	if tier == "" {
+		return false
+	}
+	if strings.EqualFold(tier, "ENHANCED") {
+		log.Printf(
+			"[INFO] Instance %s is managed by Google Cloud Backup and Disaster Recovery (BackupDR). "+
+				"Terraform will not manage the '%s' field. "+
+				"Any changes to this field in your Terraform configuration will be ignored.", d.Get("name"), k,
+		)
+		return true
+	}
+	return false
+}
+
 func databaseVersionDiffSuppress(_, oldVersion, newVersion string, _ *schema.ResourceData) bool {
 	// Suppress diff when newVersion is MYSQL_8_0 and oldVersion is >= MYSQL_8_0_35 for MySQL version auto-upgrade cases.
 	if newVersion == "MYSQL_8_0" && strings.HasPrefix(oldVersion, "MYSQL_8_0_") {
@@ -2888,6 +2920,7 @@ func flattenBackupConfiguration(backupConfiguration *sqladmin.BackupConfiguratio
 		"point_in_time_recovery_enabled": backupConfiguration.PointInTimeRecoveryEnabled,
 		"backup_retention_settings":      flattenBackupRetentionSettings(backupConfiguration.BackupRetentionSettings),
 		"transaction_log_retention_days": backupConfiguration.TransactionLogRetentionDays,
+		"backup_tier":                    backupConfiguration.BackupTier,
 	}
 
 	return []map[string]interface{}{data}
