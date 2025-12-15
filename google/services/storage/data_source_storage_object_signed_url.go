@@ -157,7 +157,12 @@ func dataSourceGoogleSignedUrlRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	urlData.Path = fmt.Sprintf("/%s/%s", d.Get("bucket").(string), d.Get("path").(string))
+	bucketName := d.Get("bucket").(string)
+	objectPath := d.Get("path").(string)
+	baseUrl := getGcsHostUrl(urlData, bucketName, objectPath)
+
+	// sign path should be same in both cases as we are using v2 signature
+	urlData.SignPath = fmt.Sprintf("/%s/%s", bucketName, objectPath)
 
 	// Load JWT Config from Google Credentials
 	jwtConfig, err := loadJwtConfig(d, config)
@@ -167,7 +172,7 @@ func dataSourceGoogleSignedUrlRead(d *schema.ResourceData, meta interface{}) err
 	urlData.JwtConfig = jwtConfig
 
 	// Construct URL
-	signedUrl, err := urlData.SignedUrl()
+	signedUrl, err := urlData.SignedUrl(baseUrl)
 	if err != nil {
 		return err
 	}
@@ -224,6 +229,25 @@ func loadJwtConfig(d *schema.ResourceData, meta interface{}) (*jwt.Config, error
 	return nil, errors.New("Credentials not found in datasource, provider configuration or GOOGLE_APPLICATION_CREDENTIALS environment variable.")
 }
 
+func getGcsHostUrl(urlData *UrlData, bucketName, objectPath string) string {
+	var baseUrl string
+	if strings.Contains(bucketName, ".") {
+		// Use path-style URL as "." in the bucket name create invalid virtual hostnames
+		// Signed URL format https://storage.googleapis.com/tf-test-bucket-6159205297736845881/path/to/object
+		// Path format is bucket_name/object_path
+		urlData.Path = fmt.Sprintf("/%s/%s", bucketName, objectPath)
+		baseUrl = gcsBaseUrl
+	} else {
+		// default to always virtual style URL
+		// URL format https://tf-test-bucket-6159205297736845881.storage.googleapis.com//path/to/object
+		// Path format is object_path
+		urlData.Path = fmt.Sprintf("/%s", objectPath)
+		gcsUrl := strings.Split(gcsBaseUrl, "://")
+		baseUrl = fmt.Sprintf("%s://%s.%s", gcsUrl[0], bucketName, gcsUrl[1])
+	}
+	return baseUrl
+}
+
 // parsePrivateKey converts the binary contents of a private key file
 // to an *rsa.PrivateKey. It detects whether the private key is in a
 // PEM container or not. If so, it extracts the the private key
@@ -257,7 +281,9 @@ type UrlData struct {
 	HttpMethod  string
 	Expires     int
 	HttpHeaders map[string]string
-	Path        string
+	SignPath    string
+	// Internally used field derived for virtual-host or path-style.
+	Path string
 }
 
 // SigningString creates a string representation of the UrlData in a form ready for signing:
@@ -301,7 +327,7 @@ func (u *UrlData) SigningString() []byte {
 	}
 
 	// Storage Object path (includes bucketname)
-	buf.WriteString(u.Path)
+	buf.WriteString(u.SignPath)
 
 	return buf.Bytes()
 }
@@ -333,7 +359,7 @@ func (u *UrlData) EncodedSignature() (string, error) {
 }
 
 // SignedUrl constructs the final signed URL a client can use to retrieve storage object
-func (u *UrlData) SignedUrl() (string, error) {
+func (u *UrlData) SignedUrl(baseUrl string) (string, error) {
 
 	encodedSig, err := u.EncodedSignature()
 	if err != nil {
@@ -343,7 +369,7 @@ func (u *UrlData) SignedUrl() (string, error) {
 	// build url
 	// https://cloud.google.com/storage/docs/access-control/create-signed-urls-program
 	var urlBuffer bytes.Buffer
-	urlBuffer.WriteString(gcsBaseUrl)
+	urlBuffer.WriteString(baseUrl)
 	urlBuffer.WriteString(u.Path)
 	urlBuffer.WriteString("?GoogleAccessId=")
 	urlBuffer.WriteString(u.JwtConfig.Email)
