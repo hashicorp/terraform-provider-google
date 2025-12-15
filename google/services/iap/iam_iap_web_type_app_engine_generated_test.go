@@ -900,7 +900,7 @@ func generateIapWebTypeAppEngineIAMPolicyStateID(iamResourceAddr string) func(*t
 		}
 		fmt.Printf("raw state %s\n", rawState)
 		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
-		appId := tpgresource.GetResourceNameFromSelfLink(rawState["app_id"])
+		appId := appIdShortName(rawState["app_id"])
 		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/appengine-%s", project, appId), "", "", rawState["condition.0.title"]), nil
 	}
 }
@@ -917,7 +917,7 @@ func generateIapWebTypeAppEngineIAMBindingStateID(iamResourceAddr string) func(*
 		}
 		fmt.Printf("raw state %s\n", rawState)
 		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
-		appId := tpgresource.GetResourceNameFromSelfLink(rawState["app_id"])
+		appId := appIdShortName(rawState["app_id"])
 		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/appengine-%s", project, appId), rawState["role"], "", rawState["condition.0.title"]), nil
 	}
 }
@@ -934,7 +934,15 @@ func generateIapWebTypeAppEngineIAMMemberStateID(iamResourceAddr string) func(*t
 		}
 		fmt.Printf("raw state %s\n", rawState)
 		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
-		appId := tpgresource.GetResourceNameFromSelfLink(rawState["app_id"])
+		appId := appIdShortName(rawState["app_id"])
 		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/appengine-%s", project, appId), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
 	}
+}
+
+func appIdShortName(appId string) string {
+	appIdParts := strings.SplitN(appId, "appengine-", 2)
+	if len(appIdParts) == 2 {
+		return appIdParts[1]
+	}
+	return appId
 }
