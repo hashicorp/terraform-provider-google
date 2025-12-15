@@ -703,7 +703,7 @@ resource "google_alloydb_instance" "default" {
 
   client_connection_config {
     require_connectors = %{require_connectors}
-  }	
+  }
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -740,7 +740,7 @@ resource "google_alloydb_instance" "default" {
     ssl_config {
       ssl_mode = "%{ssl_mode}"
     }
-  }	
+  }
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -874,7 +874,7 @@ resource "google_alloydb_instance" "default" {
     enable_public_ip = %{enable_public_ip}
     enable_outbound_public_ip = %{enable_outbound_public_ip}
     %{authorized_external_networks}
-  }	
+  }
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -914,7 +914,7 @@ resource "google_alloydb_instance" "default" {
     authorized_external_networks {
       cidr_range = "%{cidr_range}"
     }
-  }	
+  }
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -1581,6 +1581,145 @@ data "google_project" "project" {}
 
 data "google_compute_network" "default" {
 	name = "%{network_name}"
+}
+`, context)
+}
+
+func TestAccAlloydbInstance_ObservabilityConfig_Update(t *testing.T) {
+	t.Parallel()
+	random_suffix := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1")
+
+	// 1. Initial State: Everything Enabled
+	contextEnableAll := map[string]interface{}{
+		"random_suffix":                 random_suffix,
+		"network_name":                  networkName,
+		"enabled":                       true,
+		"preserve_comments":             true,
+		"track_wait_events":             true,
+		"max_query_string_length":       1024,
+		"record_application_tags":       true,
+		"query_plans_per_minute":        10,
+		"track_active_queries":          true,
+		"assistive_experiences_enabled": false,
+	}
+
+	contextDisable := map[string]interface{}{
+		"random_suffix": random_suffix,
+		"network_name":  networkName,
+	}
+
+	// 3. Re-Enable Main Toggle, but Disable Sub-features (Test Case 2)
+	contextEnabledButSubFeaturesDisabled := map[string]interface{}{
+		"random_suffix":                 random_suffix,
+		"network_name":                  networkName,
+		"enabled":                       true,
+		"preserve_comments":             false,
+		"track_wait_events":             false,
+		"max_query_string_length":       2048,
+		"record_application_tags":       false,
+		"query_plans_per_minute":        5,
+		"track_active_queries":          false,
+		"assistive_experiences_enabled": false,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbInstance_ObservabilityConfig(contextEnableAll),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.max_query_string_length", "1024"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.track_wait_events", "true"),
+				),
+			},
+			{
+				Config: testAccAlloydbInstance_ObservabilityConfig_Disabled(contextDisable),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.enabled", "false"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.max_query_string_length", "10240"), // Disabled default value
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.query_plans_per_minute", "20"),     // default value
+				),
+			},
+			// Step 3: Mark enabled = true and turn all the other booleans to false
+			{
+				Config: testAccAlloydbInstance_ObservabilityConfig(contextEnabledButSubFeaturesDisabled),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.preserve_comments", "false"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.track_wait_events", "false"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.max_query_string_length", "2048"),
+				),
+			},
+		},
+	})
+}
+
+func testAccAlloydbInstance_ObservabilityConfig_Disabled(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  machine_config {
+    cpu_count = 2
+  }
+  observability_config {
+    enabled = false
+  }
+}
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
+  }
+  deletion_protection = false
+}
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+`, context)
+}
+func testAccAlloydbInstance_ObservabilityConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  machine_config {
+    cpu_count = 2
+  }
+  observability_config {
+    enabled                        = %{enabled}
+    preserve_comments              = %{preserve_comments}
+    track_wait_events              = %{track_wait_events}
+    max_query_string_length        = %{max_query_string_length}
+    record_application_tags        = %{record_application_tags}
+    query_plans_per_minute         = %{query_plans_per_minute}
+    track_active_queries           = %{track_active_queries}
+    assistive_experiences_enabled  = %{assistive_experiences_enabled}
+  }
+}
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
+  }
+  deletion_protection = false
+}
+data "google_compute_network" "default" {
+  name = "%{network_name}"
 }
 `, context)
 }
