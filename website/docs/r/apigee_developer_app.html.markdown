@@ -34,7 +34,7 @@ To get more information about DeveloperApp, see:
     * [Creating a developer](https://cloud.google.com/apigee/docs/api-platform/publish/creating-apps-surface-your-api)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `credentials.credentials.consumer_secret`.
+values will be stored in the raw state as plain text: `credentials.consumer_secret`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ## Example Usage - Apigee Developer App Basic
@@ -314,15 +314,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `api_products` -
   (Output)
   List of API products this credential can be used for.
-  Structure is [documented below](#nested_credentials_credentials_api_products).
+  Structure is [documented below](#nested_credentials_api_products).
 
 * `attributes` -
   (Output)
   Developer attributes (name/value pairs). The custom attribute limit is 18.
-  Structure is [documented below](#nested_credentials_credentials_attributes).
+  Structure is [documented below](#nested_credentials_attributes).
 
 
-<a name="nested_credentials_credentials_api_products"></a>The `api_products` block contains:
+<a name="nested_credentials_api_products"></a>The `api_products` block contains:
 
 * `apiproduct` -
   (Output)
@@ -332,7 +332,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Status of the API product. Valid values are approved or revoked.
 
-<a name="nested_credentials_credentials_attributes"></a>The `attributes` block contains:
+<a name="nested_credentials_attributes"></a>The `attributes` block contains:
 
 * `name` -
   (Output)

@@ -189,10 +189,10 @@ The following arguments are supported:
 * `bigquery_destination` -
   (Required)
   BigQueryDestination to include a fully qualified BigQuery table URI where DICOM instance metadata will be streamed.
-  Structure is [documented below](#nested_stream_configs_stream_configs_bigquery_destination).
+  Structure is [documented below](#nested_stream_configs_bigquery_destination).
 
 
-<a name="nested_stream_configs_stream_configs_bigquery_destination"></a>The `bigquery_destination` block supports:
+<a name="nested_stream_configs_bigquery_destination"></a>The `bigquery_destination` block supports:
 
 * `table_uri` -
   (Required)

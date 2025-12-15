@@ -242,20 +242,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `discovered` -
   (Output)
   The set of DNS records App Hosting discovered when inspecting a domain.
-  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_required_dns_updates_discovered).
+  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_discovered).
 
 * `desired` -
   (Output)
   The set of DNS records App Hosting needs in order to be able to serve
   secure content on the domain.
-  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_required_dns_updates_desired).
+  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_desired).
 
 * `check_time` -
   (Output)
   The last time App Hosting checked your custom domain's DNS records.
 
 
-<a name="nested_custom_domain_status_required_dns_updates_required_dns_updates_discovered"></a>The `discovered` block contains:
+<a name="nested_custom_domain_status_required_dns_updates_discovered"></a>The `discovered` block contains:
 
 * `domain_name` -
   (Output)
@@ -269,15 +269,15 @@ In addition to the arguments listed above, the following computed attributes are
   three pieces of data: error code, error message, and error details.
   You can find out more about this error model and how to work with it in the
   [API Design Guide](https://cloud.google.com/apis/design/errors).
-  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_required_dns_updates_discovered_discovered_check_error).
+  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_discovered_check_error).
 
 * `records` -
   (Output)
   Records on the domain.
-  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_required_dns_updates_discovered_discovered_records).
+  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_discovered_records).
 
 
-<a name="nested_custom_domain_status_required_dns_updates_required_dns_updates_discovered_discovered_check_error"></a>The `check_error` block contains:
+<a name="nested_custom_domain_status_required_dns_updates_discovered_check_error"></a>The `check_error` block contains:
 
 * `code` -
   (Output)
@@ -293,7 +293,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   A list of messages that carry the error details.
 
-<a name="nested_custom_domain_status_required_dns_updates_required_dns_updates_discovered_discovered_records"></a>The `records` block contains:
+<a name="nested_custom_domain_status_required_dns_updates_discovered_records"></a>The `records` block contains:
 
 * `domain_name` -
   (Output)
@@ -334,7 +334,7 @@ In addition to the arguments listed above, the following computed attributes are
   An enum that indicates which state(s) this DNS record applies to. Populated
   for all records with an `ADD` or `REMOVE` required action.
 
-<a name="nested_custom_domain_status_required_dns_updates_required_dns_updates_desired"></a>The `desired` block contains:
+<a name="nested_custom_domain_status_required_dns_updates_desired"></a>The `desired` block contains:
 
 * `domain_name` -
   (Output)
@@ -348,15 +348,15 @@ In addition to the arguments listed above, the following computed attributes are
   three pieces of data: error code, error message, and error details.
   You can find out more about this error model and how to work with it in the
   [API Design Guide](https://cloud.google.com/apis/design/errors).
-  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_required_dns_updates_desired_desired_check_error).
+  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_desired_check_error).
 
 * `records` -
   (Output)
   Records on the domain.
-  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_required_dns_updates_desired_desired_records).
+  Structure is [documented below](#nested_custom_domain_status_required_dns_updates_desired_records).
 
 
-<a name="nested_custom_domain_status_required_dns_updates_required_dns_updates_desired_desired_check_error"></a>The `check_error` block contains:
+<a name="nested_custom_domain_status_required_dns_updates_desired_check_error"></a>The `check_error` block contains:
 
 * `code` -
   (Output)
@@ -372,7 +372,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   A list of messages that carry the error details.
 
-<a name="nested_custom_domain_status_required_dns_updates_required_dns_updates_desired_desired_records"></a>The `records` block contains:
+<a name="nested_custom_domain_status_required_dns_updates_desired_records"></a>The `records` block contains:
 
 * `required_action` -
   (Output)

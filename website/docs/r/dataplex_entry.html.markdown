@@ -424,10 +424,10 @@ The following arguments are supported:
 * `aspect` -
   (Required)
   A nested object resource.
-  Structure is [documented below](#nested_aspects_aspects_aspect).
+  Structure is [documented below](#nested_aspects_aspect).
 
 
-<a name="nested_aspects_aspects_aspect"></a>The `aspect` block supports:
+<a name="nested_aspects_aspect"></a>The `aspect` block supports:
 
 * `aspect_type` -
   (Output)

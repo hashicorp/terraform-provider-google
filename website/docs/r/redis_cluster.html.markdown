@@ -860,10 +860,10 @@ The following arguments are supported:
 * `start_time` -
   (Required)
   Required. Start time of the window in UTC time.
-  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time).
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_start_time).
 
 
-<a name="nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
+<a name="nested_maintenance_policy_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)
@@ -1041,10 +1041,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   Output only. Customer configuration for where the endpoint
   is created and accessed from.
-  Structure is [documented below](#nested_discovery_endpoints_discovery_endpoints_psc_config).
+  Structure is [documented below](#nested_discovery_endpoints_psc_config).
 
 
-<a name="nested_discovery_endpoints_discovery_endpoints_psc_config"></a>The `psc_config` block supports:
+<a name="nested_discovery_endpoints_psc_config"></a>The `psc_config` block supports:
 
 * `network` -
   (Optional)

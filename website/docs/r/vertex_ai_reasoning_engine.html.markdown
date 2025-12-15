@@ -373,10 +373,10 @@ The following arguments are supported:
   (Required)
   Reference to a secret stored in the Cloud Secret Manager
   that will provide the value for this environment variable.
-  Structure is [documented below](#nested_spec_deployment_spec_secret_env_secret_env_secret_ref).
+  Structure is [documented below](#nested_spec_deployment_spec_secret_env_secret_ref).
 
 
-<a name="nested_spec_deployment_spec_secret_env_secret_env_secret_ref"></a>The `secret_ref` block supports:
+<a name="nested_spec_deployment_spec_secret_env_secret_ref"></a>The `secret_ref` block supports:
 
 * `secret` -
   (Required)

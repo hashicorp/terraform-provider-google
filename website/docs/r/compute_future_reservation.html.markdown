@@ -364,10 +364,10 @@ The following arguments are supported:
 * `accelerator` -
   (Optional)
   Properties of accelerator resources in this reservation.
-  Structure is [documented below](#nested_aggregate_reservation_reserved_resources_reserved_resources_accelerator).
+  Structure is [documented below](#nested_aggregate_reservation_reserved_resources_accelerator).
 
 
-<a name="nested_aggregate_reservation_reserved_resources_reserved_resources_accelerator"></a>The `accelerator` block supports:
+<a name="nested_aggregate_reservation_reserved_resources_accelerator"></a>The `accelerator` block supports:
 
 * `accelerator_count` -
   (Optional)

@@ -329,10 +329,10 @@ The following arguments are supported:
 * `run` -
   (Optional)
   The request will be forwarded to Cloud Run.
-  Structure is [documented below](#nested_config_rewrites_rewrites_run).
+  Structure is [documented below](#nested_config_rewrites_run).
 
 
-<a name="nested_config_rewrites_rewrites_run"></a>The `run` block supports:
+<a name="nested_config_rewrites_run"></a>The `run` block supports:
 
 * `service_id` -
   (Required)

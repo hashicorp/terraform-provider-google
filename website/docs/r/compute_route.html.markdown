@@ -398,10 +398,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Metadata about this warning in key: value format. For example:
   "data": [  {  "key": "scope",  "value": "zones/us-east1-d"  }
-  Structure is [documented below](#nested_warnings_warnings_data).
+  Structure is [documented below](#nested_warnings_data).
 
 
-<a name="nested_warnings_warnings_data"></a>The `data` block contains:
+<a name="nested_warnings_data"></a>The `data` block contains:
 
 * `key` -
   (Output)

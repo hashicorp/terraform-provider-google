@@ -353,10 +353,10 @@ The following arguments are supported:
   (Optional)
   Indicates that this field supports vector search operations. Only one of `order`, `arrayConfig`, and
   `vectorConfig` can be specified. Vector Fields should come after the field path `__name__`.
-  Structure is [documented below](#nested_fields_fields_vector_config).
+  Structure is [documented below](#nested_fields_vector_config).
 
 
-<a name="nested_fields_fields_vector_config"></a>The `vector_config` block supports:
+<a name="nested_fields_vector_config"></a>The `vector_config` block supports:
 
 * `dimension` -
   (Optional)

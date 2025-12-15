@@ -399,7 +399,7 @@ The following arguments are supported:
 * `cloud_control_details` -
   (Required)
   CloudControlDetails contains the details of a CloudControl.
-  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details).
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_details).
 
 * `enforcement_mode` -
   (Required)
@@ -410,7 +410,7 @@ The following arguments are supported:
   AUDIT
 
 
-<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details"></a>The `cloud_control_details` block supports:
+<a name="nested_cloud_control_metadata_cloud_control_details"></a>The `cloud_control_details` block supports:
 
 * `major_revision_id` -
   (Required)
@@ -427,10 +427,10 @@ The following arguments are supported:
   Parameters is a key-value pair that is required by the CloudControl. The
   specification of these parameters will be present in cloudcontrol.Eg: {
   "name": "location","value": "us-west-1"}.
-  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters).
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_details_parameters).
 
 
-<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters"></a>The `parameters` block supports:
+<a name="nested_cloud_control_metadata_cloud_control_details_parameters"></a>The `parameters` block supports:
 
 * `name` -
   (Required)
@@ -439,10 +439,10 @@ The following arguments are supported:
 * `parameter_value` -
   (Required)
   Possible parameter value types.
-  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value).
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value).
 
 
-<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value"></a>The `parameter_value` block supports:
+<a name="nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value"></a>The `parameter_value` block supports:
 
 * `bool_value` -
   (Optional)
@@ -455,7 +455,7 @@ The following arguments are supported:
 * `string_list_value` -
   (Optional)
   A list of strings.
-  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_string_list_value).
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value_string_list_value).
 
 * `string_value` -
   (Optional)
@@ -464,16 +464,16 @@ The following arguments are supported:
 * `oneof_value` -
   (Optional)
   Sub-parameter values.
-  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value).
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value_oneof_value).
 
 
-<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_string_list_value"></a>The `string_list_value` block supports:
+<a name="nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value_string_list_value"></a>The `string_list_value` block supports:
 
 * `values` -
   (Required)
   The strings in the list.
 
-<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value"></a>The `oneof_value` block supports:
+<a name="nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value_oneof_value"></a>The `oneof_value` block supports:
 
 * `name` -
   (Optional)
@@ -482,10 +482,10 @@ The following arguments are supported:
 * `parameter_value` -
   (Optional)
   The value of the parameter.
-  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value).
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value_oneof_value_parameter_value).
 
 
-<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value"></a>The `parameter_value` block supports:
+<a name="nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value_oneof_value_parameter_value"></a>The `parameter_value` block supports:
 
 * `bool_value` -
   (Optional)
@@ -498,14 +498,14 @@ The following arguments are supported:
 * `string_list_value` -
   (Optional)
   A list of strings.
-  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value_string_list_value).
+  Structure is [documented below](#nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value_oneof_value_parameter_value_string_list_value).
 
 * `string_value` -
   (Optional)
   Represents a string value.
 
 
-<a name="nested_cloud_control_metadata_cloud_control_metadata_cloud_control_details_parameters_parameters_parameter_value_oneof_value_parameter_value_string_list_value"></a>The `string_list_value` block supports:
+<a name="nested_cloud_control_metadata_cloud_control_details_parameters_parameter_value_oneof_value_parameter_value_string_list_value"></a>The `string_list_value` block supports:
 
 * `values` -
   (Required)

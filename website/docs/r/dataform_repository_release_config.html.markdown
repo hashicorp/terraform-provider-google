@@ -208,10 +208,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `error_status` -
   (Output)
   The error status encountered upon this attempt to create the compilation result, if the attempt was unsuccessful.
-  Structure is [documented below](#nested_recent_scheduled_release_records_recent_scheduled_release_records_error_status).
+  Structure is [documented below](#nested_recent_scheduled_release_records_error_status).
 
 
-<a name="nested_recent_scheduled_release_records_recent_scheduled_release_records_error_status"></a>The `error_status` block contains:
+<a name="nested_recent_scheduled_release_records_error_status"></a>The `error_status` block contains:
 
 * `code` -
   (Output)

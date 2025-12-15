@@ -392,10 +392,10 @@ The following arguments are supported:
 * `totp_provider_config` -
   (Optional)
   TOTP MFA provider config for this project.
-  Structure is [documented below](#nested_mfa_provider_configs_provider_configs_totp_provider_config).
+  Structure is [documented below](#nested_mfa_provider_configs_totp_provider_config).
 
 
-<a name="nested_mfa_provider_configs_provider_configs_totp_provider_config"></a>The `totp_provider_config` block supports:
+<a name="nested_mfa_provider_configs_totp_provider_config"></a>The `totp_provider_config` block supports:
 
 * `adjacent_intervals` -
   (Optional)

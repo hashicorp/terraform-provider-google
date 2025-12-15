@@ -128,16 +128,16 @@ The following arguments are supported:
 * `basic` -
   (Optional)
   A set of predefined conditions for the access level and a combining function.
-  Structure is [documented below](#nested_access_levels_access_levels_basic).
+  Structure is [documented below](#nested_access_levels_basic).
 
 * `custom` -
   (Optional)
   Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request.
   See CEL spec at: https://github.com/google/cel-spec.
-  Structure is [documented below](#nested_access_levels_access_levels_custom).
+  Structure is [documented below](#nested_access_levels_custom).
 
 
-<a name="nested_access_levels_access_levels_basic"></a>The `basic` block supports:
+<a name="nested_access_levels_basic"></a>The `basic` block supports:
 
 * `combining_function` -
   (Optional)
@@ -152,10 +152,10 @@ The following arguments are supported:
 * `conditions` -
   (Required)
   A set of requirements for the AccessLevel to be granted.
-  Structure is [documented below](#nested_access_levels_access_levels_basic_conditions).
+  Structure is [documented below](#nested_access_levels_basic_conditions).
 
 
-<a name="nested_access_levels_access_levels_basic_conditions"></a>The `conditions` block supports:
+<a name="nested_access_levels_basic_conditions"></a>The `conditions` block supports:
 
 * `ip_subnetworks` -
   (Optional)
@@ -199,7 +199,7 @@ The following arguments are supported:
   Device specific restrictions, all restrictions must hold for
   the Condition to be true. If not specified, all devices are
   allowed.
-  Structure is [documented below](#nested_access_levels_access_levels_basic_conditions_conditions_device_policy).
+  Structure is [documented below](#nested_access_levels_basic_conditions_device_policy).
 
 * `regions` -
   (Optional)
@@ -210,10 +210,10 @@ The following arguments are supported:
 * `vpc_network_sources` -
   (Optional)
   The request must originate from one of the provided VPC networks in Google Cloud. Cannot specify this field together with `ip_subnetworks`.
-  Structure is [documented below](#nested_access_levels_access_levels_basic_conditions_conditions_vpc_network_sources).
+  Structure is [documented below](#nested_access_levels_basic_conditions_vpc_network_sources).
 
 
-<a name="nested_access_levels_access_levels_basic_conditions_conditions_device_policy"></a>The `device_policy` block supports:
+<a name="nested_access_levels_basic_conditions_device_policy"></a>The `device_policy` block supports:
 
 * `require_screen_lock` -
   (Optional)
@@ -236,7 +236,7 @@ The following arguments are supported:
   (Optional)
   A list of allowed OS versions.
   An empty list allows all types and all versions.
-  Structure is [documented below](#nested_access_levels_access_levels_basic_conditions_conditions_device_policy_os_constraints).
+  Structure is [documented below](#nested_access_levels_basic_conditions_device_policy_os_constraints).
 
 * `require_admin_approval` -
   (Optional)
@@ -247,7 +247,7 @@ The following arguments are supported:
   Whether the device needs to be corp owned.
 
 
-<a name="nested_access_levels_access_levels_basic_conditions_conditions_device_policy_os_constraints"></a>The `os_constraints` block supports:
+<a name="nested_access_levels_basic_conditions_device_policy_os_constraints"></a>The `os_constraints` block supports:
 
 * `minimum_version` -
   (Optional)
@@ -260,15 +260,15 @@ The following arguments are supported:
   The operating system type of the device.
   Possible values are: `OS_UNSPECIFIED`, `DESKTOP_MAC`, `DESKTOP_WINDOWS`, `DESKTOP_LINUX`, `DESKTOP_CHROME_OS`, `ANDROID`, `IOS`.
 
-<a name="nested_access_levels_access_levels_basic_conditions_conditions_vpc_network_sources"></a>The `vpc_network_sources` block supports:
+<a name="nested_access_levels_basic_conditions_vpc_network_sources"></a>The `vpc_network_sources` block supports:
 
 * `vpc_subnetwork` -
   (Optional)
   Sub networks within a VPC network.
-  Structure is [documented below](#nested_access_levels_access_levels_basic_conditions_conditions_vpc_network_sources_vpc_network_sources_vpc_subnetwork).
+  Structure is [documented below](#nested_access_levels_basic_conditions_vpc_network_sources_vpc_subnetwork).
 
 
-<a name="nested_access_levels_access_levels_basic_conditions_conditions_vpc_network_sources_vpc_network_sources_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
+<a name="nested_access_levels_basic_conditions_vpc_network_sources_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
 
 * `network` -
   (Required)
@@ -278,17 +278,17 @@ The following arguments are supported:
   (Optional)
   CIDR block IP subnetwork specification. Must be IPv4.
 
-<a name="nested_access_levels_access_levels_custom"></a>The `custom` block supports:
+<a name="nested_access_levels_custom"></a>The `custom` block supports:
 
 * `expr` -
   (Required)
   Represents a textual expression in the Common Expression Language (CEL) syntax. CEL is a C-like expression language.
   This page details the objects and attributes that are used to the build the CEL expressions for
   custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.
-  Structure is [documented below](#nested_access_levels_access_levels_custom_expr).
+  Structure is [documented below](#nested_access_levels_custom_expr).
 
 
-<a name="nested_access_levels_access_levels_custom_expr"></a>The `expr` block supports:
+<a name="nested_access_levels_custom_expr"></a>The `expr` block supports:
 
 * `expression` -
   (Required)

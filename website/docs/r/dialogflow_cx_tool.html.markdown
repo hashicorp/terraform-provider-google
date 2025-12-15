@@ -617,10 +617,10 @@ The following arguments are supported:
 * `entity_operation` -
   (Optional)
   Entity operation configuration for the tool to use. This field is part of a required union field `action_spec`.
-  Structure is [documented below](#nested_connector_spec_actions_actions_entity_operation).
+  Structure is [documented below](#nested_connector_spec_actions_entity_operation).
 
 
-<a name="nested_connector_spec_actions_actions_entity_operation"></a>The `entity_operation` block supports:
+<a name="nested_connector_spec_actions_entity_operation"></a>The `entity_operation` block supports:
 
 * `entity_id` -
   (Required)

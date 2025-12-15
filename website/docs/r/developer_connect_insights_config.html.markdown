@@ -214,12 +214,12 @@ The following arguments are supported:
 * `google_artifact_registry` -
   (Optional)
   Google Artifact Registry configurations.
-  Structure is [documented below](#nested_artifact_configs_artifact_configs_google_artifact_registry).
+  Structure is [documented below](#nested_artifact_configs_google_artifact_registry).
 
 * `google_artifact_analysis` -
   (Optional)
   Google Artifact Analysis configurations.
-  Structure is [documented below](#nested_artifact_configs_artifact_configs_google_artifact_analysis).
+  Structure is [documented below](#nested_artifact_configs_google_artifact_analysis).
 
 * `uri` -
   (Optional)
@@ -229,7 +229,7 @@ The following arguments are supported:
   artifacts.
 
 
-<a name="nested_artifact_configs_artifact_configs_google_artifact_registry"></a>The `google_artifact_registry` block supports:
+<a name="nested_artifact_configs_google_artifact_registry"></a>The `google_artifact_registry` block supports:
 
 * `project_id` -
   (Required)
@@ -239,7 +239,7 @@ The following arguments are supported:
   (Required)
   The name of the artifact registry package.
 
-<a name="nested_artifact_configs_artifact_configs_google_artifact_analysis"></a>The `google_artifact_analysis` block supports:
+<a name="nested_artifact_configs_google_artifact_analysis"></a>The `google_artifact_analysis` block supports:
 
 * `project_id` -
   (Required)
@@ -315,10 +315,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   A list of messages that carry the error details.  There is a common set of
   message types for APIs to use.
-  Structure is [documented below](#nested_errors_errors_details).
+  Structure is [documented below](#nested_errors_details).
 
 
-<a name="nested_errors_errors_details"></a>The `details` block contains:
+<a name="nested_errors_details"></a>The `details` block contains:
 
 * `detail_message` -
   (Output)
@@ -343,15 +343,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `gke_workload` -
   (Optional)
   GKEWorkload represents the Google Kubernetes Engine runtime.
-  Structure is [documented below](#nested_runtime_configs_runtime_configs_gke_workload).
+  Structure is [documented below](#nested_runtime_configs_gke_workload).
 
 * `app_hub_workload` -
   (Optional)
   AppHubWorkload represents the App Hub Workload.
-  Structure is [documented below](#nested_runtime_configs_runtime_configs_app_hub_workload).
+  Structure is [documented below](#nested_runtime_configs_app_hub_workload).
 
 
-<a name="nested_runtime_configs_runtime_configs_gke_workload"></a>The `gke_workload` block supports:
+<a name="nested_runtime_configs_gke_workload"></a>The `gke_workload` block supports:
 
 * `cluster` -
   (Required)
@@ -365,7 +365,7 @@ In addition to the arguments listed above, the following computed attributes are
   Format:
   `projects/{project}/locations/{location}/clusters/{cluster}/namespaces/{namespace}/deployments/{deployment}`.
 
-<a name="nested_runtime_configs_runtime_configs_app_hub_workload"></a>The `app_hub_workload` block supports:
+<a name="nested_runtime_configs_app_hub_workload"></a>The `app_hub_workload` block supports:
 
 * `criticality` -
   (Output)

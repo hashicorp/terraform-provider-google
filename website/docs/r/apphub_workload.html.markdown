@@ -504,10 +504,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `value` -
   (Output)
   The value of the extended metadata.
-  Structure is [documented below](#nested_workload_properties_extended_metadata_extended_metadata_value).
+  Structure is [documented below](#nested_workload_properties_extended_metadata_value).
 
 
-<a name="nested_workload_properties_extended_metadata_extended_metadata_value"></a>The `value` block contains:
+<a name="nested_workload_properties_extended_metadata_value"></a>The `value` block contains:
 
 * `metadata_struct` -
   (Output)

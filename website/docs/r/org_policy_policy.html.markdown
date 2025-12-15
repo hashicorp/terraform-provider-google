@@ -238,7 +238,7 @@ The following arguments are supported:
 * `values` -
   (Optional)
   List of values to be used for this PolicyRule. This field can be set only in Policies for list constraints.
-  Structure is [documented below](#nested_spec_rules_rules_values).
+  Structure is [documented below](#nested_spec_rules_values).
 
 * `allow_all` -
   (Optional)
@@ -259,10 +259,10 @@ The following arguments are supported:
 * `condition` -
   (Optional)
   A condition which determines whether this rule is used in the evaluation of the policy. When set, the `expression` field in the `Expr' must include from 1 to 10 subexpressions, joined by the "||" or "&&" operators. Each subexpression must be of the form "resource.matchTag('/tag_key_short_name, 'tag_value_short_name')". or "resource.matchTagId('tagKeys/key_id', 'tagValues/value_id')". where key_name and value_name are the resource names for Label Keys and Values. These names are available from the Tag Manager Service. An example expression is: "resource.matchTag('123456789/environment, 'prod')". or "resource.matchTagId('tagKeys/123', 'tagValues/456')".
-  Structure is [documented below](#nested_spec_rules_rules_condition).
+  Structure is [documented below](#nested_spec_rules_condition).
 
 
-<a name="nested_spec_rules_rules_values"></a>The `values` block supports:
+<a name="nested_spec_rules_values"></a>The `values` block supports:
 
 * `allowed_values` -
   (Optional)
@@ -272,7 +272,7 @@ The following arguments are supported:
   (Optional)
   List of values denied at this resource.
 
-<a name="nested_spec_rules_rules_condition"></a>The `condition` block supports:
+<a name="nested_spec_rules_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Optional)
@@ -319,7 +319,7 @@ The following arguments are supported:
 * `values` -
   (Optional)
   List of values to be used for this policy rule. This field can be set only in policies for list constraints.
-  Structure is [documented below](#nested_dry_run_spec_rules_rules_values).
+  Structure is [documented below](#nested_dry_run_spec_rules_values).
 
 * `allow_all` -
   (Optional)
@@ -340,10 +340,10 @@ The following arguments are supported:
 * `condition` -
   (Optional)
   A condition which determines whether this rule is used in the evaluation of the policy. When set, the `expression` field in the `Expr' must include from 1 to 10 subexpressions, joined by the "||" or "&&" operators. Each subexpression must be of the form "resource.matchTag('/tag_key_short_name, 'tag_value_short_name')". or "resource.matchTagId('tagKeys/key_id', 'tagValues/value_id')". where key_name and value_name are the resource names for Label Keys and Values. These names are available from the Tag Manager Service. An example expression is: "resource.matchTag('123456789/environment, 'prod')". or "resource.matchTagId('tagKeys/123', 'tagValues/456')".
-  Structure is [documented below](#nested_dry_run_spec_rules_rules_condition).
+  Structure is [documented below](#nested_dry_run_spec_rules_condition).
 
 
-<a name="nested_dry_run_spec_rules_rules_values"></a>The `values` block supports:
+<a name="nested_dry_run_spec_rules_values"></a>The `values` block supports:
 
 * `allowed_values` -
   (Optional)
@@ -353,7 +353,7 @@ The following arguments are supported:
   (Optional)
   List of values denied at this resource.
 
-<a name="nested_dry_run_spec_rules_rules_condition"></a>The `condition` block supports:
+<a name="nested_dry_run_spec_rules_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Optional)

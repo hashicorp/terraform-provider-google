@@ -1517,7 +1517,7 @@ The following arguments are supported:
   are discarded.
   Using a named volume in only one step is not valid as it is
   indicative of a build request with an incorrect configuration.
-  Structure is [documented below](#nested_build_step_step_volumes).
+  Structure is [documented below](#nested_build_step_volumes).
 
 * `wait_for` -
   (Optional)
@@ -1547,7 +1547,7 @@ The following arguments are supported:
   If `allowFailure` is also specified, this field will take precedence.
 
 
-<a name="nested_build_step_step_volumes"></a>The `volumes` block supports:
+<a name="nested_build_step_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Required)

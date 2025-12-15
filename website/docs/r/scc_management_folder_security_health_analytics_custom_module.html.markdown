@@ -220,10 +220,10 @@ The following arguments are supported:
   (Optional)
   The CEL expression for the custom output. A resource property can be specified
   to return the value of the property or a text string enclosed in quotation marks.
-  Structure is [documented below](#nested_custom_config_custom_output_properties_properties_value_expression).
+  Structure is [documented below](#nested_custom_config_custom_output_properties_value_expression).
 
 
-<a name="nested_custom_config_custom_output_properties_properties_value_expression"></a>The `value_expression` block supports:
+<a name="nested_custom_config_custom_output_properties_value_expression"></a>The `value_expression` block supports:
 
 * `expression` -
   (Required)

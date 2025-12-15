@@ -291,7 +291,7 @@ The following arguments are supported:
   performance with respect to a single aspect of service quality.
   Exactly one of the following must be set:
   `basic_sli`, `request_based_sli`, `windows_based_sli`
-  Structure is [documented below](#nested_service_level_indicator_basic_sli).
+  Structure is [documented below](#nested_basic_sli).
 
 * `request_based_sli` -
   (Optional)
@@ -302,7 +302,7 @@ The following arguments are supported:
   performance with respect to a single aspect of service quality.
   Exactly one of the following must be set:
   `basic_sli`, `request_based_sli`, `windows_based_sli`
-  Structure is [documented below](#nested_service_level_indicator_request_based_sli).
+  Structure is [documented below](#nested_request_based_sli).
 
 * `windows_based_sli` -
   (Optional)
@@ -314,7 +314,7 @@ The following arguments are supported:
   aspect of service quality.
   Exactly one of the following must be set:
   `basic_sli`, `request_based_sli`, `windows_based_sli`
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli).
+  Structure is [documented below](#nested_windows_based_sli).
 
 * `slo_id` -
   (Optional)
@@ -325,7 +325,7 @@ The following arguments are supported:
 
 
 
-<a name="nested_service_level_indicator_basic_sli"></a>The `basic_sli` block supports:
+<a name="nested_basic_sli"></a>The `basic_sli` block supports:
 
 * `method` -
   (Optional)
@@ -357,15 +357,15 @@ The following arguments are supported:
 * `latency` -
   (Optional)
   Parameters for a latency threshold SLI.
-  Structure is [documented below](#nested_service_level_indicator_basic_sli_latency).
+  Structure is [documented below](#nested_basic_sli_latency).
 
 * `availability` -
   (Optional)
   Availability based SLI, dervied from count of requests made to this service that return successfully.
-  Structure is [documented below](#nested_service_level_indicator_basic_sli_availability).
+  Structure is [documented below](#nested_basic_sli_availability).
 
 
-<a name="nested_service_level_indicator_basic_sli_latency"></a>The `latency` block supports:
+<a name="nested_basic_sli_latency"></a>The `latency` block supports:
 
 * `threshold` -
   (Required)
@@ -373,13 +373,13 @@ The following arguments are supported:
   Good service is defined to be the count of requests made to
   this service that return in no more than threshold.
 
-<a name="nested_service_level_indicator_basic_sli_availability"></a>The `availability` block supports:
+<a name="nested_basic_sli_availability"></a>The `availability` block supports:
 
 * `enabled` -
   (Optional)
   Whether an availability SLI is enabled or not. Must be set to true. Defaults to `true`.
 
-<a name="nested_service_level_indicator_request_based_sli"></a>The `request_based_sli` block supports:
+<a name="nested_request_based_sli"></a>The `request_based_sli` block supports:
 
 * `good_total_ratio` -
   (Optional)
@@ -389,7 +389,7 @@ The following arguments are supported:
   The relationship good_service + bad_service = total_service
   will be assumed.
   Exactly one of `distribution_cut` or `good_total_ratio` can be set.
-  Structure is [documented below](#nested_service_level_indicator_request_based_sli_good_total_ratio).
+  Structure is [documented below](#nested_request_based_sli_good_total_ratio).
 
 * `distribution_cut` -
   (Optional)
@@ -399,10 +399,10 @@ The following arguments are supported:
   Defines a distribution TimeSeries filter and thresholds used for
   measuring good service and total service.
   Exactly one of `distribution_cut` or `good_total_ratio` can be set.
-  Structure is [documented below](#nested_service_level_indicator_request_based_sli_distribution_cut).
+  Structure is [documented below](#nested_request_based_sli_distribution_cut).
 
 
-<a name="nested_service_level_indicator_request_based_sli_good_total_ratio"></a>The `good_total_ratio` block supports:
+<a name="nested_request_based_sli_good_total_ratio"></a>The `good_total_ratio` block supports:
 
 * `good_service_filter` -
   (Optional)
@@ -433,7 +433,7 @@ The following arguments are supported:
   Exactly two of `good_service_filter`,`bad_service_filter`,`total_service_filter`
   must be set (good + bad = total is assumed).
 
-<a name="nested_service_level_indicator_request_based_sli_distribution_cut"></a>The `distribution_cut` block supports:
+<a name="nested_request_based_sli_distribution_cut"></a>The `distribution_cut` block supports:
 
 * `distribution_filter` -
   (Required)
@@ -449,10 +449,10 @@ The following arguments are supported:
   that range.min <= x <= range.max. inclusive of min and
   max. Open ranges can be defined by setting
   just one of min or max.
-  Structure is [documented below](#nested_service_level_indicator_request_based_sli_distribution_cut_range).
+  Structure is [documented below](#nested_request_based_sli_distribution_cut_range).
 
 
-<a name="nested_service_level_indicator_request_based_sli_distribution_cut_range"></a>The `range` block supports:
+<a name="nested_request_based_sli_distribution_cut_range"></a>The `range` block supports:
 
 * `min` -
   (Optional)
@@ -464,7 +464,7 @@ The following arguments are supported:
   max value for the range (inclusive). If not given,
   will be set to 0
 
-<a name="nested_service_level_indicator_windows_based_sli"></a>The `windows_based_sli` block supports:
+<a name="nested_windows_based_sli"></a>The `windows_based_sli` block supports:
 
 * `window_period` -
   (Optional)
@@ -486,7 +486,7 @@ The following arguments are supported:
   high enough. One of `good_bad_metric_filter`,
   `good_total_ratio_threshold`, `metric_mean_in_range`,
   `metric_sum_in_range` must be set for `windows_based_sli`.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold).
+  Structure is [documented below](#nested_windows_based_sli_good_total_ratio_threshold).
 
 * `metric_mean_in_range` -
   (Optional)
@@ -497,7 +497,7 @@ The following arguments are supported:
   `metric_sum_in_range` must be set for `windows_based_sli`.
   Average value X of `time_series` should satisfy
   `range.min <= X <= range.max` for a good window.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_metric_mean_in_range).
+  Structure is [documented below](#nested_windows_based_sli_metric_mean_in_range).
 
 * `metric_sum_in_range` -
   (Optional)
@@ -508,10 +508,10 @@ The following arguments are supported:
   One of `good_bad_metric_filter`,
   `good_total_ratio_threshold`, `metric_mean_in_range`,
   `metric_sum_in_range` must be set for `windows_based_sli`.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_metric_sum_in_range).
+  Structure is [documented below](#nested_windows_based_sli_metric_sum_in_range).
 
 
-<a name="nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold"></a>The `good_total_ratio_threshold` block supports:
+<a name="nested_windows_based_sli_good_total_ratio_threshold"></a>The `good_total_ratio_threshold` block supports:
 
 * `threshold` -
   (Optional)
@@ -521,15 +521,15 @@ The following arguments are supported:
 * `performance` -
   (Optional)
   Request-based SLI to evaluate to judge window quality.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_performance).
+  Structure is [documented below](#nested_windows_based_sli_good_total_ratio_threshold_performance).
 
 * `basic_sli_performance` -
   (Optional)
   Basic SLI to evaluate to judge window quality.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_basic_sli_performance).
+  Structure is [documented below](#nested_windows_based_sli_good_total_ratio_threshold_basic_sli_performance).
 
 
-<a name="nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_performance"></a>The `performance` block supports:
+<a name="nested_windows_based_sli_good_total_ratio_threshold_performance"></a>The `performance` block supports:
 
 * `good_total_ratio` -
   (Optional)
@@ -538,7 +538,7 @@ The following arguments are supported:
   Must specify exactly two of good, bad, and total service filters.
   The relationship good_service + bad_service = total_service
   will be assumed.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_performance_good_total_ratio).
+  Structure is [documented below](#nested_windows_based_sli_good_total_ratio_threshold_performance_good_total_ratio).
 
 * `distribution_cut` -
   (Optional)
@@ -547,10 +547,10 @@ The following arguments are supported:
   total count of all values aggregated in the Distribution.
   Defines a distribution TimeSeries filter and thresholds used for
   measuring good service and total service.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_performance_distribution_cut).
+  Structure is [documented below](#nested_windows_based_sli_good_total_ratio_threshold_performance_distribution_cut).
 
 
-<a name="nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_performance_good_total_ratio"></a>The `good_total_ratio` block supports:
+<a name="nested_windows_based_sli_good_total_ratio_threshold_performance_good_total_ratio"></a>The `good_total_ratio` block supports:
 
 * `good_service_filter` -
   (Optional)
@@ -581,7 +581,7 @@ The following arguments are supported:
   Must have ValueType = DOUBLE or ValueType = INT64 and
   must have MetricKind = DELTA or MetricKind = CUMULATIVE.
 
-<a name="nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_performance_distribution_cut"></a>The `distribution_cut` block supports:
+<a name="nested_windows_based_sli_good_total_ratio_threshold_performance_distribution_cut"></a>The `distribution_cut` block supports:
 
 * `distribution_filter` -
   (Required)
@@ -597,10 +597,10 @@ The following arguments are supported:
   that range.min <= x <= range.max. inclusive of min and
   max. Open ranges can be defined by setting
   just one of min or max.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_performance_distribution_cut_range).
+  Structure is [documented below](#nested_windows_based_sli_good_total_ratio_threshold_performance_distribution_cut_range).
 
 
-<a name="nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_performance_distribution_cut_range"></a>The `range` block supports:
+<a name="nested_windows_based_sli_good_total_ratio_threshold_performance_distribution_cut_range"></a>The `range` block supports:
 
 * `min` -
   (Optional)
@@ -612,7 +612,7 @@ The following arguments are supported:
   max value for the range (inclusive). If not given,
   will be set to 0
 
-<a name="nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_basic_sli_performance"></a>The `basic_sli_performance` block supports:
+<a name="nested_windows_based_sli_good_total_ratio_threshold_basic_sli_performance"></a>The `basic_sli_performance` block supports:
 
 * `method` -
   (Optional)
@@ -644,15 +644,15 @@ The following arguments are supported:
 * `latency` -
   (Optional)
   Parameters for a latency threshold SLI.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_basic_sli_performance_latency).
+  Structure is [documented below](#nested_windows_based_sli_good_total_ratio_threshold_basic_sli_performance_latency).
 
 * `availability` -
   (Optional)
   Availability based SLI, dervied from count of requests made to this service that return successfully.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_basic_sli_performance_availability).
+  Structure is [documented below](#nested_windows_based_sli_good_total_ratio_threshold_basic_sli_performance_availability).
 
 
-<a name="nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_basic_sli_performance_latency"></a>The `latency` block supports:
+<a name="nested_windows_based_sli_good_total_ratio_threshold_basic_sli_performance_latency"></a>The `latency` block supports:
 
 * `threshold` -
   (Required)
@@ -660,13 +660,13 @@ The following arguments are supported:
   Good service is defined to be the count of requests made to
   this service that return in no more than threshold.
 
-<a name="nested_service_level_indicator_windows_based_sli_good_total_ratio_threshold_basic_sli_performance_availability"></a>The `availability` block supports:
+<a name="nested_windows_based_sli_good_total_ratio_threshold_basic_sli_performance_availability"></a>The `availability` block supports:
 
 * `enabled` -
   (Optional)
   Whether an availability SLI is enabled or not. Must be set to `true. Defaults to `true`.
 
-<a name="nested_service_level_indicator_windows_based_sli_metric_mean_in_range"></a>The `metric_mean_in_range` block supports:
+<a name="nested_windows_based_sli_metric_mean_in_range"></a>The `metric_mean_in_range` block supports:
 
 * `time_series` -
   (Required)
@@ -686,10 +686,10 @@ The following arguments are supported:
   just one of min or max. Mean value `X` of `time_series`
   values should satisfy `range.min <= X <= range.max` for a
   good service.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_metric_mean_in_range_range).
+  Structure is [documented below](#nested_windows_based_sli_metric_mean_in_range_range).
 
 
-<a name="nested_service_level_indicator_windows_based_sli_metric_mean_in_range_range"></a>The `range` block supports:
+<a name="nested_windows_based_sli_metric_mean_in_range_range"></a>The `range` block supports:
 
 * `min` -
   (Optional)
@@ -703,7 +703,7 @@ The following arguments are supported:
   will be set to "infinity", defining an open range
   ">= range.min"
 
-<a name="nested_service_level_indicator_windows_based_sli_metric_sum_in_range"></a>The `metric_sum_in_range` block supports:
+<a name="nested_windows_based_sli_metric_sum_in_range"></a>The `metric_sum_in_range` block supports:
 
 * `time_series` -
   (Required)
@@ -723,10 +723,10 @@ The following arguments are supported:
   max. Open ranges can be defined by setting
   just one of min or max. Summed value `X` should satisfy
   `range.min <= X <= range.max` for a good window.
-  Structure is [documented below](#nested_service_level_indicator_windows_based_sli_metric_sum_in_range_range).
+  Structure is [documented below](#nested_windows_based_sli_metric_sum_in_range_range).
 
 
-<a name="nested_service_level_indicator_windows_based_sli_metric_sum_in_range_range"></a>The `range` block supports:
+<a name="nested_windows_based_sli_metric_sum_in_range_range"></a>The `range` block supports:
 
 * `min` -
   (Optional)

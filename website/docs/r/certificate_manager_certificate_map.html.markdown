@@ -106,7 +106,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `ip_configs` -
   (Optional)
   An IP configuration where this Certificate Map is serving
-  Structure is [documented below](#nested_gclb_targets_gclb_targets_ip_configs).
+  Structure is [documented below](#nested_gclb_targets_ip_configs).
 
 * `target_https_proxy` -
   (Optional)
@@ -121,7 +121,7 @@ In addition to the arguments listed above, the following computed attributes are
   `targetSslProxy` may be set.
 
 
-<a name="nested_gclb_targets_gclb_targets_ip_configs"></a>The `ip_configs` block supports:
+<a name="nested_gclb_targets_ip_configs"></a>The `ip_configs` block supports:
 
 * `ip_address` -
   (Optional)

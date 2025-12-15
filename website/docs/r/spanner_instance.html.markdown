@@ -244,29 +244,29 @@ This must be set to true if you created a backup manually in the console.
 * `replica_selection` -
   (Required)
   A nested object resource.
-  Structure is [documented below](#nested_autoscaling_config_asymmetric_autoscaling_options_asymmetric_autoscaling_options_replica_selection).
+  Structure is [documented below](#nested_autoscaling_config_asymmetric_autoscaling_options_replica_selection).
 
 * `overrides` -
   (Required)
   A nested object resource.
-  Structure is [documented below](#nested_autoscaling_config_asymmetric_autoscaling_options_asymmetric_autoscaling_options_overrides).
+  Structure is [documented below](#nested_autoscaling_config_asymmetric_autoscaling_options_overrides).
 
 
-<a name="nested_autoscaling_config_asymmetric_autoscaling_options_asymmetric_autoscaling_options_replica_selection"></a>The `replica_selection` block supports:
+<a name="nested_autoscaling_config_asymmetric_autoscaling_options_replica_selection"></a>The `replica_selection` block supports:
 
 * `location` -
   (Required)
   The location of the replica to apply asymmetric autoscaling options.
 
-<a name="nested_autoscaling_config_asymmetric_autoscaling_options_asymmetric_autoscaling_options_overrides"></a>The `overrides` block supports:
+<a name="nested_autoscaling_config_asymmetric_autoscaling_options_overrides"></a>The `overrides` block supports:
 
 * `autoscaling_limits` -
   (Required)
   A nested object resource.
-  Structure is [documented below](#nested_autoscaling_config_asymmetric_autoscaling_options_asymmetric_autoscaling_options_overrides_autoscaling_limits).
+  Structure is [documented below](#nested_autoscaling_config_asymmetric_autoscaling_options_overrides_autoscaling_limits).
 
 
-<a name="nested_autoscaling_config_asymmetric_autoscaling_options_asymmetric_autoscaling_options_overrides_autoscaling_limits"></a>The `autoscaling_limits` block supports:
+<a name="nested_autoscaling_config_asymmetric_autoscaling_options_overrides_autoscaling_limits"></a>The `autoscaling_limits` block supports:
 
 * `min_nodes` -
   (Required)

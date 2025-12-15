@@ -1675,14 +1675,14 @@ The following arguments are supported:
   If the request is for www.myotherdomain.com and a 404 is encountered, the policy under UrlMap.defaultCustomErrorResponsePolicy takes effect. If a 404 response is encountered for the request www.example.com/current_events/, the pathMatcher's policy takes effect. If however, the request for www.example.com/coming_soon/ encounters a 404, the policy in RouteRule.customErrorResponsePolicy takes effect. If any of the requests in this example encounter a 500 error code, the policy at UrlMap.defaultCustomErrorResponsePolicy takes effect.
   When used in conjunction with pathMatcher.defaultRouteAction.retryPolicy, retries take precedence. Only once all retries are exhausted, the defaultCustomErrorResponsePolicy is applied. While attempting a retry, if load balancer is successful in reaching the service, the defaultCustomErrorResponsePolicy is ignored and the response from the service is returned to the client.
   defaultCustomErrorResponsePolicy is supported only for global external Application Load Balancers.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_custom_error_response_policy).
+  Structure is [documented below](#nested_path_matcher_default_custom_error_response_policy).
 
 * `header_action` -
   (Optional)
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. HeaderAction specified here are applied after the
   matching HttpRouteRule HeaderAction and before the HeaderAction in the UrlMap
-  Structure is [documented below](#nested_path_matcher_path_matcher_header_action).
+  Structure is [documented below](#nested_path_matcher_header_action).
 
 * `name` -
   (Required)
@@ -1696,7 +1696,7 @@ The following arguments are supported:
   basis. For example: a pathRule with a path /a/b/c/* will match before /a/b/*
   irrespective of the order in which those paths appear in this list. Within a
   given pathMatcher, only one of pathRules or routeRules must be set.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule).
+  Structure is [documented below](#nested_path_matcher_path_rule).
 
 * `route_rules` -
   (Optional)
@@ -1706,14 +1706,14 @@ The following arguments are supported:
   action to take effect. Within a given pathMatcher, only one of pathRules or
   routeRules must be set. routeRules are not supported in UrlMaps intended for
   External load balancers.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules).
+  Structure is [documented below](#nested_path_matcher_route_rules).
 
 * `default_url_redirect` -
   (Optional)
   When none of the specified hostRules match, the request is redirected to a URL specified
   by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
   defaultRouteAction must not be set.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_url_redirect).
+  Structure is [documented below](#nested_path_matcher_default_url_redirect).
 
 * `default_route_action` -
   (Optional)
@@ -1722,10 +1722,10 @@ The following arguments are supported:
   to the selected backend. If defaultRouteAction specifies any weightedBackendServices, defaultService must not be set.
   Conversely if defaultService is set, defaultRouteAction cannot contain any weightedBackendServices.
   Only one of defaultRouteAction or defaultUrlRedirect must be set.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action).
+  Structure is [documented below](#nested_path_matcher_default_route_action).
 
 
-<a name="nested_path_matcher_path_matcher_default_custom_error_response_policy"></a>The `default_custom_error_response_policy` block supports:
+<a name="nested_path_matcher_default_custom_error_response_policy"></a>The `default_custom_error_response_policy` block supports:
 
 * `error_response_rule` -
   (Optional)
@@ -1733,7 +1733,7 @@ The following arguments are supported:
   In a given policy, if you specify rules for both a range of error codes as well as rules for specific error codes then rules with specific error codes have a higher priority.
   For example, assume that you configure a rule for 401 (Un-authorized) code, and another for all 4 series error codes (4XX).
   If the backend service returns a 401, then the rule for 401 will be applied. However if the backend service returns a 403, the rule for 4xx takes effect.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_custom_error_response_policy_error_response_rule).
+  Structure is [documented below](#nested_path_matcher_default_custom_error_response_policy_error_response_rule).
 
 * `error_service` -
   (Optional)
@@ -1745,7 +1745,7 @@ The following arguments are supported:
   If load balancer cannot reach the backendBucket, a simple Not Found Error will be returned, with the original response code (or overrideResponseCode if configured).
 
 
-<a name="nested_path_matcher_path_matcher_default_custom_error_response_policy_error_response_rule"></a>The `error_response_rule` block supports:
+<a name="nested_path_matcher_default_custom_error_response_policy_error_response_rule"></a>The `error_response_rule` block supports:
 
 * `match_response_codes` -
   (Optional)
@@ -1767,13 +1767,13 @@ The following arguments are supported:
   The HTTP status code returned with the response containing the custom error content.
   If overrideResponseCode is not supplied, the same response code returned by the original backend bucket or backend service is returned to the client.
 
-<a name="nested_path_matcher_path_matcher_header_action"></a>The `header_action` block supports:
+<a name="nested_path_matcher_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is [documented below](#nested_path_matcher_path_matcher_header_action_request_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_header_action_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -1783,7 +1783,7 @@ The following arguments are supported:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is [documented below](#nested_path_matcher_path_matcher_header_action_response_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_header_action_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -1791,7 +1791,7 @@ The following arguments are supported:
   prior to sending the response back to the client.
 
 
-<a name="nested_path_matcher_path_matcher_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
+<a name="nested_path_matcher_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1807,7 +1807,7 @@ The following arguments are supported:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-<a name="nested_path_matcher_path_matcher_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+<a name="nested_path_matcher_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1823,7 +1823,7 @@ The following arguments are supported:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-<a name="nested_path_matcher_path_matcher_path_rule"></a>The `path_rule` block supports:
+<a name="nested_path_matcher_path_rule"></a>The `path_rule` block supports:
 
 * `service` -
   (Optional)
@@ -1845,7 +1845,7 @@ The following arguments are supported:
   A PathRule for /coming_soon/ is configured for the error code 404.
   If the request is for www.myotherdomain.com and a 404 is encountered, the policy under UrlMap.defaultCustomErrorResponsePolicy takes effect. If a 404 response is encountered for the request www.example.com/current_events/, the pathMatcher's policy takes effect. If however, the request for www.example.com/coming_soon/ encounters a 404, the policy in PathRule.customErrorResponsePolicy takes effect. If any of the requests in this example encounter a 500 error code, the policy at UrlMap.defaultCustomErrorResponsePolicy takes effect.
   customErrorResponsePolicy is supported only for global external Application Load Balancers.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_custom_error_response_policy).
+  Structure is [documented below](#nested_path_matcher_path_rule_custom_error_response_policy).
 
 * `route_action` -
   (Optional)
@@ -1855,17 +1855,17 @@ The following arguments are supported:
   weightedBackendServices, service must not be set. Conversely if service is set,
   routeAction cannot contain any  weightedBackendServices. Only one of routeAction
   or urlRedirect must be set.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action).
 
 * `url_redirect` -
   (Optional)
   When a path pattern is matched, the request is redirected to a URL specified
   by urlRedirect. If urlRedirect is specified, service or routeAction must not
   be set.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_url_redirect).
+  Structure is [documented below](#nested_path_matcher_path_rule_url_redirect).
 
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_custom_error_response_policy"></a>The `custom_error_response_policy` block supports:
+<a name="nested_path_matcher_path_rule_custom_error_response_policy"></a>The `custom_error_response_policy` block supports:
 
 * `error_response_rule` -
   (Optional)
@@ -1873,7 +1873,7 @@ The following arguments are supported:
   In a given policy, if you specify rules for both a range of error codes as well as rules for specific error codes then rules with specific error codes have a higher priority.
   For example, assume that you configure a rule for 401 (Un-authorized) code, and another for all 4 series error codes (4XX).
   If the backend service returns a 401, then the rule for 401 will be applied. However if the backend service returns a 403, the rule for 4xx takes effect.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_custom_error_response_policy_error_response_rule).
+  Structure is [documented below](#nested_path_matcher_path_rule_custom_error_response_policy_error_response_rule).
 
 * `error_service` -
   (Optional)
@@ -1885,7 +1885,7 @@ The following arguments are supported:
   If load balancer cannot reach the backendBucket, a simple Not Found Error will be returned, with the original response code (or overrideResponseCode if configured).
 
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_custom_error_response_policy_error_response_rule"></a>The `error_response_rule` block supports:
+<a name="nested_path_matcher_path_rule_custom_error_response_policy_error_response_rule"></a>The `error_response_rule` block supports:
 
 * `match_response_codes` -
   (Optional)
@@ -1907,13 +1907,13 @@ The following arguments are supported:
   The HTTP status code returned with the response containing the custom error content.
   If overrideResponseCode is not supplied, the same response code returned by the original backend bucket or backend service is returned to the client.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action"></a>The `route_action` block supports:
+<a name="nested_path_matcher_path_rule_route_action"></a>The `route_action` block supports:
 
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see W3C
   Recommendation for Cross Origin Resource Sharing
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_cors_policy).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_cors_policy).
 
 * `fault_injection_policy` -
   (Optional)
@@ -1924,7 +1924,7 @@ The following arguments are supported:
   backend service. Similarly requests from clients can be aborted by the
   Loadbalancer for a percentage of requests. timeout and retry_policy will be
   ignored by clients that are configured with a fault_injection_policy.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_fault_injection_policy).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_fault_injection_policy).
 
 * `request_mirror_policy` -
   (Optional)
@@ -1932,12 +1932,12 @@ The following arguments are supported:
   shadowed to a separate mirrored backend service. Loadbalancer does not wait for
   responses from the shadow service. Prior to sending traffic to the shadow
   service, the host / authority header is suffixed with -shadow.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_request_mirror_policy).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_request_mirror_policy).
 
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_retry_policy).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_retry_policy).
 
 * `timeout` -
   (Optional)
@@ -1945,7 +1945,7 @@ The following arguments are supported:
   the request is has been fully processed (i.e. end-of-stream) up until the
   response has been completely processed. Timeout includes all retries. If not
   specified, the default value is 15 seconds.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_timeout).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_timeout).
 
 * `max_stream_duration` -
   (Optional)
@@ -1954,13 +1954,13 @@ The following arguments are supported:
   has been fully processed (known as end-of-stream), the duration in this field
   is computed from the beginning of the stream until the response has been processed,
   including all retries. A stream that does not complete in this duration is closed.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_max_stream_duration).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_max_stream_duration).
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
   the matched service
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_url_rewrite).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_url_rewrite).
 
 * `weighted_backend_services` -
   (Optional)
@@ -1972,10 +1972,10 @@ The following arguments are supported:
   the backend service, advanced routing actions like Url rewrites and header
   transformations are applied depending on additional settings specified in this
   HttpRouteAction.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_weighted_backend_services).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_weighted_backend_services).
 
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_cors_policy"></a>The `cors_policy` block supports:
+<a name="nested_path_matcher_path_rule_route_action_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_credentials` -
   (Optional)
@@ -2015,22 +2015,22 @@ The following arguments are supported:
   Specifies how long the results of a preflight request can be cached. This
   translates to the content for the Access-Control-Max-Age header.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_fault_injection_policy"></a>The `fault_injection_policy` block supports:
+<a name="nested_path_matcher_path_rule_route_action_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault
   injection.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_fault_injection_policy_abort).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_fault_injection_policy_abort).
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault
   injection, before being sent to a backend service.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_fault_injection_policy_delay).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_fault_injection_policy_delay).
 
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_fault_injection_policy_abort"></a>The `abort` block supports:
+<a name="nested_path_matcher_path_rule_route_action_fault_injection_policy_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Required)
@@ -2043,12 +2043,12 @@ The following arguments are supported:
   aborted as part of fault injection. The value must be between 0.0 and 100.0
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_fault_injection_policy_delay"></a>The `delay` block supports:
+<a name="nested_path_matcher_path_rule_route_action_fault_injection_policy_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Required)
   Specifies the value of the fixed delay interval.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_fault_injection_policy_delay_fixed_delay).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_fault_injection_policy_delay_fixed_delay).
 
 * `percentage` -
   (Required)
@@ -2057,7 +2057,7 @@ The following arguments are supported:
   100.0 inclusive.
 
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_fault_injection_policy_delay_fixed_delay"></a>The `fixed_delay` block supports:
+<a name="nested_path_matcher_path_rule_route_action_fault_injection_policy_delay_fixed_delay"></a>The `fixed_delay` block supports:
 
 * `nanos` -
   (Optional)
@@ -2070,7 +2070,7 @@ The following arguments are supported:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_request_mirror_policy"></a>The `request_mirror_policy` block supports:
+<a name="nested_path_matcher_path_rule_route_action_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `backend_service` -
   (Required)
@@ -2081,7 +2081,7 @@ The following arguments are supported:
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_retry_policy"></a>The `retry_policy` block supports:
+<a name="nested_path_matcher_path_rule_route_action_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
   (Optional)
@@ -2090,7 +2090,7 @@ The following arguments are supported:
 * `per_try_timeout` -
   (Optional)
   Specifies a non-zero timeout per retry attempt.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_retry_policy_per_try_timeout).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_retry_policy_per_try_timeout).
 
 * `retry_conditions` -
   (Optional)
@@ -2117,7 +2117,7 @@ The following arguments are supported:
   the gRPC status code in the response header is set to unavailable
 
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_retry_policy_per_try_timeout"></a>The `per_try_timeout` block supports:
+<a name="nested_path_matcher_path_rule_route_action_retry_policy_per_try_timeout"></a>The `per_try_timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -2130,7 +2130,7 @@ The following arguments are supported:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_timeout"></a>The `timeout` block supports:
+<a name="nested_path_matcher_path_rule_route_action_timeout"></a>The `timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -2143,7 +2143,7 @@ The following arguments are supported:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
+<a name="nested_path_matcher_path_rule_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
 
 * `nanos` -
   (Optional)
@@ -2156,7 +2156,7 @@ The following arguments are supported:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_url_rewrite"></a>The `url_rewrite` block supports:
+<a name="nested_path_matcher_path_rule_route_action_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `host_rewrite` -
   (Optional)
@@ -2170,7 +2170,7 @@ The following arguments are supported:
   portion of the request's path is replaced by pathPrefixRewrite. The value must
   be between 1 and 1024 characters.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_weighted_backend_services"></a>The `weighted_backend_services` block supports:
+<a name="nested_path_matcher_path_rule_route_action_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
 * `backend_service` -
   (Required)
@@ -2183,7 +2183,7 @@ The following arguments are supported:
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. headerAction specified here take effect before
   headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_weighted_backend_services_weighted_backend_services_header_action).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_weighted_backend_services_header_action).
 
 * `weight` -
   (Required)
@@ -2195,13 +2195,13 @@ The following arguments are supported:
   The value must be between 0 and 1000
 
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_weighted_backend_services_weighted_backend_services_header_action"></a>The `header_action` block supports:
+<a name="nested_path_matcher_path_rule_route_action_weighted_backend_services_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_weighted_backend_services_weighted_backend_services_header_action_request_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_weighted_backend_services_header_action_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -2211,7 +2211,7 @@ The following arguments are supported:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is [documented below](#nested_path_matcher_path_matcher_path_rule_path_rule_route_action_weighted_backend_services_weighted_backend_services_header_action_response_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_weighted_backend_services_header_action_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -2219,7 +2219,7 @@ The following arguments are supported:
   prior to sending the response back to the client.
 
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_weighted_backend_services_weighted_backend_services_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
+<a name="nested_path_matcher_path_rule_route_action_weighted_backend_services_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -2235,7 +2235,7 @@ The following arguments are supported:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_route_action_weighted_backend_services_weighted_backend_services_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+<a name="nested_path_matcher_path_rule_route_action_weighted_backend_services_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -2251,7 +2251,7 @@ The following arguments are supported:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-<a name="nested_path_matcher_path_matcher_path_rule_path_rule_url_redirect"></a>The `url_redirect` block supports:
+<a name="nested_path_matcher_path_rule_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -2302,7 +2302,7 @@ The following arguments are supported:
   portion of the original URL is retained.
    This field is required to ensure an empty block is not set. The normal default value is false.
 
-<a name="nested_path_matcher_path_matcher_route_rules"></a>The `route_rules` block supports:
+<a name="nested_path_matcher_route_rules"></a>The `route_rules` block supports:
 
 * `priority` -
   (Required)
@@ -2336,12 +2336,12 @@ The following arguments are supported:
   the selected backendService. The headerAction specified here are applied before
   the matching pathMatchers[].headerAction and after pathMatchers[].routeRules[].r
   outeAction.weightedBackendService.backendServiceWeightAction[].headerAction
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_header_action).
+  Structure is [documented below](#nested_path_matcher_route_rules_header_action).
 
 * `match_rules` -
   (Optional)
   The rules for determining a match.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_match_rules).
+  Structure is [documented below](#nested_path_matcher_route_rules_match_rules).
 
 * `route_action` -
   (Optional)
@@ -2351,19 +2351,19 @@ The following arguments are supported:
   weightedBackendServices, service must not be set. Conversely if service is set,
   routeAction cannot contain any  weightedBackendServices. Only one of routeAction
   or urlRedirect must be set.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action).
 
 * `url_redirect` -
   (Optional)
   When this rule is matched, the request is redirected to a URL specified by
   urlRedirect. If urlRedirect is specified, service or routeAction must not be
   set.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_url_redirect).
+  Structure is [documented below](#nested_path_matcher_route_rules_url_redirect).
 
 * `custom_error_response_policy` -
   (Optional)
   customErrorResponsePolicy specifies how the Load Balancer returns error responses when BackendService or BackendBucket responds with an error.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy).
+  Structure is [documented below](#nested_path_matcher_route_rules_custom_error_response_policy).
 
 * `http_filter_configs` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -2371,7 +2371,7 @@ The following arguments are supported:
   httpFilterConfigs only applies for load balancers with loadBalancingScheme set to INTERNAL_SELF_MANAGED.
   See ForwardingRule for more details.
   Not supported when the URL map is bound to a target gRPC proxy that has validateForProxyless field set to true.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_http_filter_configs).
+  Structure is [documented below](#nested_path_matcher_route_rules_http_filter_configs).
 
 * `http_filter_metadata` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -2379,16 +2379,16 @@ The following arguments are supported:
   httpFilterMetadata only applies for load balancers with loadBalancingScheme set to INTERNAL_SELF_MANAGED.
   See ForwardingRule for more details.
   Not supported when the URL map is bound to a target gRPC proxy that has validateForProxyless field set to true.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_http_filter_metadata).
+  Structure is [documented below](#nested_path_matcher_route_rules_http_filter_metadata).
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_header_action"></a>The `header_action` block supports:
+<a name="nested_path_matcher_route_rules_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_header_action_request_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_route_rules_header_action_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -2398,7 +2398,7 @@ The following arguments are supported:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_header_action_response_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_route_rules_header_action_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -2406,7 +2406,7 @@ The following arguments are supported:
   prior to sending the response back to the client.
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
+<a name="nested_path_matcher_route_rules_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -2422,7 +2422,7 @@ The following arguments are supported:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+<a name="nested_path_matcher_route_rules_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -2438,7 +2438,7 @@ The following arguments are supported:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_match_rules"></a>The `match_rules` block supports:
+<a name="nested_path_matcher_route_rules_match_rules"></a>The `match_rules` block supports:
 
 * `full_path_match` -
   (Optional)
@@ -2452,7 +2452,7 @@ The following arguments are supported:
   (Optional)
   Specifies a list of header match criteria, all of which must match corresponding
   headers in the request.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_header_matches).
+  Structure is [documented below](#nested_path_matcher_route_rules_match_rules_header_matches).
 
 * `ignore_case` -
   (Optional)
@@ -2472,7 +2472,7 @@ The following arguments are supported:
   here can be overrides those specified in ForwardingRule that refers to this
   UrlMap. metadataFilters only applies to Loadbalancers that have their
   loadBalancingScheme set to INTERNAL_SELF_MANAGED.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_metadata_filters).
+  Structure is [documented below](#nested_path_matcher_route_rules_match_rules_metadata_filters).
 
 * `prefix_match` -
   (Optional)
@@ -2485,7 +2485,7 @@ The following arguments are supported:
   (Optional)
   Specifies a list of query parameter match criteria, all of which must match
   corresponding query parameters in the request.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_query_parameter_matches).
+  Structure is [documented below](#nested_path_matcher_route_rules_match_rules_query_parameter_matches).
 
 * `regex_match` -
   (Optional)
@@ -2507,7 +2507,7 @@ The following arguments are supported:
   captures in total.
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_header_matches"></a>The `header_matches` block supports:
+<a name="nested_path_matcher_route_rules_match_rules_header_matches"></a>The `header_matches` block supports:
 
 * `exact_match` -
   (Optional)
@@ -2546,7 +2546,7 @@ The following arguments are supported:
   not match.  - 0.25 will not match.  - -3someString will not match.   Only one of
   exactMatch, prefixMatch, suffixMatch, regexMatch, presentMatch or rangeMatch
   must be set.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_header_matches_header_matches_range_match).
+  Structure is [documented below](#nested_path_matcher_route_rules_match_rules_header_matches_range_match).
 
 * `regex_match` -
   (Optional)
@@ -2565,7 +2565,7 @@ The following arguments are supported:
   must be set.
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_header_matches_header_matches_range_match"></a>The `range_match` block supports:
+<a name="nested_path_matcher_route_rules_match_rules_header_matches_range_match"></a>The `range_match` block supports:
 
 * `range_end` -
   (Required)
@@ -2575,14 +2575,14 @@ The following arguments are supported:
   (Required)
   The start of the range (inclusive).
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_metadata_filters"></a>The `metadata_filters` block supports:
+<a name="nested_path_matcher_route_rules_match_rules_metadata_filters"></a>The `metadata_filters` block supports:
 
 * `filter_labels` -
   (Required)
   The list of label value pairs that must match labels in the provided metadata
   based on filterMatchCriteria  This list must not be empty and can have at the
   most 64 entries.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_metadata_filters_metadata_filters_filter_labels).
+  Structure is [documented below](#nested_path_matcher_route_rules_match_rules_metadata_filters_filter_labels).
 
 * `filter_match_criteria` -
   (Required)
@@ -2595,7 +2595,7 @@ The following arguments are supported:
   Possible values are: `MATCH_ALL`, `MATCH_ANY`.
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_metadata_filters_metadata_filters_filter_labels"></a>The `filter_labels` block supports:
+<a name="nested_path_matcher_route_rules_match_rules_metadata_filters_filter_labels"></a>The `filter_labels` block supports:
 
 * `name` -
   (Required)
@@ -2607,7 +2607,7 @@ The following arguments are supported:
   The value of the label must match the specified value. value can have a maximum
   length of 1024 characters.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_match_rules_match_rules_query_parameter_matches"></a>The `query_parameter_matches` block supports:
+<a name="nested_path_matcher_route_rules_match_rules_query_parameter_matches"></a>The `query_parameter_matches` block supports:
 
 * `exact_match` -
   (Optional)
@@ -2633,13 +2633,13 @@ The following arguments are supported:
   please see en.cppreference.com/w/cpp/regex/ecmascript  Only one of presentMatch,
   exactMatch and regexMatch must be set.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action"></a>The `route_action` block supports:
+<a name="nested_path_matcher_route_rules_route_action"></a>The `route_action` block supports:
 
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see W3C
   Recommendation for Cross Origin Resource Sharing
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_cors_policy).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_cors_policy).
 
 * `fault_injection_policy` -
   (Optional)
@@ -2650,7 +2650,7 @@ The following arguments are supported:
   backend service. Similarly requests from clients can be aborted by the
   Loadbalancer for a percentage of requests. timeout and retry_policy will be
   ignored by clients that are configured with a fault_injection_policy.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_fault_injection_policy).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_fault_injection_policy).
 
 * `request_mirror_policy` -
   (Optional)
@@ -2658,12 +2658,12 @@ The following arguments are supported:
   shadowed to a separate mirrored backend service. Loadbalancer does not wait for
   responses from the shadow service. Prior to sending traffic to the shadow
   service, the host / authority header is suffixed with -shadow.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_request_mirror_policy).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_request_mirror_policy).
 
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_retry_policy).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_retry_policy).
 
 * `timeout` -
   (Optional)
@@ -2671,7 +2671,7 @@ The following arguments are supported:
   the request is has been fully processed (i.e. end-of-stream) up until the
   response has been completely processed. Timeout includes all retries. If not
   specified, the default value is 15 seconds.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_timeout).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_timeout).
 
 * `max_stream_duration` -
   (Optional)
@@ -2680,13 +2680,13 @@ The following arguments are supported:
   has been fully processed (known as end-of-stream), the duration in this field
   is computed from the beginning of the stream until the response has been processed,
   including all retries. A stream that does not complete in this duration is closed.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_max_stream_duration).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_max_stream_duration).
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
   the matched service
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_url_rewrite).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_url_rewrite).
 
 * `weighted_backend_services` -
   (Optional)
@@ -2698,10 +2698,10 @@ The following arguments are supported:
   the backend service, advanced routing actions like Url rewrites and header
   transformations are applied depending on additional settings specified in this
   HttpRouteAction.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_weighted_backend_services).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_weighted_backend_services).
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_cors_policy"></a>The `cors_policy` block supports:
+<a name="nested_path_matcher_route_rules_route_action_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_credentials` -
   (Optional)
@@ -2742,22 +2742,22 @@ The following arguments are supported:
   Specifies how long the results of a preflight request can be cached. This
   translates to the content for the Access-Control-Max-Age header.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_fault_injection_policy"></a>The `fault_injection_policy` block supports:
+<a name="nested_path_matcher_route_rules_route_action_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault
   injection.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_fault_injection_policy_abort).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_fault_injection_policy_abort).
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault
   injection, before being sent to a backend service.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_fault_injection_policy_delay).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_fault_injection_policy_delay).
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_fault_injection_policy_abort"></a>The `abort` block supports:
+<a name="nested_path_matcher_route_rules_route_action_fault_injection_policy_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Optional)
@@ -2770,12 +2770,12 @@ The following arguments are supported:
   aborted as part of fault injection. The value must be between 0.0 and 100.0
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_fault_injection_policy_delay"></a>The `delay` block supports:
+<a name="nested_path_matcher_route_rules_route_action_fault_injection_policy_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Optional)
   Specifies the value of the fixed delay interval.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_fault_injection_policy_delay_fixed_delay).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_fault_injection_policy_delay_fixed_delay).
 
 * `percentage` -
   (Optional)
@@ -2784,7 +2784,7 @@ The following arguments are supported:
   100.0 inclusive.
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_fault_injection_policy_delay_fixed_delay"></a>The `fixed_delay` block supports:
+<a name="nested_path_matcher_route_rules_route_action_fault_injection_policy_delay_fixed_delay"></a>The `fixed_delay` block supports:
 
 * `nanos` -
   (Optional)
@@ -2797,7 +2797,7 @@ The following arguments are supported:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_request_mirror_policy"></a>The `request_mirror_policy` block supports:
+<a name="nested_path_matcher_route_rules_route_action_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `backend_service` -
   (Required)
@@ -2808,7 +2808,7 @@ The following arguments are supported:
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_retry_policy"></a>The `retry_policy` block supports:
+<a name="nested_path_matcher_route_rules_route_action_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
   (Required)
@@ -2819,7 +2819,7 @@ The following arguments are supported:
   Specifies a non-zero timeout per retry attempt.
   If not specified, will use the timeout set in HttpRouteAction. If timeout in HttpRouteAction
   is not set, will use the largest timeout among all backend services associated with the route.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_retry_policy_per_try_timeout).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_retry_policy_per_try_timeout).
 
 * `retry_conditions` -
   (Optional)
@@ -2846,7 +2846,7 @@ The following arguments are supported:
     the response header is set to unavailable
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_retry_policy_per_try_timeout"></a>The `per_try_timeout` block supports:
+<a name="nested_path_matcher_route_rules_route_action_retry_policy_per_try_timeout"></a>The `per_try_timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -2859,7 +2859,7 @@ The following arguments are supported:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_timeout"></a>The `timeout` block supports:
+<a name="nested_path_matcher_route_rules_route_action_timeout"></a>The `timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -2872,7 +2872,7 @@ The following arguments are supported:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
+<a name="nested_path_matcher_route_rules_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
 
 * `nanos` -
   (Optional)
@@ -2885,7 +2885,7 @@ The following arguments are supported:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_url_rewrite"></a>The `url_rewrite` block supports:
+<a name="nested_path_matcher_route_rules_route_action_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `host_rewrite` -
   (Optional)
@@ -2913,7 +2913,7 @@ The following arguments are supported:
   Only one of pathPrefixRewrite and pathTemplateRewrite may be
   specified.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_weighted_backend_services"></a>The `weighted_backend_services` block supports:
+<a name="nested_path_matcher_route_rules_route_action_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
 * `backend_service` -
   (Required)
@@ -2926,7 +2926,7 @@ The following arguments are supported:
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. headerAction specified here take effect before
   headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_weighted_backend_services_weighted_backend_services_header_action).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_weighted_backend_services_header_action).
 
 * `weight` -
   (Required)
@@ -2938,13 +2938,13 @@ The following arguments are supported:
   The value must be between 0 and 1000
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_weighted_backend_services_weighted_backend_services_header_action"></a>The `header_action` block supports:
+<a name="nested_path_matcher_route_rules_route_action_weighted_backend_services_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_weighted_backend_services_weighted_backend_services_header_action_request_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_weighted_backend_services_header_action_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -2954,7 +2954,7 @@ The following arguments are supported:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_route_action_weighted_backend_services_weighted_backend_services_header_action_response_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_weighted_backend_services_header_action_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -2962,7 +2962,7 @@ The following arguments are supported:
   prior to sending the response back to the client.
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_weighted_backend_services_weighted_backend_services_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
+<a name="nested_path_matcher_route_rules_route_action_weighted_backend_services_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -2978,7 +2978,7 @@ The following arguments are supported:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_route_action_weighted_backend_services_weighted_backend_services_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+<a name="nested_path_matcher_route_rules_route_action_weighted_backend_services_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -2994,7 +2994,7 @@ The following arguments are supported:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_url_redirect"></a>The `url_redirect` block supports:
+<a name="nested_path_matcher_route_rules_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -3034,7 +3034,7 @@ The following arguments are supported:
   prior to redirecting the request. If set to false, the query portion of the
   original URL is retained. Defaults to false.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy"></a>The `custom_error_response_policy` block supports:
+<a name="nested_path_matcher_route_rules_custom_error_response_policy"></a>The `custom_error_response_policy` block supports:
 
 * `error_response_rule` -
   (Optional)
@@ -3042,7 +3042,7 @@ The following arguments are supported:
   In a given policy, if you specify rules for both a range of error codes as well as rules for specific error codes then rules with specific error codes have a higher priority.
   For example, assume that you configure a rule for 401 (Un-authorized) code, and another for all 4 series error codes (4XX).
   If the backend service returns a 401, then the rule for 401 will be applied. However if the backend service returns a 403, the rule for 4xx takes effect.
-  Structure is [documented below](#nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy_error_response_rule).
+  Structure is [documented below](#nested_path_matcher_route_rules_custom_error_response_policy_error_response_rule).
 
 * `error_service` -
   (Optional)
@@ -3054,7 +3054,7 @@ The following arguments are supported:
   If load balancer cannot reach the backendBucket, a simple Not Found Error will be returned, with the original response code (or overrideResponseCode if configured).
 
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_custom_error_response_policy_error_response_rule"></a>The `error_response_rule` block supports:
+<a name="nested_path_matcher_route_rules_custom_error_response_policy_error_response_rule"></a>The `error_response_rule` block supports:
 
 * `match_response_codes` -
   (Optional)
@@ -3076,7 +3076,7 @@ The following arguments are supported:
   The HTTP status code returned with the response containing the custom error content.
   If overrideResponseCode is not supplied, the same response code returned by the original backend bucket or backend service is returned to the client.
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_http_filter_configs"></a>The `http_filter_configs` block supports:
+<a name="nested_path_matcher_route_rules_http_filter_configs"></a>The `http_filter_configs` block supports:
 
 * `filter_name` -
   (Optional)
@@ -3093,7 +3093,7 @@ The following arguments are supported:
   The configuration needed to enable the networkservices.HttpFilter resource.
   The configuration must be YAML formatted and only contain fields defined in the protobuf identified in configTypeUrl
 
-<a name="nested_path_matcher_path_matcher_route_rules_route_rules_http_filter_metadata"></a>The `http_filter_metadata` block supports:
+<a name="nested_path_matcher_route_rules_http_filter_metadata"></a>The `http_filter_metadata` block supports:
 
 * `filter_name` -
   (Optional)
@@ -3110,7 +3110,7 @@ The following arguments are supported:
   The configuration needed to enable the networkservices.HttpFilter resource.
   The configuration must be YAML formatted and only contain fields defined in the protobuf identified in configTypeUrl
 
-<a name="nested_path_matcher_path_matcher_default_url_redirect"></a>The `default_url_redirect` block supports:
+<a name="nested_path_matcher_default_url_redirect"></a>The `default_url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -3158,7 +3158,7 @@ The following arguments are supported:
   retained.
    This field is required to ensure an empty block is not set. The normal default value is false.
 
-<a name="nested_path_matcher_path_matcher_default_route_action"></a>The `default_route_action` block supports:
+<a name="nested_path_matcher_default_route_action"></a>The `default_route_action` block supports:
 
 * `weighted_backend_services` -
   (Optional)
@@ -3169,19 +3169,19 @@ The following arguments are supported:
   Once a backendService is identified and before forwarding the request to the backend service,
   advanced routing actions like Url rewrites and header transformations are applied depending on
   additional settings specified in this HttpRouteAction.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_weighted_backend_services).
+  Structure is [documented below](#nested_path_matcher_default_route_action_weighted_backend_services).
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to the matched service.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_url_rewrite).
+  Structure is [documented below](#nested_path_matcher_default_route_action_url_rewrite).
 
 * `timeout` -
   (Optional)
   Specifies the timeout for the selected route. Timeout is computed from the time the request has been
   fully processed (i.e. end-of-stream) up until the response has been completely processed. Timeout includes all retries.
   If not specified, will use the largest timeout among all backend services associated with the route.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_timeout).
+  Structure is [documented below](#nested_path_matcher_default_route_action_timeout).
 
 * `max_stream_duration` -
   (Optional)
@@ -3190,25 +3190,25 @@ The following arguments are supported:
   has been fully processed (known as end-of-stream), the duration in this field
   is computed from the beginning of the stream until the response has been processed,
   including all retries. A stream that does not complete in this duration is closed.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_max_stream_duration).
+  Structure is [documented below](#nested_path_matcher_default_route_action_max_stream_duration).
 
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_retry_policy).
+  Structure is [documented below](#nested_path_matcher_default_route_action_retry_policy).
 
 * `request_mirror_policy` -
   (Optional)
   Specifies the policy on how requests intended for the route's backends are shadowed to a separate mirrored backend service.
   Loadbalancer does not wait for responses from the shadow service. Prior to sending traffic to the shadow service,
   the host / authority header is suffixed with -shadow.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_request_mirror_policy).
+  Structure is [documented below](#nested_path_matcher_default_route_action_request_mirror_policy).
 
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see
   [W3C Recommendation for Cross Origin Resource Sharing](https://www.w3.org/TR/cors/)
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_cors_policy).
+  Structure is [documented below](#nested_path_matcher_default_route_action_cors_policy).
 
 * `fault_injection_policy` -
   (Optional)
@@ -3217,10 +3217,10 @@ The following arguments are supported:
   percentage of requests before sending those request to the backend service. Similarly requests from clients can be aborted
   by the Loadbalancer for a percentage of requests.
   timeout and retryPolicy will be ignored by clients that are configured with a faultInjectionPolicy.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_fault_injection_policy).
+  Structure is [documented below](#nested_path_matcher_default_route_action_fault_injection_policy).
 
 
-<a name="nested_path_matcher_path_matcher_default_route_action_weighted_backend_services"></a>The `weighted_backend_services` block supports:
+<a name="nested_path_matcher_default_route_action_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
 * `backend_service` -
   (Optional)
@@ -3243,10 +3243,10 @@ The following arguments are supported:
   the selected backendService.
   headerAction specified here take effect before headerAction in the enclosing
   HttpRouteRule, PathMatcher and UrlMap.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_weighted_backend_services_weighted_backend_services_header_action).
+  Structure is [documented below](#nested_path_matcher_default_route_action_weighted_backend_services_header_action).
 
 
-<a name="nested_path_matcher_path_matcher_default_route_action_weighted_backend_services_weighted_backend_services_header_action"></a>The `header_action` block supports:
+<a name="nested_path_matcher_default_route_action_weighted_backend_services_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_remove` -
   (Optional)
@@ -3256,7 +3256,7 @@ The following arguments are supported:
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the backendService.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_weighted_backend_services_weighted_backend_services_header_action_request_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_default_route_action_weighted_backend_services_header_action_request_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -3266,25 +3266,10 @@ The following arguments are supported:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_weighted_backend_services_weighted_backend_services_header_action_response_headers_to_add).
+  Structure is [documented below](#nested_path_matcher_default_route_action_weighted_backend_services_header_action_response_headers_to_add).
 
 
-<a name="nested_path_matcher_path_matcher_default_route_action_weighted_backend_services_weighted_backend_services_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
-
-* `header_name` -
-  (Optional)
-  The name of the header to add.
-
-* `header_value` -
-  (Optional)
-  The value of the header to add.
-
-* `replace` -
-  (Optional)
-  If false, headerValue is appended to any values that already exist for the header.
-  If true, headerValue is set for the header, discarding any values that were set for that header.
-
-<a name="nested_path_matcher_path_matcher_default_route_action_weighted_backend_services_weighted_backend_services_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+<a name="nested_path_matcher_default_route_action_weighted_backend_services_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Optional)
@@ -3299,7 +3284,22 @@ The following arguments are supported:
   If false, headerValue is appended to any values that already exist for the header.
   If true, headerValue is set for the header, discarding any values that were set for that header.
 
-<a name="nested_path_matcher_path_matcher_default_route_action_url_rewrite"></a>The `url_rewrite` block supports:
+<a name="nested_path_matcher_default_route_action_weighted_backend_services_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to add.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header.
+  If true, headerValue is set for the header, discarding any values that were set for that header.
+
+<a name="nested_path_matcher_default_route_action_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `path_prefix_rewrite` -
   (Optional)
@@ -3313,7 +3313,7 @@ The following arguments are supported:
   with contents of hostRewrite.
   The value must be between 1 and 255 characters.
 
-<a name="nested_path_matcher_path_matcher_default_route_action_timeout"></a>The `timeout` block supports:
+<a name="nested_path_matcher_default_route_action_timeout"></a>The `timeout` block supports:
 
 * `seconds` -
   (Optional)
@@ -3325,7 +3325,7 @@ The following arguments are supported:
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
   with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-<a name="nested_path_matcher_path_matcher_default_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
+<a name="nested_path_matcher_default_route_action_max_stream_duration"></a>The `max_stream_duration` block supports:
 
 * `nanos` -
   (Optional)
@@ -3337,7 +3337,7 @@ The following arguments are supported:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
   Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
 
-<a name="nested_path_matcher_path_matcher_default_route_action_retry_policy"></a>The `retry_policy` block supports:
+<a name="nested_path_matcher_default_route_action_retry_policy"></a>The `retry_policy` block supports:
 
 * `retry_conditions` -
   (Optional)
@@ -3366,10 +3366,10 @@ The following arguments are supported:
   Specifies a non-zero timeout per retry attempt.
   If not specified, will use the timeout set in HttpRouteAction. If timeout in HttpRouteAction is not set,
   will use the largest timeout among all backend services associated with the route.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_retry_policy_per_try_timeout).
+  Structure is [documented below](#nested_path_matcher_default_route_action_retry_policy_per_try_timeout).
 
 
-<a name="nested_path_matcher_path_matcher_default_route_action_retry_policy_per_try_timeout"></a>The `per_try_timeout` block supports:
+<a name="nested_path_matcher_default_route_action_retry_policy_per_try_timeout"></a>The `per_try_timeout` block supports:
 
 * `seconds` -
   (Optional)
@@ -3381,7 +3381,7 @@ The following arguments are supported:
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
   represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-<a name="nested_path_matcher_path_matcher_default_route_action_request_mirror_policy"></a>The `request_mirror_policy` block supports:
+<a name="nested_path_matcher_default_route_action_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `backend_service` -
   (Required)
@@ -3392,7 +3392,7 @@ The following arguments are supported:
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 
-<a name="nested_path_matcher_path_matcher_default_route_action_cors_policy"></a>The `cors_policy` block supports:
+<a name="nested_path_matcher_default_route_action_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_origins` -
   (Optional)
@@ -3431,25 +3431,25 @@ The following arguments are supported:
   (Optional)
   If true, specifies the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.
 
-<a name="nested_path_matcher_path_matcher_default_route_action_fault_injection_policy"></a>The `fault_injection_policy` block supports:
+<a name="nested_path_matcher_default_route_action_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault injection, before being sent to a backend service.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_fault_injection_policy_delay).
+  Structure is [documented below](#nested_path_matcher_default_route_action_fault_injection_policy_delay).
 
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault injection.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_fault_injection_policy_abort).
+  Structure is [documented below](#nested_path_matcher_default_route_action_fault_injection_policy_abort).
 
 
-<a name="nested_path_matcher_path_matcher_default_route_action_fault_injection_policy_delay"></a>The `delay` block supports:
+<a name="nested_path_matcher_default_route_action_fault_injection_policy_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Optional)
   Specifies the value of the fixed delay interval.
-  Structure is [documented below](#nested_path_matcher_path_matcher_default_route_action_fault_injection_policy_delay_fixed_delay).
+  Structure is [documented below](#nested_path_matcher_default_route_action_fault_injection_policy_delay_fixed_delay).
 
 * `percentage` -
   (Optional)
@@ -3457,7 +3457,7 @@ The following arguments are supported:
   The value must be between 0.0 and 100.0 inclusive.
 
 
-<a name="nested_path_matcher_path_matcher_default_route_action_fault_injection_policy_delay_fixed_delay"></a>The `fixed_delay` block supports:
+<a name="nested_path_matcher_default_route_action_fault_injection_policy_delay_fixed_delay"></a>The `fixed_delay` block supports:
 
 * `seconds` -
   (Optional)
@@ -3469,7 +3469,7 @@ The following arguments are supported:
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
   represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-<a name="nested_path_matcher_path_matcher_default_route_action_fault_injection_policy_abort"></a>The `abort` block supports:
+<a name="nested_path_matcher_default_route_action_fault_injection_policy_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Optional)
@@ -3540,7 +3540,7 @@ The following arguments are supported:
 * `headers` -
   (Optional)
   HTTP headers for this request.
-  Structure is [documented below](#nested_test_test_headers).
+  Structure is [documented below](#nested_test_headers).
 
 * `service` -
   (Optional)
@@ -3559,7 +3559,7 @@ The following arguments are supported:
   expectedRedirectResponseCode cannot be set when service is set.
 
 
-<a name="nested_test_test_headers"></a>The `headers` block supports:
+<a name="nested_test_headers"></a>The `headers` block supports:
 
 * `name` -
   (Required)
@@ -3702,10 +3702,10 @@ The following arguments are supported:
   the selected backendService.
   headerAction specified here take effect before headerAction in the enclosing
   HttpRouteRule, PathMatcher and UrlMap.
-  Structure is [documented below](#nested_default_route_action_weighted_backend_services_weighted_backend_services_header_action).
+  Structure is [documented below](#nested_default_route_action_weighted_backend_services_header_action).
 
 
-<a name="nested_default_route_action_weighted_backend_services_weighted_backend_services_header_action"></a>The `header_action` block supports:
+<a name="nested_default_route_action_weighted_backend_services_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_remove` -
   (Optional)
@@ -3715,7 +3715,7 @@ The following arguments are supported:
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the backendService.
-  Structure is [documented below](#nested_default_route_action_weighted_backend_services_weighted_backend_services_header_action_request_headers_to_add).
+  Structure is [documented below](#nested_default_route_action_weighted_backend_services_header_action_request_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -3725,10 +3725,10 @@ The following arguments are supported:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is [documented below](#nested_default_route_action_weighted_backend_services_weighted_backend_services_header_action_response_headers_to_add).
+  Structure is [documented below](#nested_default_route_action_weighted_backend_services_header_action_response_headers_to_add).
 
 
-<a name="nested_default_route_action_weighted_backend_services_weighted_backend_services_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
+<a name="nested_default_route_action_weighted_backend_services_header_action_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Optional)
@@ -3743,7 +3743,7 @@ The following arguments are supported:
   If false, headerValue is appended to any values that already exist for the header.
   If true, headerValue is set for the header, discarding any values that were set for that header.
 
-<a name="nested_default_route_action_weighted_backend_services_weighted_backend_services_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+<a name="nested_default_route_action_weighted_backend_services_header_action_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Optional)

@@ -150,10 +150,10 @@ The following arguments are supported:
 * `node` -
   (Required)
   The node.
-  Structure is [documented below](#nested_tpu_node_spec_node_spec_node).
+  Structure is [documented below](#nested_tpu_node_spec_node).
 
 
-<a name="nested_tpu_node_spec_node_spec_node"></a>The `node` block supports:
+<a name="nested_tpu_node_spec_node"></a>The `node` block supports:
 
 * `runtime_version` -
   (Required)
@@ -170,10 +170,10 @@ The following arguments are supported:
 * `network_config` -
   (Optional)
   Network configurations for the TPU node.
-  Structure is [documented below](#nested_tpu_node_spec_node_spec_node_network_config).
+  Structure is [documented below](#nested_tpu_node_spec_node_network_config).
 
 
-<a name="nested_tpu_node_spec_node_spec_node_network_config"></a>The `network_config` block supports:
+<a name="nested_tpu_node_spec_node_network_config"></a>The `network_config` block supports:
 
 * `network` -
   (Optional)

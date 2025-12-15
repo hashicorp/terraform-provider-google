@@ -156,10 +156,10 @@ The following arguments are supported:
   (Optional)
   The MembershipRole expiry details, only supported for MEMBER role.
   Other roles cannot be accompanied with MEMBER role having expiry.
-  Structure is [documented below](#nested_roles_roles_expiry_detail).
+  Structure is [documented below](#nested_roles_expiry_detail).
 
 
-<a name="nested_roles_roles_expiry_detail"></a>The `expiry_detail` block supports:
+<a name="nested_roles_expiry_detail"></a>The `expiry_detail` block supports:
 
 * `expire_time` -
   (Required)

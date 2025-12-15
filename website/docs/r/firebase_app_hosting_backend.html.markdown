@@ -343,10 +343,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   A managed Cloud Run
   [`service`](https://cloud.google.com/run/docs/reference/rest/v2/projects.locations.services#resource:-service).
-  Structure is [documented below](#nested_managed_resources_managed_resources_run_service).
+  Structure is [documented below](#nested_managed_resources_run_service).
 
 
-<a name="nested_managed_resources_managed_resources_run_service"></a>The `run_service` block contains:
+<a name="nested_managed_resources_run_service"></a>The `run_service` block contains:
 
 * `service` -
   (Output)

@@ -680,10 +680,10 @@ Default value: "true"
 * `start_time` -
   (Required)
   Preferred time to start the maintenance operation on the specified day. Maintenance will start within 1 hour of this time.
-  Structure is [documented below](#nested_maintenance_update_policy_maintenance_windows_maintenance_windows_start_time).
+  Structure is [documented below](#nested_maintenance_update_policy_maintenance_windows_start_time).
 
 
-<a name="nested_maintenance_update_policy_maintenance_windows_maintenance_windows_start_time"></a>The `start_time` block supports:
+<a name="nested_maintenance_update_policy_maintenance_windows_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Required)

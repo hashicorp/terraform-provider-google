@@ -211,18 +211,18 @@ In addition to the arguments listed above, the following computed attributes are
 * `endpoints` -
   (Output)
   'Wire endpoints are specific Interconnect connections.'
-  Structure is [documented below](#nested_wires_wires_endpoints).
+  Structure is [documented below](#nested_wires_endpoints).
 
 * `wire_properties` -
   (Output)
   A nested object resource.
-  Structure is [documented below](#nested_wires_wires_wire_properties).
+  Structure is [documented below](#nested_wires_wire_properties).
 
 * `admin_enabled` -
   (Output)
 
 
-<a name="nested_wires_wires_endpoints"></a>The `endpoints` block contains:
+<a name="nested_wires_endpoints"></a>The `endpoints` block contains:
 
 * `interconnect` -
   (Output)
@@ -230,7 +230,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `vlan_tag` -
   (Output)
 
-<a name="nested_wires_wires_wire_properties"></a>The `wire_properties` block contains:
+<a name="nested_wires_wire_properties"></a>The `wire_properties` block contains:
 
 * `bandwidth_unmetered` -
   (Output)

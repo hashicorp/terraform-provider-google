@@ -243,10 +243,10 @@ When the field is set to false, deleting the instance is allowed.
 * `start_time` -
   (Required)
   Required. Start time of the window in UTC time.
-  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time).
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_start_time).
 
 
-<a name="nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
+<a name="nested_maintenance_policy_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)

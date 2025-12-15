@@ -139,36 +139,36 @@ The following arguments are supported:
 * `scope` -
   (Optional)
   Optional. Application, etc. to which the access settings will be applied to. Implicitly, this is the scoped access settings key; as such, it must be unique and non-empty.
-  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_scope).
+  Structure is [documented below](#nested_scoped_access_settings_scope).
 
 * `active_settings` -
   (Optional)
   Optional. Access settings for this scoped access settings. This field may be empty if dryRunSettings is set.
-  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_active_settings).
+  Structure is [documented below](#nested_scoped_access_settings_active_settings).
 
 * `dry_run_settings` -
   (Optional)
   Optional. Dry-run access settings for this scoped access settings. This field may be empty if activeSettings is set. Cannot contain session settings.
-  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_dry_run_settings).
+  Structure is [documented below](#nested_scoped_access_settings_dry_run_settings).
 
 
-<a name="nested_scoped_access_settings_scoped_access_settings_scope"></a>The `scope` block supports:
+<a name="nested_scoped_access_settings_scope"></a>The `scope` block supports:
 
 * `client_scope` -
   (Optional)
   Optional. Client scope for this access scope.
-  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_scope_client_scope).
+  Structure is [documented below](#nested_scoped_access_settings_scope_client_scope).
 
 
-<a name="nested_scoped_access_settings_scoped_access_settings_scope_client_scope"></a>The `client_scope` block supports:
+<a name="nested_scoped_access_settings_scope_client_scope"></a>The `client_scope` block supports:
 
 * `restricted_client_application` -
   (Optional)
   Optional. The application that is subject to this binding's scope. Only one of clientId or name should be specified.
-  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_scope_client_scope_restricted_client_application).
+  Structure is [documented below](#nested_scoped_access_settings_scope_client_scope_restricted_client_application).
 
 
-<a name="nested_scoped_access_settings_scoped_access_settings_scope_client_scope_restricted_client_application"></a>The `restricted_client_application` block supports:
+<a name="nested_scoped_access_settings_scope_client_scope_restricted_client_application"></a>The `restricted_client_application` block supports:
 
 * `client_id` -
   (Optional)
@@ -178,7 +178,7 @@ The following arguments are supported:
   (Optional)
   The name of the application. Example: "Cloud Console"
 
-<a name="nested_scoped_access_settings_scoped_access_settings_active_settings"></a>The `active_settings` block supports:
+<a name="nested_scoped_access_settings_active_settings"></a>The `active_settings` block supports:
 
 * `access_levels` -
   (Optional)
@@ -187,10 +187,10 @@ The following arguments are supported:
 * `session_settings` -
   (Optional)
   Optional. Session settings applied to user access on a given AccessScope.
-  Structure is [documented below](#nested_scoped_access_settings_scoped_access_settings_active_settings_session_settings).
+  Structure is [documented below](#nested_scoped_access_settings_active_settings_session_settings).
 
 
-<a name="nested_scoped_access_settings_scoped_access_settings_active_settings_session_settings"></a>The `session_settings` block supports:
+<a name="nested_scoped_access_settings_active_settings_session_settings"></a>The `session_settings` block supports:
 
 * `session_reauth_method` -
   (Optional)
@@ -213,7 +213,7 @@ The following arguments are supported:
   (Optional)
   Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.
 
-<a name="nested_scoped_access_settings_scoped_access_settings_dry_run_settings"></a>The `dry_run_settings` block supports:
+<a name="nested_scoped_access_settings_dry_run_settings"></a>The `dry_run_settings` block supports:
 
 * `access_levels` -
   (Optional)

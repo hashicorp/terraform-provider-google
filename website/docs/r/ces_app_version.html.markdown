@@ -155,7 +155,7 @@ In addition to the arguments listed above, the following computed attributes are
   The provided callbacks are executed sequentially in the exact order they
   are given in the list. If a callback returns an overridden response,
   execution stops and any remaining callbacks are skipped.
-  Structure is [documented below](#nested_snapshot_agents_agents_after_agent_callbacks).
+  Structure is [documented below](#nested_snapshot_agents_after_agent_callbacks).
 
 * `after_model_callbacks` -
   (Output)
@@ -164,7 +164,7 @@ In addition to the arguments listed above, the following computed attributes are
   The provided callbacks are executed sequentially in the exact order they
   are given in the list. If a callback returns an overridden response,
   execution stops and any remaining callbacks are skipped.
-  Structure is [documented below](#nested_snapshot_agents_agents_after_model_callbacks).
+  Structure is [documented below](#nested_snapshot_agents_after_model_callbacks).
 
 * `after_tool_callbacks` -
   (Output)
@@ -173,7 +173,7 @@ In addition to the arguments listed above, the following computed attributes are
   The provided callbacks are executed sequentially in the exact order they
   are given in the list. If a callback returns an overridden response,
   execution stops and any remaining callbacks are skipped.
-  Structure is [documented below](#nested_snapshot_agents_agents_after_tool_callbacks).
+  Structure is [documented below](#nested_snapshot_agents_after_tool_callbacks).
 
 * `before_agent_callbacks` -
   (Output)
@@ -181,7 +181,7 @@ In addition to the arguments listed above, the following computed attributes are
   The provided callbacks are executed sequentially in the exact order they
   are given in the list. If a callback returns an overridden response,
   execution stops and any remaining callbacks are skipped.
-  Structure is [documented below](#nested_snapshot_agents_agents_before_agent_callbacks).
+  Structure is [documented below](#nested_snapshot_agents_before_agent_callbacks).
 
 * `before_model_callbacks` -
   (Output)
@@ -190,7 +190,7 @@ In addition to the arguments listed above, the following computed attributes are
   The provided callbacks are executed sequentially in the exact order they
   are given in the list. If a callback returns an overridden response,
   execution stops and any remaining callbacks are skipped.
-  Structure is [documented below](#nested_snapshot_agents_agents_before_model_callbacks).
+  Structure is [documented below](#nested_snapshot_agents_before_model_callbacks).
 
 * `before_tool_callbacks` -
   (Output)
@@ -199,7 +199,7 @@ In addition to the arguments listed above, the following computed attributes are
   The provided callbacks are executed sequentially in the exact order they
   are given in the list. If a callback returns an overridden response,
   execution stops and any remaining callbacks are skipped.
-  Structure is [documented below](#nested_snapshot_agents_agents_before_tool_callbacks).
+  Structure is [documented below](#nested_snapshot_agents_before_tool_callbacks).
 
 * `child_agents` -
   (Output)
@@ -247,7 +247,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `model_settings` -
   (Output)
   Model settings contains various configurations for the LLM model.
-  Structure is [documented below](#nested_snapshot_agents_agents_model_settings).
+  Structure is [documented below](#nested_snapshot_agents_model_settings).
 
 * `name` -
   (Output)
@@ -261,7 +261,7 @@ In addition to the arguments listed above, the following computed attributes are
   agent flow. The corresponding Dialogflow agent will process subsequent user
   queries until the session ends or flow ends and the control is transferred
   back to the parent CES agent.
-  Structure is [documented below](#nested_snapshot_agents_agents_remote_dialogflow_agent).
+  Structure is [documented below](#nested_snapshot_agents_remote_dialogflow_agent).
 
 * `tools` -
   (Output)
@@ -271,14 +271,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `toolsets` -
   (Output)
   List of toolsets for the agent.
-  Structure is [documented below](#nested_snapshot_agents_agents_toolsets).
+  Structure is [documented below](#nested_snapshot_agents_toolsets).
 
 * `update_time` -
   (Output)
   Timestamp when the agent was last updated.
 
 
-<a name="nested_snapshot_agents_agents_after_agent_callbacks"></a>The `after_agent_callbacks` block contains:
+<a name="nested_snapshot_agents_after_agent_callbacks"></a>The `after_agent_callbacks` block contains:
 
 * `description` -
   (Output)
@@ -293,7 +293,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The python code to execute for the callback.
 
-<a name="nested_snapshot_agents_agents_after_model_callbacks"></a>The `after_model_callbacks` block contains:
+<a name="nested_snapshot_agents_after_model_callbacks"></a>The `after_model_callbacks` block contains:
 
 * `description` -
   (Output)
@@ -308,7 +308,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The python code to execute for the callback.
 
-<a name="nested_snapshot_agents_agents_after_tool_callbacks"></a>The `after_tool_callbacks` block contains:
+<a name="nested_snapshot_agents_after_tool_callbacks"></a>The `after_tool_callbacks` block contains:
 
 * `description` -
   (Output)
@@ -323,7 +323,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The python code to execute for the callback.
 
-<a name="nested_snapshot_agents_agents_before_agent_callbacks"></a>The `before_agent_callbacks` block contains:
+<a name="nested_snapshot_agents_before_agent_callbacks"></a>The `before_agent_callbacks` block contains:
 
 * `description` -
   (Output)
@@ -338,7 +338,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The python code to execute for the callback.
 
-<a name="nested_snapshot_agents_agents_before_model_callbacks"></a>The `before_model_callbacks` block contains:
+<a name="nested_snapshot_agents_before_model_callbacks"></a>The `before_model_callbacks` block contains:
 
 * `description` -
   (Output)
@@ -353,7 +353,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The python code to execute for the callback.
 
-<a name="nested_snapshot_agents_agents_before_tool_callbacks"></a>The `before_tool_callbacks` block contains:
+<a name="nested_snapshot_agents_before_tool_callbacks"></a>The `before_tool_callbacks` block contains:
 
 * `description` -
   (Output)
@@ -368,7 +368,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The python code to execute for the callback.
 
-<a name="nested_snapshot_agents_agents_model_settings"></a>The `model_settings` block contains:
+<a name="nested_snapshot_agents_model_settings"></a>The `model_settings` block contains:
 
 * `model` -
   (Output)
@@ -382,7 +382,7 @@ In addition to the arguments listed above, the following computed attributes are
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
 
-<a name="nested_snapshot_agents_agents_remote_dialogflow_agent"></a>The `remote_dialogflow_agent` block contains:
+<a name="nested_snapshot_agents_remote_dialogflow_agent"></a>The `remote_dialogflow_agent` block contains:
 
 * `agent` -
   (Output)
@@ -411,7 +411,7 @@ In addition to the arguments listed above, the following computed attributes are
   variables names to be sent back to the CES agent after the Dialogflow
   agent execution ends.
 
-<a name="nested_snapshot_agents_agents_toolsets"></a>The `toolsets` block contains:
+<a name="nested_snapshot_agents_toolsets"></a>The `toolsets` block contains:
 
 * `toolset` -
   (Output)
@@ -913,10 +913,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `schema` -
   (Output)
   Represents a select subset of an OpenAPI 3.0 schema object.
-  Structure is [documented below](#nested_snapshot_app_variable_declarations_variable_declarations_schema).
+  Structure is [documented below](#nested_snapshot_app_variable_declarations_schema).
 
 
-<a name="nested_snapshot_app_variable_declarations_variable_declarations_schema"></a>The `schema` block contains:
+<a name="nested_snapshot_app_variable_declarations_schema"></a>The `schema` block contains:
 
 * `description` -
   (Output)
@@ -1060,7 +1060,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `messages` -
   (Output)
   The collection of messages that make up the conversation.
-  Structure is [documented below](#nested_snapshot_examples_examples_messages).
+  Structure is [documented below](#nested_snapshot_examples_messages).
 
 * `name` -
   (Output)
@@ -1073,30 +1073,30 @@ In addition to the arguments listed above, the following computed attributes are
   Timestamp when the example was last updated.
 
 
-<a name="nested_snapshot_examples_examples_messages"></a>The `messages` block contains:
+<a name="nested_snapshot_examples_messages"></a>The `messages` block contains:
 
 * `chunks` -
   (Output)
   Content of the message as a series of chunks.
-  Structure is [documented below](#nested_snapshot_examples_examples_messages_messages_chunks).
+  Structure is [documented below](#nested_snapshot_examples_messages_chunks).
 
 * `role` -
   (Output)
   The role within the conversation, e.g., user, agent.
 
 
-<a name="nested_snapshot_examples_examples_messages_messages_chunks"></a>The `chunks` block contains:
+<a name="nested_snapshot_examples_messages_chunks"></a>The `chunks` block contains:
 
 * `agent_transfer` -
   (Output)
   Represents an event indicating the transfer of a conversation to a different
   agent.
-  Structure is [documented below](#nested_snapshot_examples_examples_messages_messages_chunks_chunks_agent_transfer).
+  Structure is [documented below](#nested_snapshot_examples_messages_chunks_agent_transfer).
 
 * `image` -
   (Output)
   Represents an image input or output in the conversation.
-  Structure is [documented below](#nested_snapshot_examples_examples_messages_messages_chunks_chunks_image).
+  Structure is [documented below](#nested_snapshot_examples_messages_chunks_image).
 
 * `text` -
   (Output)
@@ -1105,12 +1105,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `tool_call` -
   (Output)
   Request for the client or the agent to execute the specified tool.
-  Structure is [documented below](#nested_snapshot_examples_examples_messages_messages_chunks_chunks_tool_call).
+  Structure is [documented below](#nested_snapshot_examples_messages_chunks_tool_call).
 
 * `tool_response` -
   (Output)
   The execution result of a specific tool from the client or the agent.
-  Structure is [documented below](#nested_snapshot_examples_examples_messages_messages_chunks_chunks_tool_response).
+  Structure is [documented below](#nested_snapshot_examples_messages_chunks_tool_response).
 
 * `updated_variables` -
   (Output)
@@ -1118,7 +1118,7 @@ In addition to the arguments listed above, the following computed attributes are
   keyed by variable names.
 
 
-<a name="nested_snapshot_examples_examples_messages_messages_chunks_chunks_agent_transfer"></a>The `agent_transfer` block contains:
+<a name="nested_snapshot_examples_messages_chunks_agent_transfer"></a>The `agent_transfer` block contains:
 
 * `display_name` -
   (Output)
@@ -1130,7 +1130,7 @@ In addition to the arguments listed above, the following computed attributes are
   handle the conversation from this point forward.
   Format: `projects/{project}/locations/{location}/apps/{app}/agents/{agent}`
 
-<a name="nested_snapshot_examples_examples_messages_messages_chunks_chunks_image"></a>The `image` block contains:
+<a name="nested_snapshot_examples_messages_chunks_image"></a>The `image` block contains:
 
 * `data` -
   (Output)
@@ -1144,7 +1144,7 @@ In addition to the arguments listed above, the following computed attributes are
   * image/jpeg
   * image/webp
 
-<a name="nested_snapshot_examples_examples_messages_messages_chunks_chunks_tool_call"></a>The `tool_call` block contains:
+<a name="nested_snapshot_examples_messages_chunks_tool_call"></a>The `tool_call` block contains:
 
 * `args` -
   (Output)
@@ -1168,10 +1168,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `toolset_tool` -
   (Output)
   A tool that is created from a toolset.
-  Structure is [documented below](#nested_snapshot_examples_examples_messages_messages_chunks_chunks_tool_call_toolset_tool).
+  Structure is [documented below](#nested_snapshot_examples_messages_chunks_tool_call_toolset_tool).
 
 
-<a name="nested_snapshot_examples_examples_messages_messages_chunks_chunks_tool_call_toolset_tool"></a>The `toolset_tool` block contains:
+<a name="nested_snapshot_examples_messages_chunks_tool_call_toolset_tool"></a>The `toolset_tool` block contains:
 
 * `toolset` -
   (Output)
@@ -1183,7 +1183,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The tool ID to filter the tools to retrieve the schema for.
 
-<a name="nested_snapshot_examples_examples_messages_messages_chunks_chunks_tool_response"></a>The `tool_response` block contains:
+<a name="nested_snapshot_examples_messages_chunks_tool_response"></a>The `tool_response` block contains:
 
 * `display_name` -
   (Output)
@@ -1208,10 +1208,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `toolset_tool` -
   (Output)
   A tool that is created from a toolset.
-  Structure is [documented below](#nested_snapshot_examples_examples_messages_messages_chunks_chunks_tool_response_toolset_tool).
+  Structure is [documented below](#nested_snapshot_examples_messages_chunks_tool_response_toolset_tool).
 
 
-<a name="nested_snapshot_examples_examples_messages_messages_chunks_chunks_tool_response_toolset_tool"></a>The `toolset_tool` block contains:
+<a name="nested_snapshot_examples_messages_chunks_tool_response_toolset_tool"></a>The `toolset_tool` block contains:
 
 * `toolset` -
   (Output)
@@ -1228,18 +1228,18 @@ In addition to the arguments listed above, the following computed attributes are
 * `action` -
   (Output)
   Action that is taken when a certain precondition is met.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_action).
+  Structure is [documented below](#nested_snapshot_guardrails_action).
 
 * `code_callback` -
   (Output)
   Guardrail that blocks the conversation based on the code callbacks
   provided.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_code_callback).
+  Structure is [documented below](#nested_snapshot_guardrails_code_callback).
 
 * `content_filter` -
   (Output)
   Guardrail that bans certain content from being used in the conversation.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_content_filter).
+  Structure is [documented below](#nested_snapshot_guardrails_content_filter).
 
 * `create_time` -
   (Output)
@@ -1267,20 +1267,20 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Guardrail that blocks the conversation if the LLM response is considered
   violating the policy based on the LLM classification.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_llm_policy).
+  Structure is [documented below](#nested_snapshot_guardrails_llm_policy).
 
 * `llm_prompt_security` -
   (Output)
   Guardrail that blocks the conversation if the input is considered unsafe
   based on the LLM classification.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_llm_prompt_security).
+  Structure is [documented below](#nested_snapshot_guardrails_llm_prompt_security).
 
 * `model_safety` -
   (Output)
   Model safety settings overrides. When this is set, it will override the
   default settings and trigger the guardrail if the response is considered
   unsafe.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_model_safety).
+  Structure is [documented below](#nested_snapshot_guardrails_model_safety).
 
 * `name` -
   (Output)
@@ -1293,40 +1293,40 @@ In addition to the arguments listed above, the following computed attributes are
   Timestamp when the guardrail was last updated.
 
 
-<a name="nested_snapshot_guardrails_guardrails_action"></a>The `action` block contains:
+<a name="nested_snapshot_guardrails_action"></a>The `action` block contains:
 
 * `generative_answer` -
   (Output)
   The agent will immediately respond with a generative answer.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_action_generative_answer).
+  Structure is [documented below](#nested_snapshot_guardrails_action_generative_answer).
 
 * `respond_immediately` -
   (Output)
   The agent will immediately respond with a preconfigured response.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_action_respond_immediately).
+  Structure is [documented below](#nested_snapshot_guardrails_action_respond_immediately).
 
 * `transfer_agent` -
   (Output)
   The agent will transfer the conversation to a different agent.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_action_transfer_agent).
+  Structure is [documented below](#nested_snapshot_guardrails_action_transfer_agent).
 
 
-<a name="nested_snapshot_guardrails_guardrails_action_generative_answer"></a>The `generative_answer` block contains:
+<a name="nested_snapshot_guardrails_action_generative_answer"></a>The `generative_answer` block contains:
 
 * `prompt` -
   (Output)
   The prompt to use for the generative answer.
 
-<a name="nested_snapshot_guardrails_guardrails_action_respond_immediately"></a>The `respond_immediately` block contains:
+<a name="nested_snapshot_guardrails_action_respond_immediately"></a>The `respond_immediately` block contains:
 
 * `responses` -
   (Output)
   The canned responses for the agent to choose from. The response is chosen
   randomly.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_action_respond_immediately_responses).
+  Structure is [documented below](#nested_snapshot_guardrails_action_respond_immediately_responses).
 
 
-<a name="nested_snapshot_guardrails_guardrails_action_respond_immediately_responses"></a>The `responses` block contains:
+<a name="nested_snapshot_guardrails_action_respond_immediately_responses"></a>The `responses` block contains:
 
 * `disabled` -
   (Output)
@@ -1337,7 +1337,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Text for the agent to respond with.
 
-<a name="nested_snapshot_guardrails_guardrails_action_transfer_agent"></a>The `transfer_agent` block contains:
+<a name="nested_snapshot_guardrails_action_transfer_agent"></a>The `transfer_agent` block contains:
 
 * `agent` -
   (Output)
@@ -1346,49 +1346,34 @@ In addition to the arguments listed above, the following computed attributes are
   Format:
   `projects/{project}/locations/{location}/apps/{app}/agents/{agent}`
 
-<a name="nested_snapshot_guardrails_guardrails_code_callback"></a>The `code_callback` block contains:
+<a name="nested_snapshot_guardrails_code_callback"></a>The `code_callback` block contains:
 
 * `after_agent_callback` -
   (Output)
   A callback defines the custom logic to be executed at various stages of
   agent interaction.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_code_callback_after_agent_callback).
+  Structure is [documented below](#nested_snapshot_guardrails_code_callback_after_agent_callback).
 
 * `after_model_callback` -
   (Output)
   A callback defines the custom logic to be executed at various stages of
   agent interaction.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_code_callback_after_model_callback).
+  Structure is [documented below](#nested_snapshot_guardrails_code_callback_after_model_callback).
 
 * `before_agent_callback` -
   (Output)
   A callback defines the custom logic to be executed at various stages of
   agent interaction.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_code_callback_before_agent_callback).
+  Structure is [documented below](#nested_snapshot_guardrails_code_callback_before_agent_callback).
 
 * `before_model_callback` -
   (Output)
   A callback defines the custom logic to be executed at various stages of
   agent interaction.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_code_callback_before_model_callback).
+  Structure is [documented below](#nested_snapshot_guardrails_code_callback_before_model_callback).
 
 
-<a name="nested_snapshot_guardrails_guardrails_code_callback_after_agent_callback"></a>The `after_agent_callback` block contains:
-
-* `description` -
-  (Output)
-  Human-readable description of the callback.
-
-* `disabled` -
-  (Output)
-  Whether the callback is disabled. Disabled callbacks are ignored by the
-  agent.
-
-* `python_code` -
-  (Output)
-  The python code to execute for the callback.
-
-<a name="nested_snapshot_guardrails_guardrails_code_callback_after_model_callback"></a>The `after_model_callback` block contains:
+<a name="nested_snapshot_guardrails_code_callback_after_agent_callback"></a>The `after_agent_callback` block contains:
 
 * `description` -
   (Output)
@@ -1403,7 +1388,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The python code to execute for the callback.
 
-<a name="nested_snapshot_guardrails_guardrails_code_callback_before_agent_callback"></a>The `before_agent_callback` block contains:
+<a name="nested_snapshot_guardrails_code_callback_after_model_callback"></a>The `after_model_callback` block contains:
 
 * `description` -
   (Output)
@@ -1418,7 +1403,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The python code to execute for the callback.
 
-<a name="nested_snapshot_guardrails_guardrails_code_callback_before_model_callback"></a>The `before_model_callback` block contains:
+<a name="nested_snapshot_guardrails_code_callback_before_agent_callback"></a>The `before_agent_callback` block contains:
 
 * `description` -
   (Output)
@@ -1433,7 +1418,22 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The python code to execute for the callback.
 
-<a name="nested_snapshot_guardrails_guardrails_content_filter"></a>The `content_filter` block contains:
+<a name="nested_snapshot_guardrails_code_callback_before_model_callback"></a>The `before_model_callback` block contains:
+
+* `description` -
+  (Output)
+  Human-readable description of the callback.
+
+* `disabled` -
+  (Output)
+  Whether the callback is disabled. Disabled callbacks are ignored by the
+  agent.
+
+* `python_code` -
+  (Output)
+  The python code to execute for the callback.
+
+<a name="nested_snapshot_guardrails_content_filter"></a>The `content_filter` block contains:
 
 * `banned_contents` -
   (Output)
@@ -1459,7 +1459,7 @@ In addition to the arguments listed above, the following computed attributes are
   WORD_BOUNDARY_STRING_MATCH
   REGEXP_MATCH
 
-<a name="nested_snapshot_guardrails_guardrails_llm_policy"></a>The `llm_policy` block contains:
+<a name="nested_snapshot_guardrails_llm_policy"></a>The `llm_policy` block contains:
 
 * `fail_open` -
   (Output)
@@ -1475,7 +1475,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `model_settings` -
   (Output)
   Model settings contains various configurations for the LLM model.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_llm_policy_model_settings).
+  Structure is [documented below](#nested_snapshot_guardrails_llm_policy_model_settings).
 
 * `policy_scope` -
   (Output)
@@ -1493,7 +1493,7 @@ In addition to the arguments listed above, the following computed attributes are
   Policy prompt.
 
 
-<a name="nested_snapshot_guardrails_guardrails_llm_policy_model_settings"></a>The `model_settings` block contains:
+<a name="nested_snapshot_guardrails_llm_policy_model_settings"></a>The `model_settings` block contains:
 
 * `model` -
   (Output)
@@ -1507,21 +1507,21 @@ In addition to the arguments listed above, the following computed attributes are
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
 
-<a name="nested_snapshot_guardrails_guardrails_llm_prompt_security"></a>The `llm_prompt_security` block contains:
+<a name="nested_snapshot_guardrails_llm_prompt_security"></a>The `llm_prompt_security` block contains:
 
 * `custom_policy` -
   (Output)
   Guardrail that blocks the conversation if the LLM response is considered
   violating the policy based on the LLM classification.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_llm_prompt_security_custom_policy).
+  Structure is [documented below](#nested_snapshot_guardrails_llm_prompt_security_custom_policy).
 
 * `default_settings` -
   (Output)
   Configuration for default system security settings.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_llm_prompt_security_default_settings).
+  Structure is [documented below](#nested_snapshot_guardrails_llm_prompt_security_default_settings).
 
 
-<a name="nested_snapshot_guardrails_guardrails_llm_prompt_security_custom_policy"></a>The `custom_policy` block contains:
+<a name="nested_snapshot_guardrails_llm_prompt_security_custom_policy"></a>The `custom_policy` block contains:
 
 * `fail_open` -
   (Output)
@@ -1537,7 +1537,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `model_settings` -
   (Output)
   Model settings contains various configurations for the LLM model.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_llm_prompt_security_custom_policy_model_settings).
+  Structure is [documented below](#nested_snapshot_guardrails_llm_prompt_security_custom_policy_model_settings).
 
 * `policy_scope` -
   (Output)
@@ -1555,7 +1555,7 @@ In addition to the arguments listed above, the following computed attributes are
   Policy prompt.
 
 
-<a name="nested_snapshot_guardrails_guardrails_llm_prompt_security_custom_policy_model_settings"></a>The `model_settings` block contains:
+<a name="nested_snapshot_guardrails_llm_prompt_security_custom_policy_model_settings"></a>The `model_settings` block contains:
 
 * `model` -
   (Output)
@@ -1569,7 +1569,7 @@ In addition to the arguments listed above, the following computed attributes are
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
 
-<a name="nested_snapshot_guardrails_guardrails_llm_prompt_security_default_settings"></a>The `default_settings` block contains:
+<a name="nested_snapshot_guardrails_llm_prompt_security_default_settings"></a>The `default_settings` block contains:
 
 * `default_prompt_template` -
   (Output)
@@ -1577,15 +1577,15 @@ In addition to the arguments listed above, the following computed attributes are
   This field is for display purposes to show the user what prompt
   the system uses by default. It is OUTPUT_ONLY.
 
-<a name="nested_snapshot_guardrails_guardrails_model_safety"></a>The `model_safety` block contains:
+<a name="nested_snapshot_guardrails_model_safety"></a>The `model_safety` block contains:
 
 * `safety_settings` -
   (Output)
   List of safety settings.
-  Structure is [documented below](#nested_snapshot_guardrails_guardrails_model_safety_safety_settings).
+  Structure is [documented below](#nested_snapshot_guardrails_model_safety_safety_settings).
 
 
-<a name="nested_snapshot_guardrails_guardrails_model_safety_safety_settings"></a>The `safety_settings` block contains:
+<a name="nested_snapshot_guardrails_model_safety_safety_settings"></a>The `safety_settings` block contains:
 
 * `category` -
   (Output)
@@ -1614,7 +1614,7 @@ In addition to the arguments listed above, the following computed attributes are
   tool is chosen by the agent, control is handed off to the client.
   The client is responsible for executing the function and returning the result
   as a ToolResponse to continue the interaction with the agent.
-  Structure is [documented below](#nested_snapshot_tools_tools_client_function).
+  Structure is [documented below](#nested_snapshot_tools_client_function).
 
 * `create_time` -
   (Output)
@@ -1626,7 +1626,7 @@ In addition to the arguments listed above, the following computed attributes are
   Accepts either a datastore or an engine, but not both.
   See Vertex AI Search:
   https://cloud.google.com/generative-ai-app-builder/docs/enterprise-search-introduction.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool).
 
 * `display_name` -
   (Output)
@@ -1656,7 +1656,7 @@ In addition to the arguments listed above, the following computed attributes are
   Represents a tool to perform Google web searches for grounding.
   See
   https://cloud.google.com/vertex-ai/generative-ai/docs/grounding/grounding-with-google-search.
-  Structure is [documented below](#nested_snapshot_tools_tools_google_search_tool).
+  Structure is [documented below](#nested_snapshot_tools_google_search_tool).
 
 * `name` -
   (Output)
@@ -1667,12 +1667,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `open_api_tool` -
   (Output)
   A remote API tool defined by an OpenAPI schema.
-  Structure is [documented below](#nested_snapshot_tools_tools_open_api_tool).
+  Structure is [documented below](#nested_snapshot_tools_open_api_tool).
 
 * `python_function` -
   (Output)
   A Python function tool.
-  Structure is [documented below](#nested_snapshot_tools_tools_python_function).
+  Structure is [documented below](#nested_snapshot_tools_python_function).
 
 * `update_time` -
   (Output)
@@ -1681,10 +1681,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `system_tool` -
   (Output)
   The system tool.
-  Structure is [documented below](#nested_snapshot_tools_tools_system_tool).
+  Structure is [documented below](#nested_snapshot_tools_system_tool).
 
 
-<a name="nested_snapshot_tools_tools_client_function"></a>The `client_function` block contains:
+<a name="nested_snapshot_tools_client_function"></a>The `client_function` block contains:
 
 * `description` -
   (Output)
@@ -1697,107 +1697,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `parameters` -
   (Output)
   Represents a select subset of an OpenAPI 3.0 schema object.
-  Structure is [documented below](#nested_snapshot_tools_tools_client_function_parameters).
+  Structure is [documented below](#nested_snapshot_tools_client_function_parameters).
 
 * `response` -
   (Output)
   Represents a select subset of an OpenAPI 3.0 schema object.
-  Structure is [documented below](#nested_snapshot_tools_tools_client_function_response).
+  Structure is [documented below](#nested_snapshot_tools_client_function_response).
 
 
-<a name="nested_snapshot_tools_tools_client_function_parameters"></a>The `parameters` block contains:
-
-* `description` -
-  (Output)
-  The description of the data.
-
-* `enum` -
-  (Output)
-  Possible values of the element of primitive type with enum format.
-  Examples:
-  1. We can define direction as :
-  {type:STRING, format:enum, enum:["EAST", NORTH", "SOUTH", "WEST"]}
-  2. We can define apartment number as :
-  {type:INTEGER, format:enum, enum:["101", "201", "301"]}
-
-* `nullable` -
-  (Output)
-  Indicates if the value may be null.
-
-* `ref` -
-  (Output)
-  Allows indirect references between schema nodes. The value should be a
-  valid reference to a child of the root `defs`.
-  For example, the following schema defines a reference to a schema node
-  named "Pet":
-  type: object
-  properties:
-    pet:
-      ref: #/defs/Pet
-  defs:
-    Pet:
-      type: object
-      properties:
-        name:
-          type: string
-  The value of the "pet" property is a reference to the schema node
-  named "Pet".
-  See details in
-  https://json-schema.org/understanding-json-schema/structuring.
-
-* `required` -
-  (Output)
-  Required properties of Type.OBJECT.
-
-* `type` -
-  (Output)
-  The type of the data.
-  Possible values:
-  STRING
-  INTEGER
-  NUMBER
-  BOOLEAN
-  OBJECT
-  ARRAY
-
-* `unique_items` -
-  (Output)
-  Indicate the items in the array must be unique. Only applies to TYPE.ARRAY.
-
-* `defs` -
-  (Output)
-  A map of definitions for use by ref. Only allowed at the root of the schema.
-
-* `default` -
-  (Output)
-  Optional. Default value of the data. Represents a dynamically typed value
-  which can be either null, a number, a string, a boolean, a struct,
-  or a list of values. The provided default value must be compatible
-  with the defined 'type' and other schema constraints.
-
-* `additional_properties` -
-  (Output)
-  Optional. Defines the schema for additional properties allowed in an object.
-  The value must be a valid JSON string representing the Schema object.
-  (Note: OpenAPI also allows a boolean, this definition expects a Schema JSON).
-
-* `any_of` -
-  (Output)
-  Optional. The instance value should be valid against at least one of the schemas in this list.
-
-* `prefix_items` -
-  (Output)
-  Optional. Schemas of initial elements of Type.ARRAY.
-
-* `properties` -
-  (Output)
-  Properties of Type.OBJECT.
-
-* `items` -
-  (Output)
-  Schema of the elements of Type.ARRAY.
-
-<a name="nested_snapshot_tools_tools_client_function_response"></a>The `response` block contains:
+<a name="nested_snapshot_tools_client_function_parameters"></a>The `parameters` block contains:
 
 * `description` -
   (Output)
@@ -1889,12 +1797,104 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Schema of the elements of Type.ARRAY.
 
-<a name="nested_snapshot_tools_tools_data_store_tool"></a>The `data_store_tool` block contains:
+<a name="nested_snapshot_tools_client_function_response"></a>The `response` block contains:
+
+* `description` -
+  (Output)
+  The description of the data.
+
+* `enum` -
+  (Output)
+  Possible values of the element of primitive type with enum format.
+  Examples:
+  1. We can define direction as :
+  {type:STRING, format:enum, enum:["EAST", NORTH", "SOUTH", "WEST"]}
+  2. We can define apartment number as :
+  {type:INTEGER, format:enum, enum:["101", "201", "301"]}
+
+* `nullable` -
+  (Output)
+  Indicates if the value may be null.
+
+* `ref` -
+  (Output)
+  Allows indirect references between schema nodes. The value should be a
+  valid reference to a child of the root `defs`.
+  For example, the following schema defines a reference to a schema node
+  named "Pet":
+  type: object
+  properties:
+    pet:
+      ref: #/defs/Pet
+  defs:
+    Pet:
+      type: object
+      properties:
+        name:
+          type: string
+  The value of the "pet" property is a reference to the schema node
+  named "Pet".
+  See details in
+  https://json-schema.org/understanding-json-schema/structuring.
+
+* `required` -
+  (Output)
+  Required properties of Type.OBJECT.
+
+* `type` -
+  (Output)
+  The type of the data.
+  Possible values:
+  STRING
+  INTEGER
+  NUMBER
+  BOOLEAN
+  OBJECT
+  ARRAY
+
+* `unique_items` -
+  (Output)
+  Indicate the items in the array must be unique. Only applies to TYPE.ARRAY.
+
+* `defs` -
+  (Output)
+  A map of definitions for use by ref. Only allowed at the root of the schema.
+
+* `default` -
+  (Output)
+  Optional. Default value of the data. Represents a dynamically typed value
+  which can be either null, a number, a string, a boolean, a struct,
+  or a list of values. The provided default value must be compatible
+  with the defined 'type' and other schema constraints.
+
+* `additional_properties` -
+  (Output)
+  Optional. Defines the schema for additional properties allowed in an object.
+  The value must be a valid JSON string representing the Schema object.
+  (Note: OpenAPI also allows a boolean, this definition expects a Schema JSON).
+
+* `any_of` -
+  (Output)
+  Optional. The instance value should be valid against at least one of the schemas in this list.
+
+* `prefix_items` -
+  (Output)
+  Optional. Schemas of initial elements of Type.ARRAY.
+
+* `properties` -
+  (Output)
+  Properties of Type.OBJECT.
+
+* `items` -
+  (Output)
+  Schema of the elements of Type.ARRAY.
+
+<a name="nested_snapshot_tools_data_store_tool"></a>The `data_store_tool` block contains:
 
 * `boost_specs` -
   (Output)
   Boost specification to boost certain documents.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_boost_specs).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_boost_specs).
 
 * `description` -
   (Output)
@@ -1904,7 +1904,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Configuration for searching within an Engine, potentially targeting
   specific DataStores.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_engine_source).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_engine_source).
 
 * `max_results` -
   (Output)
@@ -1914,14 +1914,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `modality_configs` -
   (Output)
   The modality configs for the data store.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_modality_configs).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_modality_configs).
 
 * `name` -
   (Output)
   The data store tool name.
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_boost_specs"></a>The `boost_specs` block contains:
+<a name="nested_snapshot_tools_data_store_tool_boost_specs"></a>The `boost_specs` block contains:
 
 * `data_stores` -
   (Output)
@@ -1932,18 +1932,18 @@ In addition to the arguments listed above, the following computed attributes are
 * `spec` -
   (Output)
   A list of boosting specifications.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_boost_specs_boost_specs_spec).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_boost_specs_spec).
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_boost_specs_boost_specs_spec"></a>The `spec` block contains:
+<a name="nested_snapshot_tools_data_store_tool_boost_specs_spec"></a>The `spec` block contains:
 
 * `condition_boost_specs` -
   (Output)
   A list of boosting specifications.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_boost_specs_spec_condition_boost_specs).
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs"></a>The `condition_boost_specs` block contains:
+<a name="nested_snapshot_tools_data_store_tool_boost_specs_spec_condition_boost_specs"></a>The `condition_boost_specs` block contains:
 
 * `boost` -
   (Output)
@@ -1961,7 +1961,7 @@ In addition to the arguments listed above, the following computed attributes are
   Specification for custom ranking based on customer specified attribute
   value. It provides more controls for customized ranking than the simple
   (condition, boost) combination above.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs_condition_boost_specs_boost_control_spec).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_boost_specs_spec_condition_boost_specs_boost_control_spec).
 
 * `condition` -
   (Output)
@@ -1972,7 +1972,7 @@ In addition to the arguments listed above, the following computed attributes are
   (lang_code: ANY("en", "fr"))
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs_condition_boost_specs_boost_control_spec"></a>The `boost_control_spec` block contains:
+<a name="nested_snapshot_tools_data_store_tool_boost_specs_spec_condition_boost_specs_boost_control_spec"></a>The `boost_control_spec` block contains:
 
 * `attribute_type` -
   (Output)
@@ -1990,7 +1990,7 @@ In addition to the arguments listed above, the following computed attributes are
   The control points used to define the curve. The monotonic function
   (defined through the interpolation_type above) passes through the
   control points listed here.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs_condition_boost_specs_boost_control_spec_control_points).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_boost_specs_spec_condition_boost_specs_boost_control_spec_control_points).
 
 * `field_name` -
   (Output)
@@ -2005,7 +2005,7 @@ In addition to the arguments listed above, the following computed attributes are
   LINEAR
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs_condition_boost_specs_boost_control_spec_control_points"></a>The `control_points` block contains:
+<a name="nested_snapshot_tools_data_store_tool_boost_specs_spec_condition_boost_specs_boost_control_spec_control_points"></a>The `control_points` block contains:
 
 * `attribute_value` -
   (Output)
@@ -2021,14 +2021,14 @@ In addition to the arguments listed above, the following computed attributes are
   The value between -1 to 1 by which to boost the score if the
   attribute_value evaluates to the value specified above.
 
-<a name="nested_snapshot_tools_tools_data_store_tool_engine_source"></a>The `engine_source` block contains:
+<a name="nested_snapshot_tools_data_store_tool_engine_source"></a>The `engine_source` block contains:
 
 * `data_store_sources` -
   (Output)
   Use to target specific DataStores within the Engine.
   If empty, the search applies to all DataStores associated with the
   Engine.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_engine_source_data_store_sources).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_engine_source_data_store_sources).
 
 * `engine` -
   (Output)
@@ -2044,12 +2044,12 @@ In addition to the arguments listed above, the following computed attributes are
   https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_engine_source_data_store_sources"></a>The `data_store_sources` block contains:
+<a name="nested_snapshot_tools_data_store_tool_engine_source_data_store_sources"></a>The `data_store_sources` block contains:
 
 * `data_store` -
   (Output)
   A DataStore resource in Vertex AI Search.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_engine_source_data_store_sources_data_store_sources_data_store).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_engine_source_data_store_sources_data_store).
 
 * `filter` -
   (Output)
@@ -2058,12 +2058,12 @@ In addition to the arguments listed above, the following computed attributes are
   https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_engine_source_data_store_sources_data_store_sources_data_store"></a>The `data_store` block contains:
+<a name="nested_snapshot_tools_data_store_tool_engine_source_data_store_sources_data_store"></a>The `data_store` block contains:
 
 * `connector_config` -
   (Output)
   The connector config for the data store connection.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_engine_source_data_store_sources_data_store_sources_data_store_connector_config).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_engine_source_data_store_sources_data_store_connector_config).
 
 * `create_time` -
   (Output)
@@ -2098,7 +2098,7 @@ In addition to the arguments listed above, the following computed attributes are
   CONNECTOR
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_engine_source_data_store_sources_data_store_sources_data_store_connector_config"></a>The `connector_config` block contains:
+<a name="nested_snapshot_tools_data_store_tool_engine_source_data_store_sources_data_store_connector_config"></a>The `connector_config` block contains:
 
 * `collection` -
   (Output)
@@ -2113,12 +2113,12 @@ In addition to the arguments listed above, the following computed attributes are
   The name of the data source.
   Example: `salesforce`, `jira`, `confluence`, `bigquery`.
 
-<a name="nested_snapshot_tools_tools_data_store_tool_modality_configs"></a>The `modality_configs` block contains:
+<a name="nested_snapshot_tools_data_store_tool_modality_configs"></a>The `modality_configs` block contains:
 
 * `grounding_config` -
   (Output)
   Grounding configuration.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_grounding_config).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_modality_configs_grounding_config).
 
 * `modality_type` -
   (Output)
@@ -2130,15 +2130,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `rewriter_config` -
   (Output)
   Rewriter configuration.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_rewriter_config).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_modality_configs_rewriter_config).
 
 * `summarization_config` -
   (Output)
   Summarization configuration.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_summarization_config).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_modality_configs_summarization_config).
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_grounding_config"></a>The `grounding_config` block contains:
+<a name="nested_snapshot_tools_data_store_tool_modality_configs_grounding_config"></a>The `grounding_config` block contains:
 
 * `disabled` -
   (Output)
@@ -2154,7 +2154,7 @@ In addition to the arguments listed above, the following computed attributes are
   For example, a level of 3 means that the groundedness score must be
   3 or higher for the response to be returned.
 
-<a name="nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_rewriter_config"></a>The `rewriter_config` block contains:
+<a name="nested_snapshot_tools_data_store_tool_modality_configs_rewriter_config"></a>The `rewriter_config` block contains:
 
 * `disabled` -
   (Output)
@@ -2163,14 +2163,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `model_settings` -
   (Output)
   Model settings contains various configurations for the LLM model.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_rewriter_config_model_settings).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_modality_configs_rewriter_config_model_settings).
 
 * `prompt` -
   (Output)
   The prompt definition. If not set, default prompt will be used.
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_rewriter_config_model_settings"></a>The `model_settings` block contains:
+<a name="nested_snapshot_tools_data_store_tool_modality_configs_rewriter_config_model_settings"></a>The `model_settings` block contains:
 
 * `model` -
   (Output)
@@ -2184,7 +2184,7 @@ In addition to the arguments listed above, the following computed attributes are
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
 
-<a name="nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_summarization_config"></a>The `summarization_config` block contains:
+<a name="nested_snapshot_tools_data_store_tool_modality_configs_summarization_config"></a>The `summarization_config` block contains:
 
 * `disabled` -
   (Output)
@@ -2193,14 +2193,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `model_settings` -
   (Output)
   Model settings contains various configurations for the LLM model.
-  Structure is [documented below](#nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_summarization_config_model_settings).
+  Structure is [documented below](#nested_snapshot_tools_data_store_tool_modality_configs_summarization_config_model_settings).
 
 * `prompt` -
   (Output)
   The prompt definition. If not set, default prompt will be used.
 
 
-<a name="nested_snapshot_tools_tools_data_store_tool_modality_configs_modality_configs_summarization_config_model_settings"></a>The `model_settings` block contains:
+<a name="nested_snapshot_tools_data_store_tool_modality_configs_summarization_config_model_settings"></a>The `model_settings` block contains:
 
 * `model` -
   (Output)
@@ -2214,7 +2214,7 @@ In addition to the arguments listed above, the following computed attributes are
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
 
-<a name="nested_snapshot_tools_tools_google_search_tool"></a>The `google_search_tool` block contains:
+<a name="nested_snapshot_tools_google_search_tool"></a>The `google_search_tool` block contains:
 
 * `description` -
   (Output)
@@ -2230,12 +2230,12 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The name of the tool.
 
-<a name="nested_snapshot_tools_tools_open_api_tool"></a>The `open_api_tool` block contains:
+<a name="nested_snapshot_tools_open_api_tool"></a>The `open_api_tool` block contains:
 
 * `api_authentication` -
   (Output)
   Authentication information required for API calls.
-  Structure is [documented below](#nested_snapshot_tools_tools_open_api_tool_api_authentication).
+  Structure is [documented below](#nested_snapshot_tools_open_api_tool_api_authentication).
 
 * `description` -
   (Output)
@@ -2259,12 +2259,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `service_directory_config` -
   (Output)
   Configuration for tools using Service Directory.
-  Structure is [documented below](#nested_snapshot_tools_tools_open_api_tool_service_directory_config).
+  Structure is [documented below](#nested_snapshot_tools_open_api_tool_service_directory_config).
 
 * `tls_config` -
   (Output)
   The TLS configuration.
-  Structure is [documented below](#nested_snapshot_tools_tools_open_api_tool_tls_config).
+  Structure is [documented below](#nested_snapshot_tools_open_api_tool_tls_config).
 
 * `url` -
   (Output)
@@ -2275,22 +2275,22 @@ In addition to the arguments listed above, the following computed attributes are
   placeholder in the schema.
 
 
-<a name="nested_snapshot_tools_tools_open_api_tool_api_authentication"></a>The `api_authentication` block contains:
+<a name="nested_snapshot_tools_open_api_tool_api_authentication"></a>The `api_authentication` block contains:
 
 * `api_key_config` -
   (Output)
   Configurations for authentication with API key.
-  Structure is [documented below](#nested_snapshot_tools_tools_open_api_tool_api_authentication_api_key_config).
+  Structure is [documented below](#nested_snapshot_tools_open_api_tool_api_authentication_api_key_config).
 
 * `oauth_config` -
   (Output)
   Configurations for authentication with OAuth.
-  Structure is [documented below](#nested_snapshot_tools_tools_open_api_tool_api_authentication_oauth_config).
+  Structure is [documented below](#nested_snapshot_tools_open_api_tool_api_authentication_oauth_config).
 
 * `service_account_auth_config` -
   (Output)
   Configurations for authentication using a custom service account.
-  Structure is [documented below](#nested_snapshot_tools_tools_open_api_tool_api_authentication_service_account_auth_config).
+  Structure is [documented below](#nested_snapshot_tools_open_api_tool_api_authentication_service_account_auth_config).
 
 * `service_agent_id_token_auth_config` -
   (Output)
@@ -2299,7 +2299,7 @@ In addition to the arguments listed above, the following computed attributes are
   from service agent.
 
 
-<a name="nested_snapshot_tools_tools_open_api_tool_api_authentication_api_key_config"></a>The `api_key_config` block contains:
+<a name="nested_snapshot_tools_open_api_tool_api_authentication_api_key_config"></a>The `api_key_config` block contains:
 
 * `api_key_secret_version` -
   (Output)
@@ -2321,7 +2321,7 @@ In addition to the arguments listed above, the following computed attributes are
   HEADER
   QUERY_STRING
 
-<a name="nested_snapshot_tools_tools_open_api_tool_api_authentication_oauth_config"></a>The `oauth_config` block contains:
+<a name="nested_snapshot_tools_open_api_tool_api_authentication_oauth_config"></a>The `oauth_config` block contains:
 
 * `client_id` -
   (Output)
@@ -2350,7 +2350,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The token endpoint in the OAuth provider to exchange for an access token.
 
-<a name="nested_snapshot_tools_tools_open_api_tool_api_authentication_service_account_auth_config"></a>The `service_account_auth_config` block contains:
+<a name="nested_snapshot_tools_open_api_tool_api_authentication_service_account_auth_config"></a>The `service_account_auth_config` block contains:
 
 * `service_account` -
   (Output)
@@ -2362,7 +2362,7 @@ In addition to the arguments listed above, the following computed attributes are
   CES service agent
   `service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com`.
 
-<a name="nested_snapshot_tools_tools_open_api_tool_service_directory_config"></a>The `service_directory_config` block contains:
+<a name="nested_snapshot_tools_open_api_tool_service_directory_config"></a>The `service_directory_config` block contains:
 
 * `service` -
   (Output)
@@ -2373,16 +2373,16 @@ In addition to the arguments listed above, the following computed attributes are
   Location of the service directory must be the same as the location of the
   app.
 
-<a name="nested_snapshot_tools_tools_open_api_tool_tls_config"></a>The `tls_config` block contains:
+<a name="nested_snapshot_tools_open_api_tool_tls_config"></a>The `tls_config` block contains:
 
 * `ca_certs` -
   (Output)
   Specifies a list of allowed custom CA certificates for HTTPS
   verification.
-  Structure is [documented below](#nested_snapshot_tools_tools_open_api_tool_tls_config_ca_certs).
+  Structure is [documented below](#nested_snapshot_tools_open_api_tool_tls_config_ca_certs).
 
 
-<a name="nested_snapshot_tools_tools_open_api_tool_tls_config_ca_certs"></a>The `ca_certs` block contains:
+<a name="nested_snapshot_tools_open_api_tool_tls_config_ca_certs"></a>The `ca_certs` block contains:
 
 * `cert` -
   (Output)
@@ -2403,7 +2403,7 @@ In addition to the arguments listed above, the following computed attributes are
   The name of the allowed custom CA certificates. This
   can be used to disambiguate the custom CA certificates.
 
-<a name="nested_snapshot_tools_tools_python_function"></a>The `python_function` block contains:
+<a name="nested_snapshot_tools_python_function"></a>The `python_function` block contains:
 
 * `description` -
   (Output)
@@ -2420,7 +2420,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The Python code to execute for the tool.
 
-<a name="nested_snapshot_tools_tools_system_tool"></a>The `system_tool` block contains:
+<a name="nested_snapshot_tools_system_tool"></a>The `system_tool` block contains:
 
 * `description` -
   (Output)
@@ -2466,19 +2466,19 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   A toolset that contains a list of tools that are defined by an OpenAPI
   schema.
-  Structure is [documented below](#nested_snapshot_toolsets_toolsets_open_api_toolset).
+  Structure is [documented below](#nested_snapshot_toolsets_open_api_toolset).
 
 * `update_time` -
   (Output)
   Timestamp when the toolset was last updated.
 
 
-<a name="nested_snapshot_toolsets_toolsets_open_api_toolset"></a>The `open_api_toolset` block contains:
+<a name="nested_snapshot_toolsets_open_api_toolset"></a>The `open_api_toolset` block contains:
 
 * `api_authentication` -
   (Output)
   Authentication information required for API calls.
-  Structure is [documented below](#nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication).
+  Structure is [documented below](#nested_snapshot_toolsets_open_api_toolset_api_authentication).
 
 * `ignore_unknown_fields` -
   (Output)
@@ -2492,12 +2492,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `service_directory_config` -
   (Output)
   Configuration for tools using Service Directory.
-  Structure is [documented below](#nested_snapshot_toolsets_toolsets_open_api_toolset_service_directory_config).
+  Structure is [documented below](#nested_snapshot_toolsets_open_api_toolset_service_directory_config).
 
 * `tls_config` -
   (Output)
   The TLS configuration.
-  Structure is [documented below](#nested_snapshot_toolsets_toolsets_open_api_toolset_tls_config).
+  Structure is [documented below](#nested_snapshot_toolsets_open_api_toolset_tls_config).
 
 * `url` -
   (Output)
@@ -2509,22 +2509,22 @@ In addition to the arguments listed above, the following computed attributes are
   it will replace the placeholder in the schema.
 
 
-<a name="nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication"></a>The `api_authentication` block contains:
+<a name="nested_snapshot_toolsets_open_api_toolset_api_authentication"></a>The `api_authentication` block contains:
 
 * `api_key_config` -
   (Output)
   Configurations for authentication with API key.
-  Structure is [documented below](#nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication_api_key_config).
+  Structure is [documented below](#nested_snapshot_toolsets_open_api_toolset_api_authentication_api_key_config).
 
 * `oauth_config` -
   (Output)
   Configurations for authentication with OAuth.
-  Structure is [documented below](#nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication_oauth_config).
+  Structure is [documented below](#nested_snapshot_toolsets_open_api_toolset_api_authentication_oauth_config).
 
 * `service_account_auth_config` -
   (Output)
   Configurations for authentication using a custom service account.
-  Structure is [documented below](#nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication_service_account_auth_config).
+  Structure is [documented below](#nested_snapshot_toolsets_open_api_toolset_api_authentication_service_account_auth_config).
 
 * `service_agent_id_token_auth_config` -
   (Output)
@@ -2535,10 +2535,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `bearer_token_config` -
   (Output)
   Configurations for authentication with a bearer token.
-  Structure is [documented below](#nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication_bearer_token_config).
+  Structure is [documented below](#nested_snapshot_toolsets_open_api_toolset_api_authentication_bearer_token_config).
 
 
-<a name="nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication_api_key_config"></a>The `api_key_config` block contains:
+<a name="nested_snapshot_toolsets_open_api_toolset_api_authentication_api_key_config"></a>The `api_key_config` block contains:
 
 * `api_key_secret_version` -
   (Output)
@@ -2560,7 +2560,7 @@ In addition to the arguments listed above, the following computed attributes are
   HEADER
   QUERY_STRING
 
-<a name="nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication_oauth_config"></a>The `oauth_config` block contains:
+<a name="nested_snapshot_toolsets_open_api_toolset_api_authentication_oauth_config"></a>The `oauth_config` block contains:
 
 * `client_id` -
   (Output)
@@ -2589,7 +2589,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The token endpoint in the OAuth provider to exchange for an access token.
 
-<a name="nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication_service_account_auth_config"></a>The `service_account_auth_config` block contains:
+<a name="nested_snapshot_toolsets_open_api_toolset_api_authentication_service_account_auth_config"></a>The `service_account_auth_config` block contains:
 
 * `service_account` -
   (Output)
@@ -2601,12 +2601,12 @@ In addition to the arguments listed above, the following computed attributes are
   CES service agent
   `service-@gcp-sa-ces.iam.gserviceaccount.com`.
 
-<a name="nested_snapshot_toolsets_toolsets_open_api_toolset_api_authentication_bearer_token_config"></a>The `bearer_token_config` block contains:
+<a name="nested_snapshot_toolsets_open_api_toolset_api_authentication_bearer_token_config"></a>The `bearer_token_config` block contains:
 
 * `token` -
   (Output)
 
-<a name="nested_snapshot_toolsets_toolsets_open_api_toolset_service_directory_config"></a>The `service_directory_config` block contains:
+<a name="nested_snapshot_toolsets_open_api_toolset_service_directory_config"></a>The `service_directory_config` block contains:
 
 * `service` -
   (Output)
@@ -2617,16 +2617,16 @@ In addition to the arguments listed above, the following computed attributes are
   Location of the service directory must be the same as the location of the
   app.
 
-<a name="nested_snapshot_toolsets_toolsets_open_api_toolset_tls_config"></a>The `tls_config` block contains:
+<a name="nested_snapshot_toolsets_open_api_toolset_tls_config"></a>The `tls_config` block contains:
 
 * `ca_certs` -
   (Output)
   Specifies a list of allowed custom CA certificates for HTTPS
   verification.
-  Structure is [documented below](#nested_snapshot_toolsets_toolsets_open_api_toolset_tls_config_ca_certs).
+  Structure is [documented below](#nested_snapshot_toolsets_open_api_toolset_tls_config_ca_certs).
 
 
-<a name="nested_snapshot_toolsets_toolsets_open_api_toolset_tls_config_ca_certs"></a>The `ca_certs` block contains:
+<a name="nested_snapshot_toolsets_open_api_toolset_tls_config_ca_certs"></a>The `ca_certs` block contains:
 
 * `cert` -
   (Output)

@@ -225,7 +225,7 @@ The following arguments are supported:
 * `approvers` -
   (Required)
   The potential set of approvers in this step. This list should contain at only one entry.
-  Structure is [documented below](#nested_approval_workflow_manual_approvals_steps_steps_approvers).
+  Structure is [documented below](#nested_approval_workflow_manual_approvals_steps_approvers).
 
 * `approvals_needed` -
   (Optional)
@@ -243,7 +243,7 @@ The following arguments are supported:
   Output Only. The ID of the approval step.
 
 
-<a name="nested_approval_workflow_manual_approvals_steps_steps_approvers"></a>The `approvers` block supports:
+<a name="nested_approval_workflow_manual_approvals_steps_approvers"></a>The `approvers` block supports:
 
 * `principals` -
   (Required)

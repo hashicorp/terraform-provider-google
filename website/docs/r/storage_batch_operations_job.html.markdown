@@ -124,20 +124,20 @@ The following arguments are supported:
 * `prefix_list` -
   (Optional)
   Specifies objects matching a prefix set.
-  Structure is [documented below](#nested_bucket_list_buckets_buckets_prefix_list).
+  Structure is [documented below](#nested_bucket_list_buckets_prefix_list).
 
 * `manifest` -
   (Optional)
   contain the manifest source file that is a CSV file in a Google Cloud Storage bucket.
-  Structure is [documented below](#nested_bucket_list_buckets_buckets_manifest).
+  Structure is [documented below](#nested_bucket_list_buckets_manifest).
 
 
-<a name="nested_bucket_list_buckets_buckets_prefix_list"></a>The `prefix_list` block supports:
+<a name="nested_bucket_list_buckets_prefix_list"></a>The `prefix_list` block supports:
 
 * `included_object_prefixes` -
   (Optional)
 
-<a name="nested_bucket_list_buckets_buckets_manifest"></a>The `manifest` block supports:
+<a name="nested_bucket_list_buckets_manifest"></a>The `manifest` block supports:
 
 * `manifest_location` -
   (Optional)
