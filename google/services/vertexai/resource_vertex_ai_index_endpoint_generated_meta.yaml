@@ -17,6 +17,8 @@ fields:
     - api_field: network
     - api_field: privateServiceConnectConfig.enablePrivateServiceConnect
     - api_field: privateServiceConnectConfig.projectAllowlist
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.network
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.projectId
     - api_field: publicEndpointDomainName
     - api_field: publicEndpointEnabled
     - field: region

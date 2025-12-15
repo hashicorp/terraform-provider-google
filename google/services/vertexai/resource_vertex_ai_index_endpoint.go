@@ -179,6 +179,25 @@ Where '{project}' is a project number, as in '12345', and '{network}' is network
 								Type: schema.TypeString,
 							},
 						},
+						"psc_automation_configs": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `List of projects and networks where the PSC endpoints will be created. This field is used by Online Inference(Prediction) only.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"network": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The full name of the Google Compute Engine [network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks). [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/get): projects/{project}/global/networks/{network}.`,
+									},
+									"project_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Project id used to create forwarding rule.`,
+									},
+								},
+							},
+						},
 					},
 				},
 				ConflictsWith: []string{"network"},
@@ -675,6 +694,7 @@ func flattenVertexAIIndexEndpointPrivateServiceConnectConfig(v interface{}, d *s
 		flattenVertexAIIndexEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enablePrivateServiceConnect"], d, config)
 	transformed["project_allowlist"] =
 		flattenVertexAIIndexEndpointPrivateServiceConnectConfigProjectAllowlist(original["projectAllowlist"], d, config)
+	transformed["psc_automation_configs"] = d.Get("private_service_connect_config.0.psc_automation_configs")
 	return []interface{}{transformed}
 }
 
@@ -764,6 +784,13 @@ func expandVertexAIIndexEndpointPrivateServiceConnectConfig(v interface{}, d tpg
 		transformed["projectAllowlist"] = transformedProjectAllowlist
 	}
 
+	transformedPscAutomationConfigs, err := expandVertexAIIndexEndpointPrivateServiceConnectConfigPscAutomationConfigs(original["psc_automation_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPscAutomationConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pscAutomationConfigs"] = transformedPscAutomationConfigs
+	}
+
 	return transformed, nil
 }
 
@@ -772,6 +799,46 @@ func expandVertexAIIndexEndpointPrivateServiceConnectConfigEnablePrivateServiceC
 }
 
 func expandVertexAIIndexEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIIndexEndpointPrivateServiceConnectConfigPscAutomationConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedProjectId, err := expandVertexAIIndexEndpointPrivateServiceConnectConfigPscAutomationConfigsProjectId(original["project_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["projectId"] = transformedProjectId
+		}
+
+		transformedNetwork, err := expandVertexAIIndexEndpointPrivateServiceConnectConfigPscAutomationConfigsNetwork(original["network"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["network"] = transformedNetwork
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIIndexEndpointPrivateServiceConnectConfigPscAutomationConfigsProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIIndexEndpointPrivateServiceConnectConfigPscAutomationConfigsNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
