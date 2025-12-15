@@ -209,15 +209,15 @@ The following arguments are supported:
 * `matches` -
   (Required)
   Matches define the predicate used to match requests to a given action.
-  Structure is [documented below](#nested_rules_rules_matches).
+  Structure is [documented below](#nested_rules_matches).
 
 * `action` -
   (Required)
   Required. A detailed rule defining how to route traffic.
-  Structure is [documented below](#nested_rules_rules_action).
+  Structure is [documented below](#nested_rules_action).
 
 
-<a name="nested_rules_rules_matches"></a>The `matches` block supports:
+<a name="nested_rules_matches"></a>The `matches` block supports:
 
 * `sni_host` -
   (Optional)
@@ -228,15 +228,15 @@ The following arguments are supported:
   (Optional)
   ALPN (Application-Layer Protocol Negotiation) to match against. Examples: "http/1.1", "h2". At least one of sniHost and alpn is required. Up to 5 alpns across all matches can be set.
 
-<a name="nested_rules_rules_action"></a>The `action` block supports:
+<a name="nested_rules_action"></a>The `action` block supports:
 
 * `destinations` -
   (Optional)
   The destination to which traffic should be forwarded.
-  Structure is [documented below](#nested_rules_rules_action_destinations).
+  Structure is [documented below](#nested_rules_action_destinations).
 
 
-<a name="nested_rules_rules_action_destinations"></a>The `destinations` block supports:
+<a name="nested_rules_action_destinations"></a>The `destinations` block supports:
 
 * `service_name` -
   (Optional)

@@ -428,10 +428,10 @@ The following arguments are supported:
 * `header` -
   (Required)
   Header embodying a key and a value.
-  Structure is [documented below](#nested_http_target_header_overrides_header_overrides_header).
+  Structure is [documented below](#nested_http_target_header_overrides_header).
 
 
-<a name="nested_http_target_header_overrides_header_overrides_header"></a>The `header` block supports:
+<a name="nested_http_target_header_overrides_header"></a>The `header` block supports:
 
 * `key` -
   (Required)

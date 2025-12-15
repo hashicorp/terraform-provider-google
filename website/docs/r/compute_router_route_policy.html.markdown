@@ -159,15 +159,15 @@ The following arguments are supported:
 * `match` -
   (Required)
   CEL expression evaluated against a route to determine if this term applies (see Policy Language).
-  Structure is [documented below](#nested_terms_terms_match).
+  Structure is [documented below](#nested_terms_match).
 
 * `actions` -
   (Optional)
   'CEL expressions to evaluate to modify a route when this term matches.'\
-  Structure is [documented below](#nested_terms_terms_actions).
+  Structure is [documented below](#nested_terms_actions).
 
 
-<a name="nested_terms_terms_match"></a>The `match` block supports:
+<a name="nested_terms_match"></a>The `match` block supports:
 
 * `expression` -
   (Required)
@@ -185,7 +185,7 @@ The following arguments are supported:
   (Optional)
   String indicating the location of the expression for error reporting, e.g. a file name and a position in the file
 
-<a name="nested_terms_terms_actions"></a>The `actions` block supports:
+<a name="nested_terms_actions"></a>The `actions` block supports:
 
 * `expression` -
   (Required)

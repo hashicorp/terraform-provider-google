@@ -205,20 +205,20 @@ The following arguments are supported:
 * `git` -
   (Optional)
   Remote git repository containing the Skaffold Config modules.
-  Structure is [documented below](#nested_custom_actions_include_skaffold_modules_include_skaffold_modules_git).
+  Structure is [documented below](#nested_custom_actions_include_skaffold_modules_git).
 
 * `google_cloud_storage` -
   (Optional)
   Cloud Storage bucket containing Skaffold Config modules.
-  Structure is [documented below](#nested_custom_actions_include_skaffold_modules_include_skaffold_modules_google_cloud_storage).
+  Structure is [documented below](#nested_custom_actions_include_skaffold_modules_google_cloud_storage).
 
 * `google_cloud_build_repo` -
   (Optional)
   Cloud Build 2nd gen repository containing the Skaffold Config modules.
-  Structure is [documented below](#nested_custom_actions_include_skaffold_modules_include_skaffold_modules_google_cloud_build_repo).
+  Structure is [documented below](#nested_custom_actions_include_skaffold_modules_google_cloud_build_repo).
 
 
-<a name="nested_custom_actions_include_skaffold_modules_include_skaffold_modules_git"></a>The `git` block supports:
+<a name="nested_custom_actions_include_skaffold_modules_git"></a>The `git` block supports:
 
 * `repo` -
   (Required)
@@ -232,7 +232,7 @@ The following arguments are supported:
   (Optional)
   Git ref the package should be cloned from.
 
-<a name="nested_custom_actions_include_skaffold_modules_include_skaffold_modules_google_cloud_storage"></a>The `google_cloud_storage` block supports:
+<a name="nested_custom_actions_include_skaffold_modules_google_cloud_storage"></a>The `google_cloud_storage` block supports:
 
 * `source` -
   (Required)
@@ -242,7 +242,7 @@ The following arguments are supported:
   (Optional)
   Relative path from the source to the Skaffold file.
 
-<a name="nested_custom_actions_include_skaffold_modules_include_skaffold_modules_google_cloud_build_repo"></a>The `google_cloud_build_repo` block supports:
+<a name="nested_custom_actions_include_skaffold_modules_google_cloud_build_repo"></a>The `google_cloud_build_repo` block supports:
 
 * `repository` -
   (Required)

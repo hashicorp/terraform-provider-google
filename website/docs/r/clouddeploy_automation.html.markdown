@@ -253,25 +253,25 @@ The following arguments are supported:
 * `promote_release_rule` -
   (Optional)
   Optional. `PromoteReleaseRule` will automatically promote a release from the current target to a specified target.
-  Structure is [documented below](#nested_rules_rules_promote_release_rule).
+  Structure is [documented below](#nested_rules_promote_release_rule).
 
 * `advance_rollout_rule` -
   (Optional)
   Optional. The `AdvanceRolloutRule` will automatically advance a successful Rollout.
-  Structure is [documented below](#nested_rules_rules_advance_rollout_rule).
+  Structure is [documented below](#nested_rules_advance_rollout_rule).
 
 * `repair_rollout_rule` -
   (Optional)
   Optional. The RepairRolloutRule will automatically repair a failed rollout.
-  Structure is [documented below](#nested_rules_rules_repair_rollout_rule).
+  Structure is [documented below](#nested_rules_repair_rollout_rule).
 
 * `timed_promote_release_rule` -
   (Optional)
   Optional. The `TimedPromoteReleaseRule` will automatically promote a release from the current target(s) to the specified target(s) on a configured schedule.
-  Structure is [documented below](#nested_rules_rules_timed_promote_release_rule).
+  Structure is [documented below](#nested_rules_timed_promote_release_rule).
 
 
-<a name="nested_rules_rules_promote_release_rule"></a>The `promote_release_rule` block supports:
+<a name="nested_rules_promote_release_rule"></a>The `promote_release_rule` block supports:
 
 * `id` -
   (Required)
@@ -289,7 +289,7 @@ The following arguments are supported:
   (Optional)
   Optional. The starting phase of the rollout created by this operation. Default to the first phase.
 
-<a name="nested_rules_rules_advance_rollout_rule"></a>The `advance_rollout_rule` block supports:
+<a name="nested_rules_advance_rollout_rule"></a>The `advance_rollout_rule` block supports:
 
 * `id` -
   (Required)
@@ -303,7 +303,7 @@ The following arguments are supported:
   (Optional)
   Optional. Proceeds only after phase name matched any one in the list. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
 
-<a name="nested_rules_rules_repair_rollout_rule"></a>The `repair_rollout_rule` block supports:
+<a name="nested_rules_repair_rollout_rule"></a>The `repair_rollout_rule` block supports:
 
 * `id` -
   (Required)
@@ -320,23 +320,23 @@ The following arguments are supported:
 * `repair_phases` -
   (Optional)
   Optional. Proceeds only after phase name matched any one in the list. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
-  Structure is [documented below](#nested_rules_rules_repair_rollout_rule_repair_phases).
+  Structure is [documented below](#nested_rules_repair_rollout_rule_repair_phases).
 
 
-<a name="nested_rules_rules_repair_rollout_rule_repair_phases"></a>The `repair_phases` block supports:
+<a name="nested_rules_repair_rollout_rule_repair_phases"></a>The `repair_phases` block supports:
 
 * `retry` -
   (Optional)
   Optional. Retries a failed job.
-  Structure is [documented below](#nested_rules_rules_repair_rollout_rule_repair_phases_repair_phases_retry).
+  Structure is [documented below](#nested_rules_repair_rollout_rule_repair_phases_retry).
 
 * `rollback` -
   (Optional)
   Optional. Rolls back a Rollout.
-  Structure is [documented below](#nested_rules_rules_repair_rollout_rule_repair_phases_repair_phases_rollback).
+  Structure is [documented below](#nested_rules_repair_rollout_rule_repair_phases_rollback).
 
 
-<a name="nested_rules_rules_repair_rollout_rule_repair_phases_repair_phases_retry"></a>The `retry` block supports:
+<a name="nested_rules_repair_rollout_rule_repair_phases_retry"></a>The `retry` block supports:
 
 * `attempts` -
   (Required)
@@ -351,7 +351,7 @@ The following arguments are supported:
   Optional. The pattern of how wait time will be increased. Default is linear. Backoff mode will be ignored if wait is 0.
   Possible values are: `BACKOFF_MODE_UNSPECIFIED`, `BACKOFF_MODE_LINEAR`, `BACKOFF_MODE_EXPONENTIAL`.
 
-<a name="nested_rules_rules_repair_rollout_rule_repair_phases_repair_phases_rollback"></a>The `rollback` block supports:
+<a name="nested_rules_repair_rollout_rule_repair_phases_rollback"></a>The `rollback` block supports:
 
 * `destination_phase` -
   (Optional)
@@ -361,7 +361,7 @@ The following arguments are supported:
   (Optional)
   Optional. If pending rollout exists on the target, the rollback operation will be aborted.
 
-<a name="nested_rules_rules_timed_promote_release_rule"></a>The `timed_promote_release_rule` block supports:
+<a name="nested_rules_timed_promote_release_rule"></a>The `timed_promote_release_rule` block supports:
 
 * `id` -
   (Required)

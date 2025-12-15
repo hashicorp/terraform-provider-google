@@ -634,10 +634,10 @@ The following arguments are supported:
   config, ONE_TO_ONE_NAT, is supported. If no accessConfigs specified, the
   instance will have an external internet access through an ephemeral
   external IP address.
-  Structure is [documented below](#nested_gce_setup_network_interfaces_network_interfaces_access_configs).
+  Structure is [documented below](#nested_gce_setup_network_interfaces_access_configs).
 
 
-<a name="nested_gce_setup_network_interfaces_network_interfaces_access_configs"></a>The `access_configs` block supports:
+<a name="nested_gce_setup_network_interfaces_access_configs"></a>The `access_configs` block supports:
 
 * `external_ip` -
   (Required)

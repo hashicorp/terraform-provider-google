@@ -412,7 +412,7 @@ The following arguments are supported:
 * `object_id` -
   (Required)
   Required. The OID for this X.509 extension.
-  Structure is [documented below](#nested_predefined_values_additional_extensions_additional_extensions_object_id).
+  Structure is [documented below](#nested_predefined_values_additional_extensions_object_id).
 
 * `critical` -
   (Optional)
@@ -423,7 +423,7 @@ The following arguments are supported:
   Required. The value of this X.509 extension.
 
 
-<a name="nested_predefined_values_additional_extensions_additional_extensions_object_id"></a>The `object_id` block supports:
+<a name="nested_predefined_values_additional_extensions_object_id"></a>The `object_id` block supports:
 
 * `object_id_path` -
   (Required)

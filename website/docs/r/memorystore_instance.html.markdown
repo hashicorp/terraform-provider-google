@@ -636,10 +636,10 @@ The following arguments are supported:
 * `start_time` -
   (Required)
   Start time of the window in UTC time.
-  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time).
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_window_start_time).
 
 
-<a name="nested_maintenance_policy_weekly_maintenance_window_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
+<a name="nested_maintenance_policy_weekly_maintenance_window_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)
@@ -928,18 +928,18 @@ In addition to the arguments listed above, the following computed attributes are
 * `connections` -
   (Optional)
   A group of PSC connections. They are created in the same VPC network, one for each service attachment in the cluster.
-  Structure is [documented below](#nested_endpoints_endpoints_connections).
+  Structure is [documented below](#nested_endpoints_connections).
 
 
-<a name="nested_endpoints_endpoints_connections"></a>The `connections` block supports:
+<a name="nested_endpoints_connections"></a>The `connections` block supports:
 
 * `psc_auto_connection` -
   (Optional)
   Detailed information of a PSC connection that is created through service connectivity automation.
-  Structure is [documented below](#nested_endpoints_endpoints_connections_connections_psc_auto_connection).
+  Structure is [documented below](#nested_endpoints_connections_psc_auto_connection).
 
 
-<a name="nested_endpoints_endpoints_connections_connections_psc_auto_connection"></a>The `psc_auto_connection` block supports:
+<a name="nested_endpoints_connections_psc_auto_connection"></a>The `psc_auto_connection` block supports:
 
 * `psc_connection_id` -
   (Output)

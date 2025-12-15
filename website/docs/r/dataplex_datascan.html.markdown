@@ -677,7 +677,7 @@ The following arguments are supported:
 * `range_expectation` -
   (Optional)
   ColumnMap rule which evaluates whether each column value lies between a specified range.
-  Structure is [documented below](#nested_data_quality_spec_rules_rules_range_expectation).
+  Structure is [documented below](#nested_data_quality_spec_rules_range_expectation).
 
 * `non_null_expectation` -
   (Optional)
@@ -686,12 +686,12 @@ The following arguments are supported:
 * `set_expectation` -
   (Optional)
   ColumnMap rule which evaluates whether each column value is contained by a specified set.
-  Structure is [documented below](#nested_data_quality_spec_rules_rules_set_expectation).
+  Structure is [documented below](#nested_data_quality_spec_rules_set_expectation).
 
 * `regex_expectation` -
   (Optional)
   ColumnMap rule which evaluates whether each column value matches a specified regex.
-  Structure is [documented below](#nested_data_quality_spec_rules_rules_regex_expectation).
+  Structure is [documented below](#nested_data_quality_spec_rules_regex_expectation).
 
 * `uniqueness_expectation` -
   (Optional)
@@ -700,25 +700,25 @@ The following arguments are supported:
 * `statistic_range_expectation` -
   (Optional)
   ColumnAggregate rule which evaluates whether the column aggregate statistic lies between a specified range.
-  Structure is [documented below](#nested_data_quality_spec_rules_rules_statistic_range_expectation).
+  Structure is [documented below](#nested_data_quality_spec_rules_statistic_range_expectation).
 
 * `row_condition_expectation` -
   (Optional)
   Table rule which evaluates whether each row passes the specified condition.
-  Structure is [documented below](#nested_data_quality_spec_rules_rules_row_condition_expectation).
+  Structure is [documented below](#nested_data_quality_spec_rules_row_condition_expectation).
 
 * `table_condition_expectation` -
   (Optional)
   Table rule which evaluates whether the provided expression is true.
-  Structure is [documented below](#nested_data_quality_spec_rules_rules_table_condition_expectation).
+  Structure is [documented below](#nested_data_quality_spec_rules_table_condition_expectation).
 
 * `sql_assertion` -
   (Optional)
   Table rule which evaluates whether any row matches invalid state.
-  Structure is [documented below](#nested_data_quality_spec_rules_rules_sql_assertion).
+  Structure is [documented below](#nested_data_quality_spec_rules_sql_assertion).
 
 
-<a name="nested_data_quality_spec_rules_rules_range_expectation"></a>The `range_expectation` block supports:
+<a name="nested_data_quality_spec_rules_range_expectation"></a>The `range_expectation` block supports:
 
 * `min_value` -
   (Optional)
@@ -738,19 +738,19 @@ The following arguments are supported:
   Whether each value needs to be strictly lesser than ('<') the maximum, or if equality is allowed.
   Only relevant if a maxValue has been defined. Default = false.
 
-<a name="nested_data_quality_spec_rules_rules_set_expectation"></a>The `set_expectation` block supports:
+<a name="nested_data_quality_spec_rules_set_expectation"></a>The `set_expectation` block supports:
 
 * `values` -
   (Required)
   Expected values for the column value.
 
-<a name="nested_data_quality_spec_rules_rules_regex_expectation"></a>The `regex_expectation` block supports:
+<a name="nested_data_quality_spec_rules_regex_expectation"></a>The `regex_expectation` block supports:
 
 * `regex` -
   (Required)
   A regular expression the column value is expected to match.
 
-<a name="nested_data_quality_spec_rules_rules_statistic_range_expectation"></a>The `statistic_range_expectation` block supports:
+<a name="nested_data_quality_spec_rules_statistic_range_expectation"></a>The `statistic_range_expectation` block supports:
 
 * `statistic` -
   (Required)
@@ -777,19 +777,19 @@ The following arguments are supported:
   Whether column statistic needs to be strictly lesser than ('<') the maximum, or if equality is allowed.
   Only relevant if a maxValue has been defined. Default = false.
 
-<a name="nested_data_quality_spec_rules_rules_row_condition_expectation"></a>The `row_condition_expectation` block supports:
+<a name="nested_data_quality_spec_rules_row_condition_expectation"></a>The `row_condition_expectation` block supports:
 
 * `sql_expression` -
   (Required)
   The SQL expression.
 
-<a name="nested_data_quality_spec_rules_rules_table_condition_expectation"></a>The `table_condition_expectation` block supports:
+<a name="nested_data_quality_spec_rules_table_condition_expectation"></a>The `table_condition_expectation` block supports:
 
 * `sql_expression` -
   (Required)
   The SQL expression.
 
-<a name="nested_data_quality_spec_rules_rules_sql_assertion"></a>The `sql_assertion` block supports:
+<a name="nested_data_quality_spec_rules_sql_assertion"></a>The `sql_assertion` block supports:
 
 * `sql_statement` -
   (Required)

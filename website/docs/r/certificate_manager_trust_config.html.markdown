@@ -31,7 +31,7 @@ To get more information about TrustConfig, see:
     * [Official Documentation](https://cloud.google.com/certificate-manager/docs)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `trust_stores.trust_stores.trust_anchors.trust_anchors.pem_certificate`, `trust_stores.trust_stores.intermediate_cas.intermediate_cas.pem_certificate`.
+values will be stored in the raw state as plain text: `trust_stores.trust_anchors.pem_certificate`, `trust_stores.intermediate_cas.pem_certificate`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -135,16 +135,16 @@ The following arguments are supported:
 * `trust_anchors` -
   (Optional)
   List of Trust Anchors to be used while performing validation against a given TrustStore.
-  Structure is [documented below](#nested_trust_stores_trust_stores_trust_anchors).
+  Structure is [documented below](#nested_trust_stores_trust_anchors).
 
 * `intermediate_cas` -
   (Optional)
   Set of intermediate CA certificates used for the path building phase of chain validation.
   The field is currently not supported if trust config is used for the workload certificate feature.
-  Structure is [documented below](#nested_trust_stores_trust_stores_intermediate_cas).
+  Structure is [documented below](#nested_trust_stores_intermediate_cas).
 
 
-<a name="nested_trust_stores_trust_stores_trust_anchors"></a>The `trust_anchors` block supports:
+<a name="nested_trust_stores_trust_anchors"></a>The `trust_anchors` block supports:
 
 * `pem_certificate` -
   (Optional)
@@ -152,7 +152,7 @@ The following arguments are supported:
   Each certificate provided in PEM format may occupy up to 5kB.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-<a name="nested_trust_stores_trust_stores_intermediate_cas"></a>The `intermediate_cas` block supports:
+<a name="nested_trust_stores_intermediate_cas"></a>The `intermediate_cas` block supports:
 
 * `pem_certificate` -
   (Optional)

@@ -231,7 +231,7 @@ The following arguments are supported:
 * `suggestion_feature` -
   (Optional)
   The suggestion feature.
-  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_suggestion_feature).
+  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_suggestion_feature).
 
 * `enable_event_based_suggestion` -
   (Optional)
@@ -262,31 +262,31 @@ The following arguments are supported:
   (Optional)
   Settings of suggestion trigger.
   This feature is only supported for types: ARTICLE_SUGGESTION, FAQ.
-  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_suggestion_trigger_settings).
+  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_suggestion_trigger_settings).
 
 * `query_config` -
   (Optional)
   Configs of query.
-  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config).
+  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config).
 
 * `conversation_model_config` -
   (Optional)
   Configs of custom conversation model.
-  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_conversation_model_config).
+  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_conversation_model_config).
 
 * `conversation_process_config` -
   (Optional)
   Config to process conversation.
-  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_conversation_process_config).
+  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_conversation_process_config).
 
 
-<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_suggestion_feature"></a>The `suggestion_feature` block supports:
+<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_suggestion_feature"></a>The `suggestion_feature` block supports:
 
 * `type` -
   (Optional)
   Type of Human Agent Assistant API feature to request.
 
-<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_suggestion_trigger_settings"></a>The `suggestion_trigger_settings` block supports:
+<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_suggestion_trigger_settings"></a>The `suggestion_trigger_settings` block supports:
 
 * `no_small_talk` -
   (Optional)
@@ -296,7 +296,7 @@ The following arguments are supported:
   (Optional)
   Only trigger suggestion if participant role of last utterance is END_USER.
 
-<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config"></a>The `query_config` block supports:
+<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config"></a>The `query_config` block supports:
 
 * `max_results` -
   (Optional)
@@ -310,21 +310,21 @@ The following arguments are supported:
 * `context_filter_settings` -
   (Optional)
   Determines how recent conversation context is filtered when generating suggestions. If unspecified, no messages will be dropped.
-  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config_context_filter_settings).
+  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config_context_filter_settings).
 
 * `sections` -
   (Optional)
   he customized sections chosen to return when requesting a summary of a conversation.
-  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config_sections).
+  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config_sections).
 
 * `dialogflow_query_source` -
   (Optional)
   Query from Dialogflow agent.
   This feature is supported for types: DIALOGFLOW_ASSIST.
-  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config_dialogflow_query_source).
+  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config_dialogflow_query_source).
 
 
-<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config_context_filter_settings"></a>The `context_filter_settings` block supports:
+<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config_context_filter_settings"></a>The `context_filter_settings` block supports:
 
 * `drop_handoff_messages` -
   (Optional)
@@ -338,7 +338,7 @@ The following arguments are supported:
   (Optional)
   If set to true, all messages from ivr stage are dropped.
 
-<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config_sections"></a>The `sections` block supports:
+<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config_sections"></a>The `sections` block supports:
 
 * `section_types` -
   (Optional)
@@ -346,7 +346,7 @@ The following arguments are supported:
   If not provided the default selection will be "{SITUATION, ACTION, RESULT}".
   Each value may be one of: `SECTION_TYPE_UNSPECIFIED`, `SITUATION`, `ACTION`, `RESOLUTION`, `REASON_FOR_CANCELLATION`, `CUSTOMER_SATISFACTION`, `ENTITIES`.
 
-<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config_dialogflow_query_source"></a>The `dialogflow_query_source` block supports:
+<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config_dialogflow_query_source"></a>The `dialogflow_query_source` block supports:
 
 * `agent` -
   (Required)
@@ -355,16 +355,16 @@ The following arguments are supported:
 * `human_agent_side_config` -
   (Optional)
   The Dialogflow assist configuration for human agent.
-  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config_dialogflow_query_source_human_agent_side_config).
+  Structure is [documented below](#nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config_dialogflow_query_source_human_agent_side_config).
 
 
-<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_query_config_dialogflow_query_source_human_agent_side_config"></a>The `human_agent_side_config` block supports:
+<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_query_config_dialogflow_query_source_human_agent_side_config"></a>The `human_agent_side_config` block supports:
 
 * `agent` -
   (Optional)
   The name of a dialogflow virtual agent used for intent detection and suggestion triggered by human agent. Format: projects/<Project ID>/locations/<Location ID>/agent.
 
-<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_conversation_model_config"></a>The `conversation_model_config` block supports:
+<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_conversation_model_config"></a>The `conversation_model_config` block supports:
 
 * `model` -
   (Optional)
@@ -374,7 +374,7 @@ The following arguments are supported:
   (Optional)
   Version of current baseline model. It will be ignored if model is set. Valid versions are: Article Suggestion baseline model: - 0.9 - 1.0 (default) Summarization baseline model: - 1.0
 
-<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_feature_configs_conversation_process_config"></a>The `conversation_process_config` block supports:
+<a name="nested_human_agent_assistant_config_human_agent_suggestion_config_feature_configs_conversation_process_config"></a>The `conversation_process_config` block supports:
 
 * `recent_sentences_count` -
   (Optional)
@@ -406,7 +406,7 @@ The following arguments are supported:
 * `suggestion_feature` -
   (Optional)
   The suggestion feature.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_suggestion_feature).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_suggestion_feature).
 
 * `enable_event_based_suggestion` -
   (Optional)
@@ -437,31 +437,31 @@ The following arguments are supported:
   (Optional)
   Settings of suggestion trigger.
   This feature is only supported for types: ARTICLE_SUGGESTION, FAQ.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_suggestion_trigger_settings).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_suggestion_trigger_settings).
 
 * `query_config` -
   (Optional)
   Configs of query.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config).
 
 * `conversation_model_config` -
   (Optional)
   Configs of custom conversation model.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_conversation_model_config).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_conversation_model_config).
 
 * `conversation_process_config` -
   (Optional)
   Config to process conversation.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_conversation_process_config).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_conversation_process_config).
 
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_suggestion_feature"></a>The `suggestion_feature` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_suggestion_feature"></a>The `suggestion_feature` block supports:
 
 * `type` -
   (Optional)
   Type of Human Agent Assistant API feature to request.
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_suggestion_trigger_settings"></a>The `suggestion_trigger_settings` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_suggestion_trigger_settings"></a>The `suggestion_trigger_settings` block supports:
 
 * `no_small_talk` -
   (Optional)
@@ -471,7 +471,7 @@ The following arguments are supported:
   (Optional)
   Only trigger suggestion if participant role of last utterance is END_USER.
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config"></a>The `query_config` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config"></a>The `query_config` block supports:
 
 * `max_results` -
   (Optional)
@@ -485,33 +485,33 @@ The following arguments are supported:
 * `context_filter_settings` -
   (Optional)
   Determines how recent conversation context is filtered when generating suggestions. If unspecified, no messages will be dropped.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_context_filter_settings).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_context_filter_settings).
 
 * `sections` -
   (Optional)
   he customized sections chosen to return when requesting a summary of a conversation.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_sections).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_sections).
 
 * `knowledge_base_query_source` -
   (Optional)
   Query from knowledgebase.
   This feature is only supported for types: ARTICLE_SUGGESTION, FAQ.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_knowledge_base_query_source).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_knowledge_base_query_source).
 
 * `document_query_source` -
   (Optional)
   Query from knowledge base document.
   This feature is supported for types: SMART_REPLY, SMART_COMPOSE.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_document_query_source).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_document_query_source).
 
 * `dialogflow_query_source` -
   (Optional)
   Query from Dialogflow agent.
   This feature is supported for types: DIALOGFLOW_ASSIST.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_dialogflow_query_source).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_dialogflow_query_source).
 
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_context_filter_settings"></a>The `context_filter_settings` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_context_filter_settings"></a>The `context_filter_settings` block supports:
 
 * `drop_handoff_messages` -
   (Optional)
@@ -525,7 +525,7 @@ The following arguments are supported:
   (Optional)
   If set to true, all messages from ivr stage are dropped.
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_sections"></a>The `sections` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_sections"></a>The `sections` block supports:
 
 * `section_types` -
   (Optional)
@@ -533,19 +533,19 @@ The following arguments are supported:
   If not provided the default selection will be "{SITUATION, ACTION, RESULT}".
   Each value may be one of: `SECTION_TYPE_UNSPECIFIED`, `SITUATION`, `ACTION`, `RESOLUTION`, `REASON_FOR_CANCELLATION`, `CUSTOMER_SATISFACTION`, `ENTITIES`.
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_knowledge_base_query_source"></a>The `knowledge_base_query_source` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_knowledge_base_query_source"></a>The `knowledge_base_query_source` block supports:
 
 * `knowledge_bases` -
   (Required)
   Knowledge bases to query. Format: projects/<Project ID>/locations/<Location ID>/knowledgeBases/<Knowledge Base ID>.
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_document_query_source"></a>The `document_query_source` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_document_query_source"></a>The `document_query_source` block supports:
 
 * `documents` -
   (Required)
   Knowledge documents to query from. Format: projects/<Project ID>/locations/<Location ID>/knowledgeBases/<KnowledgeBase ID>/documents/<Document ID>.
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_dialogflow_query_source"></a>The `dialogflow_query_source` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_dialogflow_query_source"></a>The `dialogflow_query_source` block supports:
 
 * `agent` -
   (Required)
@@ -554,16 +554,16 @@ The following arguments are supported:
 * `human_agent_side_config` -
   (Optional)
   The Dialogflow assist configuration for human agent.
-  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_dialogflow_query_source_human_agent_side_config).
+  Structure is [documented below](#nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_dialogflow_query_source_human_agent_side_config).
 
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_query_config_dialogflow_query_source_human_agent_side_config"></a>The `human_agent_side_config` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_query_config_dialogflow_query_source_human_agent_side_config"></a>The `human_agent_side_config` block supports:
 
 * `agent` -
   (Optional)
   The name of a dialogflow virtual agent used for intent detection and suggestion triggered by human agent. Format: projects/<Project ID>/locations/<Location ID>/agent.
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_conversation_model_config"></a>The `conversation_model_config` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_conversation_model_config"></a>The `conversation_model_config` block supports:
 
 * `model` -
   (Optional)
@@ -573,7 +573,7 @@ The following arguments are supported:
   (Optional)
   Version of current baseline model. It will be ignored if model is set. Valid versions are: Article Suggestion baseline model: - 0.9 - 1.0 (default) Summarization baseline model: - 1.0
 
-<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_feature_configs_conversation_process_config"></a>The `conversation_process_config` block supports:
+<a name="nested_human_agent_assistant_config_end_user_suggestion_config_feature_configs_conversation_process_config"></a>The `conversation_process_config` block supports:
 
 * `recent_sentences_count` -
   (Optional)

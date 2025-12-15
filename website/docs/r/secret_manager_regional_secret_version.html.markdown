@@ -37,7 +37,7 @@ this, use the `create_before_destroy` field within the lifecycle block.
 For more details, refer to the [Terraform lifecycle documentation](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#the-lifecycle-meta-argument).
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `payload.secret_data`.
+values will be stored in the raw state as plain text: `secret_data`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">

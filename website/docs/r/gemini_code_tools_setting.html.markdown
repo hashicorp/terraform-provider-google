@@ -94,14 +94,14 @@ The following arguments are supported:
 * `config` -
   (Optional)
   Configuration parameters for the tool.
-  Structure is [documented below](#nested_enabled_tool_enabled_tool_config).
+  Structure is [documented below](#nested_enabled_tool_config).
 
 * `uri_override` -
   (Optional)
   Overridden URI, if allowed by Tool.
 
 
-<a name="nested_enabled_tool_enabled_tool_config"></a>The `config` block supports:
+<a name="nested_enabled_tool_config"></a>The `config` block supports:
 
 * `key` -
   (Required)

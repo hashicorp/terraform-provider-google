@@ -218,37 +218,37 @@ The following arguments are supported:
 * `key` -
   (Optional)
   Key of the map entry.
-  Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_key).
+  Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_key).
 
 * `value` -
   (Optional)
   Value of the map entry.
-  Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_value).
+  Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_value).
 
 
-<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_key"></a>The `key` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_key"></a>The `key` block supports:
 
 * `literal_value` -
   (Optional)
   Passing a literal value
-  Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_key_literal_value).
+  Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_key_literal_value).
 
 
-<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_key_literal_value"></a>The `literal_value` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_key_literal_value"></a>The `literal_value` block supports:
 
 * `string_value` -
   (Optional)
   String.
 
-<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_value"></a>The `value` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_value"></a>The `value` block supports:
 
 * `literal_value` -
   (Optional)
   Passing a literal value
-  Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_value_literal_value).
+  Structure is [documented below](#nested_decrypted_credential_oauth2_client_credentials_token_params_entries_value_literal_value).
 
 
-<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_entries_value_literal_value"></a>The `literal_value` block supports:
+<a name="nested_decrypted_credential_oauth2_client_credentials_token_params_entries_value_literal_value"></a>The `literal_value` block supports:
 
 * `string_value` -
   (Optional)

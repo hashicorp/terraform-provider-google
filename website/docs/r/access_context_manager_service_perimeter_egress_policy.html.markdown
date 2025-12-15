@@ -239,10 +239,10 @@ The following arguments are supported:
   to the service specified by `serviceName` field. A single MethodSelector
   entry with `*` specified for the `method` field will allow all methods
   AND permissions for the service specified in `serviceName`.
-  Structure is [documented below](#nested_egress_to_operations_operations_method_selectors).
+  Structure is [documented below](#nested_egress_to_operations_method_selectors).
 
 
-<a name="nested_egress_to_operations_operations_method_selectors"></a>The `method_selectors` block supports:
+<a name="nested_egress_to_operations_method_selectors"></a>The `method_selectors` block supports:
 
 * `method` -
   (Optional)

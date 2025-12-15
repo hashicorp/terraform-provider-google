@@ -1359,10 +1359,10 @@ The following arguments are supported:
 * `versions` -
   (Optional)
   List of secret versions to mount for this secret. If empty, the latest version of the secret will be made available in a file named after the secret under the mount point.'
-  Structure is [documented below](#nested_service_config_secret_volumes_secret_volumes_versions).
+  Structure is [documented below](#nested_service_config_secret_volumes_versions).
 
 
-<a name="nested_service_config_secret_volumes_secret_volumes_versions"></a>The `versions` block supports:
+<a name="nested_service_config_secret_volumes_versions"></a>The `versions` block supports:
 
 * `version` -
   (Required)

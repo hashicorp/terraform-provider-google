@@ -443,15 +443,15 @@ The following arguments are supported:
 * `upgrade` -
   (Required)
   Which upgrade to override.
-  Structure is [documented below](#nested_spec_clusterupgrade_gke_upgrade_overrides_gke_upgrade_overrides_upgrade).
+  Structure is [documented below](#nested_spec_clusterupgrade_gke_upgrade_overrides_upgrade).
 
 * `post_conditions` -
   (Required)
   Post conditions to override for the specified upgrade.
-  Structure is [documented below](#nested_spec_clusterupgrade_gke_upgrade_overrides_gke_upgrade_overrides_post_conditions).
+  Structure is [documented below](#nested_spec_clusterupgrade_gke_upgrade_overrides_post_conditions).
 
 
-<a name="nested_spec_clusterupgrade_gke_upgrade_overrides_gke_upgrade_overrides_upgrade"></a>The `upgrade` block supports:
+<a name="nested_spec_clusterupgrade_gke_upgrade_overrides_upgrade"></a>The `upgrade` block supports:
 
 * `name` -
   (Required)
@@ -461,7 +461,7 @@ The following arguments are supported:
   (Required)
   Version of the upgrade, e.g., "1.22.1-gke.100". It should be a valid version. It must not exceet 99 characters.
 
-<a name="nested_spec_clusterupgrade_gke_upgrade_overrides_gke_upgrade_overrides_post_conditions"></a>The `post_conditions` block supports:
+<a name="nested_spec_clusterupgrade_gke_upgrade_overrides_post_conditions"></a>The `post_conditions` block supports:
 
 * `soaking` -
   (Required)

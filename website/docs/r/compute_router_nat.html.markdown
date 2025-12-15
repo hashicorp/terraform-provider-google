@@ -471,10 +471,10 @@ The following arguments are supported:
 * `action` -
   (Optional)
   The action to be enforced for traffic that matches this rule.
-  Structure is [documented below](#nested_rules_rules_action).
+  Structure is [documented below](#nested_rules_action).
 
 
-<a name="nested_rules_rules_action"></a>The `action` block supports:
+<a name="nested_rules_action"></a>The `action` block supports:
 
 * `source_nat_active_ips` -
   (Optional)

@@ -649,18 +649,18 @@ The following arguments are supported:
 * `spec` -
   (Required)
   A list of boosting specifications.
-  Structure is [documented below](#nested_data_store_tool_boost_specs_boost_specs_spec).
+  Structure is [documented below](#nested_data_store_tool_boost_specs_spec).
 
 
-<a name="nested_data_store_tool_boost_specs_boost_specs_spec"></a>The `spec` block supports:
+<a name="nested_data_store_tool_boost_specs_spec"></a>The `spec` block supports:
 
 * `condition_boost_specs` -
   (Required)
   A list of boosting specifications.
-  Structure is [documented below](#nested_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs).
+  Structure is [documented below](#nested_data_store_tool_boost_specs_spec_condition_boost_specs).
 
 
-<a name="nested_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs"></a>The `condition_boost_specs` block supports:
+<a name="nested_data_store_tool_boost_specs_spec_condition_boost_specs"></a>The `condition_boost_specs` block supports:
 
 * `boost` -
   (Optional)
@@ -678,7 +678,7 @@ The following arguments are supported:
   Specification for custom ranking based on customer specified attribute
   value. It provides more controls for customized ranking than the simple
   (condition, boost) combination above.
-  Structure is [documented below](#nested_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs_condition_boost_specs_boost_control_spec).
+  Structure is [documented below](#nested_data_store_tool_boost_specs_spec_condition_boost_specs_boost_control_spec).
 
 * `condition` -
   (Required)
@@ -689,7 +689,7 @@ The following arguments are supported:
   (lang_code: ANY("en", "fr"))
 
 
-<a name="nested_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs_condition_boost_specs_boost_control_spec"></a>The `boost_control_spec` block supports:
+<a name="nested_data_store_tool_boost_specs_spec_condition_boost_specs_boost_control_spec"></a>The `boost_control_spec` block supports:
 
 * `attribute_type` -
   (Optional)
@@ -707,7 +707,7 @@ The following arguments are supported:
   The control points used to define the curve. The monotonic function
   (defined through the interpolation_type above) passes through the
   control points listed here.
-  Structure is [documented below](#nested_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs_condition_boost_specs_boost_control_spec_control_points).
+  Structure is [documented below](#nested_data_store_tool_boost_specs_spec_condition_boost_specs_boost_control_spec_control_points).
 
 * `field_name` -
   (Optional)
@@ -722,7 +722,7 @@ The following arguments are supported:
   LINEAR
 
 
-<a name="nested_data_store_tool_boost_specs_boost_specs_spec_spec_condition_boost_specs_condition_boost_specs_boost_control_spec_control_points"></a>The `control_points` block supports:
+<a name="nested_data_store_tool_boost_specs_spec_condition_boost_specs_boost_control_spec_control_points"></a>The `control_points` block supports:
 
 * `attribute_value` -
   (Optional)
@@ -766,7 +766,7 @@ The following arguments are supported:
 * `data_store` -
   (Optional)
   A DataStore resource in Vertex AI Search.
-  Structure is [documented below](#nested_data_store_tool_engine_source_data_store_sources_data_store_sources_data_store).
+  Structure is [documented below](#nested_data_store_tool_engine_source_data_store_sources_data_store).
 
 * `filter` -
   (Optional)
@@ -775,12 +775,12 @@ The following arguments are supported:
   https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata
 
 
-<a name="nested_data_store_tool_engine_source_data_store_sources_data_store_sources_data_store"></a>The `data_store` block supports:
+<a name="nested_data_store_tool_engine_source_data_store_sources_data_store"></a>The `data_store` block supports:
 
 * `connector_config` -
   (Output)
   The connector config for the data store connection.
-  Structure is [documented below](#nested_data_store_tool_engine_source_data_store_sources_data_store_sources_data_store_connector_config).
+  Structure is [documented below](#nested_data_store_tool_engine_source_data_store_sources_data_store_connector_config).
 
 * `create_time` -
   (Output)
@@ -815,7 +815,7 @@ The following arguments are supported:
   CONNECTOR
 
 
-<a name="nested_data_store_tool_engine_source_data_store_sources_data_store_sources_data_store_connector_config"></a>The `connector_config` block contains:
+<a name="nested_data_store_tool_engine_source_data_store_sources_data_store_connector_config"></a>The `connector_config` block contains:
 
 * `collection` -
   (Output)
@@ -835,7 +835,7 @@ The following arguments are supported:
 * `grounding_config` -
   (Optional)
   Grounding configuration.
-  Structure is [documented below](#nested_data_store_tool_modality_configs_modality_configs_grounding_config).
+  Structure is [documented below](#nested_data_store_tool_modality_configs_grounding_config).
 
 * `modality_type` -
   (Required)
@@ -847,15 +847,15 @@ The following arguments are supported:
 * `rewriter_config` -
   (Optional)
   Rewriter configuration.
-  Structure is [documented below](#nested_data_store_tool_modality_configs_modality_configs_rewriter_config).
+  Structure is [documented below](#nested_data_store_tool_modality_configs_rewriter_config).
 
 * `summarization_config` -
   (Optional)
   Summarization configuration.
-  Structure is [documented below](#nested_data_store_tool_modality_configs_modality_configs_summarization_config).
+  Structure is [documented below](#nested_data_store_tool_modality_configs_summarization_config).
 
 
-<a name="nested_data_store_tool_modality_configs_modality_configs_grounding_config"></a>The `grounding_config` block supports:
+<a name="nested_data_store_tool_modality_configs_grounding_config"></a>The `grounding_config` block supports:
 
 * `disabled` -
   (Optional)
@@ -871,7 +871,7 @@ The following arguments are supported:
   For example, a level of 3 means that the groundedness score must be
   3 or higher for the response to be returned.
 
-<a name="nested_data_store_tool_modality_configs_modality_configs_rewriter_config"></a>The `rewriter_config` block supports:
+<a name="nested_data_store_tool_modality_configs_rewriter_config"></a>The `rewriter_config` block supports:
 
 * `disabled` -
   (Optional)
@@ -880,14 +880,14 @@ The following arguments are supported:
 * `model_settings` -
   (Required)
   Model settings contains various configurations for the LLM model.
-  Structure is [documented below](#nested_data_store_tool_modality_configs_modality_configs_rewriter_config_model_settings).
+  Structure is [documented below](#nested_data_store_tool_modality_configs_rewriter_config_model_settings).
 
 * `prompt` -
   (Optional)
   The prompt definition. If not set, default prompt will be used.
 
 
-<a name="nested_data_store_tool_modality_configs_modality_configs_rewriter_config_model_settings"></a>The `model_settings` block supports:
+<a name="nested_data_store_tool_modality_configs_rewriter_config_model_settings"></a>The `model_settings` block supports:
 
 * `model` -
   (Optional)
@@ -901,7 +901,7 @@ The following arguments are supported:
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
 
-<a name="nested_data_store_tool_modality_configs_modality_configs_summarization_config"></a>The `summarization_config` block supports:
+<a name="nested_data_store_tool_modality_configs_summarization_config"></a>The `summarization_config` block supports:
 
 * `disabled` -
   (Optional)
@@ -910,14 +910,14 @@ The following arguments are supported:
 * `model_settings` -
   (Optional)
   Model settings contains various configurations for the LLM model.
-  Structure is [documented below](#nested_data_store_tool_modality_configs_modality_configs_summarization_config_model_settings).
+  Structure is [documented below](#nested_data_store_tool_modality_configs_summarization_config_model_settings).
 
 * `prompt` -
   (Optional)
   The prompt definition. If not set, default prompt will be used.
 
 
-<a name="nested_data_store_tool_modality_configs_modality_configs_summarization_config_model_settings"></a>The `model_settings` block supports:
+<a name="nested_data_store_tool_modality_configs_summarization_config_model_settings"></a>The `model_settings` block supports:
 
 * `model` -
   (Optional)

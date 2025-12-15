@@ -286,10 +286,10 @@ or `terraform destroy` that would delete the secret will fail.
 * `customer_managed_encryption` -
   (Optional)
   Customer Managed Encryption for the secret.
-  Structure is [documented below](#nested_replication_user_managed_replicas_replicas_customer_managed_encryption).
+  Structure is [documented below](#nested_replication_user_managed_replicas_customer_managed_encryption).
 
 
-<a name="nested_replication_user_managed_replicas_replicas_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
+<a name="nested_replication_user_managed_replicas_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
 
 * `kms_key_name` -
   (Required)

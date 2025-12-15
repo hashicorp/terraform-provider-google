@@ -276,13 +276,13 @@ The following arguments are supported:
   (Optional)
   A match condition that incoming traffic is evaluated against.
   If it evaluates to true, the corresponding 'action' is enforced.
-  Structure is [documented below](#nested_rules_rules_match).
+  Structure is [documented below](#nested_rules_match).
 
 * `preconfigured_waf_config` -
   (Optional)
   Preconfigured WAF configuration to be applied for the rule.
   If the rule does not evaluate preconfigured WAF rules, i.e., if evaluatePreconfiguredWaf() is not used, this field will have no effect.
-  Structure is [documented below](#nested_rules_rules_preconfigured_waf_config).
+  Structure is [documented below](#nested_rules_preconfigured_waf_config).
 
 * `action` -
   (Required)
@@ -296,7 +296,7 @@ The following arguments are supported:
 * `rate_limit_options` -
   (Optional)
   Must be specified if the action is "rate_based_ban" or "throttle". Cannot be specified for any other actions.
-  Structure is [documented below](#nested_rules_rules_rate_limit_options).
+  Structure is [documented below](#nested_rules_rate_limit_options).
 
 * `preview` -
   (Optional)
@@ -312,10 +312,10 @@ The following arguments are supported:
   Example:
   networkMatch: srcIpRanges: - "192.0.2.0/24" - "198.51.100.0/24" userDefinedFields: - name: "ipv4_fragment_offset" values: - "1-0x1fff"
   The above match condition matches packets with a source IP in 192.0.2.0/24 or 198.51.100.0/24 and a user-defined field named "ipv4_fragment_offset" with a value between 1 and 0x1fff inclusive
-  Structure is [documented below](#nested_rules_rules_network_match).
+  Structure is [documented below](#nested_rules_network_match).
 
 
-<a name="nested_rules_rules_match"></a>The `match` block supports:
+<a name="nested_rules_match"></a>The `match` block supports:
 
 * `versioned_expr` -
   (Optional)
@@ -326,36 +326,36 @@ The following arguments are supported:
 * `expr` -
   (Optional)
   User defined CEVAL expression. A CEVAL expression is used to specify match criteria such as origin.ip, source.region_code and contents in the request header. See [Sample expressions](https://cloud.google.com/armor/docs/configure-security-policies#sample-expressions) for examples.
-  Structure is [documented below](#nested_rules_rules_match_expr).
+  Structure is [documented below](#nested_rules_match_expr).
 
 * `config` -
   (Optional)
   The configuration options available when specifying versionedExpr.
   This field must be specified if versionedExpr is specified and cannot be specified if versionedExpr is not specified.
-  Structure is [documented below](#nested_rules_rules_match_config).
+  Structure is [documented below](#nested_rules_match_config).
 
 
-<a name="nested_rules_rules_match_expr"></a>The `expr` block supports:
+<a name="nested_rules_match_expr"></a>The `expr` block supports:
 
 * `expression` -
   (Required)
   Textual representation of an expression in Common Expression Language syntax. The application context of the containing message determines which well-known feature set of CEL is supported.
 
-<a name="nested_rules_rules_match_config"></a>The `config` block supports:
+<a name="nested_rules_match_config"></a>The `config` block supports:
 
 * `src_ip_ranges` -
   (Optional)
   CIDR IP address range. Maximum number of srcIpRanges allowed is 10.
 
-<a name="nested_rules_rules_preconfigured_waf_config"></a>The `preconfigured_waf_config` block supports:
+<a name="nested_rules_preconfigured_waf_config"></a>The `preconfigured_waf_config` block supports:
 
 * `exclusion` -
   (Optional)
   An exclusion to apply during preconfigured WAF evaluation.
-  Structure is [documented below](#nested_rules_rules_preconfigured_waf_config_exclusion).
+  Structure is [documented below](#nested_rules_preconfigured_waf_config_exclusion).
 
 
-<a name="nested_rules_rules_preconfigured_waf_config_exclusion"></a>The `exclusion` block supports:
+<a name="nested_rules_preconfigured_waf_config_exclusion"></a>The `exclusion` block supports:
 
 * `target_rule_set` -
   (Required)
@@ -369,45 +369,27 @@ The following arguments are supported:
 * `request_header` -
   (Optional)
   Request header whose value will be excluded from inspection during preconfigured WAF evaluation.
-  Structure is [documented below](#nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_header).
+  Structure is [documented below](#nested_rules_preconfigured_waf_config_exclusion_request_header).
 
 * `request_cookie` -
   (Optional)
   Request cookie whose value will be excluded from inspection during preconfigured WAF evaluation.
-  Structure is [documented below](#nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_cookie).
+  Structure is [documented below](#nested_rules_preconfigured_waf_config_exclusion_request_cookie).
 
 * `request_uri` -
   (Optional)
   Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation.
   When specifying this field, the query or fragment part should be excluded.
-  Structure is [documented below](#nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_uri).
+  Structure is [documented below](#nested_rules_preconfigured_waf_config_exclusion_request_uri).
 
 * `request_query_param` -
   (Optional)
   Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation.
   Note that the parameter can be in the query string or in the POST body.
-  Structure is [documented below](#nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_query_param).
+  Structure is [documented below](#nested_rules_preconfigured_waf_config_exclusion_request_query_param).
 
 
-<a name="nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_header"></a>The `request_header` block supports:
-
-* `operator` -
-  (Required)
-  You can specify an exact match or a partial match by using a field operator and a field value.
-  Available options:
-  EQUALS: The operator matches if the field value equals the specified value.
-  STARTS_WITH: The operator matches if the field value starts with the specified value.
-  ENDS_WITH: The operator matches if the field value ends with the specified value.
-  CONTAINS: The operator matches if the field value contains the specified value.
-  EQUALS_ANY: The operator matches if the field value is any value.
-  Possible values are: `CONTAINS`, `ENDS_WITH`, `EQUALS`, `EQUALS_ANY`, `STARTS_WITH`.
-
-* `value` -
-  (Optional)
-  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
-  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
-
-<a name="nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_cookie"></a>The `request_cookie` block supports:
+<a name="nested_rules_preconfigured_waf_config_exclusion_request_header"></a>The `request_header` block supports:
 
 * `operator` -
   (Required)
@@ -425,7 +407,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_uri"></a>The `request_uri` block supports:
+<a name="nested_rules_preconfigured_waf_config_exclusion_request_cookie"></a>The `request_cookie` block supports:
 
 * `operator` -
   (Required)
@@ -443,7 +425,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_rules_rules_preconfigured_waf_config_exclusion_exclusion_request_query_param"></a>The `request_query_param` block supports:
+<a name="nested_rules_preconfigured_waf_config_exclusion_request_uri"></a>The `request_uri` block supports:
 
 * `operator` -
   (Required)
@@ -461,12 +443,30 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_rules_rules_rate_limit_options"></a>The `rate_limit_options` block supports:
+<a name="nested_rules_preconfigured_waf_config_exclusion_request_query_param"></a>The `request_query_param` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+  Possible values are: `CONTAINS`, `ENDS_WITH`, `EQUALS`, `EQUALS_ANY`, `STARTS_WITH`.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_rules_rate_limit_options"></a>The `rate_limit_options` block supports:
 
 * `rate_limit_threshold` -
   (Optional)
   Threshold at which to begin ratelimiting.
-  Structure is [documented below](#nested_rules_rules_rate_limit_options_rate_limit_threshold).
+  Structure is [documented below](#nested_rules_rate_limit_options_rate_limit_threshold).
 
 * `conform_action` -
   (Optional)
@@ -505,13 +505,13 @@ The following arguments are supported:
   If specified, any combination of values of enforceOnKeyType/enforceOnKeyName is treated as the key on which ratelimit threshold/action is enforced.
   You can specify up to 3 enforceOnKeyConfigs.
   If enforceOnKeyConfigs is specified, enforceOnKey must not be specified.
-  Structure is [documented below](#nested_rules_rules_rate_limit_options_enforce_on_key_configs).
+  Structure is [documented below](#nested_rules_rate_limit_options_enforce_on_key_configs).
 
 * `ban_threshold` -
   (Optional)
   Can only be specified if the action for the rule is "rate_based_ban".
   If specified, the key will be banned for the configured 'banDurationSec' when the number of requests that exceed the 'rateLimitThreshold' also exceed this 'banThreshold'.
-  Structure is [documented below](#nested_rules_rules_rate_limit_options_ban_threshold).
+  Structure is [documented below](#nested_rules_rate_limit_options_ban_threshold).
 
 * `ban_duration_sec` -
   (Optional)
@@ -519,7 +519,7 @@ The following arguments are supported:
   If specified, determines the time (in seconds) the traffic will continue to be banned by the rate limit after the rate falls below the threshold.
 
 
-<a name="nested_rules_rules_rate_limit_options_rate_limit_threshold"></a>The `rate_limit_threshold` block supports:
+<a name="nested_rules_rate_limit_options_rate_limit_threshold"></a>The `rate_limit_threshold` block supports:
 
 * `count` -
   (Optional)
@@ -529,7 +529,7 @@ The following arguments are supported:
   (Optional)
   Interval over which the threshold is computed.
 
-<a name="nested_rules_rules_rate_limit_options_enforce_on_key_configs"></a>The `enforce_on_key_configs` block supports:
+<a name="nested_rules_rate_limit_options_enforce_on_key_configs"></a>The `enforce_on_key_configs` block supports:
 
 * `enforce_on_key_type` -
   (Optional)
@@ -553,7 +553,7 @@ The following arguments are supported:
   HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value.
   HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.
 
-<a name="nested_rules_rules_rate_limit_options_ban_threshold"></a>The `ban_threshold` block supports:
+<a name="nested_rules_rate_limit_options_ban_threshold"></a>The `ban_threshold` block supports:
 
 * `count` -
   (Optional)
@@ -563,12 +563,12 @@ The following arguments are supported:
   (Optional)
   Interval over which the threshold is computed.
 
-<a name="nested_rules_rules_network_match"></a>The `network_match` block supports:
+<a name="nested_rules_network_match"></a>The `network_match` block supports:
 
 * `user_defined_fields` -
   (Optional)
   User-defined fields. Each element names a defined field and lists the matching values for that field.
-  Structure is [documented below](#nested_rules_rules_network_match_user_defined_fields).
+  Structure is [documented below](#nested_rules_network_match_user_defined_fields).
 
 * `src_ip_ranges` -
   (Optional)
@@ -599,7 +599,7 @@ The following arguments are supported:
   BGP Autonomous System Number associated with the source IP address.
 
 
-<a name="nested_rules_rules_network_match_user_defined_fields"></a>The `user_defined_fields` block supports:
+<a name="nested_rules_network_match_user_defined_fields"></a>The `user_defined_fields` block supports:
 
 * `name` -
   (Optional)

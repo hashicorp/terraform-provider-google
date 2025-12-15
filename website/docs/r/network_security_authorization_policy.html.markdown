@@ -137,16 +137,16 @@ The following arguments are supported:
   (Optional)
   List of attributes for the traffic source. All of the sources must match. A source is a match if both principals and ipBlocks match.
   If not set, the action specified in the 'action' field will be applied without any rule checks for the source.
-  Structure is [documented below](#nested_rules_rules_sources).
+  Structure is [documented below](#nested_rules_sources).
 
 * `destinations` -
   (Optional)
   List of attributes for the traffic destination. All of the destinations must match. A destination is a match if a request matches all the specified hosts, ports, methods and headers.
   If not set, the action specified in the 'action' field will be applied without any rule checks for the destination.
-  Structure is [documented below](#nested_rules_rules_destinations).
+  Structure is [documented below](#nested_rules_destinations).
 
 
-<a name="nested_rules_rules_sources"></a>The `sources` block supports:
+<a name="nested_rules_sources"></a>The `sources` block supports:
 
 * `principals` -
   (Optional)
@@ -158,7 +158,7 @@ The following arguments are supported:
   List of CIDR ranges to match based on source IP address. At least one IP block should match. Single IP (e.g., "1.2.3.4") and CIDR (e.g., "1.2.3.0/24") are supported. Authorization based on source IP alone should be avoided.
   The IP addresses of any load balancers or proxies should be considered untrusted.
 
-<a name="nested_rules_rules_destinations"></a>The `destinations` block supports:
+<a name="nested_rules_destinations"></a>The `destinations` block supports:
 
 * `hosts` -
   (Required)
@@ -176,10 +176,10 @@ The following arguments are supported:
   (Optional)
   Match against key:value pair in http header. Provides a flexible match based on HTTP headers, for potentially advanced use cases. At least one header should match.
   Avoid using header matches to make authorization decisions unless there is a strong guarantee that requests arrive through a trusted client or proxy.
-  Structure is [documented below](#nested_rules_rules_destinations_destinations_http_header_match).
+  Structure is [documented below](#nested_rules_destinations_http_header_match).
 
 
-<a name="nested_rules_rules_destinations_destinations_http_header_match"></a>The `http_header_match` block supports:
+<a name="nested_rules_destinations_http_header_match"></a>The `http_header_match` block supports:
 
 * `header_name` -
   (Required)

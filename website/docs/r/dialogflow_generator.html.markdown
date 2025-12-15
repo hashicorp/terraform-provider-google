@@ -139,7 +139,7 @@ The following arguments are supported:
 * `conversation_context` -
   (Optional)
   Optional. Conversation transcripts.
-  Structure is [documented below](#nested_summarization_context_few_shot_examples_few_shot_examples_conversation_context).
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_conversation_context).
 
 * `extra_info` -
   (Optional)
@@ -148,23 +148,23 @@ The following arguments are supported:
 * `output` -
   (Required)
   Required. Example output of the model.
-  Structure is [documented below](#nested_summarization_context_few_shot_examples_few_shot_examples_output).
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_output).
 
 * `summarization_section_list` -
   (Optional)
   Summarization sections.
-  Structure is [documented below](#nested_summarization_context_few_shot_examples_few_shot_examples_summarization_section_list).
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_summarization_section_list).
 
 
-<a name="nested_summarization_context_few_shot_examples_few_shot_examples_conversation_context"></a>The `conversation_context` block supports:
+<a name="nested_summarization_context_few_shot_examples_conversation_context"></a>The `conversation_context` block supports:
 
 * `message_entries` -
   (Optional)
   Optional. List of message transcripts in the conversation.
-  Structure is [documented below](#nested_summarization_context_few_shot_examples_few_shot_examples_conversation_context_message_entries).
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_conversation_context_message_entries).
 
 
-<a name="nested_summarization_context_few_shot_examples_few_shot_examples_conversation_context_message_entries"></a>The `message_entries` block supports:
+<a name="nested_summarization_context_few_shot_examples_conversation_context_message_entries"></a>The `message_entries` block supports:
 
 * `role` -
   (Optional)
@@ -183,23 +183,23 @@ The following arguments are supported:
   (Optional)
   Optional. Create time of the message entry.
 
-<a name="nested_summarization_context_few_shot_examples_few_shot_examples_output"></a>The `output` block supports:
+<a name="nested_summarization_context_few_shot_examples_output"></a>The `output` block supports:
 
 * `summary_suggestion` -
   (Optional)
   Optional. Suggested summary.
-  Structure is [documented below](#nested_summarization_context_few_shot_examples_few_shot_examples_output_summary_suggestion).
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_output_summary_suggestion).
 
 
-<a name="nested_summarization_context_few_shot_examples_few_shot_examples_output_summary_suggestion"></a>The `summary_suggestion` block supports:
+<a name="nested_summarization_context_few_shot_examples_output_summary_suggestion"></a>The `summary_suggestion` block supports:
 
 * `summary_sections` -
   (Required)
   Required. All the parts of generated summary.
-  Structure is [documented below](#nested_summarization_context_few_shot_examples_few_shot_examples_output_summary_suggestion_summary_sections).
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_output_summary_suggestion_summary_sections).
 
 
-<a name="nested_summarization_context_few_shot_examples_few_shot_examples_output_summary_suggestion_summary_sections"></a>The `summary_sections` block supports:
+<a name="nested_summarization_context_few_shot_examples_output_summary_suggestion_summary_sections"></a>The `summary_sections` block supports:
 
 * `section` -
   (Required)
@@ -209,15 +209,15 @@ The following arguments are supported:
   (Required)
   Required. Summary text for the section.
 
-<a name="nested_summarization_context_few_shot_examples_few_shot_examples_summarization_section_list"></a>The `summarization_section_list` block supports:
+<a name="nested_summarization_context_few_shot_examples_summarization_section_list"></a>The `summarization_section_list` block supports:
 
 * `summarization_sections` -
   (Optional)
   Optional. Summarization sections.
-  Structure is [documented below](#nested_summarization_context_few_shot_examples_few_shot_examples_summarization_section_list_summarization_sections).
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_summarization_section_list_summarization_sections).
 
 
-<a name="nested_summarization_context_few_shot_examples_few_shot_examples_summarization_section_list_summarization_sections"></a>The `summarization_sections` block supports:
+<a name="nested_summarization_context_few_shot_examples_summarization_section_list_summarization_sections"></a>The `summarization_sections` block supports:
 
 * `key` -
   (Optional)

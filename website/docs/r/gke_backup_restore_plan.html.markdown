@@ -782,7 +782,7 @@ The following arguments are supported:
   determine which resources in backup should be acted upon by the
   supplied transformation rule actions, and this will ensure that only
   specific resources are affected by transformation rule actions.
-  Structure is [documented below](#nested_restore_config_transformation_rules_transformation_rules_resource_filter).
+  Structure is [documented below](#nested_restore_config_transformation_rules_resource_filter).
 
 * `field_actions` -
   (Required)
@@ -790,10 +790,10 @@ The following arguments are supported:
   resources. Actions are executed in order defined - this order
   matters, as they could potentially interfere with each other and
   the first operation could affect the outcome of the second operation.
-  Structure is [documented below](#nested_restore_config_transformation_rules_transformation_rules_field_actions).
+  Structure is [documented below](#nested_restore_config_transformation_rules_field_actions).
 
 
-<a name="nested_restore_config_transformation_rules_transformation_rules_resource_filter"></a>The `resource_filter` block supports:
+<a name="nested_restore_config_transformation_rules_resource_filter"></a>The `resource_filter` block supports:
 
 * `namespaces` -
   (Optional)
@@ -812,7 +812,7 @@ The following arguments are supported:
   no type filtering will be performed
   (all resources of all types matching previous filtering parameters
   will be candidates for transformation).
-  Structure is [documented below](#nested_restore_config_transformation_rules_transformation_rules_resource_filter_group_kinds).
+  Structure is [documented below](#nested_restore_config_transformation_rules_resource_filter_group_kinds).
 
 * `json_path` -
   (Optional)
@@ -822,7 +822,7 @@ The following arguments are supported:
   be candidates for transformation).
 
 
-<a name="nested_restore_config_transformation_rules_transformation_rules_resource_filter_group_kinds"></a>The `group_kinds` block supports:
+<a name="nested_restore_config_transformation_rules_resource_filter_group_kinds"></a>The `group_kinds` block supports:
 
 * `resource_group` -
   (Optional)
@@ -835,7 +835,7 @@ The following arguments are supported:
   Kind of a Kubernetes resource, e.g.
   "CustomResourceDefinition", "StorageClass", etc.
 
-<a name="nested_restore_config_transformation_rules_transformation_rules_field_actions"></a>The `field_actions` block supports:
+<a name="nested_restore_config_transformation_rules_field_actions"></a>The `field_actions` block supports:
 
 * `op` -
   (Required)
@@ -888,16 +888,16 @@ The following arguments are supported:
   (Required)
   The satisfying group kind must be restored first
   in order to satisfy the dependency.
-  Structure is [documented below](#nested_restore_config_restore_order_group_kind_dependencies_group_kind_dependencies_satisfying).
+  Structure is [documented below](#nested_restore_config_restore_order_group_kind_dependencies_satisfying).
 
 * `requiring` -
   (Required)
   The requiring group kind requires that the satisfying
   group kind be restored first.
-  Structure is [documented below](#nested_restore_config_restore_order_group_kind_dependencies_group_kind_dependencies_requiring).
+  Structure is [documented below](#nested_restore_config_restore_order_group_kind_dependencies_requiring).
 
 
-<a name="nested_restore_config_restore_order_group_kind_dependencies_group_kind_dependencies_satisfying"></a>The `satisfying` block supports:
+<a name="nested_restore_config_restore_order_group_kind_dependencies_satisfying"></a>The `satisfying` block supports:
 
 * `resource_group` -
   (Optional)
@@ -910,7 +910,7 @@ The following arguments are supported:
   Kind of a Kubernetes resource, e.g.
   "CustomResourceDefinition", "StorageClass", etc.
 
-<a name="nested_restore_config_restore_order_group_kind_dependencies_group_kind_dependencies_requiring"></a>The `requiring` block supports:
+<a name="nested_restore_config_restore_order_group_kind_dependencies_requiring"></a>The `requiring` block supports:
 
 * `resource_group` -
   (Optional)

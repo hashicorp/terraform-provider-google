@@ -221,10 +221,10 @@ The following arguments are supported:
   type of public key, but it MUST be a valid RFC3986 URI. If id is left
   blank, a default one will be computed based on the digest of the DER
   encoding of the public key.
-  Structure is [documented below](#nested_attestation_authority_note_public_keys_public_keys_pkix_public_key).
+  Structure is [documented below](#nested_attestation_authority_note_public_keys_pkix_public_key).
 
 
-<a name="nested_attestation_authority_note_public_keys_public_keys_pkix_public_key"></a>The `pkix_public_key` block supports:
+<a name="nested_attestation_authority_note_public_keys_pkix_public_key"></a>The `pkix_public_key` block supports:
 
 * `public_key_pem` -
   (Optional)

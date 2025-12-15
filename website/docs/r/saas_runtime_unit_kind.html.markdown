@@ -154,19 +154,19 @@ The following arguments are supported:
 * `from` -
   (Optional)
   Output variables whose values will be passed on to dependencies
-  Structure is [documented below](#nested_input_variable_mappings_input_variable_mappings_from).
+  Structure is [documented below](#nested_input_variable_mappings_from).
 
 * `to` -
   (Optional)
   Input variables whose values will be passed on to dependencies
-  Structure is [documented below](#nested_input_variable_mappings_input_variable_mappings_to).
+  Structure is [documented below](#nested_input_variable_mappings_to).
 
 * `variable` -
   (Required)
   name of the variable
 
 
-<a name="nested_input_variable_mappings_input_variable_mappings_from"></a>The `from` block supports:
+<a name="nested_input_variable_mappings_from"></a>The `from` block supports:
 
 * `dependency` -
   (Required)
@@ -176,7 +176,7 @@ The following arguments are supported:
   (Required)
   Name of the outputVariable on the dependency
 
-<a name="nested_input_variable_mappings_input_variable_mappings_to"></a>The `to` block supports:
+<a name="nested_input_variable_mappings_to"></a>The `to` block supports:
 
 * `dependency` -
   (Required)
@@ -195,19 +195,19 @@ The following arguments are supported:
 * `from` -
   (Optional)
   Output variables whose values will be passed on to dependencies
-  Structure is [documented below](#nested_output_variable_mappings_output_variable_mappings_from).
+  Structure is [documented below](#nested_output_variable_mappings_from).
 
 * `to` -
   (Optional)
   Input variables whose values will be passed on to dependencies
-  Structure is [documented below](#nested_output_variable_mappings_output_variable_mappings_to).
+  Structure is [documented below](#nested_output_variable_mappings_to).
 
 * `variable` -
   (Required)
   name of the variable
 
 
-<a name="nested_output_variable_mappings_output_variable_mappings_from"></a>The `from` block supports:
+<a name="nested_output_variable_mappings_from"></a>The `from` block supports:
 
 * `dependency` -
   (Required)
@@ -217,7 +217,7 @@ The following arguments are supported:
   (Required)
   Name of the outputVariable on the dependency
 
-<a name="nested_output_variable_mappings_output_variable_mappings_to"></a>The `to` block supports:
+<a name="nested_output_variable_mappings_to"></a>The `to` block supports:
 
 * `dependency` -
   (Required)

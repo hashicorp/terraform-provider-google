@@ -31,7 +31,7 @@ To get more information about EdgeCacheKeyset, see:
     * [Create keysets](https://cloud.google.com/media-cdn/docs/create-keyset)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `public_key.public_key.value`.
+values will be stored in the raw state as plain text: `public_key.value`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
