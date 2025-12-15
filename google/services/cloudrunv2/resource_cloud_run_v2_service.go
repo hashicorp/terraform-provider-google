@@ -1030,11 +1030,12 @@ For example, if ALPHA is provided as input, but only BETA and GA-level features 
 				},
 			},
 			"scaling": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Optional:    true,
-				Description: `Scaling settings that apply to the whole service`,
-				MaxItems:    1,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
+				Description:      `Scaling settings that apply to the whole service`,
+				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"manual_instance_count": {
