@@ -60,6 +60,31 @@ func TestAccVertexAIIndexEndpoint_updated(t *testing.T) {
 	})
 }
 
+func TestAccVertexAIIndexEndpoint_psc_automation_config(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIIndexEndpointDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIIndexEndpoint_psc_automation_config(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_index_endpoint.index_endpoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "region", "labels", "terraform_labels", "private_service_connect_config.0.psc_automation_configs"},
+			},
+		},
+	})
+}
+
 func testAccVertexAIIndexEndpoint_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_index_endpoint" "index_endpoint" {
@@ -102,6 +127,46 @@ resource "google_vertex_ai_index_endpoint" "index_endpoint" {
 data "google_compute_network" "vertex_network" {
   name       = "%{network_name}"
 }
+data "google_project" "project" {}
+`, context)
+}
+
+func testAccVertexAIIndexEndpoint_psc_automation_config(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_index_endpoint" "index_endpoint" {
+  display_name = "tf-test-sample-endpoint-%{random_suffix}"
+  description  = "A sample vertex endpoint"
+  region       = "us-central1"
+  
+  labels = {
+    label-one = "value-one"
+  }
+
+  private_service_connect_config {
+    enable_private_service_connect = true
+    project_allowlist = [
+        data.google_project.project.name,
+    ]
+
+    psc_automation_configs {
+      project_id = data.google_project.project.id
+      network    = google_compute_network.network.id
+    }
+  }
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "tf-test-subnetwork-%{random_suffix}"
+  ip_cidr_range = "192.168.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+}
+
+resource "google_compute_network" "network" {
+  name                    = "tf-test-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
 data "google_project" "project" {}
 `, context)
 }
