@@ -238,8 +238,8 @@ func generateSourceRepoRepositoryIAMPolicyStateID(iamResourceAddr string) func(*
 		}
 		fmt.Printf("raw state %s\n", rawState)
 		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
-		name := rawState["name"]
-		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/repos/%s", project, name), "", "", rawState["condition.0.title"]), nil
+		repository := repositoryShortName(rawState["repository"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/repos/%s", project, repository), "", "", rawState["condition.0.title"]), nil
 	}
 }
 
@@ -255,8 +255,8 @@ func generateSourceRepoRepositoryIAMBindingStateID(iamResourceAddr string) func(
 		}
 		fmt.Printf("raw state %s\n", rawState)
 		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
-		name := rawState["name"]
-		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/repos/%s", project, name), rawState["role"], "", rawState["condition.0.title"]), nil
+		repository := repositoryShortName(rawState["repository"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/repos/%s", project, repository), rawState["role"], "", rawState["condition.0.title"]), nil
 	}
 }
 
@@ -272,7 +272,15 @@ func generateSourceRepoRepositoryIAMMemberStateID(iamResourceAddr string) func(*
 		}
 		fmt.Printf("raw state %s\n", rawState)
 		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
-		name := rawState["name"]
-		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/repos/%s", project, name), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+		repository := repositoryShortName(rawState["repository"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/repos/%s", project, repository), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
 	}
+}
+
+func repositoryShortName(repository string) string {
+	repositoryParts := strings.SplitN(repository, "/repos/", 2)
+	if len(repositoryParts) == 2 {
+		return repositoryParts[1]
+	}
+	return repository
 }
