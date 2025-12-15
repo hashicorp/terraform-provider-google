@@ -1,0 +1,3 @@
+```release-note:enhancement
+storage: updated datasource `google_storage_object_signed_url.signed_url` to use virtual style hosted url
+```
