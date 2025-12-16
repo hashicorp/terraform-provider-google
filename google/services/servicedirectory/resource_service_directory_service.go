@@ -449,7 +449,7 @@ func expandServiceDirectoryServiceMetadata(v interface{}, d tpgresource.Terrafor
 
 func resourceServiceDirectoryServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	if obj["metadata"] == nil {
-		return nil, nil
+		return obj, nil
 	}
 
 	obj["annotations"] = obj["metadata"].(map[string]string)
