@@ -174,7 +174,9 @@ The following arguments are supported:
 
 * `hybrid_replication_parameters` -
   (Optional)
-  The Hybrid Replication parameters for the volume.
+  [Volume migration](https://docs.cloud.google.com/netapp/volumes/docs/migrate/ontap/overview) and
+  [external replication](https://docs.cloud.google.com/netapp/volumes/docs/protect-data/replicate-ontap/overview)
+  are two types of Hybrid Replication. This parameter block specifies the parameters for a hybrid replication.
   Structure is [documented below](#nested_hybrid_replication_parameters).
 
 * `throughput_mibps` -
@@ -411,23 +413,24 @@ Possible values: DEFAULT, FORCE.
 
 * `peer_volume_name` -
   (Optional)
-  Required. Name of the user's local source volume to be peered with the destination volume.
+  Required. Name of the ONTAP source volume to be replicated to NetApp Volumes destination volume.
 
 * `peer_cluster_name` -
   (Optional)
-  Required. Name of the user's local source cluster to be peered with the destination cluster.
+  Required. Name of the ONTAP source cluster to be peered with NetApp Volumes.
 
 * `peer_svm_name` -
   (Optional)
-  Required. Name of the user's local source vserver svm to be peered with the destination vserver svm.
+  Required. Name of the ONTAP source vserver SVM to be peered with NetApp Volumes.
 
 * `peer_ip_addresses` -
   (Optional)
-  Required. List of node ip addresses to be peered with.
+  Required. List of all intercluster LIF IP addresses of the ONTAP source cluster.
 
 * `cluster_location` -
   (Optional)
-  Optional. Name of source cluster location associated with the Hybrid replication. This is a free-form field for the display purpose only.
+  Optional. Name of source cluster location associated with the replication. This is a free-form field
+  for display purposes only.
 
 * `description` -
   (Optional)
@@ -445,12 +448,15 @@ Possible values: DEFAULT, FORCE.
 
 * `hybrid_replication_type` -
   (Optional)
-  Optional. Type of the volume's hybrid replication.
+  Optional. Type of the hybrid replication. Use `MIGRATION` to create a volume migration
+  and `ONPREM_REPLICATION` to create an external replication.
+  Other values are read-only. `REVERSE_ONPREM_REPLICATION` is used to represent an external
+  replication which got reversed. Default is `MIGRATION`.
   Possible values are: `MIGRATION`, `CONTINUOUS_REPLICATION`, `ONPREM_REPLICATION`, `REVERSE_ONPREM_REPLICATION`.
 
 * `large_volume_constituent_count` -
   (Optional)
-  Optional. Constituent volume count for large volume.
+  Optional. If the source is a FlexGroup volume, this field needs to match the number of constituents in the FlexGroup.
 
 <a name="nested_cache_parameters"></a>The `cache_parameters` block supports:
 
