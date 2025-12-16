@@ -5,15 +5,26 @@ api_service_name: artifactregistry.googleapis.com
 api_version: v1
 api_resource_type_kind: Repository
 fields:
-    - api_field: cleanupPolicies.cleanupPolicies.action
-    - api_field: cleanupPolicies.cleanupPolicies.condition.newerThan
-    - api_field: cleanupPolicies.cleanupPolicies.condition.olderThan
-    - api_field: cleanupPolicies.cleanupPolicies.condition.packageNamePrefixes
-    - api_field: cleanupPolicies.cleanupPolicies.condition.tagPrefixes
-    - api_field: cleanupPolicies.cleanupPolicies.condition.tagState
-    - api_field: cleanupPolicies.cleanupPolicies.condition.versionNamePrefixes
-    - api_field: cleanupPolicies.cleanupPolicies.mostRecentVersions.keepCount
-    - api_field: cleanupPolicies.cleanupPolicies.mostRecentVersions.packageNamePrefixes
+    - api_field: cleanupPolicies.key
+      field: cleanup_policies.id
+    - api_field: cleanupPolicies.value.action
+      field: cleanup_policies.action
+    - api_field: cleanupPolicies.value.condition.newerThan
+      field: cleanup_policies.condition.newer_than
+    - api_field: cleanupPolicies.value.condition.olderThan
+      field: cleanup_policies.condition.older_than
+    - api_field: cleanupPolicies.value.condition.packageNamePrefixes
+      field: cleanup_policies.condition.package_name_prefixes
+    - api_field: cleanupPolicies.value.condition.tagPrefixes
+      field: cleanup_policies.condition.tag_prefixes
+    - api_field: cleanupPolicies.value.condition.tagState
+      field: cleanup_policies.condition.tag_state
+    - api_field: cleanupPolicies.value.condition.versionNamePrefixes
+      field: cleanup_policies.condition.version_name_prefixes
+    - api_field: cleanupPolicies.value.mostRecentVersions.keepCount
+      field: cleanup_policies.most_recent_versions.keep_count
+    - api_field: cleanupPolicies.value.mostRecentVersions.packageNamePrefixes
+      field: cleanup_policies.most_recent_versions.package_name_prefixes
     - api_field: cleanupPolicyDryRun
     - api_field: createTime
     - api_field: description

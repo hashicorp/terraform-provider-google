@@ -32,12 +32,20 @@ fields:
     - api_field: autoscalingPolicy.scaleInControl.maxScaledInReplicas.fixed
     - api_field: autoscalingPolicy.scaleInControl.maxScaledInReplicas.percent
     - api_field: autoscalingPolicy.scaleInControl.timeWindowSec
-    - api_field: autoscalingPolicy.scalingSchedules.scalingSchedule.description
-    - api_field: autoscalingPolicy.scalingSchedules.scalingSchedule.disabled
-    - api_field: autoscalingPolicy.scalingSchedules.scalingSchedule.durationSec
-    - api_field: autoscalingPolicy.scalingSchedules.scalingSchedule.minRequiredReplicas
-    - api_field: autoscalingPolicy.scalingSchedules.scalingSchedule.schedule
-    - api_field: autoscalingPolicy.scalingSchedules.scalingSchedule.timeZone
+    - api_field: autoscalingPolicy.scalingSchedules.key
+      field: autoscaling_policy.scaling_schedules.name
+    - api_field: autoscalingPolicy.scalingSchedules.value.description
+      field: autoscaling_policy.scaling_schedules.description
+    - api_field: autoscalingPolicy.scalingSchedules.value.disabled
+      field: autoscaling_policy.scaling_schedules.disabled
+    - api_field: autoscalingPolicy.scalingSchedules.value.durationSec
+      field: autoscaling_policy.scaling_schedules.duration_sec
+    - api_field: autoscalingPolicy.scalingSchedules.value.minRequiredReplicas
+      field: autoscaling_policy.scaling_schedules.min_required_replicas
+    - api_field: autoscalingPolicy.scalingSchedules.value.schedule
+      field: autoscaling_policy.scaling_schedules.schedule
+    - api_field: autoscalingPolicy.scalingSchedules.value.timeZone
+      field: autoscaling_policy.scaling_schedules.time_zone
     - api_field: creationTimestamp
     - api_field: description
     - api_field: name

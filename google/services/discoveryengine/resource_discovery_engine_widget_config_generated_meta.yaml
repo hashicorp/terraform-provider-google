@@ -23,9 +23,14 @@ fields:
     - api_field: uiBranding.logo.url
     - api_field: uiSettings.dataStoreUiConfigs.facetField.displayName
     - api_field: uiSettings.dataStoreUiConfigs.facetField.field
-    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.fieldsUiComponentsMap.deviceVisibility
-    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.fieldsUiComponentsMap.displayTemplate
-    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.fieldsUiComponentsMap.field
+    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.key
+      field: ui_settings.data_store_ui_configs.fields_ui_components_map.ui_component
+    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.value.deviceVisibility
+      field: ui_settings.data_store_ui_configs.fields_ui_components_map.device_visibility
+    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.value.displayTemplate
+      field: ui_settings.data_store_ui_configs.fields_ui_components_map.display_template
+    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.value.field
+      field: ui_settings.data_store_ui_configs.fields_ui_components_map.field
     - api_field: uiSettings.dataStoreUiConfigs.name
     - api_field: uiSettings.defaultSearchRequestOrderBy
     - api_field: uiSettings.disableUserEventsCollection

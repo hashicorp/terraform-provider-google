@@ -16,7 +16,10 @@ fields:
     - api_field: maintenanceWindow.startTime
     - api_field: name
     - api_field: nodeTemplate
-    - api_field: shareSettings.projectMap.projectConfig.projectId
+    - api_field: shareSettings.projectMap.key
+      field: share_settings.project_map.id
+    - api_field: shareSettings.projectMap.value.projectId
+      field: share_settings.project_map.project_id
     - api_field: shareSettings.shareType
     - api_field: size
     - api_field: zone

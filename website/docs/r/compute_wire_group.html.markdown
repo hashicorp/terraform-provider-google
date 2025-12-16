@@ -143,10 +143,10 @@ The following arguments are supported:
 
 * `interconnects` -
   (Optional)
-  Structure is [documented below](#nested_endpoints_endpoints_interconnects).
+  Structure is [documented below](#nested_endpoints_interconnects).
 
 
-<a name="nested_endpoints_endpoints_interconnects"></a>The `interconnects` block supports:
+<a name="nested_endpoints_interconnects"></a>The `interconnects` block supports:
 
 * `interconnect_name` - (Required) The identifier for this object. Format specified above.
 

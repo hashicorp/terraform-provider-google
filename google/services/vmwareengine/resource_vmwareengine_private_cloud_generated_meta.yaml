@@ -17,20 +17,34 @@ fields:
     - api_field: hcx.version
     - field: location
       provider_only: true
-    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.AutoscalingPolicy.consumedMemoryThresholds.scaleIn
-    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.AutoscalingPolicy.consumedMemoryThresholds.scaleOut
-    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.AutoscalingPolicy.cpuThresholds.scaleIn
-    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.AutoscalingPolicy.cpuThresholds.scaleOut
-    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.AutoscalingPolicy.nodeTypeId
-    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.AutoscalingPolicy.scaleOutSize
-    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.AutoscalingPolicy.storageThresholds.scaleIn
-    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.AutoscalingPolicy.storageThresholds.scaleOut
+    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.key
+      field: management_cluster.autoscaling_settings.autoscaling_policies.autoscale_policy_id
+    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.value.consumedMemoryThresholds.scaleIn
+      field: management_cluster.autoscaling_settings.autoscaling_policies.consumed_memory_thresholds.scale_in
+    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.value.consumedMemoryThresholds.scaleOut
+      field: management_cluster.autoscaling_settings.autoscaling_policies.consumed_memory_thresholds.scale_out
+    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.value.cpuThresholds.scaleIn
+      field: management_cluster.autoscaling_settings.autoscaling_policies.cpu_thresholds.scale_in
+    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.value.cpuThresholds.scaleOut
+      field: management_cluster.autoscaling_settings.autoscaling_policies.cpu_thresholds.scale_out
+    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.value.nodeTypeId
+      field: management_cluster.autoscaling_settings.autoscaling_policies.node_type_id
+    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.value.scaleOutSize
+      field: management_cluster.autoscaling_settings.autoscaling_policies.scale_out_size
+    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.value.storageThresholds.scaleIn
+      field: management_cluster.autoscaling_settings.autoscaling_policies.storage_thresholds.scale_in
+    - api_field: managementCluster.autoscalingSettings.autoscalingPolicies.value.storageThresholds.scaleOut
+      field: management_cluster.autoscaling_settings.autoscaling_policies.storage_thresholds.scale_out
     - api_field: managementCluster.autoscalingSettings.coolDownPeriod
     - api_field: managementCluster.autoscalingSettings.maxClusterNodeCount
     - api_field: managementCluster.autoscalingSettings.minClusterNodeCount
     - api_field: managementCluster.clusterId
-    - api_field: managementCluster.nodeTypeConfigs.nodeTypeConfig.customCoreCount
-    - api_field: managementCluster.nodeTypeConfigs.nodeTypeConfig.nodeCount
+    - api_field: managementCluster.nodeTypeConfigs.key
+      field: management_cluster.node_type_configs.node_type_id
+    - api_field: managementCluster.nodeTypeConfigs.value.customCoreCount
+      field: management_cluster.node_type_configs.custom_core_count
+    - api_field: managementCluster.nodeTypeConfigs.value.nodeCount
+      field: management_cluster.node_type_configs.node_count
     - api_field: managementCluster.stretchedClusterConfig.preferredLocation
     - api_field: managementCluster.stretchedClusterConfig.secondaryLocation
     - field: name

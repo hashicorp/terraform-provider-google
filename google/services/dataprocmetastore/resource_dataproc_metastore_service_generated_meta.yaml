@@ -13,8 +13,12 @@ fields:
       provider_only: true
     - api_field: encryptionConfig.kmsKey
     - api_field: endpointUri
-    - api_field: hiveMetastoreConfig.auxiliaryVersions.auxiliaryVersions.configOverrides
-    - api_field: hiveMetastoreConfig.auxiliaryVersions.auxiliaryVersions.version
+    - api_field: hiveMetastoreConfig.auxiliaryVersions.key
+      field: hive_metastore_config.auxiliary_versions.key
+    - api_field: hiveMetastoreConfig.auxiliaryVersions.value.configOverrides
+      field: hive_metastore_config.auxiliary_versions.config_overrides
+    - api_field: hiveMetastoreConfig.auxiliaryVersions.value.version
+      field: hive_metastore_config.auxiliary_versions.version
     - api_field: hiveMetastoreConfig.configOverrides
     - api_field: hiveMetastoreConfig.endpointProtocol
     - api_field: hiveMetastoreConfig.kerberosConfig.keytab.cloudSecret

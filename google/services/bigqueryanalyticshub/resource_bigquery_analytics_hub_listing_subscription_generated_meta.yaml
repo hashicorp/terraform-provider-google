@@ -16,8 +16,12 @@ fields:
     - api_field: destinationDataset.labels
     - api_field: destinationDataset.location
     - api_field: lastModifyTime
-    - api_field: linkedDatasetMap.linked_resource.linkedDataset
-    - api_field: linkedDatasetMap.linked_resource.listing
+    - api_field: linkedDatasetMap.key
+      field: linked_dataset_map.resource_name
+    - api_field: linkedDatasetMap.value.linkedDataset
+      field: linked_dataset_map.linked_dataset
+    - api_field: linkedDatasetMap.value.listing
+      field: linked_dataset_map.listing
     - api_field: linkedResources.linkedDataset
     - api_field: linkedResources.listing
     - field: listing_id

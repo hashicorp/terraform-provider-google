@@ -62,8 +62,12 @@ fields:
     - api_field: snapshot.app.audioProcessingConfig.ambientSoundConfig.volumeGainDb
     - api_field: snapshot.app.audioProcessingConfig.bargeInConfig.bargeInAwareness
     - api_field: snapshot.app.audioProcessingConfig.inactivityTimeout
-    - api_field: snapshot.app.audioProcessingConfig.synthesizeSpeechConfigs.SynthesizeSpeechConfig.speakingRate
-    - api_field: snapshot.app.audioProcessingConfig.synthesizeSpeechConfigs.SynthesizeSpeechConfig.voice
+    - api_field: snapshot.app.audioProcessingConfig.synthesizeSpeechConfigs.key
+      field: snapshot.app.audio_processing_config.synthesize_speech_configs.language_code
+    - api_field: snapshot.app.audioProcessingConfig.synthesizeSpeechConfigs.value.speakingRate
+      field: snapshot.app.audio_processing_config.synthesize_speech_configs.speaking_rate
+    - api_field: snapshot.app.audioProcessingConfig.synthesizeSpeechConfigs.value.voice
+      field: snapshot.app.audio_processing_config.synthesize_speech_configs.voice
     - api_field: snapshot.app.clientCertificateSettings.passphrase
     - api_field: snapshot.app.clientCertificateSettings.privateKey
     - api_field: snapshot.app.clientCertificateSettings.tlsCertificate

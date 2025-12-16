@@ -22,12 +22,23 @@ fields:
       provider_only: true
     - api_field: updateTime
     - api_field: usedBy.name
+    - api_field: versions.key
+      field: versions.version_name
     - api_field: versions.value.createTime
+      field: versions.create_time
     - api_field: versions.value.description
+      field: versions.description
     - api_field: versions.value.imageDigest
+      field: versions.image_digest
     - api_field: versions.value.imageUri
+      field: versions.image_uri
     - api_field: versions.value.labels
+      field: versions.labels
     - api_field: versions.value.pluginConfigData
+      field: versions.plugin_config_data
     - api_field: versions.value.pluginConfigDigest
+      field: versions.plugin_config_digest
     - api_field: versions.value.pluginConfigUri
+      field: versions.plugin_config_uri
     - api_field: versions.value.updateTime
+      field: versions.update_time

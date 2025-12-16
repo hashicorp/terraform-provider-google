@@ -20,7 +20,10 @@ fields:
     - api_field: genericWebService.requestBody
     - api_field: genericWebService.requestHeaders
     - api_field: genericWebService.secretVersionForUsernamePassword
-    - api_field: genericWebService.secretVersionsForRequestHeaders.secretVersionsForRequestHeader.secretVersion
+    - api_field: genericWebService.secretVersionsForRequestHeaders.key
+      field: generic_web_service.secret_versions_for_request_headers.key
+    - api_field: genericWebService.secretVersionsForRequestHeaders.value.secretVersion
+      field: generic_web_service.secret_versions_for_request_headers.secret_version
     - api_field: genericWebService.serviceAgentAuth
     - api_field: genericWebService.uri
     - api_field: genericWebService.webhookType
@@ -39,7 +42,10 @@ fields:
     - api_field: serviceDirectory.genericWebService.requestBody
     - api_field: serviceDirectory.genericWebService.requestHeaders
     - api_field: serviceDirectory.genericWebService.secretVersionForUsernamePassword
-    - api_field: serviceDirectory.genericWebService.secretVersionsForRequestHeaders.secretVersionsForRequestHeader.secretVersion
+    - api_field: serviceDirectory.genericWebService.secretVersionsForRequestHeaders.key
+      field: service_directory.generic_web_service.secret_versions_for_request_headers.key
+    - api_field: serviceDirectory.genericWebService.secretVersionsForRequestHeaders.value.secretVersion
+      field: service_directory.generic_web_service.secret_versions_for_request_headers.secret_version
     - api_field: serviceDirectory.genericWebService.serviceAgentAuth
     - api_field: serviceDirectory.genericWebService.uri
     - api_field: serviceDirectory.genericWebService.webhookType

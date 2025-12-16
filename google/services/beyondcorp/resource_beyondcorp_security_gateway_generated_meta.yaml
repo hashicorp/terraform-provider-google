@@ -10,7 +10,10 @@ fields:
     - api_field: delegatingServiceAccount
     - api_field: displayName
     - api_field: externalIps
-    - api_field: hubs.Hub.internetGateway.assignedIps
+    - api_field: hubs.key
+      field: hubs.region
+    - api_field: hubs.value.internetGateway.assignedIps
+      field: hubs.internet_gateway.assigned_ips
     - field: location
       provider_only: true
     - api_field: name
