@@ -8,6 +8,10 @@ fields:
     - api_field: adminEnabled
     - api_field: attachmentGroup
     - api_field: bandwidth
+    - api_field: candidateCloudRouterIpAddress
+    - api_field: candidateCloudRouterIpv6Address
+    - api_field: candidateCustomerRouterIpAddress
+    - api_field: candidateCustomerRouterIpv6Address
     - api_field: candidateSubnets
     - api_field: cloudRouterIpAddress
     - api_field: cloudRouterIpv6Address

@@ -126,7 +126,6 @@ resource "google_compute_interconnect_attachment" "custom-ranges-interconnect-at
   candidate_customer_router_ip_address   = "192.169.0.2/29"
   candidate_cloud_router_ipv6_address    = "748d:2f23:6651:9455:828b:ca81:6fe0:fed1/125"
   candidate_customer_router_ipv6_address = "748d:2f23:6651:9455:828b:ca81:6fe0:fed2/125"
-  provider                               = google-beta
 }
 
 resource "google_compute_router" "foobar" {
@@ -135,13 +134,11 @@ resource "google_compute_router" "foobar" {
   bgp {
     asn = 16550
   }
-  provider = google-beta
 }
 
 resource "google_compute_network" "foobar" {
   name                    = "test-network"
   auto_create_subnetworks = false
-  provider                = google-beta
 }
 ```
 
@@ -286,22 +283,22 @@ The following arguments are supported:
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `candidate_cloud_router_ip_address` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Single IPv4 address + prefix length to be configured on the cloud router interface for this
   interconnect attachment. Example: 203.0.113.1/29
 
 * `candidate_customer_router_ip_address` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Single IPv4 address + prefix length to be configured on the customer router interface for this
   interconnect attachment. Example: 203.0.113.2/29
 
 * `candidate_cloud_router_ipv6_address` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Single IPv6 address + prefix length to be configured on the cloud router interface for this
   interconnect attachment. Example: 2001:db8::1/125
 
 * `candidate_customer_router_ipv6_address` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Single IPv6 address + prefix length to be configured on the customer router interface for this
   interconnect attachment. Example: 2001:db8::2/125
 
