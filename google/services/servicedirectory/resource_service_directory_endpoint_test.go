@@ -107,11 +107,6 @@ resource "google_service_directory_endpoint" "example" {
   endpoint_id = "%s"
   service     = google_service_directory_service.example.id
 
-  metadata = {
-    stage  = "prod"
-    region = "us-central1"
-  }
-
   address = "1.2.3.4"
   port    = 5353
 }

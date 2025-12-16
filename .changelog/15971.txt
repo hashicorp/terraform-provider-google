@@ -1,0 +1,3 @@
+```release-note:bug
+servicedirectory: fixed an issue where `google_service_directory_endpoint` or `google_service_directory_service` without `metadata` specified would have other fields removed
+```
