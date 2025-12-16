@@ -202,6 +202,12 @@ func resourceNetappHostGroupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := make(map[string]interface{})
+	nameProp, err := expandNetappHostGroupName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	descriptionProp, err := expandNetappHostGroupDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -331,6 +337,9 @@ func resourceNetappHostGroupRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading HostGroup: %s", err)
 	}
 
+	if err := d.Set("name", flattenNetappHostGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HostGroup: %s", err)
+	}
 	if err := d.Set("state", flattenNetappHostGroupState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HostGroup: %s", err)
 	}
@@ -536,6 +545,13 @@ func resourceNetappHostGroupImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenNetappHostGroupName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
+}
+
 func flattenNetappHostGroupState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -592,6 +608,10 @@ func flattenNetappHostGroupTerraformLabels(v interface{}, d *schema.ResourceData
 
 func flattenNetappHostGroupEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func expandNetappHostGroupName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNetappHostGroupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

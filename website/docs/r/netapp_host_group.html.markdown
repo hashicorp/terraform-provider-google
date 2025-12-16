@@ -54,6 +54,10 @@ resource "google_netapp_host_group" "test_host_group" {
 The following arguments are supported:
 
 
+* `name` -
+  (Required)
+  The resource name of the Host Group. Needs to be unique per location.
+
 * `type` -
   (Required)
   Type of the host group.
@@ -73,10 +77,6 @@ The following arguments are supported:
 * `location` -
   (Required)
   Location (region) of the Host Group.
-
-* `name` -
-  (Required)
-  The resource name of the Host Group. Needs to be unique per location.
 
 
 * `description` -
