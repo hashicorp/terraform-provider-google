@@ -32,26 +32,37 @@ fields:
     - api_field: fleetDefaultMemberConfig.mesh.management
     - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.auditIntervalSeconds
     - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.constraintViolationLimit
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.containerResources.limits.cpu
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.containerResources.limits.memory
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.containerResources.requests.cpu
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.containerResources.requests.memory
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.podAffinity
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.podTolerations.effect
-      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.deployment_config.pod_toleration.effect
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.podTolerations.key
-      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.deployment_config.pod_toleration.key
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.podTolerations.operator
-      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.deployment_config.pod_toleration.operator
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.podTolerations.value
-      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.deployment_config.pod_toleration.value
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.deploymentConfig.replicaCount
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.key
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.component
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.containerResources.limits.cpu
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.container_resources.limits.cpu
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.containerResources.limits.memory
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.container_resources.limits.memory
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.containerResources.requests.cpu
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.container_resources.requests.cpu
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.containerResources.requests.memory
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.container_resources.requests.memory
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.podAffinity
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.pod_affinity
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.podTolerations.effect
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.pod_toleration.effect
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.podTolerations.key
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.pod_toleration.key
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.podTolerations.operator
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.pod_toleration.operator
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.podTolerations.value
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.pod_toleration.value
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.deploymentConfigs.value.replicaCount
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.deployment_configs.replica_count
     - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.exemptableNamespaces
     - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.installSpec
     - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.logDeniesEnabled
     - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.monitoring.backends
     - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.mutationEnabled
-    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.policyContent.bundles.bundleInstallSpec.exemptedNamespaces
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.policyContent.bundles.key
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.policy_content.bundles.bundle
+    - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.policyContent.bundles.value.exemptedNamespaces
+      field: fleet_default_member_config.policycontroller.policy_controller_hub_config.policy_content.bundles.exempted_namespaces
     - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.policyContent.templateLibrary.installation
     - api_field: fleetDefaultMemberConfig.policycontroller.policyControllerHubConfig.referentialRulesEnabled
     - api_field: fleetDefaultMemberConfig.policycontroller.version

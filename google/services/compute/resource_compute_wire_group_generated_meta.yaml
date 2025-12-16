@@ -10,8 +10,14 @@ fields:
     - field: cross_site_network
       provider_only: true
     - api_field: description
-    - api_field: endpoints.endpoints.interconnects.interconnects.interconnect
-    - api_field: endpoints.endpoints.interconnects.interconnects.vlan_tags
+    - api_field: endpoints.key
+      field: endpoints.endpoint
+    - api_field: endpoints.value.interconnects.key
+      field: endpoints.interconnects.interconnect_name
+    - api_field: endpoints.value.interconnects.value.interconnect
+      field: endpoints.interconnects.interconnect
+    - api_field: endpoints.value.interconnects.value.vlan_tags
+      field: endpoints.interconnects.vlan_tags
     - api_field: name
     - api_field: topology.endpoints.city
     - api_field: topology.endpoints.label

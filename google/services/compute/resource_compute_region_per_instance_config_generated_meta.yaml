@@ -20,14 +20,18 @@ fields:
       field: preserved_state.disk.mode
     - api_field: preservedState.disks.source
       field: preserved_state.disk.source
-    - api_field: preservedState.externalIPs.externalIp.autoDelete
-      field: preserved_state.external_ip.external_ip.auto_delete
-    - api_field: preservedState.externalIPs.externalIp.ipAddress.address
-      field: preserved_state.external_ip.external_ip.ip_address.address
-    - api_field: preservedState.internalIPs.internalIp.autoDelete
-      field: preserved_state.internal_ip.internal_ip.auto_delete
-    - api_field: preservedState.internalIPs.internalIp.ipAddress.address
-      field: preserved_state.internal_ip.internal_ip.ip_address.address
+    - api_field: preservedState.externalIPs.key
+      field: preserved_state.external_ip.interface_name
+    - api_field: preservedState.externalIPs.value.autoDelete
+      field: preserved_state.external_ip.auto_delete
+    - api_field: preservedState.externalIPs.value.ipAddress.address
+      field: preserved_state.external_ip.ip_address.address
+    - api_field: preservedState.internalIPs.key
+      field: preserved_state.internal_ip.interface_name
+    - api_field: preservedState.internalIPs.value.autoDelete
+      field: preserved_state.internal_ip.auto_delete
+    - api_field: preservedState.internalIPs.value.ipAddress.address
+      field: preserved_state.internal_ip.ip_address.address
     - api_field: preservedState.metadata
     - field: region
       provider_only: true

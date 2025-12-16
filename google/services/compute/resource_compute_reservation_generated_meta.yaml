@@ -41,7 +41,10 @@ fields:
     - api_field: resourceStatus.specificSkuAllocation.sourceInstanceTemplateId
     - api_field: resourceStatus.specificSkuAllocation.utilizations
     - api_field: satisfiesPzs
-    - api_field: shareSettings.projectMap.projectConfig.projectId
+    - api_field: shareSettings.projectMap.key
+      field: share_settings.project_map.id
+    - api_field: shareSettings.projectMap.value.projectId
+      field: share_settings.project_map.project_id
     - api_field: shareSettings.shareType
     - api_field: specificReservation.assuredCount
     - api_field: specificReservation.count

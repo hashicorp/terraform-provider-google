@@ -10,7 +10,10 @@ fields:
     - api_field: name
     - field: org_id
       provider_only: true
-    - api_field: profileAssessmentConfigs.profileAssessmentConfig.weight
+    - api_field: profileAssessmentConfigs.key
+      field: profile_assessment_configs.assessment
+    - api_field: profileAssessmentConfigs.value.weight
+      field: profile_assessment_configs.weight
     - field: profile_id
       provider_only: true
     - api_field: updateTime

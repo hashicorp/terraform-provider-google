@@ -5,7 +5,10 @@ api_service_name: compute.googleapis.com
 api_version: v1
 api_resource_type_kind: InterconnectAttachmentGroup
 fields:
-    - api_field: attachments.mapObjectName.attachment
+    - api_field: attachments.key
+      field: attachments.name
+    - api_field: attachments.value.attachment
+      field: attachments.attachment
     - api_field: configured.availabilitySla.effectiveSla
     - api_field: configured.availabilitySla.intendedSlaBlockers.attachments
     - api_field: configured.availabilitySla.intendedSlaBlockers.blockerType

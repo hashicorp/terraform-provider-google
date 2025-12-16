@@ -28,14 +28,24 @@ fields:
     - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.structuredContentTypes
     - api_field: documentProcessingConfig.defaultParsingConfig.ocrParsingConfig.useNativeText
     - api_field: documentProcessingConfig.name
-    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.digitalParsingConfig
-    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.enableImageAnnotation
-    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.enableTableAnnotation
-    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.excludeHtmlClasses
-    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.excludeHtmlElements
-    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.excludeHtmlIds
-    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.layoutParsingConfig.structuredContentTypes
-    - api_field: documentProcessingConfig.parsingConfigOverrides.parsingConfigOverrides.ocrParsingConfig.useNativeText
+    - api_field: documentProcessingConfig.parsingConfigOverrides.key
+      field: document_processing_config.parsing_config_overrides.file_type
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.digitalParsingConfig
+      field: document_processing_config.parsing_config_overrides.digital_parsing_config
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.enableImageAnnotation
+      field: document_processing_config.parsing_config_overrides.layout_parsing_config.enable_image_annotation
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.enableTableAnnotation
+      field: document_processing_config.parsing_config_overrides.layout_parsing_config.enable_table_annotation
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.excludeHtmlClasses
+      field: document_processing_config.parsing_config_overrides.layout_parsing_config.exclude_html_classes
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.excludeHtmlElements
+      field: document_processing_config.parsing_config_overrides.layout_parsing_config.exclude_html_elements
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.excludeHtmlIds
+      field: document_processing_config.parsing_config_overrides.layout_parsing_config.exclude_html_ids
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.structuredContentTypes
+      field: document_processing_config.parsing_config_overrides.layout_parsing_config.structured_content_types
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.ocrParsingConfig.useNativeText
+      field: document_processing_config.parsing_config_overrides.ocr_parsing_config.use_native_text
     - api_field: industryVertical
     - api_field: kmsKeyName
     - field: location

@@ -16,7 +16,10 @@ fields:
     - api_field: creationTimestamp
     - api_field: description
     - api_field: intent.topologyCapability
-    - api_field: interconnects.mapObjectName.interconnect
+    - api_field: interconnects.key
+      field: interconnects.name
+    - api_field: interconnects.value.interconnect
+      field: interconnects.interconnect
     - api_field: name
     - api_field: physicalStructure.metros.facilities.facility
     - api_field: physicalStructure.metros.facilities.zones.interconnects

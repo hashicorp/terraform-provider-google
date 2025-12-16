@@ -13,8 +13,12 @@ fields:
     - api_field: audioProcessingConfig.ambientSoundConfig.volumeGainDb
     - api_field: audioProcessingConfig.bargeInConfig.bargeInAwareness
     - api_field: audioProcessingConfig.inactivityTimeout
-    - api_field: audioProcessingConfig.synthesizeSpeechConfigs.SynthesizeSpeechConfig.speakingRate
-    - api_field: audioProcessingConfig.synthesizeSpeechConfigs.SynthesizeSpeechConfig.voice
+    - api_field: audioProcessingConfig.synthesizeSpeechConfigs.key
+      field: audio_processing_config.synthesize_speech_configs.language_code
+    - api_field: audioProcessingConfig.synthesizeSpeechConfigs.value.speakingRate
+      field: audio_processing_config.synthesize_speech_configs.speaking_rate
+    - api_field: audioProcessingConfig.synthesizeSpeechConfigs.value.voice
+      field: audio_processing_config.synthesize_speech_configs.voice
     - api_field: clientCertificateSettings.passphrase
     - api_field: clientCertificateSettings.privateKey
     - api_field: clientCertificateSettings.tlsCertificate

@@ -10,8 +10,12 @@ fields:
     - api_field: blockingFunctions.forwardInboundCredentials.accessToken
     - api_field: blockingFunctions.forwardInboundCredentials.idToken
     - api_field: blockingFunctions.forwardInboundCredentials.refreshToken
-    - api_field: blockingFunctions.triggers.triggers.functionUri
-    - api_field: blockingFunctions.triggers.triggers.updateTime
+    - api_field: blockingFunctions.triggers.key
+      field: blocking_functions.triggers.event_type
+    - api_field: blockingFunctions.triggers.value.functionUri
+      field: blocking_functions.triggers.function_uri
+    - api_field: blockingFunctions.triggers.value.updateTime
+      field: blocking_functions.triggers.update_time
     - api_field: client.apiKey
     - api_field: client.firebaseSubdomain
     - api_field: client.permissions.disabledUserDeletion

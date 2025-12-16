@@ -37,8 +37,12 @@ fields:
     - api_field: deployment.cloudBuildOptions.appYamlPath
     - api_field: deployment.cloudBuildOptions.cloudBuildTimeout
     - api_field: deployment.container.image
-    - api_field: deployment.files.files.sha1Sum
-    - api_field: deployment.files.files.sourceUrl
+    - api_field: deployment.files.key
+      field: deployment.files.name
+    - api_field: deployment.files.value.sha1Sum
+      field: deployment.files.sha1_sum
+    - api_field: deployment.files.value.sourceUrl
+      field: deployment.files.source_url
     - api_field: deployment.zip.filesCount
     - api_field: deployment.zip.sourceUrl
     - api_field: endpointsApiService.configId

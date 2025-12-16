@@ -6,7 +6,11 @@ api_version: v1
 api_resource_type_kind: Repo
 fields:
     - api_field: name
-    - api_field: pubsubConfigs.pubsubConfig.messageFormat
-    - api_field: pubsubConfigs.pubsubConfig.serviceAccountEmail
+    - api_field: pubsubConfigs.key
+      field: pubsub_configs.topic
+    - api_field: pubsubConfigs.value.messageFormat
+      field: pubsub_configs.message_format
+    - api_field: pubsubConfigs.value.serviceAccountEmail
+      field: pubsub_configs.service_account_email
     - api_field: size
     - api_field: url

@@ -683,7 +683,7 @@ The following arguments are supported:
 * `container_resources` -
   (Optional)
   Container resource requirements.
-  Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources).
+  Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_container_resources).
 
 * `pod_affinity` -
   (Optional)
@@ -693,33 +693,23 @@ The following arguments are supported:
 * `pod_toleration` -
   (Optional)
   Pod tolerations of node taints.
-  Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_pod_toleration).
+  Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_pod_toleration).
 
 
-<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources"></a>The `container_resources` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_container_resources"></a>The `container_resources` block supports:
 
 * `limits` -
   (Optional)
   Limits describes the maximum amount of compute resources allowed for use by the running container.
-  Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources_limits).
+  Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_container_resources_limits).
 
 * `requests` -
   (Optional)
   Requests describes the amount of compute resources reserved for the container by the kube-scheduler.
-  Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources_requests).
+  Structure is [documented below](#nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_container_resources_requests).
 
 
-<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources_limits"></a>The `limits` block supports:
-
-* `memory` -
-  (Optional)
-  Memory requirement expressed in Kubernetes resource units.
-
-* `cpu` -
-  (Optional)
-  CPU requirement expressed in Kubernetes resource units.
-
-<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_container_resources_requests"></a>The `requests` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_container_resources_limits"></a>The `limits` block supports:
 
 * `memory` -
   (Optional)
@@ -729,7 +719,17 @@ The following arguments are supported:
   (Optional)
   CPU requirement expressed in Kubernetes resource units.
 
-<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_deployment_config_pod_toleration"></a>The `pod_toleration` block supports:
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_container_resources_requests"></a>The `requests` block supports:
+
+* `memory` -
+  (Optional)
+  Memory requirement expressed in Kubernetes resource units.
+
+* `cpu` -
+  (Optional)
+  CPU requirement expressed in Kubernetes resource units.
+
+<a name="nested_fleet_default_member_config_policycontroller_policy_controller_hub_config_deployment_configs_pod_toleration"></a>The `pod_toleration` block supports:
 
 * `key` -
   (Optional)
