@@ -3037,6 +3037,84 @@ func TestAccSqlDatabaseInstance_SwitchoverSuccess(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_MysqlEplusWithFailoverReplicaSetupWithPrivateNetwork(t *testing.T) {
+	t.Parallel()
+
+	primaryName := "tf-test-mysql-primary-" + acctest.RandString(t, 10)
+	replicaName := "tf-test-mysql-replica-" + acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "endpoint")
+	projectId := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_mySqlEplusPrimaryReplicaSetupWithPrivateNetwork(projectId, primaryName, replicaName, networkName, "MYSQL_8_0"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.primary")),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_setMySqlFailoverReplicaEplusWithPrivateNetwork(projectId, primaryName, replicaName, networkName, "MYSQL_8_0"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.primary")),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_PostgresEplusWithFailoverReplicaSetupWithPrivateNetwork(t *testing.T) {
+	t.Parallel()
+
+	primaryName := "tf-test-postgres-primary-" + acctest.RandString(t, 10)
+	replicaName := "tf-test-postgres-replica-" + acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "endpoint")
+	projectId := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_postgresEplusPrimaryReplicaSetupWithPrivateNetwork(projectId, primaryName, replicaName, networkName, "POSTGRES_12"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.primary")),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_setPostgresFailoverReplicaEplusWithPrivateNetwork(projectId, primaryName, replicaName, networkName, "POSTGRES_12"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.primary")),
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_MysqlEplusWithPrivateNetwork(t *testing.T) {
 	t.Parallel()
 
@@ -5188,6 +5266,220 @@ resource "google_sql_database_instance" "original-replica" {
   }
 }
 `, project, primaryName, project, replicaName)
+}
+
+func testGoogleSqlDatabaseInstance_setMySqlFailoverReplicaEplusWithPrivateNetwork(project, primaryName, replicaName, networkName, databaseVersion string) string {
+
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "%s"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      binary_log_enabled = true
+    }
+  }
+}
+`, networkName, project, primaryName, databaseVersion, replicaName, project, replicaName, databaseVersion)
+}
+
+func testGoogleSqlDatabaseInstance_setPostgresFailoverReplicaEplusWithPrivateNetwork(project, primaryName, replicaName, networkName, databaseVersion string) string {
+
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "%s"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+  }
+}
+`, networkName, project, primaryName, databaseVersion, replicaName, project, replicaName, databaseVersion)
+}
+
+func testGoogleSqlDatabaseInstance_mySqlEplusPrimaryReplicaSetupWithPrivateNetwork(project, primaryName, replicaName, networkName, databaseVersion string) string {
+
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "%s"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      binary_log_enabled = true
+    }
+  }
+}
+`, networkName, project, primaryName, databaseVersion, project, replicaName, databaseVersion)
+}
+
+func testGoogleSqlDatabaseInstance_postgresEplusPrimaryReplicaSetupWithPrivateNetwork(project, primaryName, replicaName, networkName, databaseVersion string) string {
+
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "%s"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+  }
+}
+`, networkName, project, primaryName, databaseVersion, project, replicaName, databaseVersion)
 }
 
 func googleSqlDatabaseInstance_mysqlSetFailoverReplica(project, primaryName, replicaName string, useNormalizedDrReplicaName bool) string {

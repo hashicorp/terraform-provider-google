@@ -1224,6 +1224,7 @@ API (for read pools, effective_availability_type may differ from availability_ty
 						"psa_write_endpoint": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: fmt.Sprintf(`If set, this field indicates this instance has a private service access (PSA) DNS endpoint that is pointing to the primary instance of the cluster. If this instance is the primary, then the DNS endpoint points to this instance. After a switchover or replica failover operation, this DNS endpoint points to the promoted instance. This is a read-only field, returned to the user as information. This field can exist even if a standalone instance doesn't have a DR replica yet or the DR replica is deleted.`),
 						},
 						"failover_dr_replica_name": {
@@ -1239,7 +1240,7 @@ API (for read pools, effective_availability_type may differ from availability_ty
 						},
 					},
 				},
-				Description: "A primary instance and disaster recovery replica pair. Applicable to MySQL and PostgreSQL. This field can be set only after both the primary and replica are created.",
+				Description: "A primary instance and disaster recovery replica pair. Applicable to MySQL and PostgreSQL. This field can be set if the primary has psa_write_endpoint set or both the primary and replica are created.",
 			},
 			"server_ca_cert": {
 				Type:      schema.TypeList,
@@ -2591,9 +2592,21 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	failoverDrReplicaName := d.Get("replication_cluster.0.failover_dr_replica_name").(string)
-	if failoverDrReplicaName != "" {
-		instance.ReplicationCluster = &sqladmin.ReplicationCluster{
-			FailoverDrReplicaName: failoverDrReplicaName,
+	psaWriteEndpoint := d.Get("replication_cluster.0.psa_write_endpoint").(string)
+	if failoverDrReplicaName != "" || psaWriteEndpoint != "" {
+		if failoverDrReplicaName != "" && psaWriteEndpoint != "" {
+			instance.ReplicationCluster = &sqladmin.ReplicationCluster{
+				FailoverDrReplicaName: failoverDrReplicaName,
+				PsaWriteEndpoint:      psaWriteEndpoint,
+			}
+		} else if failoverDrReplicaName != "" {
+			instance.ReplicationCluster = &sqladmin.ReplicationCluster{
+				FailoverDrReplicaName: failoverDrReplicaName,
+			}
+		} else {
+			instance.ReplicationCluster = &sqladmin.ReplicationCluster{
+				PsaWriteEndpoint: psaWriteEndpoint,
+			}
 		}
 	}
 
