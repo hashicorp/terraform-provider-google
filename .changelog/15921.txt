@@ -1,0 +1,7 @@
+```release-note:enhancement
+sql: marked `replication_cluster.psa_write_endpoint` field as Computed in `google_sql_database_instance` resource
+```
+
+```release-note:enhancement
+sql: set `replication_cluster` when update `google_sql_database_instance` resource if there is a disaster recovery(DR) replica set or there is a PSA write endpoint
+```
