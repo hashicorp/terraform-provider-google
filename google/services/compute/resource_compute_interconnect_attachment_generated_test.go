@@ -231,6 +231,62 @@ resource "google_compute_network" "network" {
 `, context)
 }
 
+func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentCustomRangesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInterconnectAttachmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInterconnectAttachment_computeInterconnectAttachmentCustomRangesExample(context),
+			},
+			{
+				ResourceName:            "google_compute_interconnect_attachment.custom-ranges-interconnect-attachment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "region", "router", "subnet_length", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccComputeInterconnectAttachment_computeInterconnectAttachmentCustomRangesExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_interconnect_attachment" "custom-ranges-interconnect-attachment" {
+  name                                   = "tf-test-test-custom-ranges-interconnect-attachment%{random_suffix}"
+  edge_availability_domain               = "AVAILABILITY_DOMAIN_1"
+  type                                   = "PARTNER"
+  router                                 = google_compute_router.foobar.id
+  mtu                                    = 1500
+  stack_type                             = "IPV4_IPV6"
+  labels                                 = { mykey = "myvalue" }
+  candidate_cloud_router_ip_address      = "192.169.0.1/29"
+  candidate_customer_router_ip_address   = "192.169.0.2/29"
+  candidate_cloud_router_ipv6_address    = "748d:2f23:6651:9455:828b:ca81:6fe0:fed1/125"
+  candidate_customer_router_ipv6_address = "748d:2f23:6651:9455:828b:ca81:6fe0:fed2/125"
+}
+
+resource "google_compute_router" "foobar" {
+  name     = "tf-test-test-router%{random_suffix}"
+  network  = google_compute_network.foobar.name
+  bgp {
+    asn = 16550
+  }
+}
+
+resource "google_compute_network" "foobar" {
+  name                    = "tf-test-test-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func testAccCheckComputeInterconnectAttachmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
