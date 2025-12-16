@@ -1,5 +1,34 @@
 ## 7.14.0 (Unreleased)
 
+DEPRECATIONS:
+* managedkafka: added deprecation warning for `google_managed_kafka_connect_cluster` `additional_subnets` field ([#25487](https://github.com/hashicorp/terraform-provider-google/pull/25487))
+
+FEATURES:
+* **New Data Source:** `google_artifact_registry_versions` ([#25512](https://github.com/hashicorp/terraform-provider-google/pull/25512))
+* **New Data Source:** `google_cloud_identity_policies` ([#25513](https://github.com/hashicorp/terraform-provider-google/pull/25513))
+* **New Data Source:** `google_compute_region_security_policy` ([#25488](https://github.com/hashicorp/terraform-provider-google/pull/25488))
+* **New Data Source:** `google_compute_storage_pool` ([#25485](https://github.com/hashicorp/terraform-provider-google/pull/25485))
+* **New Resource:** `google_compute_cross_site_network` ([#25479](https://github.com/hashicorp/terraform-provider-google/pull/25479))
+* **New Resource:** `google_compute_wire_group` ([#25479](https://github.com/hashicorp/terraform-provider-google/pull/25479))
+* **New Resource:** `google_network_services_multicast_group_consumer_activation` ([#25515](https://github.com/hashicorp/terraform-provider-google/pull/25515))
+* **New Resource:** `google_network_services_multicast_group_producer_activation` ([#25472](https://github.com/hashicorp/terraform-provider-google/pull/25472))
+
+IMPROVEMENTS:
+* alloydb: added `connection_pool_config`, `connection_pool_config.enabled` and `connection_pool_config.flags` in `google_alloydb_instance` resource ([#25484](https://github.com/hashicorp/terraform-provider-google/pull/25484))
+* colab: added `software_config.post_startup_script_config` field to `google_colab_runtime_template` ([#25509](https://github.com/hashicorp/terraform-provider-google/pull/25509))
+* compute: added new field `instance_flexibility_policy.instance_selection.min_cpu_platform` & `instance_flexibility_policy.instance_selection.disks` to `google_compute_region_instance_group_manager` ([#25444](https://github.com/hashicorp/terraform-provider-google/pull/25444))
+* dataplex: removed the need for import in `google_dataplex_entry` when using first party source systems ([#25507](https://github.com/hashicorp/terraform-provider-google/pull/25507))
+* dataproc: added `auto_stop_time` and  `idle_stop_ttl` to `google_dataproc_cluster` resource ([#25456](https://github.com/hashicorp/terraform-provider-google/pull/25456))
+* eventarc: added `retry_policy` field to `google_eventarc_trigger` resource ([#25467](https://github.com/hashicorp/terraform-provider-google/pull/25467))
+* networksecurity: enabled in-place update for `custom_mirroring_profile.mirroring_deployment_groups` on `google_network_security_security_profile` ([#25508](https://github.com/hashicorp/terraform-provider-google/pull/25508))
+* spanner: added `autoscaling_config.autoscaling_targets.total_cpu_utilization_percent` field to  `google_spanner_instance` resource ([#25495](https://github.com/hashicorp/terraform-provider-google/pull/25495))
+* sql: added changes to ignore changes in backup configuration's fields like `enabled`, `binary_log_enabled`, `start_time`, `point_in_time_recovery_enabled`, `transaction_log_retention_days` and `backup_retention_settings.retained_backups` in `google_sql_database_instance` if the instance is managed by Google Cloud Backup and Disaster (DR) Recovery Service. ([#25516](https://github.com/hashicorp/terraform-provider-google/pull/25516))
+
+BUG FIXES:
+* compute: fixed `google_compute_network` in-place update to enable `enable_ula_internal_ipv6`. ([#25468](https://github.com/hashicorp/terraform-provider-google/pull/25468))
+* iam: fixed error 409 concurrency policy changes by correctly detecting the error type. ([#25473](https://github.com/hashicorp/terraform-provider-google/pull/25473))
+* sql: fixed an issue where the computed `psc_service_attachment_link` attribute was not being exported properly in `google_sql_database_instance` resource and datasources ([#25510](https://github.com/hashicorp/terraform-provider-google/pull/25510))
+
 ## 7.13.0 (December 9, 2025)
 
 NOTES:
