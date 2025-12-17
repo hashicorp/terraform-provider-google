@@ -17,22 +17,81 @@
 package vertexai_test
 
 import (
-	"fmt"
-	"testing"
+  "fmt"
+  "testing"
+  "time"
 
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+  "github.com/hashicorp/terraform-plugin-testing/helper/resource"
+  "github.com/hashicorp/terraform-plugin-testing/terraform"
+
+  "github.com/hashicorp/terraform-provider-google/google/acctest"
+  "github.com/hashicorp/terraform-provider-google/google/tpgresource"
+  transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccVertexAIEndpoint_vertexAiEndpointNetwork(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"endpoint_name": fmt.Sprint(acctest.RandInt(t) % 9999999999),
-		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vertex-ai-endpoint-update-1"),
-		"random_suffix": acctest.RandString(t, 10),
-	}
+  // Use a unique shared network name per test run to avoid collisions with
+  // existing endpoints in the project that may have been created by other
+  // runs. Previously this used a fixed name which could cause 400 errors
+  // from the Vertex AI API when an existing endpoint already used a
+  // different network.
+  //
+  // Cleanup semantics: the test registers a `t.Cleanup` handler that will
+  // attempt a best-effort DELETE of the Endpoint resource using the
+  // provider transport if the test fails prior to normal Terraform
+  // tear-down. This helps reduce resource leakage when tests fail mid-run
+  // (for example due to API errors or timeouts). The cleanup intentionally
+  // ignores errors and is conservative to avoid masking real failures.
+  networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "vertex-ai-endpoint-update-"+acctest.RandString(t, 8))
+
+  endpointName := fmt.Sprint(acctest.RandInt(t) % 9999999999)
+
+  // Ensure best-effort cleanup of the endpoint if the test fails part-way
+  // through creating resources. This attempts to DELETE the endpoint via the
+  // provider transport and ignores NotFound errors. It runs even if the test
+  // fails.
+  t.Cleanup(func() {
+    defer func() {
+      // swallow panics in cleanup
+      _ = recover()
+    }()
+    config := acctest.GoogleProviderConfig(t)
+
+    // Construct a fake terraform.ResourceState for ReplaceVarsForTest
+    rs := &terraform.ResourceState{
+      Primary: &terraform.InstanceState{
+        Attributes: map[string]string{
+          "project":  config.Project,
+          "location": "us-central1",
+          "name":     endpointName,
+        },
+      },
+    }
+
+    url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{VertexAIBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
+    if err != nil {
+      return
+    }
+
+    // Best-effort delete; ignore errors
+    _, _ = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+      Config:    config,
+      Method:    "DELETE",
+      Project:   config.BillingProject,
+      RawURL:    url,
+      UserAgent: config.UserAgent,
+      Timeout:   1 * time.Minute,
+    })
+  })
+
+  context := map[string]interface{}{
+    "endpoint_name": endpointName,
+    "kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+    "network_name":  networkName,
+    "random_suffix": acctest.RandString(t, 10),
+  }
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
