@@ -1,0 +1,3 @@
+```release-note:bug
+all: fixed an issue where error type 409 and 412 were not being correctly retried. This commonly shows up in IAM resources, but can appear in other resources as well
+```

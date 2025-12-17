@@ -204,9 +204,13 @@ func IsQuotaError(err error) bool {
 }
 
 func IsConflictError(err error) bool {
-	var gerr *googleapi.Error
-	if errors.As(err, &gerr) {
-		return gerr.Code == 409 || gerr.Code == 412
+	if e, ok := err.(*googleapi.Error); ok && (e.Code == 409 || e.Code == 412) {
+		return true
+	} else if !ok && errwrap.ContainsType(err, &googleapi.Error{}) {
+		e := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+		if e.Code == 409 || e.Code == 412 {
+			return true
+		}
 	}
 	return false
 }
