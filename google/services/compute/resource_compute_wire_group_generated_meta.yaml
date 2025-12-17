@@ -16,7 +16,7 @@ fields:
       field: endpoints.interconnects.interconnect_name
     - api_field: endpoints.value.interconnects.value.interconnect
       field: endpoints.interconnects.interconnect
-    - api_field: endpoints.value.interconnects.value.vlan_tags
+    - api_field: endpoints.value.interconnects.value.vlanTags
       field: endpoints.interconnects.vlan_tags
     - api_field: name
     - api_field: topology.endpoints.city

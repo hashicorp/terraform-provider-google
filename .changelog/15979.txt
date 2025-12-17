@@ -1,0 +1,9 @@
+```release-note:bug
+datacatalog: fixed issue where `google_data_catalog_tag.fields.display_name` wouldn't be read correctly from the API
+```
+
+API docs: https://docs.cloud.google.com/compute/docs/reference/rest/v1/wireGroups/insert#body.request_body.FIELDS.inlinedField_2
+
+```release-note:bug
+compute: fixed issue where `google_compute_wire_group.endpoints.interconnects.vlan_tags` wouldn't be read correctly from the API
+```
