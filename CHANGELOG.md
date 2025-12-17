@@ -1,7 +1,7 @@
 ## 7.14.1 (Unreleased)
 
 BUG FIXES:
-* provider: fixed an issue where error type 409 and 412 were not being correctly retried. This commonly shows up in IAM resources, but can appear in other resources as well (TBD)
+* provider: fixed an issue where error type 409 and 412 were not being correctly retried. This commonly shows up in IAM resources, but can appear in other resources as well ([#25596](https://github.com/hashicorp/terraform-provider-google/pull/25596))
 * servicedirectory: fixed an issue where `google_service_directory_endpoint` or `google_service_directory_service` without `metadata` specified would have other fields removed on update ([#25588](https://github.com/hashicorp/terraform-provider-google/pull/25588))
 
 ## 7.14.0 (December 12, 2025)
