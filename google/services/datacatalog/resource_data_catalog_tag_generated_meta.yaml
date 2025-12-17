@@ -10,7 +10,7 @@ fields:
       field: fields.field_name
     - api_field: fields.value.boolValue
       field: fields.bool_value
-    - api_field: fields.value.display_name
+    - api_field: fields.value.displayName
       field: fields.display_name
     - api_field: fields.value.doubleValue
       field: fields.double_value
