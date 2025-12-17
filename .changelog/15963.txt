@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `bigtable`, `zone`, `encryption_spec`, and `bigtable_options` fields to `google_vertex_ai_feature_online_store` resource
+```

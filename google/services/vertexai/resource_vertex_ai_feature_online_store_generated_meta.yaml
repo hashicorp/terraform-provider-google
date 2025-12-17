@@ -8,6 +8,8 @@ fields:
     - api_field: bigtable.autoScaling.cpuUtilizationTarget
     - api_field: bigtable.autoScaling.maxNodeCount
     - api_field: bigtable.autoScaling.minNodeCount
+    - api_field: bigtable.enableDirectBigtableAccess
+    - api_field: bigtable.zone
     - api_field: createTime
     - api_field: dedicatedServingEndpoint.privateServiceConnectConfig.enablePrivateServiceConnect
     - api_field: dedicatedServingEndpoint.privateServiceConnectConfig.projectAllowlist
@@ -15,6 +17,7 @@ fields:
     - api_field: dedicatedServingEndpoint.serviceAttachment
     - field: effective_labels
       provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
     - api_field: etag
     - field: force_destroy
       provider_only: true
