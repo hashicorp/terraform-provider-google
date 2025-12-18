@@ -1,0 +1,26 @@
+resource: google_network_connectivity_multicloud_data_transfer_config
+generation_type: mmv1
+source_file: products/networkconnectivity/MulticloudDataTransferConfig.yaml
+api_service_name: networkconnectivity.googleapis.com
+api_version: v1
+api_resource_type_kind: MulticloudDataTransferConfig
+fields:
+    - api_field: createTime
+    - api_field: description
+    - api_field: destinationsActiveCount
+    - api_field: destinationsCount
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: services.service_name
+    - api_field: services.states.effective_time
+    - api_field: services.states.state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime
