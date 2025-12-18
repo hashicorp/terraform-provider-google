@@ -44,6 +44,12 @@ fields:
       provider_only: true
     - api_field: oauthConfig.clientId
     - api_field: oauthConfig.clientSecret
+    - api_field: periodicExportConfig.gcsUri
+    - api_field: periodicExportConfig.kmsKey
+    - api_field: periodicExportConfig.startTime.hours
+    - api_field: periodicExportConfig.startTime.minutes
+    - api_field: periodicExportConfig.startTime.nanos
+    - api_field: periodicExportConfig.startTime.seconds
     - api_field: platformEdition
     - api_field: privateIpEnabled
     - api_field: pscConfig.allowedVpcs

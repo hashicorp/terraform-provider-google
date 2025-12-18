@@ -339,6 +339,11 @@ The following arguments are supported:
   disrupt service.
   Structure is [documented below](#nested_maintenance_window).
 
+* `periodic_export_config` -
+  (Optional)
+  Configuration for periodic export.
+  Structure is [documented below](#nested_periodic_export_config).
+
 * `platform_edition` -
   (Optional)
   Platform editions for a Looker instance. Each edition maps to a set of instance features, like its size. Must be one of these values:
@@ -544,6 +549,43 @@ nested resources will return an error. Possible values: DEFAULT, FORCE
 
 
 <a name="nested_maintenance_window_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_periodic_export_config"></a>The `periodic_export_config` block supports:
+
+* `kms_key` -
+  (Required)
+  Name of the CMEK key in KMS.
+  Format:
+  projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}
+
+* `gcs_uri` -
+  (Required)
+  Cloud Storage bucket URI for periodic export.
+  Format: gs://{bucket_name}
+
+* `start_time` -
+  (Required)
+  Time in UTC to start the periodic export job.
+  Structure is [documented below](#nested_periodic_export_config_start_time).
+
+
+<a name="nested_periodic_export_config_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)
