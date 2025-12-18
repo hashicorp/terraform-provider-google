@@ -193,6 +193,9 @@ func TestAccContainerCluster_resourceManagerTags(t *testing.T) {
 func TestAccContainerCluster_networkingModeRoutes(t *testing.T) {
 	t.Parallel()
 
+	// separate shared network name because test requests a specific CIDR
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster-moderoutes")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster-moderoutes", networkName)
 	firstClusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	secondClusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
@@ -201,7 +204,7 @@ func TestAccContainerCluster_networkingModeRoutes(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_networkingModeRoutes(firstClusterName, secondClusterName),
+				Config: testAccContainerCluster_networkingModeRoutes(firstClusterName, secondClusterName, networkName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "networking_mode", "ROUTES"),
 					resource.TestCheckResourceAttr("google_container_cluster.secondary", "networking_mode", "ROUTES")),
@@ -6933,13 +6936,15 @@ resource "google_container_cluster" "primary" {
 `, projectID, name, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_networkingModeRoutes(firstName, secondName string) string {
+func testAccContainerCluster_networkingModeRoutes(firstName, secondName, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name                = "%s"
   location            = "us-central1-a"
   initial_node_count  = 1
   networking_mode     = "ROUTES"
+  network             = "%s"
+  subnetwork          = "%s"
   deletion_protection = false
 }
 
@@ -6947,10 +6952,12 @@ resource "google_container_cluster" "secondary" {
   name                = "%s"
   location            = "us-central1-a"
   initial_node_count  = 1
+  network             = "%s"
+  subnetwork          = "%s"
   cluster_ipv4_cidr   = "10.96.0.0/14"
   deletion_protection = false
 }
-`, firstName, secondName)
+`, firstName, networkName, subnetworkName, secondName, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_misc(name, networkName, subnetworkName string) string {
