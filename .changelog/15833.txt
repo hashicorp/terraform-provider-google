@@ -1,0 +1,3 @@
+```release-note:breaking-change
+Use explicit FS to load templates instead of filesystem read operations. This breaks direct `loader` usage: you will need to pass a `fs.FS` if you're using this API directly.
+```
