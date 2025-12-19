@@ -1,0 +1,7 @@
+```release-note:bug
+compute: fixed update logic that causes empty instance being sent for `google_compute_network_endpoints`
+```
+
+```release-note:enhancement
+compute: promoted Port Mapping NEGs to GA in `google_compute_region_network_endpoints`
+```
