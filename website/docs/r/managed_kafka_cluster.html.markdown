@@ -233,9 +233,9 @@ The following arguments are supported:
 
 <a name="nested_broker_capacity_config"></a>The `broker_capacity_config` block supports:
 
-* `disk_size_gb` -
+* `disk_size_gib` -
   (Optional)
-  The disk to provision for each broker in Gigabytes. Minimum: 100 GB.
+  The disk to provision for each broker in Gibibytes. Minimum: 100 GiB.
 
 <a name="nested_rebalance_config"></a>The `rebalance_config` block supports:
 
