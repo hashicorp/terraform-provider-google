@@ -4123,6 +4123,85 @@ func TestAccSqlDatabaseInstance_updateInstanceTierForEnhancedBackupTierInstance(
 	})
 }
 
+func TestAccSqlDatabaseInstance_majorVersionUpgradeForEnhancedBackupTierInstance(t *testing.T) {
+	t.Parallel()
+
+	backupVault := acctest.BootstrapBackupDRVault(t, "bv-test", "us-central1")
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+		"backup_vault":  backupVault,
+		"db_version":    "MYSQL_8_0_41",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create backup plan and associate with instance
+				Config: testGoogleSqlDatabaseInstance_attachGCBDR(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_backup_dr_backup_plan_association.backup_association", "id"),
+				),
+			},
+			{
+				// Update instance database version to a new major version, which should ignore backup_configuration settings
+				Config: testGoogleSqlDatabaseInstance_majorVersionUpgradeGcbdrManagedInstance(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "database_version", "MYSQL_8_0_42"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_editionUpdateForEnhancedBackupTierInstance(t *testing.T) {
+	t.Parallel()
+
+	backupVault := acctest.BootstrapBackupDRVault(t, "bv-test", "us-central1")
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+		"backup_vault":  backupVault,
+		"db_version":    "MYSQL_8_0_41",
+		"edition":       "ENTERPRISE",
+		"tier":          "db-f1-micro",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create backup plan and associate with instance
+				Config: testGoogleSqlDatabaseInstance_attachGCBDR(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_backup_dr_backup_plan_association.backup_association", "id"),
+				),
+			},
+			{
+				// Edition upgrade, which should ignore backup_configuration settings
+				Config: testGoogleSqlDatabaseInstance_editionUpdateForGcbdrManagedInstance(context, "ENTERPRISE_PLUS", "db-perf-optimized-N-4"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.edition", "ENTERPRISE_PLUS"),
+				),
+			},
+			{
+				// Edition downgrade, which should ignore backup_configuration settings
+				Config: testGoogleSqlDatabaseInstance_editionUpdateForGcbdrManagedInstance(context, "ENTERPRISE", "db-f1-micro"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.edition", "ENTERPRISE"),
+				),
+			},
+		},
+	})
+}
+
 func testGoogleSqlDatabaseInstance_attachGCBDR(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "project" {}
@@ -4228,6 +4307,132 @@ resource "google_backup_dr_backup_plan_association" "backup_association" {
   backup_plan                   = google_backup_dr_backup_plan.plan.name
 }
 `, context)
+}
+
+func testGoogleSqlDatabaseInstance_majorVersionUpgradeGcbdrManagedInstance(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-instance-%{random_suffix}"
+  database_version = "MYSQL_8_0_42"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-f1-micro"
+
+    backup_configuration {
+      enabled            = false
+      binary_log_enabled = false
+      start_time         = "05:00"
+      
+      backup_retention_settings {
+        retained_backups = 8
+		retention_unit   = "COUNT"
+      }
+    }
+  }
+	deletion_protection = false
+}
+
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "backup_association" {
+  location                      = "us-central1" 
+  backup_plan_association_id    = "tf-test-bpa-test-%{random_suffix}"
+  resource                      = "projects/${data.google_project.project.project_id}/instances/${google_sql_database_instance.instance.name}"
+  resource_type                 = "sqladmin.googleapis.com/Instance"
+  backup_plan                   = google_backup_dr_backup_plan.plan.name
+}
+`, context)
+}
+
+func testGoogleSqlDatabaseInstance_editionUpdateForGcbdrManagedInstance(context map[string]interface{}, edition string, tier string) string {
+	// Create a copy of the context map to avoid modifying the map from the caller
+	localContext := make(map[string]interface{})
+	for k, v := range context {
+		localContext[k] = v
+	}
+	localContext["edition"] = edition
+	localContext["tier"] = tier
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-instance-%{random_suffix}"
+  database_version = "%{db_version}"
+  region           = "us-central1"
+
+  settings {
+    tier = "%{tier}"
+    edition = "%{edition}"
+
+    backup_configuration {
+      enabled            = false
+      binary_log_enabled = false
+      start_time         = "05:00"
+      
+      backup_retention_settings {
+        retained_backups = 8
+		retention_unit   = "COUNT"
+      }
+    }
+  }
+	deletion_protection = false
+}
+
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "backup_association" {
+  location                      = "us-central1" 
+  backup_plan_association_id    = "tf-test-bpa-test-%{random_suffix}"
+  resource                      = "projects/${data.google_project.project.project_id}/instances/${google_sql_database_instance.instance.name}"
+  resource_type                 = "sqladmin.googleapis.com/Instance"
+  backup_plan                   = google_backup_dr_backup_plan.plan.name
+}
+`, localContext)
 }
 
 func testGoogleSqlDatabaseInstance_setCustomSubjectAlternateName(context map[string]interface{}) string {
