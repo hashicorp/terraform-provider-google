@@ -1,0 +1,3 @@
+```release-note:enhancement
+managedkafka: replace `disk_size_gb` with `disk_size_gib` in `broker_capacity_config` within the `google_managed_kafka_cluster` resource
+```

@@ -6,7 +6,7 @@ api_version: v1
 api_resource_type_kind: Cluster
 autogen_status: true
 fields:
-    - api_field: brokerCapacityConfig.diskSizeGb
+    - api_field: brokerCapacityConfig.diskSizeGib
     - api_field: capacityConfig.memoryBytes
     - api_field: capacityConfig.vcpuCount
     - field: cluster_id
