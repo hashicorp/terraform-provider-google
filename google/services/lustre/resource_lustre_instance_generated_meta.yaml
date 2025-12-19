@@ -6,6 +6,12 @@ api_version: v1
 api_resource_type_kind: Instance
 autogen_status: true
 fields:
+    - api_field: accessRulesOptions.accessRules.ipAddressRanges
+    - api_field: accessRulesOptions.accessRules.name
+    - api_field: accessRulesOptions.accessRules.squashMode
+    - api_field: accessRulesOptions.defaultSquashGid
+    - api_field: accessRulesOptions.defaultSquashMode
+    - api_field: accessRulesOptions.defaultSquashUid
     - api_field: capacityGib
     - api_field: createTime
     - api_field: description
