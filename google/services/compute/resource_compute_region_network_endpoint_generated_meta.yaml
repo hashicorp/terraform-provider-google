@@ -5,7 +5,9 @@ api_service_name: compute.googleapis.com
 api_version: v1
 api_resource_type_kind: NetworkEndpointGroup
 fields:
+    - api_field: clientDestinationPort
     - api_field: fqdn
+    - api_field: instance
     - api_field: ipAddress
     - api_field: id
       field: network_endpoint_id
