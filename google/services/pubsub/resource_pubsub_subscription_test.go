@@ -256,6 +256,8 @@ func TestAccPubsubSubscriptionBigQuery_serviceAccount(t *testing.T) {
 	table := fmt.Sprintf("tf-test-table-%s", acctest.RandString(t, 10))
 	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
 	subscriptionShort := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
+	serviceAccount := fmt.Sprintf("bq-test-sa-%s", acctest.RandString(t, 10))
+	serviceAccount2 := fmt.Sprintf("bq-test-sa2-%s", acctest.RandString(t, 10))
 
 	acctest.BootstrapIamMembers(t, []acctest.IamMember{
 		{
@@ -277,7 +279,7 @@ func TestAccPubsubSubscriptionBigQuery_serviceAccount(t *testing.T) {
 		},
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubSubscriptionBigQuery_basic(dataset, table, topic, subscriptionShort, false, "bq-test-sa"),
+				Config: testAccPubsubSubscriptionBigQuery_basic(dataset, table, topic, subscriptionShort, false, serviceAccount),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
@@ -295,7 +297,7 @@ func TestAccPubsubSubscriptionBigQuery_serviceAccount(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccPubsubSubscriptionBigQuery_basic(dataset, table, topic, subscriptionShort, true, "bq-test-sa2"),
+				Config: testAccPubsubSubscriptionBigQuery_basic(dataset, table, topic, subscriptionShort, true, serviceAccount2),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
@@ -406,6 +408,8 @@ func TestAccPubsubSubscriptionCloudStorage_serviceAccount(t *testing.T) {
 	bucket := fmt.Sprintf("tf-test-bucket-%s", acctest.RandString(t, 10))
 	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
 	subscriptionShort := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
+	serviceAccount := fmt.Sprintf("gcs-test-sa-%s", acctest.RandString(t, 10))
+	serviceAccount2 := fmt.Sprintf("gcs-test-sa2-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -413,7 +417,7 @@ func TestAccPubsubSubscriptionCloudStorage_serviceAccount(t *testing.T) {
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubSubscriptionCloudStorage_basic(bucket, topic, subscriptionShort, "", "", "", 0, "", 0, "gcs-test-sa", "text"),
+				Config: testAccPubsubSubscriptionCloudStorage_basic(bucket, topic, subscriptionShort, "", "", "", 0, "", 0, serviceAccount, "text"),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
@@ -431,7 +435,7 @@ func TestAccPubsubSubscriptionCloudStorage_serviceAccount(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccPubsubSubscriptionCloudStorage_basic(bucket, topic, subscriptionShort, "", "", "", 0, "", 0, "gcs-test-sa2", "avro"),
+				Config: testAccPubsubSubscriptionCloudStorage_basic(bucket, topic, subscriptionShort, "", "", "", 0, "", 0, serviceAccount2, "avro"),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
