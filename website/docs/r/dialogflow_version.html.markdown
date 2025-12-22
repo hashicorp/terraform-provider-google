@@ -58,7 +58,7 @@ resource "google_project_service_identity" "gcp_sa" {
 }
 resource "google_dialogflow_agent" "basic_agent" {
   display_name = "example_agent"
-  default_language_code = "en-us"
+  default_language_code = "en"
   time_zone = "America/New_York"
   project    = google_project.project.project_id
   depends_on = [time_sleep.wait_enable_service_api]
