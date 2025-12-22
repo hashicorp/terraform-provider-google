@@ -15,3 +15,120 @@
 //
 // ----------------------------------------------------------------------------
 package networksecurity_test
+
+import (
+	"fmt"
+	"strings"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+)
+
+func TestAccNetworkSecurityDnsThreatDetector_update(t *testing.T) {
+	t.Parallel()
+
+	dnsThreatDetectorName := fmt.Sprintf("tf-test-dtd-%s", acctest.RandString(t, 10))
+	vpcName := fmt.Sprintf("tf-test-dtd-vpc-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecurityDnsThreatDetectorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecurityDnsThreatDetector_basic(dnsThreatDetectorName),
+			},
+			{
+				ResourceName:            "google_network_security_dns_threat_detector.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetworkSecurityDnsThreatDetector_update(dnsThreatDetectorName, vpcName),
+			},
+			{
+				ResourceName:            "google_network_security_dns_threat_detector.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkSecurityDnsThreatDetector_basic(name string) string {
+	return fmt.Sprintf(`
+resource "google_network_security_dns_threat_detector" "foobar" {
+  name                     = "%s"
+  location                 = "global"
+  threat_detector_provider = "INFOBLOX"
+  labels                   = {
+    foo = "bar"
+  }
+}
+`, name)
+}
+
+func testAccNetworkSecurityDnsThreatDetector_update(name, vpcName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_security_dns_threat_detector" "foobar" {
+  name                     = "%s"
+  location                 = "global"
+  threat_detector_provider = "INFOBLOX"
+  excluded_networks        = [ google_compute_network.foobar.id ]
+  labels                   = {
+    foo = "bar"
+  }
+}
+`, vpcName, name)
+}
+
+func testAccCheckNetworkSecurityDnsThreatDetectorDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_network_security_dns_threat_detector" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := acctest.GoogleProviderConfig(t)
+
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/dnsThreatDetectors/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
+			if err == nil {
+				return fmt.Errorf("DnsThreatDetector still exists at %s", url)
+			}
+		}
+
+		return nil
+	}
+}
