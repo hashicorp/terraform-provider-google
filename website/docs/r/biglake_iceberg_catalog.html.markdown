@@ -28,11 +28,12 @@ To get more information about IcebergCatalog, see:
 * How-to Guides
     * [Use the BigLake metastore Iceberg REST catalog](https://docs.cloud.google.com/biglake/docs/blms-rest-catalog)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=biglake_iceberg_catalog&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
+~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource's IAM,
+you must specify a `billing_project` and set `user_project_override` to true
+in the provider configuration. Otherwise the IAM API will return 403s.
+Your account must have the `serviceusage.services.use` permission on the
+`billing_project` you defined.
+
 ## Example Usage - Biglake Iceberg Catalog
 
 
@@ -83,7 +84,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `restcatalog/extensions/projects/{{project}}/catalogs/{{name}}`
+* `id` - an identifier for the resource with format `iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}`
 
 * `biglake_service_account` -
   Output only. The service account used for credential vending. It might be empty if credential vending was never enabled for the catalog.
@@ -129,7 +130,7 @@ This resource provides the following
 
 IcebergCatalog can be imported using any of these accepted formats:
 
-* `restcatalog/extensions/projects/{{project}}/catalogs/{{name}}`
+* `iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}`
 * `{{project}}/{{name}}`
 * `{{name}}`
 
@@ -138,7 +139,7 @@ In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashico
 
 ```tf
 import {
-  id = "restcatalog/extensions/projects/{{project}}/catalogs/{{name}}"
+  id = "iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}"
   to = google_biglake_iceberg_catalog.default
 }
 ```
@@ -146,7 +147,7 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), IcebergCatalog can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_biglake_iceberg_catalog.default restcatalog/extensions/projects/{{project}}/catalogs/{{name}}
+$ terraform import google_biglake_iceberg_catalog.default iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}
 $ terraform import google_biglake_iceberg_catalog.default {{project}}/{{name}}
 $ terraform import google_biglake_iceberg_catalog.default {{name}}
 ```

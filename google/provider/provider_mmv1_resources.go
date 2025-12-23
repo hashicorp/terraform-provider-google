@@ -466,6 +466,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_artifact_registry_repository_iam_policy":            tpgiamresource.DataSourceIamPolicy(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer),
 	"google_beyondcorp_security_gateway_iam_policy":             tpgiamresource.DataSourceIamPolicy(beyondcorp.BeyondcorpSecurityGatewayIamSchema, beyondcorp.BeyondcorpSecurityGatewayIamUpdaterProducer),
 	"google_beyondcorp_security_gateway_application_iam_policy": tpgiamresource.DataSourceIamPolicy(beyondcorp.BeyondcorpSecurityGatewayApplicationIamSchema, beyondcorp.BeyondcorpSecurityGatewayApplicationIamUpdaterProducer),
+	"google_biglake_iceberg_catalog_iam_policy":                 tpgiamresource.DataSourceIamPolicy(biglakeiceberg.BiglakeIcebergIcebergCatalogIamSchema, biglakeiceberg.BiglakeIcebergIcebergCatalogIamUpdaterProducer),
 	"google_bigquery_table_iam_policy":                          tpgiamresource.DataSourceIamPolicy(bigquery.BigQueryTableIamSchema, bigquery.BigQueryTableIamUpdaterProducer),
 	"google_bigquery_analytics_hub_data_exchange_iam_policy":    tpgiamresource.DataSourceIamPolicy(bigqueryanalyticshub.BigqueryAnalyticsHubDataExchangeIamSchema, bigqueryanalyticshub.BigqueryAnalyticsHubDataExchangeIamUpdaterProducer),
 	"google_bigquery_analytics_hub_listing_iam_policy":          tpgiamresource.DataSourceIamPolicy(bigqueryanalyticshub.BigqueryAnalyticsHubListingIamSchema, bigqueryanalyticshub.BigqueryAnalyticsHubListingIamUpdaterProducer),
@@ -590,8 +591,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 
 // Resources
 // Generated resources: 704
-// Generated IAM resources: 324
-// Total generated resources: 1028
+// Generated IAM resources: 327
+// Total generated resources: 1031
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -693,6 +694,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_biglake_database":                                                    biglake.ResourceBiglakeDatabase(),
 	"google_biglake_table":                                                       biglake.ResourceBiglakeTable(),
 	"google_biglake_iceberg_catalog":                                             biglakeiceberg.ResourceBiglakeIcebergIcebergCatalog(),
+	"google_biglake_iceberg_catalog_iam_binding":                                 tpgiamresource.ResourceIamBinding(biglakeiceberg.BiglakeIcebergIcebergCatalogIamSchema, biglakeiceberg.BiglakeIcebergIcebergCatalogIamUpdaterProducer, biglakeiceberg.BiglakeIcebergIcebergCatalogIdParseFunc),
+	"google_biglake_iceberg_catalog_iam_member":                                  tpgiamresource.ResourceIamMember(biglakeiceberg.BiglakeIcebergIcebergCatalogIamSchema, biglakeiceberg.BiglakeIcebergIcebergCatalogIamUpdaterProducer, biglakeiceberg.BiglakeIcebergIcebergCatalogIdParseFunc),
+	"google_biglake_iceberg_catalog_iam_policy":                                  tpgiamresource.ResourceIamPolicy(biglakeiceberg.BiglakeIcebergIcebergCatalogIamSchema, biglakeiceberg.BiglakeIcebergIcebergCatalogIamUpdaterProducer, biglakeiceberg.BiglakeIcebergIcebergCatalogIdParseFunc),
 	"google_bigquery_dataset":                                                    bigquery.ResourceBigQueryDataset(),
 	"google_bigquery_dataset_access":                                             bigquery.ResourceBigQueryDatasetAccess(),
 	"google_bigquery_job":                                                        bigquery.ResourceBigQueryJob(),
