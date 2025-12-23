@@ -108,6 +108,77 @@ To [detach](https://cloud.google.com/memorystore/docs/cluster/working-with-cross
           * Execute `terraform plan` once again. This should not generate any diff, confirming the configuration is in sync with the infrastructure.
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_ha_with_labels&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Cluster Ha With Labels
+
+
+```hcl
+resource "google_redis_cluster" "cluster-ha-with-labels" {
+  name           = "ha-cluster"
+  shard_count    = 3
+  labels = {
+    my_key = "my_val"
+    other_key = "other_val" 
+  }
+  psc_configs {
+    network = google_compute_network.consumer_net.id
+  }
+  region = "us-central1"
+  replica_count = 1
+  node_type = "REDIS_SHARED_CORE_NANO"
+  transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
+  authorization_mode = "AUTH_MODE_DISABLED"
+  redis_configs = {
+    maxmemory-policy	= "volatile-ttl"
+  }
+  deletion_protection_enabled = true
+
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name = "my-policy"
+  location = "us-central1"
+  service_class = "gcp-memorystore-redis"
+  description   = "my basic service connection policy"
+  network = google_compute_network.consumer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.consumer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "my-subnet"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.consumer_net.id
+}
+
+resource "google_compute_network" "consumer_net" {
+  name                    = "my-network"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_ha&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -608,6 +679,12 @@ The following arguments are supported:
   projects/{projectId}/locations/{locationId}/clusters/{clusterId}
 
 
+* `labels` -
+  (Optional)
+  Resource labels to represent user provided metadata.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `gcs_source` -
   (Optional)
   Backups stored in Cloud Storage buckets. The Cloud Storage buckets need to be the same region as the clusters.
@@ -1025,6 +1102,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `managed_server_ca` -
   Cluster's Certificate Authority. This field will only be populated if Redis Cluster's transit_encryption_mode is TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION
   Structure is [documented below](#nested_managed_server_ca).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_discovery_endpoints"></a>The `discovery_endpoints` block contains:
