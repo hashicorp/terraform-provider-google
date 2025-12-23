@@ -25,9 +25,12 @@ fields:
     - api_field: discoveryEndpoints.address
     - api_field: discoveryEndpoints.port
     - api_field: discoveryEndpoints.pscConfig.network
+    - field: effective_labels
+      provider_only: true
     - api_field: effectiveMaintenanceVersion
     - api_field: gcsSource.uris
     - api_field: kmsKey
+    - api_field: labels
     - api_field: maintenancePolicy.createTime
     - api_field: maintenancePolicy.updateTime
     - api_field: maintenancePolicy.weeklyMaintenanceWindow.day
@@ -67,6 +70,8 @@ fields:
     - api_field: state
     - api_field: stateInfo.updateInfo.targetReplicaCount
     - api_field: stateInfo.updateInfo.targetShardCount
+    - field: terraform_labels
+      provider_only: true
     - api_field: transitEncryptionMode
     - api_field: uid
     - api_field: zoneDistributionConfig.mode

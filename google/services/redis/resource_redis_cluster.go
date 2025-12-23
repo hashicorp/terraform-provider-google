@@ -104,6 +104,7 @@ func ResourceRedisCluster() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
 		),
@@ -324,6 +325,15 @@ Default value is true.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The KMS key used to encrypt the at-rest data of the cluster.`,
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Resource labels to represent user provided metadata.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"maintenance_policy": {
 				Type:        schema.TypeList,
@@ -658,6 +668,12 @@ projects/{network_project_id}/global/networks/{network_id}.`,
 					},
 				},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"effective_maintenance_version": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -817,6 +833,13 @@ resolution and up to nine fractional digits.`,
 					},
 				},
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -943,6 +966,12 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
 	}
+	effectiveLabelsProp, err := expandRedisClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
 
 	obj, err = resourceRedisClusterEncoder(d, meta, obj)
 	if err != nil {
@@ -1067,6 +1096,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 
+	if err := d.Set("labels", flattenRedisClusterLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("create_time", flattenRedisClusterCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1149,6 +1181,12 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("managed_server_ca", flattenRedisClusterManagedServerCa(res["managedServerCa"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("terraform_labels", flattenRedisClusterTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenRedisClusterEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 
@@ -1243,6 +1281,12 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
 	}
+	effectiveLabelsProp, err := expandRedisClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
 
 	obj, err = resourceRedisClusterEncoder(d, meta, obj)
 	if err != nil {
@@ -1304,6 +1348,10 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("kms_key") {
 		updateMask = append(updateMask, "kmsKey")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1423,6 +1471,21 @@ func resourceRedisClusterImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenRedisClusterLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenRedisClusterCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2216,6 +2279,25 @@ func flattenRedisClusterManagedServerCaCaCertsCertificates(v interface{}, d *sch
 	return v
 }
 
+func flattenRedisClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenRedisClusterEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandRedisClusterGcsSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -2954,6 +3036,17 @@ func expandRedisClusterCrossClusterReplicationConfigUpdateTime(v interface{}, d 
 
 func expandRedisClusterKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandRedisClusterEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func resourceRedisClusterEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
