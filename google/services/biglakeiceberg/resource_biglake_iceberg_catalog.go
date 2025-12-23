@@ -208,7 +208,7 @@ func resourceBiglakeIcebergIcebergCatalogCreate(d *schema.ResourceData, meta int
 		obj["catalog-type"] = catalogTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}")
 	if err != nil {
 		return err
 	}
@@ -221,6 +221,10 @@ func resourceBiglakeIcebergIcebergCatalogCreate(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error fetching project for IcebergCatalog: %s", err)
 	}
 	billingProject = project
+
+	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
+		billingProject = parts[1]
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -243,7 +247,7 @@ func resourceBiglakeIcebergIcebergCatalogCreate(d *schema.ResourceData, meta int
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -261,7 +265,7 @@ func resourceBiglakeIcebergIcebergCatalogRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -273,6 +277,10 @@ func resourceBiglakeIcebergIcebergCatalogRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error fetching project for IcebergCatalog: %s", err)
 	}
 	billingProject = project
+
+	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
+		billingProject = parts[1]
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -347,7 +355,7 @@ func resourceBiglakeIcebergIcebergCatalogUpdate(d *schema.ResourceData, meta int
 		obj["credential-mode"] = credentialModeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -413,12 +421,15 @@ func resourceBiglakeIcebergIcebergCatalogDelete(d *schema.ResourceData, meta int
 	}
 	billingProject = project
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
+	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
+		billingProject = parts[1]
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -449,7 +460,7 @@ func resourceBiglakeIcebergIcebergCatalogDelete(d *schema.ResourceData, meta int
 func resourceBiglakeIcebergIcebergCatalogImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"^restcatalog/extensions/projects/(?P<project>[^/]+)/catalogs/(?P<name>[^/]+)$",
+		"^iceberg/v1/restcatalog/extensions/projects/(?P<project>[^/]+)/catalogs/(?P<name>[^/]+)$",
 		"^(?P<project>[^/]+)/(?P<name>[^/]+)$",
 		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
@@ -457,7 +468,7 @@ func resourceBiglakeIcebergIcebergCatalogImport(d *schema.ResourceData, meta int
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

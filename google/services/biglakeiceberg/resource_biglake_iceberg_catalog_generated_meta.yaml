@@ -2,7 +2,7 @@ resource: google_biglake_iceberg_catalog
 generation_type: mmv1
 source_file: products/biglakeiceberg/IcebergCatalog.yaml
 api_service_name: biglake.googleapis.com
-api_version: v1
+api_version: ""
 api_resource_type_kind: IcebergCatalog
 fields:
     - api_field: biglake-service-account

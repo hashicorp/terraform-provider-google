@@ -106,7 +106,7 @@ func testAccCheckBiglakeIcebergIcebergCatalogDestroyProducer(t *testing.T) func(
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BiglakeIcebergBasePath}}restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
 			if err != nil {
 				return err
 			}

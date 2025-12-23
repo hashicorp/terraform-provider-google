@@ -1,0 +1,15 @@
+```release-note:new-resource
+`google_biglake_iceberg_catalog_iam_policy`
+```
+
+```release-note:new-resource
+`google_biglake_iceberg_catalog_iam_binding`
+```
+
+```release-note:new-resource
+`google_biglake_iceberg_catalog_iam_member`
+```
+
+```release-note:enhancement
+biglakeiceberg: made `google_biglake_iceberg_catalog` use the resource project as the quota project when `user_project_override` is `true`
+```

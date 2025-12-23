@@ -613,7 +613,7 @@ var DefaultBasePaths = map[string]string{
 	BackupDRBasePathKey:                 "https://backupdr.googleapis.com/v1/",
 	BeyondcorpBasePathKey:               "https://beyondcorp.googleapis.com/v1/",
 	BiglakeBasePathKey:                  "https://biglake.googleapis.com/v1/",
-	BiglakeIcebergBasePathKey:           "https://biglake.googleapis.com/iceberg/v1/",
+	BiglakeIcebergBasePathKey:           "https://biglake.googleapis.com/",
 	BigQueryBasePathKey:                 "https://bigquery.googleapis.com/bigquery/v2/",
 	BigqueryAnalyticsHubBasePathKey:     "https://analyticshub.googleapis.com/v1/",
 	BigqueryConnectionBasePathKey:       "https://bigqueryconnection.googleapis.com/v1/",
