@@ -79,6 +79,7 @@ resource "google_iam_workforce_pool_provider_scim_tenant" "tenant" {
     "google.subject"  = "user.externalId",
     "google.group"    = "group.externalId"
   }
+  hard_delete         = true
   # state, base_uri, purge_time and service_agent are output only, not settable
 }
 

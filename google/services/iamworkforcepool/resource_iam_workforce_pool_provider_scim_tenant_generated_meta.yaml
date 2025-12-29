@@ -9,6 +9,8 @@ fields:
     - api_field: claimMapping
     - api_field: description
     - api_field: displayName
+    - field: hard_delete
+      provider_only: true
     - field: location
       provider_only: true
     - api_field: name
