@@ -19,7 +19,6 @@ package storage
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -119,7 +118,7 @@ func ResourceStorageBucket() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: `When deleting a bucket, this boolean option will delete all contained objects, or anywhereCaches (if any). If you try to delete a bucket that contains objects or anywhereCaches, Terraform will fail that run, deleting anywhereCaches may take 80 minutes to complete.`,
+				Description: `When true, before deleting a bucket, delete all objects within the bucket, or Anywhere Caches caching data for that bucket. Otherwise, buckets with objects/caches will fail. Anywhere Cache requires additional permissions to interact with and will be ignored when those are not present, attempting to delete anyways. This may result in the objects in the bucket getting destroyed but not the bucket itself if there is a cache in use with the bucket. Force deletion may take a long time to delete buckets with lots of objects or with any Anywhere Caches (80m+).`,
 			},
 
 			"labels": {
@@ -1200,93 +1199,99 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	// Get the bucket
 	bucket := d.Get("name").(string)
+	forceDestroy := d.Get("force_destroy").(bool)
 
-	var listError, deleteObjectError, deleteCacheError error
-	for deleteObjectError == nil {
-		res, err := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true).Do()
-		if err != nil {
-			log.Printf("Error listing contents of bucket %s: %v", bucket, err)
-			// If we can't list the contents, try deleting the bucket anyway in case it's empty
-			listError = err
-			break
-		}
+	// set up force_destroy state- we're deleting multiple resource kinds and parallelising those deletions, so we
+	// store some data in function scope to handle during cleanup
+	var objectsListError, deleteObjectError, deleteCacheError error
 
-		cacheList, cacheListErr := getAnywhereCacheListResult(d, config)
-		if cacheListErr != nil {
-			// If we get any error, try deleting the bucket anyway in case it's empty
-			// This would help our customers to avoid requiring extra storage.anywhereCaches.list permission.
-			break
-		}
+	// Create a workerpool for parallel deletion of resources. In the
+	// future, it would be great to expose Terraform's global parallelism
+	// flag here, but that's currently reserved for core use. Testing
+	// shows that NumCPUs-1 is the most performant on average networks.
+	//
+	// The challenge with making this user-configurable is that the
+	// configuration would reside in the Terraform configuration file,
+	// decreasing its portability. Ideally we'd want this to connect to
+	// Terraform's top-level -parallelism flag, but that's not plumbed nor
+	// is it scheduled to be plumbed to individual providers.
+	wp := workerpool.New(runtime.NumCPU() - 1)
 
-		if len(res.Items) == 0 && len(cacheList) == 0 {
-			break // 0 items and no caches, bucket empty
-		}
-
-		if d.Get("retention_policy.0.is_locked").(bool) {
-			for _, item := range res.Items {
-				expiration, err := time.Parse(time.RFC3339, item.RetentionExpirationTime)
-				if err != nil {
-					return err
-				}
-				if expiration.After(time.Now()) {
-					deleteErr := errors.New("Bucket '" + d.Get("name").(string) + "' contains objects that have not met the retention period yet and cannot be deleted.")
-					log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
-					return deleteErr
-				}
-			}
-		}
-
-		if !d.Get("force_destroy").(bool) {
+	// delete anywhere caches
+	cacheList, _ := getAnywhereCacheListResult(d, config) // intentionally ignore errors on list- this requires extra permissions (storage.anywhereCaches.list) and we fall through if not permissioned
+	if len(cacheList) != 0 {
+		if !forceDestroy {
 			deleteErr := fmt.Errorf("Error trying to delete bucket %s without `force_destroy` set to true", bucket)
-			log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+			log.Printf("[DEBUG] Error attempting to delete bucket %q with anywhere caches present: %s\n\n", bucket, deleteErr)
 			return deleteErr
 		}
 
-		// GCS requires that a bucket be empty (have no objects or object
-		// versions) before it can be deleted.
-		log.Printf("[DEBUG] GCS Bucket attempting to forceDestroy\n\n")
-
-		// Create a workerpool for parallel deletion of resources. In the
-		// future, it would be great to expose Terraform's global parallelism
-		// flag here, but that's currently reserved for core use. Testing
-		// shows that NumCPUs-1 is the most performant on average networks.
-		//
-		// The challenge with making this user-configurable is that the
-		// configuration would reside in the Terraform configuration file,
-		// decreasing its portability. Ideally we'd want this to connect to
-		// Terraform's top-level -parallelism flag, but that's not plumbed nor
-		// is it scheduled to be plumbed to individual providers.
-		wp := workerpool.New(runtime.NumCPU() - 1)
-
+		log.Printf("[DEBUG] Attempting to destroy %v anywhere caches on bucket %q due to `force_destroy` being set to true.", len(cacheList), bucket)
 		wp.Submit(func() {
 			err = deleteAnywhereCacheIfAny(d, config)
 			if err != nil {
 				deleteCacheError = fmt.Errorf("error deleting the caches on the bucket %s : %w", bucket, err)
 			}
 		})
+	}
 
-		for _, object := range res.Items {
-			log.Printf("[DEBUG] Found %s", object.Name)
-			object := object
+	// delete objects
+	for deleteObjectError == nil {
+		listResponse, listErr := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true).Do()
+		if listErr != nil {
+			log.Printf("Error listing contents of bucket %s: %v", bucket, listErr)
+			// If we can't list the contents, fall through and try deleting the bucket anyway in case it's empty
+			objectsListError = listErr
+			break
+		}
+
+		if len(listResponse.Items) == 0 {
+			break // 0 items, bucket empty
+		}
+
+		if d.Get("retention_policy.0.is_locked").(bool) {
+			for _, item := range listResponse.Items {
+				expiration, err := time.Parse(time.RFC3339, item.RetentionExpirationTime)
+				if err != nil {
+					return err
+				}
+
+				if expiration.After(time.Now()) {
+					deleteErr := fmt.Errorf("Bucket %q contains objects that have not met the retention period yet and cannot be deleted.", bucket)
+					log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+					return deleteErr
+				}
+			}
+		}
+
+		if !forceDestroy {
+			deleteErr := fmt.Errorf("Error trying to delete bucket %s without `force_destroy` set to true", bucket)
+			log.Printf("[DEBUG] Error attempting to delete bucket %q with objects: %s\n\n", bucket, deleteErr)
+			return deleteErr
+		}
+
+		// GCS requires that a bucket be empty (have no objects or object versions) before it can be deleted.
+		log.Printf("[DEBUG] Attempting to destroy %v objects in bucket %q due to `force_destroy` being set to true. There may be more objects- additional pages are not checked in advance.", len(listResponse.Items), bucket)
+
+		for _, object := range listResponse.Items {
+			object := object // ensure that local variable is maintained over loop iterations. Go probably fixed this issue but that should be evaluated in depth.
 
 			wp.Submit(func() {
-				log.Printf("[TRACE] Attempting to delete %s", object.Name)
-				if err := config.NewStorageClient(userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
+				log.Printf("[DEBUG] Deleting object %q in bucket %q", object.Name, bucket)
+				err := config.NewStorageClient(userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do()
+				if err != nil {
 					deleteObjectError = err
-					log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
-				} else {
-					log.Printf("[TRACE] Successfully deleted %s", object.Name)
+					log.Printf("[DEBUG] Failed to delete object %q in bucket %q: %s", object.Name, bucket, err)
 				}
 			})
 		}
-
-		// Wait for everything to finish.
-		wp.StopWait()
 	}
 
-	// remove empty bucket
+	// Wait for all force-destroyed children (objects, anywhere caches) to finish getting destroyed
+	wp.StopWait()
+
+	// destroy bucket
 	err = retry.Retry(1*time.Minute, func() *retry.RetryError {
 		err := config.NewStorageClient(userAgent).Buckets.Delete(bucket).Do()
 		if err == nil {
@@ -1297,8 +1302,8 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		}
 		return retry.NonRetryableError(err)
 	})
-	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && listError != nil {
-		return fmt.Errorf("could not delete non-empty bucket due to error when listing contents: %v", listError)
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && objectsListError != nil {
+		return fmt.Errorf("could not delete non-empty bucket due to error when listing contents: %v", objectsListError)
 	}
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && deleteObjectError != nil {
 		return fmt.Errorf("could not delete non-empty bucket due to error when deleting contents: %v", deleteObjectError)
