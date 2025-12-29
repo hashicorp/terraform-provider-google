@@ -93,6 +93,7 @@ exported:
 * `address` - The IP address (for example `1.2.3.4`).
 * `address_type` - The IP address type, can be `EXTERNAL` or `INTERNAL`.
 * `description` - The IP address description.
+* `prefix_length` - The prefix length of the IP range. If not present, it means the address field is a single IP address.
 * `status` - Indicates if the address is used. Possible values are: RESERVED or IN_USE.
 * `labels` - (Beta only) A map containing IP labels.
 * `region` - The region in which the address resides.
