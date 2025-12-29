@@ -1,0 +1,1 @@
+unknown: Allow empty fields  for serviceDiscovery, userInfo, groupInfo and deviceInfo
