@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed `google_storage_bucket` behavior when `force_destroy` is set to `true`. Previously, failing to list anywhere caches would prevent destroying objects on the bucket. Now, both objects and caches are processed independently.
+```
