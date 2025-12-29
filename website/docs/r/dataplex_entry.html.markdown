@@ -272,7 +272,7 @@ EOF
 }
 
 resource "google_bigquery_dataset" "example-dataset" {
-  dataset_id                  = "dataset-basic"
+  dataset_id                  = "dataset_basic"
   friendly_name               = "Example Dataset"
   location                    = "us-central1"
   delete_contents_on_destroy  = true

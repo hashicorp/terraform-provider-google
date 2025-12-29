@@ -360,7 +360,7 @@ EOF
 }
 
 resource "google_bigquery_dataset" "example-dataset" {
-  dataset_id                  = "tf-test-dataset-basic%{random_suffix}"
+  dataset_id                  = "tf_test_dataset_basic%{random_suffix}"
   friendly_name               = "Example Dataset"
   location                    = "us-central1"
   delete_contents_on_destroy  = true
