@@ -144,6 +144,12 @@ func ResourceIAMWorkforcePoolWorkforcePoolProviderScimTenant() *schema.Resource 
 				Optional:    true,
 				Description: `A user-specified display name for the scim tenant. Cannot exceed 32 characters.`,
 			},
+			"hard_delete": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Deletes the SCIM tenant immediately. This operation cannot be undone.`,
+				Default:     false,
+			},
 			"base_uri": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -425,7 +431,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantDelete(d *schema.Res
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}/scimTenants/{{scim_tenant_id}}?hardDelete={{hard_delete}}")
 	if err != nil {
 		return err
 	}
