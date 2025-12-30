@@ -211,6 +211,22 @@ func resourceAccessContextManagerEgressPolicyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if resourceValue, ok := d.GetOk("resource"); ok && resourceValue.(string) != "" {
+			if err = identity.Set("resource", resourceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
+		}
+		if egressPolicyNameValue, ok := d.GetOk("egress_policy_name"); ok && egressPolicyNameValue.(string) != "" {
+			if err = identity.Set("egress_policy_name", egressPolicyNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting egress_policy_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = AccessContextManagerOperationWaitTime(
 		config, res, "Creating EgressPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -275,21 +291,21 @@ func resourceAccessContextManagerEgressPolicyRead(d *schema.ResourceData, meta i
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("resource"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("resource"); !ok && v == "" {
 			err = identity.Set("resource", d.Get("resource").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting resource: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("egress_policy_name"); ok && v != "" {
+		if v, ok := identity.GetOk("egress_policy_name"); !ok && v == "" {
 			err = identity.Set("egress_policy_name", d.Get("egress_policy_name").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting egress_policy_name: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

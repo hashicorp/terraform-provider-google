@@ -251,6 +251,22 @@ func resourceComputeInstanceSettingsCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if zoneValue, ok := d.GetOk("zone"); ok && zoneValue.(string) != "" {
+			if err = identity.Set("zone", zoneValue.(string)); err != nil {
+				return fmt.Errorf("Error setting zone: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = ComputeOperationWaitTime(
 		config, res, project, "Creating InstanceSettings", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -319,21 +335,21 @@ func resourceComputeInstanceSettingsRead(d *schema.ResourceData, meta interface{
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("zone"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("zone"); !ok && v == "" {
 			err = identity.Set("zone", d.Get("zone").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting zone: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -343,6 +359,22 @@ func resourceComputeInstanceSettingsUpdate(d *schema.ResourceData, meta interfac
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if zoneValue, ok := d.GetOk("zone"); ok && zoneValue.(string) != "" {
+			if err = identity.Set("zone", zoneValue.(string)); err != nil {
+				return fmt.Errorf("Error setting zone: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

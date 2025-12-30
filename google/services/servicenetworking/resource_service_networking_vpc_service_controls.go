@@ -289,27 +289,27 @@ func resourceServiceNetworkingVPCServiceControlsRead(d *schema.ResourceData, met
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("network"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("network"); !ok && v == "" {
 			err = identity.Set("network", d.Get("network").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting network: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("service"); ok && v != "" {
+		if v, ok := identity.GetOk("service"); !ok && v == "" {
 			err = identity.Set("service", d.Get("service").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting service: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

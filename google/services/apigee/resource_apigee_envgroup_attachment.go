@@ -190,6 +190,22 @@ func resourceApigeeEnvgroupAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if envgroupIdValue, ok := d.GetOk("envgroup_id"); ok && envgroupIdValue.(string) != "" {
+			if err = identity.Set("envgroup_id", envgroupIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting envgroup_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
@@ -259,21 +275,21 @@ func resourceApigeeEnvgroupAttachmentRead(d *schema.ResourceData, meta interface
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("name"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
 			err = identity.Set("name", d.Get("name").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting name: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("envgroup_id"); ok && v != "" {
+		if v, ok := identity.GetOk("envgroup_id"); !ok && v == "" {
 			err = identity.Set("envgroup_id", d.Get("envgroup_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting envgroup_id: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

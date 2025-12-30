@@ -228,6 +228,22 @@ func resourceApphubServiceProjectAttachmentCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if serviceProjectAttachmentIdValue, ok := d.GetOk("service_project_attachment_id"); ok && serviceProjectAttachmentIdValue.(string) != "" {
+			if err = identity.Set("service_project_attachment_id", serviceProjectAttachmentIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting service_project_attachment_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = ApphubOperationWaitTime(
 		config, res, project, "Creating ServiceProjectAttachment", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -302,21 +318,21 @@ func resourceApphubServiceProjectAttachmentRead(d *schema.ResourceData, meta int
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("service_project_attachment_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("service_project_attachment_id"); !ok && v == "" {
 			err = identity.Set("service_project_attachment_id", d.Get("service_project_attachment_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting service_project_attachment_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

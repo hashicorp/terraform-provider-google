@@ -289,6 +289,32 @@ func resourceGeminiRepositoryGroupCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if codeRepositoryIndexValue, ok := d.GetOk("code_repository_index"); ok && codeRepositoryIndexValue.(string) != "" {
+			if err = identity.Set("code_repository_index", codeRepositoryIndexValue.(string)); err != nil {
+				return fmt.Errorf("Error setting code_repository_index: %s", err)
+			}
+		}
+		if repositoryGroupIdValue, ok := d.GetOk("repository_group_id"); ok && repositoryGroupIdValue.(string) != "" {
+			if err = identity.Set("repository_group_id", repositoryGroupIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting repository_group_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = GeminiOperationWaitTime(
 		config, res, project, "Creating RepositoryGroup", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -370,33 +396,33 @@ func resourceGeminiRepositoryGroupRead(d *schema.ResourceData, meta interface{})
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("location"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("code_repository_index"); ok && v != "" {
+		if v, ok := identity.GetOk("code_repository_index"); !ok && v == "" {
 			err = identity.Set("code_repository_index", d.Get("code_repository_index").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting code_repository_index: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("repository_group_id"); ok && v != "" {
+		if v, ok := identity.GetOk("repository_group_id"); !ok && v == "" {
 			err = identity.Set("repository_group_id", d.Get("repository_group_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting repository_group_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -406,6 +432,32 @@ func resourceGeminiRepositoryGroupUpdate(d *schema.ResourceData, meta interface{
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if codeRepositoryIndexValue, ok := d.GetOk("code_repository_index"); ok && codeRepositoryIndexValue.(string) != "" {
+			if err = identity.Set("code_repository_index", codeRepositoryIndexValue.(string)); err != nil {
+				return fmt.Errorf("Error setting code_repository_index: %s", err)
+			}
+		}
+		if repositoryGroupIdValue, ok := d.GetOk("repository_group_id"); ok && repositoryGroupIdValue.(string) != "" {
+			if err = identity.Set("repository_group_id", repositoryGroupIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting repository_group_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

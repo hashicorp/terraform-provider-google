@@ -324,6 +324,27 @@ func resourceBigqueryDatapolicyv2DataPolicyCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if dataPolicyIdValue, ok := d.GetOk("data_policy_id"); ok && dataPolicyIdValue.(string) != "" {
+			if err = identity.Set("data_policy_id", dataPolicyIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting data_policy_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating DataPolicy %q: %#v", d.Id(), res)
 
 	return resourceBigqueryDatapolicyv2DataPolicyRead(d, meta)
@@ -397,27 +418,27 @@ func resourceBigqueryDatapolicyv2DataPolicyRead(d *schema.ResourceData, meta int
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("data_policy_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("data_policy_id"); !ok && v == "" {
 			err = identity.Set("data_policy_id", d.Get("data_policy_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting data_policy_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("location"); ok && v != "" {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -427,6 +448,27 @@ func resourceBigqueryDatapolicyv2DataPolicyUpdate(d *schema.ResourceData, meta i
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if dataPolicyIdValue, ok := d.GetOk("data_policy_id"); ok && dataPolicyIdValue.(string) != "" {
+			if err = identity.Set("data_policy_id", dataPolicyIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting data_policy_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

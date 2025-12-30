@@ -577,6 +577,22 @@ func resourceBillingBudgetCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if billingAccountValue, ok := d.GetOk("billing_account"); ok && billingAccountValue.(string) != "" {
+			if err = identity.Set("billing_account", billingAccountValue.(string)); err != nil {
+				return fmt.Errorf("Error setting billing_account: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating Budget %q: %#v", d.Id(), res)
 
 	return resourceBillingBudgetRead(d, meta)
@@ -637,21 +653,21 @@ func resourceBillingBudgetRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("name"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
 			err = identity.Set("name", d.Get("name").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting name: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("billing_account"); ok && v != "" {
+		if v, ok := identity.GetOk("billing_account"); !ok && v == "" {
 			err = identity.Set("billing_account", d.Get("billing_account").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting billing_account: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -661,6 +677,22 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
+			if err = identity.Set("name", nameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if billingAccountValue, ok := d.GetOk("billing_account"); ok && billingAccountValue.(string) != "" {
+			if err = identity.Set("billing_account", billingAccountValue.(string)); err != nil {
+				return fmt.Errorf("Error setting billing_account: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

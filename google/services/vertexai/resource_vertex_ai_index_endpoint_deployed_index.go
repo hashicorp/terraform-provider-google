@@ -477,6 +477,32 @@ func resourceVertexAIIndexEndpointDeployedIndexCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if deployedIndexIdValue, ok := d.GetOk("deployed_index_id"); ok && deployedIndexIdValue.(string) != "" {
+			if err = identity.Set("deployed_index_id", deployedIndexIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting deployed_index_id: %s", err)
+			}
+		}
+		if indexEndpointValue, ok := d.GetOk("index_endpoint"); ok && indexEndpointValue.(string) != "" {
+			if err = identity.Set("index_endpoint", indexEndpointValue.(string)); err != nil {
+				return fmt.Errorf("Error setting index_endpoint: %s", err)
+			}
+		}
+		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
+			if err = identity.Set("region", regionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = VertexAIOperationWaitTime(
 		config, res, project, "Creating IndexEndpointDeployedIndex", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -577,33 +603,33 @@ func resourceVertexAIIndexEndpointDeployedIndexRead(d *schema.ResourceData, meta
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("deployed_index_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("deployed_index_id"); !ok && v == "" {
 			err = identity.Set("deployed_index_id", d.Get("deployed_index_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting deployed_index_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("index_endpoint"); ok && v != "" {
+		if v, ok := identity.GetOk("index_endpoint"); !ok && v == "" {
 			err = identity.Set("index_endpoint", d.Get("index_endpoint").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting index_endpoint: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("region"); ok && v != "" {
+		if v, ok := identity.GetOk("region"); !ok && v == "" {
 			err = identity.Set("region", d.Get("region").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting region: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -614,6 +640,32 @@ func resourceVertexAIIndexEndpointDeployedIndexUpdate(d *schema.ResourceData, me
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if deployedIndexIdValue, ok := d.GetOk("deployed_index_id"); ok && deployedIndexIdValue.(string) != "" {
+			if err = identity.Set("deployed_index_id", deployedIndexIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting deployed_index_id: %s", err)
+			}
+		}
+		if indexEndpointValue, ok := d.GetOk("index_endpoint"); ok && indexEndpointValue.(string) != "" {
+			if err = identity.Set("index_endpoint", indexEndpointValue.(string)); err != nil {
+				return fmt.Errorf("Error setting index_endpoint: %s", err)
+			}
+		}
+		if regionValue, ok := d.GetOk("region"); ok && regionValue.(string) != "" {
+			if err = identity.Set("region", regionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

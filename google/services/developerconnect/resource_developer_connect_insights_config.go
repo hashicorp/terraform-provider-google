@@ -478,6 +478,27 @@ func resourceDeveloperConnectInsightsConfigCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if insightsConfigIdValue, ok := d.GetOk("insights_config_id"); ok && insightsConfigIdValue.(string) != "" {
+			if err = identity.Set("insights_config_id", insightsConfigIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting insights_config_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = DeveloperConnectOperationWaitTime(
 		config, res, project, "Creating InsightsConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -576,27 +597,27 @@ func resourceDeveloperConnectInsightsConfigRead(d *schema.ResourceData, meta int
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("location"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("insights_config_id"); ok && v != "" {
+		if v, ok := identity.GetOk("insights_config_id"); !ok && v == "" {
 			err = identity.Set("insights_config_id", d.Get("insights_config_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting insights_config_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -606,6 +627,27 @@ func resourceDeveloperConnectInsightsConfigUpdate(d *schema.ResourceData, meta i
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if insightsConfigIdValue, ok := d.GetOk("insights_config_id"); ok && insightsConfigIdValue.(string) != "" {
+			if err = identity.Set("insights_config_id", insightsConfigIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting insights_config_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
