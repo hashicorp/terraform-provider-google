@@ -622,6 +622,56 @@ resource "google_cloud_run_v2_service" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_service_zip_deploy&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Service Zip Deploy
+
+
+```hcl
+resource "google_storage_bucket" "sourcebucket" {
+  provider = google-beta
+  name     = "${data.google_project.project.project_id}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "source_tar" {
+  provider = google-beta
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.sourcebucket.name
+  source = "./test-fixtures/cr-zip-nodejs-hello.tar.gz"
+}
+
+resource "google_cloud_run_v2_service" "default" {
+  provider = google-beta
+  name     = "cloudrun-zip-service"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    containers {
+      image = "scratch"
+      base_image_uri = "us-central1-docker.pkg.dev/serverless-runtimes/google-24-full/runtimes/nodejs24"
+      command = ["node"]
+      args = ["index.js"]
+      source_code {
+        cloud_storage_source {
+          bucket = google_storage_bucket.sourcebucket.name
+          object = google_storage_bucket_object.source_tar.name
+          generation = google_storage_bucket_object.source_tar.generation
+        }
+      }
+    }
+  }
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -936,6 +986,11 @@ When the field is set to false, deleting the service is allowed.
   The build info of the container image.
   Structure is [documented below](#nested_template_containers_build_info).
 
+* `source_code` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Location of the source.
+  Structure is [documented below](#nested_template_containers_source_code).
+
 
 <a name="nested_template_containers_env"></a>The `env` block supports:
 
@@ -1182,6 +1237,28 @@ When the field is set to false, deleting the service is allowed.
 * `source_location` -
   (Output)
   Source code location of the image.
+
+<a name="nested_template_containers_source_code"></a>The `source_code` block supports:
+
+* `cloud_storage_source` -
+  (Optional)
+  Cloud Storage source.
+  Structure is [documented below](#nested_template_containers_source_code_cloud_storage_source).
+
+
+<a name="nested_template_containers_source_code_cloud_storage_source"></a>The `cloud_storage_source` block supports:
+
+* `bucket` -
+  (Required)
+  The Cloud Storage bucket name.
+
+* `object` -
+  (Required)
+  The Cloud Storage object name.
+
+* `generation` -
+  (Optional)
+  The Cloud Storage object generation. The is an int64 value. As with most Google APIs, its JSON representation will be a string instead of an integer.
 
 <a name="nested_template_volumes"></a>The `volumes` block supports:
 
