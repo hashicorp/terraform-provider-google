@@ -1,0 +1,3 @@
+```release-note:note
+lustre: increased delete and update operation timeouts from 20 minutes to 60 minutes for `google_lustre_instance` resource
+```
