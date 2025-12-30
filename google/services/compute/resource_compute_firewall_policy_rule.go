@@ -499,6 +499,22 @@ func resourceComputeFirewallPolicyRuleCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if priorityValue, ok := d.GetOk("priority"); ok && priorityValue.(string) != "" {
+			if err = identity.Set("priority", priorityValue.(string)); err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if firewallPolicyValue, ok := d.GetOk("firewall_policy"); ok && firewallPolicyValue.(string) != "" {
+			if err = identity.Set("firewall_policy", firewallPolicyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting firewall_policy: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	parent := d.Get("firewall_policy").(string)
 	var opRes map[string]interface{}
 	err = ComputeOrgOperationWaitTimeWithResponse(
@@ -595,21 +611,21 @@ func resourceComputeFirewallPolicyRuleRead(d *schema.ResourceData, meta interfac
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("priority"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("priority"); !ok && v == "" {
 			err = identity.Set("priority", d.Get("priority").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting priority: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("firewall_policy"); ok && v != "" {
+		if v, ok := identity.GetOk("firewall_policy"); !ok && v == "" {
 			err = identity.Set("firewall_policy", d.Get("firewall_policy").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting firewall_policy: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -619,6 +635,22 @@ func resourceComputeFirewallPolicyRuleUpdate(d *schema.ResourceData, meta interf
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if priorityValue, ok := d.GetOk("priority"); ok && priorityValue.(string) != "" {
+			if err = identity.Set("priority", priorityValue.(string)); err != nil {
+				return fmt.Errorf("Error setting priority: %s", err)
+			}
+		}
+		if firewallPolicyValue, ok := d.GetOk("firewall_policy"); ok && firewallPolicyValue.(string) != "" {
+			if err = identity.Set("firewall_policy", firewallPolicyValue.(string)); err != nil {
+				return fmt.Errorf("Error setting firewall_policy: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

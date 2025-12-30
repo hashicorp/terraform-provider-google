@@ -290,6 +290,27 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportCreate(d *schema.Resou
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
+			if err = identity.Set("organization", organizationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+		if bigQueryExportIdValue, ok := d.GetOk("big_query_export_id"); ok && bigQueryExportIdValue.(string) != "" {
+			if err = identity.Set("big_query_export_id", bigQueryExportIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting big_query_export_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating OrganizationSccBigQueryExport %q: %#v", d.Id(), res)
 
 	return resourceSecurityCenterV2OrganizationSccBigQueryExportRead(d, meta)
@@ -353,27 +374,27 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportRead(d *schema.Resourc
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("organization"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("organization"); !ok && v == "" {
 			err = identity.Set("organization", d.Get("organization").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting organization: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("big_query_export_id"); ok && v != "" {
+		if v, ok := identity.GetOk("big_query_export_id"); !ok && v == "" {
 			err = identity.Set("big_query_export_id", d.Get("big_query_export_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting big_query_export_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("location"); ok && v != "" {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -383,6 +404,27 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportUpdate(d *schema.Resou
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
+			if err = identity.Set("organization", organizationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+		if bigQueryExportIdValue, ok := d.GetOk("big_query_export_id"); ok && bigQueryExportIdValue.(string) != "" {
+			if err = identity.Set("big_query_export_id", bigQueryExportIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting big_query_export_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

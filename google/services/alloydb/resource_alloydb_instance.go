@@ -670,6 +670,27 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if clusterValue, ok := d.GetOk("cluster"); ok && clusterValue.(string) != "" {
+			if err = identity.Set("cluster", clusterValue.(string)); err != nil {
+				return fmt.Errorf("Error setting cluster: %s", err)
+			}
+		}
+		if instanceIdValue, ok := d.GetOk("instance_id"); ok && instanceIdValue.(string) != "" {
+			if err = identity.Set("instance_id", instanceIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = AlloydbOperationWaitTime(
 		config, res, project, "Creating Instance", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -794,27 +815,27 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("cluster"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("cluster"); !ok && v == "" {
 			err = identity.Set("cluster", d.Get("cluster").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting cluster: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("instance_id"); ok && v != "" {
+		if v, ok := identity.GetOk("instance_id"); !ok && v == "" {
 			err = identity.Set("instance_id", d.Get("instance_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting instance_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -825,6 +846,27 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if clusterValue, ok := d.GetOk("cluster"); ok && clusterValue.(string) != "" {
+			if err = identity.Set("cluster", clusterValue.(string)); err != nil {
+				return fmt.Errorf("Error setting cluster: %s", err)
+			}
+		}
+		if instanceIdValue, ok := d.GetOk("instance_id"); ok && instanceIdValue.(string) != "" {
+			if err = identity.Set("instance_id", instanceIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

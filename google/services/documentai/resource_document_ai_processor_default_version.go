@@ -193,6 +193,17 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if processorValue, ok := d.GetOk("processor"); ok && processorValue.(string) != "" {
+			if err = identity.Set("processor", processorValue.(string)); err != nil {
+				return fmt.Errorf("Error setting processor: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating ProcessorDefaultVersion %q: %#v", d.Id(), res)
 
 	return resourceDocumentAIProcessorDefaultVersionRead(d, meta)
@@ -240,15 +251,15 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("processor"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("processor"); !ok && v == "" {
 			err = identity.Set("processor", d.Get("processor").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting processor: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

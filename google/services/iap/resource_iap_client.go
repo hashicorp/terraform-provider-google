@@ -206,6 +206,22 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if clientIdValue, ok := d.GetOk("client_id"); ok && clientIdValue.(string) != "" {
+			if err = identity.Set("client_id", clientIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting client_id: %s", err)
+			}
+		}
+		if brandValue, ok := d.GetOk("brand"); ok && brandValue.(string) != "" {
+			if err = identity.Set("brand", brandValue.(string)); err != nil {
+				return fmt.Errorf("Error setting brand: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
 
 	return resourceIapClientRead(d, meta)
@@ -255,21 +271,21 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("client_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("client_id"); !ok && v == "" {
 			err = identity.Set("client_id", d.Get("client_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting client_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("brand"); ok && v != "" {
+		if v, ok := identity.GetOk("brand"); !ok && v == "" {
 			err = identity.Set("brand", d.Get("brand").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting brand: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

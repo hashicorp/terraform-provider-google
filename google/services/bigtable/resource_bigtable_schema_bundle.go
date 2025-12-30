@@ -248,6 +248,32 @@ func resourceBigtableSchemaBundleCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if schemaBundleIdValue, ok := d.GetOk("schema_bundle_id"); ok && schemaBundleIdValue.(string) != "" {
+			if err = identity.Set("schema_bundle_id", schemaBundleIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting schema_bundle_id: %s", err)
+			}
+		}
+		if instanceValue, ok := d.GetOk("instance"); ok && instanceValue.(string) != "" {
+			if err = identity.Set("instance", instanceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if tableValue, ok := d.GetOk("table"); ok && tableValue.(string) != "" {
+			if err = identity.Set("table", tableValue.(string)); err != nil {
+				return fmt.Errorf("Error setting table: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating SchemaBundle %q: %#v", d.Id(), res)
 
 	return resourceBigtableSchemaBundleRead(d, meta)
@@ -303,33 +329,33 @@ func resourceBigtableSchemaBundleRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("schema_bundle_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("schema_bundle_id"); !ok && v == "" {
 			err = identity.Set("schema_bundle_id", d.Get("schema_bundle_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting schema_bundle_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("instance"); ok && v != "" {
+		if v, ok := identity.GetOk("instance"); !ok && v == "" {
 			err = identity.Set("instance", d.Get("instance").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting instance: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("table"); ok && v != "" {
+		if v, ok := identity.GetOk("table"); !ok && v == "" {
 			err = identity.Set("table", d.Get("table").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting table: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -339,6 +365,32 @@ func resourceBigtableSchemaBundleUpdate(d *schema.ResourceData, meta interface{}
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if schemaBundleIdValue, ok := d.GetOk("schema_bundle_id"); ok && schemaBundleIdValue.(string) != "" {
+			if err = identity.Set("schema_bundle_id", schemaBundleIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting schema_bundle_id: %s", err)
+			}
+		}
+		if instanceValue, ok := d.GetOk("instance"); ok && instanceValue.(string) != "" {
+			if err = identity.Set("instance", instanceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting instance: %s", err)
+			}
+		}
+		if tableValue, ok := d.GetOk("table"); ok && tableValue.(string) != "" {
+			if err = identity.Set("table", tableValue.(string)); err != nil {
+				return fmt.Errorf("Error setting table: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

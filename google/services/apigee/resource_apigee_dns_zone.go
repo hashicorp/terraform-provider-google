@@ -238,6 +238,22 @@ func resourceApigeeDnsZoneCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if dnsZoneIdValue, ok := d.GetOk("dns_zone_id"); ok && dnsZoneIdValue.(string) != "" {
+			if err = identity.Set("dns_zone_id", dnsZoneIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting dns_zone_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = ApigeeOperationWaitTime(
 		config, res, "Creating DnsZone", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -299,21 +315,21 @@ func resourceApigeeDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); !ok && v == "" {
 			err = identity.Set("org_id", d.Get("org_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting org_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("dns_zone_id"); ok && v != "" {
+		if v, ok := identity.GetOk("dns_zone_id"); !ok && v == "" {
 			err = identity.Set("dns_zone_id", d.Get("dns_zone_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting dns_zone_id: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

@@ -268,6 +268,32 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantCreate(d *schema.Res
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if workforcePoolIdValue, ok := d.GetOk("workforce_pool_id"); ok && workforcePoolIdValue.(string) != "" {
+			if err = identity.Set("workforce_pool_id", workforcePoolIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workforce_pool_id: %s", err)
+			}
+		}
+		if providerIdValue, ok := d.GetOk("provider_id"); ok && providerIdValue.(string) != "" {
+			if err = identity.Set("provider_id", providerIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting provider_id: %s", err)
+			}
+		}
+		if scimTenantIdValue, ok := d.GetOk("scim_tenant_id"); ok && scimTenantIdValue.(string) != "" {
+			if err = identity.Set("scim_tenant_id", scimTenantIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting scim_tenant_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
@@ -348,33 +374,33 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantRead(d *schema.Resou
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("location"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("workforce_pool_id"); ok && v != "" {
+		if v, ok := identity.GetOk("workforce_pool_id"); !ok && v == "" {
 			err = identity.Set("workforce_pool_id", d.Get("workforce_pool_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting workforce_pool_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("provider_id"); ok && v != "" {
+		if v, ok := identity.GetOk("provider_id"); !ok && v == "" {
 			err = identity.Set("provider_id", d.Get("provider_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting provider_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("scim_tenant_id"); ok && v != "" {
+		if v, ok := identity.GetOk("scim_tenant_id"); !ok && v == "" {
 			err = identity.Set("scim_tenant_id", d.Get("scim_tenant_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting scim_tenant_id: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -384,6 +410,32 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTenantUpdate(d *schema.Res
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if workforcePoolIdValue, ok := d.GetOk("workforce_pool_id"); ok && workforcePoolIdValue.(string) != "" {
+			if err = identity.Set("workforce_pool_id", workforcePoolIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting workforce_pool_id: %s", err)
+			}
+		}
+		if providerIdValue, ok := d.GetOk("provider_id"); ok && providerIdValue.(string) != "" {
+			if err = identity.Set("provider_id", providerIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting provider_id: %s", err)
+			}
+		}
+		if scimTenantIdValue, ok := d.GetOk("scim_tenant_id"); ok && scimTenantIdValue.(string) != "" {
+			if err = identity.Set("scim_tenant_id", scimTenantIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting scim_tenant_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

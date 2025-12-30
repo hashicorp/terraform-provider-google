@@ -463,6 +463,27 @@ func resourceBeyondcorpSecurityGatewayCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if securityGatewayIdValue, ok := d.GetOk("security_gateway_id"); ok && securityGatewayIdValue.(string) != "" {
+			if err = identity.Set("security_gateway_id", securityGatewayIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting security_gateway_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = BeyondcorpOperationWaitTime(
 		config, res, project, "Creating SecurityGateway", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -552,27 +573,27 @@ func resourceBeyondcorpSecurityGatewayRead(d *schema.ResourceData, meta interfac
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("location"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("security_gateway_id"); ok && v != "" {
+		if v, ok := identity.GetOk("security_gateway_id"); !ok && v == "" {
 			err = identity.Set("security_gateway_id", d.Get("security_gateway_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting security_gateway_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -582,6 +603,27 @@ func resourceBeyondcorpSecurityGatewayUpdate(d *schema.ResourceData, meta interf
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if securityGatewayIdValue, ok := d.GetOk("security_gateway_id"); ok && securityGatewayIdValue.(string) != "" {
+			if err = identity.Set("security_gateway_id", securityGatewayIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting security_gateway_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

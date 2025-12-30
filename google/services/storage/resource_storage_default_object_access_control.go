@@ -269,6 +269,22 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if bucketValue, ok := d.GetOk("bucket"); ok && bucketValue.(string) != "" {
+			if err = identity.Set("bucket", bucketValue.(string)); err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
+		}
+		if entityValue, ok := d.GetOk("entity"); ok && entityValue.(string) != "" {
+			if err = identity.Set("entity", entityValue.(string)); err != nil {
+				return fmt.Errorf("Error setting entity: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating DefaultObjectAccessControl %q: %#v", d.Id(), res)
 
 	return resourceStorageDefaultObjectAccessControlRead(d, meta)
@@ -332,21 +348,21 @@ func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("bucket"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("bucket"); !ok && v == "" {
 			err = identity.Set("bucket", d.Get("bucket").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting bucket: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("entity"); ok && v != "" {
+		if v, ok := identity.GetOk("entity"); !ok && v == "" {
 			err = identity.Set("entity", d.Get("entity").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting entity: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -356,6 +372,22 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if bucketValue, ok := d.GetOk("bucket"); ok && bucketValue.(string) != "" {
+			if err = identity.Set("bucket", bucketValue.(string)); err != nil {
+				return fmt.Errorf("Error setting bucket: %s", err)
+			}
+		}
+		if entityValue, ok := d.GetOk("entity"); ok && entityValue.(string) != "" {
+			if err = identity.Set("entity", entityValue.(string)); err != nil {
+				return fmt.Errorf("Error setting entity: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

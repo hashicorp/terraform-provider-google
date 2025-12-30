@@ -1164,6 +1164,27 @@ func resourceOracleDatabaseAutonomousDatabaseCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if autonomousDatabaseIdValue, ok := d.GetOk("autonomous_database_id"); ok && autonomousDatabaseIdValue.(string) != "" {
+			if err = identity.Set("autonomous_database_id", autonomousDatabaseIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting autonomous_database_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = OracleDatabaseOperationWaitTime(
 		config, res, project, "Creating AutonomousDatabase", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -1268,27 +1289,27 @@ func resourceOracleDatabaseAutonomousDatabaseRead(d *schema.ResourceData, meta i
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("location"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("autonomous_database_id"); ok && v != "" {
+		if v, ok := identity.GetOk("autonomous_database_id"); !ok && v == "" {
 			err = identity.Set("autonomous_database_id", d.Get("autonomous_database_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting autonomous_database_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

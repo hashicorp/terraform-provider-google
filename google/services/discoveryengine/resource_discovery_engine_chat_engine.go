@@ -381,6 +381,32 @@ func resourceDiscoveryEngineChatEngineCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if engineIdValue, ok := d.GetOk("engine_id"); ok && engineIdValue.(string) != "" {
+			if err = identity.Set("engine_id", engineIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting engine_id: %s", err)
+			}
+		}
+		if collectionIdValue, ok := d.GetOk("collection_id"); ok && collectionIdValue.(string) != "" {
+			if err = identity.Set("collection_id", collectionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting collection_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = DiscoveryEngineOperationWaitTime(
 		config, res, project, "Creating ChatEngine", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -464,33 +490,33 @@ func resourceDiscoveryEngineChatEngineRead(d *schema.ResourceData, meta interfac
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("engine_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("engine_id"); !ok && v == "" {
 			err = identity.Set("engine_id", d.Get("engine_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting engine_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("collection_id"); ok && v != "" {
+		if v, ok := identity.GetOk("collection_id"); !ok && v == "" {
 			err = identity.Set("collection_id", d.Get("collection_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting collection_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("location"); ok && v != "" {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -500,6 +526,32 @@ func resourceDiscoveryEngineChatEngineUpdate(d *schema.ResourceData, meta interf
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if engineIdValue, ok := d.GetOk("engine_id"); ok && engineIdValue.(string) != "" {
+			if err = identity.Set("engine_id", engineIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting engine_id: %s", err)
+			}
+		}
+		if collectionIdValue, ok := d.GetOk("collection_id"); ok && collectionIdValue.(string) != "" {
+			if err = identity.Set("collection_id", collectionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting collection_id: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

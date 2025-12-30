@@ -198,6 +198,17 @@ func resourceKMSAutokeyConfigCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if folderValue, ok := d.GetOk("folder"); ok && folderValue.(string) != "" {
+			if err = identity.Set("folder", folderValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
@@ -249,15 +260,15 @@ func resourceKMSAutokeyConfigRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("folder"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("folder"); !ok && v == "" {
 			err = identity.Set("folder", d.Get("folder").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting folder: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -267,6 +278,17 @@ func resourceKMSAutokeyConfigUpdate(d *schema.ResourceData, meta interface{}) er
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if folderValue, ok := d.GetOk("folder"); ok && folderValue.(string) != "" {
+			if err = identity.Set("folder", folderValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

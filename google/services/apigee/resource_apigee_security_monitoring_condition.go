@@ -245,6 +245,22 @@ func resourceApigeeSecurityMonitoringConditionCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if conditionIdValue, ok := d.GetOk("condition_id"); ok && conditionIdValue.(string) != "" {
+			if err = identity.Set("condition_id", conditionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting condition_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating SecurityMonitoringCondition %q: %#v", d.Id(), res)
 
 	return resourceApigeeSecurityMonitoringConditionRead(d, meta)
@@ -308,21 +324,21 @@ func resourceApigeeSecurityMonitoringConditionRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); !ok && v == "" {
 			err = identity.Set("org_id", d.Get("org_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting org_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("condition_id"); ok && v != "" {
+		if v, ok := identity.GetOk("condition_id"); !ok && v == "" {
 			err = identity.Set("condition_id", d.Get("condition_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting condition_id: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -332,6 +348,22 @@ func resourceApigeeSecurityMonitoringConditionUpdate(d *schema.ResourceData, met
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if conditionIdValue, ok := d.GetOk("condition_id"); ok && conditionIdValue.(string) != "" {
+			if err = identity.Set("condition_id", conditionIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting condition_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

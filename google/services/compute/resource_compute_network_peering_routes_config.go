@@ -267,6 +267,27 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if peeringValue, ok := d.GetOk("peering"); ok && peeringValue.(string) != "" {
+			if err = identity.Set("peering", peeringValue.(string)); err != nil {
+				return fmt.Errorf("Error setting peering: %s", err)
+			}
+		}
+		if networkValue, ok := d.GetOk("network"); ok && networkValue.(string) != "" {
+			if err = identity.Set("network", networkValue.(string)); err != nil {
+				return fmt.Errorf("Error setting network: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = ComputeOperationWaitTime(
 		config, res, project, "Creating NetworkPeeringRoutesConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -353,27 +374,27 @@ func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("peering"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("peering"); !ok && v == "" {
 			err = identity.Set("peering", d.Get("peering").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting peering: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("network"); ok && v != "" {
+		if v, ok := identity.GetOk("network"); !ok && v == "" {
 			err = identity.Set("network", d.Get("network").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting network: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("project"); ok && v != "" {
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
 			err = identity.Set("project", d.Get("project").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting project: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -383,6 +404,27 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if peeringValue, ok := d.GetOk("peering"); ok && peeringValue.(string) != "" {
+			if err = identity.Set("peering", peeringValue.(string)); err != nil {
+				return fmt.Errorf("Error setting peering: %s", err)
+			}
+		}
+		if networkValue, ok := d.GetOk("network"); ok && networkValue.(string) != "" {
+			if err = identity.Set("network", networkValue.(string)); err != nil {
+				return fmt.Errorf("Error setting network: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

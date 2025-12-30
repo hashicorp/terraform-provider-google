@@ -415,6 +415,17 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if accessLevelValue, ok := d.GetOk("access_level"); ok && accessLevelValue.(string) != "" {
+			if err = identity.Set("access_level", accessLevelValue.(string)); err != nil {
+				return fmt.Errorf("Error setting access_level: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = transport_tpg.PollingWaitTime(resourceAccessContextManagerAccessLevelConditionPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating AccessLevelCondition", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create AccessLevelCondition: %s", err)
@@ -537,15 +548,15 @@ func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("access_level"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("access_level"); !ok && v == "" {
 			err = identity.Set("access_level", d.Get("access_level").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting access_level: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

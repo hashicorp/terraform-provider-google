@@ -211,6 +211,22 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if resourceValue, ok := d.GetOk("resource"); ok && resourceValue.(string) != "" {
+			if err = identity.Set("resource", resourceValue.(string)); err != nil {
+				return fmt.Errorf("Error setting resource: %s", err)
+			}
+		}
+		if ingressPolicyNameValue, ok := d.GetOk("ingress_policy_name"); ok && ingressPolicyNameValue.(string) != "" {
+			if err = identity.Set("ingress_policy_name", ingressPolicyNameValue.(string)); err != nil {
+				return fmt.Errorf("Error setting ingress_policy_name: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = AccessContextManagerOperationWaitTime(
 		config, res, "Creating IngressPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -275,21 +291,21 @@ func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta 
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("resource"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("resource"); !ok && v == "" {
 			err = identity.Set("resource", d.Get("resource").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting resource: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("ingress_policy_name"); ok && v != "" {
+		if v, ok := identity.GetOk("ingress_policy_name"); !ok && v == "" {
 			err = identity.Set("ingress_policy_name", d.Get("ingress_policy_name").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting ingress_policy_name: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

@@ -369,6 +369,27 @@ func resourceIAM3OrganizationsPolicyBindingCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
+			if err = identity.Set("organization", organizationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if policyBindingIdValue, ok := d.GetOk("policy_binding_id"); ok && policyBindingIdValue.(string) != "" {
+			if err = identity.Set("policy_binding_id", policyBindingIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting policy_binding_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = IAM3OperationWaitTime(
 		config, res, project, "Creating OrganizationsPolicyBinding", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -457,27 +478,27 @@ func resourceIAM3OrganizationsPolicyBindingRead(d *schema.ResourceData, meta int
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("organization"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("organization"); !ok && v == "" {
 			err = identity.Set("organization", d.Get("organization").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting organization: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("location"); ok && v != "" {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
 			err = identity.Set("location", d.Get("location").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("policy_binding_id"); ok && v != "" {
+		if v, ok := identity.GetOk("policy_binding_id"); !ok && v == "" {
 			err = identity.Set("policy_binding_id", d.Get("policy_binding_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting policy_binding_id: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -488,6 +509,27 @@ func resourceIAM3OrganizationsPolicyBindingUpdate(d *schema.ResourceData, meta i
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
+			if err = identity.Set("organization", organizationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if policyBindingIdValue, ok := d.GetOk("policy_binding_id"); ok && policyBindingIdValue.(string) != "" {
+			if err = identity.Set("policy_binding_id", policyBindingIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting policy_binding_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

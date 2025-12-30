@@ -1821,6 +1821,22 @@ func resourceOSConfigV2PolicyOrchestratorForFolderCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if folderIdValue, ok := d.GetOk("folder_id"); ok && folderIdValue.(string) != "" {
+			if err = identity.Set("folder_id", folderIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+		}
+		if policyOrchestratorIdValue, ok := d.GetOk("policy_orchestrator_id"); ok && policyOrchestratorIdValue.(string) != "" {
+			if err = identity.Set("policy_orchestrator_id", policyOrchestratorIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	err = OSConfigV2OperationWaitTime(
 		config, res, project, "Creating PolicyOrchestratorForFolder", userAgent,
 		d.Timeout(schema.TimeoutCreate))
@@ -1912,21 +1928,21 @@ func resourceOSConfigV2PolicyOrchestratorForFolderRead(d *schema.ResourceData, m
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("folder_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("folder_id"); !ok && v == "" {
 			err = identity.Set("folder_id", d.Get("folder_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting folder_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("policy_orchestrator_id"); ok && v != "" {
+		if v, ok := identity.GetOk("policy_orchestrator_id"); !ok && v == "" {
 			err = identity.Set("policy_orchestrator_id", d.Get("policy_orchestrator_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -1937,6 +1953,22 @@ func resourceOSConfigV2PolicyOrchestratorForFolderUpdate(d *schema.ResourceData,
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if folderIdValue, ok := d.GetOk("folder_id"); ok && folderIdValue.(string) != "" {
+			if err = identity.Set("folder_id", folderIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+		}
+		if policyOrchestratorIdValue, ok := d.GetOk("policy_orchestrator_id"); ok && policyOrchestratorIdValue.(string) != "" {
+			if err = identity.Set("policy_orchestrator_id", policyOrchestratorIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting policy_orchestrator_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""

@@ -226,6 +226,17 @@ func resourceSiteVerificationWebResourceCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if webResourceIdValue, ok := d.GetOk("web_resource_id"); ok && webResourceIdValue.(string) != "" {
+			if err = identity.Set("web_resource_id", webResourceIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting web_resource_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating WebResource %q: %#v", d.Id(), res)
 
 	return resourceSiteVerificationWebResourceRead(d, meta)
@@ -279,15 +290,15 @@ func resourceSiteVerificationWebResourceRead(d *schema.ResourceData, meta interf
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("web_resource_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("web_resource_id"); !ok && v == "" {
 			err = identity.Set("web_resource_id", d.Get("web_resource_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting web_resource_id: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

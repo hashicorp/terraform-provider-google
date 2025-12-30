@@ -237,21 +237,21 @@ func resourceApigeeEnvironmentKeyvaluemapsRead(d *schema.ResourceData, meta inte
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("name"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("name"); !ok && v == "" {
 			err = identity.Set("name", d.Get("name").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting name: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("env_id"); ok && v != "" {
+		if v, ok := identity.GetOk("env_id"); !ok && v == "" {
 			err = identity.Set("env_id", d.Get("env_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting env_id: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }

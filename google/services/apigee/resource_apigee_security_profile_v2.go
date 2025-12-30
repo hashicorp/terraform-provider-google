@@ -233,6 +233,22 @@ func resourceApigeeSecurityProfileV2Create(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if profileIdValue, ok := d.GetOk("profile_id"); ok && profileIdValue.(string) != "" {
+			if err = identity.Set("profile_id", profileIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting profile_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating SecurityProfileV2 %q: %#v", d.Id(), res)
 
 	return resourceApigeeSecurityProfileV2Read(d, meta)
@@ -287,21 +303,21 @@ func resourceApigeeSecurityProfileV2Read(d *schema.ResourceData, meta interface{
 	}
 
 	identity, err := d.Identity()
-	if err != nil && identity != nil {
-		if v, ok := identity.GetOk("org_id"); ok && v != "" {
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("org_id"); !ok && v == "" {
 			err = identity.Set("org_id", d.Get("org_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting org_id: %s", err)
 			}
 		}
-		if v, ok := identity.GetOk("profile_id"); ok && v != "" {
+		if v, ok := identity.GetOk("profile_id"); !ok && v == "" {
 			err = identity.Set("profile_id", d.Get("profile_id").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting profile_id: %s", err)
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] identity not set: %s", err)
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
 	return nil
 }
@@ -311,6 +327,22 @@ func resourceApigeeSecurityProfileV2Update(d *schema.ResourceData, meta interfac
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
+			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+		if profileIdValue, ok := d.GetOk("profile_id"); ok && profileIdValue.(string) != "" {
+			if err = identity.Set("profile_id", profileIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting profile_id: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
