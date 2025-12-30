@@ -1,0 +1,30 @@
+resource: google_network_connectivity_destination
+generation_type: mmv1
+source_file: products/networkconnectivity/Destination.yaml
+api_service_name: networkconnectivity.googleapis.com
+api_version: v1
+api_resource_type_kind: Destination
+fields:
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: endpoints.asn
+    - api_field: endpoints.csp
+    - api_field: endpoints.state
+    - api_field: endpoints.updateTime
+    - api_field: etag
+    - api_field: ipPrefix
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: multicloud_data_transfer_config
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: stateTimeline.states.effectiveTime
+    - api_field: stateTimeline.states.state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime
