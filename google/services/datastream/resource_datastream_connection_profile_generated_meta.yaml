@@ -62,6 +62,10 @@ fields:
     - api_field: postgresqlProfile.password
     - api_field: postgresqlProfile.port
     - api_field: postgresqlProfile.secretManagerStoredPassword
+    - api_field: postgresqlProfile.sslConfig.serverAndClientVerification.caCertificate
+    - api_field: postgresqlProfile.sslConfig.serverAndClientVerification.clientCertificate
+    - api_field: postgresqlProfile.sslConfig.serverAndClientVerification.clientKey
+    - api_field: postgresqlProfile.sslConfig.serverVerification.caCertificate
     - api_field: postgresqlProfile.username
     - api_field: privateConnectivity.privateConnection
     - api_field: sqlServerProfile.database
