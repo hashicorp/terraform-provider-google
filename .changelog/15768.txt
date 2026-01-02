@@ -1,0 +1,3 @@
+```release-note:enhancement
+datastream: added `postgresql_profile.ssl_config` to `google_datastream_connection_profile`
+```
