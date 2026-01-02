@@ -1,4 +1,54 @@
 ## 7.15.0 (Unreleased)
+NOTES:
+* lustre: increased delete and update operation timeouts from 20 minutes to 60 minutes for `google_lustre_instance` resource ([#25662](https://github.com/hashicorp/terraform-provider-google/pull/25662))
+BREAKING CHANGES:
+* compute: changed `cipher_suite` fields in the `google_compute_vpn_tunnel` resource to track order ([#25657](https://github.com/hashicorp/terraform-provider-google/pull/25657))
+
+FEATURES:
+* **New Resource:** `google_apigee_security_feedback` ([#25589](https://github.com/hashicorp/terraform-provider-google/pull/25589))
+* **New Resource:** `google_apphub_boundary` ([#25640](https://github.com/hashicorp/terraform-provider-google/pull/25640))
+* **New Resource:** `google_biglake_iceberg_catalog_iam_binding` ([#25638](https://github.com/hashicorp/terraform-provider-google/pull/25638))
+* **New Resource:** `google_biglake_iceberg_catalog_iam_member` ([#25638](https://github.com/hashicorp/terraform-provider-google/pull/25638))
+* **New Resource:** `google_biglake_iceberg_catalog_iam_policy` ([#25638](https://github.com/hashicorp/terraform-provider-google/pull/25638))
+* **New Resource:** `google_biglake_iceberg_catalog` ([#25528](https://github.com/hashicorp/terraform-provider-google/pull/25528))
+* **New Resource:** `google_compute_organization_security_policy_association` ([#25643](https://github.com/hashicorp/terraform-provider-google/pull/25643))
+* **New Resource:** `google_network_connectivity_destination` ([#25663](https://github.com/hashicorp/terraform-provider-google/pull/25663))
+* **New Resource:** `google_network_connectivity_multicloud_data_transfer_config` ([#25609](https://github.com/hashicorp/terraform-provider-google/pull/25609))
+* **New Resource:** `google_network_security_dns_threat_detector` ([#25634](https://github.com/hashicorp/terraform-provider-google/pull/25634))
+
+IMPROVEMENTS:
+* biglakeiceberg: made `google_biglake_iceberg_catalog` use the resource project as the quota project when `user_project_override` is `true` ([#25638](https://github.com/hashicorp/terraform-provider-google/pull/25638))
+* composer: added new enum `ENVIRONMENT_SIZE_EXTRA_LARGE` to `environment_size` field to `composer_environment` resource ([#25531](https://github.com/hashicorp/terraform-provider-google/pull/25531))
+* compute: added `candidate_cloud_router_ip_address`, `candidate_customer_router_ip_address`, `candidate_cloud_router_ipv6_address`, and `candidate_customer_router_ipv6_address` fields to `google_compute_interconnect_attachment ` resource ([#25581](https://github.com/hashicorp/terraform-provider-google/pull/25581))
+* compute: added `prefix_length` field to `google_compute_addresses` data source ([#25654](https://github.com/hashicorp/terraform-provider-google/pull/25654))
+* compute: added Port Mapping NEGs to `google_compute_region_network_endpoints` ([#25621](https://github.com/hashicorp/terraform-provider-google/pull/25621))
+* datastream: added support for the `rule_sets` field in the `google_datastream_stream` resource, allowing configuration of customization rules, such as BigQuery destinations partitioning and clustering. ([#25529](https://github.com/hashicorp/terraform-provider-google/pull/25529))
+* iamworkforcepool: added `hard_delete` support to delete api in `google_iam_workforce_pool_provider_scim_tenant` resource ([#25656](https://github.com/hashicorp/terraform-provider-google/pull/25656))
+* looker: added `periodic_export_config`  field to `google_looker_instance` resource ([#25610](https://github.com/hashicorp/terraform-provider-google/pull/25610))
+* lustre: added `access_rules_options` field to `google_lustre_instance` resource to support root squashing and IP-based access control configuration ([#25617](https://github.com/hashicorp/terraform-provider-google/pull/25617))
+* managedkafka: replace `disk_size_gb` with `disk_size_gib` in `broker_capacity_config` within the `google_managed_kafka_cluster` resource ([#25613](https://github.com/hashicorp/terraform-provider-google/pull/25613))
+* network_services_multicast: added `state` field to `google_network_services_multicast_domain` resource ([#25532](https://github.com/hashicorp/terraform-provider-google/pull/25532))
+* redis: added `labels` to `google_redis_cluster` ([#25639](https://github.com/hashicorp/terraform-provider-google/pull/25639))
+* sql: marked `replication_cluster.psa_write_endpoint` field as Computed in `google_sql_database_instance` resource ([#25573](https://github.com/hashicorp/terraform-provider-google/pull/25573))
+* sql: set `replication_cluster` when update `google_sql_database_instance` resource if there is a disaster recovery(DR) replica set or there is a PSA write endpoint ([#25573](https://github.com/hashicorp/terraform-provider-google/pull/25573))
+* storage: updated datasource `google_storage_object_signed_url.signed_url` to use virtual style hosted url ([#25568](https://github.com/hashicorp/terraform-provider-google/pull/25568))
+* vertexai: added `bigtable`, `zone`, `encryption_spec`, and `bigtable_options` fields to `google_vertex_ai_feature_online_store` resource ([#25601](https://github.com/hashicorp/terraform-provider-google/pull/25601))
+* vertexai: added `psc_automation_configs` to resource `google_vertex_ai_index_endpoint` ([#25570](https://github.com/hashicorp/terraform-provider-google/pull/25570))
+
+BUG FIXES:
+* provider: fixed an issue where error type 409 and 412 were not being correctly retried. This commonly shows up in IAM resources, but can appear in other resources as well ([#25596](https://github.com/hashicorp/terraform-provider-google/pull/25596))
+* alloydb: fixed an issue where boolean fields were ignored when set to `false` for `google_alloydb_cluster` and `google_alloydb_instance` ([#25561](https://github.com/hashicorp/terraform-provider-google/pull/25561))
+* cloudrunv2: fixed a permadiff when default values of the `scaling` block were explicitly declared on the `google_cloud_run_v2_service` resource ([#25569](https://github.com/hashicorp/terraform-provider-google/pull/25569))
+* compute: fixed a crash in `google_compute_disk`/`google_compute_region_disk` when deleting a disk attached to an instance that had any scratch disks attached ([#25641](https://github.com/hashicorp/terraform-provider-google/pull/25641))
+* compute: fixed issue where `google_compute_wire_group.endpoints.interconnects.vlan_tags` wouldn't be read correctly from the API ([#25602](https://github.com/hashicorp/terraform-provider-google/pull/25602))
+* compute: fixed update logic that causes empty instance being sent for `google_compute_network_endpoints` ([#25621](https://github.com/hashicorp/terraform-provider-google/pull/25621))
+* datacatalog: fixed issue where `google_data_catalog_tag.fields.display_name` wouldn't be read correctly from the API ([#25602](https://github.com/hashicorp/terraform-provider-google/pull/25602))
+* discoveryengine: marked `cmek_config_id` field in `google_discovery_engine_cmek_config` resource as required ([#25527](https://github.com/hashicorp/terraform-provider-google/pull/25527))
+* securitygateway: fixed `service_discovery` in `google_beyondcorp_security_gateway` ([#25653](https://github.com/hashicorp/terraform-provider-google/pull/25653))
+* securitygateway: fixed `user_info`, `group_info` and `device_info` in `google_beyondcorp_security_gateway` ([#25653](https://github.com/hashicorp/terraform-provider-google/pull/25653))
+* servicedirectory: fixed an issue where `google_service_directory_endpoint` or `google_service_directory_service` without `metadata` specified would have other fields removed ([#25588](https://github.com/hashicorp/terraform-provider-google/pull/25588))
+* storage: fixed `google_storage_bucket` behavior when `force_destroy` is set to `true`. Previously, failing to list anywhere caches would prevent destroying objects on the bucket. Now, both objects and caches are processed independently. ([#25655](https://github.com/hashicorp/terraform-provider-google/pull/25655))
+
 
 ## 7.14.0 (December 16, 2025)
 
