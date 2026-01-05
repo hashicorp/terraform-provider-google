@@ -1,0 +1,3 @@
+```release-note:deprecation
+cloudrunv2: added deprecation message to the `custom_audience` field on the `google_cloud_run_v2_worker_pool` resource as this field is not applicable to the WorkerPools resource
+```
