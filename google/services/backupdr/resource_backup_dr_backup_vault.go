@@ -514,9 +514,6 @@ func resourceBackupDRBackupVaultRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("access_restriction", flattenBackupDRBackupVaultAccessRestriction(res["accessRestriction"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
-	if err := d.Set("encryption_config", flattenBackupDRBackupVaultEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
 	if err := d.Set("terraform_labels", flattenBackupDRBackupVaultTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupVault: %s", err)
 	}
@@ -851,23 +848,6 @@ func flattenBackupDRBackupVaultAnnotations(v interface{}, d *schema.ResourceData
 }
 
 func flattenBackupDRBackupVaultAccessRestriction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenBackupDRBackupVaultEncryptionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["kms_key_name"] =
-		flattenBackupDRBackupVaultEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
-	return []interface{}{transformed}
-}
-func flattenBackupDRBackupVaultEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
