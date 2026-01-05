@@ -1,0 +1,1 @@
+unknown: Added ignore_read to encryption_config field in google_backup_dr_backup_vault
