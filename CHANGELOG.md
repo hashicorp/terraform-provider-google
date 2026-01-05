@@ -17,6 +17,7 @@ FEATURES:
 * **New Resource:** `google_network_security_dns_threat_detector` ([#25634](https://github.com/hashicorp/terraform-provider-google/pull/25634))
 
 IMPROVEMENTS:
+* backupdr: added ignore_read to `encryption_config` field in `google_backup_dr_backup_vault` resource ([#25685](https://github.com/hashicorp/terraform-provider-google/pull/25685))
 * biglakeiceberg: made `google_biglake_iceberg_catalog` use the resource project as the quota project when `user_project_override` is `true` ([#25638](https://github.com/hashicorp/terraform-provider-google/pull/25638))
 * composer: added new enum `ENVIRONMENT_SIZE_EXTRA_LARGE` to `environment_size` field to `google_composer_environment` resource ([#25531](https://github.com/hashicorp/terraform-provider-google/pull/25531))
 * compute: added `candidate_cloud_router_ip_address`, `candidate_customer_router_ip_address`, `candidate_cloud_router_ipv6_address`, and `candidate_customer_router_ipv6_address` fields to `google_compute_interconnect_attachment` resource ([#25581](https://github.com/hashicorp/terraform-provider-google/pull/25581))
