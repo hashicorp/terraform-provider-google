@@ -153,6 +153,14 @@ $ protoc --include_imports --include_source_info test.proto -o out.pb`,
 				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description:      `The name of the table to create the schema bundle within.`,
 			},
+			"etag": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `etag is used for optimistic concurrency control as a way to help prevent simultaneous
+updates of a schema bundle from overwriting each other. This may be sent on update and delete
+requests to ensure the client has an update-to-date value before proceeding. The server returns
+an ABORTED error on a mismatched etag.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -273,6 +281,9 @@ func resourceBigtableSchemaBundleRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if err := d.Set("name", flattenBigtableSchemaBundleName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SchemaBundle: %s", err)
+	}
+	if err := d.Set("etag", flattenBigtableSchemaBundleEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SchemaBundle: %s", err)
 	}
 	if err := d.Set("proto_schema", flattenBigtableSchemaBundleProtoSchema(res["protoSchema"], d, config)); err != nil {
@@ -422,6 +433,10 @@ func resourceBigtableSchemaBundleImport(d *schema.ResourceData, meta interface{}
 }
 
 func flattenBigtableSchemaBundleName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigtableSchemaBundleEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
