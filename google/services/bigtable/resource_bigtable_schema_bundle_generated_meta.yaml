@@ -6,6 +6,7 @@ api_version: v2
 api_resource_type_kind: SchemaBundle
 cai_asset_name_format: //bigtable.googleapis.com/projects/{{project}}/instances/{{instance}}/tables/{{table}}/schemaBundles/{{schema_bundle_id}}
 fields:
+    - api_field: etag
     - field: ignore_warnings
       provider_only: true
     - field: instance

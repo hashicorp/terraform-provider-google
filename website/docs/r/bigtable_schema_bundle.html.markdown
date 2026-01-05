@@ -118,6 +118,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `name` -
   The unique name of the requested schema bundle. Values are of the form `projects/<project>/instances/<instance>/tables/<table>/schemaBundles/<schemaBundleId>`.
 
+* `etag` -
+  etag is used for optimistic concurrency control as a way to help prevent simultaneous
+  updates of a schema bundle from overwriting each other. This may be sent on update and delete
+  requests to ensure the client has an update-to-date value before proceeding. The server returns
+  an ABORTED error on a mismatched etag.
+
 
 ## Timeouts
 
