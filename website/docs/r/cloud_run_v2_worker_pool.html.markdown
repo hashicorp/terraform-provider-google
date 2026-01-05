@@ -465,29 +465,6 @@ resource "google_filestore_instance" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_worker_pool_custom_audiences&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Cloudrunv2 Worker Pool Custom Audiences
-
-
-```hcl
-resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "cloudrun-worker-pool"
-  location = "us-central1"
-  deletion_protection = false
-  launch_stage = "BETA"
-
-  custom_audiences = ["aud1"]
-  template {
-    containers {
-      image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
-    }
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_worker_pool_startup_liveness_probe&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -621,9 +598,11 @@ The following arguments are supported:
   Structure is [documented below](#nested_binary_authorization).
 
 * `custom_audiences` -
-  (Optional)
+  (Optional, Deprecated)
   One or more custom audiences that you want this worker pool to support. Specify each custom audience as the full URL in a string. The custom audiences are encoded in the token and used to authenticate requests.
   For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.
+
+  ~> **Warning:** `custom_audiences` is deprecated since it is not applicable to WorkerPool resource and will be removed in a future major release.
 
 * `scaling` -
   (Optional)
