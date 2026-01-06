@@ -163,7 +163,24 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ExactlyOneOf: []string{"execution_spec.0.trigger.0.on_demand", "execution_spec.0.trigger.0.schedule"},
+										ExactlyOneOf: []string{"execution_spec.0.trigger.0.on_demand", "execution_spec.0.trigger.0.one_time", "execution_spec.0.trigger.0.schedule"},
+									},
+									"one_time": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The scan runs once upon DataScan creation.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"ttl_after_scan_completion": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Time to live for the DataScan and its results after the one-time run completes. Accepts a string with a unit suffix 's' (e.g., '7200s'). Default is 24 hours. Ranges between 0 and 31536000 seconds (1 year).`,
+												},
+											},
+										},
+										ExactlyOneOf: []string{"execution_spec.0.trigger.0.on_demand", "execution_spec.0.trigger.0.one_time", "execution_spec.0.trigger.0.schedule"},
 									},
 									"schedule": {
 										Type:        schema.TypeList,
@@ -179,7 +196,7 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 												},
 											},
 										},
-										ExactlyOneOf: []string{"execution_spec.0.trigger.0.on_demand", "execution_spec.0.trigger.0.schedule"},
+										ExactlyOneOf: []string{"execution_spec.0.trigger.0.on_demand", "execution_spec.0.trigger.0.one_time", "execution_spec.0.trigger.0.schedule"},
 									},
 								},
 							},
@@ -1397,6 +1414,8 @@ func flattenDataplexDatascanExecutionSpecTrigger(v interface{}, d *schema.Resour
 		flattenDataplexDatascanExecutionSpecTriggerOnDemand(original["onDemand"], d, config)
 	transformed["schedule"] =
 		flattenDataplexDatascanExecutionSpecTriggerSchedule(original["schedule"], d, config)
+	transformed["one_time"] =
+		flattenDataplexDatascanExecutionSpecTriggerOneTime(original["oneTime"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanExecutionSpecTriggerOnDemand(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1421,6 +1440,20 @@ func flattenDataplexDatascanExecutionSpecTriggerSchedule(v interface{}, d *schem
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanExecutionSpecTriggerScheduleCron(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanExecutionSpecTriggerOneTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["ttl_after_scan_completion"] =
+		flattenDataplexDatascanExecutionSpecTriggerOneTimeTtlAfterScanCompletion(original["ttlAfterScanCompletion"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanExecutionSpecTriggerOneTimeTtlAfterScanCompletion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2201,6 +2234,13 @@ func expandDataplexDatascanExecutionSpecTrigger(v interface{}, d tpgresource.Ter
 		transformed["schedule"] = transformedSchedule
 	}
 
+	transformedOneTime, err := expandDataplexDatascanExecutionSpecTriggerOneTime(original["one_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["oneTime"] = transformedOneTime
+	}
+
 	return transformed, nil
 }
 
@@ -2245,6 +2285,37 @@ func expandDataplexDatascanExecutionSpecTriggerSchedule(v interface{}, d tpgreso
 }
 
 func expandDataplexDatascanExecutionSpecTriggerScheduleCron(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanExecutionSpecTriggerOneTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTtlAfterScanCompletion, err := expandDataplexDatascanExecutionSpecTriggerOneTimeTtlAfterScanCompletion(original["ttl_after_scan_completion"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTtlAfterScanCompletion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ttlAfterScanCompletion"] = transformedTtlAfterScanCompletion
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanExecutionSpecTriggerOneTimeTtlAfterScanCompletion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
