@@ -67,6 +67,7 @@ fields:
       provider_only: true
     - api_field: executionSpec.field
     - api_field: executionSpec.trigger.onDemand
+    - api_field: executionSpec.trigger.oneTime.ttlAfterScanCompletion
     - api_field: executionSpec.trigger.schedule.cron
     - api_field: executionStatus.latestJobEndTime
     - api_field: executionStatus.latestJobStartTime

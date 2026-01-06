@@ -110,6 +110,31 @@ resource "google_bigquery_dataset" "source" {
   delete_contents_on_destroy = true
 }
 ```
+## Example Usage - Dataplex Datascan Onetime Profile
+
+
+```hcl
+resource "google_dataplex_datascan" "onetime_profile" {
+  location     = "us-central1"
+  data_scan_id = "dataprofile-onetime"
+
+  data {
+	  resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
+  }
+
+  execution_spec {
+    trigger {
+      one_time {
+        ttl_after_scan_completion = "120s"
+      }
+    }
+  }
+
+data_profile_spec {}
+
+  project = "my-project-name"
+}
+```
 ## Example Usage - Dataplex Datascan Basic Quality
 
 
@@ -267,6 +292,40 @@ resource "google_dataplex_datascan" "full_quality" {
   project = "my-project-name"
 }
 ```
+## Example Usage - Dataplex Datascan Onetime Quality
+
+
+```hcl
+resource "google_dataplex_datascan" "onetime_quality" {
+  location     = "us-central1"
+  data_scan_id = "dataquality-onetime"
+
+  data {
+    resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
+  }
+
+  execution_spec {
+    trigger {
+      one_time {
+        ttl_after_scan_completion = "120s"
+      }
+    }
+  }
+
+  data_quality_spec {
+    rules {
+      dimension = "VALIDITY"
+      name = "rule1"
+      description = "rule 1 for validity dimension"
+      table_condition_expectation {
+        sql_expression = "COUNT(*) > 0"
+      }
+    }
+  }
+
+  project = "my-project-name"
+}
+```
 ## Example Usage - Dataplex Datascan Basic Discovery
 
 
@@ -369,6 +428,37 @@ resource "google_bigquery_connection" "tf_test_connection" {
    cloud_resource {}
 }
 ```
+## Example Usage - Dataplex Datascan Onetime Discovery
+
+
+```hcl
+resource "google_dataplex_datascan" "onetime_discovery" {
+  location     = "us-central1"
+  data_scan_id = "datadiscovery-onetime"
+
+  data {
+    resource = "//storage.googleapis.com/projects/${google_storage_bucket.tf_test_bucket.project}/buckets/${google_storage_bucket.tf_test_bucket.name}"
+  }
+
+  execution_spec {
+    trigger {
+      one_time {
+        ttl_after_scan_completion = "120s"
+      }
+    }
+  }
+
+  data_discovery_spec {}
+
+  project = "my-project-name"
+}
+
+resource "google_storage_bucket" "tf_test_bucket" {
+  name     = "tf-test-bucket-name-%{random_suffix}"
+  location = "us-west1"
+  uniform_bucket_level_access = true
+}
+```
 ## Example Usage - Dataplex Datascan Documentation
 
 
@@ -446,6 +536,93 @@ resource "google_dataplex_datascan" "documentation" {
   execution_spec {
     trigger {
       on_demand {}
+    }
+  }
+
+  data_documentation_spec {}
+
+  project = "my-project-name"
+}
+```
+## Example Usage - Dataplex Datascan Onetime Documentation
+
+
+```hcl
+resource "google_bigquery_dataset" "tf_dataplex_test_dataset" {
+  dataset_id = "tf_dataplex_test_dataset_id_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+}
+
+resource "google_bigquery_table" "tf_dataplex_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id
+  table_id            = "tf_dataplex_test_table_id_%{random_suffix}"
+  deletion_protection = false
+  schema              = <<EOF
+    [
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "station_id",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The id of the bike station"
+    },
+    {
+      "name": "address",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The address of the bike station"
+    },
+    {
+      "name": "power_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The powert type of the bike station"
+    },
+    {
+      "name": "property_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The type of the property"
+    },
+    {
+      "name": "number_of_docks",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The number of docks the property have"
+    },
+    {
+      "name": "footprint_length",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The footpring lenght of the property"
+    },
+    {
+      "name": "council_district",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The council district the property is in"
+    }
+    ]
+  EOF
+}
+
+resource "google_dataplex_datascan" "onetime_documentation" {
+  location     = "us-central1"
+  data_scan_id = "datadocumentation-onetime"
+
+  data {
+    resource = "//bigquery.googleapis.com/projects/my-project-name/datasets/${google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_dataplex_test_table.table_id}"
+  }
+
+  execution_spec {
+    trigger {
+      one_time {
+        ttl_after_scan_completion = "120s"
+      }
     }
   }
 
@@ -552,12 +729,23 @@ The following arguments are supported:
   The scan is scheduled to run periodically.
   Structure is [documented below](#nested_execution_spec_trigger_schedule).
 
+* `one_time` -
+  (Optional)
+  The scan runs once upon DataScan creation.
+  Structure is [documented below](#nested_execution_spec_trigger_one_time).
+
 
 <a name="nested_execution_spec_trigger_schedule"></a>The `schedule` block supports:
 
 * `cron` -
   (Required)
   Cron schedule for running scans periodically. This field is required for Schedule scans.
+
+<a name="nested_execution_spec_trigger_one_time"></a>The `one_time` block supports:
+
+* `ttl_after_scan_completion` -
+  (Optional)
+  Time to live for the DataScan and its results after the one-time run completes. Accepts a string with a unit suffix 's' (e.g., '7200s'). Default is 24 hours. Ranges between 0 and 31536000 seconds (1 year).
 
 <a name="nested_data_quality_spec"></a>The `data_quality_spec` block supports:
 

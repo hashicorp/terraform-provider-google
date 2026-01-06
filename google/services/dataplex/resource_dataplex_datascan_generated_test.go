@@ -210,6 +210,57 @@ resource "google_dataplex_datascan" "full_profile_test" {
 `, context)
 }
 
+func TestAccDataplexDatascan_dataplexDatascanOnetimeProfileExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanOnetimeProfileExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.onetime_profile",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataplexDatascan_dataplexDatascanOnetimeProfileExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataplex_datascan" "onetime_profile" {
+  location     = "us-central1"
+  data_scan_id = "tf-test-dataprofile-onetime%{random_suffix}"
+
+  data {
+	  resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
+  }
+
+  execution_spec {
+    trigger {
+      one_time {
+        ttl_after_scan_completion = "120s"
+      }
+    }
+  }
+
+data_profile_spec {}
+
+  project = "%{project_name}"
+}
+`, context)
+}
+
 func TestAccDataplexDatascan_dataplexDatascanBasicQualityExample(t *testing.T) {
 	t.Parallel()
 
@@ -739,6 +790,120 @@ resource "google_dataplex_datascan" "documentation" {
   execution_spec {
     trigger {
       on_demand {}
+    }
+  }
+
+  data_documentation_spec {}
+
+  project = "%{project_name}"
+}
+`, context)
+}
+
+func TestAccDataplexDatascan_dataplexDatascanOnetimeDocumentationExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"location":      envvar.GetTestRegionFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanOnetimeDocumentationExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.onetime_documentation",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataplexDatascan_dataplexDatascanOnetimeDocumentationExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "tf_dataplex_test_dataset" {
+  dataset_id = "tf_dataplex_test_dataset_id_%{random_suffix}"
+  default_table_expiration_ms = 3600000
+}
+
+resource "google_bigquery_table" "tf_dataplex_test_table" {
+  dataset_id          = google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id
+  table_id            = "tf_dataplex_test_table_id_%{random_suffix}"
+  deletion_protection = false
+  schema              = <<EOF
+    [
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "station_id",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The id of the bike station"
+    },
+    {
+      "name": "address",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The address of the bike station"
+    },
+    {
+      "name": "power_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The powert type of the bike station"
+    },
+    {
+      "name": "property_type",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The type of the property"
+    },
+    {
+      "name": "number_of_docks",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The number of docks the property have"
+    },
+    {
+      "name": "footprint_length",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The footpring lenght of the property"
+    },
+    {
+      "name": "council_district",
+      "type": "INTEGER",
+      "mode": "NULLABLE",
+      "description": "The council district the property is in"
+    }
+    ]
+  EOF
+}
+
+resource "google_dataplex_datascan" "onetime_documentation" {
+  location     = "us-central1"
+  data_scan_id = "tf-test-datadocumentation-onetime%{random_suffix}"
+
+  data {
+    resource = "//bigquery.googleapis.com/projects/%{project_name}/datasets/${google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id}/tables/${google_bigquery_table.tf_dataplex_test_table.table_id}"
+  }
+
+  execution_spec {
+    trigger {
+      one_time {
+        ttl_after_scan_completion = "120s"
+      }
     }
   }
 
