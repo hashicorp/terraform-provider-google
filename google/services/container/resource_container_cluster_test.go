@@ -2061,25 +2061,10 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			// Lastly, update the setting in-place. V1 since UNSPECIFIED is default
+			// From version 1.35+, cgroup mode v1 will be blocked.
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1", false, ""),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"google_container_cluster.with_linux_node_config",
-						"node_config.0.linux_node_config.0.cgroup_mode", "CGROUP_MODE_V1",
-					),
-				),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						acctest.ExpectNoDelete(),
-					},
-				},
-			},
-			{
-				ResourceName:            "google_container_cluster.with_linux_node_config",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+				Config:      testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1", false, ""),
+				ExpectError: regexp.MustCompile("Node pools with cgroupv1 is not supported"),
 			},
 			// Update linux config transparent hugepage
 			{
