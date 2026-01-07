@@ -26,6 +26,7 @@ fields:
     - field: location
       provider_only: true
     - api_field: logRetentionDays
+    - api_field: maxCustomOnDemandRetentionDays
     - api_field: name
     - api_field: resourceType
     - api_field: supportedResourceTypes

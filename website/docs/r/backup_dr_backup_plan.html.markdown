@@ -45,6 +45,7 @@ resource "google_backup_dr_backup_plan" "my-backup-plan-1" {
   backup_plan_id = "backup-plan-simple-test"
   resource_type  = "compute.googleapis.com/Instance"
   backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
+  max_custom_on_demand_retention_days = 30
 
   backup_rules {
     rule_id                = "rule-1"
@@ -80,6 +81,7 @@ resource "google_backup_dr_backup_plan" "my-disk-backup-plan-1" {
   backup_plan_id = "backup-plan-disk-test"
   resource_type  = "compute.googleapis.com/Disk"
   backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
+  max_custom_on_demand_retention_days = 30
 
   backup_rules {
     rule_id                = "rule-1"
@@ -164,6 +166,10 @@ The following arguments are supported:
 * `description` -
   (Optional)
   The description allows for additional details about `BackupPlan` and its use cases to be provided.
+
+* `max_custom_on_demand_retention_days` -
+  (Optional)
+  The maximum number of days for which an on-demand backup taken with custom retention can be retained.
 
 * `log_retention_days` -
   (Optional)
