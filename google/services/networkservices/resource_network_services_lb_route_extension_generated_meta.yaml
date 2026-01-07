@@ -11,8 +11,12 @@ fields:
     - api_field: extensionChains.extensions.authority
     - api_field: extensionChains.extensions.failOpen
     - api_field: extensionChains.extensions.forwardHeaders
+    - api_field: extensionChains.extensions.metadata
     - api_field: extensionChains.extensions.name
+    - api_field: extensionChains.extensions.observabilityMode
+    - api_field: extensionChains.extensions.requestBodySendMode
     - api_field: extensionChains.extensions.service
+    - api_field: extensionChains.extensions.supportedEvents
     - api_field: extensionChains.extensions.timeout
     - api_field: extensionChains.matchCondition.celExpression
     - api_field: extensionChains.name
