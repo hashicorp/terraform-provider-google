@@ -88,6 +88,7 @@ resource "google_backup_dr_backup_plan" "my-backup-plan-1" {
   backup_plan_id = "tf-test-backup-plan-simple-test%{random_suffix}"
   resource_type  = "compute.googleapis.com/Instance"
   backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
+  max_custom_on_demand_retention_days = 30
 
   backup_rules {
     rule_id                = "rule-1"

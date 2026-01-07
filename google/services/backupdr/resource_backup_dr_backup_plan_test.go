@@ -117,6 +117,7 @@ resource "google_backup_dr_backup_plan" "bp" {
   backup_plan_id = "tf-test-bp-test-%{random_suffix}"
   resource_type  = "compute.googleapis.com/Instance"
   backup_vault   = google_backup_dr_backup_vault.my-backup-vault.name
+  max_custom_on_demand_retention_days = 30
 
   backup_rules {
     rule_id                = "rule-1"
@@ -199,6 +200,7 @@ resource "google_backup_dr_backup_plan" "bp" {
   backup_plan_id = "tf-test-bp-test-%{random_suffix}"
   resource_type  = "compute.googleapis.com/Instance"
   backup_vault   = google_backup_dr_backup_vault.my-backup-vault.name
+  max_custom_on_demand_retention_days = 45
 
   backup_rules {
     rule_id                = "rule-1"
