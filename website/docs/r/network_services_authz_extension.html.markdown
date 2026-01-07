@@ -56,6 +56,37 @@ resource "google_network_services_authz_extension" "default" {
   forward_headers       = ["Authorization"]
 }
 ```
+## Example Usage - Network Services Authz Extension Basic With Auth Grpc
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  provider              = google-beta
+  name                  = "authz-service-grpc"
+  project               = "my-project-name"
+  region                = "us-west1"
+
+  protocol              = "HTTP2"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_name             = "grpc"
+}
+
+resource "google_network_services_authz_extension" "default" {
+  provider = google-beta
+  name     = "my-authz-ext-with-grpc"
+  project  = "my-project-name"
+  location = "us-west1"
+
+  description           = "my description"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  wire_format           = "EXT_AUTHZ_GRPC"
+  authority       = "ext11.com"
+  service         = google_compute_region_backend_service.default.self_link
+  timeout         = "0.1s"
+  fail_open       = false
+  forward_headers = ["Authorization"]
+}
+```
 
 ## Argument Reference
 
@@ -120,8 +151,22 @@ The following arguments are supported:
 
 * `wire_format` -
   (Optional)
-  The format of communication supported by the callout extension. Will be set to EXT_PROC_GRPC by the backend if no value is set.
-  Possible values are: `WIRE_FORMAT_UNSPECIFIED`, `EXT_PROC_GRPC`.
+  Specifies the communication protocol used by the callout extension
+  to communicate with its backend service.
+  Supported values:
+  - WIRE_FORMAT_UNSPECIFIED:
+      No wire format is explicitly specified. The backend automatically
+      defaults this value to EXT_PROC_GRPC.
+  - EXT_PROC_GRPC:
+      Uses Envoy's External Processing (ext_proc) gRPC API over a single
+      gRPC stream. The backend service must support HTTP/2 or H2C.
+      All supported events for a client request are sent over the same
+      gRPC stream. This is the default wire format.
+  - EXT_AUTHZ_GRPC:
+      Uses Envoy's external authorization (ext_authz) gRPC API.
+      The backend service must support HTTP/2 or H2C.
+      This option is only supported for regional AuthzExtension resources.
+  Possible values are: `WIRE_FORMAT_UNSPECIFIED`, `EXT_PROC_GRPC`, `EXT_AUTHZ_GRPC`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
