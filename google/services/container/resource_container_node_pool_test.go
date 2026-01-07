@@ -5816,6 +5816,143 @@ resource "google_container_node_pool" "np" {
 `, cluster, network, subnetwork, nodepool)
 }
 
+func TestAccContainerNodePool_registryHosts(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodepool := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	secretID := fmt.Sprintf("tf-test-secret-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_registryHosts(secretID, cluster, nodepool, networkName, subnetworkName, "custom.example.com", "custom.mirror.com"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np",
+						"node_config.0.containerd_config.0.registry_hosts.0.server",
+						"custom.example.com",
+					),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np",
+						"node_config.0.containerd_config.0.registry_hosts.0.hosts.0.host",
+						"custom.mirror.com",
+					),
+				),
+			},
+			{
+				// Make sure in-place updates work
+				Config: testAccContainerNodePool_registryHosts(secretID, cluster, nodepool, networkName, subnetworkName, "foo.example.org", "foo.mirror.org"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np",
+						"node_config.0.containerd_config.0.registry_hosts.0.server",
+						"foo.example.org",
+					),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np",
+						"node_config.0.containerd_config.0.registry_hosts.0.hosts.0.host",
+						"foo.mirror.org",
+					),
+				),
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_registryHosts(secretID, cluster, nodepool, network, subnetwork, customServer, customMirror string) string {
+	return fmt.Sprintf(`
+data "google_project" "test_project" {}
+
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "%s"
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret      = google_secret_manager_secret.secret-basic.id
+  secret_data = "dummypassword"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_iam" {
+  secret_id  = google_secret_manager_secret.secret-basic.id
+  role       = "roles/secretmanager.admin"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret_version.secret-version-basic]
+}
+
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    image_type   = "COS_CONTAINERD"
+    containerd_config {
+      registry_hosts {
+        server = "%s"
+        hosts {
+          host = "%s"
+          capabilities = ["HOST_CAPABILITY_PULL","HOST_CAPABILITY_RESOLVE"]
+          override_path = false
+          dial_timeout = "30s"
+          header {
+            key = "header_key"
+            value = ["header_value_1","header_value_2"]
+          }
+          ca {
+            gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret-version-basic.name
+          }
+          client {
+            cert {
+              gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret-version-basic.name
+            }
+            key {
+              gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret-version-basic.name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, secretID, cluster, network, subnetwork, nodepool, customServer, customMirror)
+}
+
 func TestAccContainerNodePool_defaultDriverInstallation(t *testing.T) {
 	t.Parallel()
 
