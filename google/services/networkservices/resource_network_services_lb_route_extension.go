@@ -54,6 +54,23 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func ValidateSupportedEvent(i interface{}, k string) (warnings []string, errors []error) {
+	str, ok := i.(string)
+	if !ok {
+		errors = append(errors, fmt.Errorf("expected type of %s to be string", k))
+		return
+	}
+	validEvents := map[string]bool{
+		"REQUEST_HEADERS":  true,
+		"REQUEST_BODY":     true,
+		"REQUEST_TRAILERS": true,
+	}
+	if !validEvents[str] {
+		errors = append(errors, fmt.Errorf("value %s in %s is invalid, must be one of: REQUEST_HEADERS, REQUEST_BODY, REQUEST_TRAILERS", str, k))
+	}
+	return
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -115,7 +132,8 @@ func ResourceNetworkServicesLbRouteExtension() *schema.Resource {
 				Description: `A set of ordered extension chains that contain the match conditions and extensions to execute.
 Match conditions for each extension chain are evaluated in sequence for a given request.
 The first extension chain that has a condition that matches the request is executed.
-Any subsequent extension chains do not execute. Limited to 5 extension chains per resource.`,
+Any subsequent extension chains do not execute. Limited to 5 extension chains per resource.
+Further information can be found at https://cloud.google.com/service-extensions/docs/reference/rest/v1/ExtensionChain`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"extensions": {
@@ -123,7 +141,8 @@ Any subsequent extension chains do not execute. Limited to 5 extension chains pe
 							Required: true,
 							Description: `A set of extensions to execute for the matching request.
 At least one extension is required. Up to 3 extensions can be defined for each extension chain for
-LbTrafficExtension resource. LbRouteExtension chains are limited to 1 extension per extension chain.`,
+LbTrafficExtension resource. LbRouteExtension chains are limited to 1 extension per extension chain.
+Further documentation can be found at https://cloud.google.com/service-extensions/docs/reference/rest/v1/ExtensionChain#Extension`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
@@ -166,6 +185,48 @@ If omitted, all headers are sent. Each element is a string indicating the header
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+									},
+									"metadata": {
+										Type:     schema.TypeMap,
+										Optional: true,
+										Description: `The metadata provided here is included as part of the 'metadata_context' (of type 'google.protobuf.Struct')
+in the 'ProcessingRequest' message sent to the extension server.
+The metadata is available under the namespace 'com.google.lb_route_extension.<resource_name>.<chain_name>.<extension_name>'.
+The following variables are supported in the metadata: '{forwarding_rule_id}' - substituted with the forwarding rule's fully qualified resource name.
+This field must not be set for plugin extensions. Setting it results in a validation error.`,
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
+									"observability_mode": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `When set to 'TRUE', enables 'observability_mode' on the 'ext_proc' filter.
+This makes 'ext_proc' calls asynchronous. Envoy doesn't check for the response from 'ext_proc' calls.
+For more information about the filter, see: https://www.envoyproxy.io/docs/envoy/v1.32.3/api-v3/extensions/filters/http/ext_proc/v3/ext_proc.proto
+This field is helpful when you want to try out the extension in async log-only mode.
+Supported by regional 'LbTrafficExtension' and 'LbRouteExtension' resources.
+Only 'STREAMED' (default) body processing mode is supported.`,
+									},
+									"request_body_send_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"BODY_SEND_MODE_UNSPECIFIED", "BODY_SEND_MODE_STREAMED", "BODY_SEND_MODE_FULL_DUPLEX_STREAMED", ""}),
+										Description: `Configures the send mode for request body processing.
+The field can only be set if 'supported_events' includes 'REQUEST_BODY'.
+If 'supported_events' includes 'REQUEST_BODY', but 'request_body_send_mode' is unset, the default value 'STREAMED' is used.
+When this field is set to 'FULL_DUPLEX_STREAMED', 'supported_events' must include both 'REQUEST_BODY' and 'REQUEST_TRAILERS'.
+This field can be set only when the 'service' field of the extension points to a 'BackendService'.
+Only 'FULL_DUPLEX_STREAMED' mode is supported for 'LbRouteExtension' resources. Possible values: ["BODY_SEND_MODE_UNSPECIFIED", "BODY_SEND_MODE_STREAMED", "BODY_SEND_MODE_FULL_DUPLEX_STREAMED"]`,
+									},
+									"supported_events": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Description: `A set of events during request or response processing for which this extension is called.
+This field is optional for the LbRouteExtension resource. If unspecified, 'REQUEST_HEADERS' event is assumed as supported.
+Possible values: 'REQUEST_HEADERS', 'REQUEST_BODY', 'REQUEST_TRAILERS'.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
 									},
 									"timeout": {
 										Type:             schema.TypeString,
@@ -695,12 +756,16 @@ func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensions(v interface
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":            flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsName(original["name"], d, config),
-			"authority":       flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsAuthority(original["authority"], d, config),
-			"service":         flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsService(original["service"], d, config),
-			"timeout":         flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsTimeout(original["timeout"], d, config),
-			"fail_open":       flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsFailOpen(original["failOpen"], d, config),
-			"forward_headers": flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsForwardHeaders(original["forwardHeaders"], d, config),
+			"name":                   flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsName(original["name"], d, config),
+			"authority":              flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsAuthority(original["authority"], d, config),
+			"service":                flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsService(original["service"], d, config),
+			"timeout":                flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsTimeout(original["timeout"], d, config),
+			"fail_open":              flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsFailOpen(original["failOpen"], d, config),
+			"forward_headers":        flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsForwardHeaders(original["forwardHeaders"], d, config),
+			"supported_events":       flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsSupportedEvents(original["supportedEvents"], d, config),
+			"metadata":               flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsMetadata(original["metadata"], d, config),
+			"request_body_send_mode": flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsRequestBodySendMode(original["requestBodySendMode"], d, config),
+			"observability_mode":     flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsObservabilityMode(original["observabilityMode"], d, config),
 		})
 	}
 	return transformed
@@ -726,6 +791,25 @@ func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsFailOpen(v i
 }
 
 func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsForwardHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsSupportedEvents(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsRequestBodySendMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsObservabilityMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -884,6 +968,34 @@ func expandNetworkServicesLbRouteExtensionExtensionChainsExtensions(v interface{
 			transformed["forwardHeaders"] = transformedForwardHeaders
 		}
 
+		transformedSupportedEvents, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsSupportedEvents(original["supported_events"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSupportedEvents); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["supportedEvents"] = transformedSupportedEvents
+		}
+
+		transformedMetadata, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsMetadata(original["metadata"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["metadata"] = transformedMetadata
+		}
+
+		transformedRequestBodySendMode, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsRequestBodySendMode(original["request_body_send_mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRequestBodySendMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["requestBodySendMode"] = transformedRequestBodySendMode
+		}
+
+		transformedObservabilityMode, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsObservabilityMode(original["observability_mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedObservabilityMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["observabilityMode"] = transformedObservabilityMode
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -910,6 +1022,30 @@ func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsFailOpen(v in
 }
 
 func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsForwardHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsSupportedEvents(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsRequestBodySendMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsObservabilityMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

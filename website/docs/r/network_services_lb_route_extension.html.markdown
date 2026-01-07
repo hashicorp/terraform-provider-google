@@ -26,7 +26,7 @@ LbRouteExtension is a resource that lets you control where traffic is routed to 
 
 To get more information about LbRouteExtension, see:
 
-* [API documentation](https://cloud.google.com/service-extensions/docs/reference/rest/v1beta1/projects.locations.lbRouteExtensions)
+* [API documentation](https://cloud.google.com/service-extensions/docs/reference/rest/v1/projects.locations.lbRouteExtensions)
 * How-to Guides
     * [Configure a route extension](https://cloud.google.com/service-extensions/docs/configure-callout#configure_a_route_extension)
 
@@ -251,6 +251,371 @@ resource "google_network_services_lb_route_extension" "default" {
         fail_open = false
 
         forward_headers  = ["custom-header"]
+
+        supported_events = ["REQUEST_HEADERS", "REQUEST_BODY", "REQUEST_TRAILERS"]
+        request_body_send_mode = "BODY_SEND_MODE_FULL_DUPLEX_STREAMED"
+        metadata = {
+            "key" = "value"
+        }
+    }
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+# test instance
+resource "google_compute_instance" "vm_test" {
+  name         = "l7-ilb-test-vm"
+  zone         = "us-west1-b"
+  machine_type = "e2-small"
+
+  network_interface {
+    network    = google_compute_network.ilb_network.id
+    subnetwork = google_compute_subnetwork.ilb_subnet.id
+  }
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+}
+
+# Route Extension Backend Instance
+resource "google_compute_instance" "callouts_instance" {
+  name         = "l7-ilb-callouts-ins"
+  zone         = "us-west1-a"
+  machine_type = "e2-small"
+
+  labels = {
+    "container-vm" = "cos-stable-109-17800-147-54"
+  }
+
+  tags = ["allow-ssh","load-balanced-backend"]
+
+  network_interface {
+    network    = google_compute_network.ilb_network.id
+    subnetwork = google_compute_subnetwork.ilb_subnet.id
+
+    access_config {
+      # add external ip to fetch packages
+    }
+  }
+
+  boot_disk {
+    auto_delete  = true
+
+    initialize_params {
+      type  = "pd-standard"
+      size  = 10
+      image = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-109-17800-147-54"
+    }
+  }
+
+  # Initialize an Envoy's Ext Proc gRPC API based on a docker container
+  metadata = {
+    startup-script = <<-EOF1
+      #! /bin/bash
+      apt-get update
+      apt-get install apache2 -y
+      a2ensite default-ssl
+      a2enmod ssl
+      echo "Page served from second backend service" | tee /var/www/html/index.html
+      systemctl restart apache2'
+    EOF1
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  deletion_protection = false
+
+  depends_on = [
+    google_compute_instance.vm_test
+  ]
+}
+
+// callouts instance group
+resource "google_compute_instance_group" "callouts_instance_group" {
+  name        = "l7-ilb-callouts-ins-group"
+  description = "Terraform test instance group"
+  zone        = "us-west1-a"
+
+  instances = [
+    google_compute_instance.callouts_instance.id,
+  ]
+
+  named_port {
+    name = "http"
+    port = "80"
+  }
+
+  named_port {
+    name = "grpc"
+    port = "443"
+  }
+}
+
+# callout health check
+resource "google_compute_region_health_check" "callouts_health_check" {
+  name     = "l7-ilb-callouts-hc"
+  region   = "us-west1"
+
+  http_health_check {
+    port = 80
+  }
+
+  depends_on = [
+    google_compute_region_health_check.default
+  ]
+}
+
+# callout backend service
+resource "google_compute_region_backend_service" "callouts_backend" {
+  name                  = "l7-ilb-callouts-backend"
+  region                = "us-west1"
+  protocol              = "HTTP2"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec           = 10
+  port_name             = "grpc"
+  health_checks         = [google_compute_region_health_check.callouts_health_check.id]
+
+  backend {
+    group           = google_compute_instance_group.callouts_instance_group.id
+    balancing_mode  = "UTILIZATION"
+    capacity_scaler = 1.0
+  }
+
+  depends_on = [
+    google_compute_region_backend_service.default
+  ]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_lb_route_extension_observability&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Lb Route Extension Observability
+
+
+```hcl
+# Internal HTTP load balancer with a managed instance group backend
+# VPC network
+resource "google_compute_network" "ilb_network" {
+  name                    = "l7-ilb-network"
+  auto_create_subnetworks = false
+}
+
+# proxy-only subnet
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "l7-ilb-proxy-subnet"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-west1"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.ilb_network.id
+}
+
+# backend subnet
+resource "google_compute_subnetwork" "ilb_subnet" {
+  name          = "l7-ilb-subnet"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-west1"
+  network       = google_compute_network.ilb_network.id
+
+  depends_on = [
+    google_compute_subnetwork.proxy_subnet
+  ]
+}
+
+# forwarding rule
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "l7-ilb-forwarding-rule"
+  region                = "us-west1"
+  ip_protocol           = "TCP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_range            = "80"
+  target                = google_compute_region_target_http_proxy.default.id
+  network               = google_compute_network.ilb_network.id
+  subnetwork            = google_compute_subnetwork.ilb_subnet.id
+  network_tier          = "PREMIUM"
+
+  depends_on = [
+  	google_compute_subnetwork.proxy_subnet
+  ]
+}
+
+# HTTP target proxy
+resource "google_compute_region_target_http_proxy" "default" {
+  name     = "l7-ilb-target-http-proxy"
+  region   = "us-west1"
+  url_map  = google_compute_region_url_map.default.id
+}
+
+# URL map
+resource "google_compute_region_url_map" "default" {
+  name            = "tf-test-l7-ilb-regional-url-map%{random_suffix}"
+  region          = "us-west1"
+  default_service = google_compute_region_backend_service.default.id
+
+  host_rule {
+    hosts        = ["service-extensions.com"]
+    path_matcher = "callouts"
+  }
+
+  path_matcher {
+    name            = "callouts"
+    default_service = google_compute_region_backend_service.callouts_backend.id
+  }
+}
+
+# backend service
+resource "google_compute_region_backend_service" "default" {
+  name                  = "l7-ilb-backend-subnet"
+  region                = "us-west1"
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec           = 10
+  health_checks         = [google_compute_region_health_check.default.id]
+
+  backend {
+    group           = google_compute_region_instance_group_manager.mig.instance_group
+    balancing_mode  = "UTILIZATION"
+    capacity_scaler = 1.0
+  }
+}
+
+# instance template
+resource "google_compute_instance_template" "instance_template" {
+  name         = "l7-ilb-mig-template"
+  machine_type = "e2-small"
+  tags         = ["http-server"]
+
+  network_interface {
+    network    = google_compute_network.ilb_network.id
+    subnetwork = google_compute_subnetwork.ilb_subnet.id
+
+    access_config {
+      # add external ip to fetch packages
+    }
+  }
+
+  disk {
+    source_image = "debian-cloud/debian-12"
+    auto_delete  = true
+    boot         = true
+  }
+
+  # install nginx and serve a simple web page
+  metadata = {
+    startup-script = <<-EOF1
+      #! /bin/bash
+      set -euo pipefail
+
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y nginx-light jq
+
+      NAME=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/hostname")
+      IP=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip")
+      METADATA=$(curl -f -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/attributes/?recursive=True" | jq 'del(.["startup-script"])')
+
+      cat <<EOF > /var/www/html/index.html
+      <pre>
+      Name: $NAME
+      IP: $IP
+      Metadata: $METADATA
+      </pre>
+      EOF
+    EOF1
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# health check
+resource "google_compute_region_health_check" "default" {
+  name     = "l7-ilb-hc"
+  region   = "us-west1"
+
+  http_health_check {
+    port_specification = "USE_SERVING_PORT"
+  }
+}
+
+# MIG
+resource "google_compute_region_instance_group_manager" "mig" {
+  name     = "l7-ilb-mig1"
+  region   = "us-west1"
+
+  base_instance_name = "vm"
+  target_size        = 2
+
+  version {
+    instance_template = google_compute_instance_template.instance_template.id
+    name              = "primary"
+  }
+}
+
+# allow all access from IAP and health check ranges
+resource "google_compute_firewall" "fw_iap" {
+  name          = "l7-ilb-fw-allow-iap-hc"
+  direction     = "INGRESS"
+  network       = google_compute_network.ilb_network.id
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16", "35.235.240.0/20"]
+
+  allow {
+    protocol = "tcp"
+  }
+}
+
+# allow http from proxy subnet to backends
+resource "google_compute_firewall" "fw_ilb_to_backends" {
+  name          = "l7-ilb-fw-allow-ilb-to-backends"
+  direction     = "INGRESS"
+  network       = google_compute_network.ilb_network.id
+  source_ranges = ["10.0.0.0/24"]
+  target_tags   = ["http-server"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443", "8080"]
+  }
+
+  depends_on = [
+    google_compute_firewall.fw_iap
+  ]
+}
+
+resource "google_network_services_lb_route_extension" "default" {
+  name                  = "l7-ilb-route-ext"
+  description           = "my route extension"
+  location              = "us-west1"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  forwarding_rules      = [google_compute_forwarding_rule.default.self_link]
+
+  extension_chains {
+    name = "chain1"
+
+    match_condition {
+        cel_expression = "request.path.startsWith('/extensions')"
+    }
+
+    extensions {
+        name      = "ext11"
+        authority = "ext11.com"
+        service   = google_compute_region_backend_service.callouts_backend.self_link
+        timeout   = "0.1s"
+        fail_open = false
+
+        supported_events = ["REQUEST_HEADERS"]
+        observability_mode = true
     }
   }
 
@@ -405,6 +770,7 @@ The following arguments are supported:
   Match conditions for each extension chain are evaluated in sequence for a given request.
   The first extension chain that has a condition that matches the request is executed.
   Any subsequent extension chains do not execute. Limited to 5 extension chains per resource.
+  Further information can be found at https://cloud.google.com/service-extensions/docs/reference/rest/v1/ExtensionChain
   Structure is [documented below](#nested_extension_chains).
 
 * `load_balancing_scheme` -
@@ -457,6 +823,7 @@ The following arguments are supported:
   A set of extensions to execute for the matching request.
   At least one extension is required. Up to 3 extensions can be defined for each extension chain for
   LbTrafficExtension resource. LbRouteExtension chains are limited to 1 extension per extension chain.
+  Further documentation can be found at https://cloud.google.com/service-extensions/docs/reference/rest/v1/ExtensionChain#Extension
   Structure is [documented below](#nested_extension_chains_extensions).
 
 
@@ -503,6 +870,39 @@ The following arguments are supported:
   (Optional)
   List of the HTTP headers to forward to the extension (from the client or backend).
   If omitted, all headers are sent. Each element is a string indicating the header name.
+
+* `supported_events` -
+  (Optional)
+  A set of events during request or response processing for which this extension is called.
+  This field is optional for the LbRouteExtension resource. If unspecified, `REQUEST_HEADERS` event is assumed as supported.
+  Possible values: `REQUEST_HEADERS`, `REQUEST_BODY`, `REQUEST_TRAILERS`.
+
+* `metadata` -
+  (Optional)
+  The metadata provided here is included as part of the `metadata_context` (of type `google.protobuf.Struct`)
+  in the `ProcessingRequest` message sent to the extension server.
+  The metadata is available under the namespace `com.google.lb_route_extension.<resource_name>.<chain_name>.<extension_name>`.
+  The following variables are supported in the metadata: `{forwarding_rule_id}` - substituted with the forwarding rule's fully qualified resource name.
+  This field must not be set for plugin extensions. Setting it results in a validation error.
+
+* `request_body_send_mode` -
+  (Optional)
+  Configures the send mode for request body processing.
+  The field can only be set if `supported_events` includes `REQUEST_BODY`.
+  If `supported_events` includes `REQUEST_BODY`, but `request_body_send_mode` is unset, the default value `STREAMED` is used.
+  When this field is set to `FULL_DUPLEX_STREAMED`, `supported_events` must include both `REQUEST_BODY` and `REQUEST_TRAILERS`.
+  This field can be set only when the `service` field of the extension points to a `BackendService`.
+  Only `FULL_DUPLEX_STREAMED` mode is supported for `LbRouteExtension` resources.
+  Possible values are: `BODY_SEND_MODE_UNSPECIFIED`, `BODY_SEND_MODE_STREAMED`, `BODY_SEND_MODE_FULL_DUPLEX_STREAMED`.
+
+* `observability_mode` -
+  (Optional)
+  When set to `TRUE`, enables `observability_mode` on the `ext_proc` filter.
+  This makes `ext_proc` calls asynchronous. Envoy doesn't check for the response from `ext_proc` calls.
+  For more information about the filter, see: https://www.envoyproxy.io/docs/envoy/v1.32.3/api-v3/extensions/filters/http/ext_proc/v3/ext_proc.proto
+  This field is helpful when you want to try out the extension in async log-only mode.
+  Supported by regional `LbTrafficExtension` and `LbRouteExtension` resources.
+  Only `STREAMED` (default) body processing mode is supported.
 
 ## Attributes Reference
 
