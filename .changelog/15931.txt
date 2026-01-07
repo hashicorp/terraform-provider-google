@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added new field `registry_hosts` to `containerd_config` under cluster and node pool
+```
