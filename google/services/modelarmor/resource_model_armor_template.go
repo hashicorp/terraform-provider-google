@@ -600,6 +600,7 @@ func resourceModelArmorTemplateRead(d *schema.ResourceData, meta interface{}) er
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

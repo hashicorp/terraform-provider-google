@@ -356,6 +356,7 @@ func resourceComputeRegionNetworkFirewallPolicyAssociationRead(d *schema.Resourc
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

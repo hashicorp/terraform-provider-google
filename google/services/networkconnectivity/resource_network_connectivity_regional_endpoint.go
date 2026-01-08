@@ -462,6 +462,7 @@ func resourceNetworkConnectivityRegionalEndpointRead(d *schema.ResourceData, met
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

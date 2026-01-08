@@ -288,6 +288,7 @@ func resourceApigeeEnvgroupRead(d *schema.ResourceData, meta interface{}) error 
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

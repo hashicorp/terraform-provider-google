@@ -448,6 +448,7 @@ func resourceDeveloperConnectAccountConnectorRead(d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

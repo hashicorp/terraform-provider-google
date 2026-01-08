@@ -372,6 +372,7 @@ func resourceComputeResourcePolicyAttachmentRead(d *schema.ResourceData, meta in
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

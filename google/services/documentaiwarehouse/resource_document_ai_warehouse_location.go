@@ -97,21 +97,6 @@ func ResourceDocumentAIWarehouseLocation() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
-		Identity: &schema.ResourceIdentity{
-			Version: 1,
-			SchemaFunc: func() map[string]*schema.Schema {
-				return map[string]*schema.Schema{
-					"project_number": {
-						Type:              schema.TypeString,
-						RequiredForImport: true,
-					},
-					"location": {
-						Type:              schema.TypeString,
-						RequiredForImport: true,
-					},
-				}
-			},
-		},
 		Schema: map[string]*schema.Schema{
 			"access_control_mode": {
 				Type:         schema.TypeString,
