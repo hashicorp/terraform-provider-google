@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: adding support for generating cloud router plural datasources 
+```
