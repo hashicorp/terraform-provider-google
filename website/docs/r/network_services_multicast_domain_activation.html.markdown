@@ -24,6 +24,11 @@ description: |-
 Create a multicast domain activation in the specified location of the current project.
 
 
+To get more information about MulticastDomainActivation, see:
+
+* [API documentation](https://docs.cloud.google.com/vpc/docs/multicast/reference/rest/v1/projects.locations.multicastDomainActivations)
+* How-to Guides
+    * [Create Multicast Domain Activation](https://docs.cloud.google.com/vpc/docs/multicast/create-domains#activate-domain)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_multicast_domain_activation_basic&open_in_editor=main.tf" target="_blank">
@@ -59,6 +64,12 @@ resource "google_network_services_multicast_domain_activation" mda_test {
 The following arguments are supported:
 
 
+* `multicast_domain` -
+  (Required)
+  The resource name of the multicast domain to activate.
+  Use the following format:
+  `projects/*/locations/global/multicastDomains/*`.
+
 * `location` -
   (Required)
   Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
@@ -75,17 +86,17 @@ The following arguments are supported:
   (Optional)
   An optional text description of the multicast domain activation.
 
+* `disable_placement_policy` -
+  (Optional)
+  Option to allow disabling placement policy for multicast infrastructure.
+  Only applicable if the activation is for a domain associating with a
+  multicast domain group.
+
 * `labels` -
   (Optional)
   Labels as key-value pairs
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `multicast_domain` -
-  (Optional)
-  The resource name of the multicast domain to activate.
-  Use the following format:
-  `projects/*/locations/global/multicastDomains/*`.
 
 * `traffic_spec` -
   (Optional)
@@ -132,10 +143,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/multicastDomainActivations/{{multicast_domain_activation_id}}`
 
 * `admin_network` -
-  [Output only] The URL of the admin network.
+  The URL of the admin network.
 
 * `create_time` -
-  [Output only] The timestamp when the multicast domain activation was
+  The timestamp when the multicast domain activation was
   created.
 
 * `name` -
@@ -143,14 +154,18 @@ In addition to the arguments listed above, the following computed attributes are
   Use the following format:
   `projects/*/locations/*/multicastDomainActivations/*`.
 
+* `state` -
+  The multicast resource's state.
+  Structure is [documented below](#nested_state).
+
 * `unique_id` -
-  [Output only] The Google-generated UUID for the resource. This value is
+  The Google-generated UUID for the resource. This value is
   unique across all multicast domain activation resources. If a domain
   activation is deleted and another with the same name is created, the new
   domain activation is assigned a different unique_id.
 
 * `update_time` -
-  [Output only] The timestamp when the multicast domain activation was most
+  The timestamp when the multicast domain activation was most
   recently updated.
 
 * `terraform_labels` -
@@ -160,6 +175,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_state"></a>The `state` block contains:
+
+* `state` -
+  (Output)
+  The state of the multicast resource.
+  Possible values:
+  CREATING
+  ACTIVE
+  DELETING
+  DELETE_FAILED
+  UPDATING
+  UPDATE_FAILED
+  INACTIVE
 
 ## Timeouts
 

@@ -9,6 +9,7 @@ fields:
     - api_field: adminNetwork
     - api_field: createTime
     - api_field: description
+    - api_field: disablePlacementPolicy
     - field: effective_labels
       provider_only: true
     - api_field: labels
@@ -18,6 +19,7 @@ fields:
     - field: multicast_domain_activation_id
       provider_only: true
     - api_field: name
+    - api_field: state.state
     - field: terraform_labels
       provider_only: true
     - api_field: trafficSpec.aggrEgressPps
