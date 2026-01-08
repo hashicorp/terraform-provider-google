@@ -238,14 +238,14 @@ fields:
   - api_field: 'nodeConfig.containerdConfig.writableCgroups.enabled'
   - api_field: 'nodeConfig.containerdConfig.registryHosts.server'
   - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.host'
-  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.capabilities
-  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.overridePath 
-  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.header.key
-  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.header.value
-  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.ca.gcpSecretManagerSecretUri
-  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.client.cert.gcpSecretManagerSecretUri
-  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.client.key.gcpSecretManagerSecretUri
-  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.dialTimeout
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.capabilities'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.overridePath'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.header.key'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.header.value'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.ca.gcpSecretManagerSecretUri'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.client.cert.gcpSecretManagerSecretUri'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.client.key.gcpSecretManagerSecretUri'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.dialTimeout'
   - api_field: 'nodeConfig.diskSizeGb'
   - api_field: 'nodeConfig.diskType'
   - field: 'node_config.effective_taints.effect'
@@ -677,14 +677,14 @@ fields:
   - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.writableCgroups.enabled'
   - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.server'
   - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.host'
-  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.capabilities
-  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.overridePath 
-  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.header.key
-  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.header.value
-  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.ca.gcpSecretManagerSecretUri
-  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.client.cert.gcpSecretManagerSecretUri
-  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.client.key.gcpSecretManagerSecretUri
-  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.dialTimeout
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.capabilities'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.overridePath'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.header.key'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.header.value'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.ca.gcpSecretManagerSecretUri'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.client.cert.gcpSecretManagerSecretUri'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.client.key.gcpSecretManagerSecretUri'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.dialTimeout'
   - api_field: 'nodePoolDefaults.nodeConfigDefaults.gcfsConfig.enabled'
   - field: 'node_pool_defaults.node_config_defaults.insecure_kubelet_readonly_port_enabled'
     api_field: 'nodePoolDefaults.nodeConfigDefaults.nodeKubeletConfig.insecureKubeletReadonlyPortEnabled'
