@@ -132,6 +132,7 @@ resource "google_storage_bucket_iam_member" "hsa" {
 }
 
 func TestAccHealthcarePipelineJob_healthcarePipelineJobBackfillExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{

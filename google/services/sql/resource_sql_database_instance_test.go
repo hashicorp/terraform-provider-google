@@ -2678,6 +2678,10 @@ func TestAccSqlDatabaseInstance_SqlServerTimezoneUpdate(t *testing.T) {
 func TestAccSqlDatabaseInstance_activationPolicy(t *testing.T) {
 	t.Parallel()
 
+	// Skip in VCR until the test issue is resolved
+	// https://github.com/hashicorp/terraform-provider-google/issues/24593
+	acctest.SkipIfVcr(t)
+
 	instanceName := "tf-test-" + acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
