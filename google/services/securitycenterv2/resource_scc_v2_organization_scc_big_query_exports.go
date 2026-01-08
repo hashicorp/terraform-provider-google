@@ -398,6 +398,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsRead(d *schema.Resour
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

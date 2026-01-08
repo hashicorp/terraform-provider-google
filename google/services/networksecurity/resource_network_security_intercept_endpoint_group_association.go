@@ -492,6 +492,7 @@ func resourceNetworkSecurityInterceptEndpointGroupAssociationRead(d *schema.Reso
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

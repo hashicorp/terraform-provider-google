@@ -4451,6 +4451,7 @@ func resourceDataLossPreventionDeidentifyTemplateRead(d *schema.ResourceData, me
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

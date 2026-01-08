@@ -408,6 +408,7 @@ func resourceBigqueryReservationCapacityCommitmentRead(d *schema.ResourceData, m
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

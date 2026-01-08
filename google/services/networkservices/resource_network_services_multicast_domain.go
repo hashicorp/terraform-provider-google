@@ -469,6 +469,7 @@ func resourceNetworkServicesMulticastDomainRead(d *schema.ResourceData, meta int
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

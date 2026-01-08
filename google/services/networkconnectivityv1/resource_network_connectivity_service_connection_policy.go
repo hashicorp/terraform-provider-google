@@ -584,6 +584,7 @@ func resourceNetworkConnectivityv1ServiceConnectionPolicyRead(d *schema.Resource
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

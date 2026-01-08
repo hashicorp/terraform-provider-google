@@ -603,6 +603,7 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyRead(d *sche
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

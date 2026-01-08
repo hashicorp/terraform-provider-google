@@ -1055,6 +1055,7 @@ func resourceComputeRegionNetworkFirewallPolicyWithRulesRead(d *schema.ResourceD
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

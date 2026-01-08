@@ -492,6 +492,7 @@ func resourceSecretManagerRegionalRegionalSecretVersionRead(d *schema.ResourceDa
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 

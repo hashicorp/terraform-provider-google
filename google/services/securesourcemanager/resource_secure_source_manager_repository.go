@@ -457,6 +457,7 @@ func resourceSecureSourceManagerRepositoryRead(d *schema.ResourceData, meta inte
 	} else {
 		log.Printf("[DEBUG] (Read) identity not set: %s", err)
 	}
+
 	return nil
 }
 
