@@ -793,6 +793,10 @@ func TestAccContainerCluster_inTransitEncryptionConfig(t *testing.T) {
 func TestAccContainerCluster_networkPerformanceConfig(t *testing.T) {
 	t.Parallel()
 
+	// Skip in VCR until the test issue is resolved
+	// https://github.com/hashicorp/terraform-provider-google/issues/24850
+	acctest.SkipIfVcr(t)
+
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
 	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)

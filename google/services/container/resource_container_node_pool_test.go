@@ -2213,6 +2213,10 @@ resource "google_container_node_pool" "np" {
 func TestAccContainerNodePool_secondaryBootDisks(t *testing.T) {
 	t.Parallel()
 
+	// Skip in VCR until the test issue is resolved
+	// https://github.com/hashicorp/terraform-provider-google/issues/23855
+	acctest.SkipIfVcr(t)
+
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
 	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
