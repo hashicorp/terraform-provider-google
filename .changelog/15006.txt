@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: made `google_bigquery_table` use merge and update for dataPolicies if `ignore_schema_changes`(dataPolicies) is defined 
+```

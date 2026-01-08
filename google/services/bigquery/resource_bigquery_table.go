@@ -155,6 +155,100 @@ func valueIsInArray(value interface{}, array []interface{}) bool {
 	return false
 }
 
+// This function merges the live dataPolicies with the ones defined in tf config
+// This will be called only when "ignore_schema_changes" with "dataPolicies" is defined
+func mergeDataPolicies(configFields []*bigquery.TableFieldSchema, liveFields []*bigquery.TableFieldSchema, rawSchema []interface{}) {
+	liveMap := make(map[string]*bigquery.TableFieldSchema)
+	if liveFields != nil {
+		for _, f := range liveFields {
+			liveMap[f.Name] = f
+		}
+	}
+
+	rawMap := make(map[string]map[string]interface{})
+	for _, item := range rawSchema {
+		if m, ok := item.(map[string]interface{}); ok {
+			if name, ok := m["name"].(string); ok {
+				rawMap[name] = m
+			}
+		}
+	}
+
+	for _, configField := range configFields {
+		rawField, rawExists := rawMap[configField.Name]
+		liveField := liveMap[configField.Name]
+
+		// Recursively handle nested fields (RECORD/STRUCT types)
+		if len(configField.Fields) > 0 {
+			var liveNested []*bigquery.TableFieldSchema
+			if liveField != nil {
+				liveNested = liveField.Fields
+			}
+			var rawNested []interface{}
+			if rawExists {
+				if fields, ok := rawField["fields"].([]interface{}); ok {
+					rawNested = fields
+				}
+			}
+			mergeDataPolicies(configField.Fields, liveNested, rawNested)
+		}
+
+		// Handle DataPolicies logic
+		dataPoliciesSpecified := false
+		if rawExists {
+			// Check if "dataPolicies" key explicitly exists in the raw config JSON
+			_, dataPoliciesSpecified = rawField["dataPolicies"]
+		}
+
+		// If the user did NOT specify dataPolicies in the config,
+		// and they exist on the server, copy them to the config struct.
+		if !dataPoliciesSpecified && liveField != nil {
+			if len(liveField.DataPolicies) > 0 {
+				configField.DataPolicies = liveField.DataPolicies
+			}
+		}
+	}
+}
+
+// If the same table column is found in both the TF config and live state,
+// and the column in the live state has data policies when the column in the TF config doesn't,
+// copy the data policies from live state into the TF config.
+func mergeDataPoliciesIntoMap(old, new []interface{}) {
+	oldMap := make(map[string]map[string]interface{})
+	for _, v := range old {
+		if m, ok := v.(map[string]interface{}); ok {
+			if name, ok := m["name"].(string); ok {
+				oldMap[name] = m
+			}
+		}
+	}
+
+	for _, v := range new {
+		newField, ok := v.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		name := newField["name"].(string)
+
+		if oldField, exists := oldMap[name]; exists {
+			// If config doesn't have dataPolicies, but backend does, copy them over
+			if _, specified := newField["dataPolicies"]; !specified {
+				if dp, hasDP := oldField["dataPolicies"]; hasDP {
+					newField["dataPolicies"] = dp
+					log.Printf("[DEBUG] Added live data policy to schema: %v", dp)
+				}
+			}
+
+			// Recursively handle nested fields (RECORD types)
+			if oldNested, ok1 := oldField["fields"].([]interface{}); ok1 {
+				if newNested, ok2 := newField["fields"].([]interface{}); ok2 {
+					mergeDataPoliciesIntoMap(oldNested, newNested)
+				}
+			}
+		}
+	}
+}
+
 func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interface{}, d *schema.ResourceData) bool {
 	// we rely on the fallback to nil if the object does not have the key
 	valA := objectA[key]
@@ -180,9 +274,27 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 			return false
 		}
 		// Access the ignore_schema_changes list from the Terraform configuration
-		ignoreSchemaChanges := d.Get("ignore_schema_changes").([]interface{})
-		// Suppress diffs for the "dataPolicies" field if it was present in "ignore_schema_changes"
-		return slices.Contains(ignoreSchemaChanges, "dataPolicies")
+		var ignoreSchemaChanges []interface{}
+		if val := d.Get("ignore_schema_changes"); val != nil {
+			ignoreSchemaChanges = val.([]interface{})
+		}
+
+		// If dataPolicies is ignored...
+		if slices.Contains(ignoreSchemaChanges, "dataPolicies") {
+			// Check if the NEW value (valB) is empty or nil.
+			// If it is empty, we suppress the diff (return true) to keep backend values.
+			if valB == nil {
+				return true
+			}
+			if s, ok := valB.([]interface{}); ok && len(s) == 0 {
+				return true
+			}
+
+			// If the user EXPLICITLY provided dataPolicies, we return false.
+			// This tells Terraform "There is a difference, and I want you to apply it."
+			return false
+		}
+		return false
 	}
 
 	// otherwise rely on default behavior
@@ -464,6 +576,31 @@ func resourceBigQueryTableSchemaCustomizeDiffFunc(d tpgresource.TerraformResourc
 		if err := json.Unmarshal([]byte(newSchemaText), &new); err != nil {
 			// same as above
 			log.Printf("[DEBUG] unable to unmarshal json customized diff - %v", err)
+		}
+
+		var ignoreSchemaChanges []interface{}
+		if val := d.Get("ignore_schema_changes"); val != nil {
+			ignoreSchemaChanges = val.([]interface{})
+		}
+
+		if slices.Contains(ignoreSchemaChanges, "dataPolicies") {
+			oldList, okOld := old.([]interface{})
+			newList, okNew := new.([]interface{})
+			if okOld && okNew {
+				// Modify the 'new' object in memory to include hidden backend policies
+				mergeDataPoliciesIntoMap(oldList, newList)
+
+				// Marshal the modified 'new' state back to JSON
+				updatedNewJSON, err := json.Marshal(newList)
+				if err == nil {
+					// Update the diff so Terraform's UI sees the policies as "present" in the new state
+					if err := d.SetNew("schema", string(updatedNewJSON)); err != nil {
+						return err
+					}
+					// Update local variable for subsequent logic in this function
+					new = newList
+				}
+			}
 		}
 
 		// no is schema changeable check needed, if new schema is old schema
@@ -2306,10 +2443,41 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 		tableID:   tableID,
 	}
 
-	// If we are supposed to ignore server generated schema columns, we don't need to drop them
-	if !d.Get("ignore_auto_generated_schema").(bool) {
-		if err = resourceBigQueryTableColumnDrop(config, userAgent, table, tableReference, tableMetadataView); err != nil {
+	// Logic to fetch oldTable if needed for Dropping Columns OR Merging Data Policies
+	ignoreSchemaChanges := d.Get("ignore_schema_changes").([]interface{})
+	shouldIgnoreDataPolicies := slices.Contains(ignoreSchemaChanges, "dataPolicies")
+	shouldDropColumns := !d.Get("ignore_auto_generated_schema").(bool)
+
+	var oldTable *bigquery.Table
+	var errOldTable error
+
+	if shouldDropColumns || shouldIgnoreDataPolicies {
+		client := config.NewBigQueryClient(userAgent).Tables.Get(project, datasetID, tableID)
+		if len(tableMetadataView) > 0 {
+			client = client.View(tableMetadataView)
+		}
+		oldTable, errOldTable = client.Do()
+		if errOldTable != nil {
+			return errOldTable
+		}
+	}
+
+	// 1. Column Drop Logic
+	if shouldDropColumns && oldTable != nil {
+		// Pass oldTable to the modified function
+		if err = resourceBigQueryTableColumnDrop(config, userAgent, table, oldTable, tableReference, tableMetadataView); err != nil {
 			return err
+		}
+	}
+
+	// 2. Data Policy Merge Logic
+	// If we are ignoring dataPolicies, check if we need to preserve existing ones
+	if shouldIgnoreDataPolicies && table.Schema != nil && oldTable != nil && oldTable.Schema != nil {
+		rawSchemaStr := d.Get("schema").(string)
+		var rawSchema []interface{}
+		// Unmarshal the RAW input to see if user explicitly defined "dataPolicies" or not
+		if err := json.Unmarshal([]byte(rawSchemaStr), &rawSchema); err == nil {
+			mergeDataPolicies(table.Schema.Fields, oldTable.Schema.Fields, rawSchema)
 		}
 	}
 
@@ -2320,18 +2488,8 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 	return resourceBigQueryTableRead(d, meta)
 }
 
-func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent string, table *bigquery.Table, tableReference *TableReference, tableMetadataView string) error {
-	client := config.NewBigQueryClient(userAgent).Tables.Get(tableReference.project, tableReference.datasetID, tableReference.tableID)
-	if len(tableMetadataView) > 0 {
-		client = client.View(tableMetadataView)
-	}
-	oldTable, err := client.Do()
-
-	if err != nil {
-		return err
-	}
-
-	if table.Schema == nil {
+func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent string, table *bigquery.Table, oldTable *bigquery.Table, tableReference *TableReference, tableMetadataView string) error {
+	if table.Schema == nil || oldTable == nil || oldTable.Schema == nil {
 		return nil
 	}
 
@@ -2363,7 +2521,7 @@ func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent str
 			UseLegacySql: &useLegacySQL,
 		}
 
-		_, err = config.NewBigQueryClient(userAgent).Jobs.Query(tableReference.project, req).Do()
+		_, err := config.NewBigQueryClient(userAgent).Jobs.Query(tableReference.project, req).Do()
 		if err != nil {
 			return err
 		}

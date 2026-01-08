@@ -19,9 +19,12 @@ package bigquery
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	"google.golang.org/api/bigquery/v2"
 )
 
 func TestBigQueryTableSchemaDiffSuppress(t *testing.T) {
@@ -404,12 +407,83 @@ func TestBigQueryTableSchemaDiffSuppress(t *testing.T) {
 	}
 }
 
+func TestBigQueryTableSchemaDiffSuppress_WithIgnore(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		Old                string
+		New                string
+		ExpectDiffSuppress bool
+	}{
+		"ignore top level policy removal": {
+			Old:                `[{"name": "col1", "dataPolicies": [{"name": "p1"}]}]`,
+			New:                `[{"name": "col1"}]`,
+			ExpectDiffSuppress: true,
+		},
+		"ignore nested policy removal": {
+			Old: `[{
+				"name": "parent",
+				"type": "RECORD",
+				"fields": [{
+					"name": "child",
+					"dataPolicies": [{"name": "p1"}]
+				}]
+			}]`,
+			New: `[{
+				"name": "parent",
+				"type": "RECORD",
+				"fields": [{
+					"name": "child"
+				}]
+			}]`,
+			ExpectDiffSuppress: true,
+		},
+		"do NOT ignore description change (even if ignore set)": {
+			Old:                `[{"name": "col1", "description": "old desc"}]`,
+			New:                `[{"name": "col1", "description": "new desc"}]`,
+			ExpectDiffSuppress: false,
+		},
+		"do NOT ignore explicit policy change (user override)": {
+			Old:                `[{"name": "col1", "dataPolicies": [{"name": "old_policy"}]}]`,
+			New:                `[{"name": "col1", "dataPolicies": [{"name": "new_policy"}]}]`,
+			ExpectDiffSuppress: false,
+		},
+		"suppress if explicit policy matches backend": {
+			Old:                `[{"name": "col1", "dataPolicies": [{"name": "same_policy"}]}]`,
+			New:                `[{"name": "col1", "dataPolicies": [{"name": "same_policy"}]}]`,
+			ExpectDiffSuppress: true,
+		},
+		"mixed: ignore policy removal but detect description change": {
+			Old:                `[{"name": "col1", "description": "old", "dataPolicies": [{"name": "p1"}]}]`,
+			New:                `[{"name": "col1", "description": "new"}]`,
+			ExpectDiffSuppress: false, // Should be false because description changed
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			// Create a real ResourceData object with the ignore flag set.
+			// This simulates `ignore_schema_changes = ["dataPolicies"]` in HCL.
+			d := schema.TestResourceDataRaw(t, ResourceBigQueryTable().Schema, map[string]interface{}{
+				"ignore_schema_changes": []interface{}{"dataPolicies"},
+			})
+
+			suppressed := bigQueryTableSchemaDiffSuppress("schema", tc.Old, tc.New, d)
+
+			if suppressed != tc.ExpectDiffSuppress {
+				t.Errorf("Expected DiffSuppress to be %v, got %v", tc.ExpectDiffSuppress, suppressed)
+			}
+		})
+	}
+}
+
 type testUnitBigQueryDataTableJSONChangeableTestCase struct {
-	name            string
-	jsonOld         string
-	jsonNew         string
-	isExternalTable bool
-	changeable      bool
+	name                string
+	jsonOld             string
+	jsonNew             string
+	isExternalTable     bool
+	changeable          bool
+	ignoreSchemaChanges []interface{}
 }
 
 func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testing.T) {
@@ -428,6 +502,12 @@ func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testin
 
 	d.Before["schema"] = testcase.jsonOld
 	d.After["schema"] = testcase.jsonNew
+
+	// Set the ignore flag if provided in the test case
+	if testcase.ignoreSchemaChanges != nil {
+		d.Before["ignore_schema_changes"] = testcase.ignoreSchemaChanges
+		d.After["ignore_schema_changes"] = testcase.ignoreSchemaChanges
+	}
 
 	if testcase.isExternalTable {
 		d.Before["external_data_configuration"] = ""
@@ -598,6 +678,13 @@ var testUnitBigQueryDataTableIsChangeableTestCases = []testUnitBigQueryDataTable
 		]`,
 		changeable: true,
 	},
+	{
+		name:                "ignoreDataPolicyRemoval",
+		jsonOld:             "[{\"name\": \"col1\", \"type\" : \"STRING\", \"dataPolicies\": [{\"name\": \"p1\"}]}]",
+		jsonNew:             "[{\"name\": \"col1\", \"type\" : \"STRING\"}]",
+		ignoreSchemaChanges: []interface{}{"dataPolicies"},
+		changeable:          true, // Should not trigger ForceNew
+	},
 }
 
 func TestUnitBigQueryDataTable_schemaIsChangeable(t *testing.T) {
@@ -623,7 +710,144 @@ func TestUnitBigQueryDataTable_schemaIsChangeableNested(t *testing.T) {
 			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INT64\", \"fields\" : %s }]", testcase.jsonNew),
 			testcase.isExternalTable,
 			changeable,
+			nil,
 		}
 		testcaseNested.check(t)
+	}
+}
+
+// Test mergeDataPolicies using JSON to generate the structs.
+func TestMergeDataPolicies(t *testing.T) {
+	t.Parallel()
+
+	// Define the 'Live' schema (from API) as JSON.
+	// Contains the policies we want to preserve.
+	liveJSON := `[
+		{
+			"name": "col1",
+			"type": "STRING",
+			"dataPolicies": [
+				{ "name": "projects/123/locations/us/dataPolicies/p1" }
+			]
+		},
+		{
+			"name": "nested_col",
+			"type": "RECORD",
+			"fields": [
+				{
+					"name": "subcol",
+					"type": "STRING",
+					"dataPolicies": [
+						{ "name": "projects/123/locations/us/dataPolicies/nested_p1" }
+					]
+				}
+			]
+		}
+	]`
+
+	// Define the 'Config' schema (from Terraform) as JSON.
+	// Simulates the user NOT defining dataPolicies in their config.
+	configJSON := `[
+		{
+			"name": "col1",
+			"type": "STRING"
+		},
+		{
+			"name": "nested_col",
+			"type": "RECORD",
+			"fields": [
+				{
+					"name": "subcol",
+					"type": "STRING"
+				}
+			]
+		}
+	]`
+
+	// Define the Expected Result.
+	// It should look like the Config, but with policies merged in from Live.
+	expectedJSON := `[
+		{
+			"name": "col1",
+			"type": "STRING",
+			"dataPolicies": [
+				{ "name": "projects/123/locations/us/dataPolicies/p1" }
+			]
+		},
+		{
+			"name": "nested_col",
+			"type": "RECORD",
+			"fields": [
+				{
+					"name": "subcol",
+					"type": "STRING",
+					"dataPolicies": [
+						{ "name": "projects/123/locations/us/dataPolicies/nested_p1" }
+					]
+				}
+			]
+		}
+	]`
+
+	// Unmarshal input data into SDK types
+	var liveFields []*bigquery.TableFieldSchema
+	if err := json.Unmarshal([]byte(liveJSON), &liveFields); err != nil {
+		t.Fatalf("Failed to unmarshal live JSON: %v", err)
+	}
+
+	var configFields []*bigquery.TableFieldSchema
+	if err := json.Unmarshal([]byte(configJSON), &configFields); err != nil {
+		t.Fatalf("Failed to unmarshal config JSON: %v", err)
+	}
+
+	// Unmarshal configJSON into []interface{} to create the rawSchema
+	// This simulates d.Get("schema") which returns generic maps/slices
+	var rawSchema []interface{}
+	if err := json.Unmarshal([]byte(configJSON), &rawSchema); err != nil {
+		t.Fatalf("Failed to unmarshal config JSON to rawSchema: %v", err)
+	}
+
+	// Run the function under test
+	mergeDataPolicies(configFields, liveFields, rawSchema)
+
+	// Validate: Marshal the result back to JSON and compare with Expected.
+	// We verify using generic interface{} to ignore internal Go struct metadata
+	// (like ForceSendFields) that might differ but don't affect the JSON payload.
+	resultBytes, err := json.Marshal(configFields)
+	if err != nil {
+		t.Fatalf("Failed to marshal result: %v", err)
+	}
+
+	var resultGeneric, expectedGeneric interface{}
+	if err := json.Unmarshal(resultBytes, &resultGeneric); err != nil {
+		t.Fatalf("Failed to unmarshal result generic: %v", err)
+	}
+	if err := json.Unmarshal([]byte(expectedJSON), &expectedGeneric); err != nil {
+		t.Fatalf("Failed to unmarshal expected generic: %v", err)
+	}
+
+	if !reflect.DeepEqual(resultGeneric, expectedGeneric) {
+		t.Errorf("Result does not match expected.\nGot:\n%s\nExpected:\n%s", string(resultBytes), expectedJSON)
+	}
+}
+
+func TestMergeDataPoliciesIntoMap(t *testing.T) {
+	t.Parallel()
+
+	old := []interface{}{
+		map[string]interface{}{
+			"name":         "col1",
+			"dataPolicies": []interface{}{map[string]interface{}{"name": "p1"}},
+		},
+	}
+	new := []interface{}{
+		map[string]interface{}{"name": "col1"}, // Policy missing here
+	}
+
+	mergeDataPoliciesIntoMap(old, new)
+
+	updatedField := new[0].(map[string]interface{})
+	if _, ok := updatedField["dataPolicies"]; !ok {
+		t.Errorf("dataPolicies were not merged into the map")
 	}
 }
