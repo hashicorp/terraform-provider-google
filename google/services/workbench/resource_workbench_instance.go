@@ -60,13 +60,16 @@ var WorkbenchInstanceSettableUnmodifiableDefaultMetadata = []string{
 	"report-notebook-metrics",
 }
 
+var WorkbenchInstanceEUCSettableUnmodifiableDefaultMetadata = []string{
+	"post-startup-script",
+	"post-startup-script-behavior",
+}
+
 var WorkbenchInstanceEUCProvidedAdditionalMetadata = []string{
 	"enable-oslogin",
 	"disable-ssh",
 	"ssh-keys",
 	"block-project-ssh-keys",
-	"post-startup-script",
-	"post-startup-script-behavior",
 	"startup-script",
 	"startup-script-url",
 	"gce-container-declaration",
@@ -148,6 +151,12 @@ func WorkbenchInstanceMetadataDiffSuppress(k, old, new string, d *schema.Resourc
 	if d.Get("enable_managed_euc").(bool) {
 		for _, metadata := range WorkbenchInstanceEUCProvidedAdditionalMetadata {
 			if key == metadata {
+				return true
+			}
+		}
+
+		for _, metadata := range WorkbenchInstanceEUCSettableUnmodifiableDefaultMetadata {
+			if key == metadata && new == "" {
 				return true
 			}
 		}
@@ -333,7 +342,12 @@ func workbenchMetadataCustomizeDiff(_ context.Context, diff *schema.ResourceDiff
 		oldMetadata := o.(map[string]interface{})
 		newMetadata := n.(map[string]interface{})
 
-		for _, key := range WorkbenchInstanceSettableUnmodifiableDefaultMetadata {
+		unmodifiableKeys := append([]string{}, WorkbenchInstanceSettableUnmodifiableDefaultMetadata...)
+		if v, ok := diff.GetOk("enable_managed_euc"); ok && v.(bool) {
+			unmodifiableKeys = append(unmodifiableKeys, WorkbenchInstanceEUCSettableUnmodifiableDefaultMetadata...)
+		}
+
+		for _, key := range unmodifiableKeys {
 			oldValue, oldOk := oldMetadata[key]
 			newValue, newOk := newMetadata[key]
 

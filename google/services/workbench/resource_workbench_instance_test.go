@@ -22,6 +22,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 func TestAccWorkbenchInstance_update(t *testing.T) {
@@ -890,6 +892,60 @@ resource "google_workbench_instance" "instance" {
       tag = "20241117-2200-rc0"
     }
   }
+}
+`, context)
+}
+
+func TestAccWorkbenchInstance_metadataEUCForceNew(t *testing.T) {
+	t.Skip("Skipping until backend rollout completes which throws an error for non-allowlisted users, rather than silently dropping the key.")
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckWorkbenchInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_metadataEUC(context, "old-script.sh"),
+			},
+			{
+				Config: testAccWorkbenchInstance_metadataEUC(context, "new-script.sh"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_workbench_instance.instance", plancheck.ResourceActionReplace),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccWorkbenchInstance_metadataEUC(context map[string]interface{}, scriptName string) string {
+	context["script_name"] = scriptName
+	return acctest.Nprintf(`
+resource "google_workbench_instance" "instance" {
+  name     = "tf-test-workbench-%{random_suffix}"
+  location = "us-central1-a"
+  instance_owners = ["workbenche2etestota@gmail.com"]
+
+  gce_setup {
+    machine_type = "n1-standard-1"
+    vm_image {
+      project = "cloud-notebooks-managed"
+      family  = "workbench-instances"
+    }
+
+    metadata = {
+      post-startup-script          = "%{script_name}"
+      post-startup-script-behavior = "run_once"
+    }
+  }
+  
+  enable_managed_euc = true
 }
 `, context)
 }
