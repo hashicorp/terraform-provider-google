@@ -17,113 +17,242 @@
 package acctest_test
 
 import (
+	"context"
+	"fmt"
+	"maps"
+	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
+	fwattr "github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	fwschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	fwtypes "github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/fwprovider"
 	"github.com/hashicorp/terraform-provider-google/google/provider"
 )
 
-func TestResourceInventoryMetadataFound(t *testing.T) {
-	resources := provider.ResourceMap()
+type ProviderResource struct {
+	Name   string
+	Fields map[string]bool
+}
 
-	// Track statistics
-	var (
-		totalResources     = 0
-		missingServicePkg  = 0
-		missingServiceName = 0
-	)
-
-	// Create a map to store missing resources for summary report
-	missingServicePkgResources := make(map[string]bool)
-	missingServiceNameResources := make(map[string]bool)
-
-	for resourceType := range resources {
-		if strings.HasSuffix(resourceType, "_iam_member") ||
-			strings.HasSuffix(resourceType, "_iam_policy") ||
-			strings.HasSuffix(resourceType, "_iam_binding") {
+func buildProviderResources(pluginSdk map[string]*schema.Resource, pluginFramework []func() resource.Resource) map[string]ProviderResource {
+	ctx := context.Background()
+	resources := map[string]ProviderResource{}
+	// terraform-plugin-sdk-v2
+	for resourceName, resource := range pluginSdk {
+		// We don't care about IAM resources because they don't have their own meta.yaml files
+		if acctest.IsIamResource(resourceName) {
 			continue
 		}
-		totalResources++
+		r := ProviderResource{
+			Name:   resourceName,
+			Fields: map[string]bool{},
+		}
+		flattened := flattenSchema("", resource.Schema)
+		for f := range flattened {
+			r.Fields[f] = true
+		}
+		resources[resourceName] = r
+	}
+	// plugin-framework
+	for _, f := range pluginFramework {
+		fwResource := f()
+		metadataReq := resource.MetadataRequest{ProviderTypeName: "google"}
+		metadataResp := &resource.MetadataResponse{}
+		fwResource.Metadata(ctx, metadataReq, metadataResp)
 
-		// Log each resource being checked
-		// t.Logf("Checking metadata for resource: %s", resourceType)
-
-		// Check for service package
-		servicePackage := acctest.ServicePackageCache.Get(resourceType)
-		if servicePackage == "unknown" {
-			// t.Logf("WARNING: Could not find service package for resource %s: %v", resourceType)
-			missingServicePkg++
-			missingServicePkgResources[resourceType] = true
+		resourceName := metadataResp.TypeName
+		r := ProviderResource{
+			Name:   resourceName,
+			Fields: map[string]bool{},
 		}
 
-		apiServiceName := acctest.ApiServiceNameCache.Get(resourceType)
-		// Check for API service name
-		if apiServiceName == "unknown" {
-			// t.Logf("WARNING: Could not find API service name for resource %s: %v", resourceType)
-			missingServiceName++
-			missingServiceNameResources[resourceType] = true
+		schemaReq := resource.SchemaRequest{}
+		schemaResp := &resource.SchemaResponse{}
+		fwResource.Schema(ctx, schemaReq, schemaResp)
+		flattened := flattenPluginFrameworkSchema(schemaResp.Schema.Attributes)
+		for f, _ := range flattened {
+			r.Fields[f] = true
 		}
-		t.Logf(" %s servicePackage: %s apiServiceName: %s", resourceType, servicePackage, apiServiceName)
+		resources[resourceName] = r
+	}
+	return resources
+}
 
+// from mmv1/tools/diff-processor/diff - modified to only include leaf fields
+func flattenSchema(parentKey string, schemaObj map[string]*schema.Schema) map[string]*schema.Schema {
+	flattened := make(map[string]*schema.Schema)
+
+	if parentKey != "" {
+		parentKey += "."
 	}
 
-	// Generate a summary report
-	t.Logf("\n--- RESOURCE METADATA TEST SUMMARY ---")
-	t.Logf("Total resources checked: %d", totalResources)
-	t.Logf("Resources missing service package: %d (%.1f%%)",
-		missingServicePkg,
-		float64(missingServicePkg)/float64(totalResources)*100)
-	t.Logf("Resources missing API service name: %d (%.1f%%)",
-		missingServiceName,
-		float64(missingServiceName)/float64(totalResources)*100)
+	for fieldName, field := range schemaObj {
+		key := parentKey + fieldName
+		childResource, hasNestedFields := field.Elem.(*schema.Resource)
+		if field.Elem != nil && hasNestedFields && len(childResource.Schema) > 0 {
+			for childKey, childField := range flattenSchema(key, childResource.Schema) {
+				flattened[childKey] = childField
+			}
+		} else {
+			flattened[key] = field
+		}
+	}
 
-	// List resources missing metadata (limited to first 10 for readability)
-	if len(missingServicePkgResources) > 0 {
-		t.Log("\nResources missing service package (first 10):")
-		count := 0
-		for res := range missingServicePkgResources {
-			t.Logf("  - %s", res)
-			count++
-			if count >= 10 {
-				remaining := len(missingServicePkgResources) - 10
-				if remaining > 0 {
-					t.Logf("  ... and %d more", remaining)
+	return flattened
+}
+
+// This is overly simplified - we only have two plugin framework resources so we don't need to handle everything
+func flattenPluginFrameworkTypes(parentKey string, attrTypes map[string]fwattr.Type) map[string]bool {
+	flattened := make(map[string]bool)
+	parentKey += "."
+	for fieldName := range attrTypes {
+		key := parentKey + fieldName
+		flattened[key] = true
+	}
+	return flattened
+}
+
+// This is overly simplified - we only have two plugin framework resources so we don't need to handle everything
+func flattenPluginFrameworkSchema(schemaObj map[string]fwschema.Attribute) map[string]bool {
+	flattened := make(map[string]bool)
+	for fieldName, attribute := range schemaObj {
+		key := fieldName
+		if l, ok := attribute.(fwschema.ListAttribute); ok {
+			if child, ok := l.ElementType.(fwtypes.ObjectType); ok {
+				for childKey, _ := range flattenPluginFrameworkTypes(key, child.AttrTypes) {
+					flattened[childKey] = true
 				}
-				break
+			}
+		} else {
+			flattened[key] = true
+		}
+	}
+	return flattened
+}
+
+// set of google_resource.field.path fields to ignore during analysis
+var ignoredFields = map[string]bool{
+	// These fields are ignored because they're client-side only fields added with
+	// extra_schema_entry. Shouldn't impact coverage.
+	"google_api_gateway_api_config.api_config_id_prefix":                  true,
+	"google_bigquery_dataset_access.api_updated_member":                   true,
+	"google_bigtable_app_profile.multi_cluster_routing_cluster_ids":       true,
+	"google_bigtable_app_profile.row_affinity":                            true,
+	"google_compute_firewall.enable_logging":                              true,
+	"google_compute_region_ssl_certificate.name_prefix":                   true,
+	"google_compute_route.next_hop_instance_zone":                         true,
+	"google_compute_ssl_certificate.name_prefix":                          true,
+	"google_compute_subnetwork.fingerprint":                               true,
+	"google_redis_instance.auth_string":                                   true,
+	"google_secret_manager_regional_secret_version.is_secret_data_base64": true,
+	"google_secret_manager_secret_version.is_secret_data_base64":          true,
+	"google_sourcerepo_repository.create_ignore_already_exists":           true,
+	"google_vertex_ai_featurestore_entitytype.region":                     true,
+	"google_vertex_ai_featurestore_entitytype_feature.region":             true,
+	"google_workflows_workflow.name_prefix":                               true,
+
+	// query / URL params - need to decide how to handle, but don't impact coverage
+	"google_compute_instance_from_template.source_instance_template": true,
+	"google_bigquery_table.table_metadata_view":                      true,
+	"google_container_registry.bucket_self_link":                     true,
+	"google_container_registry.location":                             true,
+
+	// Something weird about this one, probably related to flatten_object usage.
+	"google_data_catalog_tag.fields.enum_value": true,
+}
+
+func ignoreField(r, f string) bool {
+	if f == "project" {
+		return true
+	}
+	if ignoredFields[fmt.Sprintf("%s.%s", r, f)] {
+		return true
+	}
+	return false
+}
+
+// Slightly modified from mmv1/google/string_utils.go
+func underscore(source string) string {
+	tmp := regexp.MustCompile(`([A-Z]+)([A-Z][a-z])`).ReplaceAllString(source, "${1}_${2}")
+	tmp = regexp.MustCompile(`([a-z\d])([A-Z])`).ReplaceAllString(tmp, "${1}_${2}")
+	tmp = strings.Replace(tmp, "-", "_", 1)
+	// skip this because we want to operate on nested api fields
+	// tmp = strings.Replace(tmp, ".", "_", 1)
+	tmp = strings.ToLower(tmp)
+	return tmp
+}
+
+func TestValidateResourceMetadata(t *testing.T) {
+	err := acctest.GlobalMetadataCache.Populate()
+	if err != nil {
+		t.Fatalf("Failed to populate metadata cache: %v", err)
+	}
+
+	ctx := context.Background()
+	resources := buildProviderResources(provider.ResourceMap(), fwprovider.New(provider.Provider()).Resources(ctx))
+	metaResources := acctest.GlobalMetadataCache.Cache()
+
+	// Check for resources that are only in the provider / only in metadata
+	sortedResourceNames := slices.Sorted(maps.Keys(resources))
+	for _, resourceName := range sortedResourceNames {
+		if _, ok := metaResources[resourceName]; !ok {
+			t.Errorf("Resource %q has no meta.yaml file", resourceName)
+		}
+	}
+	for _, resourceName := range slices.Sorted(maps.Keys(metaResources)) {
+		if _, ok := resources[resourceName]; !ok {
+			t.Errorf("Resource %q has meta.yaml file but isn't present in the provider", resourceName)
+		}
+	}
+
+	// Check for fields that are in the provider but not in metadata (or vice versa)
+	for _, resourceName := range sortedResourceNames {
+		r := resources[resourceName]
+		m := metaResources[resourceName]
+		mFields := map[string]bool{}
+		for _, f := range m.Fields {
+			terraformField := f.Field
+			if terraformField == "" {
+				terraformField = underscore(f.ApiField)
+			}
+			mFields[terraformField] = true
+		}
+		for _, f := range slices.Sorted(maps.Keys(r.Fields)) {
+			if ignoreField(r.Name, f) {
+				continue
+			}
+			if _, ok := mFields[f]; !ok {
+				t.Errorf("Field in provider resource; missing in meta.yaml: %s.%s", r.Name, f)
+			}
+		}
+		for f, _ := range mFields {
+			if ignoreField(r.Name, f) {
+				continue
+			}
+			if _, ok := r.Fields[f]; !ok {
+				t.Errorf("Field in meta.yaml; missing in provider resource: %s.%s", r.Name, f)
 			}
 		}
 	}
 
-	if len(missingServiceNameResources) > 0 {
-		t.Log("\nResources missing API service name (first 10):")
-		count := 0
-		for res := range missingServiceNameResources {
-			t.Logf("  - %s", res)
-			count++
-			if count >= 10 {
-				remaining := len(missingServiceNameResources) - 10
-				if remaining > 0 {
-					t.Logf("  ... and %d more", remaining)
-				}
-				break
+	// Validate yaml files
+	for resourceName, m := range metaResources {
+		if m.ServicePackage == "" {
+			t.Errorf("%s isn't in a service package", resourceName)
+		}
+
+		if m.ApiServiceName == "" {
+			// Allowlist google_container_registry because it doesn't clearly correspond to a service
+			if resourceName != "google_container_registry" {
+				t.Errorf("%s is missing `api_service_name`", m.Path)
 			}
 		}
-	}
 
-	// Decide whether to fail the test based on coverage percentage
-	const requiredCoveragePercent = 90.0
-
-	servicePkgCoverage := (float64(totalResources-missingServicePkg) / float64(totalResources)) * 100
-	serviceNameCoverage := (float64(totalResources-missingServiceName) / float64(totalResources)) * 100
-
-	if servicePkgCoverage < requiredCoveragePercent {
-		t.Errorf("Service package metadata coverage (%.1f%%) is below required threshold (%.1f%%)",
-			servicePkgCoverage, requiredCoveragePercent)
-	}
-
-	if serviceNameCoverage < requiredCoveragePercent {
-		t.Errorf("API service name metadata coverage (%.1f%%) is below required threshold (%.1f%%)",
-			serviceNameCoverage, requiredCoveragePercent)
 	}
 }
