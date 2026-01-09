@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `ip_collection` field to `google_compute_address` resource
+```
+```release-note:enhancement
+compute: added `enable_enhanced_ipv4_allocation` field to `google_compute_public_delegated_prefix` resource
+```

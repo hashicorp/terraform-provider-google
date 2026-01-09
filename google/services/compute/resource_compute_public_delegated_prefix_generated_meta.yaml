@@ -7,6 +7,7 @@ api_resource_type_kind: PublicDelegatedPrefix
 fields:
     - api_field: allocatablePrefixLength
     - api_field: description
+    - api_field: enableEnhancedIpv4Allocation
     - api_field: ipCidrRange
     - api_field: ipv6AccessType
     - api_field: isLiveMigration
@@ -16,6 +17,7 @@ fields:
     - api_field: publicDelegatedSubPrefixs.allocatablePrefixLength
     - api_field: publicDelegatedSubPrefixs.delegateeProject
     - api_field: publicDelegatedSubPrefixs.description
+    - api_field: publicDelegatedSubPrefixs.enableEnhancedIpv4Allocation
     - api_field: publicDelegatedSubPrefixs.ipCidrRange
     - api_field: publicDelegatedSubPrefixs.ipv6AccessType
     - api_field: publicDelegatedSubPrefixs.isAddress
