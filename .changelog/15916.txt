@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fix crash when specifying an empty `instance_flexibility_policy` block on the `google_compute_region_instance_group_manager` resource
+```
