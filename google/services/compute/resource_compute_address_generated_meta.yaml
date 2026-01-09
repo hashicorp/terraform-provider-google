@@ -11,6 +11,7 @@ fields:
     - api_field: description
     - field: effective_labels
       provider_only: true
+    - api_field: ipCollection
     - api_field: ipVersion
     - api_field: ipv6EndpointType
     - api_field: labelFingerprint
