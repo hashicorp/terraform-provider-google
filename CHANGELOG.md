@@ -16,11 +16,11 @@ IMPROVEMENTS:
 * container: added `registry_hosts` field to `containerd_config` in `google_container_cluster` and `google_container_node_pool` resources ([#25705](https://github.com/hashicorp/terraform-provider-google/pull/25705))
 * dataplex: added `one_time` field to `google_dataplex_datascan` resource ([#25695](https://github.com/hashicorp/terraform-provider-google/pull/25695))
 * datastream: added `postgresql_profile.ssl_config` to `google_datastream_connection_profile` resource ([#25671](https://github.com/hashicorp/terraform-provider-google/pull/25671))
-* networkservices: added `EXT_AUTHZ_GRPC` to `google_network_services_authz_extension` resource ([#25706](https://github.com/hashicorp/terraform-provider-google/pull/25706))
+* networkservices: added `EXT_AUTHZ_GRPC` enum value to `wire_format` field in `google_network_services_authz_extension` resource ([#25706](https://github.com/hashicorp/terraform-provider-google/pull/25706))
 * networkservices: added `disable_placement_policy` field to `google_network_services_multicast_domain_activation` resource ([#25720](https://github.com/hashicorp/terraform-provider-google/pull/25720))
 * networkservices: added `metadata`, `supported_events`, `request_body_send_mode`, and `observability_mode` fields to `google_network_services_lb_route_extension` resource ([#25702](https://github.com/hashicorp/terraform-provider-google/pull/25702))
 * securitycenterv2: added support for supplying `location` values other than "GLOBAL" to the `google_scc_v2_project_notification_config` resource ([#25698](https://github.com/hashicorp/terraform-provider-google/pull/25698))
-* storageinsights: added `activity_data_retention_period_days` fields to `google_storage_insights_dataset_config` resource ([#25703](https://github.com/hashicorp/terraform-provider-google/pull/25703))
+* storageinsights: added `activity_data_retention_period_days` field to `google_storage_insights_dataset_config` resource ([#25703](https://github.com/hashicorp/terraform-provider-google/pull/25703))
 * workbench: added support to set post-startup script metadata keys with managed EUC in `google_workbench_instance` resource ([#25719](https://github.com/hashicorp/terraform-provider-google/pull/25719))
 
 BUG FIXES:
