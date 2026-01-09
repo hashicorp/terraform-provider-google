@@ -54,7 +54,7 @@ func TestAccDataSourceAccessApprovalFolderServiceAccount_basic(t *testing.T) {
 func testAccDataSourceAccessApprovalFolderServiceAccount_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_folder" "my_folder" {
-  display_name = "tf-test-my-folder%{random_suffix}"
+  display_name = "tf-test-folder-aasa-%{random_suffix}"
   parent       = "organizations/%{org_id}"
   deletion_protection = false
 }

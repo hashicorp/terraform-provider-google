@@ -73,7 +73,7 @@ resource "google_iam_principal_access_boundary_policy" "pab_policy" {
 }
 
 resource "google_folder" "folder" {
-  display_name        = "test folder%{random_suffix}"
+  display_name        = "tf-test-iam3-folder%{random_suffix}"
   parent              = "organizations/%{org_id}"
   deletion_protection = false
 }
@@ -108,7 +108,7 @@ resource "google_iam_principal_access_boundary_policy" "pab_policy" {
 }
 
 resource "google_folder" "folder" {
-  display_name        = "test folder%{random_suffix}"
+  display_name        = "tf-test-iam3-folder%{random_suffix}"
   parent              = "organizations/%{org_id}"
   deletion_protection = false
 }

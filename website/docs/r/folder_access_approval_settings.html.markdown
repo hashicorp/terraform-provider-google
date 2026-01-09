@@ -33,7 +33,7 @@ To get more information about FolderSettings, see:
 
 ```hcl
 resource "google_folder" "my_folder" {
-  display_name = "my-folder"
+  display_name = "folder-faaf"
   parent       = "organizations/123456789"
   deletion_protection = false
 }
@@ -52,7 +52,7 @@ resource "google_folder_access_approval_settings" "folder_access_approval" {
 
 ```hcl
 resource "google_folder" "my_folder" {
-  display_name = "my-folder"
+  display_name = "folder-faak"
   parent       = "organizations/123456789"
   deletion_protection = false
 }

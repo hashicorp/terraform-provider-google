@@ -35,7 +35,7 @@ To get more information about Capability, see:
 
 ```hcl
 resource "google_folder" "folder" {
-  display_name     = "my-folder"
+  display_name     = "folder-cap"
   parent           = "organizations/123456789"
   deletion_protection = false
 }
