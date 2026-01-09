@@ -34,7 +34,7 @@ To get more information about FirewallPolicyAssociation, see:
 
 ```hcl
 resource "google_folder" "folder" {
-  display_name = "my-folder"
+  display_name = "folder-fpa"
   parent       = "organizations/123456789"
   deletion_protection = false
 }
@@ -56,7 +56,7 @@ resource "google_compute_firewall_policy_association" "default" {
 
 ```hcl
 resource "google_folder" "folder" {
-  display_name = "my-folder"
+  display_name = "folder-fpas"
   parent       = "organizations/123456789"
   deletion_protection = false
 }

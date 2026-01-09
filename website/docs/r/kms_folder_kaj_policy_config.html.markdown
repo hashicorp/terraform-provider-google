@@ -45,7 +45,7 @@ To get more information about FolderKajPolicyConfig, see:
 # Create Folder in GCP Organization.
 resource "google_folder" "kaj_folder" {
 	provider     = google-beta
-	display_name = "my-folder"
+	display_name = "folder-kajc"
 	parent       = "organizations/123456789"
 	deletion_protection = false
 }

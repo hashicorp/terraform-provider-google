@@ -54,7 +54,7 @@ func TestAccComputeFirewallPolicyAssociation_basic(t *testing.T) {
 func testAccComputeFirewallPolicyAssociation_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_folder" "folder" {
-  display_name = "tf-test-folder-%{random_suffix}"
+  display_name = "tf-test-folder-bup-%{random_suffix}"
   parent       = "%{org_name}"
   deletion_protection = false
 }
@@ -110,7 +110,7 @@ func TestAccComputeFirewallPolicyAssociation_organization(t *testing.T) {
 func testAccComputeFirewallPolicyAssociation_organization(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_folder" "folder" {
-  display_name = "tf-test-my-folder-%{random_suffix}"
+  display_name = "tf-test-folder-fpau-%{random_suffix}"
   parent       = "%{org_name}"
   deletion_protection = false
 }
@@ -168,7 +168,7 @@ func TestAccComputeFirewallPolicyAssociation_swapover(t *testing.T) {
 func testAccComputeFirewallPolicyAssociation_swapover(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_folder" "folder" {
-  display_name = "tf-test-folder-%{random_suffix}"
+  display_name = "tf-test-folder-sou-%{random_suffix}"
   parent       = "%{org_name}"
   deletion_protection = false
 }

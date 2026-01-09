@@ -42,7 +42,7 @@ To get more information about KeyHandle, see:
 # Create Folder in GCP Organization
 resource "google_folder" "autokms_folder" {
   provider     = google-beta
-  display_name = "my-folder"
+  display_name = "folder-kh"
   parent       = "organizations/123456789"
   deletion_protection = false
 }
