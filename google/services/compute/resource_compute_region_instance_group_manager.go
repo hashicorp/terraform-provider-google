@@ -107,10 +107,11 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 			},
 
 			"instance_flexibility_policy": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				MaxItems:    1,
-				Description: `The flexibility policy for this managed instance group. Instance flexibility allowing MIG to create VMs from multiple types of machines. Instance flexibility configuration on MIG overrides instance template configuration.`,
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				DiffSuppressFunc: emptyOrUnsetBlockDiffSuppress,
+				Description:      `The flexibility policy for this managed instance group. Instance flexibility allowing MIG to create VMs from multiple types of machines. Instance flexibility configuration on MIG overrides instance template configuration.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"instance_selections": {
@@ -1190,6 +1191,7 @@ func flattenRegionUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdateP
 func expandInstanceFlexibilityPolicy(d *schema.ResourceData) (*compute.InstanceGroupManagerInstanceFlexibilityPolicy, error) {
 	instanceFlexibilityPolicy := &compute.InstanceGroupManagerInstanceFlexibilityPolicy{}
 	oldFlexibilityPolicy, newFlexibilityPolicy := d.GetChange("instance_flexibility_policy")
+
 	for _, flexibilityPolicy := range newFlexibilityPolicy.([]any) {
 		flexibilityPolicyData := flexibilityPolicy.(map[string]any)
 		instanceSelections, err := expandInstanceSelections(flexibilityPolicyData["instance_selections"].(*schema.Set).List())
@@ -1198,6 +1200,7 @@ func expandInstanceFlexibilityPolicy(d *schema.ResourceData) (*compute.InstanceG
 		}
 		instanceFlexibilityPolicy.InstanceSelections = instanceSelections
 	}
+
 	for _, flexibilityPolicy := range oldFlexibilityPolicy.([]any) {
 		flexibilityPolicyData := flexibilityPolicy.(map[string]any)
 		for _, instanceSelection := range flexibilityPolicyData["instance_selections"].(*schema.Set).List() {
@@ -1261,8 +1264,8 @@ func expandDistributionPolicyForCreate(d *schema.ResourceData) *compute.Distribu
 	return distributionPolicy
 }
 
-func flattenInstanceFlexibilityPolicy(instanceFlexibilityPolicy *compute.InstanceGroupManagerInstanceFlexibilityPolicy) []map[string]any {
-	flattenedInstanceFlexibilityPolicy := []map[string]any{}
+func flattenInstanceFlexibilityPolicy(instanceFlexibilityPolicy *compute.InstanceGroupManagerInstanceFlexibilityPolicy) []any {
+	flattenedInstanceFlexibilityPolicy := []any{}
 	if instanceFlexibilityPolicy != nil {
 		instanceSelectionsMap := map[string]any{}
 		instanceSelectionsMap["instance_selections"] = flattenInstanceSelections(instanceFlexibilityPolicy.InstanceSelections)
@@ -1322,4 +1325,37 @@ func resourceRegionInstanceGroupManagerStateImporter(d *schema.ResourceData, met
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func emptyOrUnsetBlockDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	oldFlexPolicy, newFlexPolicy := d.GetChange("instance_flexibility_policy")
+
+	newFlexPolicyIsNullOrEmpty := isNullOrEmptyBlock(newFlexPolicy)
+	oldFlexPolicyIsNullOrEmpty := isNullOrEmptyBlock(oldFlexPolicy)
+
+	if newFlexPolicyIsNullOrEmpty && oldFlexPolicyIsNullOrEmpty {
+		return true // Both new and old value is either nil or empty
+	}
+	return false // At least any of the two value is not nil or empty
+}
+
+func isNullOrEmptyBlock(flexPolicy any) bool {
+	flexPolicyList, ok := flexPolicy.([]any)
+	if !ok || len(flexPolicyList) == 0 {
+		return true // No flexibilityPolicy, equivalent to optional
+	}
+
+	flexibilityPolicy, ok := flexPolicyList[0].(map[string]any)
+	if !ok || flexibilityPolicy == nil {
+		return true // Empty flex policy
+	}
+
+	if instanceSelectionRaw, exists := flexibilityPolicy["instance_selections"]; exists {
+		selections, selOk := instanceSelectionRaw.(*schema.Set)
+		if selOk && selections.Len() == 0 {
+			return true // Empty set of instance selections
+		}
+	}
+
+	return false // Return false for non-empty flex policy
 }
