@@ -47,7 +47,7 @@ func (w *SqlAdminOperationWaiter) State() string {
 }
 
 func (w *SqlAdminOperationWaiter) Error() error {
-	if w != nil && w.Op != nil && w.Op.Error != nil {
+	if w != nil && w.Op != nil && w.Op.Error != nil && w.Op.Status == "DONE" {
 		return SqlAdminOperationError(*w.Op.Error)
 	}
 	return nil
