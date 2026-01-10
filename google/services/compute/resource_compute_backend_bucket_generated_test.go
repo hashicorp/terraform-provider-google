@@ -517,7 +517,10 @@ func TestAccComputeBackendBucket_backendBucketGlobalIlbExample(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketGlobalIlbExample(context),
@@ -546,10 +549,15 @@ resource "google_project" "unarmored" {
   deletion_policy = "DELETE"
 }
 
-resource "google_project_service" "project" {
+resource "google_project_service" "compute" {
   project = google_project.unarmored.number
   service = "compute.googleapis.com"
   disable_on_destroy = true
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_backend_bucket" "global-ilb-backend" {
@@ -558,7 +566,7 @@ resource "google_compute_backend_bucket" "global-ilb-backend" {
   bucket_name           = google_storage_bucket.global-ilb-backend.name
   load_balancing_scheme = "INTERNAL_MANAGED"
 
-  depends_on = [google_project_service.project]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 resource "google_storage_bucket" "global-ilb-backend" {
@@ -568,7 +576,7 @@ resource "google_storage_bucket" "global-ilb-backend" {
   force_destroy               = true
   uniform_bucket_level_access = true
 
-  depends_on = [google_project_service.project]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 `, context)
 }

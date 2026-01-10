@@ -457,7 +457,10 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName, acctest.RandString(t, 10)),
@@ -3151,6 +3154,11 @@ resource "google_project_service" "service_project" {
   service = "compute.googleapis.com"
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.service_project]
+}
+
 resource "google_compute_shared_vpc_service_project" "service_project" {
   host_project    = google_compute_shared_vpc_host_project.host_project.project
   service_project = google_project_service.service_project.project
@@ -3160,6 +3168,7 @@ resource "google_compute_network" "network" {
   name                    = "tf-test-network-%s"
   auto_create_subnetworks = false
   project                 = google_compute_shared_vpc_host_project.host_project.project
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 resource "google_compute_subnetwork" "subnetwork" {

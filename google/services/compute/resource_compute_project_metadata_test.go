@@ -37,7 +37,10 @@ func TestAccComputeProjectMetadata_basic(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeProjectMetadataDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckComputeProjectMetadataDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_basic0_metadata(projectID, org, billingId),
@@ -62,7 +65,10 @@ func TestAccComputeProjectMetadata_modify_1(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeProjectMetadataDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckComputeProjectMetadataDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_modify0_metadata(projectID, org, billingId),
@@ -96,7 +102,10 @@ func TestAccComputeProjectMetadata_modify_2(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeProjectMetadataDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckComputeProjectMetadataDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_basic0_metadata(projectID, org, billingId),
@@ -148,9 +157,20 @@ resource "google_project" "project" {
   deletion_policy = "DELETE"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.project]
+}
+
 resource "google_project_service" "compute" {
   project = google_project.project.project_id
   service = "compute.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -159,7 +179,7 @@ resource "google_compute_project_metadata" "fizzbuzz" {
     banana = "orange"
     sofa   = "darwinism"
   }
-  depends_on = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 `, projectID, projectID, org, billing)
 }
@@ -174,9 +194,20 @@ resource "google_project" "project" {
   deletion_policy = "DELETE"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.project]
+}
+
 resource "google_project_service" "compute" {
   project = google_project.project.project_id
   service = "compute.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -185,7 +216,7 @@ resource "google_compute_project_metadata" "fizzbuzz" {
     kiwi    = "papaya"
     finches = "darwinism"
   }
-  depends_on = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 `, projectID, projectID, org, billing)
 }
@@ -200,9 +231,20 @@ resource "google_project" "project" {
   deletion_policy = "DELETE"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.project]
+}
+
 resource "google_project_service" "compute" {
   project = google_project.project.project_id
   service = "compute.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -212,7 +254,7 @@ resource "google_compute_project_metadata" "fizzbuzz" {
     genghis_khan = "french bread"
     happy        = "smiling"
   }
-  depends_on = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 `, projectID, projectID, org, billing)
 }
@@ -227,9 +269,20 @@ resource "google_project" "project" {
   deletion_policy = "DELETE"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.project]
+}
+
 resource "google_project_service" "compute" {
   project = google_project.project.project_id
   service = "compute.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
@@ -239,7 +292,7 @@ resource "google_compute_project_metadata" "fizzbuzz" {
     paris = "french bread"
     happy = "laughing"
   }
-  depends_on = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 `, projectID, projectID, org, billing)
 }

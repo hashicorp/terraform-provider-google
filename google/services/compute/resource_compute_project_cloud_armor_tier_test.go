@@ -37,6 +37,9 @@ func TestAccComputeProjectCloudArmorTier_basic(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_cloudArmorTier_standard(context),
@@ -62,6 +65,9 @@ func TestAccComputeProjectCloudArmorTier_modify(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_cloudArmorTier_standard(context),
@@ -124,15 +130,26 @@ resource "google_project" "project" {
   deletion_policy = "DELETE"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.project]
+}
+
 resource "google_project_service" "compute" {
   project = google_project.project.project_id
   service = "compute.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_project_cloud_armor_tier" "cloud_armor_tier_config" {
   project      = google_project.project.project_id
   cloud_armor_tier = "CA_STANDARD"
-  depends_on   = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 `, context)
 }

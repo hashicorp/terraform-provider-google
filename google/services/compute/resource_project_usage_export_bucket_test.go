@@ -34,6 +34,9 @@ func TestAccComputeResourceUsageExportBucket(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceUsageExportBucket(baseProject, org, billingId),
@@ -58,15 +61,26 @@ resource "google_project" "base" {
   deletion_policy = "DELETE"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.base]
+}
+
 resource "google_project_service" "service" {
   project = google_project.base.project_id
   service = "compute.googleapis.com"
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.service]
 }
 
 resource "google_storage_bucket" "bucket" {
   name     = "b-${google_project.base.project_id}"
   project  = google_project_service.service.project
   location = "US"
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 resource "google_project_usage_export_bucket" "ueb" {

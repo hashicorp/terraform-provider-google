@@ -436,7 +436,10 @@ func TestAccComputeRegionInstanceTemplate_subnet_xpn(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionInstanceTemplate_subnet_xpn(org, billingId, projectName, acctest.RandString(t, 10)),
@@ -2700,9 +2703,16 @@ resource "google_project" "host_project" {
   deletion_policy = "DELETE"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.host_project, google_project.service_project]
+}
+
+
 resource "google_project_service" "host_project" {
   project = google_project.host_project.project_id
   service = "compute.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_compute_shared_vpc_host_project" "host_project" {
@@ -2720,6 +2730,7 @@ resource "google_project" "service_project" {
 resource "google_project_service" "service_project" {
   project = google_project.service_project.project_id
   service = "compute.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_compute_shared_vpc_service_project" "service_project" {
@@ -2727,10 +2738,16 @@ resource "google_compute_shared_vpc_service_project" "service_project" {
   service_project = google_project_service.service_project.project
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.host_project, google_project_service.service_project]
+}
+
 resource "google_compute_network" "network" {
   name                    = "tf-test-network-%s"
   auto_create_subnetworks = false
   project                 = google_compute_shared_vpc_host_project.host_project.project
+  depends_on              = [time_sleep.wait_120_seconds]
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
