@@ -38,7 +38,10 @@ func TestAccIntegrationConnectorsManagedZone_integrationConnectorsManagedZoneExa
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckIntegrationConnectorsManagedZoneDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckIntegrationConnectorsManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIntegrationConnectorsManagedZone_integrationConnectorsManagedZoneExample_full(context),
@@ -88,11 +91,16 @@ resource "google_project_service" "compute" {
   service = "compute.googleapis.com"
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
+}
+
 resource "google_compute_network" "network" {
   project = google_project.target_project.project_id
   name                    = "test"
   auto_create_subnetworks = false
-  depends_on = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 resource "google_dns_managed_zone" "zone" {
@@ -151,11 +159,16 @@ resource "google_project_service" "compute" {
   service = "compute.googleapis.com"
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
+}
+
 resource "google_compute_network" "network" {
   project = google_project.target_project.project_id
   name                    = "test"
   auto_create_subnetworks = false
-  depends_on = [google_project_service.compute]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 resource "google_dns_managed_zone" "zone" {

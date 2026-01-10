@@ -40,6 +40,9 @@ func TestAccDatasourceGoogleServiceNetworkingPeeredDnsDomain_basic(t *testing.T)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleServiceNetworkingPeeredDnsDomain_basic(project, org, billingId, name, network, service),
@@ -75,11 +78,16 @@ resource "google_project_service" "host" {
   depends_on = [google_project_service.host-compute]
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.host]
+}
+
 resource "google_compute_network" "test" {
 	name         = "test-network"
 	project      = google_project.host.project_id
 	routing_mode = "GLOBAL"
-	depends_on   = [google_project_service.host-compute]
+	depends_on   = [time_sleep.wait_120_seconds]
 }
 
 resource "google_compute_global_address" "host-private-access" {
