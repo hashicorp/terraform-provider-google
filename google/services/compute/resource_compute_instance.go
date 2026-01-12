@@ -725,6 +725,14 @@ func ResourceComputeInstance() *schema.Resource {
 							Description:  `The stack type for this network interface to identify whether the IPv6 feature is enabled or not. If not specified, IPV4_ONLY will be used.`,
 						},
 
+						"igmp_query": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"IGMP_QUERY_V2", "IGMP_QUERY_DISABLED"}, false),
+							Description:  `Indicates whether igmp query is enabled on the network interface or not. If enabled, also indicates the version of IGMP supported.`,
+						},
+
 						"ipv6_access_type": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -2469,6 +2477,23 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			networkInterfacePatchObj := &compute.NetworkInterface{
 				StackType:   d.Get(prefix + ".stack_type").(string),
+				Fingerprint: instNetworkInterface.Fingerprint,
+			}
+			updateCall := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterfacePatchObj).Do
+			op, err := updateCall()
+			if err != nil {
+				return errwrap.Wrapf("Error updating network interface: {{err}}", err)
+			}
+			opErr := ComputeOperationWaitTime(config, op, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
+		}
+
+		if !updateDuringStop && d.HasChange(prefix+".igmp_query") {
+
+			networkInterfacePatchObj := &compute.NetworkInterface{
+				IgmpQuery:   d.Get(prefix + ".igmp_query").(string),
 				Fingerprint: instNetworkInterface.Fingerprint,
 			}
 			updateCall := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterfacePatchObj).Do

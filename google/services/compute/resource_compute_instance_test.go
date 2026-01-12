@@ -4324,6 +4324,59 @@ func TestAccComputeInstance_NicStackTypeUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_IgmpQuery_v2(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	suffix := acctest.RandString(t, 10)
+	envRegion := envvar.GetTestRegionFromEnv()
+	context := map[string]interface{}{
+		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"igmp_query":    "IGMP_QUERY_V2",
+		"suffix":        suffix,
+		"env_region":    envRegion,
+	}
+	contextUpdate := map[string]interface{}{
+		"instance_name": instanceName,
+		"igmp_query":    "IGMP_QUERY_DISABLED",
+		"suffix":        suffix,
+		"env_region":    envRegion,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_igmpQuery_v2(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "network_interface.0.igmp_query", "IGMP_QUERY_V2"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_igmpQuery_v2(contextUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "network_interface.0.igmp_query", "IGMP_QUERY_DISABLED"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_igmpQuery_v2(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "network_interface.0.igmp_query", "IGMP_QUERY_V2"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_NicStackType_IPV6(t *testing.T) {
 	t.Parallel()
 	context := map[string]interface{}{
@@ -10771,6 +10824,45 @@ resource "google_compute_instance" "foobar" {
 
 	network_interface {
 		network = "default"
+	}
+}
+`, context)
+}
+
+func testAccComputeInstance_igmpQuery_v2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_network" "inst-test-network" {
+	name = "tf-test-network-%{suffix}"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "tf-test-compute-subnet-%{suffix}"
+	region        = "%{env_region}"
+	network       = google_compute_network.inst-test-network.id
+        ip_cidr_range    = "10.0.0.0/22"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%{instance_name}"
+	machine_type = "e2-medium"
+	zone         = "%{env_region}-a"
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+		}
+	}
+
+	network_interface {
+		network = google_compute_network.inst-test-network.id
+		subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+		igmp_query = "%{igmp_query}"
 	}
 }
 `, context)

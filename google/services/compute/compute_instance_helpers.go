@@ -405,6 +405,7 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Conf
 			"ipv6_address":                iface.Ipv6Address,
 			"queue_count":                 iface.QueueCount,
 			"internal_ipv6_prefix_length": iface.InternalIpv6PrefixLength,
+			"igmp_query":                  iface.IgmpQuery,
 		}
 		// Instance template interfaces never have names, so they're absent
 		// in the instance template network_interface schema. We want to use the
@@ -517,6 +518,7 @@ func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transp
 			Ipv6AccessConfigs:        expandIpv6AccessConfigs(data["ipv6_access_config"].([]interface{})),
 			Ipv6Address:              data["ipv6_address"].(string),
 			InternalIpv6PrefixLength: int64(data["internal_ipv6_prefix_length"].(int)),
+			IgmpQuery:                data["igmp_query"].(string),
 		}
 	}
 	return ifaces, nil
