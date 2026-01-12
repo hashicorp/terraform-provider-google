@@ -147,13 +147,6 @@ resource "google_compute_network" "foobar" {
 The following arguments are supported:
 
 
-* `router` -
-  (Required)
-  URL of the cloud router to be used for dynamic routing. This router must be in
-  the same region as this InterconnectAttachment. The InterconnectAttachment will
-  automatically connect the Interconnect to the network & region within which the
-  Cloud Router is configured.
-
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is created. The
@@ -206,7 +199,14 @@ The following arguments are supported:
   (Optional)
   The type of InterconnectAttachment you wish to create. Defaults to
   DEDICATED.
-  Possible values are: `DEDICATED`, `PARTNER`, `PARTNER_PROVIDER`.
+  Possible values are: `DEDICATED`, `PARTNER`, `PARTNER_PROVIDER`, `L2_DEDICATED`.
+
+* `router` -
+  (Optional)
+  URL of the cloud router to be used for dynamic routing. This router must be in
+  the same region as this InterconnectAttachment. The InterconnectAttachment will
+  automatically connect the Interconnect to the network & region within which the
+  Cloud Router is configured.
 
 * `candidate_subnets` -
   (Optional)
@@ -302,6 +302,11 @@ The following arguments are supported:
   Single IPv6 address + prefix length to be configured on the customer router interface for this
   interconnect attachment. Example: 2001:db8::2/125
 
+* `l2_forwarding` -
+  (Optional)
+  L2 Interconnect Attachment related configuration.
+  Structure is [documented below](#nested_l2_forwarding).
+
 * `region` -
   (Optional)
   Region where the regional interconnect attachment resides.
@@ -310,6 +315,66 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
+<a name="nested_l2_forwarding"></a>The `l2_forwarding` block supports:
+
+* `network` -
+  (Optional)
+  URL of the network to which this attachment belongs.
+
+* `tunnel_endpoint_ip_address` -
+  (Optional)
+  The tunnel endpoint IP address.
+
+* `default_appliance_ip_address` -
+  (Optional)
+  The default appliance IP address.
+
+* `geneve_header` -
+  (Optional)
+  GeneveHeader related configurations.
+  Structure is [documented below](#nested_l2_forwarding_geneve_header).
+
+* `appliance_mappings` -
+  (Optional)
+  A map of VLAN tags to appliances and optional inner mapping rules.
+  Structure is [documented below](#nested_l2_forwarding_appliance_mappings).
+
+
+<a name="nested_l2_forwarding_geneve_header"></a>The `geneve_header` block supports:
+
+* `vni` -
+  (Optional)
+  VNI is a 24-bit unique virtual network identifier.
+
+<a name="nested_l2_forwarding_appliance_mappings"></a>The `appliance_mappings` block supports:
+
+* `vlan_id` -
+  (Optional)
+  The VLAN tag.
+
+* `name` -
+  (Optional)
+  The name of this appliance mapping rule.
+
+* `appliance_ip_address` -
+  (Optional)
+  The appliance IP address.
+
+* `inner_vlan_to_appliance_mappings` -
+  (Optional)
+  Structure is [documented below](#nested_l2_forwarding_appliance_mappings_inner_vlan_to_appliance_mappings).
+
+
+<a name="nested_l2_forwarding_appliance_mappings_inner_vlan_to_appliance_mappings"></a>The `inner_vlan_to_appliance_mappings` block supports:
+
+* `inner_vlan_tags` -
+  (Optional)
+  List of inner VLAN tags.
+
+* `inner_appliance_ip_address` -
+  (Optional)
+  The inner appliance IP address.
 
 ## Attributes Reference
 
