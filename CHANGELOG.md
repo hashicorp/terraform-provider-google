@@ -23,9 +23,6 @@ IMPROVEMENTS:
 * storageinsights: added `activity_data_retention_period_days` field to `google_storage_insights_dataset_config` resource ([#25703](https://github.com/hashicorp/terraform-provider-google/pull/25703))
 * workbench: added support to set post-startup script metadata keys with managed EUC in `google_workbench_instance` resource ([#25719](https://github.com/hashicorp/terraform-provider-google/pull/25719))
 
-BUG FIXES:
-* backupdr: fixed `encryption_config` field in `google_backup_dr_backup_vault` resource ([#25685](https://github.com/hashicorp/terraform-provider-google/pull/25685))
-
 ## 7.15.0 (January 6, 2026)
 
 NOTES:
