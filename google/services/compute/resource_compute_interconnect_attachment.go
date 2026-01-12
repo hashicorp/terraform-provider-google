@@ -140,16 +140,6 @@ name must be 1-63 characters long and match the regular expression
 lowercase letter, and all following characters must be a dash, lowercase
 letter, or digit, except the last character, which cannot be a dash.`,
 			},
-			"router": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description: `URL of the cloud router to be used for dynamic routing. This router must be in
-the same region as this InterconnectAttachment. The InterconnectAttachment will
-automatically connect the Interconnect to the network & region within which the
-Cloud Router is configured.`,
-			},
 			"admin_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -279,6 +269,93 @@ allocated from regional external IP address pool.`,
 					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				},
 			},
+			"l2_forwarding": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `L2 Interconnect Attachment related configuration.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"appliance_mappings": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `A map of VLAN tags to appliances and optional inner mapping rules.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"appliance_ip_address": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The appliance IP address.`,
+									},
+									"inner_vlan_to_appliance_mappings": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: ``,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"inner_appliance_ip_address": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The inner appliance IP address.`,
+												},
+												"inner_vlan_tags": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `List of inner VLAN tags.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The name of this appliance mapping rule.`,
+									},
+									"vlan_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The VLAN tag.`,
+									},
+								},
+							},
+						},
+						"default_appliance_ip_address": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The default appliance IP address.`,
+						},
+						"geneve_header": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `GeneveHeader related configurations.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"vni": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `VNI is a 24-bit unique virtual network identifier.`,
+									},
+								},
+							},
+						},
+						"network": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+							Description:      `URL of the network to which this attachment belongs.`,
+						},
+						"tunnel_endpoint_ip_address": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The tunnel endpoint IP address.`,
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -303,6 +380,16 @@ Valid values are 1440, 1460, 1500, and 8896. If not specified, the value will de
 				Optional:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `Region where the regional interconnect attachment resides.`,
+			},
+			"router": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `URL of the cloud router to be used for dynamic routing. This router must be in
+the same region as this InterconnectAttachment. The InterconnectAttachment will
+automatically connect the Interconnect to the network & region within which the
+Cloud Router is configured.`,
 			},
 			"stack_type": {
 				Type:         schema.TypeString,
@@ -330,9 +417,9 @@ gives Google Cloud Support more debugging visibility.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", "L2_DEDICATED", ""}),
 				Description: `The type of InterconnectAttachment you wish to create. Defaults to
-DEDICATED. Possible values: ["DEDICATED", "PARTNER", "PARTNER_PROVIDER"]`,
+DEDICATED. Possible values: ["DEDICATED", "PARTNER", "PARTNER_PROVIDER", "L2_DEDICATED"]`,
 			},
 			"vlan_tag8021q": {
 				Type:     schema.TypeInt,
@@ -581,6 +668,12 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("candidate_customer_router_ipv6_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(candidateCustomerRouterIpv6AddressProp)) && (ok || !reflect.DeepEqual(v, candidateCustomerRouterIpv6AddressProp)) {
 		obj["candidateCustomerRouterIpv6Address"] = candidateCustomerRouterIpv6AddressProp
+	}
+	l2ForwardingProp, err := expandComputeInterconnectAttachmentL2Forwarding(d.Get("l2_forwarding"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("l2_forwarding"); !tpgresource.IsEmptyValue(reflect.ValueOf(l2ForwardingProp)) && (ok || !reflect.DeepEqual(v, l2ForwardingProp)) {
+		obj["l2Forwarding"] = l2ForwardingProp
 	}
 	effectiveLabelsProp, err := expandComputeInterconnectAttachmentEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -847,6 +940,9 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 	if err := d.Set("attachment_group", flattenComputeInterconnectAttachmentAttachmentGroup(res["attachmentGroup"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
+	if err := d.Set("l2_forwarding", flattenComputeInterconnectAttachmentL2Forwarding(res["l2Forwarding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenComputeInterconnectAttachmentTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
@@ -908,6 +1004,12 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("stack_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
 		obj["stackType"] = stackTypeProp
+	}
+	l2ForwardingProp, err := expandComputeInterconnectAttachmentL2Forwarding(d.Get("l2_forwarding"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("l2_forwarding"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, l2ForwardingProp)) {
+		obj["l2Forwarding"] = l2ForwardingProp
 	}
 	regionProp, err := expandComputeInterconnectAttachmentRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -1276,6 +1378,112 @@ func flattenComputeInterconnectAttachmentAttachmentGroup(v interface{}, d *schem
 	return v
 }
 
+func flattenComputeInterconnectAttachmentL2Forwarding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["network"] =
+		flattenComputeInterconnectAttachmentL2ForwardingNetwork(original["network"], d, config)
+	transformed["tunnel_endpoint_ip_address"] =
+		flattenComputeInterconnectAttachmentL2ForwardingTunnelEndpointIpAddress(original["tunnelEndpointIpAddress"], d, config)
+	transformed["default_appliance_ip_address"] =
+		flattenComputeInterconnectAttachmentL2ForwardingDefaultApplianceIpAddress(original["defaultApplianceIpAddress"], d, config)
+	transformed["geneve_header"] =
+		flattenComputeInterconnectAttachmentL2ForwardingGeneveHeader(original["geneveHeader"], d, config)
+	transformed["appliance_mappings"] =
+		flattenComputeInterconnectAttachmentL2ForwardingApplianceMappings(original["applianceMappings"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeInterconnectAttachmentL2ForwardingNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeInterconnectAttachmentL2ForwardingTunnelEndpointIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentL2ForwardingDefaultApplianceIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentL2ForwardingGeneveHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["vni"] =
+		flattenComputeInterconnectAttachmentL2ForwardingGeneveHeaderVni(original["vni"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeInterconnectAttachmentL2ForwardingGeneveHeaderVni(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeInterconnectAttachmentL2ForwardingApplianceMappings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	m := v.(map[string]interface{})
+	l := make([]interface{}, 0, len(m))
+	for key, raw := range m {
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformed["vlan_id"] = key
+
+		if v, ok := original["name"]; ok {
+			transformed["name"] = v
+		}
+		if v, ok := original["applianceIpAddress"]; ok {
+			transformed["appliance_ip_address"] = v
+		}
+
+		if v, ok := original["innerVlanToApplianceMappings"]; ok {
+			innerList := v.([]interface{})
+			transformedInnerList := make([]interface{}, 0, len(innerList))
+			for _, itemRaw := range innerList {
+				item := itemRaw.(map[string]interface{})
+				transformedItem := make(map[string]interface{})
+				if ip, ok := item["innerApplianceIpAddress"]; ok {
+					transformedItem["inner_appliance_ip_address"] = ip
+				}
+				if tags, ok := item["innerVlanTags"]; ok {
+					transformedItem["inner_vlan_tags"] = tags
+				}
+				transformedInnerList = append(transformedInnerList, transformedItem)
+			}
+			transformed["inner_vlan_to_appliance_mappings"] = transformedInnerList
+		}
+		l = append(l, transformed)
+	}
+	return l
+}
+
 func flattenComputeInterconnectAttachmentTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1367,6 +1575,21 @@ func expandComputeInterconnectAttachmentIpsecInternalAddresses(v interface{}, d 
 }
 
 func expandComputeInterconnectAttachmentEncryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	// v is the value of the 'encryption' field from the Terraform state.
+	// d is the TerraformResourceData, allowing access to other fields like 'type'.
+
+	attachmentType, ok := d.GetOk("type")
+
+	if ok && attachmentType.(string) == "L2_DEDICATED" {
+		// If the attachment type is L2_DEDICATED, do not send the encryption field.
+		// Returning nil will cause the field to be omitted in the API request payload,
+		// assuming the field in the generated Go API client struct is a pointer type (e.g., *string),
+		// which is standard for optional fields.
+		return nil, nil
+	}
+
+	// For all other attachment types, return the configured value of 'encryption'.
+	// Since 'encryption' is an Enum, v is expected to be a string.
 	return v, nil
 }
 
@@ -1396,6 +1619,141 @@ func expandComputeInterconnectAttachmentCandidateCloudRouterIpv6Address(v interf
 
 func expandComputeInterconnectAttachmentCandidateCustomerRouterIpv6Address(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeInterconnectAttachmentL2Forwarding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedNetwork, err := expandComputeInterconnectAttachmentL2ForwardingNetwork(original["network"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["network"] = transformedNetwork
+	}
+
+	transformedTunnelEndpointIpAddress, err := expandComputeInterconnectAttachmentL2ForwardingTunnelEndpointIpAddress(original["tunnel_endpoint_ip_address"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTunnelEndpointIpAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tunnelEndpointIpAddress"] = transformedTunnelEndpointIpAddress
+	}
+
+	transformedDefaultApplianceIpAddress, err := expandComputeInterconnectAttachmentL2ForwardingDefaultApplianceIpAddress(original["default_appliance_ip_address"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultApplianceIpAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defaultApplianceIpAddress"] = transformedDefaultApplianceIpAddress
+	}
+
+	transformedGeneveHeader, err := expandComputeInterconnectAttachmentL2ForwardingGeneveHeader(original["geneve_header"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGeneveHeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["geneveHeader"] = transformedGeneveHeader
+	}
+
+	transformedApplianceMappings, err := expandComputeInterconnectAttachmentL2ForwardingApplianceMappings(original["appliance_mappings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApplianceMappings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["applianceMappings"] = transformedApplianceMappings
+	}
+
+	return transformed, nil
+}
+
+func expandComputeInterconnectAttachmentL2ForwardingNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseGlobalFieldValue("networks", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for network: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeInterconnectAttachmentL2ForwardingTunnelEndpointIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentL2ForwardingDefaultApplianceIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentL2ForwardingGeneveHeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedVni, err := expandComputeInterconnectAttachmentL2ForwardingGeneveHeaderVni(original["vni"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVni); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["vni"] = transformedVni
+	}
+
+	return transformed, nil
+}
+
+func expandComputeInterconnectAttachmentL2ForwardingGeneveHeaderVni(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentL2ForwardingApplianceMappings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	m := make(map[string]interface{}, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		vlanID := original["vlan_id"].(string)
+		if vlanID == "" {
+			continue
+		}
+
+		if v, ok := original["name"]; ok {
+			transformed["name"] = v
+		}
+		if v, ok := original["appliance_ip_address"]; ok {
+			transformed["applianceIpAddress"] = v
+		}
+
+		if v, ok := original["inner_vlan_to_appliance_mappings"]; ok {
+			innerList := v.([]interface{})
+			transformedInnerList := make([]interface{}, 0, len(innerList))
+			for _, itemRaw := range innerList {
+				item := itemRaw.(map[string]interface{})
+				transformedItem := make(map[string]interface{})
+				if ip, ok := item["inner_appliance_ip_address"]; ok {
+					transformedItem["innerApplianceIpAddress"] = ip
+				}
+				if tags, ok := item["inner_vlan_tags"]; ok {
+					transformedItem["innerVlanTags"] = tags
+				}
+				transformedInnerList = append(transformedInnerList, transformedItem)
+			}
+			transformed["innerVlanToApplianceMappings"] = transformedInnerList
+		}
+		m[vlanID] = transformed
+	}
+	return m, nil
 }
 
 func expandComputeInterconnectAttachmentEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

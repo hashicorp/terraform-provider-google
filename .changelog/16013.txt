@@ -1,0 +1,12 @@
+```release-note:enhancement
+compute: added support for the `l2Forwarding` field to `google_compute_interconnect_attachment`
+```
+```release-note:enhancement
+compute: added support for "L2_DEDICATED" as a value for the `type` field of the `google_compute_interconnect_attachment` resource.
+```
+```release-note:enhancement
+compute: added support for "IF_L2_FORWARDING" as a value for the `requestedFeatures` field  of the `google_compute_interconnect` resource
+```
+```release-note:enhancement
+compute: added support for "IF_L2_FORWARDING" as a value for the `availableFeatures` field of the `google_compute_interconnect` resource
+```

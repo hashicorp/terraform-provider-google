@@ -26,6 +26,15 @@ fields:
     - api_field: googleReferenceId
     - api_field: interconnect
     - api_field: ipsecInternalAddresses
+    - api_field: l2Forwarding.applianceMappings.applianceIpAddress
+    - api_field: l2Forwarding.applianceMappings.innerVlanToApplianceMappings.innerApplianceIpAddress
+    - api_field: l2Forwarding.applianceMappings.innerVlanToApplianceMappings.innerVlanTags
+    - api_field: l2Forwarding.applianceMappings.name
+    - api_field: l2Forwarding.applianceMappings.vlanId
+    - api_field: l2Forwarding.defaultApplianceIpAddress
+    - api_field: l2Forwarding.geneveHeader.vni
+    - api_field: l2Forwarding.network
+    - api_field: l2Forwarding.tunnelEndpointIpAddress
     - api_field: labelFingerprint
     - api_field: labels
     - api_field: mtu
