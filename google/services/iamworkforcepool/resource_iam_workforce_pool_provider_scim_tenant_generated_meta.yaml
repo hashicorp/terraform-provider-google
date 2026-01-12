@@ -1,23 +1,25 @@
-resource: 'google_iam_workforce_pool_provider_scim_tenant'
-generation_type: 'mmv1'
-source_file: 'products/iamworkforcepool/WorkforcePoolProviderScimTenant.yaml'
-api_service_name: 'iam.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'WorkforcePoolProviderScimTenant'
+resource: google_iam_workforce_pool_provider_scim_tenant
+generation_type: mmv1
+source_file: products/iamworkforcepool/WorkforcePoolProviderScimTenant.yaml
+api_service_name: iam.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkforcePoolProviderScimTenant
 fields:
-  - api_field: 'baseUri'
-  - api_field: 'claimMapping'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'provider_id'
-    provider_only: true
-  - api_field: 'purgeTime'
-  - field: 'scim_tenant_id'
-    provider_only: true
-  - api_field: 'serviceAgent'
-  - api_field: 'state'
-  - field: 'workforce_pool_id'
-    provider_only: true
+    - api_field: baseUri
+    - api_field: claimMapping
+    - api_field: description
+    - api_field: displayName
+    - field: hard_delete
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: provider_id
+      provider_only: true
+    - api_field: purgeTime
+    - field: scim_tenant_id
+      provider_only: true
+    - api_field: serviceAgent
+    - api_field: state
+    - field: workforce_pool_id
+      provider_only: true

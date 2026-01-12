@@ -1,18 +1,18 @@
-resource: 'google_compute_network_endpoint_group'
-generation_type: 'mmv1'
-source_file: 'products/compute/NetworkEndpointGroup.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NetworkEndpointGroup'
+resource: google_compute_network_endpoint_group
+generation_type: mmv1
+source_file: products/compute/NetworkEndpointGroup.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: NetworkEndpointGroup
 fields:
-  - api_field: 'defaultPort'
-  - api_field: 'description'
-  - api_field: 'id'
-    field: 'generated_id'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'networkEndpointType'
-  - api_field: 'size'
-  - api_field: 'subnetwork'
-  - api_field: 'zone'
-  - api_field: 'selfLink'
+    - api_field: defaultPort
+    - api_field: description
+    - api_field: id
+      field: generated_id
+    - api_field: name
+    - api_field: network
+    - api_field: networkEndpointType
+    - api_field: size
+    - api_field: subnetwork
+    - api_field: zone
+    - api_field: selfLink

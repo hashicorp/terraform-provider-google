@@ -1,17 +1,17 @@
-resource: 'google_org_policy_custom_constraint'
-generation_type: 'mmv1'
-source_file: 'products/orgpolicy/CustomConstraint.yaml'
-api_service_name: 'orgpolicy.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'CustomConstraint'
+resource: google_org_policy_custom_constraint
+generation_type: mmv1
+source_file: products/orgpolicy/CustomConstraint.yaml
+api_service_name: orgpolicy.googleapis.com
+api_version: v2
+api_resource_type_kind: CustomConstraint
 fields:
-  - api_field: 'actionType'
-  - api_field: 'condition'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'methodTypes'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'resourceTypes'
-  - api_field: 'updateTime'
+    - api_field: actionType
+    - api_field: condition
+    - api_field: description
+    - api_field: displayName
+    - api_field: methodTypes
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: resourceTypes
+    - api_field: updateTime

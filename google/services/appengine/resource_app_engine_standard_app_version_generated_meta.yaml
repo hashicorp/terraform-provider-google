@@ -1,58 +1,62 @@
-resource: 'google_app_engine_standard_app_version'
-generation_type: 'mmv1'
-source_file: 'products/appengine/StandardAppVersion.yaml'
-api_service_name: 'appengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Version'
+resource: google_app_engine_standard_app_version
+generation_type: mmv1
+source_file: products/appengine/StandardAppVersion.yaml
+api_service_name: appengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Version
 fields:
-  - api_field: 'appEngineApis'
-  - api_field: 'automaticScaling.maxConcurrentRequests'
-  - api_field: 'automaticScaling.maxIdleInstances'
-  - api_field: 'automaticScaling.maxPendingLatency'
-  - api_field: 'automaticScaling.minIdleInstances'
-  - api_field: 'automaticScaling.minPendingLatency'
-  - api_field: 'automaticScaling.standardSchedulerSettings.maxInstances'
-  - api_field: 'automaticScaling.standardSchedulerSettings.minInstances'
-  - api_field: 'automaticScaling.standardSchedulerSettings.targetCpuUtilization'
-  - api_field: 'automaticScaling.standardSchedulerSettings.targetThroughputUtilization'
-  - api_field: 'basicScaling.idleTimeout'
-  - api_field: 'basicScaling.maxInstances'
-  - field: 'delete_service_on_destroy'
-    provider_only: true
-  - api_field: 'deployment.files.files.sha1Sum'
-  - api_field: 'deployment.files.files.sourceUrl'
-  - api_field: 'deployment.zip.filesCount'
-  - api_field: 'deployment.zip.sourceUrl'
-  - api_field: 'entrypoint.shell'
-  - api_field: 'envVariables'
-  - api_field: 'handlers.authFailAction'
-  - api_field: 'handlers.login'
-  - api_field: 'handlers.redirectHttpResponseCode'
-  - api_field: 'handlers.script.scriptPath'
-  - api_field: 'handlers.securityLevel'
-  - api_field: 'handlers.staticFiles.applicationReadable'
-  - api_field: 'handlers.staticFiles.expiration'
-  - api_field: 'handlers.staticFiles.httpHeaders'
-  - api_field: 'handlers.staticFiles.mimeType'
-  - api_field: 'handlers.staticFiles.path'
-  - api_field: 'handlers.staticFiles.requireMatchingFile'
-  - api_field: 'handlers.staticFiles.uploadPathRegex'
-  - api_field: 'handlers.urlRegex'
-  - api_field: 'inboundServices'
-  - api_field: 'instanceClass'
-  - api_field: 'libraries.name'
-  - api_field: 'libraries.version'
-  - api_field: 'manualScaling.instances'
-  - api_field: 'name'
-  - field: 'noop_on_destroy'
-    provider_only: true
-  - api_field: 'runtime'
-  - api_field: 'runtimeApiVersion'
-  - field: 'service'
-    provider_only: true
-  - api_field: 'serviceAccount'
-  - api_field: 'threadsafe'
-  - api_field: 'id'
-    field: 'version_id'
-  - api_field: 'vpcAccessConnector.egressSetting'
-  - api_field: 'vpcAccessConnector.name'
+    - api_field: appEngineApis
+    - api_field: automaticScaling.maxConcurrentRequests
+    - api_field: automaticScaling.maxIdleInstances
+    - api_field: automaticScaling.maxPendingLatency
+    - api_field: automaticScaling.minIdleInstances
+    - api_field: automaticScaling.minPendingLatency
+    - api_field: automaticScaling.standardSchedulerSettings.maxInstances
+    - api_field: automaticScaling.standardSchedulerSettings.minInstances
+    - api_field: automaticScaling.standardSchedulerSettings.targetCpuUtilization
+    - api_field: automaticScaling.standardSchedulerSettings.targetThroughputUtilization
+    - api_field: basicScaling.idleTimeout
+    - api_field: basicScaling.maxInstances
+    - field: delete_service_on_destroy
+      provider_only: true
+    - api_field: deployment.files.key
+      field: deployment.files.name
+    - api_field: deployment.files.value.sha1Sum
+      field: deployment.files.sha1_sum
+    - api_field: deployment.files.value.sourceUrl
+      field: deployment.files.source_url
+    - api_field: deployment.zip.filesCount
+    - api_field: deployment.zip.sourceUrl
+    - api_field: entrypoint.shell
+    - api_field: envVariables
+    - api_field: handlers.authFailAction
+    - api_field: handlers.login
+    - api_field: handlers.redirectHttpResponseCode
+    - api_field: handlers.script.scriptPath
+    - api_field: handlers.securityLevel
+    - api_field: handlers.staticFiles.applicationReadable
+    - api_field: handlers.staticFiles.expiration
+    - api_field: handlers.staticFiles.httpHeaders
+    - api_field: handlers.staticFiles.mimeType
+    - api_field: handlers.staticFiles.path
+    - api_field: handlers.staticFiles.requireMatchingFile
+    - api_field: handlers.staticFiles.uploadPathRegex
+    - api_field: handlers.urlRegex
+    - api_field: inboundServices
+    - api_field: instanceClass
+    - api_field: libraries.name
+    - api_field: libraries.version
+    - api_field: manualScaling.instances
+    - api_field: name
+    - field: noop_on_destroy
+      provider_only: true
+    - api_field: runtime
+    - api_field: runtimeApiVersion
+    - field: service
+      provider_only: true
+    - api_field: serviceAccount
+    - api_field: threadsafe
+    - api_field: id
+      field: version_id
+    - api_field: vpcAccessConnector.egressSetting
+    - api_field: vpcAccessConnector.name

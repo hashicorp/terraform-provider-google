@@ -1,24 +1,24 @@
-resource: 'google_compute_node_template'
-generation_type: 'mmv1'
-source_file: 'products/compute/NodeTemplate.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NodeTemplate'
+resource: google_compute_node_template
+generation_type: mmv1
+source_file: products/compute/NodeTemplate.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: NodeTemplate
 fields:
-  - api_field: 'accelerators.acceleratorCount'
-  - api_field: 'accelerators.acceleratorType'
-  - api_field: 'cpuOvercommitType'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'disks.diskCount'
-  - api_field: 'disks.diskSizeGb'
-  - api_field: 'disks.diskType'
-  - api_field: 'name'
-  - api_field: 'nodeAffinityLabels'
-  - api_field: 'nodeType'
-  - api_field: 'nodeTypeFlexibility.cpus'
-  - api_field: 'nodeTypeFlexibility.localSsd'
-  - api_field: 'nodeTypeFlexibility.memory'
-  - api_field: 'region'
-  - api_field: 'serverBinding.type'
-  - api_field: 'selfLink'
+    - api_field: accelerators.acceleratorCount
+    - api_field: accelerators.acceleratorType
+    - api_field: cpuOvercommitType
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: disks.diskCount
+    - api_field: disks.diskSizeGb
+    - api_field: disks.diskType
+    - api_field: name
+    - api_field: nodeAffinityLabels
+    - api_field: nodeType
+    - api_field: nodeTypeFlexibility.cpus
+    - api_field: nodeTypeFlexibility.localSsd
+    - api_field: nodeTypeFlexibility.memory
+    - api_field: region
+    - api_field: serverBinding.type
+    - api_field: selfLink

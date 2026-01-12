@@ -1,39 +1,39 @@
-resource: 'google_apihub_plugin'
-generation_type: 'mmv1'
-source_file: 'products/apihub/Plugin.yaml'
-api_service_name: 'apihub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Plugin'
+resource: google_apihub_plugin
+generation_type: mmv1
+source_file: products/apihub/Plugin.yaml
+api_service_name: apihub.googleapis.com
+api_version: v1
+api_resource_type_kind: Plugin
 autogen_status: true
 fields:
-  - api_field: 'actionsConfig.description'
-  - api_field: 'actionsConfig.displayName'
-  - api_field: 'actionsConfig.id'
-  - api_field: 'actionsConfig.triggerMode'
-  - api_field: 'configTemplate.additionalConfigTemplate.description'
-  - api_field: 'configTemplate.additionalConfigTemplate.enumOptions.description'
-  - api_field: 'configTemplate.additionalConfigTemplate.enumOptions.displayName'
-  - api_field: 'configTemplate.additionalConfigTemplate.enumOptions.id'
-  - api_field: 'configTemplate.additionalConfigTemplate.id'
-  - api_field: 'configTemplate.additionalConfigTemplate.multiSelectOptions.description'
-  - api_field: 'configTemplate.additionalConfigTemplate.multiSelectOptions.displayName'
-  - api_field: 'configTemplate.additionalConfigTemplate.multiSelectOptions.id'
-  - api_field: 'configTemplate.additionalConfigTemplate.required'
-  - api_field: 'configTemplate.additionalConfigTemplate.validationRegex'
-  - api_field: 'configTemplate.additionalConfigTemplate.valueType'
-  - api_field: 'configTemplate.authConfigTemplate.serviceAccount.serviceAccount'
-  - api_field: 'configTemplate.authConfigTemplate.supportedAuthTypes'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'documentation.externalUri'
-  - api_field: 'hostingService.serviceUri'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'ownershipType'
-  - api_field: 'pluginCategory'
-  - field: 'plugin_id'
-    provider_only: true
-  - api_field: 'state'
-  - api_field: 'updateTime'
+    - api_field: actionsConfig.description
+    - api_field: actionsConfig.displayName
+    - api_field: actionsConfig.id
+    - api_field: actionsConfig.triggerMode
+    - api_field: configTemplate.additionalConfigTemplate.description
+    - api_field: configTemplate.additionalConfigTemplate.enumOptions.description
+    - api_field: configTemplate.additionalConfigTemplate.enumOptions.displayName
+    - api_field: configTemplate.additionalConfigTemplate.enumOptions.id
+    - api_field: configTemplate.additionalConfigTemplate.id
+    - api_field: configTemplate.additionalConfigTemplate.multiSelectOptions.description
+    - api_field: configTemplate.additionalConfigTemplate.multiSelectOptions.displayName
+    - api_field: configTemplate.additionalConfigTemplate.multiSelectOptions.id
+    - api_field: configTemplate.additionalConfigTemplate.required
+    - api_field: configTemplate.additionalConfigTemplate.validationRegex
+    - api_field: configTemplate.additionalConfigTemplate.valueType
+    - api_field: configTemplate.authConfigTemplate.serviceAccount.serviceAccount
+    - api_field: configTemplate.authConfigTemplate.supportedAuthTypes
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: documentation.externalUri
+    - api_field: hostingService.serviceUri
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: ownershipType
+    - api_field: pluginCategory
+    - field: plugin_id
+      provider_only: true
+    - api_field: state
+    - api_field: updateTime

@@ -224,15 +224,15 @@ The following arguments are supported:
 * `target` -
   (Optional)
   Contains attributes about a target.
-  Structure is [documented below](#nested_selectors_selectors_target).
+  Structure is [documented below](#nested_selectors_target).
 
 * `delivery_pipeline` -
   (Optional)
   Contains attributes about a delivery pipeline.
-  Structure is [documented below](#nested_selectors_selectors_delivery_pipeline).
+  Structure is [documented below](#nested_selectors_delivery_pipeline).
 
 
-<a name="nested_selectors_selectors_target"></a>The `target` block supports:
+<a name="nested_selectors_target"></a>The `target` block supports:
 
 * `id` -
   (Optional)
@@ -242,7 +242,7 @@ The following arguments are supported:
   (Optional)
   Target labels.
 
-<a name="nested_selectors_selectors_delivery_pipeline"></a>The `delivery_pipeline` block supports:
+<a name="nested_selectors_delivery_pipeline"></a>The `delivery_pipeline` block supports:
 
 * `id` -
   (Optional)
@@ -259,10 +259,10 @@ The following arguments are supported:
 * `rollout_restriction` -
   (Optional)
   Rollout restrictions.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction).
+  Structure is [documented below](#nested_rules_rollout_restriction).
 
 
-<a name="nested_rules_rules_rollout_restriction"></a>The `rollout_restriction` block supports:
+<a name="nested_rules_rollout_restriction"></a>The `rollout_restriction` block supports:
 
 * `id` -
   (Required)
@@ -281,10 +281,10 @@ The following arguments are supported:
 * `time_windows` -
   (Optional)
   Time window within which actions are restricted.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows).
+  Structure is [documented below](#nested_rules_rollout_restriction_time_windows).
 
 
-<a name="nested_rules_rules_rollout_restriction_time_windows"></a>The `time_windows` block supports:
+<a name="nested_rules_rollout_restriction_time_windows"></a>The `time_windows` block supports:
 
 * `time_zone` -
   (Required)
@@ -293,38 +293,38 @@ The following arguments are supported:
 * `one_time_windows` -
   (Optional)
   One-time windows within which actions are restricted.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows).
+  Structure is [documented below](#nested_rules_rollout_restriction_time_windows_one_time_windows).
 
 * `weekly_windows` -
   (Optional)
   Recurring weekly windows within which actions are restricted.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_weekly_windows).
+  Structure is [documented below](#nested_rules_rollout_restriction_time_windows_weekly_windows).
 
 
-<a name="nested_rules_rules_rollout_restriction_time_windows_one_time_windows"></a>The `one_time_windows` block supports:
+<a name="nested_rules_rollout_restriction_time_windows_one_time_windows"></a>The `one_time_windows` block supports:
 
 * `start_date` -
   (Required)
   Start date.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_start_date).
+  Structure is [documented below](#nested_rules_rollout_restriction_time_windows_one_time_windows_start_date).
 
 * `end_date` -
   (Required)
   End date.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_end_date).
+  Structure is [documented below](#nested_rules_rollout_restriction_time_windows_one_time_windows_end_date).
 
 * `start_time` -
   (Required)
   Start time (inclusive). Use 00:00 for the beginning of the day.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_start_time).
+  Structure is [documented below](#nested_rules_rollout_restriction_time_windows_one_time_windows_start_time).
 
 * `end_time` -
   (Required)
   End time (exclusive). You may use 24:00 for the end of the day.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_end_time).
+  Structure is [documented below](#nested_rules_rollout_restriction_time_windows_one_time_windows_end_time).
 
 
-<a name="nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_start_date"></a>The `start_date` block supports:
+<a name="nested_rules_rollout_restriction_time_windows_one_time_windows_start_date"></a>The `start_date` block supports:
 
 * `year` -
   (Optional)
@@ -338,7 +338,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
 
-<a name="nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_end_date"></a>The `end_date` block supports:
+<a name="nested_rules_rollout_restriction_time_windows_one_time_windows_end_date"></a>The `end_date` block supports:
 
 * `year` -
   (Optional)
@@ -352,7 +352,7 @@ The following arguments are supported:
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month.
 
-<a name="nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_start_time"></a>The `start_time` block supports:
+<a name="nested_rules_rollout_restriction_time_windows_one_time_windows_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)
@@ -370,7 +370,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds, in nanoseconds. Must be greater than or equal to 0 and less than or equal to 999,999,999.
 
-<a name="nested_rules_rules_rollout_restriction_time_windows_one_time_windows_one_time_windows_end_time"></a>The `end_time` block supports:
+<a name="nested_rules_rollout_restriction_time_windows_one_time_windows_end_time"></a>The `end_time` block supports:
 
 * `hours` -
   (Optional)
@@ -388,7 +388,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds, in nanoseconds. Must be greater than or equal to 0 and less than or equal to 999,999,999.
 
-<a name="nested_rules_rules_rollout_restriction_time_windows_weekly_windows"></a>The `weekly_windows` block supports:
+<a name="nested_rules_rollout_restriction_time_windows_weekly_windows"></a>The `weekly_windows` block supports:
 
 * `days_of_week` -
   (Optional)
@@ -398,15 +398,15 @@ The following arguments are supported:
 * `start_time` -
   (Optional)
   Start time (inclusive). Use 00:00 for the beginning of the day. If you specify startTime you must also specify endTime. If left empty, this will block for the entire day for the days specified in daysOfWeek.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_weekly_windows_weekly_windows_start_time).
+  Structure is [documented below](#nested_rules_rollout_restriction_time_windows_weekly_windows_start_time).
 
 * `end_time` -
   (Optional)
   End time (exclusive). Use 24:00 to indicate midnight. If you specify endTime you must also specify startTime. If left empty, this will block for the entire day for the days specified in daysOfWeek.
-  Structure is [documented below](#nested_rules_rules_rollout_restriction_time_windows_weekly_windows_weekly_windows_end_time).
+  Structure is [documented below](#nested_rules_rollout_restriction_time_windows_weekly_windows_end_time).
 
 
-<a name="nested_rules_rules_rollout_restriction_time_windows_weekly_windows_weekly_windows_start_time"></a>The `start_time` block supports:
+<a name="nested_rules_rollout_restriction_time_windows_weekly_windows_start_time"></a>The `start_time` block supports:
 
 * `hours` -
   (Optional)
@@ -424,7 +424,7 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds, in nanoseconds. Must be greater than or equal to 0 and less than or equal to 999,999,999.
 
-<a name="nested_rules_rules_rollout_restriction_time_windows_weekly_windows_weekly_windows_end_time"></a>The `end_time` block supports:
+<a name="nested_rules_rollout_restriction_time_windows_weekly_windows_end_time"></a>The `end_time` block supports:
 
 * `hours` -
   (Optional)

@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -304,4 +305,58 @@ resource "google_dataproc_metastore_federation_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateDataprocMetastoreFederationIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		federation_id := tpgresource.GetResourceNameFromSelfLink(rawState["federation_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/federations/%s", project, location, federation_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataprocMetastoreFederationIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		federation_id := tpgresource.GetResourceNameFromSelfLink(rawState["federation_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/federations/%s", project, location, federation_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataprocMetastoreFederationIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		federation_id := tpgresource.GetResourceNameFromSelfLink(rawState["federation_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/federations/%s", project, location, federation_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

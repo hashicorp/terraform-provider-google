@@ -260,44 +260,40 @@ except the last character, which cannot be a dash.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"dh": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
 										Description: `Diffie-Hellman groups.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
 									},
 									"encryption": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
 										Description: `Encryption algorithms.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
 									},
 									"integrity": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
 										Description: `Integrity algorithms.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
 									},
 									"prf": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
 										Description: `Pseudo-random functions.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
 									},
 								},
 							},
@@ -311,34 +307,31 @@ except the last character, which cannot be a dash.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"encryption": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
 										Description: `Encryption algorithms.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
 									},
 									"integrity": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
 										Description: `Integrity algorithms.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
 									},
 									"pfs": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
 										ForceNew:    true,
 										Description: `Perfect forward secrecy groups.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
 									},
 								},
 							},
@@ -1312,31 +1305,19 @@ func flattenComputeVpnTunnelCipherSuitePhase1(v interface{}, d *schema.ResourceD
 	return []interface{}{transformed}
 }
 func flattenComputeVpnTunnelCipherSuitePhase1Encryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+	return v
 }
 
 func flattenComputeVpnTunnelCipherSuitePhase1Integrity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+	return v
 }
 
 func flattenComputeVpnTunnelCipherSuitePhase1Prf(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+	return v
 }
 
 func flattenComputeVpnTunnelCipherSuitePhase1Dh(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+	return v
 }
 
 func flattenComputeVpnTunnelCipherSuitePhase2(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1357,24 +1338,15 @@ func flattenComputeVpnTunnelCipherSuitePhase2(v interface{}, d *schema.ResourceD
 	return []interface{}{transformed}
 }
 func flattenComputeVpnTunnelCipherSuitePhase2Encryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+	return v
 }
 
 func flattenComputeVpnTunnelCipherSuitePhase2Integrity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+	return v
 }
 
 func flattenComputeVpnTunnelCipherSuitePhase2Pfs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+	return v
 }
 
 func flattenComputeVpnTunnelSharedSecretWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1571,22 +1543,18 @@ func expandComputeVpnTunnelCipherSuitePhase1(v interface{}, d tpgresource.Terraf
 }
 
 func expandComputeVpnTunnelCipherSuitePhase1Encryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
 	return v, nil
 }
 
 func expandComputeVpnTunnelCipherSuitePhase1Integrity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
 	return v, nil
 }
 
 func expandComputeVpnTunnelCipherSuitePhase1Prf(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
 	return v, nil
 }
 
 func expandComputeVpnTunnelCipherSuitePhase1Dh(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
 	return v, nil
 }
 
@@ -1627,17 +1595,14 @@ func expandComputeVpnTunnelCipherSuitePhase2(v interface{}, d tpgresource.Terraf
 }
 
 func expandComputeVpnTunnelCipherSuitePhase2Encryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
 	return v, nil
 }
 
 func expandComputeVpnTunnelCipherSuitePhase2Integrity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
 	return v, nil
 }
 
 func expandComputeVpnTunnelCipherSuitePhase2Pfs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
 	return v, nil
 }
 

@@ -31,6 +31,36 @@ To get more information about ReasoningEngine, see:
     * [Develop and deploy agents on Vertex AI Agent Engine](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/quickstart)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_source_based_deployment&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Reasoning Engine Source Based Deployment
+
+
+```hcl
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "reasoning-engine"
+  description  = "A basic reasoning engine"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/source.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+        requirements_file = "./test-fixtures/requirements.txt"
+        version           = "3.11"
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_full&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -328,15 +358,15 @@ The following arguments are supported:
 
 * `min_instances` -
   (Optional)
+  Optional. The minimum number of application instances that will be
+  kept running at all times. Defaults to 1. Range: [0, 10].
+
+* `max_instances` -
+  (Optional)
   Optional. The maximum number of application instances that can be
   launched to handle increased traffic. Defaults to 100.
   Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable
   range is [1, 100].
-
-* `max_instances` -
-  (Optional)
-  Optional. The minimum number of application instances that will be
-  kept running at all times. Defaults to 1. Range: [0, 10].
 
 * `container_concurrency` -
   (Optional)
@@ -373,10 +403,10 @@ The following arguments are supported:
   (Required)
   Reference to a secret stored in the Cloud Secret Manager
   that will provide the value for this environment variable.
-  Structure is [documented below](#nested_spec_deployment_spec_secret_env_secret_env_secret_ref).
+  Structure is [documented below](#nested_spec_deployment_spec_secret_env_secret_ref).
 
 
-<a name="nested_spec_deployment_spec_secret_env_secret_env_secret_ref"></a>The `secret_ref` block supports:
+<a name="nested_spec_deployment_spec_secret_env_secret_ref"></a>The `secret_ref` block supports:
 
 * `secret` -
   (Required)

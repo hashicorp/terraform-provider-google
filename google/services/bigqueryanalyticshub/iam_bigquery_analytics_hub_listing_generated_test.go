@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccBigqueryAnalyticsHubListingIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s roles/viewer", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBigqueryAnalyticsHubListingIAMBindingStateID("google_bigquery_analytics_hub_listing_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccBigqueryAnalyticsHubListingIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s roles/viewer", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBigqueryAnalyticsHubListingIAMBindingStateID("google_bigquery_analytics_hub_listing_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccBigqueryAnalyticsHubListingIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBigqueryAnalyticsHubListingIAMMemberStateID("google_bigquery_analytics_hub_listing_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccBigqueryAnalyticsHubListingIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBigqueryAnalyticsHubListingIAMPolicyStateID("google_bigquery_analytics_hub_listing_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccBigqueryAnalyticsHubListingIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateIdFunc: generateBigqueryAnalyticsHubListingIAMPolicyStateID("google_bigquery_analytics_hub_listing_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -345,4 +346,61 @@ resource "google_bigquery_analytics_hub_listing_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateBigqueryAnalyticsHubListingIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		data_exchange_id := tpgresource.GetResourceNameFromSelfLink(rawState["data_exchange_id"])
+		listing_id := tpgresource.GetResourceNameFromSelfLink(rawState["listing_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", project, location, data_exchange_id, listing_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateBigqueryAnalyticsHubListingIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		data_exchange_id := tpgresource.GetResourceNameFromSelfLink(rawState["data_exchange_id"])
+		listing_id := tpgresource.GetResourceNameFromSelfLink(rawState["listing_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", project, location, data_exchange_id, listing_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateBigqueryAnalyticsHubListingIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		data_exchange_id := tpgresource.GetResourceNameFromSelfLink(rawState["data_exchange_id"])
+		listing_id := tpgresource.GetResourceNameFromSelfLink(rawState["listing_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", project, location, data_exchange_id, listing_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

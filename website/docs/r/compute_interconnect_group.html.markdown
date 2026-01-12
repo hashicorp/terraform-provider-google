@@ -145,10 +145,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The facilities Interconnects in this metro are present
   in.
-  Structure is [documented below](#nested_physical_structure_metros_metros_facilities).
+  Structure is [documented below](#nested_physical_structure_metros_facilities).
 
 
-<a name="nested_physical_structure_metros_metros_facilities"></a>The `facilities` block contains:
+<a name="nested_physical_structure_metros_facilities"></a>The `facilities` block contains:
 
 * `facility` -
   (Output)
@@ -160,10 +160,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The zones that Interconnects in this facility are
   present in.
-  Structure is [documented below](#nested_physical_structure_metros_metros_facilities_facilities_zones).
+  Structure is [documented below](#nested_physical_structure_metros_facilities_zones).
 
 
-<a name="nested_physical_structure_metros_metros_facilities_facilities_zones"></a>The `zones` block contains:
+<a name="nested_physical_structure_metros_facilities_zones"></a>The `zones` block contains:
 
 * `zone` -
   (Output)

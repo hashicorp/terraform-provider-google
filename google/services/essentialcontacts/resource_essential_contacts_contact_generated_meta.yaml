@@ -1,17 +1,17 @@
-resource: 'google_essential_contacts_contact'
-generation_type: 'mmv1'
-source_file: 'products/essentialcontacts/Contact.yaml'
-api_service_name: 'essentialcontacts.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Contact'
+resource: google_essential_contacts_contact
+generation_type: mmv1
+source_file: products/essentialcontacts/Contact.yaml
+api_service_name: essentialcontacts.googleapis.com
+api_version: v1
+api_resource_type_kind: Contact
 api_variant_patterns:
-  - 'folders/{folder}/contacts/{contact}'
-  - 'organizations/{organization}/contacts/{contact}'
-  - 'projects/{project}/contacts/{contact}'
+    - folders/{folder}/contacts/{contact}
+    - organizations/{organization}/contacts/{contact}
+    - projects/{project}/contacts/{contact}
 fields:
-  - api_field: 'email'
-  - api_field: 'languageTag'
-  - api_field: 'name'
-  - api_field: 'notificationCategorySubscriptions'
-  - field: 'parent'
-    provider_only: true
+    - api_field: email
+    - api_field: languageTag
+    - api_field: name
+    - api_field: notificationCategorySubscriptions
+    - field: parent
+      provider_only: true

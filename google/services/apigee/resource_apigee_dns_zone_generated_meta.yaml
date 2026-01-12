@@ -1,16 +1,16 @@
-resource: 'google_apigee_dns_zone'
-generation_type: 'mmv1'
-source_file: 'products/apigee/DnsZone.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DnsZone'
+resource: google_apigee_dns_zone
+generation_type: mmv1
+source_file: products/apigee/DnsZone.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: DnsZone
 fields:
-  - api_field: 'description'
-  - field: 'dns_zone_id'
-    provider_only: true
-  - api_field: 'domain'
-  - api_field: 'name'
-  - field: 'org_id'
-    provider_only: true
-  - api_field: 'peeringConfig.targetNetworkId'
-  - api_field: 'peeringConfig.targetProjectId'
+    - api_field: description
+    - field: dns_zone_id
+      provider_only: true
+    - api_field: domain
+    - api_field: name
+    - field: org_id
+      provider_only: true
+    - api_field: peeringConfig.targetNetworkId
+    - api_field: peeringConfig.targetProjectId

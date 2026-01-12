@@ -1,28 +1,28 @@
-resource: 'google_edgecontainer_vpn_connection'
-generation_type: 'mmv1'
-source_file: 'products/edgecontainer/VpnConnection.yaml'
-api_service_name: 'edgecontainer.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'VpnConnection'
+resource: google_edgecontainer_vpn_connection
+generation_type: mmv1
+source_file: products/edgecontainer/VpnConnection.yaml
+api_service_name: edgecontainer.googleapis.com
+api_version: v1
+api_resource_type_kind: VpnConnection
 fields:
-  - api_field: 'cluster'
-  - api_field: 'createTime'
-  - api_field: 'details.cloudRouter.name'
-  - api_field: 'details.cloudVpns.gateway'
-  - api_field: 'details.error'
-  - api_field: 'details.state'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enableHighAvailability'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'natGatewayIp'
-  - api_field: 'router'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'vpc'
-  - api_field: 'vpcProject.projectId'
+    - api_field: cluster
+    - api_field: createTime
+    - api_field: details.cloudRouter.name
+    - api_field: details.cloudVpns.gateway
+    - api_field: details.error
+    - api_field: details.state
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableHighAvailability
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: natGatewayIp
+    - api_field: router
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: vpc
+    - api_field: vpcProject.projectId

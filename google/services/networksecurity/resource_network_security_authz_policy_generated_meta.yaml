@@ -1,96 +1,96 @@
-resource: 'google_network_security_authz_policy'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/AuthzPolicy.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AuthzPolicy'
+resource: google_network_security_authz_policy
+generation_type: mmv1
+source_file: products/networksecurity/AuthzPolicy.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: AuthzPolicy
 fields:
-  - api_field: 'action'
-  - api_field: 'createTime'
-  - api_field: 'customProvider.authzExtension.resources'
-  - api_field: 'customProvider.cloudIap.enabled'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'httpRules.from.notSources.ipBlocks.length'
-  - api_field: 'httpRules.from.notSources.ipBlocks.prefix'
-  - api_field: 'httpRules.from.notSources.principals.contains'
-  - api_field: 'httpRules.from.notSources.principals.exact'
-  - api_field: 'httpRules.from.notSources.principals.ignoreCase'
-  - api_field: 'httpRules.from.notSources.principals.prefix'
-  - api_field: 'httpRules.from.notSources.principals.principal.contains'
-  - api_field: 'httpRules.from.notSources.principals.principal.exact'
-  - api_field: 'httpRules.from.notSources.principals.principal.ignoreCase'
-  - api_field: 'httpRules.from.notSources.principals.principal.prefix'
-  - api_field: 'httpRules.from.notSources.principals.principal.suffix'
-  - api_field: 'httpRules.from.notSources.principals.principalSelector'
-  - api_field: 'httpRules.from.notSources.principals.suffix'
-  - api_field: 'httpRules.from.notSources.resources.iamServiceAccount.contains'
-  - api_field: 'httpRules.from.notSources.resources.iamServiceAccount.exact'
-  - api_field: 'httpRules.from.notSources.resources.iamServiceAccount.ignoreCase'
-  - api_field: 'httpRules.from.notSources.resources.iamServiceAccount.prefix'
-  - api_field: 'httpRules.from.notSources.resources.iamServiceAccount.suffix'
-  - api_field: 'httpRules.from.notSources.resources.tagValueIdSet.ids'
-  - api_field: 'httpRules.from.sources.ipBlocks.length'
-  - api_field: 'httpRules.from.sources.ipBlocks.prefix'
-  - api_field: 'httpRules.from.sources.principals.contains'
-  - api_field: 'httpRules.from.sources.principals.exact'
-  - api_field: 'httpRules.from.sources.principals.ignoreCase'
-  - api_field: 'httpRules.from.sources.principals.prefix'
-  - api_field: 'httpRules.from.sources.principals.principal.contains'
-  - api_field: 'httpRules.from.sources.principals.principal.exact'
-  - api_field: 'httpRules.from.sources.principals.principal.ignoreCase'
-  - api_field: 'httpRules.from.sources.principals.principal.prefix'
-  - api_field: 'httpRules.from.sources.principals.principal.suffix'
-  - api_field: 'httpRules.from.sources.principals.principalSelector'
-  - api_field: 'httpRules.from.sources.principals.suffix'
-  - api_field: 'httpRules.from.sources.resources.iamServiceAccount.contains'
-  - api_field: 'httpRules.from.sources.resources.iamServiceAccount.exact'
-  - api_field: 'httpRules.from.sources.resources.iamServiceAccount.ignoreCase'
-  - api_field: 'httpRules.from.sources.resources.iamServiceAccount.prefix'
-  - api_field: 'httpRules.from.sources.resources.iamServiceAccount.suffix'
-  - api_field: 'httpRules.from.sources.resources.tagValueIdSet.ids'
-  - api_field: 'httpRules.to.notOperations.headerSet.headers.name'
-  - api_field: 'httpRules.to.notOperations.headerSet.headers.value.contains'
-  - api_field: 'httpRules.to.notOperations.headerSet.headers.value.exact'
-  - api_field: 'httpRules.to.notOperations.headerSet.headers.value.ignoreCase'
-  - api_field: 'httpRules.to.notOperations.headerSet.headers.value.prefix'
-  - api_field: 'httpRules.to.notOperations.headerSet.headers.value.suffix'
-  - api_field: 'httpRules.to.notOperations.hosts.contains'
-  - api_field: 'httpRules.to.notOperations.hosts.exact'
-  - api_field: 'httpRules.to.notOperations.hosts.ignoreCase'
-  - api_field: 'httpRules.to.notOperations.hosts.prefix'
-  - api_field: 'httpRules.to.notOperations.hosts.suffix'
-  - api_field: 'httpRules.to.notOperations.methods'
-  - api_field: 'httpRules.to.notOperations.paths.contains'
-  - api_field: 'httpRules.to.notOperations.paths.exact'
-  - api_field: 'httpRules.to.notOperations.paths.ignoreCase'
-  - api_field: 'httpRules.to.notOperations.paths.prefix'
-  - api_field: 'httpRules.to.notOperations.paths.suffix'
-  - api_field: 'httpRules.to.operations.headerSet.headers.name'
-  - api_field: 'httpRules.to.operations.headerSet.headers.value.contains'
-  - api_field: 'httpRules.to.operations.headerSet.headers.value.exact'
-  - api_field: 'httpRules.to.operations.headerSet.headers.value.ignoreCase'
-  - api_field: 'httpRules.to.operations.headerSet.headers.value.prefix'
-  - api_field: 'httpRules.to.operations.headerSet.headers.value.suffix'
-  - api_field: 'httpRules.to.operations.hosts.contains'
-  - api_field: 'httpRules.to.operations.hosts.exact'
-  - api_field: 'httpRules.to.operations.hosts.ignoreCase'
-  - api_field: 'httpRules.to.operations.hosts.prefix'
-  - api_field: 'httpRules.to.operations.hosts.suffix'
-  - api_field: 'httpRules.to.operations.methods'
-  - api_field: 'httpRules.to.operations.paths.contains'
-  - api_field: 'httpRules.to.operations.paths.exact'
-  - api_field: 'httpRules.to.operations.paths.ignoreCase'
-  - api_field: 'httpRules.to.operations.paths.prefix'
-  - api_field: 'httpRules.to.operations.paths.suffix'
-  - api_field: 'httpRules.when'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'target.loadBalancingScheme'
-  - api_field: 'target.resources'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: action
+    - api_field: createTime
+    - api_field: customProvider.authzExtension.resources
+    - api_field: customProvider.cloudIap.enabled
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: httpRules.from.notSources.ipBlocks.length
+    - api_field: httpRules.from.notSources.ipBlocks.prefix
+    - api_field: httpRules.from.notSources.principals.contains
+    - api_field: httpRules.from.notSources.principals.exact
+    - api_field: httpRules.from.notSources.principals.ignoreCase
+    - api_field: httpRules.from.notSources.principals.prefix
+    - api_field: httpRules.from.notSources.principals.principal.contains
+    - api_field: httpRules.from.notSources.principals.principal.exact
+    - api_field: httpRules.from.notSources.principals.principal.ignoreCase
+    - api_field: httpRules.from.notSources.principals.principal.prefix
+    - api_field: httpRules.from.notSources.principals.principal.suffix
+    - api_field: httpRules.from.notSources.principals.principalSelector
+    - api_field: httpRules.from.notSources.principals.suffix
+    - api_field: httpRules.from.notSources.resources.iamServiceAccount.contains
+    - api_field: httpRules.from.notSources.resources.iamServiceAccount.exact
+    - api_field: httpRules.from.notSources.resources.iamServiceAccount.ignoreCase
+    - api_field: httpRules.from.notSources.resources.iamServiceAccount.prefix
+    - api_field: httpRules.from.notSources.resources.iamServiceAccount.suffix
+    - api_field: httpRules.from.notSources.resources.tagValueIdSet.ids
+    - api_field: httpRules.from.sources.ipBlocks.length
+    - api_field: httpRules.from.sources.ipBlocks.prefix
+    - api_field: httpRules.from.sources.principals.contains
+    - api_field: httpRules.from.sources.principals.exact
+    - api_field: httpRules.from.sources.principals.ignoreCase
+    - api_field: httpRules.from.sources.principals.prefix
+    - api_field: httpRules.from.sources.principals.principal.contains
+    - api_field: httpRules.from.sources.principals.principal.exact
+    - api_field: httpRules.from.sources.principals.principal.ignoreCase
+    - api_field: httpRules.from.sources.principals.principal.prefix
+    - api_field: httpRules.from.sources.principals.principal.suffix
+    - api_field: httpRules.from.sources.principals.principalSelector
+    - api_field: httpRules.from.sources.principals.suffix
+    - api_field: httpRules.from.sources.resources.iamServiceAccount.contains
+    - api_field: httpRules.from.sources.resources.iamServiceAccount.exact
+    - api_field: httpRules.from.sources.resources.iamServiceAccount.ignoreCase
+    - api_field: httpRules.from.sources.resources.iamServiceAccount.prefix
+    - api_field: httpRules.from.sources.resources.iamServiceAccount.suffix
+    - api_field: httpRules.from.sources.resources.tagValueIdSet.ids
+    - api_field: httpRules.to.notOperations.headerSet.headers.name
+    - api_field: httpRules.to.notOperations.headerSet.headers.value.contains
+    - api_field: httpRules.to.notOperations.headerSet.headers.value.exact
+    - api_field: httpRules.to.notOperations.headerSet.headers.value.ignoreCase
+    - api_field: httpRules.to.notOperations.headerSet.headers.value.prefix
+    - api_field: httpRules.to.notOperations.headerSet.headers.value.suffix
+    - api_field: httpRules.to.notOperations.hosts.contains
+    - api_field: httpRules.to.notOperations.hosts.exact
+    - api_field: httpRules.to.notOperations.hosts.ignoreCase
+    - api_field: httpRules.to.notOperations.hosts.prefix
+    - api_field: httpRules.to.notOperations.hosts.suffix
+    - api_field: httpRules.to.notOperations.methods
+    - api_field: httpRules.to.notOperations.paths.contains
+    - api_field: httpRules.to.notOperations.paths.exact
+    - api_field: httpRules.to.notOperations.paths.ignoreCase
+    - api_field: httpRules.to.notOperations.paths.prefix
+    - api_field: httpRules.to.notOperations.paths.suffix
+    - api_field: httpRules.to.operations.headerSet.headers.name
+    - api_field: httpRules.to.operations.headerSet.headers.value.contains
+    - api_field: httpRules.to.operations.headerSet.headers.value.exact
+    - api_field: httpRules.to.operations.headerSet.headers.value.ignoreCase
+    - api_field: httpRules.to.operations.headerSet.headers.value.prefix
+    - api_field: httpRules.to.operations.headerSet.headers.value.suffix
+    - api_field: httpRules.to.operations.hosts.contains
+    - api_field: httpRules.to.operations.hosts.exact
+    - api_field: httpRules.to.operations.hosts.ignoreCase
+    - api_field: httpRules.to.operations.hosts.prefix
+    - api_field: httpRules.to.operations.hosts.suffix
+    - api_field: httpRules.to.operations.methods
+    - api_field: httpRules.to.operations.paths.contains
+    - api_field: httpRules.to.operations.paths.exact
+    - api_field: httpRules.to.operations.paths.ignoreCase
+    - api_field: httpRules.to.operations.paths.prefix
+    - api_field: httpRules.to.operations.paths.suffix
+    - api_field: httpRules.when
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: target.loadBalancingScheme
+    - api_field: target.resources
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

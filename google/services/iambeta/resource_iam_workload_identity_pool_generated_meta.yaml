@@ -1,14 +1,14 @@
-resource: 'google_iam_workload_identity_pool'
-generation_type: 'mmv1'
-source_file: 'products/iambeta/WorkloadIdentityPool.yaml'
-api_service_name: 'iam.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'WorkloadIdentityPool'
+resource: google_iam_workload_identity_pool
+generation_type: mmv1
+source_file: products/iambeta/WorkloadIdentityPool.yaml
+api_service_name: iam.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkloadIdentityPool
 fields:
-  - api_field: 'description'
-  - api_field: 'disabled'
-  - api_field: 'displayName'
-  - api_field: 'name'
-  - api_field: 'state'
-  - field: 'workload_identity_pool_id'
-    provider_only: true
+    - api_field: description
+    - api_field: disabled
+    - api_field: displayName
+    - api_field: name
+    - api_field: state
+    - field: workload_identity_pool_id
+      provider_only: true

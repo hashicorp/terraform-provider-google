@@ -1,20 +1,20 @@
-resource: 'google_iam_workforce_pool'
-generation_type: 'mmv1'
-source_file: 'products/iamworkforcepool/WorkforcePool.yaml'
-api_service_name: 'iam.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'WorkforcePool'
+resource: google_iam_workforce_pool
+generation_type: mmv1
+source_file: products/iamworkforcepool/WorkforcePool.yaml
+api_service_name: iam.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkforcePool
 fields:
-  - api_field: 'accessRestrictions.allowedServices.domain'
-  - api_field: 'accessRestrictions.disableProgrammaticSignin'
-  - api_field: 'description'
-  - api_field: 'disabled'
-  - api_field: 'displayName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'parent'
-  - api_field: 'sessionDuration'
-  - api_field: 'state'
-  - field: 'workforce_pool_id'
-    provider_only: true
+    - api_field: accessRestrictions.allowedServices.domain
+    - api_field: accessRestrictions.disableProgrammaticSignin
+    - api_field: description
+    - api_field: disabled
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: parent
+    - api_field: sessionDuration
+    - api_field: state
+    - field: workforce_pool_id
+      provider_only: true

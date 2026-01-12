@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccSourceRepoRepositoryIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSourceRepoRepositoryIAMBindingStateID("google_sourcerepo_repository_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccSourceRepoRepositoryIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSourceRepoRepositoryIAMBindingStateID("google_sourcerepo_repository_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccSourceRepoRepositoryIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSourceRepoRepositoryIAMMemberStateID("google_sourcerepo_repository_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccSourceRepoRepositoryIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSourceRepoRepositoryIAMPolicyStateID("google_sourcerepo_repository_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccSourceRepoRepositoryIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSourceRepoRepositoryIAMPolicyStateID("google_sourcerepo_repository_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -223,4 +224,63 @@ resource "google_sourcerepo_repository_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateSourceRepoRepositoryIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		repository := repositoryShortName(rawState["repository"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/repos/%s", project, repository), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateSourceRepoRepositoryIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		repository := repositoryShortName(rawState["repository"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/repos/%s", project, repository), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateSourceRepoRepositoryIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		repository := repositoryShortName(rawState["repository"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/repos/%s", project, repository), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
+}
+
+func repositoryShortName(repository string) string {
+	repositoryParts := strings.SplitN(repository, "/repos/", 2)
+	if len(repositoryParts) == 2 {
+		return repositoryParts[1]
+	}
+	return repository
 }

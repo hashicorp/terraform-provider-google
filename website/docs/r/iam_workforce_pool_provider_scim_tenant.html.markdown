@@ -79,6 +79,7 @@ resource "google_iam_workforce_pool_provider_scim_tenant" "example" {
     "google.subject"  = "user.externalId",
     "google.group"    = "group.externalId"
   }
+  hard_delete         = true
   # state, base_uri, purge_time and service_agent are output only, not settable
 }
 
@@ -118,6 +119,10 @@ The following arguments are supported:
 * `claim_mapping` -
   (Optional)
   Maps BYOID claims to SCIM claims. This is a required field for new SCIM Tenants being created.
+
+* `hard_delete` -
+  (Optional)
+  Deletes the SCIM tenant immediately. This operation cannot be undone.
 
 
 

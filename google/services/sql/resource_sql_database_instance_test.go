@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/sql"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
@@ -2677,6 +2678,10 @@ func TestAccSqlDatabaseInstance_SqlServerTimezoneUpdate(t *testing.T) {
 func TestAccSqlDatabaseInstance_activationPolicy(t *testing.T) {
 	t.Parallel()
 
+	// Skip in VCR until the test issue is resolved
+	// https://github.com/hashicorp/terraform-provider-google/issues/24593
+	acctest.SkipIfVcr(t)
+
 	instanceName := "tf-test-" + acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3031,6 +3036,84 @@ func TestAccSqlDatabaseInstance_SwitchoverSuccess(t *testing.T) {
 			{
 				// Remove replica from primary's resource
 				Config: googleSqlDatabaseInstance_removeReplicaFromPrimaryAfterSwitchover(replicaName),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_MysqlEplusWithFailoverReplicaSetupWithPrivateNetwork(t *testing.T) {
+	t.Parallel()
+
+	primaryName := "tf-test-mysql-primary-" + acctest.RandString(t, 10)
+	replicaName := "tf-test-mysql-replica-" + acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "endpoint")
+	projectId := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_mySqlEplusPrimaryReplicaSetupWithPrivateNetwork(projectId, primaryName, replicaName, networkName, "MYSQL_8_0"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.primary")),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_setMySqlFailoverReplicaEplusWithPrivateNetwork(projectId, primaryName, replicaName, networkName, "MYSQL_8_0"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.primary")),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_PostgresEplusWithFailoverReplicaSetupWithPrivateNetwork(t *testing.T) {
+	t.Parallel()
+
+	primaryName := "tf-test-postgres-primary-" + acctest.RandString(t, 10)
+	replicaName := "tf-test-postgres-replica-" + acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "endpoint")
+	projectId := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_postgresEplusPrimaryReplicaSetupWithPrivateNetwork(projectId, primaryName, replicaName, networkName, "POSTGRES_12"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.primary")),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_setPostgresFailoverReplicaEplusWithPrivateNetwork(projectId, primaryName, replicaName, networkName, "POSTGRES_12"),
+				Check:  resource.ComposeTestCheckFunc(verifyCreateOperationOnEplusWithPrivateNetwork("google_sql_database_instance.primary")),
 			},
 		},
 	})
@@ -3894,6 +3977,466 @@ func TestAccSqlDatabaseInstance_DiskSizeAutoResizeWithDiskSize(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestEnhancedBackupManagerDiffSuppressFunc(t *testing.T) {
+	cases := map[string]struct {
+		key            string
+		old            string
+		new            string
+		backupTier     string
+		expectSuppress bool
+		description    string
+	}{
+		"suppress enabled diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.enabled",
+			old:            "true",
+			new:            "false",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "enabled should be suppressed when ENHANCED",
+		},
+		"suppress start_time diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.start_time",
+			old:            "03:00",
+			new:            "05:00",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "start_time should be suppressed when ENHANCED",
+		},
+		"suppress binary_log_enabled diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.binary_log_enabled",
+			old:            "true",
+			new:            "false",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "binary_log_enabled should be suppressed when ENHANCED",
+		},
+		"suppress point_in_time_recovery_enabled diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.point_in_time_recovery_enabled",
+			old:            "false",
+			new:            "true",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "point_in_time_recovery_enabled should be suppressed when ENHANCED",
+		},
+		"suppress transaction_log_retention_days diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.transaction_log_retention_days",
+			old:            "7",
+			new:            "14",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "transaction_log_retention_days should be suppressed when ENHANCED",
+		},
+		"suppress retained_backups diff when backup tier is enhanced": {
+			key:            "settings.0.backup_configuration.0.backup_retention_settings.0.retained_backups",
+			old:            "7",
+			new:            "14",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "retained_backups should be suppressed when ENHANCED",
+		},
+		"do not suppress diff when backup tier is standard": {
+			key:            "settings.0.backup_configuration.0.enabled",
+			old:            "true",
+			new:            "false",
+			backupTier:     "STANDARD",
+			expectSuppress: false,
+			description:    "enabled should NOT be suppressed when STANDARD",
+		},
+		"do not suppress diff when backup tier is empty": {
+			key:            "settings.0.backup_configuration.0.enabled",
+			old:            "true",
+			new:            "false",
+			backupTier:     "",
+			expectSuppress: false,
+			description:    "enabled should NOT be suppressed when backup_tier is empty",
+		},
+		"do not suppress when old and new are same": {
+			key:            "settings.0.backup_configuration.0.enabled",
+			old:            "true",
+			new:            "true",
+			backupTier:     "ENHANCED",
+			expectSuppress: true,
+			description:    "no diff to suppress when old and new are same",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			// Build real *schema.ResourceData using the resource schema and TestResourceDataRaw
+			// Put backup_tier into the nested settings->backup_configuration block (state)
+			rd := schema.TestResourceDataRaw(t, sql.ResourceSqlDatabaseInstance().Schema, map[string]interface{}{
+				"name": "test-instance",
+				"settings": []interface{}{
+					map[string]interface{}{
+						"backup_configuration": []interface{}{
+							map[string]interface{}{
+								"backup_tier": tc.backupTier,
+							},
+						},
+					},
+				},
+			})
+
+			suppressed := sql.EnhancedBackupManagerDiffSuppressFunc(tc.key, tc.old, tc.new, rd)
+
+			if suppressed != tc.expectSuppress {
+				t.Errorf("expected suppressed to be %v but got %v. Desc: %s", tc.expectSuppress, suppressed, tc.description)
+			}
+		})
+	}
+}
+
+func TestAccSqlDatabaseInstance_updateInstanceTierForEnhancedBackupTierInstance(t *testing.T) {
+	t.Parallel()
+
+	backupVaultID := "bv-test"
+	location := "us-central1"
+	project := envvar.GetTestProjectFromEnv()
+	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"project":         project,
+		"backup_vault_id": backupVaultID,
+		"backup_vault":    backupVault,
+		"db_version":      "MYSQL_8_0_41",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create backup plan and associate with instance
+				Config: testGoogleSqlDatabaseInstance_attachGCBDR(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_backup_dr_backup_plan_association.backup_association", "id"),
+				),
+			},
+			{
+				// Update instance backup tier to ENHANCED, which should ignore backup_configuration settings
+				Config: testGoogleSqlDatabaseInstance_updateTierForGcbdrManagedInstance(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.tier", "db-g1-small"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_majorVersionUpgradeForEnhancedBackupTierInstance(t *testing.T) {
+	t.Parallel()
+
+	backupVault := acctest.BootstrapBackupDRVault(t, "bv-test", "us-central1")
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+		"backup_vault":  backupVault,
+		"db_version":    "MYSQL_8_0_41",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create backup plan and associate with instance
+				Config: testGoogleSqlDatabaseInstance_attachGCBDR(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_backup_dr_backup_plan_association.backup_association", "id"),
+				),
+			},
+			{
+				// Update instance database version to a new major version, which should ignore backup_configuration settings
+				Config: testGoogleSqlDatabaseInstance_majorVersionUpgradeGcbdrManagedInstance(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "database_version", "MYSQL_8_0_42"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_editionUpdateForEnhancedBackupTierInstance(t *testing.T) {
+	t.Parallel()
+
+	backupVault := acctest.BootstrapBackupDRVault(t, "bv-test", "us-central1")
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+		"backup_vault":  backupVault,
+		"db_version":    "MYSQL_8_0_41",
+		"edition":       "ENTERPRISE",
+		"tier":          "db-f1-micro",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create backup plan and associate with instance
+				Config: testGoogleSqlDatabaseInstance_attachGCBDR(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_backup_dr_backup_plan_association.backup_association", "id"),
+				),
+			},
+			{
+				// Edition upgrade, which should ignore backup_configuration settings
+				Config: testGoogleSqlDatabaseInstance_editionUpdateForGcbdrManagedInstance(context, "ENTERPRISE_PLUS", "db-perf-optimized-N-4"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.edition", "ENTERPRISE_PLUS"),
+				),
+			},
+			{
+				// Edition downgrade, which should ignore backup_configuration settings
+				Config: testGoogleSqlDatabaseInstance_editionUpdateForGcbdrManagedInstance(context, "ENTERPRISE", "db-f1-micro"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.edition", "ENTERPRISE"),
+				),
+			},
+		},
+	})
+}
+
+func testGoogleSqlDatabaseInstance_attachGCBDR(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-instance-%{random_suffix}"
+  database_version = "%{db_version}"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-f1-micro"
+  }
+    deletion_protection = false
+}
+
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "backup_association" {
+  location                      = "us-central1" 
+  backup_plan_association_id    = "tf-test-bpa-test-%{random_suffix}"
+  resource                      = "projects/${data.google_project.project.project_id}/instances/${google_sql_database_instance.instance.name}"
+  resource_type                 = "sqladmin.googleapis.com/Instance"
+  backup_plan                   = google_backup_dr_backup_plan.plan.name
+}
+`, context)
+}
+
+func testGoogleSqlDatabaseInstance_updateTierForGcbdrManagedInstance(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-instance-%{random_suffix}"
+  database_version = "%{db_version}"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-g1-small"
+
+    backup_configuration {
+      enabled            = false
+      binary_log_enabled = false
+      start_time         = "05:00"
+      
+      backup_retention_settings {
+        retained_backups = 8
+		retention_unit   = "COUNT"
+      }
+    }
+  }
+	deletion_protection = false
+}
+
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "backup_association" {
+  location                      = "us-central1" 
+  backup_plan_association_id    = "tf-test-bpa-test-%{random_suffix}"
+  resource                      = "projects/${data.google_project.project.project_id}/instances/${google_sql_database_instance.instance.name}"
+  resource_type                 = "sqladmin.googleapis.com/Instance"
+  backup_plan                   = google_backup_dr_backup_plan.plan.name
+}
+`, context)
+}
+
+func testGoogleSqlDatabaseInstance_majorVersionUpgradeGcbdrManagedInstance(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-instance-%{random_suffix}"
+  database_version = "MYSQL_8_0_42"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-f1-micro"
+
+    backup_configuration {
+      enabled            = false
+      binary_log_enabled = false
+      start_time         = "05:00"
+      
+      backup_retention_settings {
+        retained_backups = 8
+		retention_unit   = "COUNT"
+      }
+    }
+  }
+	deletion_protection = false
+}
+
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "backup_association" {
+  location                      = "us-central1" 
+  backup_plan_association_id    = "tf-test-bpa-test-%{random_suffix}"
+  resource                      = "projects/${data.google_project.project.project_id}/instances/${google_sql_database_instance.instance.name}"
+  resource_type                 = "sqladmin.googleapis.com/Instance"
+  backup_plan                   = google_backup_dr_backup_plan.plan.name
+}
+`, context)
+}
+
+func testGoogleSqlDatabaseInstance_editionUpdateForGcbdrManagedInstance(context map[string]interface{}, edition string, tier string) string {
+	// Create a copy of the context map to avoid modifying the map from the caller
+	localContext := make(map[string]interface{})
+	for k, v := range context {
+		localContext[k] = v
+	}
+	localContext["edition"] = edition
+	localContext["tier"] = tier
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-instance-%{random_suffix}"
+  database_version = "%{db_version}"
+  region           = "us-central1"
+
+  settings {
+    tier = "%{tier}"
+    edition = "%{edition}"
+
+    backup_configuration {
+      enabled            = false
+      binary_log_enabled = false
+      start_time         = "05:00"
+      
+      backup_retention_settings {
+        retained_backups = 8
+		retention_unit   = "COUNT"
+      }
+    }
+  }
+	deletion_protection = false
+}
+
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 23
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "backup_association" {
+  location                      = "us-central1" 
+  backup_plan_association_id    = "tf-test-bpa-test-%{random_suffix}"
+  resource                      = "projects/${data.google_project.project.project_id}/instances/${google_sql_database_instance.instance.name}"
+  resource_type                 = "sqladmin.googleapis.com/Instance"
+  backup_plan                   = google_backup_dr_backup_plan.plan.name
+}
+`, localContext)
 }
 
 func testGoogleSqlDatabaseInstance_setCustomSubjectAlternateName(context map[string]interface{}) string {
@@ -4934,6 +5477,220 @@ resource "google_sql_database_instance" "original-replica" {
 `, project, primaryName, project, replicaName)
 }
 
+func testGoogleSqlDatabaseInstance_setMySqlFailoverReplicaEplusWithPrivateNetwork(project, primaryName, replicaName, networkName, databaseVersion string) string {
+
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "%s"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      binary_log_enabled = true
+    }
+  }
+}
+`, networkName, project, primaryName, databaseVersion, replicaName, project, replicaName, databaseVersion)
+}
+
+func testGoogleSqlDatabaseInstance_setPostgresFailoverReplicaEplusWithPrivateNetwork(project, primaryName, replicaName, networkName, databaseVersion string) string {
+
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  replication_cluster {
+    failover_dr_replica_name = "%s"
+  }
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "%s"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+  }
+}
+`, networkName, project, primaryName, databaseVersion, replicaName, project, replicaName, databaseVersion)
+}
+
+func testGoogleSqlDatabaseInstance_mySqlEplusPrimaryReplicaSetupWithPrivateNetwork(project, primaryName, replicaName, networkName, databaseVersion string) string {
+
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "%s"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      binary_log_enabled = true
+    }
+  }
+}
+`, networkName, project, primaryName, databaseVersion, project, replicaName, databaseVersion)
+}
+
+func testGoogleSqlDatabaseInstance_postgresEplusPrimaryReplicaSetupWithPrivateNetwork(project, primaryName, replicaName, networkName, databaseVersion string) string {
+
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "primary" {
+  project             = "%s"
+  name                = "%s"
+  region              = "us-east1"
+  database_version    = "%s"
+  instance_type       = "CLOUD_SQL_INSTANCE"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  project              = "%s"
+  name                 = "%s"
+  region               = "us-west2"
+  database_version     = "%s"
+  instance_type        = "READ_REPLICA_INSTANCE"
+  master_instance_name = google_sql_database_instance.primary.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-perf-optimized-N-2"
+    edition           = "ENTERPRISE_PLUS"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = data.google_compute_network.servicenet.self_link
+    }
+  }
+}
+`, networkName, project, primaryName, databaseVersion, project, replicaName, databaseVersion)
+}
+
 func googleSqlDatabaseInstance_mysqlSetFailoverReplica(project, primaryName, replicaName string, useNormalizedDrReplicaName bool) string {
 	drReplicaName := fmt.Sprintf("%s:%s", project, replicaName)
 	if !useNormalizedDrReplicaName {
@@ -5770,6 +6527,11 @@ func verifyPscOperation(resourceName string, isPscConfigExpected bool, expectedP
 			allowedConsumerProjects, err := strconv.Atoi(allowedConsumerProjectsStr)
 			if !ok || allowedConsumerProjects != len(expectedAllowedConsumerProjects) {
 				return fmt.Errorf("settings.0.ip_configuration.0.psc_config.0.allowed_consumer_projects property is not present or set as expected in state of %s", resourceName)
+			}
+
+			pscServiceAttachmentLink, ok := resourceAttributes["psc_service_attachment_link"]
+			if !ok || pscServiceAttachmentLink == "" {
+				return fmt.Errorf("psc_service_attachment_link property value is empty")
 			}
 		}
 

@@ -1,23 +1,23 @@
-resource: 'google_iam_deny_policy'
-generation_type: 'mmv1'
-source_file: 'products/iam2/DenyPolicy.yaml'
-api_service_name: 'iam.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Policy'
-cai_asset_name_format: '//iam.googleapis.com/{{parent}}/denypolicies/{{name}}'
+resource: google_iam_deny_policy
+generation_type: mmv1
+source_file: products/iam2/DenyPolicy.yaml
+api_service_name: iam.googleapis.com
+api_version: v2
+api_resource_type_kind: Policy
+cai_asset_name_format: //iam.googleapis.com/{{parent}}/denypolicies/{{name}}
 fields:
-  - api_field: 'displayName'
-  - api_field: 'etag'
-  - field: 'name'
-    provider_only: true
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'rules.denyRule.denialCondition.description'
-  - api_field: 'rules.denyRule.denialCondition.expression'
-  - api_field: 'rules.denyRule.denialCondition.location'
-  - api_field: 'rules.denyRule.denialCondition.title'
-  - api_field: 'rules.denyRule.deniedPermissions'
-  - api_field: 'rules.denyRule.deniedPrincipals'
-  - api_field: 'rules.denyRule.exceptionPermissions'
-  - api_field: 'rules.denyRule.exceptionPrincipals'
-  - api_field: 'rules.description'
+    - api_field: displayName
+    - api_field: etag
+    - field: name
+      provider_only: true
+    - field: parent
+      provider_only: true
+    - api_field: rules.denyRule.denialCondition.description
+    - api_field: rules.denyRule.denialCondition.expression
+    - api_field: rules.denyRule.denialCondition.location
+    - api_field: rules.denyRule.denialCondition.title
+    - api_field: rules.denyRule.deniedPermissions
+    - api_field: rules.denyRule.deniedPrincipals
+    - api_field: rules.denyRule.exceptionPermissions
+    - api_field: rules.denyRule.exceptionPrincipals
+    - api_field: rules.description

@@ -1,36 +1,36 @@
-resource: 'google_clouddeploy_custom_target_type'
-generation_type: 'mmv1'
-source_file: 'products/clouddeploy/CustomTargetType.yaml'
-api_service_name: 'clouddeploy.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CustomTargetType'
+resource: google_clouddeploy_custom_target_type
+generation_type: mmv1
+source_file: products/clouddeploy/CustomTargetType.yaml
+api_service_name: clouddeploy.googleapis.com
+api_version: v1
+api_resource_type_kind: CustomTargetType
 fields:
-  - api_field: 'annotations'
-  - api_field: 'createTime'
-  - api_field: 'customActions.deployAction'
-  - api_field: 'customActions.includeSkaffoldModules.configs'
-  - api_field: 'customActions.includeSkaffoldModules.git.path'
-  - api_field: 'customActions.includeSkaffoldModules.git.ref'
-  - api_field: 'customActions.includeSkaffoldModules.git.repo'
-  - api_field: 'customActions.includeSkaffoldModules.googleCloudBuildRepo.path'
-  - api_field: 'customActions.includeSkaffoldModules.googleCloudBuildRepo.ref'
-  - api_field: 'customActions.includeSkaffoldModules.googleCloudBuildRepo.repository'
-  - api_field: 'customActions.includeSkaffoldModules.googleCloudStorage.path'
-  - api_field: 'customActions.includeSkaffoldModules.googleCloudStorage.source'
-  - api_field: 'customActions.renderAction'
-  - api_field: 'customTargetTypeId'
-  - api_field: 'description'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: createTime
+    - api_field: customActions.deployAction
+    - api_field: customActions.includeSkaffoldModules.configs
+    - api_field: customActions.includeSkaffoldModules.git.path
+    - api_field: customActions.includeSkaffoldModules.git.ref
+    - api_field: customActions.includeSkaffoldModules.git.repo
+    - api_field: customActions.includeSkaffoldModules.googleCloudBuildRepo.path
+    - api_field: customActions.includeSkaffoldModules.googleCloudBuildRepo.ref
+    - api_field: customActions.includeSkaffoldModules.googleCloudBuildRepo.repository
+    - api_field: customActions.includeSkaffoldModules.googleCloudStorage.path
+    - api_field: customActions.includeSkaffoldModules.googleCloudStorage.source
+    - api_field: customActions.renderAction
+    - api_field: customTargetTypeId
+    - api_field: description
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

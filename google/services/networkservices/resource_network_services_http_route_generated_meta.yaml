@@ -1,73 +1,73 @@
-resource: 'google_network_services_http_route'
-generation_type: 'mmv1'
-source_file: 'products/networkservices/HttpRoute.yaml'
-api_service_name: 'networkservices.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'HttpRoute'
+resource: google_network_services_http_route
+generation_type: mmv1
+source_file: products/networkservices/HttpRoute.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: HttpRoute
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'gateways'
-  - api_field: 'hostnames'
-  - api_field: 'labels'
-  - api_field: 'meshes'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'rules.action.corsPolicy.allowCredentials'
-  - api_field: 'rules.action.corsPolicy.allowHeaders'
-  - api_field: 'rules.action.corsPolicy.allowMethods'
-  - api_field: 'rules.action.corsPolicy.allowOriginRegexes'
-  - api_field: 'rules.action.corsPolicy.allowOrigins'
-  - api_field: 'rules.action.corsPolicy.disabled'
-  - api_field: 'rules.action.corsPolicy.exposeHeaders'
-  - api_field: 'rules.action.corsPolicy.maxAge'
-  - api_field: 'rules.action.destinations.serviceName'
-  - api_field: 'rules.action.destinations.weight'
-  - api_field: 'rules.action.faultInjectionPolicy.abort.httpStatus'
-  - api_field: 'rules.action.faultInjectionPolicy.abort.percentage'
-  - api_field: 'rules.action.faultInjectionPolicy.delay.fixedDelay'
-  - api_field: 'rules.action.faultInjectionPolicy.delay.percentage'
-  - api_field: 'rules.action.redirect.hostRedirect'
-  - api_field: 'rules.action.redirect.httpsRedirect'
-  - api_field: 'rules.action.redirect.pathRedirect'
-  - api_field: 'rules.action.redirect.portRedirect'
-  - api_field: 'rules.action.redirect.prefixRewrite'
-  - api_field: 'rules.action.redirect.responseCode'
-  - api_field: 'rules.action.redirect.stripQuery'
-  - api_field: 'rules.action.requestHeaderModifier.add'
-  - api_field: 'rules.action.requestHeaderModifier.remove'
-  - api_field: 'rules.action.requestHeaderModifier.set'
-  - api_field: 'rules.action.requestMirrorPolicy.destination.serviceName'
-  - api_field: 'rules.action.requestMirrorPolicy.destination.weight'
-  - api_field: 'rules.action.responseHeaderModifier.add'
-  - api_field: 'rules.action.responseHeaderModifier.remove'
-  - api_field: 'rules.action.responseHeaderModifier.set'
-  - api_field: 'rules.action.retryPolicy.numRetries'
-  - api_field: 'rules.action.retryPolicy.perTryTimeout'
-  - api_field: 'rules.action.retryPolicy.retryConditions'
-  - api_field: 'rules.action.timeout'
-  - api_field: 'rules.action.urlRewrite.hostRewrite'
-  - api_field: 'rules.action.urlRewrite.pathPrefixRewrite'
-  - api_field: 'rules.matches.fullPathMatch'
-  - api_field: 'rules.matches.headers.exactMatch'
-  - api_field: 'rules.matches.headers.header'
-  - api_field: 'rules.matches.headers.invertMatch'
-  - api_field: 'rules.matches.headers.prefixMatch'
-  - api_field: 'rules.matches.headers.presentMatch'
-  - api_field: 'rules.matches.headers.rangeMatch.end'
-  - api_field: 'rules.matches.headers.rangeMatch.start'
-  - api_field: 'rules.matches.headers.regexMatch'
-  - api_field: 'rules.matches.headers.suffixMatch'
-  - api_field: 'rules.matches.ignoreCase'
-  - api_field: 'rules.matches.prefixMatch'
-  - api_field: 'rules.matches.queryParameters.exactMatch'
-  - api_field: 'rules.matches.queryParameters.presentMatch'
-  - api_field: 'rules.matches.queryParameters.queryParameter'
-  - api_field: 'rules.matches.queryParameters.regexMatch'
-  - api_field: 'rules.matches.regexMatch'
-  - api_field: 'selfLink'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: gateways
+    - api_field: hostnames
+    - api_field: labels
+    - api_field: meshes
+    - field: name
+      provider_only: true
+    - api_field: rules.action.corsPolicy.allowCredentials
+    - api_field: rules.action.corsPolicy.allowHeaders
+    - api_field: rules.action.corsPolicy.allowMethods
+    - api_field: rules.action.corsPolicy.allowOriginRegexes
+    - api_field: rules.action.corsPolicy.allowOrigins
+    - api_field: rules.action.corsPolicy.disabled
+    - api_field: rules.action.corsPolicy.exposeHeaders
+    - api_field: rules.action.corsPolicy.maxAge
+    - api_field: rules.action.destinations.serviceName
+    - api_field: rules.action.destinations.weight
+    - api_field: rules.action.faultInjectionPolicy.abort.httpStatus
+    - api_field: rules.action.faultInjectionPolicy.abort.percentage
+    - api_field: rules.action.faultInjectionPolicy.delay.fixedDelay
+    - api_field: rules.action.faultInjectionPolicy.delay.percentage
+    - api_field: rules.action.redirect.hostRedirect
+    - api_field: rules.action.redirect.httpsRedirect
+    - api_field: rules.action.redirect.pathRedirect
+    - api_field: rules.action.redirect.portRedirect
+    - api_field: rules.action.redirect.prefixRewrite
+    - api_field: rules.action.redirect.responseCode
+    - api_field: rules.action.redirect.stripQuery
+    - api_field: rules.action.requestHeaderModifier.add
+    - api_field: rules.action.requestHeaderModifier.remove
+    - api_field: rules.action.requestHeaderModifier.set
+    - api_field: rules.action.requestMirrorPolicy.destination.serviceName
+    - api_field: rules.action.requestMirrorPolicy.destination.weight
+    - api_field: rules.action.responseHeaderModifier.add
+    - api_field: rules.action.responseHeaderModifier.remove
+    - api_field: rules.action.responseHeaderModifier.set
+    - api_field: rules.action.retryPolicy.numRetries
+    - api_field: rules.action.retryPolicy.perTryTimeout
+    - api_field: rules.action.retryPolicy.retryConditions
+    - api_field: rules.action.timeout
+    - api_field: rules.action.urlRewrite.hostRewrite
+    - api_field: rules.action.urlRewrite.pathPrefixRewrite
+    - api_field: rules.matches.fullPathMatch
+    - api_field: rules.matches.headers.exactMatch
+    - api_field: rules.matches.headers.header
+    - api_field: rules.matches.headers.invertMatch
+    - api_field: rules.matches.headers.prefixMatch
+    - api_field: rules.matches.headers.presentMatch
+    - api_field: rules.matches.headers.rangeMatch.end
+    - api_field: rules.matches.headers.rangeMatch.start
+    - api_field: rules.matches.headers.regexMatch
+    - api_field: rules.matches.headers.suffixMatch
+    - api_field: rules.matches.ignoreCase
+    - api_field: rules.matches.prefixMatch
+    - api_field: rules.matches.queryParameters.exactMatch
+    - api_field: rules.matches.queryParameters.presentMatch
+    - api_field: rules.matches.queryParameters.queryParameter
+    - api_field: rules.matches.queryParameters.regexMatch
+    - api_field: rules.matches.regexMatch
+    - api_field: selfLink
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

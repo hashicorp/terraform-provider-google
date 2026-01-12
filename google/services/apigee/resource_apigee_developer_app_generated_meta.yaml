@@ -1,34 +1,34 @@
-resource: 'google_apigee_developer_app'
-generation_type: 'mmv1'
-source_file: 'products/apigee/DeveloperApp.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DeveloperApp'
+resource: google_apigee_developer_app
+generation_type: mmv1
+source_file: products/apigee/DeveloperApp.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: DeveloperApp
 fields:
-  - api_field: 'apiProducts'
-  - api_field: 'appFamily'
-  - api_field: 'appId'
-  - api_field: 'attributes.name'
-  - api_field: 'attributes.value'
-  - api_field: 'callbackUrl'
-  - api_field: 'createdAt'
-  - api_field: 'credentials.apiProducts.apiproduct'
-  - api_field: 'credentials.apiProducts.status'
-  - api_field: 'credentials.attributes.name'
-  - api_field: 'credentials.attributes.value'
-  - api_field: 'credentials.consumerKey'
-  - api_field: 'credentials.consumerSecret'
-  - api_field: 'credentials.expiresAt'
-  - api_field: 'credentials.issuedAt'
-  - api_field: 'credentials.scopes'
-  - api_field: 'credentials.status'
-  - field: 'developer_email'
-    provider_only: true
-  - api_field: 'developerId'
-  - api_field: 'keyExpiresIn'
-  - api_field: 'lastModifiedAt'
-  - api_field: 'name'
-  - field: 'org_id'
-    provider_only: true
-  - api_field: 'scopes'
-  - api_field: 'status'
+    - api_field: apiProducts
+    - api_field: appFamily
+    - api_field: appId
+    - api_field: attributes.name
+    - api_field: attributes.value
+    - api_field: callbackUrl
+    - api_field: createdAt
+    - api_field: credentials.apiProducts.apiproduct
+    - api_field: credentials.apiProducts.status
+    - api_field: credentials.attributes.name
+    - api_field: credentials.attributes.value
+    - api_field: credentials.consumerKey
+    - api_field: credentials.consumerSecret
+    - api_field: credentials.expiresAt
+    - api_field: credentials.issuedAt
+    - api_field: credentials.scopes
+    - api_field: credentials.status
+    - field: developer_email
+      provider_only: true
+    - api_field: developerId
+    - api_field: keyExpiresIn
+    - api_field: lastModifiedAt
+    - api_field: name
+    - field: org_id
+      provider_only: true
+    - api_field: scopes
+    - api_field: status

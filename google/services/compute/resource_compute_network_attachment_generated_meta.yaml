@@ -1,26 +1,26 @@
-resource: 'google_compute_network_attachment'
-generation_type: 'mmv1'
-source_file: 'products/compute/NetworkAttachment.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NetworkAttachment'
+resource: google_compute_network_attachment
+generation_type: mmv1
+source_file: products/compute/NetworkAttachment.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: NetworkAttachment
 fields:
-  - api_field: 'connectionEndpoints.ipAddress'
-  - api_field: 'connectionEndpoints.projectIdOrNum'
-  - api_field: 'connectionEndpoints.secondaryIpCidrRanges'
-  - api_field: 'connectionEndpoints.status'
-  - api_field: 'connectionEndpoints.subnetwork'
-  - api_field: 'connectionPreference'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'fingerprint'
-  - api_field: 'id'
-  - api_field: 'kind'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'producerAcceptLists'
-  - api_field: 'producerRejectLists'
-  - api_field: 'region'
-  - api_field: 'selfLink'
-  - api_field: 'selfLinkWithId'
-  - api_field: 'subnetworks'
+    - api_field: connectionEndpoints.ipAddress
+    - api_field: connectionEndpoints.projectIdOrNum
+    - api_field: connectionEndpoints.secondaryIpCidrRanges
+    - api_field: connectionEndpoints.status
+    - api_field: connectionEndpoints.subnetwork
+    - api_field: connectionPreference
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: fingerprint
+    - api_field: id
+    - api_field: kind
+    - api_field: name
+    - api_field: network
+    - api_field: producerAcceptLists
+    - api_field: producerRejectLists
+    - api_field: region
+    - api_field: selfLink
+    - api_field: selfLinkWithId
+    - api_field: subnetworks

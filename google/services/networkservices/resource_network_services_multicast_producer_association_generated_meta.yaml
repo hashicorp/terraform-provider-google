@@ -1,25 +1,25 @@
-resource: 'google_network_services_multicast_producer_association'
-generation_type: 'mmv1'
-source_file: 'products/networkservices/MulticastProducerAssociation.yaml'
-api_service_name: 'networkservices.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'MulticastProducerAssociation'
+resource: google_network_services_multicast_producer_association
+generation_type: mmv1
+source_file: products/networkservices/MulticastProducerAssociation.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: MulticastProducerAssociation
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'multicastDomainActivation'
-  - field: 'multicast_producer_association_id'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'state.state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uniqueId'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: multicastDomainActivation
+    - field: multicast_producer_association_id
+      provider_only: true
+    - api_field: name
+    - api_field: network
+    - api_field: state.state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uniqueId
+    - api_field: updateTime

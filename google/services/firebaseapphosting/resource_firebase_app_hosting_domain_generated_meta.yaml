@@ -1,52 +1,52 @@
-resource: 'google_firebase_app_hosting_domain'
-generation_type: 'mmv1'
-source_file: 'products/firebaseapphosting/Domain.yaml'
-api_service_name: 'firebaseapphosting.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Domain'
+resource: google_firebase_app_hosting_domain
+generation_type: mmv1
+source_file: products/firebaseapphosting/Domain.yaml
+api_service_name: firebaseapphosting.googleapis.com
+api_version: v1
+api_resource_type_kind: Domain
 autogen_status: true
 fields:
-  - field: 'backend'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'customDomainStatus.certState'
-  - api_field: 'customDomainStatus.hostState'
-  - api_field: 'customDomainStatus.issues.code'
-  - api_field: 'customDomainStatus.issues.details'
-    json: true
-  - api_field: 'customDomainStatus.issues.message'
-  - api_field: 'customDomainStatus.ownershipState'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.checkTime'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.desired.checkError.code'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.desired.checkError.details'
-    json: true
-  - api_field: 'customDomainStatus.requiredDnsUpdates.desired.checkError.message'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.desired.domainName'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.desired.records.domainName'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.desired.records.rdata'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.desired.records.relevantState'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.desired.records.requiredAction'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.desired.records.type'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.discovered.checkError.code'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.discovered.checkError.details'
-    json: true
-  - api_field: 'customDomainStatus.requiredDnsUpdates.discovered.checkError.message'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.discovered.domainName'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.discovered.records.domainName'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.discovered.records.rdata'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.discovered.records.relevantState'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.discovered.records.requiredAction'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.discovered.records.type'
-  - api_field: 'customDomainStatus.requiredDnsUpdates.domainName'
-  - api_field: 'deleteTime'
-  - field: 'domain_id'
-    provider_only: true
-  - api_field: 'etag'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'purgeTime'
-  - api_field: 'serve.redirect.status'
-  - api_field: 'serve.redirect.uri'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - field: backend
+      provider_only: true
+    - api_field: createTime
+    - api_field: customDomainStatus.certState
+    - api_field: customDomainStatus.hostState
+    - api_field: customDomainStatus.issues.code
+    - api_field: customDomainStatus.issues.details
+      json: true
+    - api_field: customDomainStatus.issues.message
+    - api_field: customDomainStatus.ownershipState
+    - api_field: customDomainStatus.requiredDnsUpdates.checkTime
+    - api_field: customDomainStatus.requiredDnsUpdates.desired.checkError.code
+    - api_field: customDomainStatus.requiredDnsUpdates.desired.checkError.details
+      json: true
+    - api_field: customDomainStatus.requiredDnsUpdates.desired.checkError.message
+    - api_field: customDomainStatus.requiredDnsUpdates.desired.domainName
+    - api_field: customDomainStatus.requiredDnsUpdates.desired.records.domainName
+    - api_field: customDomainStatus.requiredDnsUpdates.desired.records.rdata
+    - api_field: customDomainStatus.requiredDnsUpdates.desired.records.relevantState
+    - api_field: customDomainStatus.requiredDnsUpdates.desired.records.requiredAction
+    - api_field: customDomainStatus.requiredDnsUpdates.desired.records.type
+    - api_field: customDomainStatus.requiredDnsUpdates.discovered.checkError.code
+    - api_field: customDomainStatus.requiredDnsUpdates.discovered.checkError.details
+      json: true
+    - api_field: customDomainStatus.requiredDnsUpdates.discovered.checkError.message
+    - api_field: customDomainStatus.requiredDnsUpdates.discovered.domainName
+    - api_field: customDomainStatus.requiredDnsUpdates.discovered.records.domainName
+    - api_field: customDomainStatus.requiredDnsUpdates.discovered.records.rdata
+    - api_field: customDomainStatus.requiredDnsUpdates.discovered.records.relevantState
+    - api_field: customDomainStatus.requiredDnsUpdates.discovered.records.requiredAction
+    - api_field: customDomainStatus.requiredDnsUpdates.discovered.records.type
+    - api_field: customDomainStatus.requiredDnsUpdates.domainName
+    - api_field: deleteTime
+    - field: domain_id
+      provider_only: true
+    - api_field: etag
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: purgeTime
+    - api_field: serve.redirect.status
+    - api_field: serve.redirect.uri
+    - api_field: uid
+    - api_field: updateTime

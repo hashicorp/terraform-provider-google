@@ -1,52 +1,52 @@
-resource: 'google_document_ai_warehouse_document_schema'
-generation_type: 'mmv1'
-source_file: 'products/documentaiwarehouse/DocumentSchema.yaml'
-api_service_name: 'contentwarehouse.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DocumentSchema'
+resource: google_document_ai_warehouse_document_schema
+generation_type: mmv1
+source_file: products/documentaiwarehouse/DocumentSchema.yaml
+api_service_name: contentwarehouse.googleapis.com
+api_version: v1
+api_resource_type_kind: DocumentSchema
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/documentSchemas/{documentSchema}'
+    - projects/{project}/locations/{location}/documentSchemas/{documentSchema}
 fields:
-  - api_field: 'displayName'
-  - api_field: 'documentIsFolder'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'project_number'
-    provider_only: true
-  - api_field: 'propertyDefinitions.dateTimeTypeOptions'
-  - api_field: 'propertyDefinitions.displayName'
-  - api_field: 'propertyDefinitions.enumTypeOptions.possibleValues'
-  - api_field: 'propertyDefinitions.enumTypeOptions.validationCheckDisabled'
-  - api_field: 'propertyDefinitions.floatTypeOptions'
-  - api_field: 'propertyDefinitions.integerTypeOptions'
-  - api_field: 'propertyDefinitions.isFilterable'
-  - api_field: 'propertyDefinitions.isMetadata'
-  - api_field: 'propertyDefinitions.isRepeatable'
-  - api_field: 'propertyDefinitions.isRequired'
-  - api_field: 'propertyDefinitions.isSearchable'
-  - api_field: 'propertyDefinitions.mapTypeOptions'
-  - api_field: 'propertyDefinitions.name'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.dateTimeTypeOptions'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.displayName'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.enumTypeOptions.possibleValues'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.enumTypeOptions.validationCheckDisabled'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.floatTypeOptions'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.integerTypeOptions'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.isFilterable'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.isMetadata'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.isRepeatable'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.isRequired'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.isSearchable'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.mapTypeOptions'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.name'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.retrievalImportance'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.schemaSources.name'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.schemaSources.processorType'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.textTypeOptions'
-  - api_field: 'propertyDefinitions.propertyTypeOptions.propertyDefinitions.timestampTypeOptions'
-  - api_field: 'propertyDefinitions.retrievalImportance'
-  - api_field: 'propertyDefinitions.schemaSources.name'
-  - api_field: 'propertyDefinitions.schemaSources.processorType'
-  - api_field: 'propertyDefinitions.textTypeOptions'
-  - api_field: 'propertyDefinitions.timestampTypeOptions'
+    - api_field: displayName
+    - api_field: documentIsFolder
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: project_number
+      provider_only: true
+    - api_field: propertyDefinitions.dateTimeTypeOptions
+    - api_field: propertyDefinitions.displayName
+    - api_field: propertyDefinitions.enumTypeOptions.possibleValues
+    - api_field: propertyDefinitions.enumTypeOptions.validationCheckDisabled
+    - api_field: propertyDefinitions.floatTypeOptions
+    - api_field: propertyDefinitions.integerTypeOptions
+    - api_field: propertyDefinitions.isFilterable
+    - api_field: propertyDefinitions.isMetadata
+    - api_field: propertyDefinitions.isRepeatable
+    - api_field: propertyDefinitions.isRequired
+    - api_field: propertyDefinitions.isSearchable
+    - api_field: propertyDefinitions.mapTypeOptions
+    - api_field: propertyDefinitions.name
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.dateTimeTypeOptions
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.displayName
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.enumTypeOptions.possibleValues
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.enumTypeOptions.validationCheckDisabled
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.floatTypeOptions
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.integerTypeOptions
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.isFilterable
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.isMetadata
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.isRepeatable
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.isRequired
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.isSearchable
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.mapTypeOptions
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.name
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.retrievalImportance
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.schemaSources.name
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.schemaSources.processorType
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.textTypeOptions
+    - api_field: propertyDefinitions.propertyTypeOptions.propertyDefinitions.timestampTypeOptions
+    - api_field: propertyDefinitions.retrievalImportance
+    - api_field: propertyDefinitions.schemaSources.name
+    - api_field: propertyDefinitions.schemaSources.processorType
+    - api_field: propertyDefinitions.textTypeOptions
+    - api_field: propertyDefinitions.timestampTypeOptions

@@ -1,24 +1,27 @@
-resource: 'google_compute_interconnect_group'
-generation_type: 'mmv1'
-source_file: 'products/compute/InterconnectGroup.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InterconnectGroup'
+resource: google_compute_interconnect_group
+generation_type: mmv1
+source_file: products/compute/InterconnectGroup.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: InterconnectGroup
 fields:
-  - api_field: 'configured.topologyCapability.intendedCapabilityBlockers.blockerType'
-  - api_field: 'configured.topologyCapability.intendedCapabilityBlockers.documentationLink'
-  - api_field: 'configured.topologyCapability.intendedCapabilityBlockers.explanation'
-  - api_field: 'configured.topologyCapability.intendedCapabilityBlockers.facilities'
-  - api_field: 'configured.topologyCapability.intendedCapabilityBlockers.interconnects'
-  - api_field: 'configured.topologyCapability.intendedCapabilityBlockers.metros'
-  - api_field: 'configured.topologyCapability.intendedCapabilityBlockers.zones'
-  - api_field: 'configured.topologyCapability.supportedSla'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'intent.topologyCapability'
-  - api_field: 'interconnects.mapObjectName.interconnect'
-  - api_field: 'name'
-  - api_field: 'physicalStructure.metros.facilities.facility'
-  - api_field: 'physicalStructure.metros.facilities.zones.interconnects'
-  - api_field: 'physicalStructure.metros.facilities.zones.zone'
-  - api_field: 'physicalStructure.metros.metro'
+    - api_field: configured.topologyCapability.intendedCapabilityBlockers.blockerType
+    - api_field: configured.topologyCapability.intendedCapabilityBlockers.documentationLink
+    - api_field: configured.topologyCapability.intendedCapabilityBlockers.explanation
+    - api_field: configured.topologyCapability.intendedCapabilityBlockers.facilities
+    - api_field: configured.topologyCapability.intendedCapabilityBlockers.interconnects
+    - api_field: configured.topologyCapability.intendedCapabilityBlockers.metros
+    - api_field: configured.topologyCapability.intendedCapabilityBlockers.zones
+    - api_field: configured.topologyCapability.supportedSla
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: intent.topologyCapability
+    - api_field: interconnects.key
+      field: interconnects.name
+    - api_field: interconnects.value.interconnect
+      field: interconnects.interconnect
+    - api_field: name
+    - api_field: physicalStructure.metros.facilities.facility
+    - api_field: physicalStructure.metros.facilities.zones.interconnects
+    - api_field: physicalStructure.metros.facilities.zones.zone
+    - api_field: physicalStructure.metros.metro

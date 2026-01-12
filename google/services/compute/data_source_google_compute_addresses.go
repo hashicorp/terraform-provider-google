@@ -58,6 +58,10 @@ func DataSourceGoogleComputeAddresses() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"prefix_length": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"status": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -175,13 +179,14 @@ func dataSourceGoogleComputeAddressesRead(context context.Context, d *schema.Res
 
 func generateTfAddress(address *compute.Address) map[string]interface{} {
 	return map[string]interface{}{
-		"name":         address.Name,
-		"address":      address.Address,
-		"address_type": address.AddressType,
-		"description":  address.Description,
-		"region":       regionFromUrl(address.Region),
-		"status":       address.Status,
-		"self_link":    address.SelfLink,
+		"name":          address.Name,
+		"address":       address.Address,
+		"address_type":  address.AddressType,
+		"description":   address.Description,
+		"prefix_length": address.PrefixLength,
+		"region":        regionFromUrl(address.Region),
+		"status":        address.Status,
+		"self_link":     address.SelfLink,
 	}
 }
 

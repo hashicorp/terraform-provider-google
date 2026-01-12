@@ -179,10 +179,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `last_backup_error` -
   (Output)
   google.rpc.Status object to store the last backup error
-  Structure is [documented below](#nested_rules_config_info_rules_config_info_last_backup_error).
+  Structure is [documented below](#nested_rules_config_info_last_backup_error).
 
 
-<a name="nested_rules_config_info_rules_config_info_last_backup_error"></a>The `last_backup_error` block contains:
+<a name="nested_rules_config_info_last_backup_error"></a>The `last_backup_error` block contains:
 
 * `code` -
   (Output)

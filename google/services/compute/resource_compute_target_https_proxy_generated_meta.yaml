@@ -1,24 +1,24 @@
-resource: 'google_compute_target_https_proxy'
-generation_type: 'mmv1'
-source_file: 'products/compute/TargetHttpsProxy.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TargetHttpsProxy'
+resource: google_compute_target_https_proxy
+generation_type: mmv1
+source_file: products/compute/TargetHttpsProxy.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: TargetHttpsProxy
 fields:
-  - api_field: 'certificateManagerCertificates'
-  - api_field: 'certificateMap'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'fingerprint'
-  - api_field: 'httpKeepAliveTimeoutSec'
-  - api_field: 'name'
-  - api_field: 'proxyBind'
-  - api_field: 'id'
-    field: 'proxy_id'
-  - api_field: 'quicOverride'
-  - api_field: 'serverTlsPolicy'
-  - api_field: 'sslCertificates'
-  - api_field: 'sslPolicy'
-  - api_field: 'tlsEarlyData'
-  - api_field: 'urlMap'
-  - api_field: 'selfLink'
+    - api_field: certificateManagerCertificates
+    - api_field: certificateMap
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: fingerprint
+    - api_field: httpKeepAliveTimeoutSec
+    - api_field: name
+    - api_field: proxyBind
+    - api_field: id
+      field: proxy_id
+    - api_field: quicOverride
+    - api_field: serverTlsPolicy
+    - api_field: sslCertificates
+    - api_field: sslPolicy
+    - api_field: tlsEarlyData
+    - api_field: urlMap
+    - api_field: selfLink

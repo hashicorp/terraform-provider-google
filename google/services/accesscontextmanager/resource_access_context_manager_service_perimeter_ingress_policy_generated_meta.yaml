@@ -1,21 +1,21 @@
-resource: 'google_access_context_manager_service_perimeter_ingress_policy'
-generation_type: 'mmv1'
-source_file: 'products/accesscontextmanager/ServicePerimeterIngressPolicy.yaml'
-api_service_name: 'accesscontextmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ServicePerimeter'
+resource: google_access_context_manager_service_perimeter_ingress_policy
+generation_type: mmv1
+source_file: products/accesscontextmanager/ServicePerimeterIngressPolicy.yaml
+api_service_name: accesscontextmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: ServicePerimeter
 fields:
-  - api_field: 'accessPolicyId'
-  - api_field: 'etag'
-  - api_field: 'ingressFrom.identities'
-  - api_field: 'ingressFrom.identityType'
-  - api_field: 'ingressFrom.sources.accessLevel'
-  - api_field: 'ingressFrom.sources.resource'
-  - api_field: 'ingressTo.operations.methodSelectors.method'
-  - api_field: 'ingressTo.operations.methodSelectors.permission'
-  - api_field: 'ingressTo.operations.serviceName'
-  - api_field: 'ingressTo.resources'
-  - api_field: 'ingressTo.roles'
-  - field: 'perimeter'
-    provider_only: true
-  - api_field: 'title'
+    - api_field: accessPolicyId
+    - api_field: etag
+    - api_field: ingressFrom.identities
+    - api_field: ingressFrom.identityType
+    - api_field: ingressFrom.sources.accessLevel
+    - api_field: ingressFrom.sources.resource
+    - api_field: ingressTo.operations.methodSelectors.method
+    - api_field: ingressTo.operations.methodSelectors.permission
+    - api_field: ingressTo.operations.serviceName
+    - api_field: ingressTo.resources
+    - api_field: ingressTo.roles
+    - field: perimeter
+      provider_only: true
+    - api_field: title

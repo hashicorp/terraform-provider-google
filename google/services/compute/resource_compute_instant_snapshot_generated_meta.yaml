@@ -1,23 +1,23 @@
-resource: 'google_compute_instant_snapshot'
-generation_type: 'mmv1'
-source_file: 'products/compute/InstantSnapshot.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InstantSnapshot'
+resource: google_compute_instant_snapshot
+generation_type: mmv1
+source_file: products/compute/InstantSnapshot.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: InstantSnapshot
 api_variant_patterns:
-  - 'projects/{project}/zones/{zone}/instantSnapshots/{instantSnapshot}'
+    - projects/{project}/zones/{zone}/instantSnapshots/{instantSnapshot}
 fields:
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'diskSizeGb'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'sourceDisk'
-  - api_field: 'sourceDiskId'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'zone'
-  - api_field: 'selfLink'
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: diskSizeGb
+    - field: effective_labels
+      provider_only: true
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: name
+    - api_field: sourceDisk
+    - api_field: sourceDiskId
+    - field: terraform_labels
+      provider_only: true
+    - api_field: zone
+    - api_field: selfLink

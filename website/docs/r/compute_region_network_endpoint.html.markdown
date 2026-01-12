@@ -186,11 +186,11 @@ The following arguments are supported:
   This can only be specified when network_endpoint_type of the NEG is INTERNET_FQDN_PORT.
 
 * `client_destination_port` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Client destination port for the `GCE_VM_IP_PORTMAP` NEG.
 
 * `instance` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The name for a specific VM instance that the IP address belongs to.
   This is required for network endpoints of type GCE_VM_IP_PORTMAP.
 

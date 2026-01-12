@@ -36,6 +36,10 @@ import (
 func testAccAccessContextManagerGcpUserAccessBinding_basicTest(t *testing.T) {
 	t.Parallel()
 
+	// Skip in VCR until the test issue is resolved
+	// https://github.com/hashicorp/terraform-provider-google/issues/24833
+	acctest.SkipIfVcr(t)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),

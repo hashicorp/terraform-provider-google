@@ -1,17 +1,17 @@
-resource: 'google_storage_anywhere_cache'
-generation_type: 'mmv1'
-source_file: 'products/storage/AnywhereCache.yaml'
-api_service_name: 'storage.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AnywhereCache'
+resource: google_storage_anywhere_cache
+generation_type: mmv1
+source_file: products/storage/AnywhereCache.yaml
+api_service_name: storage.googleapis.com
+api_version: v1
+api_resource_type_kind: AnywhereCache
 fields:
-  - api_field: 'admissionPolicy'
-  - api_field: 'anywhereCacheId'
-  - field: 'bucket'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'pendingUpdate'
-  - api_field: 'state'
-  - api_field: 'ttl'
-  - api_field: 'updateTime'
-  - api_field: 'zone'
+    - api_field: admissionPolicy
+    - api_field: anywhereCacheId
+    - field: bucket
+      provider_only: true
+    - api_field: createTime
+    - api_field: pendingUpdate
+    - api_field: state
+    - api_field: ttl
+    - api_field: updateTime
+    - api_field: zone

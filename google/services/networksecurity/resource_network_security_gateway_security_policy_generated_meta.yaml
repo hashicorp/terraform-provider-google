@@ -1,16 +1,16 @@
-resource: 'google_network_security_gateway_security_policy'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/GatewaySecurityPolicy.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'GatewaySecurityPolicy'
+resource: google_network_security_gateway_security_policy
+generation_type: mmv1
+source_file: products/networksecurity/GatewaySecurityPolicy.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: GatewaySecurityPolicy
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'selfLink'
-  - api_field: 'tlsInspectionPolicy'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: selfLink
+    - api_field: tlsInspectionPolicy
+    - api_field: updateTime

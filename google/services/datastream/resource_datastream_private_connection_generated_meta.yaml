@@ -1,26 +1,26 @@
-resource: 'google_datastream_private_connection'
-generation_type: 'mmv1'
-source_file: 'products/datastream/PrivateConnection.yaml'
-api_service_name: 'datastream.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PrivateConnection'
+resource: google_datastream_private_connection
+generation_type: mmv1
+source_file: products/datastream/PrivateConnection.yaml
+api_service_name: datastream.googleapis.com
+api_version: v1
+api_resource_type_kind: PrivateConnection
 fields:
-  - field: 'create_without_validation'
-    provider_only: true
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'error.details'
-  - api_field: 'error.message'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'private_connection_id'
-    provider_only: true
-  - api_field: 'pscInterfaceConfig.networkAttachment'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'vpcPeeringConfig.subnet'
-  - api_field: 'vpcPeeringConfig.vpc'
+    - field: create_without_validation
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: error.details
+    - api_field: error.message
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: private_connection_id
+      provider_only: true
+    - api_field: pscInterfaceConfig.networkAttachment
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: vpcPeeringConfig.subnet
+    - api_field: vpcPeeringConfig.vpc

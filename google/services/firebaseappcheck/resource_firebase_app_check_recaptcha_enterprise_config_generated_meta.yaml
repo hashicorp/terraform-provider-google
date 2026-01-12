@@ -1,12 +1,12 @@
-resource: 'google_firebase_app_check_recaptcha_enterprise_config'
-generation_type: 'mmv1'
-source_file: 'products/firebaseappcheck/RecaptchaEnterpriseConfig.yaml'
-api_service_name: 'firebaseappcheck.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'RecaptchaEnterpriseConfig'
+resource: google_firebase_app_check_recaptcha_enterprise_config
+generation_type: mmv1
+source_file: products/firebaseappcheck/RecaptchaEnterpriseConfig.yaml
+api_service_name: firebaseappcheck.googleapis.com
+api_version: v1
+api_resource_type_kind: RecaptchaEnterpriseConfig
 fields:
-  - field: 'app_id'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'siteKey'
-  - api_field: 'tokenTtl'
+    - field: app_id
+      provider_only: true
+    - api_field: name
+    - api_field: siteKey
+    - api_field: tokenTtl

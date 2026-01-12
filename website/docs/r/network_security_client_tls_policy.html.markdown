@@ -150,21 +150,21 @@ The following arguments are supported:
 * `grpc_endpoint` -
   (Optional)
   gRPC specific configuration to access the gRPC server to obtain the cert and private key.
-  Structure is [documented below](#nested_server_validation_ca_server_validation_ca_grpc_endpoint).
+  Structure is [documented below](#nested_server_validation_ca_grpc_endpoint).
 
 * `certificate_provider_instance` -
   (Optional)
   The certificate provider instance specification that will be passed to the data plane, which will be used to load necessary credential information.
-  Structure is [documented below](#nested_server_validation_ca_server_validation_ca_certificate_provider_instance).
+  Structure is [documented below](#nested_server_validation_ca_certificate_provider_instance).
 
 
-<a name="nested_server_validation_ca_server_validation_ca_grpc_endpoint"></a>The `grpc_endpoint` block supports:
+<a name="nested_server_validation_ca_grpc_endpoint"></a>The `grpc_endpoint` block supports:
 
 * `target_uri` -
   (Required)
   The target URI of the gRPC endpoint. Only UDS path is supported, and should start with "unix:".
 
-<a name="nested_server_validation_ca_server_validation_ca_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
+<a name="nested_server_validation_ca_certificate_provider_instance"></a>The `certificate_provider_instance` block supports:
 
 * `plugin_instance` -
   (Required)

@@ -1,0 +1,20 @@
+resource: google_apigee_security_feedback
+generation_type: mmv1
+source_file: products/apigee/SecurityFeedback.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityFeedback
+fields:
+    - api_field: comment
+    - api_field: createTime
+    - api_field: displayName
+    - api_field: feedbackContexts.attribute
+    - api_field: feedbackContexts.values
+    - field: feedback_id
+      provider_only: true
+    - api_field: feedbackType
+    - api_field: name
+    - field: org_id
+      provider_only: true
+    - api_field: reason
+    - api_field: updateTime

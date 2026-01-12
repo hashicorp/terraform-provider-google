@@ -1,23 +1,23 @@
-resource: 'google_access_context_manager_service_perimeter_dry_run_egress_policy'
-generation_type: 'mmv1'
-source_file: 'products/accesscontextmanager/ServicePerimeterDryRunEgressPolicy.yaml'
-api_service_name: 'accesscontextmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ServicePerimeter'
+resource: google_access_context_manager_service_perimeter_dry_run_egress_policy
+generation_type: mmv1
+source_file: products/accesscontextmanager/ServicePerimeterDryRunEgressPolicy.yaml
+api_service_name: accesscontextmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: ServicePerimeter
 fields:
-  - api_field: 'accessPolicyId'
-  - api_field: 'egressFrom.identities'
-  - api_field: 'egressFrom.identityType'
-  - api_field: 'egressFrom.sourceRestriction'
-  - api_field: 'egressFrom.sources.accessLevel'
-  - api_field: 'egressFrom.sources.resource'
-  - api_field: 'egressTo.externalResources'
-  - api_field: 'egressTo.operations.methodSelectors.method'
-  - api_field: 'egressTo.operations.methodSelectors.permission'
-  - api_field: 'egressTo.operations.serviceName'
-  - api_field: 'egressTo.resources'
-  - api_field: 'egressTo.roles'
-  - api_field: 'etag'
-  - field: 'perimeter'
-    provider_only: true
-  - api_field: 'title'
+    - api_field: accessPolicyId
+    - api_field: egressFrom.identities
+    - api_field: egressFrom.identityType
+    - api_field: egressFrom.sourceRestriction
+    - api_field: egressFrom.sources.accessLevel
+    - api_field: egressFrom.sources.resource
+    - api_field: egressTo.externalResources
+    - api_field: egressTo.operations.methodSelectors.method
+    - api_field: egressTo.operations.methodSelectors.permission
+    - api_field: egressTo.operations.serviceName
+    - api_field: egressTo.resources
+    - api_field: egressTo.roles
+    - api_field: etag
+    - field: perimeter
+      provider_only: true
+    - api_field: title

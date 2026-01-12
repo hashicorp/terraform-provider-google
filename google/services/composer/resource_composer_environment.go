@@ -987,7 +987,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 							Computed:     true,
 							ForceNew:     false,
 							AtLeastOneOf: composerConfigKeys,
-							ValidateFunc: validation.StringInSlice([]string{"ENVIRONMENT_SIZE_SMALL", "ENVIRONMENT_SIZE_MEDIUM", "ENVIRONMENT_SIZE_LARGE"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"ENVIRONMENT_SIZE_SMALL", "ENVIRONMENT_SIZE_MEDIUM", "ENVIRONMENT_SIZE_LARGE", "ENVIRONMENT_SIZE_EXTRA_LARGE"}, false),
 							Description:  `The size of the Cloud Composer environment. This field is supported for Cloud Composer environments in versions composer-2.*.*-airflow-*.*.* and newer.`,
 						},
 						"resilience_mode": {

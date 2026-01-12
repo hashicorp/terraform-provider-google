@@ -1,28 +1,28 @@
-resource: 'google_storage_insights_report_config'
-generation_type: 'mmv1'
-source_file: 'products/storageinsights/ReportConfig.yaml'
-api_service_name: 'storageinsights.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ReportConfig'
+resource: google_storage_insights_report_config
+generation_type: mmv1
+source_file: products/storageinsights/ReportConfig.yaml
+api_service_name: storageinsights.googleapis.com
+api_version: v1
+api_resource_type_kind: ReportConfig
 fields:
-  - api_field: 'csvOptions.delimiter'
-  - api_field: 'csvOptions.headerRequired'
-  - api_field: 'csvOptions.recordSeparator'
-  - api_field: 'displayName'
-  - field: 'force_destroy'
-    provider_only: true
-  - api_field: 'frequencyOptions.endDate.day'
-  - api_field: 'frequencyOptions.endDate.month'
-  - api_field: 'frequencyOptions.endDate.year'
-  - api_field: 'frequencyOptions.frequency'
-  - api_field: 'frequencyOptions.startDate.day'
-  - api_field: 'frequencyOptions.startDate.month'
-  - api_field: 'frequencyOptions.startDate.year'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'objectMetadataReportOptions.metadataFields'
-  - api_field: 'objectMetadataReportOptions.storageDestinationOptions.bucket'
-  - api_field: 'objectMetadataReportOptions.storageDestinationOptions.destinationPath'
-  - api_field: 'objectMetadataReportOptions.storageFilters.bucket'
-  - api_field: 'parquetOptions'
+    - api_field: csvOptions.delimiter
+    - api_field: csvOptions.headerRequired
+    - api_field: csvOptions.recordSeparator
+    - api_field: displayName
+    - field: force_destroy
+      provider_only: true
+    - api_field: frequencyOptions.endDate.day
+    - api_field: frequencyOptions.endDate.month
+    - api_field: frequencyOptions.endDate.year
+    - api_field: frequencyOptions.frequency
+    - api_field: frequencyOptions.startDate.day
+    - api_field: frequencyOptions.startDate.month
+    - api_field: frequencyOptions.startDate.year
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: objectMetadataReportOptions.metadataFields
+    - api_field: objectMetadataReportOptions.storageDestinationOptions.bucket
+    - api_field: objectMetadataReportOptions.storageDestinationOptions.destinationPath
+    - api_field: objectMetadataReportOptions.storageFilters.bucket
+    - api_field: parquetOptions

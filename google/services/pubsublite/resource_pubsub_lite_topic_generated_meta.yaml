@@ -1,19 +1,19 @@
-resource: 'google_pubsub_lite_topic'
-generation_type: 'mmv1'
-source_file: 'products/pubsublite/Topic.yaml'
-api_service_name: 'pubsublite.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Topic'
+resource: google_pubsub_lite_topic
+generation_type: mmv1
+source_file: products/pubsublite/Topic.yaml
+api_service_name: pubsublite.googleapis.com
+api_version: v1
+api_resource_type_kind: Topic
 fields:
-  - field: 'name'
-    provider_only: true
-  - api_field: 'partitionConfig.capacity.publishMibPerSec'
-  - api_field: 'partitionConfig.capacity.subscribeMibPerSec'
-  - api_field: 'partitionConfig.count'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'reservationConfig.throughputReservation'
-  - api_field: 'retentionConfig.perPartitionBytes'
-  - api_field: 'retentionConfig.period'
-  - field: 'zone'
-    provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: partitionConfig.capacity.publishMibPerSec
+    - api_field: partitionConfig.capacity.subscribeMibPerSec
+    - api_field: partitionConfig.count
+    - field: region
+      provider_only: true
+    - api_field: reservationConfig.throughputReservation
+    - api_field: retentionConfig.perPartitionBytes
+    - api_field: retentionConfig.period
+    - field: zone
+      provider_only: true

@@ -1,28 +1,28 @@
-resource: 'google_eventarc_enrollment'
-generation_type: 'mmv1'
-source_file: 'products/eventarc/Enrollment.yaml'
-api_service_name: 'eventarc.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Enrollment'
+resource: google_eventarc_enrollment
+generation_type: mmv1
+source_file: products/eventarc/Enrollment.yaml
+api_service_name: eventarc.googleapis.com
+api_version: v1
+api_resource_type_kind: Enrollment
 fields:
-  - api_field: 'annotations'
-  - api_field: 'celMatch'
-  - api_field: 'createTime'
-  - api_field: 'destination'
-  - api_field: 'displayName'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - field: 'enrollment_id'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'messageBus'
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: celMatch
+    - api_field: createTime
+    - api_field: destination
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - field: enrollment_id
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: messageBus
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

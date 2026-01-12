@@ -1,39 +1,43 @@
-resource: 'google_compute_per_instance_config'
-generation_type: 'mmv1'
-source_file: 'products/compute/PerInstanceConfig.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InstanceGroupManager'
+resource: google_compute_per_instance_config
+generation_type: mmv1
+source_file: products/compute/PerInstanceConfig.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: InstanceGroupManager
 api_variant_patterns:
-  - 'projects/{project}/zones/{zone}/instanceGroupManagers/{instanceGroupManager}'
+    - projects/{project}/zones/{zone}/instanceGroupManagers/{instanceGroupManager}
 fields:
-  - field: 'instance_group_manager'
-    provider_only: true
-  - field: 'minimal_action'
-    provider_only: true
-  - field: 'most_disruptive_allowed_action'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'preservedState.disks.deleteRule'
-    field: 'preserved_state.disk.delete_rule'
-  - api_field: 'preservedState.disks.deviceName'
-    field: 'preserved_state.disk.device_name'
-  - api_field: 'preservedState.disks.mode'
-    field: 'preserved_state.disk.mode'
-  - api_field: 'preservedState.disks.source'
-    field: 'preserved_state.disk.source'
-  - api_field: 'preservedState.externalIPs.externalIp.autoDelete'
-    field: 'preserved_state.external_ip.external_ip.auto_delete'
-  - api_field: 'preservedState.externalIPs.externalIp.ipAddress.address'
-    field: 'preserved_state.external_ip.external_ip.ip_address.address'
-  - api_field: 'preservedState.internalIPs.internalIp.autoDelete'
-    field: 'preserved_state.internal_ip.internal_ip.auto_delete'
-  - api_field: 'preservedState.internalIPs.internalIp.ipAddress.address'
-    field: 'preserved_state.internal_ip.internal_ip.ip_address.address'
-  - api_field: 'preservedState.metadata'
-  - field: 'remove_instance_on_destroy'
-    provider_only: true
-  - field: 'remove_instance_state_on_destroy'
-    provider_only: true
-  - field: 'zone'
-    provider_only: true
+    - field: instance_group_manager
+      provider_only: true
+    - field: minimal_action
+      provider_only: true
+    - field: most_disruptive_allowed_action
+      provider_only: true
+    - api_field: name
+    - api_field: preservedState.disks.deleteRule
+      field: preserved_state.disk.delete_rule
+    - api_field: preservedState.disks.deviceName
+      field: preserved_state.disk.device_name
+    - api_field: preservedState.disks.mode
+      field: preserved_state.disk.mode
+    - api_field: preservedState.disks.source
+      field: preserved_state.disk.source
+    - api_field: preservedState.externalIPs.key
+      field: preserved_state.external_ip.interface_name
+    - api_field: preservedState.externalIPs.value.autoDelete
+      field: preserved_state.external_ip.auto_delete
+    - api_field: preservedState.externalIPs.value.ipAddress.address
+      field: preserved_state.external_ip.ip_address.address
+    - api_field: preservedState.internalIPs.key
+      field: preserved_state.internal_ip.interface_name
+    - api_field: preservedState.internalIPs.value.autoDelete
+      field: preserved_state.internal_ip.auto_delete
+    - api_field: preservedState.internalIPs.value.ipAddress.address
+      field: preserved_state.internal_ip.ip_address.address
+    - api_field: preservedState.metadata
+    - field: remove_instance_on_destroy
+      provider_only: true
+    - field: remove_instance_state_on_destroy
+      provider_only: true
+    - field: zone
+      provider_only: true

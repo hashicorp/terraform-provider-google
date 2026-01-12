@@ -1,29 +1,33 @@
-resource: 'google_dataproc_metastore_federation'
-generation_type: 'mmv1'
-source_file: 'products/metastore/Federation.yaml'
-api_service_name: 'metastore.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Federation'
+resource: google_dataproc_metastore_federation
+generation_type: mmv1
+source_file: products/metastore/Federation.yaml
+api_service_name: metastore.googleapis.com
+api_version: v1
+api_resource_type_kind: Federation
 fields:
-  - api_field: 'backendMetastores.backendMetastores.metastoreType'
-  - api_field: 'backendMetastores.backendMetastores.name'
-  - api_field: 'createTime'
-  - field: 'deletion_protection'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'endpointUri'
-  - field: 'federation_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'state'
-  - api_field: 'stateMessage'
-  - api_field: 'tags'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
-  - api_field: 'version'
+    - api_field: backendMetastores.key
+      field: backend_metastores.rank
+    - api_field: backendMetastores.value.metastoreType
+      field: backend_metastores.metastore_type
+    - api_field: backendMetastores.value.name
+      field: backend_metastores.name
+    - api_field: createTime
+    - field: deletion_protection
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: endpointUri
+    - field: federation_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: state
+    - api_field: stateMessage
+    - api_field: tags
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime
+    - api_field: version

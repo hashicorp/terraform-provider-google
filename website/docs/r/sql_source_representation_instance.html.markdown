@@ -31,7 +31,7 @@ affect billing. You cannot update the source representation instance.
 
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `on_premises_configuration.password`.
+values will be stored in the raw state as plain text: `password`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">

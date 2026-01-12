@@ -1,54 +1,54 @@
-resource: 'google_bigquery_dataset'
-generation_type: 'mmv1'
-source_file: 'products/bigquery/Dataset.yaml'
-api_service_name: 'bigquery.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Dataset'
+resource: google_bigquery_dataset
+generation_type: mmv1
+source_file: products/bigquery/Dataset.yaml
+api_service_name: bigquery.googleapis.com
+api_version: v2
+api_resource_type_kind: Dataset
 fields:
-  - api_field: 'access.condition.description'
-  - api_field: 'access.condition.expression'
-  - api_field: 'access.condition.location'
-  - api_field: 'access.condition.title'
-  - api_field: 'access.dataset.dataset.datasetId'
-  - api_field: 'access.dataset.dataset.projectId'
-  - api_field: 'access.dataset.targetTypes'
-  - api_field: 'access.domain'
-  - api_field: 'access.groupByEmail'
-  - api_field: 'access.iamMember'
-  - api_field: 'access.role'
-  - api_field: 'access.routine.datasetId'
-  - api_field: 'access.routine.projectId'
-  - api_field: 'access.routine.routineId'
-  - api_field: 'access.specialGroup'
-  - api_field: 'access.userByEmail'
-  - api_field: 'access.view.datasetId'
-  - api_field: 'access.view.projectId'
-  - api_field: 'access.view.tableId'
-  - api_field: 'creationTime'
-  - api_field: 'datasetReference.datasetId'
-    field: 'dataset_id'
-  - api_field: 'defaultCollation'
-  - api_field: 'defaultEncryptionConfiguration.kmsKeyName'
-  - api_field: 'defaultPartitionExpirationMs'
-  - api_field: 'defaultTableExpirationMs'
-  - field: 'delete_contents_on_destroy'
-    provider_only: true
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'externalCatalogDatasetOptions.defaultStorageLocationUri'
-  - api_field: 'externalCatalogDatasetOptions.parameters'
-  - api_field: 'externalDatasetReference.connection'
-  - api_field: 'externalDatasetReference.externalSource'
-  - api_field: 'friendlyName'
-  - api_field: 'isCaseInsensitive'
-  - api_field: 'labels'
-  - api_field: 'lastModifiedTime'
-  - api_field: 'location'
-  - api_field: 'maxTimeTravelHours'
-  - api_field: 'resourceTags'
-  - api_field: 'storageBillingModel'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'selfLink'
+    - api_field: access.condition.description
+    - api_field: access.condition.expression
+    - api_field: access.condition.location
+    - api_field: access.condition.title
+    - api_field: access.dataset.dataset.datasetId
+    - api_field: access.dataset.dataset.projectId
+    - api_field: access.dataset.targetTypes
+    - api_field: access.domain
+    - api_field: access.groupByEmail
+    - api_field: access.iamMember
+    - api_field: access.role
+    - api_field: access.routine.datasetId
+    - api_field: access.routine.projectId
+    - api_field: access.routine.routineId
+    - api_field: access.specialGroup
+    - api_field: access.userByEmail
+    - api_field: access.view.datasetId
+    - api_field: access.view.projectId
+    - api_field: access.view.tableId
+    - api_field: creationTime
+    - api_field: datasetReference.datasetId
+      field: dataset_id
+    - api_field: defaultCollation
+    - api_field: defaultEncryptionConfiguration.kmsKeyName
+    - api_field: defaultPartitionExpirationMs
+    - api_field: defaultTableExpirationMs
+    - field: delete_contents_on_destroy
+      provider_only: true
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: externalCatalogDatasetOptions.defaultStorageLocationUri
+    - api_field: externalCatalogDatasetOptions.parameters
+    - api_field: externalDatasetReference.connection
+    - api_field: externalDatasetReference.externalSource
+    - api_field: friendlyName
+    - api_field: isCaseInsensitive
+    - api_field: labels
+    - api_field: lastModifiedTime
+    - api_field: location
+    - api_field: maxTimeTravelHours
+    - api_field: resourceTags
+    - api_field: storageBillingModel
+    - field: terraform_labels
+      provider_only: true
+    - api_field: selfLink

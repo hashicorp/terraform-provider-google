@@ -1,16 +1,16 @@
-resource: 'google_tags_tag_key'
-generation_type: 'mmv1'
-source_file: 'products/tags/TagKey.yaml'
-api_service_name: 'cloudresourcemanager.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'TagKey'
+resource: google_tags_tag_key
+generation_type: mmv1
+source_file: products/tags/TagKey.yaml
+api_service_name: cloudresourcemanager.googleapis.com
+api_version: v3
+api_resource_type_kind: TagKey
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'name'
-  - api_field: 'namespacedName'
-  - api_field: 'parent'
-  - api_field: 'purpose'
-  - api_field: 'purposeData'
-  - api_field: 'shortName'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: name
+    - api_field: namespacedName
+    - api_field: parent
+    - api_field: purpose
+    - api_field: purposeData
+    - api_field: shortName
+    - api_field: updateTime

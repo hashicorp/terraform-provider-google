@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -60,7 +61,7 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEBackupBackupPlanIAMBindingStateID("google_gke_backup_backup_plan_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +71,7 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEBackupBackupPlanIAMBindingStateID("google_gke_backup_backup_plan_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +102,7 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEBackupBackupPlanIAMMemberStateID("google_gke_backup_backup_plan_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -132,7 +133,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEBackupBackupPlanIAMPolicyStateID("google_gke_backup_backup_plan_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -141,7 +142,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEBackupBackupPlanIAMPolicyStateID("google_gke_backup_backup_plan_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -364,4 +365,58 @@ resource "google_gke_backup_backup_plan_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateGKEBackupBackupPlanIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", project, location, name), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateGKEBackupBackupPlanIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", project, location, name), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateGKEBackupBackupPlanIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", project, location, name), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

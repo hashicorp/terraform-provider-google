@@ -1,32 +1,32 @@
-resource: 'google_healthcare_pipeline_job'
-generation_type: 'mmv1'
-source_file: 'products/healthcare/PipelineJob.yaml'
-api_service_name: 'healthcare.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PipelineJob'
+resource: google_healthcare_pipeline_job
+generation_type: mmv1
+source_file: products/healthcare/PipelineJob.yaml
+api_service_name: healthcare.googleapis.com
+api_version: v1
+api_resource_type_kind: PipelineJob
 fields:
-  - api_field: 'backfillPipelineJob.mappingPipelineJob'
-  - field: 'dataset'
-    provider_only: true
-  - api_field: 'disableLineage'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mappingPipelineJob.fhirStoreDestination'
-  - api_field: 'mappingPipelineJob.fhirStreamingSource.description'
-  - api_field: 'mappingPipelineJob.fhirStreamingSource.fhirStore'
-  - api_field: 'mappingPipelineJob.mappingConfig.description'
-  - api_field: 'mappingPipelineJob.mappingConfig.whistleConfigSource.importUriPrefix'
-  - api_field: 'mappingPipelineJob.mappingConfig.whistleConfigSource.uri'
-  - api_field: 'mappingPipelineJob.reconciliationDestination'
-  - api_field: 'name'
-  - api_field: 'reconciliationPipelineJob.fhirStoreDestination'
-  - api_field: 'reconciliationPipelineJob.matchingUriPrefix'
-  - api_field: 'reconciliationPipelineJob.mergeConfig.description'
-  - api_field: 'reconciliationPipelineJob.mergeConfig.whistleConfigSource.importUriPrefix'
-  - api_field: 'reconciliationPipelineJob.mergeConfig.whistleConfigSource.uri'
-  - api_field: 'selfLink'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: backfillPipelineJob.mappingPipelineJob
+    - field: dataset
+      provider_only: true
+    - api_field: disableLineage
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: mappingPipelineJob.fhirStoreDestination
+    - api_field: mappingPipelineJob.fhirStreamingSource.description
+    - api_field: mappingPipelineJob.fhirStreamingSource.fhirStore
+    - api_field: mappingPipelineJob.mappingConfig.description
+    - api_field: mappingPipelineJob.mappingConfig.whistleConfigSource.importUriPrefix
+    - api_field: mappingPipelineJob.mappingConfig.whistleConfigSource.uri
+    - api_field: mappingPipelineJob.reconciliationDestination
+    - api_field: name
+    - api_field: reconciliationPipelineJob.fhirStoreDestination
+    - api_field: reconciliationPipelineJob.matchingUriPrefix
+    - api_field: reconciliationPipelineJob.mergeConfig.description
+    - api_field: reconciliationPipelineJob.mergeConfig.whistleConfigSource.importUriPrefix
+    - api_field: reconciliationPipelineJob.mergeConfig.whistleConfigSource.uri
+    - api_field: selfLink
+    - field: terraform_labels
+      provider_only: true

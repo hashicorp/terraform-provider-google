@@ -1,22 +1,22 @@
-resource: 'google_dialogflow_intent'
-generation_type: 'mmv1'
-source_file: 'products/dialogflow/Intent.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Intent'
+resource: google_dialogflow_intent
+generation_type: mmv1
+source_file: products/dialogflow/Intent.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v2
+api_resource_type_kind: Intent
 fields:
-  - api_field: 'action'
-  - api_field: 'defaultResponsePlatforms'
-  - api_field: 'displayName'
-  - api_field: 'events'
-  - api_field: 'followupIntentInfo.followupIntentName'
-  - api_field: 'followupIntentInfo.parentFollowupIntentName'
-  - api_field: 'inputContextNames'
-  - api_field: 'isFallback'
-  - api_field: 'mlDisabled'
-  - api_field: 'name'
-  - api_field: 'parentFollowupIntentName'
-  - api_field: 'priority'
-  - api_field: 'resetContexts'
-  - api_field: 'rootFollowupIntentName'
-  - api_field: 'webhookState'
+    - api_field: action
+    - api_field: defaultResponsePlatforms
+    - api_field: displayName
+    - api_field: events
+    - api_field: followupIntentInfo.followupIntentName
+    - api_field: followupIntentInfo.parentFollowupIntentName
+    - api_field: inputContextNames
+    - api_field: isFallback
+    - api_field: mlDisabled
+    - api_field: name
+    - api_field: parentFollowupIntentName
+    - api_field: priority
+    - api_field: resetContexts
+    - api_field: rootFollowupIntentName
+    - api_field: webhookState

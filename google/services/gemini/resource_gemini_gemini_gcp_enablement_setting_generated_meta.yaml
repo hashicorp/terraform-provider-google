@@ -1,23 +1,23 @@
-resource: 'google_gemini_gemini_gcp_enablement_setting'
-generation_type: 'mmv1'
-source_file: 'products/gemini/GeminiGcpEnablementSetting.yaml'
-api_service_name: 'cloudaicompanion.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'GeminiGcpEnablementSetting'
+resource: google_gemini_gemini_gcp_enablement_setting
+generation_type: mmv1
+source_file: products/gemini/GeminiGcpEnablementSetting.yaml
+api_service_name: cloudaicompanion.googleapis.com
+api_version: v1
+api_resource_type_kind: GeminiGcpEnablementSetting
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - api_field: 'disableWebGrounding'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enableCustomerDataSharing'
-  - field: 'gemini_gcp_enablement_setting_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'webGroundingType'
+    - api_field: createTime
+    - api_field: disableWebGrounding
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableCustomerDataSharing
+    - field: gemini_gcp_enablement_setting_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: webGroundingType

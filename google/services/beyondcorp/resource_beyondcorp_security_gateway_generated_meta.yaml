@@ -1,29 +1,32 @@
-resource: 'google_beyondcorp_security_gateway'
-generation_type: 'mmv1'
-source_file: 'products/beyondcorp/SecurityGateway.yaml'
-api_service_name: 'beyondcorp.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SecurityGateway'
+resource: google_beyondcorp_security_gateway
+generation_type: mmv1
+source_file: products/beyondcorp/SecurityGateway.yaml
+api_service_name: beyondcorp.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityGateway
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - api_field: 'delegatingServiceAccount'
-  - api_field: 'displayName'
-  - api_field: 'externalIps'
-  - api_field: 'hubs.Hub.internetGateway.assignedIps'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'proxyProtocolConfig.allowedClientHeaders'
-  - api_field: 'proxyProtocolConfig.clientIp'
-  - api_field: 'proxyProtocolConfig.contextualHeaders.deviceInfo.outputType'
-  - api_field: 'proxyProtocolConfig.contextualHeaders.groupInfo.outputType'
-  - api_field: 'proxyProtocolConfig.contextualHeaders.outputType'
-  - api_field: 'proxyProtocolConfig.contextualHeaders.userInfo.outputType'
-  - api_field: 'proxyProtocolConfig.gatewayIdentity'
-  - api_field: 'proxyProtocolConfig.metadataHeaders'
-  - field: 'security_gateway_id'
-    provider_only: true
-  - api_field: 'serviceDiscovery.apiGateway.resourceOverride.path'
-  - api_field: 'state'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: delegatingServiceAccount
+    - api_field: displayName
+    - api_field: externalIps
+    - api_field: hubs.key
+      field: hubs.region
+    - api_field: hubs.value.internetGateway.assignedIps
+      field: hubs.internet_gateway.assigned_ips
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: proxyProtocolConfig.allowedClientHeaders
+    - api_field: proxyProtocolConfig.clientIp
+    - api_field: proxyProtocolConfig.contextualHeaders.deviceInfo.outputType
+    - api_field: proxyProtocolConfig.contextualHeaders.groupInfo.outputType
+    - api_field: proxyProtocolConfig.contextualHeaders.outputType
+    - api_field: proxyProtocolConfig.contextualHeaders.userInfo.outputType
+    - api_field: proxyProtocolConfig.gatewayIdentity
+    - api_field: proxyProtocolConfig.metadataHeaders
+    - field: security_gateway_id
+      provider_only: true
+    - api_field: serviceDiscovery.apiGateway.resourceOverride.path
+    - api_field: state
+    - api_field: updateTime

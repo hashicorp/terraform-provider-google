@@ -1,28 +1,28 @@
-resource: 'google_eventarc_google_api_source'
-generation_type: 'mmv1'
-source_file: 'products/eventarc/GoogleApiSource.yaml'
-api_service_name: 'eventarc.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'GoogleApiSource'
+resource: google_eventarc_google_api_source
+generation_type: mmv1
+source_file: products/eventarc/GoogleApiSource.yaml
+api_service_name: eventarc.googleapis.com
+api_version: v1
+api_resource_type_kind: GoogleApiSource
 fields:
-  - api_field: 'annotations'
-  - api_field: 'createTime'
-  - api_field: 'cryptoKeyName'
-  - api_field: 'destination'
-  - api_field: 'displayName'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - field: 'google_api_source_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'loggingConfig.logSeverity'
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: createTime
+    - api_field: cryptoKeyName
+    - api_field: destination
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - field: google_api_source_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: loggingConfig.logSeverity
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

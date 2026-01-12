@@ -1,24 +1,24 @@
-resource: 'google_compute_router'
-generation_type: 'mmv1'
-source_file: 'products/compute/Router.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Router'
+resource: google_compute_router
+generation_type: mmv1
+source_file: products/compute/Router.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Router
 fields:
-  - api_field: 'bgp.advertiseMode'
-  - api_field: 'bgp.advertisedGroups'
-  - api_field: 'bgp.advertisedIpRanges.description'
-  - api_field: 'bgp.advertisedIpRanges.range'
-  - api_field: 'bgp.asn'
-  - api_field: 'bgp.identifierRange'
-  - api_field: 'bgp.keepaliveInterval'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'encryptedInterconnectRouter'
-  - api_field: 'md5AuthenticationKeys.key'
-  - api_field: 'md5AuthenticationKeys.name'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'params.resourceManagerTags'
-  - api_field: 'region'
-  - api_field: 'selfLink'
+    - api_field: bgp.advertiseMode
+    - api_field: bgp.advertisedGroups
+    - api_field: bgp.advertisedIpRanges.description
+    - api_field: bgp.advertisedIpRanges.range
+    - api_field: bgp.asn
+    - api_field: bgp.identifierRange
+    - api_field: bgp.keepaliveInterval
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: encryptedInterconnectRouter
+    - api_field: md5AuthenticationKeys.key
+    - api_field: md5AuthenticationKeys.name
+    - api_field: name
+    - api_field: network
+    - api_field: params.resourceManagerTags
+    - api_field: region
+    - api_field: selfLink

@@ -1,39 +1,39 @@
-resource: 'google_netapp_storage_pool'
-generation_type: 'mmv1'
-source_file: 'products/netapp/StoragePool.yaml'
-api_service_name: 'netapp.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'StoragePool'
+resource: google_netapp_storage_pool
+generation_type: mmv1
+source_file: products/netapp/StoragePool.yaml
+api_service_name: netapp.googleapis.com
+api_version: v1
+api_resource_type_kind: StoragePool
 fields:
-  - api_field: 'activeDirectory'
-  - api_field: 'allowAutoTiering'
-  - api_field: 'availableThroughputMibps'
-  - api_field: 'capacityGib'
-  - api_field: 'coldTierSizeUsedGib'
-  - api_field: 'customPerformanceEnabled'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enableHotTierAutoResize'
-  - api_field: 'encryptionType'
-  - api_field: 'hotTierSizeGib'
-  - api_field: 'hotTierSizeUsedGib'
-  - api_field: 'kmsConfig'
-  - api_field: 'labels'
-  - api_field: 'ldapEnabled'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'network'
-  - api_field: 'qosType'
-  - api_field: 'replicaZone'
-  - api_field: 'serviceLevel'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'totalIops'
-  - api_field: 'totalThroughputMibps'
-  - api_field: 'type'
-  - api_field: 'volumeCapacityGib'
-  - api_field: 'volumeCount'
-  - api_field: 'zone'
+    - api_field: activeDirectory
+    - api_field: allowAutoTiering
+    - api_field: availableThroughputMibps
+    - api_field: capacityGib
+    - api_field: coldTierSizeUsedGib
+    - api_field: customPerformanceEnabled
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableHotTierAutoResize
+    - api_field: encryptionType
+    - api_field: hotTierSizeGib
+    - api_field: hotTierSizeUsedGib
+    - api_field: kmsConfig
+    - api_field: labels
+    - api_field: ldapEnabled
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: network
+    - api_field: qosType
+    - api_field: replicaZone
+    - api_field: serviceLevel
+    - field: terraform_labels
+      provider_only: true
+    - api_field: totalIops
+    - api_field: totalThroughputMibps
+    - api_field: type
+    - api_field: volumeCapacityGib
+    - api_field: volumeCount
+    - api_field: zone

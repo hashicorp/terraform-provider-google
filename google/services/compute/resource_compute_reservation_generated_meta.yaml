@@ -1,60 +1,63 @@
-resource: 'google_compute_reservation'
-generation_type: 'mmv1'
-source_file: 'products/compute/Reservation.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Allocation'
+resource: google_compute_reservation
+generation_type: mmv1
+source_file: products/compute/Reservation.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Allocation
 fields:
-  - field: 'block_names'
-    provider_only: true
-  - api_field: 'commitment'
-  - api_field: 'creationTimestamp'
-  - api_field: 'deleteAfterDuration.nanos'
-  - api_field: 'deleteAfterDuration.seconds'
-  - api_field: 'deleteAtTime'
-  - api_field: 'description'
-  - api_field: 'id'
-  - api_field: 'kind'
-  - api_field: 'linkedCommitments'
-  - api_field: 'name'
-  - api_field: 'reservationBlockCount'
-  - api_field: 'reservationSharingPolicy.serviceShareType'
-  - api_field: 'resourceStatus.healthInfo.degradedBlockCount'
-  - api_field: 'resourceStatus.healthInfo.healthStatus'
-  - api_field: 'resourceStatus.healthInfo.healthyBlockCount'
-  - api_field: 'resourceStatus.reservationBlockCount'
-  - api_field: 'resourceStatus.reservationMaintenance.instanceMaintenanceOngoingCount'
-  - api_field: 'resourceStatus.reservationMaintenance.instanceMaintenancePendingCount'
-  - api_field: 'resourceStatus.reservationMaintenance.maintenanceOngoingCount'
-  - api_field: 'resourceStatus.reservationMaintenance.maintenancePendingCount'
-  - api_field: 'resourceStatus.reservationMaintenance.schedulingType'
-  - api_field: 'resourceStatus.reservationMaintenance.subblockInfraMaintenanceOngoingCount'
-  - api_field: 'resourceStatus.reservationMaintenance.subblockInfraMaintenancePendingCount'
-  - api_field: 'resourceStatus.reservationMaintenance.upcomingGroupMaintenance.canReschedule'
-  - api_field: 'resourceStatus.reservationMaintenance.upcomingGroupMaintenance.latestWindowStartTime'
-  - api_field: 'resourceStatus.reservationMaintenance.upcomingGroupMaintenance.maintenanceOnShutdown'
-  - api_field: 'resourceStatus.reservationMaintenance.upcomingGroupMaintenance.maintenanceReasons'
-  - api_field: 'resourceStatus.reservationMaintenance.upcomingGroupMaintenance.maintenanceStatus'
-  - api_field: 'resourceStatus.reservationMaintenance.upcomingGroupMaintenance.type'
-  - api_field: 'resourceStatus.reservationMaintenance.upcomingGroupMaintenance.windowEndTime'
-  - api_field: 'resourceStatus.reservationMaintenance.upcomingGroupMaintenance.windowStartTime'
-  - api_field: 'resourceStatus.specificSkuAllocation.sourceInstanceTemplateId'
-  - api_field: 'resourceStatus.specificSkuAllocation.utilizations'
-  - api_field: 'satisfiesPzs'
-  - api_field: 'shareSettings.projectMap.projectConfig.projectId'
-  - api_field: 'shareSettings.shareType'
-  - api_field: 'specificReservation.assuredCount'
-  - api_field: 'specificReservation.count'
-  - api_field: 'specificReservation.inUseCount'
-  - api_field: 'specificReservation.instanceProperties.guestAccelerators.acceleratorCount'
-  - api_field: 'specificReservation.instanceProperties.guestAccelerators.acceleratorType'
-  - api_field: 'specificReservation.instanceProperties.localSsds.diskSizeGb'
-  - api_field: 'specificReservation.instanceProperties.localSsds.interface'
-  - api_field: 'specificReservation.instanceProperties.locationHint'
-  - api_field: 'specificReservation.instanceProperties.machineType'
-  - api_field: 'specificReservation.instanceProperties.minCpuPlatform'
-  - api_field: 'specificReservation.sourceInstanceTemplate'
-  - api_field: 'specificReservationRequired'
-  - api_field: 'status'
-  - api_field: 'zone'
-  - api_field: 'selfLink'
+    - field: block_names
+      provider_only: true
+    - api_field: commitment
+    - api_field: creationTimestamp
+    - api_field: deleteAfterDuration.nanos
+    - api_field: deleteAfterDuration.seconds
+    - api_field: deleteAtTime
+    - api_field: description
+    - api_field: id
+    - api_field: kind
+    - api_field: linkedCommitments
+    - api_field: name
+    - api_field: reservationBlockCount
+    - api_field: reservationSharingPolicy.serviceShareType
+    - api_field: resourceStatus.healthInfo.degradedBlockCount
+    - api_field: resourceStatus.healthInfo.healthStatus
+    - api_field: resourceStatus.healthInfo.healthyBlockCount
+    - api_field: resourceStatus.reservationBlockCount
+    - api_field: resourceStatus.reservationMaintenance.instanceMaintenanceOngoingCount
+    - api_field: resourceStatus.reservationMaintenance.instanceMaintenancePendingCount
+    - api_field: resourceStatus.reservationMaintenance.maintenanceOngoingCount
+    - api_field: resourceStatus.reservationMaintenance.maintenancePendingCount
+    - api_field: resourceStatus.reservationMaintenance.schedulingType
+    - api_field: resourceStatus.reservationMaintenance.subblockInfraMaintenanceOngoingCount
+    - api_field: resourceStatus.reservationMaintenance.subblockInfraMaintenancePendingCount
+    - api_field: resourceStatus.reservationMaintenance.upcomingGroupMaintenance.canReschedule
+    - api_field: resourceStatus.reservationMaintenance.upcomingGroupMaintenance.latestWindowStartTime
+    - api_field: resourceStatus.reservationMaintenance.upcomingGroupMaintenance.maintenanceOnShutdown
+    - api_field: resourceStatus.reservationMaintenance.upcomingGroupMaintenance.maintenanceReasons
+    - api_field: resourceStatus.reservationMaintenance.upcomingGroupMaintenance.maintenanceStatus
+    - api_field: resourceStatus.reservationMaintenance.upcomingGroupMaintenance.type
+    - api_field: resourceStatus.reservationMaintenance.upcomingGroupMaintenance.windowEndTime
+    - api_field: resourceStatus.reservationMaintenance.upcomingGroupMaintenance.windowStartTime
+    - api_field: resourceStatus.specificSkuAllocation.sourceInstanceTemplateId
+    - api_field: resourceStatus.specificSkuAllocation.utilizations
+    - api_field: satisfiesPzs
+    - api_field: shareSettings.projectMap.key
+      field: share_settings.project_map.id
+    - api_field: shareSettings.projectMap.value.projectId
+      field: share_settings.project_map.project_id
+    - api_field: shareSettings.shareType
+    - api_field: specificReservation.assuredCount
+    - api_field: specificReservation.count
+    - api_field: specificReservation.inUseCount
+    - api_field: specificReservation.instanceProperties.guestAccelerators.acceleratorCount
+    - api_field: specificReservation.instanceProperties.guestAccelerators.acceleratorType
+    - api_field: specificReservation.instanceProperties.localSsds.diskSizeGb
+    - api_field: specificReservation.instanceProperties.localSsds.interface
+    - api_field: specificReservation.instanceProperties.locationHint
+    - api_field: specificReservation.instanceProperties.machineType
+    - api_field: specificReservation.instanceProperties.minCpuPlatform
+    - api_field: specificReservation.sourceInstanceTemplate
+    - api_field: specificReservationRequired
+    - api_field: status
+    - api_field: zone
+    - api_field: selfLink

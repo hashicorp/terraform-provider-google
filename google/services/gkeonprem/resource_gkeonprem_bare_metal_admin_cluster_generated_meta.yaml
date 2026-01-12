@@ -1,85 +1,85 @@
-resource: 'google_gkeonprem_bare_metal_admin_cluster'
-generation_type: 'mmv1'
-source_file: 'products/gkeonprem/BareMetalAdminCluster.yaml'
-api_service_name: 'gkeonprem.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BareMetalAdminCluster'
+resource: google_gkeonprem_bare_metal_admin_cluster
+generation_type: mmv1
+source_file: products/gkeonprem/BareMetalAdminCluster.yaml
+api_service_name: gkeonprem.googleapis.com
+api_version: v1
+api_resource_type_kind: BareMetalAdminCluster
 fields:
-  - api_field: 'annotations'
-  - api_field: 'bareMetalVersion'
-  - api_field: 'clusterOperations.enableApplicationLogs'
-  - api_field: 'controlPlane.apiServerArgs.argument'
-  - api_field: 'controlPlane.apiServerArgs.value'
-  - api_field: 'controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.labels'
-  - api_field: 'controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.nodeConfigs.labels'
-  - api_field: 'controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.nodeConfigs.nodeIp'
-  - api_field: 'controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.operatingSystem'
-  - api_field: 'controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.taints.effect'
-  - api_field: 'controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.taints.key'
-  - api_field: 'controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.taints.value'
-  - api_field: 'createTime'
-  - api_field: 'deleteTime'
-  - api_field: 'description'
-  - field: 'effective_annotations'
-    provider_only: true
-  - api_field: 'endpoint'
-  - api_field: 'etag'
-  - api_field: 'fleet.membership'
-  - api_field: 'loadBalancer.bgpLbConfig.addressPools.addresses'
-  - api_field: 'loadBalancer.bgpLbConfig.addressPools.avoidBuggyIps'
-  - api_field: 'loadBalancer.bgpLbConfig.addressPools.manualAssign'
-  - api_field: 'loadBalancer.bgpLbConfig.addressPools.pool'
-  - api_field: 'loadBalancer.bgpLbConfig.asn'
-  - api_field: 'loadBalancer.bgpLbConfig.bgpPeerConfigs.asn'
-  - api_field: 'loadBalancer.bgpLbConfig.bgpPeerConfigs.controlPlaneNodes'
-  - api_field: 'loadBalancer.bgpLbConfig.bgpPeerConfigs.ipAddress'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.kubeletConfig.registryBurst'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.kubeletConfig.registryPullQps'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.kubeletConfig.serializeImagePullsDisabled'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.labels'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.nodeConfigs.labels'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.nodeConfigs.nodeIp'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.operatingSystem'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.taints.effect'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.taints.key'
-  - api_field: 'loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.taints.value'
-  - api_field: 'loadBalancer.manualLbConfig.enabled'
-  - api_field: 'loadBalancer.portConfig.controlPlaneLoadBalancerPort'
-  - api_field: 'loadBalancer.vipConfig.controlPlaneVip'
-  - api_field: 'localName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'maintenanceConfig.maintenanceAddressCidrBlocks'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'networkConfig.advancedNetworking'
-  - api_field: 'networkConfig.islandModeCidr.podAddressCidrBlocks'
-  - api_field: 'networkConfig.islandModeCidr.serviceAddressCidrBlocks'
-  - api_field: 'networkConfig.multipleNetworkInterfacesConfig.enabled'
-  - api_field: 'nodeAccessConfig.loginUser'
-  - api_field: 'nodeConfig.maxPodsPerNode'
-  - api_field: 'proxy.noProxy'
-  - api_field: 'proxy.uri'
-  - api_field: 'reconciling'
-  - api_field: 'securityConfig.authorization.adminUsers.username'
-  - api_field: 'state'
-  - api_field: 'status.conditions.lastTransitionTime'
-  - api_field: 'status.conditions.message'
-  - api_field: 'status.conditions.reason'
-  - api_field: 'status.conditions.state'
-  - api_field: 'status.conditions.type'
-  - api_field: 'status.errorMessage'
-  - api_field: 'storage.lvpNodeMountsConfig.path'
-  - api_field: 'storage.lvpNodeMountsConfig.storageClass'
-  - api_field: 'storage.lvpShareConfig.lvpConfig.path'
-  - api_field: 'storage.lvpShareConfig.lvpConfig.storageClass'
-  - api_field: 'storage.lvpShareConfig.sharedPathPvCount'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
-  - api_field: 'validationCheck.options'
-  - api_field: 'validationCheck.scenario'
-  - api_field: 'validationCheck.status.result.category'
-  - api_field: 'validationCheck.status.result.description'
-  - api_field: 'validationCheck.status.result.details'
-  - api_field: 'validationCheck.status.result.options'
-  - api_field: 'validationCheck.status.result.reason'
+    - api_field: annotations
+    - api_field: bareMetalVersion
+    - api_field: clusterOperations.enableApplicationLogs
+    - api_field: controlPlane.apiServerArgs.argument
+    - api_field: controlPlane.apiServerArgs.value
+    - api_field: controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.labels
+    - api_field: controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.nodeConfigs.labels
+    - api_field: controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.nodeConfigs.nodeIp
+    - api_field: controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.operatingSystem
+    - api_field: controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.taints.effect
+    - api_field: controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.taints.key
+    - api_field: controlPlane.controlPlaneNodePoolConfig.nodePoolConfig.taints.value
+    - api_field: createTime
+    - api_field: deleteTime
+    - api_field: description
+    - field: effective_annotations
+      provider_only: true
+    - api_field: endpoint
+    - api_field: etag
+    - api_field: fleet.membership
+    - api_field: loadBalancer.bgpLbConfig.addressPools.addresses
+    - api_field: loadBalancer.bgpLbConfig.addressPools.avoidBuggyIps
+    - api_field: loadBalancer.bgpLbConfig.addressPools.manualAssign
+    - api_field: loadBalancer.bgpLbConfig.addressPools.pool
+    - api_field: loadBalancer.bgpLbConfig.asn
+    - api_field: loadBalancer.bgpLbConfig.bgpPeerConfigs.asn
+    - api_field: loadBalancer.bgpLbConfig.bgpPeerConfigs.controlPlaneNodes
+    - api_field: loadBalancer.bgpLbConfig.bgpPeerConfigs.ipAddress
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.kubeletConfig.registryBurst
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.kubeletConfig.registryPullQps
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.kubeletConfig.serializeImagePullsDisabled
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.labels
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.nodeConfigs.labels
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.nodeConfigs.nodeIp
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.operatingSystem
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.taints.effect
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.taints.key
+    - api_field: loadBalancer.bgpLbConfig.loadBalancerNodePoolConfig.nodePoolConfig.taints.value
+    - api_field: loadBalancer.manualLbConfig.enabled
+    - api_field: loadBalancer.portConfig.controlPlaneLoadBalancerPort
+    - api_field: loadBalancer.vipConfig.controlPlaneVip
+    - api_field: localName
+    - field: location
+      provider_only: true
+    - api_field: maintenanceConfig.maintenanceAddressCidrBlocks
+    - field: name
+      provider_only: true
+    - api_field: networkConfig.advancedNetworking
+    - api_field: networkConfig.islandModeCidr.podAddressCidrBlocks
+    - api_field: networkConfig.islandModeCidr.serviceAddressCidrBlocks
+    - api_field: networkConfig.multipleNetworkInterfacesConfig.enabled
+    - api_field: nodeAccessConfig.loginUser
+    - api_field: nodeConfig.maxPodsPerNode
+    - api_field: proxy.noProxy
+    - api_field: proxy.uri
+    - api_field: reconciling
+    - api_field: securityConfig.authorization.adminUsers.username
+    - api_field: state
+    - api_field: status.conditions.lastTransitionTime
+    - api_field: status.conditions.message
+    - api_field: status.conditions.reason
+    - api_field: status.conditions.state
+    - api_field: status.conditions.type
+    - api_field: status.errorMessage
+    - api_field: storage.lvpNodeMountsConfig.path
+    - api_field: storage.lvpNodeMountsConfig.storageClass
+    - api_field: storage.lvpShareConfig.lvpConfig.path
+    - api_field: storage.lvpShareConfig.lvpConfig.storageClass
+    - api_field: storage.lvpShareConfig.sharedPathPvCount
+    - api_field: uid
+    - api_field: updateTime
+    - api_field: validationCheck.options
+    - api_field: validationCheck.scenario
+    - api_field: validationCheck.status.result.category
+    - api_field: validationCheck.status.result.description
+    - api_field: validationCheck.status.result.details
+    - api_field: validationCheck.status.result.options
+    - api_field: validationCheck.status.result.reason

@@ -1,38 +1,38 @@
-resource: 'google_dataproc_session_template'
-generation_type: 'mmv1'
-source_file: 'products/dataproc/SessionTemplate.yaml'
-api_service_name: 'dataproc.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SessionTemplate'
+resource: google_dataproc_session_template
+generation_type: mmv1
+source_file: products/dataproc/SessionTemplate.yaml
+api_service_name: dataproc.googleapis.com
+api_version: v1
+api_resource_type_kind: SessionTemplate
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/sessionTemplates/{sessionTemplate}'
+    - projects/{project}/locations/{location}/sessionTemplates/{sessionTemplate}
 fields:
-  - api_field: 'createTime'
-  - api_field: 'creator'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'environmentConfig.executionConfig.authenticationConfig.userWorkloadAuthenticationType'
-  - api_field: 'environmentConfig.executionConfig.idleTtl'
-  - api_field: 'environmentConfig.executionConfig.kmsKey'
-  - api_field: 'environmentConfig.executionConfig.networkTags'
-  - api_field: 'environmentConfig.executionConfig.serviceAccount'
-  - api_field: 'environmentConfig.executionConfig.stagingBucket'
-  - api_field: 'environmentConfig.executionConfig.subnetworkUri'
-  - api_field: 'environmentConfig.executionConfig.ttl'
-  - api_field: 'environmentConfig.peripheralsConfig.metastoreService'
-  - api_field: 'environmentConfig.peripheralsConfig.sparkHistoryServerConfig.dataprocCluster'
-  - api_field: 'jupyterSession.displayName'
-  - api_field: 'jupyterSession.kernel'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'runtimeConfig.containerImage'
-  - api_field: 'runtimeConfig.effective_properties'
-  - api_field: 'runtimeConfig.properties'
-  - api_field: 'runtimeConfig.version'
-  - api_field: 'sparkConnectSession'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'uuid'
+    - api_field: createTime
+    - api_field: creator
+    - field: effective_labels
+      provider_only: true
+    - api_field: environmentConfig.executionConfig.authenticationConfig.userWorkloadAuthenticationType
+    - api_field: environmentConfig.executionConfig.idleTtl
+    - api_field: environmentConfig.executionConfig.kmsKey
+    - api_field: environmentConfig.executionConfig.networkTags
+    - api_field: environmentConfig.executionConfig.serviceAccount
+    - api_field: environmentConfig.executionConfig.stagingBucket
+    - api_field: environmentConfig.executionConfig.subnetworkUri
+    - api_field: environmentConfig.executionConfig.ttl
+    - api_field: environmentConfig.peripheralsConfig.metastoreService
+    - api_field: environmentConfig.peripheralsConfig.sparkHistoryServerConfig.dataprocCluster
+    - api_field: jupyterSession.displayName
+    - api_field: jupyterSession.kernel
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: runtimeConfig.containerImage
+    - api_field: runtimeConfig.effective_properties
+    - api_field: runtimeConfig.properties
+    - api_field: runtimeConfig.version
+    - api_field: sparkConnectSession
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: uuid

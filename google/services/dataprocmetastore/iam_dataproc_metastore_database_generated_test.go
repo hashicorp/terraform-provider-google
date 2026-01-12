@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -58,7 +59,7 @@ func TestAccDataprocMetastoreDatabaseIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_database_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv-%s", context["random_suffix"]), "testdb"),
+				ImportStateIdFunc: generateDataprocMetastoreDatabaseIAMBindingStateID("google_dataproc_metastore_database_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -68,7 +69,7 @@ func TestAccDataprocMetastoreDatabaseIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_database_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv-%s", context["random_suffix"]), "testdb"),
+				ImportStateIdFunc: generateDataprocMetastoreDatabaseIAMBindingStateID("google_dataproc_metastore_database_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -97,7 +98,7 @@ func TestAccDataprocMetastoreDatabaseIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_database_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv-%s", context["random_suffix"]), "testdb"),
+				ImportStateIdFunc: generateDataprocMetastoreDatabaseIAMMemberStateID("google_dataproc_metastore_database_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccDataprocMetastoreDatabaseIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_database_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv-%s", context["random_suffix"]), "testdb"),
+				ImportStateIdFunc: generateDataprocMetastoreDatabaseIAMPolicyStateID("google_dataproc_metastore_database_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -135,7 +136,7 @@ func TestAccDataprocMetastoreDatabaseIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_database_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv-%s", context["random_suffix"]), "testdb"),
+				ImportStateIdFunc: generateDataprocMetastoreDatabaseIAMPolicyStateID("google_dataproc_metastore_database_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -559,4 +560,61 @@ resource "google_dataproc_metastore_database_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateDataprocMetastoreDatabaseIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		serviceId := tpgresource.GetResourceNameFromSelfLink(rawState["service_id"])
+		database := tpgresource.GetResourceNameFromSelfLink(rawState["database"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s", project, location, serviceId, database), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataprocMetastoreDatabaseIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		serviceId := tpgresource.GetResourceNameFromSelfLink(rawState["service_id"])
+		database := tpgresource.GetResourceNameFromSelfLink(rawState["database"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s", project, location, serviceId, database), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataprocMetastoreDatabaseIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		serviceId := tpgresource.GetResourceNameFromSelfLink(rawState["service_id"])
+		database := tpgresource.GetResourceNameFromSelfLink(rawState["database"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s", project, location, serviceId, database), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

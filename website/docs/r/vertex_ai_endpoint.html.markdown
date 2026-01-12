@@ -339,12 +339,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `dedicated_resources` -
   (Output)
   A description of resources that are dedicated to the DeployedModel, and that need a higher degree of manual configuration.
-  Structure is [documented below](#nested_deployed_models_deployed_models_dedicated_resources).
+  Structure is [documented below](#nested_deployed_models_dedicated_resources).
 
 * `automatic_resources` -
   (Output)
   A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration.
-  Structure is [documented below](#nested_deployed_models_deployed_models_automatic_resources).
+  Structure is [documented below](#nested_deployed_models_automatic_resources).
 
 * `id` -
   (Output)
@@ -377,7 +377,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `private_endpoints` -
   (Output)
   Output only. Provide paths for users to send predict/explain/health requests directly to the deployed model services running on Cloud via private services access. This field is populated if network is configured.
-  Structure is [documented below](#nested_deployed_models_deployed_models_private_endpoints).
+  Structure is [documented below](#nested_deployed_models_private_endpoints).
 
 * `shared_resources` -
   (Output)
@@ -388,12 +388,12 @@ In addition to the arguments listed above, the following computed attributes are
   If true, the container of the DeployedModel instances will send `stderr` and `stdout` streams to Stackdriver Logging. Only supported for custom-trained Models and AutoML Tabular Models.
 
 
-<a name="nested_deployed_models_deployed_models_dedicated_resources"></a>The `dedicated_resources` block contains:
+<a name="nested_deployed_models_dedicated_resources"></a>The `dedicated_resources` block contains:
 
 * `machine_spec` -
   (Output)
   The specification of a single machine used by the prediction.
-  Structure is [documented below](#nested_deployed_models_deployed_models_dedicated_resources_machine_spec).
+  Structure is [documented below](#nested_deployed_models_dedicated_resources_machine_spec).
 
 * `min_replica_count` -
   (Output)
@@ -406,10 +406,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `autoscaling_metric_specs` -
   (Output)
   The metric specifications that overrides a resource utilization metric (CPU utilization, accelerator's duty cycle, and so on) target value (default to 60 if not set). At most one entry is allowed per metric. If machine_spec.accelerator_count is above 0, the autoscaling will be based on both CPU utilization and accelerator's duty cycle metrics and scale up when either metrics exceeds its target value while scale down if both metrics are under their target value. The default target value is 60 for both metrics. If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not explicitly set. For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to `80`.
-  Structure is [documented below](#nested_deployed_models_deployed_models_dedicated_resources_autoscaling_metric_specs).
+  Structure is [documented below](#nested_deployed_models_dedicated_resources_autoscaling_metric_specs).
 
 
-<a name="nested_deployed_models_deployed_models_dedicated_resources_machine_spec"></a>The `machine_spec` block contains:
+<a name="nested_deployed_models_dedicated_resources_machine_spec"></a>The `machine_spec` block contains:
 
 * `machine_type` -
   (Output)
@@ -423,7 +423,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The number of accelerators to attach to the machine.
 
-<a name="nested_deployed_models_deployed_models_dedicated_resources_autoscaling_metric_specs"></a>The `autoscaling_metric_specs` block contains:
+<a name="nested_deployed_models_dedicated_resources_autoscaling_metric_specs"></a>The `autoscaling_metric_specs` block contains:
 
 * `metric_name` -
   (Output)
@@ -433,7 +433,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change. The default value is 60 (representing 60%) if not provided.
 
-<a name="nested_deployed_models_deployed_models_automatic_resources"></a>The `automatic_resources` block contains:
+<a name="nested_deployed_models_automatic_resources"></a>The `automatic_resources` block contains:
 
 * `min_replica_count` -
   (Output)
@@ -443,7 +443,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The maximum number of replicas this DeployedModel may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many replicas is guaranteed (barring service outages). If traffic against the DeployedModel increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Vertex AI may be unable to scale beyond certain replica number.
 
-<a name="nested_deployed_models_deployed_models_private_endpoints"></a>The `private_endpoints` block contains:
+<a name="nested_deployed_models_private_endpoints"></a>The `private_endpoints` block contains:
 
 * `predict_http_uri` -
   (Output)

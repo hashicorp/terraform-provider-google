@@ -1,18 +1,18 @@
-resource: 'google_cloud_ids_endpoint'
-generation_type: 'mmv1'
-source_file: 'products/cloudids/Endpoint.yaml'
-api_service_name: 'ids.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Endpoint'
+resource: google_cloud_ids_endpoint
+generation_type: mmv1
+source_file: products/cloudids/Endpoint.yaml
+api_service_name: ids.googleapis.com
+api_version: v1
+api_resource_type_kind: Endpoint
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'endpointForwardingRule'
-  - api_field: 'endpointIp'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'severity'
-  - api_field: 'threatExceptions'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: endpointForwardingRule
+    - api_field: endpointIp
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: network
+    - api_field: severity
+    - api_field: threatExceptions
+    - api_field: updateTime

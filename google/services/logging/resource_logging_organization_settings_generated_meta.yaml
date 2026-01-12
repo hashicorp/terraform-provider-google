@@ -1,17 +1,17 @@
-resource: 'google_logging_organization_settings'
-generation_type: 'mmv1'
-source_file: 'products/logging/OrganizationSettings.yaml'
-api_service_name: 'logging.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Settings'
+resource: google_logging_organization_settings
+generation_type: mmv1
+source_file: products/logging/OrganizationSettings.yaml
+api_service_name: logging.googleapis.com
+api_version: v2
+api_resource_type_kind: Settings
 api_variant_patterns:
-  - 'organizations/{organization}/settings'
+    - organizations/{organization}/settings
 fields:
-  - api_field: 'disableDefaultSink'
-  - api_field: 'kmsKeyName'
-  - api_field: 'kmsServiceAccountId'
-  - api_field: 'loggingServiceAccountId'
-  - api_field: 'name'
-  - field: 'organization'
-    provider_only: true
-  - api_field: 'storageLocation'
+    - api_field: disableDefaultSink
+    - api_field: kmsKeyName
+    - api_field: kmsServiceAccountId
+    - api_field: loggingServiceAccountId
+    - api_field: name
+    - field: organization
+      provider_only: true
+    - api_field: storageLocation

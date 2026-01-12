@@ -1,13 +1,13 @@
-resource: 'google_healthcare_dataset'
-generation_type: 'mmv1'
-source_file: 'products/healthcare/Dataset.yaml'
-api_service_name: 'healthcare.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Dataset'
+resource: google_healthcare_dataset
+generation_type: mmv1
+source_file: products/healthcare/Dataset.yaml
+api_service_name: healthcare.googleapis.com
+api_version: v1
+api_resource_type_kind: Dataset
 fields:
-  - api_field: 'encryptionSpec.kmsKeyName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'selfLink'
-  - api_field: 'timeZone'
+    - api_field: encryptionSpec.kmsKeyName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: selfLink
+    - api_field: timeZone

@@ -1,37 +1,37 @@
-resource: 'google_dns_managed_zone'
-generation_type: 'mmv1'
-source_file: 'products/dns/ManagedZone.yaml'
-api_service_name: 'dns.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ManagedZone'
+resource: google_dns_managed_zone
+generation_type: mmv1
+source_file: products/dns/ManagedZone.yaml
+api_service_name: dns.googleapis.com
+api_version: v1
+api_resource_type_kind: ManagedZone
 fields:
-  - api_field: 'cloudLoggingConfig.enableLogging'
-  - api_field: 'creationTime'
-  - api_field: 'description'
-  - api_field: 'dnsName'
-  - api_field: 'dnssecConfig.defaultKeySpecs.algorithm'
-  - api_field: 'dnssecConfig.defaultKeySpecs.keyLength'
-  - api_field: 'dnssecConfig.defaultKeySpecs.keyType'
-  - api_field: 'dnssecConfig.defaultKeySpecs.kind'
-  - api_field: 'dnssecConfig.kind'
-  - api_field: 'dnssecConfig.nonExistence'
-  - api_field: 'dnssecConfig.state'
-  - field: 'effective_labels'
-    provider_only: true
-  - field: 'force_destroy'
-    provider_only: true
-  - api_field: 'forwardingConfig.targetNameServers.domainName'
-  - api_field: 'forwardingConfig.targetNameServers.forwardingPath'
-  - api_field: 'forwardingConfig.targetNameServers.ipv4Address'
-  - api_field: 'forwardingConfig.targetNameServers.ipv6Address'
-  - api_field: 'labels'
-  - api_field: 'id'
-    field: 'managed_zone_id'
-  - api_field: 'name'
-  - api_field: 'nameServers'
-  - api_field: 'peeringConfig.targetNetwork.networkUrl'
-  - api_field: 'privateVisibilityConfig.gkeClusters.gkeClusterName'
-  - api_field: 'privateVisibilityConfig.networks.networkUrl'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'visibility'
+    - api_field: cloudLoggingConfig.enableLogging
+    - api_field: creationTime
+    - api_field: description
+    - api_field: dnsName
+    - api_field: dnssecConfig.defaultKeySpecs.algorithm
+    - api_field: dnssecConfig.defaultKeySpecs.keyLength
+    - api_field: dnssecConfig.defaultKeySpecs.keyType
+    - api_field: dnssecConfig.defaultKeySpecs.kind
+    - api_field: dnssecConfig.kind
+    - api_field: dnssecConfig.nonExistence
+    - api_field: dnssecConfig.state
+    - field: effective_labels
+      provider_only: true
+    - field: force_destroy
+      provider_only: true
+    - api_field: forwardingConfig.targetNameServers.domainName
+    - api_field: forwardingConfig.targetNameServers.forwardingPath
+    - api_field: forwardingConfig.targetNameServers.ipv4Address
+    - api_field: forwardingConfig.targetNameServers.ipv6Address
+    - api_field: labels
+    - api_field: id
+      field: managed_zone_id
+    - api_field: name
+    - api_field: nameServers
+    - api_field: peeringConfig.targetNetwork.networkUrl
+    - api_field: privateVisibilityConfig.gkeClusters.gkeClusterName
+    - api_field: privateVisibilityConfig.networks.networkUrl
+    - field: terraform_labels
+      provider_only: true
+    - api_field: visibility

@@ -1,16 +1,18 @@
-resource: 'google_compute_region_network_endpoint'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionNetworkEndpoint.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NetworkEndpointGroup'
+resource: google_compute_region_network_endpoint
+generation_type: mmv1
+source_file: products/compute/RegionNetworkEndpoint.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: NetworkEndpointGroup
 fields:
-  - api_field: 'fqdn'
-  - api_field: 'ipAddress'
-  - api_field: 'id'
-    field: 'network_endpoint_id'
-  - api_field: 'port'
-  - field: 'region'
-    provider_only: true
-  - field: 'region_network_endpoint_group'
-    provider_only: true
+    - api_field: clientDestinationPort
+    - api_field: fqdn
+    - api_field: instance
+    - api_field: ipAddress
+    - api_field: id
+      field: network_endpoint_id
+    - api_field: port
+    - field: region
+      provider_only: true
+    - field: region_network_endpoint_group
+      provider_only: true

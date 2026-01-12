@@ -1,31 +1,31 @@
-resource: 'google_compute_backend_bucket'
-generation_type: 'mmv1'
-source_file: 'products/compute/BackendBucket.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BackendBucket'
+resource: google_compute_backend_bucket
+generation_type: mmv1
+source_file: products/compute/BackendBucket.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: BackendBucket
 fields:
-  - api_field: 'bucketName'
-  - api_field: 'cdnPolicy.bypassCacheOnRequestHeaders.headerName'
-  - api_field: 'cdnPolicy.cacheKeyPolicy.includeHttpHeaders'
-  - api_field: 'cdnPolicy.cacheKeyPolicy.queryStringWhitelist'
-  - api_field: 'cdnPolicy.cacheMode'
-  - api_field: 'cdnPolicy.clientTtl'
-  - api_field: 'cdnPolicy.defaultTtl'
-  - api_field: 'cdnPolicy.maxTtl'
-  - api_field: 'cdnPolicy.negativeCaching'
-  - api_field: 'cdnPolicy.negativeCachingPolicy.code'
-  - api_field: 'cdnPolicy.negativeCachingPolicy.ttl'
-  - api_field: 'cdnPolicy.requestCoalescing'
-  - api_field: 'cdnPolicy.serveWhileStale'
-  - api_field: 'cdnPolicy.signedUrlCacheMaxAgeSec'
-  - api_field: 'compressionMode'
-  - api_field: 'creationTimestamp'
-  - api_field: 'customResponseHeaders'
-  - api_field: 'description'
-  - api_field: 'edgeSecurityPolicy'
-  - api_field: 'enableCdn'
-  - api_field: 'loadBalancingScheme'
-  - api_field: 'name'
-  - api_field: 'params.resourceManagerTags'
-  - api_field: 'selfLink'
+    - api_field: bucketName
+    - api_field: cdnPolicy.bypassCacheOnRequestHeaders.headerName
+    - api_field: cdnPolicy.cacheKeyPolicy.includeHttpHeaders
+    - api_field: cdnPolicy.cacheKeyPolicy.queryStringWhitelist
+    - api_field: cdnPolicy.cacheMode
+    - api_field: cdnPolicy.clientTtl
+    - api_field: cdnPolicy.defaultTtl
+    - api_field: cdnPolicy.maxTtl
+    - api_field: cdnPolicy.negativeCaching
+    - api_field: cdnPolicy.negativeCachingPolicy.code
+    - api_field: cdnPolicy.negativeCachingPolicy.ttl
+    - api_field: cdnPolicy.requestCoalescing
+    - api_field: cdnPolicy.serveWhileStale
+    - api_field: cdnPolicy.signedUrlCacheMaxAgeSec
+    - api_field: compressionMode
+    - api_field: creationTimestamp
+    - api_field: customResponseHeaders
+    - api_field: description
+    - api_field: edgeSecurityPolicy
+    - api_field: enableCdn
+    - api_field: loadBalancingScheme
+    - api_field: name
+    - api_field: params.resourceManagerTags
+    - api_field: selfLink

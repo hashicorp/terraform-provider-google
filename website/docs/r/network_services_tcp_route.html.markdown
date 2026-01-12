@@ -271,15 +271,15 @@ The following arguments are supported:
   (Optional)
   RouteMatch defines the predicate used to match requests to a given action. Multiple match types are "OR"ed for evaluation.
   If no routeMatch field is specified, this rule will unconditionally match traffic.
-  Structure is [documented below](#nested_rules_rules_matches).
+  Structure is [documented below](#nested_rules_matches).
 
 * `action` -
   (Required)
   A detailed rule defining how to route traffic.
-  Structure is [documented below](#nested_rules_rules_action).
+  Structure is [documented below](#nested_rules_action).
 
 
-<a name="nested_rules_rules_matches"></a>The `matches` block supports:
+<a name="nested_rules_matches"></a>The `matches` block supports:
 
 * `address` -
   (Required)
@@ -290,12 +290,12 @@ The following arguments are supported:
   (Required)
   Specifies the destination port to match against.
 
-<a name="nested_rules_rules_action"></a>The `action` block supports:
+<a name="nested_rules_action"></a>The `action` block supports:
 
 * `destinations` -
   (Optional)
   The destination services to which traffic should be forwarded. At least one destination service is required.
-  Structure is [documented below](#nested_rules_rules_action_destinations).
+  Structure is [documented below](#nested_rules_action_destinations).
 
 * `original_destination` -
   (Optional)
@@ -307,7 +307,7 @@ The following arguments are supported:
   A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
 
 
-<a name="nested_rules_rules_action_destinations"></a>The `destinations` block supports:
+<a name="nested_rules_action_destinations"></a>The `destinations` block supports:
 
 * `service_name` -
   (Optional)

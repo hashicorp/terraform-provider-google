@@ -1,31 +1,31 @@
-resource: 'google_network_connectivity_policy_based_route'
-generation_type: 'mmv1'
-source_file: 'products/networkconnectivity/PolicyBasedRoute.yaml'
-api_service_name: 'networkconnectivity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PolicyBasedRoute'
+resource: google_network_connectivity_policy_based_route
+generation_type: mmv1
+source_file: products/networkconnectivity/PolicyBasedRoute.yaml
+api_service_name: networkconnectivity.googleapis.com
+api_version: v1
+api_resource_type_kind: PolicyBasedRoute
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'filter.destRange'
-  - api_field: 'filter.ipProtocol'
-  - api_field: 'filter.protocolVersion'
-  - api_field: 'filter.srcRange'
-  - api_field: 'interconnectAttachment.region'
-  - api_field: 'kind'
-  - api_field: 'labels'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'network'
-  - api_field: 'nextHopIlbIp'
-  - api_field: 'nextHopOtherRoutes'
-  - api_field: 'priority'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'virtualMachine.tags'
-  - api_field: 'warnings.code'
-  - api_field: 'warnings.data'
-  - api_field: 'warnings.warningMessage'
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: filter.destRange
+    - api_field: filter.ipProtocol
+    - api_field: filter.protocolVersion
+    - api_field: filter.srcRange
+    - api_field: interconnectAttachment.region
+    - api_field: kind
+    - api_field: labels
+    - field: name
+      provider_only: true
+    - api_field: network
+    - api_field: nextHopIlbIp
+    - api_field: nextHopOtherRoutes
+    - api_field: priority
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: virtualMachine.tags
+    - api_field: warnings.code
+    - api_field: warnings.data
+    - api_field: warnings.warningMessage

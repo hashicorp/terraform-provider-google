@@ -1,59 +1,59 @@
-resource: 'google_netapp_volume_replication'
-generation_type: 'mmv1'
-source_file: 'products/netapp/VolumeReplication.yaml'
-api_service_name: 'netapp.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Replication'
+resource: google_netapp_volume_replication
+generation_type: mmv1
+source_file: products/netapp/VolumeReplication.yaml
+api_service_name: netapp.googleapis.com
+api_version: v1
+api_resource_type_kind: Replication
 fields:
-  - api_field: 'createTime'
-  - field: 'delete_destination_volume'
-    provider_only: true
-  - api_field: 'description'
-  - api_field: 'destinationVolume'
-  - api_field: 'destinationVolumeParameters.description'
-  - api_field: 'destinationVolumeParameters.shareName'
-  - api_field: 'destinationVolumeParameters.storagePool'
-  - api_field: 'destinationVolumeParameters.tieringPolicy.coolingThresholdDays'
-  - api_field: 'destinationVolumeParameters.tieringPolicy.tierAction'
-  - api_field: 'destinationVolumeParameters.volumeId'
-  - field: 'effective_labels'
-    provider_only: true
-  - field: 'force_stopping'
-    provider_only: true
-  - api_field: 'healthy'
-  - api_field: 'hybridPeeringDetails.command'
-  - api_field: 'hybridPeeringDetails.commandExpiryTime'
-  - api_field: 'hybridPeeringDetails.passphrase'
-  - api_field: 'hybridPeeringDetails.peerClusterName'
-  - api_field: 'hybridPeeringDetails.peerSvmName'
-  - api_field: 'hybridPeeringDetails.peerVolumeName'
-  - api_field: 'hybridPeeringDetails.subnetIp'
-  - api_field: 'hybridReplicationType'
-  - api_field: 'hybridReplicationUserCommands.commands'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mirrorState'
-  - field: 'name'
-    provider_only: true
-  - field: 'replication_enabled'
-    provider_only: true
-  - api_field: 'replicationSchedule'
-  - api_field: 'role'
-  - api_field: 'sourceVolume'
-  - api_field: 'state'
-  - api_field: 'stateDetails'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'transferStats.lagDuration'
-  - api_field: 'transferStats.lastTransferBytes'
-  - api_field: 'transferStats.lastTransferDuration'
-  - api_field: 'transferStats.lastTransferEndTime'
-  - api_field: 'transferStats.lastTransferError'
-  - api_field: 'transferStats.totalTransferDuration'
-  - api_field: 'transferStats.transferBytes'
-  - api_field: 'transferStats.updateTime'
-  - field: 'volume_name'
-    provider_only: true
-  - field: 'wait_for_mirror'
-    provider_only: true
+    - api_field: createTime
+    - field: delete_destination_volume
+      provider_only: true
+    - api_field: description
+    - api_field: destinationVolume
+    - api_field: destinationVolumeParameters.description
+    - api_field: destinationVolumeParameters.shareName
+    - api_field: destinationVolumeParameters.storagePool
+    - api_field: destinationVolumeParameters.tieringPolicy.coolingThresholdDays
+    - api_field: destinationVolumeParameters.tieringPolicy.tierAction
+    - api_field: destinationVolumeParameters.volumeId
+    - field: effective_labels
+      provider_only: true
+    - field: force_stopping
+      provider_only: true
+    - api_field: healthy
+    - api_field: hybridPeeringDetails.command
+    - api_field: hybridPeeringDetails.commandExpiryTime
+    - api_field: hybridPeeringDetails.passphrase
+    - api_field: hybridPeeringDetails.peerClusterName
+    - api_field: hybridPeeringDetails.peerSvmName
+    - api_field: hybridPeeringDetails.peerVolumeName
+    - api_field: hybridPeeringDetails.subnetIp
+    - api_field: hybridReplicationType
+    - api_field: hybridReplicationUserCommands.commands
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: mirrorState
+    - field: name
+      provider_only: true
+    - field: replication_enabled
+      provider_only: true
+    - api_field: replicationSchedule
+    - api_field: role
+    - api_field: sourceVolume
+    - api_field: state
+    - api_field: stateDetails
+    - field: terraform_labels
+      provider_only: true
+    - api_field: transferStats.lagDuration
+    - api_field: transferStats.lastTransferBytes
+    - api_field: transferStats.lastTransferDuration
+    - api_field: transferStats.lastTransferEndTime
+    - api_field: transferStats.lastTransferError
+    - api_field: transferStats.totalTransferDuration
+    - api_field: transferStats.transferBytes
+    - api_field: transferStats.updateTime
+    - field: volume_name
+      provider_only: true
+    - field: wait_for_mirror
+      provider_only: true

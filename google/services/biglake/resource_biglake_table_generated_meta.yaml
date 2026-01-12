@@ -1,22 +1,22 @@
-resource: 'google_biglake_table'
-generation_type: 'mmv1'
-source_file: 'products/biglake/Table.yaml'
-api_service_name: 'biglake.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Table'
+resource: google_biglake_table
+generation_type: mmv1
+source_file: products/biglake/Table.yaml
+api_service_name: biglake.googleapis.com
+api_version: v1
+api_resource_type_kind: Table
 fields:
-  - api_field: 'createTime'
-  - field: 'database'
-    provider_only: true
-  - api_field: 'deleteTime'
-  - api_field: 'etag'
-  - api_field: 'expireTime'
-  - api_field: 'hiveOptions.parameters'
-  - api_field: 'hiveOptions.storageDescriptor.inputFormat'
-  - api_field: 'hiveOptions.storageDescriptor.locationUri'
-  - api_field: 'hiveOptions.storageDescriptor.outputFormat'
-  - api_field: 'hiveOptions.tableType'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - field: database
+      provider_only: true
+    - api_field: deleteTime
+    - api_field: etag
+    - api_field: expireTime
+    - api_field: hiveOptions.parameters
+    - api_field: hiveOptions.storageDescriptor.inputFormat
+    - api_field: hiveOptions.storageDescriptor.locationUri
+    - api_field: hiveOptions.storageDescriptor.outputFormat
+    - api_field: hiveOptions.tableType
+    - field: name
+      provider_only: true
+    - api_field: type
+    - api_field: updateTime

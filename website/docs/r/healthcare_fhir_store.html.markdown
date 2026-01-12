@@ -490,10 +490,10 @@ The following arguments are supported:
   are named after the resource types, e.g. "Patient", "Observation". When there is no existing table for a given
   resource type, the server attempts to create one.
   See the [streaming config reference](https://cloud.google.com/healthcare/docs/reference/rest/v1beta1/projects.locations.datasets.fhirStores#streamconfig) for more details.
-  Structure is [documented below](#nested_stream_configs_stream_configs_bigquery_destination).
+  Structure is [documented below](#nested_stream_configs_bigquery_destination).
 
 
-<a name="nested_stream_configs_stream_configs_bigquery_destination"></a>The `bigquery_destination` block supports:
+<a name="nested_stream_configs_bigquery_destination"></a>The `bigquery_destination` block supports:
 
 * `dataset_uri` -
   (Required)
@@ -502,10 +502,10 @@ The following arguments are supported:
 * `schema_config` -
   (Required)
   The configuration for the exported BigQuery schema.
-  Structure is [documented below](#nested_stream_configs_stream_configs_bigquery_destination_schema_config).
+  Structure is [documented below](#nested_stream_configs_bigquery_destination_schema_config).
 
 
-<a name="nested_stream_configs_stream_configs_bigquery_destination_schema_config"></a>The `schema_config` block supports:
+<a name="nested_stream_configs_bigquery_destination_schema_config"></a>The `schema_config` block supports:
 
 * `schema_type` -
   (Optional)
@@ -527,10 +527,10 @@ The following arguments are supported:
 * `last_updated_partition_config` -
   (Optional)
   The configuration for exported BigQuery tables to be partitioned by FHIR resource's last updated time column.
-  Structure is [documented below](#nested_stream_configs_stream_configs_bigquery_destination_schema_config_last_updated_partition_config).
+  Structure is [documented below](#nested_stream_configs_bigquery_destination_schema_config_last_updated_partition_config).
 
 
-<a name="nested_stream_configs_stream_configs_bigquery_destination_schema_config_last_updated_partition_config"></a>The `last_updated_partition_config` block supports:
+<a name="nested_stream_configs_bigquery_destination_schema_config_last_updated_partition_config"></a>The `last_updated_partition_config` block supports:
 
 * `type` -
   (Required)

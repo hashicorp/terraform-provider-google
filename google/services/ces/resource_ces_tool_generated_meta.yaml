@@ -1,135 +1,135 @@
-resource: 'google_ces_tool'
-generation_type: 'mmv1'
-source_file: 'products/ces/Tool.yaml'
-api_service_name: 'ces.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Tool'
+resource: google_ces_tool
+generation_type: mmv1
+source_file: products/ces/Tool.yaml
+api_service_name: ces.googleapis.com
+api_version: v1
+api_resource_type_kind: Tool
 autogen_status: true
 fields:
-  - field: 'app'
-    provider_only: true
-  - api_field: 'clientFunction.description'
-  - api_field: 'clientFunction.name'
-  - api_field: 'clientFunction.parameters.additionalProperties'
-    json: true
-  - api_field: 'clientFunction.parameters.anyOf'
-    json: true
-  - api_field: 'clientFunction.parameters.default'
-  - api_field: 'clientFunction.parameters.defs'
-    json: true
-  - api_field: 'clientFunction.parameters.description'
-  - api_field: 'clientFunction.parameters.enum'
-  - api_field: 'clientFunction.parameters.items'
-    json: true
-  - api_field: 'clientFunction.parameters.maxItems'
-  - api_field: 'clientFunction.parameters.maximum'
-  - api_field: 'clientFunction.parameters.minItems'
-  - api_field: 'clientFunction.parameters.minimum'
-  - api_field: 'clientFunction.parameters.nullable'
-  - api_field: 'clientFunction.parameters.prefixItems'
-    json: true
-  - api_field: 'clientFunction.parameters.properties'
-    json: true
-  - api_field: 'clientFunction.parameters.ref'
-  - api_field: 'clientFunction.parameters.required'
-  - api_field: 'clientFunction.parameters.title'
-  - api_field: 'clientFunction.parameters.type'
-  - api_field: 'clientFunction.parameters.uniqueItems'
-  - api_field: 'clientFunction.response.additionalProperties'
-    json: true
-  - api_field: 'clientFunction.response.anyOf'
-    json: true
-  - api_field: 'clientFunction.response.default'
-  - api_field: 'clientFunction.response.defs'
-    json: true
-  - api_field: 'clientFunction.response.description'
-  - api_field: 'clientFunction.response.enum'
-  - api_field: 'clientFunction.response.items'
-    json: true
-  - api_field: 'clientFunction.response.maxItems'
-  - api_field: 'clientFunction.response.maximum'
-  - api_field: 'clientFunction.response.minItems'
-  - api_field: 'clientFunction.response.minimum'
-  - api_field: 'clientFunction.response.nullable'
-  - api_field: 'clientFunction.response.prefixItems'
-    json: true
-  - api_field: 'clientFunction.response.properties'
-    json: true
-  - api_field: 'clientFunction.response.ref'
-  - api_field: 'clientFunction.response.required'
-  - api_field: 'clientFunction.response.title'
-  - api_field: 'clientFunction.response.type'
-  - api_field: 'clientFunction.response.uniqueItems'
-  - api_field: 'createTime'
-  - api_field: 'dataStoreTool.boostSpecs.dataStores'
-  - api_field: 'dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boost'
-  - api_field: 'dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.attributeType'
-  - api_field: 'dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.controlPoints.attributeValue'
-  - api_field: 'dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.controlPoints.boostAmount'
-  - api_field: 'dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.fieldName'
-  - api_field: 'dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.interpolationType'
-  - api_field: 'dataStoreTool.boostSpecs.spec.conditionBoostSpecs.condition'
-  - api_field: 'dataStoreTool.description'
-  - api_field: 'dataStoreTool.engineSource.dataStoreSources.dataStore.connectorConfig.collection'
-  - api_field: 'dataStoreTool.engineSource.dataStoreSources.dataStore.connectorConfig.collectionDisplayName'
-  - api_field: 'dataStoreTool.engineSource.dataStoreSources.dataStore.connectorConfig.dataSource'
-  - api_field: 'dataStoreTool.engineSource.dataStoreSources.dataStore.createTime'
-  - api_field: 'dataStoreTool.engineSource.dataStoreSources.dataStore.displayName'
-  - api_field: 'dataStoreTool.engineSource.dataStoreSources.dataStore.documentProcessingMode'
-  - api_field: 'dataStoreTool.engineSource.dataStoreSources.dataStore.name'
-  - api_field: 'dataStoreTool.engineSource.dataStoreSources.dataStore.type'
-  - api_field: 'dataStoreTool.engineSource.dataStoreSources.filter'
-  - api_field: 'dataStoreTool.engineSource.engine'
-  - api_field: 'dataStoreTool.engineSource.filter'
-  - api_field: 'dataStoreTool.maxResults'
-  - api_field: 'dataStoreTool.modalityConfigs.groundingConfig.disabled'
-  - api_field: 'dataStoreTool.modalityConfigs.groundingConfig.groundingLevel'
-  - api_field: 'dataStoreTool.modalityConfigs.modalityType'
-  - api_field: 'dataStoreTool.modalityConfigs.rewriterConfig.disabled'
-  - api_field: 'dataStoreTool.modalityConfigs.rewriterConfig.modelSettings.model'
-  - api_field: 'dataStoreTool.modalityConfigs.rewriterConfig.modelSettings.temperature'
-  - api_field: 'dataStoreTool.modalityConfigs.rewriterConfig.prompt'
-  - api_field: 'dataStoreTool.modalityConfigs.summarizationConfig.disabled'
-  - api_field: 'dataStoreTool.modalityConfigs.summarizationConfig.modelSettings.model'
-  - api_field: 'dataStoreTool.modalityConfigs.summarizationConfig.modelSettings.temperature'
-  - api_field: 'dataStoreTool.modalityConfigs.summarizationConfig.prompt'
-  - api_field: 'dataStoreTool.name'
-  - api_field: 'displayName'
-  - api_field: 'etag'
-  - api_field: 'executionType'
-  - api_field: 'generatedSummary'
-  - api_field: 'googleSearchTool.contextUrls'
-  - api_field: 'googleSearchTool.description'
-  - api_field: 'googleSearchTool.excludeDomains'
-  - api_field: 'googleSearchTool.name'
-  - api_field: 'googleSearchTool.preferredDomains'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'openApiTool.apiAuthentication.apiKeyConfig.apiKeySecretVersion'
-  - api_field: 'openApiTool.apiAuthentication.apiKeyConfig.keyName'
-  - api_field: 'openApiTool.apiAuthentication.apiKeyConfig.requestLocation'
-  - api_field: 'openApiTool.apiAuthentication.bearerTokenConfig.token'
-  - api_field: 'openApiTool.apiAuthentication.oauthConfig.clientId'
-  - api_field: 'openApiTool.apiAuthentication.oauthConfig.clientSecretVersion'
-  - api_field: 'openApiTool.apiAuthentication.oauthConfig.oauthGrantType'
-  - api_field: 'openApiTool.apiAuthentication.oauthConfig.scopes'
-  - api_field: 'openApiTool.apiAuthentication.oauthConfig.tokenEndpoint'
-  - api_field: 'openApiTool.apiAuthentication.serviceAccountAuthConfig.serviceAccount'
-  - api_field: 'openApiTool.apiAuthentication.serviceAgentIdTokenAuthConfig'
-  - api_field: 'openApiTool.description'
-  - api_field: 'openApiTool.ignoreUnknownFields'
-  - api_field: 'openApiTool.name'
-  - api_field: 'openApiTool.openApiSchema'
-  - api_field: 'openApiTool.serviceDirectoryConfig.service'
-  - api_field: 'openApiTool.tlsConfig.caCerts.cert'
-  - api_field: 'openApiTool.tlsConfig.caCerts.displayName'
-  - api_field: 'openApiTool.url'
-  - api_field: 'pythonFunction.description'
-  - api_field: 'pythonFunction.name'
-  - api_field: 'pythonFunction.pythonCode'
-  - api_field: 'systemTool.description'
-  - api_field: 'systemTool.name'
-  - field: 'tool_id'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: app
+      provider_only: true
+    - api_field: clientFunction.description
+    - api_field: clientFunction.name
+    - api_field: clientFunction.parameters.additionalProperties
+      json: true
+    - api_field: clientFunction.parameters.anyOf
+      json: true
+    - api_field: clientFunction.parameters.default
+    - api_field: clientFunction.parameters.defs
+      json: true
+    - api_field: clientFunction.parameters.description
+    - api_field: clientFunction.parameters.enum
+    - api_field: clientFunction.parameters.items
+      json: true
+    - api_field: clientFunction.parameters.maxItems
+    - api_field: clientFunction.parameters.maximum
+    - api_field: clientFunction.parameters.minItems
+    - api_field: clientFunction.parameters.minimum
+    - api_field: clientFunction.parameters.nullable
+    - api_field: clientFunction.parameters.prefixItems
+      json: true
+    - api_field: clientFunction.parameters.properties
+      json: true
+    - api_field: clientFunction.parameters.ref
+    - api_field: clientFunction.parameters.required
+    - api_field: clientFunction.parameters.title
+    - api_field: clientFunction.parameters.type
+    - api_field: clientFunction.parameters.uniqueItems
+    - api_field: clientFunction.response.additionalProperties
+      json: true
+    - api_field: clientFunction.response.anyOf
+      json: true
+    - api_field: clientFunction.response.default
+    - api_field: clientFunction.response.defs
+      json: true
+    - api_field: clientFunction.response.description
+    - api_field: clientFunction.response.enum
+    - api_field: clientFunction.response.items
+      json: true
+    - api_field: clientFunction.response.maxItems
+    - api_field: clientFunction.response.maximum
+    - api_field: clientFunction.response.minItems
+    - api_field: clientFunction.response.minimum
+    - api_field: clientFunction.response.nullable
+    - api_field: clientFunction.response.prefixItems
+      json: true
+    - api_field: clientFunction.response.properties
+      json: true
+    - api_field: clientFunction.response.ref
+    - api_field: clientFunction.response.required
+    - api_field: clientFunction.response.title
+    - api_field: clientFunction.response.type
+    - api_field: clientFunction.response.uniqueItems
+    - api_field: createTime
+    - api_field: dataStoreTool.boostSpecs.dataStores
+    - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boost
+    - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.attributeType
+    - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.controlPoints.attributeValue
+    - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.controlPoints.boostAmount
+    - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.fieldName
+    - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.boostControlSpec.interpolationType
+    - api_field: dataStoreTool.boostSpecs.spec.conditionBoostSpecs.condition
+    - api_field: dataStoreTool.description
+    - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.connectorConfig.collection
+    - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.connectorConfig.collectionDisplayName
+    - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.connectorConfig.dataSource
+    - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.createTime
+    - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.displayName
+    - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.documentProcessingMode
+    - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.name
+    - api_field: dataStoreTool.engineSource.dataStoreSources.dataStore.type
+    - api_field: dataStoreTool.engineSource.dataStoreSources.filter
+    - api_field: dataStoreTool.engineSource.engine
+    - api_field: dataStoreTool.engineSource.filter
+    - api_field: dataStoreTool.maxResults
+    - api_field: dataStoreTool.modalityConfigs.groundingConfig.disabled
+    - api_field: dataStoreTool.modalityConfigs.groundingConfig.groundingLevel
+    - api_field: dataStoreTool.modalityConfigs.modalityType
+    - api_field: dataStoreTool.modalityConfigs.rewriterConfig.disabled
+    - api_field: dataStoreTool.modalityConfigs.rewriterConfig.modelSettings.model
+    - api_field: dataStoreTool.modalityConfigs.rewriterConfig.modelSettings.temperature
+    - api_field: dataStoreTool.modalityConfigs.rewriterConfig.prompt
+    - api_field: dataStoreTool.modalityConfigs.summarizationConfig.disabled
+    - api_field: dataStoreTool.modalityConfigs.summarizationConfig.modelSettings.model
+    - api_field: dataStoreTool.modalityConfigs.summarizationConfig.modelSettings.temperature
+    - api_field: dataStoreTool.modalityConfigs.summarizationConfig.prompt
+    - api_field: dataStoreTool.name
+    - api_field: displayName
+    - api_field: etag
+    - api_field: executionType
+    - api_field: generatedSummary
+    - api_field: googleSearchTool.contextUrls
+    - api_field: googleSearchTool.description
+    - api_field: googleSearchTool.excludeDomains
+    - api_field: googleSearchTool.name
+    - api_field: googleSearchTool.preferredDomains
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: openApiTool.apiAuthentication.apiKeyConfig.apiKeySecretVersion
+    - api_field: openApiTool.apiAuthentication.apiKeyConfig.keyName
+    - api_field: openApiTool.apiAuthentication.apiKeyConfig.requestLocation
+    - api_field: openApiTool.apiAuthentication.bearerTokenConfig.token
+    - api_field: openApiTool.apiAuthentication.oauthConfig.clientId
+    - api_field: openApiTool.apiAuthentication.oauthConfig.clientSecretVersion
+    - api_field: openApiTool.apiAuthentication.oauthConfig.oauthGrantType
+    - api_field: openApiTool.apiAuthentication.oauthConfig.scopes
+    - api_field: openApiTool.apiAuthentication.oauthConfig.tokenEndpoint
+    - api_field: openApiTool.apiAuthentication.serviceAccountAuthConfig.serviceAccount
+    - api_field: openApiTool.apiAuthentication.serviceAgentIdTokenAuthConfig
+    - api_field: openApiTool.description
+    - api_field: openApiTool.ignoreUnknownFields
+    - api_field: openApiTool.name
+    - api_field: openApiTool.openApiSchema
+    - api_field: openApiTool.serviceDirectoryConfig.service
+    - api_field: openApiTool.tlsConfig.caCerts.cert
+    - api_field: openApiTool.tlsConfig.caCerts.displayName
+    - api_field: openApiTool.url
+    - api_field: pythonFunction.description
+    - api_field: pythonFunction.name
+    - api_field: pythonFunction.pythonCode
+    - api_field: systemTool.description
+    - api_field: systemTool.name
+    - field: tool_id
+      provider_only: true
+    - api_field: updateTime

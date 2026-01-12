@@ -104,14 +104,14 @@ The following arguments are supported:
 * `server_certificates` -
   (Required)
   Required. A list of leaf server certificates used to authenticate HTTPS connections to the EKM replica. Currently, a maximum of 10 Certificate is supported.
-  Structure is [documented below](#nested_service_resolvers_service_resolvers_server_certificates).
+  Structure is [documented below](#nested_service_resolvers_server_certificates).
 
 * `endpoint_filter` -
   (Optional)
   Optional. The filter applied to the endpoints of the resolved service. If no filter is specified, all endpoints will be considered. An endpoint will be chosen arbitrarily from the filtered list for each request. For endpoint filter syntax and examples, see https://cloud.google.com/service-directory/docs/reference/rpc/google.cloud.servicedirectory.v1#resolveservicerequest.
 
 
-<a name="nested_service_resolvers_service_resolvers_server_certificates"></a>The `server_certificates` block supports:
+<a name="nested_service_resolvers_server_certificates"></a>The `server_certificates` block supports:
 
 * `raw_der` -
   (Required)

@@ -1,26 +1,26 @@
-resource: 'google_network_security_firewall_endpoint'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/FirewallEndpoint.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'FirewallEndpoint'
+resource: google_network_security_firewall_endpoint
+generation_type: mmv1
+source_file: products/networksecurity/FirewallEndpoint.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: FirewallEndpoint
 fields:
-  - api_field: 'associatedNetworks'
-  - api_field: 'billingProjectId'
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'endpointSettings.jumboFramesEnabled'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'reconciling'
-  - api_field: 'selfLink'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: associatedNetworks
+    - api_field: billingProjectId
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: endpointSettings.jumboFramesEnabled
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - field: parent
+      provider_only: true
+    - api_field: reconciling
+    - api_field: selfLink
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

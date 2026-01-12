@@ -1,14 +1,14 @@
-resource: 'google_data_catalog_policy_tag'
-generation_type: 'mmv1'
-source_file: 'products/datacatalog/PolicyTag.yaml'
-api_service_name: 'datacatalog.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PolicyTag'
+resource: google_data_catalog_policy_tag
+generation_type: mmv1
+source_file: products/datacatalog/PolicyTag.yaml
+api_service_name: datacatalog.googleapis.com
+api_version: v1
+api_resource_type_kind: PolicyTag
 fields:
-  - api_field: 'childPolicyTags'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'name'
-  - api_field: 'parentPolicyTag'
-  - field: 'taxonomy'
-    provider_only: true
+    - api_field: childPolicyTags
+    - api_field: description
+    - api_field: displayName
+    - api_field: name
+    - api_field: parentPolicyTag
+    - field: taxonomy
+      provider_only: true

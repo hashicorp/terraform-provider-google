@@ -1,11 +1,11 @@
-resource: 'google_compute_instance_settings'
-generation_type: 'mmv1'
-source_file: 'products/compute/InstanceSettings.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InstanceSettings'
-cai_asset_name_format: '//compute.googleapis.com/projects/{{project}}/zones/{{zone}}/instanceSettings/InstanceSettings'
+resource: google_compute_instance_settings
+generation_type: mmv1
+source_file: products/compute/InstanceSettings.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: InstanceSettings
+cai_asset_name_format: //compute.googleapis.com/projects/{{project}}/zones/{{zone}}/instanceSettings/InstanceSettings
 fields:
-  - api_field: 'fingerprint'
-  - api_field: 'metadata.items'
-  - api_field: 'zone'
+    - api_field: fingerprint
+    - api_field: metadata.items
+    - api_field: zone

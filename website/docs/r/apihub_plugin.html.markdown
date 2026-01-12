@@ -236,12 +236,12 @@ The following arguments are supported:
 * `enum_options` -
   (Optional)
   Enum options. To be populated if `ValueType` is `ENUM`.
-  Structure is [documented below](#nested_config_template_additional_config_template_additional_config_template_enum_options).
+  Structure is [documented below](#nested_config_template_additional_config_template_enum_options).
 
 * `multi_select_options` -
   (Optional)
   Multi select options. To be populated if `ValueType` is `MULTI_SELECT`.
-  Structure is [documented below](#nested_config_template_additional_config_template_additional_config_template_multi_select_options).
+  Structure is [documented below](#nested_config_template_additional_config_template_multi_select_options).
 
 * `id` -
   (Required)
@@ -271,7 +271,7 @@ The following arguments are supported:
   `ConfigVariable`.
 
 
-<a name="nested_config_template_additional_config_template_additional_config_template_enum_options"></a>The `enum_options` block supports:
+<a name="nested_config_template_additional_config_template_enum_options"></a>The `enum_options` block supports:
 
 * `id` -
   (Required)
@@ -285,7 +285,7 @@ The following arguments are supported:
   (Optional)
   Description of the option.
 
-<a name="nested_config_template_additional_config_template_additional_config_template_multi_select_options"></a>The `multi_select_options` block supports:
+<a name="nested_config_template_additional_config_template_multi_select_options"></a>The `multi_select_options` block supports:
 
 * `id` -
   (Required)

@@ -1,27 +1,27 @@
-resource: 'google_discovery_engine_chat_engine'
-generation_type: 'mmv1'
-source_file: 'products/discoveryengine/ChatEngine.yaml'
-api_service_name: 'discoveryengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Engine'
+resource: google_discovery_engine_chat_engine
+generation_type: mmv1
+source_file: products/discoveryengine/ChatEngine.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Engine
 fields:
-  - api_field: 'chatEngineConfig.agentCreationConfig.business'
-  - api_field: 'chatEngineConfig.agentCreationConfig.defaultLanguageCode'
-  - api_field: 'chatEngineConfig.agentCreationConfig.location'
-  - api_field: 'chatEngineConfig.agentCreationConfig.timeZone'
-  - api_field: 'chatEngineConfig.allowCrossRegion'
-  - api_field: 'chatEngineConfig.dialogflowAgentToLink'
-  - api_field: 'chatEngineMetadata.dialogflowAgent'
-  - field: 'collection_id'
-    provider_only: true
-  - api_field: 'commonConfig.companyName'
-  - api_field: 'createTime'
-  - api_field: 'dataStoreIds'
-  - api_field: 'displayName'
-  - field: 'engine_id'
-    provider_only: true
-  - api_field: 'industryVertical'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'updateTime'
+    - api_field: chatEngineConfig.agentCreationConfig.business
+    - api_field: chatEngineConfig.agentCreationConfig.defaultLanguageCode
+    - api_field: chatEngineConfig.agentCreationConfig.location
+    - api_field: chatEngineConfig.agentCreationConfig.timeZone
+    - api_field: chatEngineConfig.allowCrossRegion
+    - api_field: chatEngineConfig.dialogflowAgentToLink
+    - api_field: chatEngineMetadata.dialogflowAgent
+    - field: collection_id
+      provider_only: true
+    - api_field: commonConfig.companyName
+    - api_field: createTime
+    - api_field: dataStoreIds
+    - api_field: displayName
+    - field: engine_id
+      provider_only: true
+    - api_field: industryVertical
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: updateTime

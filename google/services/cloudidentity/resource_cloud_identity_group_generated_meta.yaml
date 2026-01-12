@@ -1,20 +1,20 @@
-resource: 'google_cloud_identity_group'
-generation_type: 'mmv1'
-source_file: 'products/cloudidentity/Group.yaml'
-api_service_name: 'cloudidentity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Group'
+resource: google_cloud_identity_group
+generation_type: mmv1
+source_file: products/cloudidentity/Group.yaml
+api_service_name: cloudidentity.googleapis.com
+api_version: v1
+api_resource_type_kind: Group
 fields:
-  - api_field: 'additionalGroupKeys.id'
-  - api_field: 'additionalGroupKeys.namespace'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'groupKey.id'
-  - api_field: 'groupKey.namespace'
-  - field: 'initial_group_config'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'parent'
-  - api_field: 'updateTime'
+    - api_field: additionalGroupKeys.id
+    - api_field: additionalGroupKeys.namespace
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: groupKey.id
+    - api_field: groupKey.namespace
+    - field: initial_group_config
+      provider_only: true
+    - api_field: labels
+    - api_field: name
+    - api_field: parent
+    - api_field: updateTime

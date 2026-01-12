@@ -1,15 +1,15 @@
-resource: 'google_identity_platform_oauth_idp_config'
-generation_type: 'mmv1'
-source_file: 'products/identityplatform/OauthIdpConfig.yaml'
-api_service_name: 'identitytoolkit.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'OAuthIdpConfig'
+resource: google_identity_platform_oauth_idp_config
+generation_type: mmv1
+source_file: products/identityplatform/OauthIdpConfig.yaml
+api_service_name: identitytoolkit.googleapis.com
+api_version: v2
+api_resource_type_kind: OAuthIdpConfig
 fields:
-  - api_field: 'clientId'
-  - api_field: 'clientSecret'
-  - api_field: 'displayName'
-  - api_field: 'enabled'
-  - api_field: 'issuer'
-  - api_field: 'name'
-  - api_field: 'responseType.code'
-  - api_field: 'responseType.idToken'
+    - api_field: clientId
+    - api_field: clientSecret
+    - api_field: displayName
+    - api_field: enabled
+    - api_field: issuer
+    - api_field: name
+    - api_field: responseType.code
+    - api_field: responseType.idToken

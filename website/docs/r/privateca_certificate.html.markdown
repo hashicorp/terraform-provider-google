@@ -656,10 +656,10 @@ The following arguments are supported:
 * `object_id` -
   (Required)
   Describes values that are relevant in a CA certificate.
-  Structure is [documented below](#nested_config_x509_config_additional_extensions_additional_extensions_object_id).
+  Structure is [documented below](#nested_config_x509_config_additional_extensions_object_id).
 
 
-<a name="nested_config_x509_config_additional_extensions_additional_extensions_object_id"></a>The `object_id` block supports:
+<a name="nested_config_x509_config_additional_extensions_object_id"></a>The `object_id` block supports:
 
 * `object_id_path` -
   (Required)
@@ -1108,7 +1108,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `obect_id` -
   (Output)
   Describes how some of the technical fields in a certificate should be populated.
-  Structure is [documented below](#nested_certificate_description_subject_description_subject_alt_name_custom_sans_custom_sans_obect_id).
+  Structure is [documented below](#nested_certificate_description_subject_description_subject_alt_name_custom_sans_obect_id).
 
 * `critical` -
   (Output)
@@ -1119,7 +1119,7 @@ In addition to the arguments listed above, the following computed attributes are
   The value of this X.509 extension.
 
 
-<a name="nested_certificate_description_subject_description_subject_alt_name_custom_sans_custom_sans_obect_id"></a>The `obect_id` block contains:
+<a name="nested_certificate_description_subject_description_subject_alt_name_custom_sans_obect_id"></a>The `obect_id` block contains:
 
 * `object_id_path` -
   (Output)
@@ -1172,10 +1172,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `object_id` -
   (Output)
   Describes values that are relevant in a CA certificate.
-  Structure is [documented below](#nested_certificate_description_x509_description_additional_extensions_additional_extensions_object_id).
+  Structure is [documented below](#nested_certificate_description_x509_description_additional_extensions_object_id).
 
 
-<a name="nested_certificate_description_x509_description_additional_extensions_additional_extensions_object_id"></a>The `object_id` block contains:
+<a name="nested_certificate_description_x509_description_additional_extensions_object_id"></a>The `object_id` block contains:
 
 * `object_id_path` -
   (Output)

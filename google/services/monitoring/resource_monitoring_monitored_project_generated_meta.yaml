@@ -1,11 +1,11 @@
-resource: 'google_monitoring_monitored_project'
-generation_type: 'mmv1'
-source_file: 'products/monitoring/MonitoredProject.yaml'
-api_service_name: 'monitoring.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'MonitoredProject'
+resource: google_monitoring_monitored_project
+generation_type: mmv1
+source_file: products/monitoring/MonitoredProject.yaml
+api_service_name: monitoring.googleapis.com
+api_version: v1
+api_resource_type_kind: MonitoredProject
 fields:
-  - api_field: 'createTime'
-  - field: 'metrics_scope'
-    provider_only: true
-  - api_field: 'name'
+    - api_field: createTime
+    - field: metrics_scope
+      provider_only: true
+    - api_field: name

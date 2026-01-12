@@ -23,8 +23,6 @@ description: |-
 
 DNS Armor is a fully-managed service that provides DNS-layer security for your Google Cloud workloads.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about DnsThreatDetector, see:
 
@@ -37,15 +35,11 @@ To get more information about DnsThreatDetector, see:
 
 ```hcl
 resource "google_compute_network" "foobar" {
-  provider = google-beta
-
   name                    = "my-vpc"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_dns_threat_detector" "default" {
-  provider = google-beta
-
   name                     = "my-threat-detector"
   location                 = "global"
   threat_detector_provider = "INFOBLOX"

@@ -1,47 +1,47 @@
-resource: 'google_compute_storage_pool'
-generation_type: 'mmv1'
-source_file: 'products/compute/StoragePool.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'StoragePool'
+resource: google_compute_storage_pool
+generation_type: mmv1
+source_file: products/compute/StoragePool.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: StoragePool
 fields:
-  - api_field: 'capacityProvisioningType'
-  - api_field: 'creationTimestamp'
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'id'
-  - api_field: 'kind'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'performanceProvisioningType'
-  - api_field: 'poolProvisionedCapacityGb'
-  - api_field: 'poolProvisionedIops'
-  - api_field: 'poolProvisionedThroughput'
-  - api_field: 'resourceStatus.diskCount'
-  - api_field: 'resourceStatus.lastResizeTimestamp'
-  - api_field: 'resourceStatus.maxTotalProvisionedDiskCapacityGb'
-  - api_field: 'resourceStatus.poolUsedCapacityBytes'
-  - api_field: 'resourceStatus.poolUsedIops'
-  - api_field: 'resourceStatus.poolUsedThroughput'
-  - api_field: 'resourceStatus.poolUserWrittenBytes'
-  - api_field: 'resourceStatus.totalProvisionedDiskCapacityGb'
-  - api_field: 'resourceStatus.totalProvisionedDiskIops'
-  - api_field: 'resourceStatus.totalProvisionedDiskThroughput'
-  - api_field: 'status.diskCount'
-  - api_field: 'status.lastResizeTimestamp'
-  - api_field: 'status.maxTotalProvisionedDiskCapacityGb'
-  - api_field: 'status.poolUsedCapacityBytes'
-  - api_field: 'status.poolUsedIops'
-  - api_field: 'status.poolUsedThroughput'
-  - api_field: 'status.poolUserWrittenBytes'
-  - api_field: 'status.totalProvisionedDiskCapacityGb'
-  - api_field: 'status.totalProvisionedDiskIops'
-  - api_field: 'status.totalProvisionedDiskThroughput'
-  - api_field: 'storagePoolType'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'zone'
+    - api_field: capacityProvisioningType
+    - api_field: creationTimestamp
+    - field: deletion_protection
+      provider_only: true
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: id
+    - api_field: kind
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: name
+    - api_field: performanceProvisioningType
+    - api_field: poolProvisionedCapacityGb
+    - api_field: poolProvisionedIops
+    - api_field: poolProvisionedThroughput
+    - api_field: resourceStatus.diskCount
+    - api_field: resourceStatus.lastResizeTimestamp
+    - api_field: resourceStatus.maxTotalProvisionedDiskCapacityGb
+    - api_field: resourceStatus.poolUsedCapacityBytes
+    - api_field: resourceStatus.poolUsedIops
+    - api_field: resourceStatus.poolUsedThroughput
+    - api_field: resourceStatus.poolUserWrittenBytes
+    - api_field: resourceStatus.totalProvisionedDiskCapacityGb
+    - api_field: resourceStatus.totalProvisionedDiskIops
+    - api_field: resourceStatus.totalProvisionedDiskThroughput
+    - api_field: status.diskCount
+    - api_field: status.lastResizeTimestamp
+    - api_field: status.maxTotalProvisionedDiskCapacityGb
+    - api_field: status.poolUsedCapacityBytes
+    - api_field: status.poolUsedIops
+    - api_field: status.poolUsedThroughput
+    - api_field: status.poolUserWrittenBytes
+    - api_field: status.totalProvisionedDiskCapacityGb
+    - api_field: status.totalProvisionedDiskIops
+    - api_field: status.totalProvisionedDiskThroughput
+    - api_field: storagePoolType
+    - field: terraform_labels
+      provider_only: true
+    - api_field: zone

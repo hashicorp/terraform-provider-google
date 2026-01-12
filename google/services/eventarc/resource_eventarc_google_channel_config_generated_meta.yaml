@@ -1,12 +1,12 @@
-resource: 'google_eventarc_google_channel_config'
-generation_type: 'mmv1'
-source_file: 'products/eventarc/GoogleChannelConfig.yaml'
-api_service_name: 'eventarc.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'GoogleChannelConfig'
+resource: google_eventarc_google_channel_config
+generation_type: mmv1
+source_file: products/eventarc/GoogleChannelConfig.yaml
+api_service_name: eventarc.googleapis.com
+api_version: v1
+api_resource_type_kind: GoogleChannelConfig
 fields:
-  - api_field: 'cryptoKeyName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'updateTime'
+    - api_field: cryptoKeyName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: updateTime

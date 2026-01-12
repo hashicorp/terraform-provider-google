@@ -38,7 +38,7 @@ func TestAccComputeInstanceGroupMembership_instanceGroupMembershipBasic(t *testi
 		"zone":          envvar.GetTestZoneFromEnv(),
 	}
 
-	igId := fmt.Sprintf("projects/%s/zones/%s/instanceGroups/instance-group-%s",
+	igId := fmt.Sprintf("projects/%s/zones/%s/instanceGroups/tf-test-instance-group-%s",
 		envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), context["random_suffix"])
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,8 +82,8 @@ func TestAccComputeInstanceGroupMembership_instanceGroupMembershipBasic(t *testi
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceGroupMembershipDestroyed(
 						t, igId,
-						testAccComputeInstanceGroupMembershipGetInstanceName("add1-instance", suffix),
-						testAccComputeInstanceGroupMembershipGetInstanceName("add2-instance", suffix),
+						testAccComputeInstanceGroupMembershipGetInstanceName("tf-test-add1-instance", suffix),
+						testAccComputeInstanceGroupMembershipGetInstanceName("tf-test-add2-instance", suffix),
 					),
 				),
 			},
@@ -99,7 +99,7 @@ func TestAccComputeInstanceGroupMembership_instanceGroupMembershipBasic(t *testi
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceGroupMembershipDestroyed(
 						t, igId,
-						testAccComputeInstanceGroupMembershipGetInstanceName("default-instance", suffix)),
+						testAccComputeInstanceGroupMembershipGetInstanceName("tf-test-default-instance", suffix)),
 				),
 			},
 		},
@@ -133,11 +133,11 @@ func testAccComputeInstanceGroupMembership_instanceGroupMembershipAdditional(con
 func testAccComputeInstanceGroupMembership_noInstanceGroupMembership(context map[string]interface{}) string {
 	return acctest.Nprintf(`
     resource "google_compute_network" "default-network" {
-      name = "default-%{random_suffix}"
+      name = "tf-test-default-%{random_suffix}"
     }
 
     resource "google_compute_instance" "default" {
-      name         = "default-instance-%{random_suffix}"
+      name         = "tf-test-default-instance-%{random_suffix}"
       machine_type = "e2-medium"
 
       boot_disk {
@@ -152,7 +152,7 @@ func testAccComputeInstanceGroupMembership_noInstanceGroupMembership(context map
     }
 
     resource "google_compute_instance" "add1" {
-      name         = "add1-instance-%{random_suffix}"
+      name         = "tf-test-add1-instance-%{random_suffix}"
       machine_type = "e2-medium"
 
       boot_disk {
@@ -167,7 +167,7 @@ func testAccComputeInstanceGroupMembership_noInstanceGroupMembership(context map
     }
 
     resource "google_compute_instance" "add2" {
-      name         = "add2-instance-%{random_suffix}"
+      name         = "tf-test-add2-instance-%{random_suffix}"
       machine_type = "e2-medium"
 
       boot_disk {
@@ -182,7 +182,7 @@ func testAccComputeInstanceGroupMembership_noInstanceGroupMembership(context map
     }
 
     resource "google_compute_instance_group" "default" {
-      name      = "instance-group-%{random_suffix}"
+      name      = "tf-test-instance-group-%{random_suffix}"
     }
   `, context)
 }

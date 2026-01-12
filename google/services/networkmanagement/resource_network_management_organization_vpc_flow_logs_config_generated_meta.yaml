@@ -1,29 +1,29 @@
-resource: 'google_network_management_organization_vpc_flow_logs_config'
-generation_type: 'mmv1'
-source_file: 'products/networkmanagement/OrganizationVpcFlowLogsConfig.yaml'
-api_service_name: 'networkmanagement.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'OrganizationVpcFlowLogsConfig'
+resource: google_network_management_organization_vpc_flow_logs_config
+generation_type: mmv1
+source_file: products/networkmanagement/OrganizationVpcFlowLogsConfig.yaml
+api_service_name: networkmanagement.googleapis.com
+api_version: v1
+api_resource_type_kind: OrganizationVpcFlowLogsConfig
 fields:
-  - api_field: 'aggregationInterval'
-  - api_field: 'createTime'
-  - api_field: 'crossProjectMetadata'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'filterExpr'
-  - api_field: 'flowSampling'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'metadata'
-  - api_field: 'metadataFields'
-  - api_field: 'name'
-  - field: 'organization'
-    provider_only: true
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - field: 'vpc_flow_logs_config_id'
-    provider_only: true
+    - api_field: aggregationInterval
+    - api_field: createTime
+    - api_field: crossProjectMetadata
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: filterExpr
+    - api_field: flowSampling
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: metadata
+    - api_field: metadataFields
+    - api_field: name
+    - field: organization
+      provider_only: true
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: vpc_flow_logs_config_id
+      provider_only: true

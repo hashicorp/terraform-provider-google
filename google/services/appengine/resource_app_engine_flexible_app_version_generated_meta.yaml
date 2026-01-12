@@ -1,108 +1,112 @@
-resource: 'google_app_engine_flexible_app_version'
-generation_type: 'mmv1'
-source_file: 'products/appengine/FlexibleAppVersion.yaml'
-api_service_name: 'appengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Version'
+resource: google_app_engine_flexible_app_version
+generation_type: mmv1
+source_file: products/appengine/FlexibleAppVersion.yaml
+api_service_name: appengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Version
 fields:
-  - api_field: 'apiConfig.authFailAction'
-  - api_field: 'apiConfig.login'
-  - api_field: 'apiConfig.script'
-  - api_field: 'apiConfig.securityLevel'
-  - api_field: 'apiConfig.url'
-  - api_field: 'automaticScaling.coolDownPeriod'
-  - api_field: 'automaticScaling.cpuUtilization.aggregationWindowLength'
-  - api_field: 'automaticScaling.cpuUtilization.targetUtilization'
-  - api_field: 'automaticScaling.diskUtilization.targetReadBytesPerSecond'
-  - api_field: 'automaticScaling.diskUtilization.targetReadOpsPerSecond'
-  - api_field: 'automaticScaling.diskUtilization.targetWriteBytesPerSecond'
-  - api_field: 'automaticScaling.diskUtilization.targetWriteOpsPerSecond'
-  - api_field: 'automaticScaling.maxConcurrentRequests'
-  - api_field: 'automaticScaling.maxIdleInstances'
-  - api_field: 'automaticScaling.maxPendingLatency'
-  - api_field: 'automaticScaling.maxTotalInstances'
-  - api_field: 'automaticScaling.minIdleInstances'
-  - api_field: 'automaticScaling.minPendingLatency'
-  - api_field: 'automaticScaling.minTotalInstances'
-  - api_field: 'automaticScaling.networkUtilization.targetReceivedBytesPerSecond'
-  - api_field: 'automaticScaling.networkUtilization.targetReceivedPacketsPerSecond'
-  - api_field: 'automaticScaling.networkUtilization.targetSentBytesPerSecond'
-  - api_field: 'automaticScaling.networkUtilization.targetSentPacketsPerSecond'
-  - api_field: 'automaticScaling.requestUtilization.targetConcurrentRequests'
-  - api_field: 'automaticScaling.requestUtilization.targetRequestCountPerSecond'
-  - api_field: 'betaSettings'
-  - api_field: 'defaultExpiration'
-  - field: 'delete_service_on_destroy'
-    provider_only: true
-  - api_field: 'deployment.cloudBuildOptions.appYamlPath'
-  - api_field: 'deployment.cloudBuildOptions.cloudBuildTimeout'
-  - api_field: 'deployment.container.image'
-  - api_field: 'deployment.files.files.sha1Sum'
-  - api_field: 'deployment.files.files.sourceUrl'
-  - api_field: 'deployment.zip.filesCount'
-  - api_field: 'deployment.zip.sourceUrl'
-  - api_field: 'endpointsApiService.configId'
-  - api_field: 'endpointsApiService.disableTraceSampling'
-  - api_field: 'endpointsApiService.name'
-  - api_field: 'endpointsApiService.rolloutStrategy'
-  - api_field: 'entrypoint.shell'
-  - api_field: 'envVariables'
-  - api_field: 'flexibleRuntimeSettings.operatingSystem'
-  - api_field: 'flexibleRuntimeSettings.runtimeVersion'
-  - api_field: 'handlers.authFailAction'
-  - api_field: 'handlers.login'
-  - api_field: 'handlers.redirectHttpResponseCode'
-  - api_field: 'handlers.script.scriptPath'
-  - api_field: 'handlers.securityLevel'
-  - api_field: 'handlers.staticFiles.applicationReadable'
-  - api_field: 'handlers.staticFiles.expiration'
-  - api_field: 'handlers.staticFiles.httpHeaders'
-  - api_field: 'handlers.staticFiles.mimeType'
-  - api_field: 'handlers.staticFiles.path'
-  - api_field: 'handlers.staticFiles.requireMatchingFile'
-  - api_field: 'handlers.staticFiles.uploadPathRegex'
-  - api_field: 'handlers.urlRegex'
-  - api_field: 'inboundServices'
-  - api_field: 'instanceClass'
-  - api_field: 'livenessCheck.checkInterval'
-  - api_field: 'livenessCheck.failureThreshold'
-  - api_field: 'livenessCheck.host'
-  - api_field: 'livenessCheck.initialDelay'
-  - api_field: 'livenessCheck.path'
-  - api_field: 'livenessCheck.successThreshold'
-  - api_field: 'livenessCheck.timeout'
-  - api_field: 'manualScaling.instances'
-  - api_field: 'name'
-  - api_field: 'network.forwardedPorts'
-  - api_field: 'network.instanceTag'
-  - api_field: 'network.name'
-  - api_field: 'network.sessionAffinity'
-  - api_field: 'network.subnetworkName'
-    field: 'network.subnetwork'
-  - api_field: 'nobuildFilesRegex'
-  - field: 'noop_on_destroy'
-    provider_only: true
-  - api_field: 'readinessCheck.appStartTimeout'
-  - api_field: 'readinessCheck.checkInterval'
-  - api_field: 'readinessCheck.failureThreshold'
-  - api_field: 'readinessCheck.host'
-  - api_field: 'readinessCheck.path'
-  - api_field: 'readinessCheck.successThreshold'
-  - api_field: 'readinessCheck.timeout'
-  - api_field: 'resources.cpu'
-  - api_field: 'resources.diskGb'
-  - api_field: 'resources.memoryGb'
-  - api_field: 'resources.volumes.name'
-  - api_field: 'resources.volumes.sizeGb'
-  - api_field: 'resources.volumes.volumeType'
-  - api_field: 'runtime'
-  - api_field: 'runtimeApiVersion'
-  - api_field: 'runtimeChannel'
-  - api_field: 'runtimeMainExecutablePath'
-  - field: 'service'
-    provider_only: true
-  - api_field: 'serviceAccount'
-  - api_field: 'servingStatus'
-  - api_field: 'id'
-    field: 'version_id'
-  - api_field: 'vpcAccessConnector.name'
+    - api_field: apiConfig.authFailAction
+    - api_field: apiConfig.login
+    - api_field: apiConfig.script
+    - api_field: apiConfig.securityLevel
+    - api_field: apiConfig.url
+    - api_field: automaticScaling.coolDownPeriod
+    - api_field: automaticScaling.cpuUtilization.aggregationWindowLength
+    - api_field: automaticScaling.cpuUtilization.targetUtilization
+    - api_field: automaticScaling.diskUtilization.targetReadBytesPerSecond
+    - api_field: automaticScaling.diskUtilization.targetReadOpsPerSecond
+    - api_field: automaticScaling.diskUtilization.targetWriteBytesPerSecond
+    - api_field: automaticScaling.diskUtilization.targetWriteOpsPerSecond
+    - api_field: automaticScaling.maxConcurrentRequests
+    - api_field: automaticScaling.maxIdleInstances
+    - api_field: automaticScaling.maxPendingLatency
+    - api_field: automaticScaling.maxTotalInstances
+    - api_field: automaticScaling.minIdleInstances
+    - api_field: automaticScaling.minPendingLatency
+    - api_field: automaticScaling.minTotalInstances
+    - api_field: automaticScaling.networkUtilization.targetReceivedBytesPerSecond
+    - api_field: automaticScaling.networkUtilization.targetReceivedPacketsPerSecond
+    - api_field: automaticScaling.networkUtilization.targetSentBytesPerSecond
+    - api_field: automaticScaling.networkUtilization.targetSentPacketsPerSecond
+    - api_field: automaticScaling.requestUtilization.targetConcurrentRequests
+    - api_field: automaticScaling.requestUtilization.targetRequestCountPerSecond
+    - api_field: betaSettings
+    - api_field: defaultExpiration
+    - field: delete_service_on_destroy
+      provider_only: true
+    - api_field: deployment.cloudBuildOptions.appYamlPath
+    - api_field: deployment.cloudBuildOptions.cloudBuildTimeout
+    - api_field: deployment.container.image
+    - api_field: deployment.files.key
+      field: deployment.files.name
+    - api_field: deployment.files.value.sha1Sum
+      field: deployment.files.sha1_sum
+    - api_field: deployment.files.value.sourceUrl
+      field: deployment.files.source_url
+    - api_field: deployment.zip.filesCount
+    - api_field: deployment.zip.sourceUrl
+    - api_field: endpointsApiService.configId
+    - api_field: endpointsApiService.disableTraceSampling
+    - api_field: endpointsApiService.name
+    - api_field: endpointsApiService.rolloutStrategy
+    - api_field: entrypoint.shell
+    - api_field: envVariables
+    - api_field: flexibleRuntimeSettings.operatingSystem
+    - api_field: flexibleRuntimeSettings.runtimeVersion
+    - api_field: handlers.authFailAction
+    - api_field: handlers.login
+    - api_field: handlers.redirectHttpResponseCode
+    - api_field: handlers.script.scriptPath
+    - api_field: handlers.securityLevel
+    - api_field: handlers.staticFiles.applicationReadable
+    - api_field: handlers.staticFiles.expiration
+    - api_field: handlers.staticFiles.httpHeaders
+    - api_field: handlers.staticFiles.mimeType
+    - api_field: handlers.staticFiles.path
+    - api_field: handlers.staticFiles.requireMatchingFile
+    - api_field: handlers.staticFiles.uploadPathRegex
+    - api_field: handlers.urlRegex
+    - api_field: inboundServices
+    - api_field: instanceClass
+    - api_field: livenessCheck.checkInterval
+    - api_field: livenessCheck.failureThreshold
+    - api_field: livenessCheck.host
+    - api_field: livenessCheck.initialDelay
+    - api_field: livenessCheck.path
+    - api_field: livenessCheck.successThreshold
+    - api_field: livenessCheck.timeout
+    - api_field: manualScaling.instances
+    - api_field: name
+    - api_field: network.forwardedPorts
+    - api_field: network.instanceTag
+    - api_field: network.name
+    - api_field: network.sessionAffinity
+    - api_field: network.subnetworkName
+      field: network.subnetwork
+    - api_field: nobuildFilesRegex
+    - field: noop_on_destroy
+      provider_only: true
+    - api_field: readinessCheck.appStartTimeout
+    - api_field: readinessCheck.checkInterval
+    - api_field: readinessCheck.failureThreshold
+    - api_field: readinessCheck.host
+    - api_field: readinessCheck.path
+    - api_field: readinessCheck.successThreshold
+    - api_field: readinessCheck.timeout
+    - api_field: resources.cpu
+    - api_field: resources.diskGb
+    - api_field: resources.memoryGb
+    - api_field: resources.volumes.name
+    - api_field: resources.volumes.sizeGb
+    - api_field: resources.volumes.volumeType
+    - api_field: runtime
+    - api_field: runtimeApiVersion
+    - api_field: runtimeChannel
+    - api_field: runtimeMainExecutablePath
+    - field: service
+      provider_only: true
+    - api_field: serviceAccount
+    - api_field: servingStatus
+    - api_field: id
+      field: version_id
+    - api_field: vpcAccessConnector.name

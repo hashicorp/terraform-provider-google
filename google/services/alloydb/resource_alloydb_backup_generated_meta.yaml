@@ -1,39 +1,39 @@
-resource: 'google_alloydb_backup'
-generation_type: 'mmv1'
-source_file: 'products/alloydb/Backup.yaml'
-api_service_name: 'alloydb.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Backup'
+resource: google_alloydb_backup
+generation_type: mmv1
+source_file: products/alloydb/Backup.yaml
+api_service_name: alloydb.googleapis.com
+api_version: v1
+api_resource_type_kind: Backup
 fields:
-  - api_field: 'annotations'
-  - field: 'backup_id'
-    provider_only: true
-  - api_field: 'clusterName'
-  - api_field: 'clusterUid'
-  - api_field: 'createTime'
-  - api_field: 'deleteTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionConfig.kmsKeyName'
-  - api_field: 'encryptionInfo.encryptionType'
-  - api_field: 'encryptionInfo.kmsKeyVersions'
-  - api_field: 'etag'
-  - api_field: 'expiryQuantity.retentionCount'
-  - api_field: 'expiryQuantity.totalRetentionCount'
-  - api_field: 'expiryTime'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'reconciling'
-  - api_field: 'sizeBytes'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - field: backup_id
+      provider_only: true
+    - api_field: clusterName
+    - api_field: clusterUid
+    - api_field: createTime
+    - api_field: deleteTime
+    - api_field: description
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionConfig.kmsKeyName
+    - api_field: encryptionInfo.encryptionType
+    - api_field: encryptionInfo.kmsKeyVersions
+    - api_field: etag
+    - api_field: expiryQuantity.retentionCount
+    - api_field: expiryQuantity.totalRetentionCount
+    - api_field: expiryTime
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: reconciling
+    - api_field: sizeBytes
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: uid
+    - api_field: updateTime

@@ -1,52 +1,57 @@
-resource: 'google_discovery_engine_widget_config'
-generation_type: 'mmv1'
-source_file: 'products/discoveryengine/WidgetConfig.yaml'
-api_service_name: 'discoveryengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'WidgetConfig'
+resource: google_discovery_engine_widget_config
+generation_type: mmv1
+source_file: products/discoveryengine/WidgetConfig.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: WidgetConfig
 fields:
-  - api_field: 'accessSettings.allowPublicAccess'
-  - api_field: 'accessSettings.allowlistedDomains'
-  - api_field: 'accessSettings.enableWebApp'
-  - api_field: 'accessSettings.languageCode'
-  - api_field: 'accessSettings.workforceIdentityPoolProvider'
-  - field: 'collection_id'
-    provider_only: true
-  - field: 'engine_id'
-    provider_only: true
-  - api_field: 'homepageSetting.shortcuts.destinationUri'
-  - api_field: 'homepageSetting.shortcuts.icon.url'
-  - api_field: 'homepageSetting.shortcuts.title'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'uiBranding.logo.url'
-  - api_field: 'uiSettings.dataStoreUiConfigs.facetField.displayName'
-  - api_field: 'uiSettings.dataStoreUiConfigs.facetField.field'
-  - api_field: 'uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.fieldsUiComponentsMap.deviceVisibility'
-  - api_field: 'uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.fieldsUiComponentsMap.displayTemplate'
-  - api_field: 'uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.fieldsUiComponentsMap.field'
-  - api_field: 'uiSettings.dataStoreUiConfigs.name'
-  - api_field: 'uiSettings.defaultSearchRequestOrderBy'
-  - api_field: 'uiSettings.disableUserEventsCollection'
-  - api_field: 'uiSettings.enableAutocomplete'
-  - api_field: 'uiSettings.enableCreateAgentButton'
-  - api_field: 'uiSettings.enablePeopleSearch'
-  - api_field: 'uiSettings.enableQualityFeedback'
-  - api_field: 'uiSettings.enableSafeSearch'
-  - api_field: 'uiSettings.enableSearchAsYouType'
-  - api_field: 'uiSettings.enableVisualContentSummary'
-  - api_field: 'uiSettings.generativeAnswerConfig.disableRelatedQuestions'
-  - api_field: 'uiSettings.generativeAnswerConfig.ignoreAdversarialQuery'
-  - api_field: 'uiSettings.generativeAnswerConfig.ignoreLowRelevantContent'
-  - api_field: 'uiSettings.generativeAnswerConfig.ignoreNonAnswerSeekingQuery'
-  - api_field: 'uiSettings.generativeAnswerConfig.imageSource'
-  - api_field: 'uiSettings.generativeAnswerConfig.languageCode'
-  - api_field: 'uiSettings.generativeAnswerConfig.maxRephraseSteps'
-  - api_field: 'uiSettings.generativeAnswerConfig.modelPromptPreamble'
-  - api_field: 'uiSettings.generativeAnswerConfig.modelVersion'
-  - api_field: 'uiSettings.generativeAnswerConfig.resultCount'
-  - api_field: 'uiSettings.interactionType'
-  - api_field: 'uiSettings.resultDescriptionType'
-  - field: 'widget_config_id'
-    provider_only: true
+    - api_field: accessSettings.allowPublicAccess
+    - api_field: accessSettings.allowlistedDomains
+    - api_field: accessSettings.enableWebApp
+    - api_field: accessSettings.languageCode
+    - api_field: accessSettings.workforceIdentityPoolProvider
+    - field: collection_id
+      provider_only: true
+    - field: engine_id
+      provider_only: true
+    - api_field: homepageSetting.shortcuts.destinationUri
+    - api_field: homepageSetting.shortcuts.icon.url
+    - api_field: homepageSetting.shortcuts.title
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: uiBranding.logo.url
+    - api_field: uiSettings.dataStoreUiConfigs.facetField.displayName
+    - api_field: uiSettings.dataStoreUiConfigs.facetField.field
+    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.key
+      field: ui_settings.data_store_ui_configs.fields_ui_components_map.ui_component
+    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.value.deviceVisibility
+      field: ui_settings.data_store_ui_configs.fields_ui_components_map.device_visibility
+    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.value.displayTemplate
+      field: ui_settings.data_store_ui_configs.fields_ui_components_map.display_template
+    - api_field: uiSettings.dataStoreUiConfigs.fieldsUiComponentsMap.value.field
+      field: ui_settings.data_store_ui_configs.fields_ui_components_map.field
+    - api_field: uiSettings.dataStoreUiConfigs.name
+    - api_field: uiSettings.defaultSearchRequestOrderBy
+    - api_field: uiSettings.disableUserEventsCollection
+    - api_field: uiSettings.enableAutocomplete
+    - api_field: uiSettings.enableCreateAgentButton
+    - api_field: uiSettings.enablePeopleSearch
+    - api_field: uiSettings.enableQualityFeedback
+    - api_field: uiSettings.enableSafeSearch
+    - api_field: uiSettings.enableSearchAsYouType
+    - api_field: uiSettings.enableVisualContentSummary
+    - api_field: uiSettings.generativeAnswerConfig.disableRelatedQuestions
+    - api_field: uiSettings.generativeAnswerConfig.ignoreAdversarialQuery
+    - api_field: uiSettings.generativeAnswerConfig.ignoreLowRelevantContent
+    - api_field: uiSettings.generativeAnswerConfig.ignoreNonAnswerSeekingQuery
+    - api_field: uiSettings.generativeAnswerConfig.imageSource
+    - api_field: uiSettings.generativeAnswerConfig.languageCode
+    - api_field: uiSettings.generativeAnswerConfig.maxRephraseSteps
+    - api_field: uiSettings.generativeAnswerConfig.modelPromptPreamble
+    - api_field: uiSettings.generativeAnswerConfig.modelVersion
+    - api_field: uiSettings.generativeAnswerConfig.resultCount
+    - api_field: uiSettings.interactionType
+    - api_field: uiSettings.resultDescriptionType
+    - field: widget_config_id
+      provider_only: true

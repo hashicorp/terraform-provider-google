@@ -1,26 +1,26 @@
-resource: 'google_developer_connect_account_connector'
-generation_type: 'mmv1'
-source_file: 'products/developerconnect/AccountConnector.yaml'
-api_service_name: 'developerconnect.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AccountConnector'
+resource: google_developer_connect_account_connector
+generation_type: mmv1
+source_file: products/developerconnect/AccountConnector.yaml
+api_service_name: developerconnect.googleapis.com
+api_version: v1
+api_resource_type_kind: AccountConnector
 autogen_status: true
 fields:
-  - field: 'account_connector_id'
-    provider_only: true
-  - api_field: 'annotations'
-  - api_field: 'createTime'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'oauthStartUri'
-  - api_field: 'providerOauthConfig.scopes'
-  - api_field: 'providerOauthConfig.systemProviderId'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: account_connector_id
+      provider_only: true
+    - api_field: annotations
+    - api_field: createTime
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: oauthStartUri
+    - api_field: providerOauthConfig.scopes
+    - api_field: providerOauthConfig.systemProviderId
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

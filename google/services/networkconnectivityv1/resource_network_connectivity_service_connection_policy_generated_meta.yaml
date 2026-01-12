@@ -1,40 +1,40 @@
-resource: 'google_network_connectivity_service_connection_policy'
-generation_type: 'mmv1'
-source_file: 'products/networkconnectivityv1/ServiceConnectionPolicy.yaml'
-api_service_name: 'networkconnectivity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ServiceConnectionPolicy'
+resource: google_network_connectivity_service_connection_policy
+generation_type: mmv1
+source_file: products/networkconnectivityv1/ServiceConnectionPolicy.yaml
+api_service_name: networkconnectivity.googleapis.com
+api_version: v1
+api_resource_type_kind: ServiceConnectionPolicy
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'infrastructure'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'network'
-  - api_field: 'pscConfig.allowedGoogleProducersResourceHierarchyLevel'
-  - api_field: 'pscConfig.limit'
-  - api_field: 'pscConfig.producerInstanceLocation'
-  - api_field: 'pscConfig.subnetworks'
-  - api_field: 'pscConnections.consumerAddress'
-  - api_field: 'pscConnections.consumerForwardingRule'
-  - api_field: 'pscConnections.consumerTargetProject'
-  - api_field: 'pscConnections.error.code'
-  - api_field: 'pscConnections.error.details'
-  - api_field: 'pscConnections.error.message'
-  - api_field: 'pscConnections.errorInfo.domain'
-  - api_field: 'pscConnections.errorInfo.metadata'
-  - api_field: 'pscConnections.errorInfo.reason'
-  - api_field: 'pscConnections.errorType'
-  - api_field: 'pscConnections.gceOperation'
-  - api_field: 'pscConnections.pscConnectionId'
-  - api_field: 'pscConnections.state'
-  - api_field: 'serviceClass'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: infrastructure
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: network
+    - api_field: pscConfig.allowedGoogleProducersResourceHierarchyLevel
+    - api_field: pscConfig.limit
+    - api_field: pscConfig.producerInstanceLocation
+    - api_field: pscConfig.subnetworks
+    - api_field: pscConnections.consumerAddress
+    - api_field: pscConnections.consumerForwardingRule
+    - api_field: pscConnections.consumerTargetProject
+    - api_field: pscConnections.error.code
+    - api_field: pscConnections.error.details
+    - api_field: pscConnections.error.message
+    - api_field: pscConnections.errorInfo.domain
+    - api_field: pscConnections.errorInfo.metadata
+    - api_field: pscConnections.errorInfo.reason
+    - api_field: pscConnections.errorType
+    - api_field: pscConnections.gceOperation
+    - api_field: pscConnections.pscConnectionId
+    - api_field: pscConnections.state
+    - api_field: serviceClass
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

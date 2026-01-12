@@ -1,10 +1,10 @@
-resource: 'google_document_ai_processor_default_version'
-generation_type: 'mmv1'
-source_file: 'products/documentai/ProcessorDefaultVersion.yaml'
-api_service_name: 'documentai.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Processor'
+resource: google_document_ai_processor_default_version
+generation_type: mmv1
+source_file: products/documentai/ProcessorDefaultVersion.yaml
+api_service_name: documentai.googleapis.com
+api_version: v1
+api_resource_type_kind: Processor
 fields:
-  - api_field: 'processor'
-  - api_field: 'defaultProcessorVersion'
-    field: 'version'
+    - api_field: processor
+    - api_field: defaultProcessorVersion
+      field: version

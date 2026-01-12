@@ -1,35 +1,35 @@
-resource: 'google_compute_service_attachment'
-generation_type: 'mmv1'
-source_file: 'products/compute/ServiceAttachment.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ServiceAttachment'
+resource: google_compute_service_attachment
+generation_type: mmv1
+source_file: products/compute/ServiceAttachment.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: ServiceAttachment
 fields:
-  - api_field: 'connectedEndpoints.consumerNetwork'
-  - api_field: 'connectedEndpoints.endpoint'
-  - api_field: 'connectedEndpoints.natIps'
-  - api_field: 'connectedEndpoints.propagatedConnectionCount'
-  - api_field: 'connectedEndpoints.pscConnectionId'
-  - api_field: 'connectedEndpoints.status'
-  - api_field: 'connectionPreference'
-  - api_field: 'consumerAcceptLists.connectionLimit'
-  - api_field: 'consumerAcceptLists.networkUrl'
-  - api_field: 'consumerAcceptLists.projectIdOrNum'
-  - api_field: 'consumerRejectLists'
-  - api_field: 'description'
-  - api_field: 'domainNames'
-  - api_field: 'enableProxyProtocol'
-  - api_field: 'fingerprint'
-  - api_field: 'name'
-  - api_field: 'natSubnets'
-  - api_field: 'propagatedConnectionLimit'
-  - api_field: 'pscServiceAttachmentId.high'
-  - api_field: 'pscServiceAttachmentId.low'
-  - api_field: 'reconcileConnections'
-  - api_field: 'region'
-  - field: 'send_propagated_connection_limit_if_zero'
-    provider_only: true
-  - field: 'show_nat_ips'
-    provider_only: true
-  - api_field: 'targetService'
-  - api_field: 'selfLink'
+    - api_field: connectedEndpoints.consumerNetwork
+    - api_field: connectedEndpoints.endpoint
+    - api_field: connectedEndpoints.natIps
+    - api_field: connectedEndpoints.propagatedConnectionCount
+    - api_field: connectedEndpoints.pscConnectionId
+    - api_field: connectedEndpoints.status
+    - api_field: connectionPreference
+    - api_field: consumerAcceptLists.connectionLimit
+    - api_field: consumerAcceptLists.networkUrl
+    - api_field: consumerAcceptLists.projectIdOrNum
+    - api_field: consumerRejectLists
+    - api_field: description
+    - api_field: domainNames
+    - api_field: enableProxyProtocol
+    - api_field: fingerprint
+    - api_field: name
+    - api_field: natSubnets
+    - api_field: propagatedConnectionLimit
+    - api_field: pscServiceAttachmentId.high
+    - api_field: pscServiceAttachmentId.low
+    - api_field: reconcileConnections
+    - api_field: region
+    - field: send_propagated_connection_limit_if_zero
+      provider_only: true
+    - field: show_nat_ips
+      provider_only: true
+    - api_field: targetService
+    - api_field: selfLink

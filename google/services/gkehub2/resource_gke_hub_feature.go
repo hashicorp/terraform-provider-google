@@ -321,6 +321,7 @@ func ResourceGKEHub2Feature() *schema.Resource {
 												},
 												"audit_interval_seconds": {
 													Type:        schema.TypeInt,
+													Computed:    true,
 													Optional:    true,
 													Description: `Interval for Policy Controller Audit scans (in seconds). When set to 0, this disables audit functionality altogether.`,
 												},

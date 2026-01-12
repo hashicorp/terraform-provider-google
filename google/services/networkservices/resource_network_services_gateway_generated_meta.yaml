@@ -1,34 +1,34 @@
-resource: 'google_network_services_gateway'
-generation_type: 'mmv1'
-source_file: 'products/networkservices/Gateway.yaml'
-api_service_name: 'networkservices.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Gateway'
+resource: google_network_services_gateway
+generation_type: mmv1
+source_file: products/networkservices/Gateway.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: Gateway
 fields:
-  - api_field: 'addresses'
-  - api_field: 'certificateUrls'
-  - api_field: 'createTime'
-  - field: 'delete_swg_autogen_router_on_destroy'
-    provider_only: true
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'envoyHeaders'
-  - api_field: 'gatewaySecurityPolicy'
-  - api_field: 'ipVersion'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'network'
-  - api_field: 'ports'
-  - api_field: 'routingMode'
-  - api_field: 'scope'
-  - api_field: 'selfLink'
-  - api_field: 'serverTlsPolicy'
-  - api_field: 'subnetwork'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'updateTime'
+    - api_field: addresses
+    - api_field: certificateUrls
+    - api_field: createTime
+    - field: delete_swg_autogen_router_on_destroy
+      provider_only: true
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: envoyHeaders
+    - api_field: gatewaySecurityPolicy
+    - api_field: ipVersion
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: network
+    - api_field: ports
+    - api_field: routingMode
+    - api_field: scope
+    - api_field: selfLink
+    - api_field: serverTlsPolicy
+    - api_field: subnetwork
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: updateTime

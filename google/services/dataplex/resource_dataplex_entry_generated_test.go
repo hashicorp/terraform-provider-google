@@ -276,6 +276,237 @@ resource "google_dataplex_entry" "test_entry_full" {
 `, context)
 }
 
+func TestAccDataplexEntry_dataplexEntryBigqueryTableExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":     envvar.GetTestProjectFromEnv(),
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"random_suffix":  acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexEntryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexEntry_dataplexEntryBigqueryTableExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_entry.tf_test_table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"aspects", "entry_group_id", "entry_id", "location"},
+			},
+			{
+				ResourceName:       "google_dataplex_entry.tf_test_table",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDataplexEntry_dataplexEntryBigqueryTableExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataplex_aspect_type" "aspect-type-full-one" {
+  aspect_type_id         = "tf-test-aspect-type%{random_suffix}-one"
+  location     = "us-central1"
+  project      = "%{project_number}"
+
+  metadata_template = <<EOF
+{
+  "name": "tf-test-template",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "type",
+      "type": "enum",
+      "annotations": {
+        "displayName": "Type",
+        "description": "Specifies the type of view represented by the entry."
+      },
+      "index": 1,
+      "constraints": {
+        "required": true
+      },
+      "enumValues": [
+        {
+          "name": "VIEW",
+          "index": 1
+        }
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "google_dataplex_aspect_type" "aspect-type-full-two" {
+  aspect_type_id         = "tf-test-aspect-type%{random_suffix}-two"
+  location     = "us-central1"
+  project      = "%{project_number}"
+
+  metadata_template = <<EOF
+{
+  "name": "tf-test-template",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "story",
+      "type": "enum",
+      "annotations": {
+        "displayName": "Story",
+        "description": "Specifies the story of an entry."
+      },
+      "index": 1,
+      "constraints": {
+        "required": true
+      },
+      "enumValues": [
+        {
+          "name": "SEQUENCE",
+          "index": 1
+        }
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "google_bigquery_dataset" "example-dataset" {
+  dataset_id                  = "tf_test_dataset_basic%{random_suffix}"
+  friendly_name               = "Example Dataset"
+  location                    = "us-central1"
+  delete_contents_on_destroy  = true
+}
+
+
+resource "google_bigquery_table" "example-table" {
+  dataset_id = google_bigquery_dataset.example-dataset.dataset_id
+  table_id   = "tf-test-table-basic%{random_suffix}"
+  deletion_protection = false
+  # Define the table schema
+  schema = jsonencode([
+    {
+      name = "event_time"
+      type = "TIMESTAMP"
+      mode = "REQUIRED"
+    },
+    {
+      name = "user_id"
+      type = "STRING"
+      mode = "NULLABLE"
+    },
+    {
+      name = "event_type"
+      type = "STRING"
+      mode = "NULLABLE"
+    }
+  ])
+}
+
+resource "google_dataplex_entry" "tf_test_table" {
+  entry_group_id = "@bigquery"
+  project = "%{project_number}"
+  location = "us-central1"
+  entry_id = "bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.example-dataset.dataset_id}/tables/${google_bigquery_table.example-table.table_id}"
+  entry_type = "projects/655216118709/locations/global/entryTypes/bigquery-table"
+  fully_qualified_name = "bigquery:%{project_id}.${google_bigquery_dataset.example-dataset.dataset_id}.${google_bigquery_table.example-table.table_id}"
+  parent_entry = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.example-dataset.dataset_id}"
+
+  aspects {
+    aspect_key = "%{project_number}.us-central1.tf-test-aspect-type%{random_suffix}-one"
+    aspect {
+      data = <<EOF
+          {"type": "VIEW"    }
+        EOF
+    }
+  }
+
+  aspects {
+    aspect_key = "%{project_number}.us-central1.tf-test-aspect-type%{random_suffix}-two@Schema.event_type"
+    aspect {
+      data = <<EOF
+          {"story": "SEQUENCE"    }
+        EOF
+    }
+  }
+ depends_on = [google_dataplex_aspect_type.aspect-type-full-two, google_dataplex_aspect_type.aspect-type-full-one]
+}
+`, context)
+}
+
+func TestAccDataplexEntry_dataplexEntryGlossaryTermExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":     envvar.GetTestProjectFromEnv(),
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"random_suffix":  acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexEntryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexEntry_dataplexEntryGlossaryTermExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_entry.tf_test_glossary_term",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"aspects", "entry_group_id", "entry_id", "location"},
+			},
+			{
+				ResourceName:       "google_dataplex_entry.tf_test_glossary_term",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDataplexEntry_dataplexEntryGlossaryTermExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataplex_glossary" "example-glossary" {
+  glossary_id = "tf-test-glossary-basic%{random_suffix}"
+  location    = "us-central1"
+}
+
+resource "google_dataplex_glossary_term" "example-glossary-term" {
+  parent = "projects/%{project_id}/locations/us-central1/glossaries/${google_dataplex_glossary.example-glossary.glossary_id}"
+  glossary_id = google_dataplex_glossary.example-glossary.glossary_id
+  location = "us-central1"
+  term_id = "tf-test-glossary-term%{random_suffix}"
+}
+
+resource "google_dataplex_entry" "tf_test_glossary_term" {
+  entry_group_id = "@dataplex"
+  project = "%{project_number}"
+  location = "us-central1"
+  entry_id = "projects/%{project_number}/locations/us-central1/glossaries/${google_dataplex_glossary.example-glossary.glossary_id}/terms/${google_dataplex_glossary_term.example-glossary-term.term_id}"
+  entry_type = "projects/655216118709/locations/global/entryTypes/glossary-term"
+  parent_entry = "projects/%{project_number}/locations/us-central1/entryGroups/@dataplex/entries/projects/%{project_number}/locations/us-central1/glossaries/${google_dataplex_glossary.example-glossary.glossary_id}"
+
+  aspects {
+     aspect_key = "655216118709.global.overview"
+     aspect {
+       data = <<EOF
+           {"content": "Term Content"    }
+         EOF
+     }
+   }
+}
+`, context)
+}
+
 func testAccCheckDataplexEntryDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -300,11 +531,12 @@ func testAccCheckDataplexEntryDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:               config,
+				Method:               "GET",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            config.UserAgent,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsDataplex1PEntryIngestedError},
 			})
 			if err == nil {
 				return fmt.Errorf("DataplexEntry still exists at %s", url)

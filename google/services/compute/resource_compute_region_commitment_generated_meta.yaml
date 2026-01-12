@@ -1,29 +1,29 @@
-resource: 'google_compute_region_commitment'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionCommitment.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Commitment'
+resource: google_compute_region_commitment
+generation_type: mmv1
+source_file: products/compute/RegionCommitment.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Commitment
 fields:
-  - api_field: 'autoRenew'
-  - api_field: 'category'
-  - api_field: 'id'
-    field: 'commitment_id'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'endTimestamp'
-  - api_field: 'existingReservations'
-  - api_field: 'licenseResource.amount'
-  - api_field: 'licenseResource.coresPerLicense'
-  - api_field: 'licenseResource.license'
-  - api_field: 'name'
-  - api_field: 'plan'
-  - api_field: 'region'
-  - api_field: 'resources.acceleratorType'
-  - api_field: 'resources.amount'
-  - api_field: 'resources.type'
-  - api_field: 'startTimestamp'
-  - api_field: 'status'
-  - api_field: 'statusMessage'
-  - api_field: 'type'
-  - api_field: 'selfLink'
+    - api_field: autoRenew
+    - api_field: category
+    - api_field: id
+      field: commitment_id
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: endTimestamp
+    - api_field: existingReservations
+    - api_field: licenseResource.amount
+    - api_field: licenseResource.coresPerLicense
+    - api_field: licenseResource.license
+    - api_field: name
+    - api_field: plan
+    - api_field: region
+    - api_field: resources.acceleratorType
+    - api_field: resources.amount
+    - api_field: resources.type
+    - api_field: startTimestamp
+    - api_field: status
+    - api_field: statusMessage
+    - api_field: type
+    - api_field: selfLink

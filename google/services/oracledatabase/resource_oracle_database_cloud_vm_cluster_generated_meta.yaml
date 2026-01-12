@@ -1,65 +1,65 @@
-resource: 'google_oracle_database_cloud_vm_cluster'
-generation_type: 'mmv1'
-source_file: 'products/oracledatabase/CloudVmCluster.yaml'
-api_service_name: 'oracledatabase.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CloudVmCluster'
+resource: google_oracle_database_cloud_vm_cluster
+generation_type: mmv1
+source_file: products/oracledatabase/CloudVmCluster.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: CloudVmCluster
 autogen_status: true
 fields:
-  - api_field: 'backupOdbSubnet'
-  - api_field: 'backupSubnetCidr'
-  - api_field: 'cidr'
-  - field: 'cloud_vm_cluster_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'exadataInfrastructure'
-  - api_field: 'gcpOracleZone'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'odbNetwork'
-  - api_field: 'odbSubnet'
-  - api_field: 'properties.clusterName'
-  - api_field: 'properties.compartmentId'
-  - api_field: 'properties.cpuCoreCount'
-  - api_field: 'properties.dataStorageSizeTb'
-  - api_field: 'properties.dbNodeStorageSizeGb'
-  - api_field: 'properties.dbServerOcids'
-  - api_field: 'properties.diagnosticsDataCollectionOptions.diagnosticsEventsEnabled'
-  - api_field: 'properties.diagnosticsDataCollectionOptions.healthMonitoringEnabled'
-  - api_field: 'properties.diagnosticsDataCollectionOptions.incidentLogsEnabled'
-  - api_field: 'properties.diskRedundancy'
-  - api_field: 'properties.dnsListenerIp'
-  - api_field: 'properties.domain'
-  - api_field: 'properties.giVersion'
-  - api_field: 'properties.hostname'
-  - api_field: 'properties.hostnamePrefix'
-  - api_field: 'properties.licenseType'
-  - api_field: 'properties.localBackupEnabled'
-  - api_field: 'properties.memorySizeGb'
-  - api_field: 'properties.nodeCount'
-  - api_field: 'properties.ociUrl'
-  - api_field: 'properties.ocid'
-  - api_field: 'properties.ocpuCount'
-  - api_field: 'properties.scanDns'
-  - api_field: 'properties.scanDnsRecordId'
-  - api_field: 'properties.scanIpIds'
-  - api_field: 'properties.scanListenerPortTcp'
-  - api_field: 'properties.scanListenerPortTcpSsl'
-  - api_field: 'properties.shape'
-  - api_field: 'properties.sparseDiskgroupEnabled'
-  - api_field: 'properties.sshPublicKeys'
-  - api_field: 'properties.state'
-  - api_field: 'properties.storageSizeGb'
-  - api_field: 'properties.systemVersion'
-  - api_field: 'properties.timeZone.id'
-  - api_field: 'properties.timeZone.version'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: backupOdbSubnet
+    - api_field: backupSubnetCidr
+    - api_field: cidr
+    - field: cloud_vm_cluster_id
+      provider_only: true
+    - api_field: createTime
+    - field: deletion_protection
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: exadataInfrastructure
+    - api_field: gcpOracleZone
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: network
+    - api_field: odbNetwork
+    - api_field: odbSubnet
+    - api_field: properties.clusterName
+    - api_field: properties.compartmentId
+    - api_field: properties.cpuCoreCount
+    - api_field: properties.dataStorageSizeTb
+    - api_field: properties.dbNodeStorageSizeGb
+    - api_field: properties.dbServerOcids
+    - api_field: properties.diagnosticsDataCollectionOptions.diagnosticsEventsEnabled
+    - api_field: properties.diagnosticsDataCollectionOptions.healthMonitoringEnabled
+    - api_field: properties.diagnosticsDataCollectionOptions.incidentLogsEnabled
+    - api_field: properties.diskRedundancy
+    - api_field: properties.dnsListenerIp
+    - api_field: properties.domain
+    - api_field: properties.giVersion
+    - api_field: properties.hostname
+    - api_field: properties.hostnamePrefix
+    - api_field: properties.licenseType
+    - api_field: properties.localBackupEnabled
+    - api_field: properties.memorySizeGb
+    - api_field: properties.nodeCount
+    - api_field: properties.ociUrl
+    - api_field: properties.ocid
+    - api_field: properties.ocpuCount
+    - api_field: properties.scanDns
+    - api_field: properties.scanDnsRecordId
+    - api_field: properties.scanIpIds
+    - api_field: properties.scanListenerPortTcp
+    - api_field: properties.scanListenerPortTcpSsl
+    - api_field: properties.shape
+    - api_field: properties.sparseDiskgroupEnabled
+    - api_field: properties.sshPublicKeys
+    - api_field: properties.state
+    - api_field: properties.storageSizeGb
+    - api_field: properties.systemVersion
+    - api_field: properties.timeZone.id
+    - api_field: properties.timeZone.version
+    - field: terraform_labels
+      provider_only: true

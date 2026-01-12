@@ -1,0 +1,15 @@
+resource: google_compute_organization_security_policy_association
+generation_type: mmv1
+source_file: products/compute/OrganizationSecurityPolicyAssociation.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityPolicy
+fields:
+    - api_field: associations.attachmentId
+      field: attachment_id
+    - api_field: associations.displayName
+      field: display_name
+    - api_field: associations.name
+      field: name
+    - field: policy_id
+      provider_only: true

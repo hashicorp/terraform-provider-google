@@ -440,6 +440,63 @@ disrupt service.`,
 					},
 				},
 			},
+			"periodic_export_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for periodic export.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"gcs_uri": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Cloud Storage bucket URI for periodic export.
+Format: gs://{bucket_name}`,
+						},
+						"kms_key": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Name of the CMEK key in KMS.
+Format:
+projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`,
+						},
+						"start_time": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `Time in UTC to start the periodic export job.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"hours": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 23),
+										Description:  `Hours of day in 24 hour format. Should be from 0 to 23.`,
+									},
+									"minutes": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 60),
+										Description:  `Minutes of hour of day. Must be from 0 to 59.`,
+									},
+									"nanos": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 999999999),
+										Description:  `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+									},
+									"seconds": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 60),
+										Description:  `Seconds of minutes of the time. Must normally be from 0 to 59.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"platform_edition": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -696,6 +753,12 @@ func resourceLookerInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("oauth_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(oauthConfigProp)) && (ok || !reflect.DeepEqual(v, oauthConfigProp)) {
 		obj["oauthConfig"] = oauthConfigProp
 	}
+	periodicExportConfigProp, err := expandLookerInstancePeriodicExportConfig(d.Get("periodic_export_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("periodic_export_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(periodicExportConfigProp)) && (ok || !reflect.DeepEqual(v, periodicExportConfigProp)) {
+		obj["periodicExportConfig"] = periodicExportConfigProp
+	}
 	platformEditionProp, err := expandLookerInstancePlatformEdition(d.Get("platform_edition"), d, config)
 	if err != nil {
 		return err
@@ -917,6 +980,9 @@ func resourceLookerInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("maintenance_window", flattenLookerInstanceMaintenanceWindow(res["maintenanceWindow"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("periodic_export_config", flattenLookerInstancePeriodicExportConfig(res["periodicExportConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("platform_edition", flattenLookerInstancePlatformEdition(res["platformEdition"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -1069,6 +1135,12 @@ func resourceLookerInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("oauth_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, oauthConfigProp)) {
 		obj["oauthConfig"] = oauthConfigProp
 	}
+	periodicExportConfigProp, err := expandLookerInstancePeriodicExportConfig(d.Get("periodic_export_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("periodic_export_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, periodicExportConfigProp)) {
+		obj["periodicExportConfig"] = periodicExportConfigProp
+	}
 	privateIpEnabledProp, err := expandLookerInstancePrivateIpEnabled(d.Get("private_ip_enabled"), d, config)
 	if err != nil {
 		return err
@@ -1160,6 +1232,10 @@ func resourceLookerInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("oauth_config") {
 		updateMask = append(updateMask, "oauthConfig")
+	}
+
+	if d.HasChange("periodic_export_config") {
+		updateMask = append(updateMask, "periodic_export_config")
 	}
 
 	if d.HasChange("private_ip_enabled") {
@@ -1760,6 +1836,118 @@ func flattenLookerInstanceMaintenanceWindowStartTimeSeconds(v interface{}, d *sc
 }
 
 func flattenLookerInstanceMaintenanceWindowStartTimeNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLookerInstancePeriodicExportConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key"] =
+		flattenLookerInstancePeriodicExportConfigKmsKey(original["kmsKey"], d, config)
+	transformed["gcs_uri"] =
+		flattenLookerInstancePeriodicExportConfigGcsUri(original["gcsUri"], d, config)
+	transformed["start_time"] =
+		flattenLookerInstancePeriodicExportConfigStartTime(original["startTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLookerInstancePeriodicExportConfigKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLookerInstancePeriodicExportConfigGcsUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLookerInstancePeriodicExportConfigStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenLookerInstancePeriodicExportConfigStartTimeHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenLookerInstancePeriodicExportConfigStartTimeMinutes(original["minutes"], d, config)
+	transformed["seconds"] =
+		flattenLookerInstancePeriodicExportConfigStartTimeSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenLookerInstancePeriodicExportConfigStartTimeNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLookerInstancePeriodicExportConfigStartTimeHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLookerInstancePeriodicExportConfigStartTimeMinutes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLookerInstancePeriodicExportConfigStartTimeSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLookerInstancePeriodicExportConfigStartTimeNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
@@ -2392,6 +2580,109 @@ func expandLookerInstanceOauthConfigClientId(v interface{}, d tpgresource.Terraf
 }
 
 func expandLookerInstanceOauthConfigClientSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLookerInstancePeriodicExportConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKey, err := expandLookerInstancePeriodicExportConfigKmsKey(original["kms_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKey"] = transformedKmsKey
+	}
+
+	transformedGcsUri, err := expandLookerInstancePeriodicExportConfigGcsUri(original["gcs_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGcsUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gcsUri"] = transformedGcsUri
+	}
+
+	transformedStartTime, err := expandLookerInstancePeriodicExportConfigStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	return transformed, nil
+}
+
+func expandLookerInstancePeriodicExportConfigKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLookerInstancePeriodicExportConfigGcsUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLookerInstancePeriodicExportConfigStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandLookerInstancePeriodicExportConfigStartTimeHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandLookerInstancePeriodicExportConfigStartTimeMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedSeconds, err := expandLookerInstancePeriodicExportConfigStartTimeSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandLookerInstancePeriodicExportConfigStartTimeNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandLookerInstancePeriodicExportConfigStartTimeHours(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLookerInstancePeriodicExportConfigStartTimeMinutes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLookerInstancePeriodicExportConfigStartTimeSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLookerInstancePeriodicExportConfigStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

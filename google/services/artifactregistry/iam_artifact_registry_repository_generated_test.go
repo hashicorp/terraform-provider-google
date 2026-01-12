@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccArtifactRegistryRepositoryIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_artifact_registry_repository_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/repositories/%s roles/artifactregistry.reader", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateArtifactRegistryRepositoryIAMBindingStateID("google_artifact_registry_repository_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccArtifactRegistryRepositoryIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_artifact_registry_repository_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/repositories/%s roles/artifactregistry.reader", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateArtifactRegistryRepositoryIAMBindingStateID("google_artifact_registry_repository_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccArtifactRegistryRepositoryIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_artifact_registry_repository_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/repositories/%s roles/artifactregistry.reader user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateArtifactRegistryRepositoryIAMMemberStateID("google_artifact_registry_repository_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccArtifactRegistryRepositoryIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_artifact_registry_repository_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/repositories/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateArtifactRegistryRepositoryIAMPolicyStateID("google_artifact_registry_repository_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccArtifactRegistryRepositoryIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_artifact_registry_repository_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/repositories/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-repository%s", context["random_suffix"])),
+				ImportStateIdFunc: generateArtifactRegistryRepositoryIAMPolicyStateID("google_artifact_registry_repository_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -244,4 +245,58 @@ resource "google_artifact_registry_repository_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateArtifactRegistryRepositoryIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		repository := tpgresource.GetResourceNameFromSelfLink(rawState["repository"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/repositories/%s", project, location, repository), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateArtifactRegistryRepositoryIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		repository := tpgresource.GetResourceNameFromSelfLink(rawState["repository"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/repositories/%s", project, location, repository), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateArtifactRegistryRepositoryIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		repository := tpgresource.GetResourceNameFromSelfLink(rawState["repository"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/repositories/%s", project, location, repository), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

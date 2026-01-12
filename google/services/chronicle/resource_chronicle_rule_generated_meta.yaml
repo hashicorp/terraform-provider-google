@@ -1,39 +1,39 @@
-resource: 'google_chronicle_rule'
-generation_type: 'mmv1'
-source_file: 'products/chronicle/Rule.yaml'
-api_service_name: 'chronicle.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Rule'
+resource: google_chronicle_rule
+generation_type: mmv1
+source_file: products/chronicle/Rule.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: Rule
 autogen_status: true
 fields:
-  - api_field: 'allowedRunFrequencies'
-  - api_field: 'author'
-  - api_field: 'compilationDiagnostics.message'
-  - api_field: 'compilationDiagnostics.position.endColumn'
-  - api_field: 'compilationDiagnostics.position.endLine'
-  - api_field: 'compilationDiagnostics.position.startColumn'
-  - api_field: 'compilationDiagnostics.position.startLine'
-  - api_field: 'compilationDiagnostics.severity'
-  - api_field: 'compilationDiagnostics.uri'
-  - api_field: 'compilationState'
-  - api_field: 'createTime'
-  - api_field: 'dataTables'
-  - field: 'deletion_policy'
-    provider_only: true
-  - api_field: 'displayName'
-  - api_field: 'etag'
-  - field: 'instance'
-    provider_only: true
-  - field: 'location'
-    provider_only: true
-  - api_field: 'metadata'
-  - api_field: 'name'
-  - api_field: 'nearRealTimeLiveRuleEligible'
-  - api_field: 'referenceLists'
-  - api_field: 'revisionCreateTime'
-  - api_field: 'revisionId'
-  - api_field: 'ruleId'
-  - api_field: 'scope'
-  - api_field: 'severity.displayName'
-  - api_field: 'text'
-  - api_field: 'type'
+    - api_field: allowedRunFrequencies
+    - api_field: author
+    - api_field: compilationDiagnostics.message
+    - api_field: compilationDiagnostics.position.endColumn
+    - api_field: compilationDiagnostics.position.endLine
+    - api_field: compilationDiagnostics.position.startColumn
+    - api_field: compilationDiagnostics.position.startLine
+    - api_field: compilationDiagnostics.severity
+    - api_field: compilationDiagnostics.uri
+    - api_field: compilationState
+    - api_field: createTime
+    - api_field: dataTables
+    - field: deletion_policy
+      provider_only: true
+    - api_field: displayName
+    - api_field: etag
+    - field: instance
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: metadata
+    - api_field: name
+    - api_field: nearRealTimeLiveRuleEligible
+    - api_field: referenceLists
+    - api_field: revisionCreateTime
+    - api_field: revisionId
+    - api_field: ruleId
+    - api_field: scope
+    - api_field: severity.displayName
+    - api_field: text
+    - api_field: type

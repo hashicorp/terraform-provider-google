@@ -1,26 +1,26 @@
-resource: 'google_access_context_manager_gcp_user_access_binding'
-generation_type: 'mmv1'
-source_file: 'products/accesscontextmanager/GcpUserAccessBinding.yaml'
-api_service_name: 'accesscontextmanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'GcpUserAccessBinding'
+resource: google_access_context_manager_gcp_user_access_binding
+generation_type: mmv1
+source_file: products/accesscontextmanager/GcpUserAccessBinding.yaml
+api_service_name: accesscontextmanager.googleapis.com
+api_version: v1
+api_resource_type_kind: GcpUserAccessBinding
 fields:
-  - api_field: 'accessLevels'
-  - api_field: 'groupKey'
-  - api_field: 'name'
-  - field: 'organization_id'
-    provider_only: true
-  - api_field: 'scopedAccessSettings.activeSettings.accessLevels'
-  - api_field: 'scopedAccessSettings.activeSettings.sessionSettings.maxInactivity'
-  - api_field: 'scopedAccessSettings.activeSettings.sessionSettings.sessionLength'
-  - api_field: 'scopedAccessSettings.activeSettings.sessionSettings.sessionLengthEnabled'
-  - api_field: 'scopedAccessSettings.activeSettings.sessionSettings.sessionReauthMethod'
-  - api_field: 'scopedAccessSettings.activeSettings.sessionSettings.useOidcMaxAge'
-  - api_field: 'scopedAccessSettings.dryRunSettings.accessLevels'
-  - api_field: 'scopedAccessSettings.scope.clientScope.restrictedClientApplication.clientId'
-  - api_field: 'scopedAccessSettings.scope.clientScope.restrictedClientApplication.name'
-  - api_field: 'sessionSettings.maxInactivity'
-  - api_field: 'sessionSettings.sessionLength'
-  - api_field: 'sessionSettings.sessionLengthEnabled'
-  - api_field: 'sessionSettings.sessionReauthMethod'
-  - api_field: 'sessionSettings.useOidcMaxAge'
+    - api_field: accessLevels
+    - api_field: groupKey
+    - api_field: name
+    - field: organization_id
+      provider_only: true
+    - api_field: scopedAccessSettings.activeSettings.accessLevels
+    - api_field: scopedAccessSettings.activeSettings.sessionSettings.maxInactivity
+    - api_field: scopedAccessSettings.activeSettings.sessionSettings.sessionLength
+    - api_field: scopedAccessSettings.activeSettings.sessionSettings.sessionLengthEnabled
+    - api_field: scopedAccessSettings.activeSettings.sessionSettings.sessionReauthMethod
+    - api_field: scopedAccessSettings.activeSettings.sessionSettings.useOidcMaxAge
+    - api_field: scopedAccessSettings.dryRunSettings.accessLevels
+    - api_field: scopedAccessSettings.scope.clientScope.restrictedClientApplication.clientId
+    - api_field: scopedAccessSettings.scope.clientScope.restrictedClientApplication.name
+    - api_field: sessionSettings.maxInactivity
+    - api_field: sessionSettings.sessionLength
+    - api_field: sessionSettings.sessionLengthEnabled
+    - api_field: sessionSettings.sessionReauthMethod
+    - api_field: sessionSettings.useOidcMaxAge

@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -56,7 +57,7 @@ func TestAccDataplexDatascanIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataplex_datascan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataScans/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataprofile-basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataplexDatascanIAMBindingStateID("google_dataplex_datascan_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,7 +67,7 @@ func TestAccDataplexDatascanIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataplex_datascan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataScans/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataprofile-basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataplexDatascanIAMBindingStateID("google_dataplex_datascan_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -93,7 +94,7 @@ func TestAccDataplexDatascanIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataplex_datascan_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataScans/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataprofile-basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataplexDatascanIAMMemberStateID("google_dataplex_datascan_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -120,7 +121,7 @@ func TestAccDataplexDatascanIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataplex_datascan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataScans/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataprofile-basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataplexDatascanIAMPolicyStateID("google_dataplex_datascan_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -129,7 +130,7 @@ func TestAccDataplexDatascanIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataplex_datascan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataScans/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-dataprofile-basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataplexDatascanIAMPolicyStateID("google_dataplex_datascan_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -307,4 +308,58 @@ resource "google_dataplex_datascan_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateDataplexDatascanIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		data_scan_id := tpgresource.GetResourceNameFromSelfLink(rawState["data_scan_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/dataScans/%s", project, location, data_scan_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataplexDatascanIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		data_scan_id := tpgresource.GetResourceNameFromSelfLink(rawState["data_scan_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/dataScans/%s", project, location, data_scan_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataplexDatascanIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		data_scan_id := tpgresource.GetResourceNameFromSelfLink(rawState["data_scan_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/dataScans/%s", project, location, data_scan_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

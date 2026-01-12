@@ -1,9 +1,9 @@
-resource: 'google_dialogflow_encryption_spec'
-generation_type: 'mmv1'
-source_file: 'products/dialogflow/EncryptionSpec.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'EncryptionSpec'
+resource: google_dialogflow_encryption_spec
+generation_type: mmv1
+source_file: products/dialogflow/EncryptionSpec.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v2
+api_resource_type_kind: EncryptionSpec
 fields:
-  - api_field: 'encryptionSpec.kmsKey'
-  - api_field: 'location'
+    - api_field: encryptionSpec.kmsKey
+    - api_field: location

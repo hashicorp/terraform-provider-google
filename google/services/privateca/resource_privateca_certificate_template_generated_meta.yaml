@@ -1,64 +1,64 @@
-resource: 'google_privateca_certificate_template'
-generation_type: 'mmv1'
-source_file: 'products/privateca/CertificateTemplate.yaml'
-api_service_name: 'privateca.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CertificateTemplate'
+resource: google_privateca_certificate_template
+generation_type: mmv1
+source_file: products/privateca/CertificateTemplate.yaml
+api_service_name: privateca.googleapis.com
+api_version: v1
+api_resource_type_kind: CertificateTemplate
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'identityConstraints.allowSubjectAltNamesPassthrough'
-  - api_field: 'identityConstraints.allowSubjectPassthrough'
-  - api_field: 'identityConstraints.celExpression.description'
-  - api_field: 'identityConstraints.celExpression.expression'
-  - api_field: 'identityConstraints.celExpression.location'
-  - api_field: 'identityConstraints.celExpression.title'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'maximumLifetime'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'passthroughExtensions.additionalExtensions.objectIdPath'
-  - api_field: 'passthroughExtensions.knownExtensions'
-  - api_field: 'predefinedValues.additionalExtensions.critical'
-  - api_field: 'predefinedValues.additionalExtensions.objectId.objectIdPath'
-  - api_field: 'predefinedValues.additionalExtensions.value'
-  - api_field: 'predefinedValues.aiaOcspServers'
-  - api_field: 'predefinedValues.caOptions.isCa'
-  - api_field: 'predefinedValues.caOptions.maxIssuerPathLength'
-  - field: 'predefined_values.ca_options.null_ca'
-    provider_only: true
-  - field: 'predefined_values.ca_options.zero_max_issuer_path_length'
-    provider_only: true
-  - api_field: 'predefinedValues.keyUsage.baseKeyUsage.certSign'
-  - api_field: 'predefinedValues.keyUsage.baseKeyUsage.contentCommitment'
-  - api_field: 'predefinedValues.keyUsage.baseKeyUsage.crlSign'
-  - api_field: 'predefinedValues.keyUsage.baseKeyUsage.dataEncipherment'
-  - api_field: 'predefinedValues.keyUsage.baseKeyUsage.decipherOnly'
-  - api_field: 'predefinedValues.keyUsage.baseKeyUsage.digitalSignature'
-  - api_field: 'predefinedValues.keyUsage.baseKeyUsage.encipherOnly'
-  - api_field: 'predefinedValues.keyUsage.baseKeyUsage.keyAgreement'
-  - api_field: 'predefinedValues.keyUsage.baseKeyUsage.keyEncipherment'
-  - api_field: 'predefinedValues.keyUsage.extendedKeyUsage.clientAuth'
-  - api_field: 'predefinedValues.keyUsage.extendedKeyUsage.codeSigning'
-  - api_field: 'predefinedValues.keyUsage.extendedKeyUsage.emailProtection'
-  - api_field: 'predefinedValues.keyUsage.extendedKeyUsage.ocspSigning'
-  - api_field: 'predefinedValues.keyUsage.extendedKeyUsage.serverAuth'
-  - api_field: 'predefinedValues.keyUsage.extendedKeyUsage.timeStamping'
-  - api_field: 'predefinedValues.keyUsage.unknownExtendedKeyUsages.objectIdPath'
-  - api_field: 'predefinedValues.nameConstraints.critical'
-  - api_field: 'predefinedValues.nameConstraints.excludedDnsNames'
-  - api_field: 'predefinedValues.nameConstraints.excludedEmailAddresses'
-  - api_field: 'predefinedValues.nameConstraints.excludedIpRanges'
-  - api_field: 'predefinedValues.nameConstraints.excludedUris'
-  - api_field: 'predefinedValues.nameConstraints.permittedDnsNames'
-  - api_field: 'predefinedValues.nameConstraints.permittedEmailAddresses'
-  - api_field: 'predefinedValues.nameConstraints.permittedIpRanges'
-  - api_field: 'predefinedValues.nameConstraints.permittedUris'
-  - api_field: 'predefinedValues.policyIds.objectIdPath'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: identityConstraints.allowSubjectAltNamesPassthrough
+    - api_field: identityConstraints.allowSubjectPassthrough
+    - api_field: identityConstraints.celExpression.description
+    - api_field: identityConstraints.celExpression.expression
+    - api_field: identityConstraints.celExpression.location
+    - api_field: identityConstraints.celExpression.title
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: maximumLifetime
+    - field: name
+      provider_only: true
+    - api_field: passthroughExtensions.additionalExtensions.objectIdPath
+    - api_field: passthroughExtensions.knownExtensions
+    - api_field: predefinedValues.additionalExtensions.critical
+    - api_field: predefinedValues.additionalExtensions.objectId.objectIdPath
+    - api_field: predefinedValues.additionalExtensions.value
+    - api_field: predefinedValues.aiaOcspServers
+    - api_field: predefinedValues.caOptions.isCa
+    - api_field: predefinedValues.caOptions.maxIssuerPathLength
+    - field: predefined_values.ca_options.null_ca
+      provider_only: true
+    - field: predefined_values.ca_options.zero_max_issuer_path_length
+      provider_only: true
+    - api_field: predefinedValues.keyUsage.baseKeyUsage.certSign
+    - api_field: predefinedValues.keyUsage.baseKeyUsage.contentCommitment
+    - api_field: predefinedValues.keyUsage.baseKeyUsage.crlSign
+    - api_field: predefinedValues.keyUsage.baseKeyUsage.dataEncipherment
+    - api_field: predefinedValues.keyUsage.baseKeyUsage.decipherOnly
+    - api_field: predefinedValues.keyUsage.baseKeyUsage.digitalSignature
+    - api_field: predefinedValues.keyUsage.baseKeyUsage.encipherOnly
+    - api_field: predefinedValues.keyUsage.baseKeyUsage.keyAgreement
+    - api_field: predefinedValues.keyUsage.baseKeyUsage.keyEncipherment
+    - api_field: predefinedValues.keyUsage.extendedKeyUsage.clientAuth
+    - api_field: predefinedValues.keyUsage.extendedKeyUsage.codeSigning
+    - api_field: predefinedValues.keyUsage.extendedKeyUsage.emailProtection
+    - api_field: predefinedValues.keyUsage.extendedKeyUsage.ocspSigning
+    - api_field: predefinedValues.keyUsage.extendedKeyUsage.serverAuth
+    - api_field: predefinedValues.keyUsage.extendedKeyUsage.timeStamping
+    - api_field: predefinedValues.keyUsage.unknownExtendedKeyUsages.objectIdPath
+    - api_field: predefinedValues.nameConstraints.critical
+    - api_field: predefinedValues.nameConstraints.excludedDnsNames
+    - api_field: predefinedValues.nameConstraints.excludedEmailAddresses
+    - api_field: predefinedValues.nameConstraints.excludedIpRanges
+    - api_field: predefinedValues.nameConstraints.excludedUris
+    - api_field: predefinedValues.nameConstraints.permittedDnsNames
+    - api_field: predefinedValues.nameConstraints.permittedEmailAddresses
+    - api_field: predefinedValues.nameConstraints.permittedIpRanges
+    - api_field: predefinedValues.nameConstraints.permittedUris
+    - api_field: predefinedValues.policyIds.objectIdPath
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

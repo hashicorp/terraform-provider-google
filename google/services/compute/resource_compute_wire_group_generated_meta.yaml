@@ -1,0 +1,32 @@
+resource: google_compute_wire_group
+generation_type: mmv1
+source_file: products/compute/WireGroup.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: WireGroup
+fields:
+    - api_field: adminEnabled
+    - api_field: creationTimestamp
+    - field: cross_site_network
+      provider_only: true
+    - api_field: description
+    - api_field: endpoints.key
+      field: endpoints.endpoint
+    - api_field: endpoints.value.interconnects.key
+      field: endpoints.interconnects.interconnect_name
+    - api_field: endpoints.value.interconnects.value.interconnect
+      field: endpoints.interconnects.interconnect
+    - api_field: endpoints.value.interconnects.value.vlanTags
+      field: endpoints.interconnects.vlan_tags
+    - api_field: name
+    - api_field: topology.endpoints.city
+    - api_field: topology.endpoints.label
+    - api_field: wireProperties.bandwidthAllocation
+    - api_field: wireProperties.bandwidthUnmetered
+    - api_field: wireProperties.faultResponse
+    - api_field: wires.adminEnabled
+    - api_field: wires.endpoints.interconnect
+    - api_field: wires.endpoints.vlanTag
+    - api_field: wires.label
+    - api_field: wires.wireProperties.bandwidthUnmetered
+    - api_field: wires.wireProperties.faultResponse

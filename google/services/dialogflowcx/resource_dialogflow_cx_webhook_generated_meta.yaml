@@ -1,48 +1,54 @@
-resource: 'google_dialogflow_cx_webhook'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/Webhook.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Webhook'
+resource: google_dialogflow_cx_webhook
+generation_type: mmv1
+source_file: products/dialogflowcx/Webhook.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: Webhook
 fields:
-  - api_field: 'disabled'
-  - api_field: 'displayName'
-  - api_field: 'enableSpellCorrection'
-  - api_field: 'enableStackdriverLogging'
-  - api_field: 'genericWebService.allowedCaCerts'
-  - api_field: 'genericWebService.httpMethod'
-  - api_field: 'genericWebService.oauthConfig.clientId'
-  - api_field: 'genericWebService.oauthConfig.clientSecret'
-  - api_field: 'genericWebService.oauthConfig.scopes'
-  - api_field: 'genericWebService.oauthConfig.secretVersionForClientSecret'
-  - api_field: 'genericWebService.oauthConfig.tokenEndpoint'
-  - api_field: 'genericWebService.parameterMapping'
-  - api_field: 'genericWebService.requestBody'
-  - api_field: 'genericWebService.requestHeaders'
-  - api_field: 'genericWebService.secretVersionForUsernamePassword'
-  - api_field: 'genericWebService.secretVersionsForRequestHeaders.secretVersionsForRequestHeader.secretVersion'
-  - api_field: 'genericWebService.serviceAgentAuth'
-  - api_field: 'genericWebService.uri'
-  - api_field: 'genericWebService.webhookType'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'securitySettings'
-  - api_field: 'serviceDirectory.genericWebService.allowedCaCerts'
-  - api_field: 'serviceDirectory.genericWebService.httpMethod'
-  - api_field: 'serviceDirectory.genericWebService.oauthConfig.clientId'
-  - api_field: 'serviceDirectory.genericWebService.oauthConfig.clientSecret'
-  - api_field: 'serviceDirectory.genericWebService.oauthConfig.scopes'
-  - api_field: 'serviceDirectory.genericWebService.oauthConfig.secretVersionForClientSecret'
-  - api_field: 'serviceDirectory.genericWebService.oauthConfig.tokenEndpoint'
-  - api_field: 'serviceDirectory.genericWebService.parameterMapping'
-  - api_field: 'serviceDirectory.genericWebService.requestBody'
-  - api_field: 'serviceDirectory.genericWebService.requestHeaders'
-  - api_field: 'serviceDirectory.genericWebService.secretVersionForUsernamePassword'
-  - api_field: 'serviceDirectory.genericWebService.secretVersionsForRequestHeaders.secretVersionsForRequestHeader.secretVersion'
-  - api_field: 'serviceDirectory.genericWebService.serviceAgentAuth'
-  - api_field: 'serviceDirectory.genericWebService.uri'
-  - api_field: 'serviceDirectory.genericWebService.webhookType'
-  - api_field: 'serviceDirectory.service'
-  - api_field: 'startFlow'
-  - api_field: 'timeout'
+    - api_field: disabled
+    - api_field: displayName
+    - api_field: enableSpellCorrection
+    - api_field: enableStackdriverLogging
+    - api_field: genericWebService.allowedCaCerts
+    - api_field: genericWebService.httpMethod
+    - api_field: genericWebService.oauthConfig.clientId
+    - api_field: genericWebService.oauthConfig.clientSecret
+    - api_field: genericWebService.oauthConfig.scopes
+    - api_field: genericWebService.oauthConfig.secretVersionForClientSecret
+    - api_field: genericWebService.oauthConfig.tokenEndpoint
+    - api_field: genericWebService.parameterMapping
+    - api_field: genericWebService.requestBody
+    - api_field: genericWebService.requestHeaders
+    - api_field: genericWebService.secretVersionForUsernamePassword
+    - api_field: genericWebService.secretVersionsForRequestHeaders.key
+      field: generic_web_service.secret_versions_for_request_headers.key
+    - api_field: genericWebService.secretVersionsForRequestHeaders.value.secretVersion
+      field: generic_web_service.secret_versions_for_request_headers.secret_version
+    - api_field: genericWebService.serviceAgentAuth
+    - api_field: genericWebService.uri
+    - api_field: genericWebService.webhookType
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: securitySettings
+    - api_field: serviceDirectory.genericWebService.allowedCaCerts
+    - api_field: serviceDirectory.genericWebService.httpMethod
+    - api_field: serviceDirectory.genericWebService.oauthConfig.clientId
+    - api_field: serviceDirectory.genericWebService.oauthConfig.clientSecret
+    - api_field: serviceDirectory.genericWebService.oauthConfig.scopes
+    - api_field: serviceDirectory.genericWebService.oauthConfig.secretVersionForClientSecret
+    - api_field: serviceDirectory.genericWebService.oauthConfig.tokenEndpoint
+    - api_field: serviceDirectory.genericWebService.parameterMapping
+    - api_field: serviceDirectory.genericWebService.requestBody
+    - api_field: serviceDirectory.genericWebService.requestHeaders
+    - api_field: serviceDirectory.genericWebService.secretVersionForUsernamePassword
+    - api_field: serviceDirectory.genericWebService.secretVersionsForRequestHeaders.key
+      field: service_directory.generic_web_service.secret_versions_for_request_headers.key
+    - api_field: serviceDirectory.genericWebService.secretVersionsForRequestHeaders.value.secretVersion
+      field: service_directory.generic_web_service.secret_versions_for_request_headers.secret_version
+    - api_field: serviceDirectory.genericWebService.serviceAgentAuth
+    - api_field: serviceDirectory.genericWebService.uri
+    - api_field: serviceDirectory.genericWebService.webhookType
+    - api_field: serviceDirectory.service
+    - api_field: startFlow
+    - api_field: timeout

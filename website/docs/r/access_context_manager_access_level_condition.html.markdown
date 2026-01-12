@@ -220,10 +220,10 @@ The following arguments are supported:
 * `vpc_subnetwork` -
   (Optional)
   Sub networks within a VPC network.
-  Structure is [documented below](#nested_vpc_network_sources_vpc_network_sources_vpc_subnetwork).
+  Structure is [documented below](#nested_vpc_network_sources_vpc_subnetwork).
 
 
-<a name="nested_vpc_network_sources_vpc_network_sources_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
+<a name="nested_vpc_network_sources_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
 
 * `network` -
   (Required)

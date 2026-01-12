@@ -1,15 +1,15 @@
-resource: 'google_network_security_url_lists'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/UrlLists.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'UrlList'
+resource: google_network_security_url_lists
+generation_type: mmv1
+source_file: products/networksecurity/UrlLists.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: UrlList
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'values'
+    - api_field: createTime
+    - api_field: description
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: updateTime
+    - api_field: values

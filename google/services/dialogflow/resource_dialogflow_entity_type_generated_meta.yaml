@@ -1,13 +1,13 @@
-resource: 'google_dialogflow_entity_type'
-generation_type: 'mmv1'
-source_file: 'products/dialogflow/EntityType.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'EntityType'
+resource: google_dialogflow_entity_type
+generation_type: mmv1
+source_file: products/dialogflow/EntityType.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v2
+api_resource_type_kind: EntityType
 fields:
-  - api_field: 'displayName'
-  - api_field: 'enableFuzzyExtraction'
-  - api_field: 'entities.synonyms'
-  - api_field: 'entities.value'
-  - api_field: 'kind'
-  - api_field: 'name'
+    - api_field: displayName
+    - api_field: enableFuzzyExtraction
+    - api_field: entities.synonyms
+    - api_field: entities.value
+    - api_field: kind
+    - api_field: name

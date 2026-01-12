@@ -1,0 +1,25 @@
+resource: google_network_services_multicast_group_producer_activation
+generation_type: mmv1
+source_file: products/networkservices/MulticastGroupProducerActivation.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: MulticastGroupProducerActivation
+autogen_status: true
+fields:
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: multicast_group_producer_activation_id
+      provider_only: true
+    - api_field: multicastGroupRangeActivation
+    - api_field: multicastProducerAssociation
+    - api_field: name
+    - api_field: state.state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uniqueId
+    - api_field: updateTime

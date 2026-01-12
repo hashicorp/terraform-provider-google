@@ -94,7 +94,7 @@ The following arguments are supported:
 * `hub_instance_action` -
   (Output)
   The execution status for the plugin instance.
-  Structure is [documented below](#nested_actions_actions_hub_instance_action).
+  Structure is [documented below](#nested_actions_hub_instance_action).
 
 * `action_id` -
   (Required)
@@ -120,7 +120,7 @@ The following arguments are supported:
 * `curation_config` -
   (Optional)
   The curation information for this plugin instance.
-  Structure is [documented below](#nested_actions_actions_curation_config).
+  Structure is [documented below](#nested_actions_curation_config).
 
 * `schedule_time_zone` -
   (Optional)
@@ -128,7 +128,7 @@ The following arguments are supported:
   be used.
 
 
-<a name="nested_actions_actions_hub_instance_action"></a>The `hub_instance_action` block contains:
+<a name="nested_actions_hub_instance_action"></a>The `hub_instance_action` block contains:
 
 * `current_execution_state` -
   (Output)
@@ -141,10 +141,10 @@ The following arguments are supported:
 * `last_execution` -
   (Output)
   The result of the last execution of the plugin instance.
-  Structure is [documented below](#nested_actions_actions_hub_instance_action_last_execution).
+  Structure is [documented below](#nested_actions_hub_instance_action_last_execution).
 
 
-<a name="nested_actions_actions_hub_instance_action_last_execution"></a>The `last_execution` block contains:
+<a name="nested_actions_hub_instance_action_last_execution"></a>The `last_execution` block contains:
 
 * `result` -
   (Output)
@@ -167,12 +167,12 @@ The following arguments are supported:
   (Output)
   The last execution end time of the plugin instance.
 
-<a name="nested_actions_actions_curation_config"></a>The `curation_config` block supports:
+<a name="nested_actions_curation_config"></a>The `curation_config` block supports:
 
 * `custom_curation` -
   (Optional)
   Custom curation information for this plugin instance.
-  Structure is [documented below](#nested_actions_actions_curation_config_custom_curation).
+  Structure is [documented below](#nested_actions_curation_config_custom_curation).
 
 * `curation_type` -
   (Required)
@@ -182,7 +182,7 @@ The following arguments are supported:
   CUSTOM_CURATION_FOR_API_METADATA
 
 
-<a name="nested_actions_actions_curation_config_custom_curation"></a>The `custom_curation` block supports:
+<a name="nested_actions_curation_config_custom_curation"></a>The `custom_curation` block supports:
 
 * `curation` -
   (Required)

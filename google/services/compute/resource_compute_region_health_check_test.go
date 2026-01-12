@@ -203,19 +203,49 @@ func TestAccComputeRegionHealthCheck_typeTransition(t *testing.T) {
 				Config: testAccComputeRegionHealthCheck_https(hckName),
 			},
 			{
+				ResourceName:      "google_compute_region_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccComputeRegionHealthCheck_http(hckName),
+			},
+			{
+				ResourceName:      "google_compute_region_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccComputeRegionHealthCheck_ssl(hckName),
 			},
 			{
+				ResourceName:      "google_compute_region_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccComputeRegionHealthCheck_tcp(hckName),
+			},
+			{
+				ResourceName:      "google_compute_region_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccComputeRegionHealthCheck_http2(hckName),
 			},
 			{
+				ResourceName:      "google_compute_region_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccComputeRegionHealthCheck_https(hckName),
+			},
+			{
+				ResourceName:      "google_compute_region_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

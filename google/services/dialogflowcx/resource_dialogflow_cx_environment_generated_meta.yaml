@@ -1,14 +1,14 @@
-resource: 'google_dialogflow_cx_environment'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/Environment.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Environment'
+resource: google_dialogflow_cx_environment
+generation_type: mmv1
+source_file: products/dialogflowcx/Environment.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: Environment
 fields:
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'versionConfigs.version'
+    - api_field: description
+    - api_field: displayName
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: updateTime
+    - api_field: versionConfigs.version

@@ -1,42 +1,42 @@
-resource: 'google_billing_budget'
-generation_type: 'mmv1'
-source_file: 'products/billingbudget/Budget.yaml'
-api_service_name: 'billingbudgets.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Budget'
+resource: google_billing_budget
+generation_type: mmv1
+source_file: products/billingbudget/Budget.yaml
+api_service_name: billingbudgets.googleapis.com
+api_version: v1
+api_resource_type_kind: Budget
 fields:
-  - api_field: 'notificationsRule.disableDefaultIamRecipients'
-    field: 'all_updates_rule.disable_default_iam_recipients'
-  - api_field: 'notificationsRule.enableProjectLevelRecipients'
-    field: 'all_updates_rule.enable_project_level_recipients'
-  - api_field: 'notificationsRule.monitoringNotificationChannels'
-    field: 'all_updates_rule.monitoring_notification_channels'
-  - api_field: 'notificationsRule.pubsubTopic'
-    field: 'all_updates_rule.pubsub_topic'
-  - api_field: 'notificationsRule.schemaVersion'
-    field: 'all_updates_rule.schema_version'
-  - api_field: 'amount.lastPeriodAmount'
-  - api_field: 'amount.specifiedAmount.currencyCode'
-  - api_field: 'amount.specifiedAmount.nanos'
-  - api_field: 'amount.specifiedAmount.units'
-  - field: 'billing_account'
-    provider_only: true
-  - api_field: 'budgetFilter.calendarPeriod'
-  - api_field: 'budgetFilter.creditTypes'
-  - api_field: 'budgetFilter.creditTypesTreatment'
-  - api_field: 'budgetFilter.customPeriod.endDate.day'
-  - api_field: 'budgetFilter.customPeriod.endDate.month'
-  - api_field: 'budgetFilter.customPeriod.endDate.year'
-  - api_field: 'budgetFilter.customPeriod.startDate.day'
-  - api_field: 'budgetFilter.customPeriod.startDate.month'
-  - api_field: 'budgetFilter.customPeriod.startDate.year'
-  - api_field: 'budgetFilter.labels'
-  - api_field: 'budgetFilter.projects'
-  - api_field: 'budgetFilter.resourceAncestors'
-  - api_field: 'budgetFilter.services'
-  - api_field: 'budgetFilter.subaccounts'
-  - api_field: 'displayName'
-  - api_field: 'name'
-  - api_field: 'ownershipScope'
-  - api_field: 'thresholdRules.spendBasis'
-  - api_field: 'thresholdRules.thresholdPercent'
+    - api_field: notificationsRule.disableDefaultIamRecipients
+      field: all_updates_rule.disable_default_iam_recipients
+    - api_field: notificationsRule.enableProjectLevelRecipients
+      field: all_updates_rule.enable_project_level_recipients
+    - api_field: notificationsRule.monitoringNotificationChannels
+      field: all_updates_rule.monitoring_notification_channels
+    - api_field: notificationsRule.pubsubTopic
+      field: all_updates_rule.pubsub_topic
+    - api_field: notificationsRule.schemaVersion
+      field: all_updates_rule.schema_version
+    - api_field: amount.lastPeriodAmount
+    - api_field: amount.specifiedAmount.currencyCode
+    - api_field: amount.specifiedAmount.nanos
+    - api_field: amount.specifiedAmount.units
+    - field: billing_account
+      provider_only: true
+    - api_field: budgetFilter.calendarPeriod
+    - api_field: budgetFilter.creditTypes
+    - api_field: budgetFilter.creditTypesTreatment
+    - api_field: budgetFilter.customPeriod.endDate.day
+    - api_field: budgetFilter.customPeriod.endDate.month
+    - api_field: budgetFilter.customPeriod.endDate.year
+    - api_field: budgetFilter.customPeriod.startDate.day
+    - api_field: budgetFilter.customPeriod.startDate.month
+    - api_field: budgetFilter.customPeriod.startDate.year
+    - api_field: budgetFilter.labels
+    - api_field: budgetFilter.projects
+    - api_field: budgetFilter.resourceAncestors
+    - api_field: budgetFilter.services
+    - api_field: budgetFilter.subaccounts
+    - api_field: displayName
+    - api_field: name
+    - api_field: ownershipScope
+    - api_field: thresholdRules.spendBasis
+    - api_field: thresholdRules.thresholdPercent

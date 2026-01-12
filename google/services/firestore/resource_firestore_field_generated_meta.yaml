@@ -1,18 +1,18 @@
-resource: 'google_firestore_field'
-generation_type: 'mmv1'
-source_file: 'products/firestore/Field.yaml'
-api_service_name: 'firestore.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Field'
+resource: google_firestore_field
+generation_type: mmv1
+source_file: products/firestore/Field.yaml
+api_service_name: firestore.googleapis.com
+api_version: v1
+api_resource_type_kind: Field
 fields:
-  - field: 'collection'
-    provider_only: true
-  - field: 'database'
-    provider_only: true
-  - field: 'field'
-    provider_only: true
-  - api_field: 'indexConfig.indexes.arrayConfig'
-  - api_field: 'indexConfig.indexes.order'
-  - api_field: 'indexConfig.indexes.queryScope'
-  - api_field: 'name'
-  - api_field: 'ttlConfig.state'
+    - field: collection
+      provider_only: true
+    - field: database
+      provider_only: true
+    - field: field
+      provider_only: true
+    - api_field: indexConfig.indexes.arrayConfig
+    - api_field: indexConfig.indexes.order
+    - api_field: indexConfig.indexes.queryScope
+    - api_field: name
+    - api_field: ttlConfig.state

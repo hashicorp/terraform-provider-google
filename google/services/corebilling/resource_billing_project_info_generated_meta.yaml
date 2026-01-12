@@ -1,9 +1,9 @@
-resource: 'google_billing_project_info'
-generation_type: 'mmv1'
-source_file: 'products/billing/ProjectInfo.yaml'
-api_service_name: 'cloudbilling.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ProjectBillingInfo'
-cai_asset_name_format: '//cloudbilling.googleapis.com/projects/{{project}}/billingInfo'
+resource: google_billing_project_info
+generation_type: mmv1
+source_file: products/billing/ProjectInfo.yaml
+api_service_name: cloudbilling.googleapis.com
+api_version: v1
+api_resource_type_kind: ProjectBillingInfo
+cai_asset_name_format: //cloudbilling.googleapis.com/projects/{{project}}/billingInfo
 fields:
-  - api_field: 'billing_account'
+    - api_field: billing_account

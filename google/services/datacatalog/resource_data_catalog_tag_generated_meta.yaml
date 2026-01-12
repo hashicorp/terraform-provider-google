@@ -1,20 +1,28 @@
-resource: 'google_data_catalog_tag'
-generation_type: 'mmv1'
-source_file: 'products/datacatalog/Tag.yaml'
-api_service_name: 'datacatalog.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Tag'
+resource: google_data_catalog_tag
+generation_type: mmv1
+source_file: products/datacatalog/Tag.yaml
+api_service_name: datacatalog.googleapis.com
+api_version: v1
+api_resource_type_kind: Tag
 fields:
-  - api_field: 'column'
-  - api_field: 'fields.field_value.boolValue'
-  - api_field: 'fields.field_value.display_name'
-  - api_field: 'fields.field_value.doubleValue'
-  - api_field: 'fields.field_value.order'
-  - api_field: 'fields.field_value.stringValue'
-  - api_field: 'fields.field_value.timestampValue'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'template'
-  - api_field: 'templateDisplayName'
-    field: 'template_displayname'
+    - api_field: column
+    - api_field: fields.key
+      field: fields.field_name
+    - api_field: fields.value.boolValue
+      field: fields.bool_value
+    - api_field: fields.value.displayName
+      field: fields.display_name
+    - api_field: fields.value.doubleValue
+      field: fields.double_value
+    - api_field: fields.value.order
+      field: fields.order
+    - api_field: fields.value.stringValue
+      field: fields.string_value
+    - api_field: fields.value.timestampValue
+      field: fields.timestamp_value
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: template
+    - api_field: templateDisplayName
+      field: template_displayname

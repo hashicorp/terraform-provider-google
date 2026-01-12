@@ -427,12 +427,12 @@ destroying the resource will fail if tables are present.
   this dataset. The role field is not required when this field is
   set. If that view is updated by any user, access to the view
   needs to be granted again via an update operation.
-  Structure is [documented below](#nested_access_access_view).
+  Structure is [documented below](#nested_access_view).
 
 * `dataset` -
   (Optional)
   Grants all resources of particular types in a particular dataset read access to the current dataset.
-  Structure is [documented below](#nested_access_access_dataset).
+  Structure is [documented below](#nested_access_dataset).
 
 * `routine` -
   (Optional)
@@ -441,16 +441,16 @@ destroying the resource will fail if tables are present.
   this dataset. The role field is not required when this field is
   set. If that routine is updated by any user, access to the routine
   needs to be granted again via an update operation.
-  Structure is [documented below](#nested_access_access_routine).
+  Structure is [documented below](#nested_access_routine).
 
 * `condition` -
   (Optional)
   Condition for the binding. If CEL expression in this field is true, this
   access binding will be considered.
-  Structure is [documented below](#nested_access_access_condition).
+  Structure is [documented below](#nested_access_condition).
 
 
-<a name="nested_access_access_view"></a>The `view` block supports:
+<a name="nested_access_view"></a>The `view` block supports:
 
 * `dataset_id` -
   (Required)
@@ -466,12 +466,12 @@ destroying the resource will fail if tables are present.
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 1,024 characters.
 
-<a name="nested_access_access_dataset"></a>The `dataset` block supports:
+<a name="nested_access_dataset"></a>The `dataset` block supports:
 
 * `dataset` -
   (Required)
   The dataset this entry applies to
-  Structure is [documented below](#nested_access_access_dataset_dataset).
+  Structure is [documented below](#nested_access_dataset_dataset).
 
 * `target_types` -
   (Required)
@@ -479,7 +479,7 @@ destroying the resource will fail if tables are present.
   but additional target types may be added in the future. Possible values: VIEWS
 
 
-<a name="nested_access_access_dataset_dataset"></a>The `dataset` block supports:
+<a name="nested_access_dataset_dataset"></a>The `dataset` block supports:
 
 * `dataset_id` -
   (Required)
@@ -489,7 +489,7 @@ destroying the resource will fail if tables are present.
   (Required)
   The ID of the project containing this table.
 
-<a name="nested_access_access_routine"></a>The `routine` block supports:
+<a name="nested_access_routine"></a>The `routine` block supports:
 
 * `dataset_id` -
   (Required)
@@ -505,7 +505,7 @@ destroying the resource will fail if tables are present.
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 256 characters.
 
-<a name="nested_access_access_condition"></a>The `condition` block supports:
+<a name="nested_access_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Required)

@@ -1,27 +1,27 @@
-resource: 'google_bigquery_dataset_access'
-generation_type: 'mmv1'
-source_file: 'products/bigquery/DatasetAccess.yaml'
-api_service_name: 'bigquery.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Dataset'
+resource: google_bigquery_dataset_access
+generation_type: mmv1
+source_file: products/bigquery/DatasetAccess.yaml
+api_service_name: bigquery.googleapis.com
+api_version: v2
+api_resource_type_kind: Dataset
 fields:
-  - api_field: 'condition.description'
-  - api_field: 'condition.expression'
-  - api_field: 'condition.location'
-  - api_field: 'condition.title'
-  - api_field: 'dataset.dataset.datasetId'
-  - api_field: 'dataset.dataset.projectId'
-  - api_field: 'dataset.targetTypes'
-  - api_field: 'datasetId'
-  - api_field: 'domain'
-  - api_field: 'groupByEmail'
-  - api_field: 'iamMember'
-  - api_field: 'role'
-  - api_field: 'routine.datasetId'
-  - api_field: 'routine.projectId'
-  - api_field: 'routine.routineId'
-  - api_field: 'specialGroup'
-  - api_field: 'userByEmail'
-  - api_field: 'view.datasetId'
-  - api_field: 'view.projectId'
-  - api_field: 'view.tableId'
+    - api_field: condition.description
+    - api_field: condition.expression
+    - api_field: condition.location
+    - api_field: condition.title
+    - api_field: dataset.dataset.datasetId
+    - api_field: dataset.dataset.projectId
+    - api_field: dataset.targetTypes
+    - api_field: datasetId
+    - api_field: domain
+    - api_field: groupByEmail
+    - api_field: iamMember
+    - api_field: role
+    - api_field: routine.datasetId
+    - api_field: routine.projectId
+    - api_field: routine.routineId
+    - api_field: specialGroup
+    - api_field: userByEmail
+    - api_field: view.datasetId
+    - api_field: view.projectId
+    - api_field: view.tableId

@@ -90,7 +90,7 @@ resource "google_compute_address" "addr_peer" {
 }
 
 resource "google_compute_instance" "instance" {
-  name           = "router-appliance"
+  name           = "tf-test-router-appliance%{random_suffix}"
   zone           = "us-central1-a"
   machine_type   = "e2-medium"
   can_ip_forward = true

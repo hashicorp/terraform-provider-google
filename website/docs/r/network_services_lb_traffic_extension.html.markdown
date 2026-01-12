@@ -441,7 +441,7 @@ The following arguments are supported:
 * `match_condition` -
   (Required)
   Conditions under which this chain is invoked for a request.
-  Structure is [documented below](#nested_extension_chains_extension_chains_match_condition).
+  Structure is [documented below](#nested_extension_chains_match_condition).
 
 * `extensions` -
   (Required)
@@ -449,16 +449,16 @@ The following arguments are supported:
   At least one extension is required. Up to 3 extensions can be defined for each extension chain for
   LbTrafficExtension resource. LbRouteExtension chains are limited to 1 extension per extension chain.
   Further documentation to be found at https://cloud.google.com/service-extensions/docs/reference/rest/v1/ExtensionChain#Extension
-  Structure is [documented below](#nested_extension_chains_extension_chains_extensions).
+  Structure is [documented below](#nested_extension_chains_extensions).
 
 
-<a name="nested_extension_chains_extension_chains_match_condition"></a>The `match_condition` block supports:
+<a name="nested_extension_chains_match_condition"></a>The `match_condition` block supports:
 
 * `cel_expression` -
   (Required)
   A Common Expression Language (CEL) expression that is used to match requests for which the extension chain is executed.
 
-<a name="nested_extension_chains_extension_chains_extensions"></a>The `extensions` block supports:
+<a name="nested_extension_chains_extensions"></a>The `extensions` block supports:
 
 * `name` -
   (Required)

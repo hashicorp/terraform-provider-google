@@ -1,34 +1,34 @@
-resource: 'google_compute_network'
-generation_type: 'mmv1'
-source_file: 'products/compute/Network.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Network'
+resource: google_compute_network
+generation_type: mmv1
+source_file: products/compute/Network.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Network
 fields:
-  - api_field: 'autoCreateSubnetworks'
-  - api_field: 'routingConfig.bgpAlwaysCompareMed'
-    field: 'bgp_always_compare_med'
-  - api_field: 'routingConfig.bgpBestPathSelectionMode'
-    field: 'bgp_best_path_selection_mode'
-  - api_field: 'routingConfig.bgpInterRegionCost'
-    field: 'bgp_inter_region_cost'
-  - api_field: 'routingConfig.delete_bgp_always_compare_med'
-    field: 'delete_bgp_always_compare_med'
-  - field: 'delete_default_routes_on_create'
-    provider_only: true
-  - api_field: 'description'
-  - api_field: 'enableUlaInternalIpv6'
-  - api_field: 'gatewayIPv4'
-    field: 'gateway_ipv4'
-  - api_field: 'internalIpv6Range'
-  - api_field: 'mtu'
-  - api_field: 'name'
-  - api_field: 'networkFirewallPolicyEnforcementOrder'
-  - api_field: 'id'
-    field: 'network_id'
-  - api_field: 'networkProfile'
-  - api_field: 'numericId'
-  - api_field: 'params.resourceManagerTags'
-  - api_field: 'routingConfig.routingMode'
-    field: 'routing_mode'
-  - api_field: 'selfLink'
+    - api_field: autoCreateSubnetworks
+    - api_field: routingConfig.bgpAlwaysCompareMed
+      field: bgp_always_compare_med
+    - api_field: routingConfig.bgpBestPathSelectionMode
+      field: bgp_best_path_selection_mode
+    - api_field: routingConfig.bgpInterRegionCost
+      field: bgp_inter_region_cost
+    - api_field: routingConfig.delete_bgp_always_compare_med
+      field: delete_bgp_always_compare_med
+    - field: delete_default_routes_on_create
+      provider_only: true
+    - api_field: description
+    - api_field: enableUlaInternalIpv6
+    - api_field: gatewayIPv4
+      field: gateway_ipv4
+    - api_field: internalIpv6Range
+    - api_field: mtu
+    - api_field: name
+    - api_field: networkFirewallPolicyEnforcementOrder
+    - api_field: id
+      field: network_id
+    - api_field: networkProfile
+    - api_field: numericId
+    - api_field: params.resourceManagerTags
+    - api_field: routingConfig.routingMode
+      field: routing_mode
+    - api_field: selfLink

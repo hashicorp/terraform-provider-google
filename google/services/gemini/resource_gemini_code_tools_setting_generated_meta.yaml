@@ -1,26 +1,26 @@
-resource: 'google_gemini_code_tools_setting'
-generation_type: 'mmv1'
-source_file: 'products/gemini/CodeToolsSetting.yaml'
-api_service_name: 'cloudaicompanion.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CodeToolsSetting'
+resource: google_gemini_code_tools_setting
+generation_type: mmv1
+source_file: products/gemini/CodeToolsSetting.yaml
+api_service_name: cloudaicompanion.googleapis.com
+api_version: v1
+api_resource_type_kind: CodeToolsSetting
 autogen_status: true
 fields:
-  - field: 'code_tools_setting_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enabledTool.accountConnector'
-  - api_field: 'enabledTool.config.key'
-  - api_field: 'enabledTool.config.value'
-  - api_field: 'enabledTool.handle'
-  - api_field: 'enabledTool.tool'
-  - api_field: 'enabledTool.uriOverride'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: code_tools_setting_id
+      provider_only: true
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: enabledTool.accountConnector
+    - api_field: enabledTool.config.key
+    - api_field: enabledTool.config.value
+    - api_field: enabledTool.handle
+    - api_field: enabledTool.tool
+    - api_field: enabledTool.uriOverride
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

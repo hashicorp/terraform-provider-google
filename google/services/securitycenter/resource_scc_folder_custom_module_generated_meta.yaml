@@ -1,30 +1,30 @@
-resource: 'google_scc_folder_custom_module'
-generation_type: 'mmv1'
-source_file: 'products/securitycenter/FolderCustomModule.yaml'
-api_service_name: 'securitycenter.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SecurityHealthAnalyticsCustomModule'
+resource: google_scc_folder_custom_module
+generation_type: mmv1
+source_file: products/securitycenter/FolderCustomModule.yaml
+api_service_name: securitycenter.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityHealthAnalyticsCustomModule
 api_variant_patterns:
-  - 'folders/{folder}/securityHealthAnalyticsSettings/customModules/{customModule}'
+    - folders/{folder}/securityHealthAnalyticsSettings/customModules/{customModule}
 fields:
-  - api_field: 'ancestorModule'
-  - api_field: 'customConfig.customOutput.properties.name'
-  - api_field: 'customConfig.customOutput.properties.valueExpression.description'
-  - api_field: 'customConfig.customOutput.properties.valueExpression.expression'
-  - api_field: 'customConfig.customOutput.properties.valueExpression.location'
-  - api_field: 'customConfig.customOutput.properties.valueExpression.title'
-  - api_field: 'customConfig.description'
-  - api_field: 'customConfig.predicate.description'
-  - api_field: 'customConfig.predicate.expression'
-  - api_field: 'customConfig.predicate.location'
-  - api_field: 'customConfig.predicate.title'
-  - api_field: 'customConfig.recommendation'
-  - api_field: 'customConfig.resourceSelector.resourceTypes'
-  - api_field: 'customConfig.severity'
-  - api_field: 'displayName'
-  - api_field: 'enablementState'
-  - field: 'folder'
-    provider_only: true
-  - api_field: 'lastEditor'
-  - api_field: 'name'
-  - api_field: 'updateTime'
+    - api_field: ancestorModule
+    - api_field: customConfig.customOutput.properties.name
+    - api_field: customConfig.customOutput.properties.valueExpression.description
+    - api_field: customConfig.customOutput.properties.valueExpression.expression
+    - api_field: customConfig.customOutput.properties.valueExpression.location
+    - api_field: customConfig.customOutput.properties.valueExpression.title
+    - api_field: customConfig.description
+    - api_field: customConfig.predicate.description
+    - api_field: customConfig.predicate.expression
+    - api_field: customConfig.predicate.location
+    - api_field: customConfig.predicate.title
+    - api_field: customConfig.recommendation
+    - api_field: customConfig.resourceSelector.resourceTypes
+    - api_field: customConfig.severity
+    - api_field: displayName
+    - api_field: enablementState
+    - field: folder
+      provider_only: true
+    - api_field: lastEditor
+    - api_field: name
+    - api_field: updateTime

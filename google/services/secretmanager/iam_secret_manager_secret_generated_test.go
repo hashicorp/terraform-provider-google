@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -60,7 +61,7 @@ func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSecretManagerSecretIAMBindingStateID("google_secret_manager_secret_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +71,7 @@ func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSecretManagerSecretIAMBindingStateID("google_secret_manager_secret_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +102,7 @@ func TestAccSecretManagerSecretIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSecretManagerSecretIAMMemberStateID("google_secret_manager_secret_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -132,7 +133,7 @@ func TestAccSecretManagerSecretIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSecretManagerSecretIAMPolicyStateID("google_secret_manager_secret_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -141,7 +142,7 @@ func TestAccSecretManagerSecretIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSecretManagerSecretIAMPolicyStateID("google_secret_manager_secret_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -171,7 +172,7 @@ func TestAccSecretManagerSecretIamBindingGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateSecretManagerSecretIAMBindingStateID("google_secret_manager_secret_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -203,19 +204,19 @@ func TestAccSecretManagerSecretIamBindingGenerated_withAndWithoutCondition(t *te
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSecretManagerSecretIAMBindingStateID("google_secret_manager_secret_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateSecretManagerSecretIAMBindingStateID("google_secret_manager_secret_iam_binding.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateSecretManagerSecretIAMBindingStateID("google_secret_manager_secret_iam_binding.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -245,7 +246,7 @@ func TestAccSecretManagerSecretIamMemberGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateSecretManagerSecretIAMMemberStateID("google_secret_manager_secret_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -277,19 +278,19 @@ func TestAccSecretManagerSecretIamMemberGenerated_withAndWithoutCondition(t *tes
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSecretManagerSecretIAMMemberStateID("google_secret_manager_secret_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateSecretManagerSecretIAMMemberStateID("google_secret_manager_secret_iam_member.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateSecretManagerSecretIAMMemberStateID("google_secret_manager_secret_iam_member.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -329,7 +330,7 @@ func TestAccSecretManagerSecretIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateIdFunc: generateSecretManagerSecretIAMPolicyStateID("google_secret_manager_secret_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -742,4 +743,54 @@ resource "google_secret_manager_secret_iam_policy" "foo" {
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
+}
+func generateSecretManagerSecretIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		secret_id := tpgresource.GetResourceNameFromSelfLink(rawState["secret_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/secrets/%s", project, secret_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateSecretManagerSecretIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		secret_id := tpgresource.GetResourceNameFromSelfLink(rawState["secret_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/secrets/%s", project, secret_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateSecretManagerSecretIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		secret_id := tpgresource.GetResourceNameFromSelfLink(rawState["secret_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/secrets/%s", project, secret_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

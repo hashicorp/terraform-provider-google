@@ -1,11 +1,11 @@
-resource: 'google_apigee_envgroup_attachment'
-generation_type: 'mmv1'
-source_file: 'products/apigee/EnvgroupAttachment.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'EnvironmentGroupAttachment'
+resource: google_apigee_envgroup_attachment
+generation_type: mmv1
+source_file: products/apigee/EnvgroupAttachment.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: EnvironmentGroupAttachment
 fields:
-  - field: 'envgroup_id'
-    provider_only: true
-  - api_field: 'environment'
-  - api_field: 'name'
+    - field: envgroup_id
+      provider_only: true
+    - api_field: environment
+    - api_field: name

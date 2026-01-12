@@ -98,9 +98,9 @@ func ResourceLustreInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(40 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(120 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -173,6 +173,66 @@ Must be in the format
 				ForceNew: true,
 				Description: `The throughput of the instance in MB/s/TiB.
 Valid values are 125, 250, 500, 1000.`,
+			},
+			"access_rules_options": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Access control rules for the Lustre instance. Configures default root
+squashing behavior and specific access rules based on IP addresses.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default_squash_mode": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"ROOT_SQUASH", "NO_SQUASH"}),
+							Description: `Set to "ROOT_SQUASH" to enable root squashing by default.
+Other values include "NO_SQUASH". Possible values: ["ROOT_SQUASH", "NO_SQUASH"]`,
+						},
+						"access_rules": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `An array of access rule exceptions. Each rule defines IP address ranges
+that should have different squash behavior than the default.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ip_address_ranges": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `An array of IP address strings or CIDR ranges that this rule applies to.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `A unique identifier for the access rule.`,
+									},
+									"squash_mode": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"NO_SQUASH"}),
+										Description: `The squash mode for this specific rule. Currently, only "NO_SQUASH"
+is supported for exceptions. Possible values: ["NO_SQUASH"]`,
+									},
+								},
+							},
+						},
+						"default_squash_gid": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The GID to map the root user to when root squashing is enabled
+(e.g., 65534 for nobody).`,
+						},
+						"default_squash_uid": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The UID to map the root user to when root squashing is enabled
+(e.g., 65534 for nobody).`,
+						},
+					},
+				},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -316,6 +376,12 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
+	}
+	accessRulesOptionsProp, err := expandLustreInstanceAccessRulesOptions(d.Get("access_rules_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("access_rules_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessRulesOptionsProp)) && (ok || !reflect.DeepEqual(v, accessRulesOptionsProp)) {
+		obj["accessRulesOptions"] = accessRulesOptionsProp
 	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -488,6 +554,9 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("state_reason", flattenLustreInstanceStateReason(res["stateReason"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("access_rules_options", flattenLustreInstanceAccessRulesOptions(res["accessRulesOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenLustreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -583,6 +652,12 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("placement_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, placementPolicyProp)) {
 		obj["placementPolicy"] = placementPolicyProp
 	}
+	accessRulesOptionsProp, err := expandLustreInstanceAccessRulesOptions(d.Get("access_rules_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("access_rules_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessRulesOptionsProp)) {
+		obj["accessRulesOptions"] = accessRulesOptionsProp
+	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -613,6 +688,10 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("placement_policy") {
 		updateMask = append(updateMask, "placementPolicy")
+	}
+
+	if d.HasChange("access_rules_options") {
+		updateMask = append(updateMask, "accessRulesOptions")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -808,6 +887,95 @@ func flattenLustreInstanceStateReason(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
+func flattenLustreInstanceAccessRulesOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["default_squash_mode"] =
+		flattenLustreInstanceAccessRulesOptionsDefaultSquashMode(original["defaultSquashMode"], d, config)
+	transformed["default_squash_uid"] =
+		flattenLustreInstanceAccessRulesOptionsDefaultSquashUid(original["defaultSquashUid"], d, config)
+	transformed["default_squash_gid"] =
+		flattenLustreInstanceAccessRulesOptionsDefaultSquashGid(original["defaultSquashGid"], d, config)
+	transformed["access_rules"] =
+		flattenLustreInstanceAccessRulesOptionsAccessRules(original["accessRules"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceAccessRulesOptionsDefaultSquashMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceAccessRulesOptionsDefaultSquashUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceAccessRulesOptionsDefaultSquashGid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceAccessRulesOptionsAccessRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":              flattenLustreInstanceAccessRulesOptionsAccessRulesName(original["name"], d, config),
+			"ip_address_ranges": flattenLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(original["ipAddressRanges"], d, config),
+			"squash_mode":       flattenLustreInstanceAccessRulesOptionsAccessRulesSquashMode(original["squashMode"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenLustreInstanceAccessRulesOptionsAccessRulesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceAccessRulesOptionsAccessRulesSquashMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenLustreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -856,6 +1024,112 @@ func expandLustreInstancePlacementPolicy(v interface{}, d tpgresource.TerraformR
 }
 
 func expandLustreInstanceKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceAccessRulesOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDefaultSquashMode, err := expandLustreInstanceAccessRulesOptionsDefaultSquashMode(original["default_squash_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultSquashMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defaultSquashMode"] = transformedDefaultSquashMode
+	}
+
+	transformedDefaultSquashUid, err := expandLustreInstanceAccessRulesOptionsDefaultSquashUid(original["default_squash_uid"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultSquashUid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defaultSquashUid"] = transformedDefaultSquashUid
+	}
+
+	transformedDefaultSquashGid, err := expandLustreInstanceAccessRulesOptionsDefaultSquashGid(original["default_squash_gid"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultSquashGid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defaultSquashGid"] = transformedDefaultSquashGid
+	}
+
+	transformedAccessRules, err := expandLustreInstanceAccessRulesOptionsAccessRules(original["access_rules"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["accessRules"] = transformedAccessRules
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsDefaultSquashMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsDefaultSquashUid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsDefaultSquashGid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsAccessRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandLustreInstanceAccessRulesOptionsAccessRulesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedIpAddressRanges, err := expandLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(original["ip_address_ranges"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpAddressRanges); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipAddressRanges"] = transformedIpAddressRanges
+		}
+
+		transformedSquashMode, err := expandLustreInstanceAccessRulesOptionsAccessRulesSquashMode(original["squash_mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSquashMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["squashMode"] = transformedSquashMode
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsAccessRulesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceAccessRulesOptionsAccessRulesSquashMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

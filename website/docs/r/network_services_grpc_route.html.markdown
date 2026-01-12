@@ -231,28 +231,28 @@ The following arguments are supported:
 * `matches` -
   (Optional)
   Matches define conditions used for matching the rule against incoming gRPC requests.
-  Structure is [documented below](#nested_rules_rules_matches).
+  Structure is [documented below](#nested_rules_matches).
 
 * `action` -
   (Optional)
   Required. A detailed rule defining how to route traffic.
-  Structure is [documented below](#nested_rules_rules_action).
+  Structure is [documented below](#nested_rules_action).
 
 
-<a name="nested_rules_rules_matches"></a>The `matches` block supports:
+<a name="nested_rules_matches"></a>The `matches` block supports:
 
 * `headers` -
   (Optional)
   Specifies a list of HTTP request headers to match against.
-  Structure is [documented below](#nested_rules_rules_matches_matches_headers).
+  Structure is [documented below](#nested_rules_matches_headers).
 
 * `method` -
   (Optional)
   A gRPC method to match against. If this field is empty or omitted, will match all methods.
-  Structure is [documented below](#nested_rules_rules_matches_matches_method).
+  Structure is [documented below](#nested_rules_matches_method).
 
 
-<a name="nested_rules_rules_matches_matches_headers"></a>The `headers` block supports:
+<a name="nested_rules_matches_headers"></a>The `headers` block supports:
 
 * `key` -
   (Required)
@@ -268,7 +268,7 @@ The following arguments are supported:
   Default value is `EXACT`.
   Possible values are: `TYPE_UNSPECIFIED`, `EXACT`, `REGULAR_EXPRESSION`.
 
-<a name="nested_rules_rules_matches_matches_method"></a>The `method` block supports:
+<a name="nested_rules_matches_method"></a>The `method` block supports:
 
 * `grpc_service` -
   (Required)
@@ -282,17 +282,17 @@ The following arguments are supported:
   (Optional)
   Specifies that matches are case sensitive. The default value is true.
 
-<a name="nested_rules_rules_action"></a>The `action` block supports:
+<a name="nested_rules_action"></a>The `action` block supports:
 
 * `destinations` -
   (Optional)
   The destination to which traffic should be forwarded.
-  Structure is [documented below](#nested_rules_rules_action_destinations).
+  Structure is [documented below](#nested_rules_action_destinations).
 
 * `fault_injection_policy` -
   (Optional)
   The specification for fault injection introduced into traffic to test the resiliency of clients to backend service failure.
-  Structure is [documented below](#nested_rules_rules_action_fault_injection_policy).
+  Structure is [documented below](#nested_rules_action_fault_injection_policy).
 
 * `timeout` -
   (Optional)
@@ -301,10 +301,10 @@ The following arguments are supported:
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is [documented below](#nested_rules_rules_action_retry_policy).
+  Structure is [documented below](#nested_rules_action_retry_policy).
 
 
-<a name="nested_rules_rules_action_destinations"></a>The `destinations` block supports:
+<a name="nested_rules_action_destinations"></a>The `destinations` block supports:
 
 * `service_name` -
   (Optional)
@@ -314,20 +314,20 @@ The following arguments are supported:
   (Optional)
   Specifies the proportion of requests forwarded to the backend referenced by the serviceName field.
 
-<a name="nested_rules_rules_action_fault_injection_policy"></a>The `fault_injection_policy` block supports:
+<a name="nested_rules_action_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `delay` -
   (Optional)
   Specification of how client requests are delayed as part of fault injection before being sent to a destination.
-  Structure is [documented below](#nested_rules_rules_action_fault_injection_policy_delay).
+  Structure is [documented below](#nested_rules_action_fault_injection_policy_delay).
 
 * `abort` -
   (Optional)
   Specification of how client requests are aborted as part of fault injection before being sent to a destination.
-  Structure is [documented below](#nested_rules_rules_action_fault_injection_policy_abort).
+  Structure is [documented below](#nested_rules_action_fault_injection_policy_abort).
 
 
-<a name="nested_rules_rules_action_fault_injection_policy_delay"></a>The `delay` block supports:
+<a name="nested_rules_action_fault_injection_policy_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Optional)
@@ -337,7 +337,7 @@ The following arguments are supported:
   (Optional)
   The percentage of traffic on which delay will be injected.
 
-<a name="nested_rules_rules_action_fault_injection_policy_abort"></a>The `abort` block supports:
+<a name="nested_rules_action_fault_injection_policy_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Optional)
@@ -347,7 +347,7 @@ The following arguments are supported:
   (Optional)
   The percentage of traffic which will be aborted.
 
-<a name="nested_rules_rules_action_retry_policy"></a>The `retry_policy` block supports:
+<a name="nested_rules_action_retry_policy"></a>The `retry_policy` block supports:
 
 * `retry_conditions` -
   (Optional)

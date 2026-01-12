@@ -167,6 +167,17 @@ func ResourceVertexAIFeatureOnlineStore() *schema.Resource {
 								},
 							},
 						},
+						"enable_direct_bigtable_access": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Optional. If true, enable direct access to the Bigtable instance.`,
+						},
+						"zone": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: `The zone where the Bigtable instance will be created.`,
+						},
 					},
 				},
 				ExactlyOneOf: []string{"bigtable", "optimized"},
@@ -211,6 +222,21 @@ func ResourceVertexAIFeatureOnlineStore() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `Name of the service attachment resource. Applicable only if private service connect is enabled and after FeatureViewSync is created.`,
+						},
+					},
+				},
+			},
+			"encryption_spec": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `If set, both of the online and offline data storage will be secured by this key.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource. Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key. The key needs to be in the same region as where the compute resource is created.`,
 						},
 					},
 				},
@@ -317,6 +343,12 @@ func resourceVertexAIFeatureOnlineStoreCreate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("dedicated_serving_endpoint"); !tpgresource.IsEmptyValue(reflect.ValueOf(dedicatedServingEndpointProp)) && (ok || !reflect.DeepEqual(v, dedicatedServingEndpointProp)) {
 		obj["dedicatedServingEndpoint"] = dedicatedServingEndpointProp
+	}
+	encryptionSpecProp, err := expandVertexAIFeatureOnlineStoreEncryptionSpec(d.Get("encryption_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionSpecProp)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
+		obj["encryptionSpec"] = encryptionSpecProp
 	}
 	effectiveLabelsProp, err := expandVertexAIFeatureOnlineStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -471,6 +503,9 @@ func resourceVertexAIFeatureOnlineStoreRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("dedicated_serving_endpoint", flattenVertexAIFeatureOnlineStoreDedicatedServingEndpoint(res["dedicatedServingEndpoint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
 	}
+	if err := d.Set("encryption_spec", flattenVertexAIFeatureOnlineStoreEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenVertexAIFeatureOnlineStoreTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
 	}
@@ -560,6 +595,12 @@ func resourceVertexAIFeatureOnlineStoreUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("dedicated_serving_endpoint"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dedicatedServingEndpointProp)) {
 		obj["dedicatedServingEndpoint"] = dedicatedServingEndpointProp
 	}
+	encryptionSpecProp, err := expandVertexAIFeatureOnlineStoreEncryptionSpec(d.Get("encryption_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
+		obj["encryptionSpec"] = encryptionSpecProp
+	}
 	effectiveLabelsProp, err := expandVertexAIFeatureOnlineStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -586,6 +627,10 @@ func resourceVertexAIFeatureOnlineStoreUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("dedicated_serving_endpoint") {
 		updateMask = append(updateMask, "dedicatedServingEndpoint")
+	}
+
+	if d.HasChange("encryption_spec") {
+		updateMask = append(updateMask, "encryptionSpec")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -759,10 +804,18 @@ func flattenVertexAIFeatureOnlineStoreBigtable(v interface{}, d *schema.Resource
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["enable_direct_bigtable_access"] =
+		flattenVertexAIFeatureOnlineStoreBigtableEnableDirectBigtableAccess(original["enableDirectBigtableAccess"], d, config)
 	transformed["auto_scaling"] =
 		flattenVertexAIFeatureOnlineStoreBigtableAutoScaling(original["autoScaling"], d, config)
+	transformed["zone"] =
+		flattenVertexAIFeatureOnlineStoreBigtableZone(original["zone"], d, config)
 	return []interface{}{transformed}
 }
+func flattenVertexAIFeatureOnlineStoreBigtableEnableDirectBigtableAccess(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIFeatureOnlineStoreBigtableAutoScaling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -831,6 +884,10 @@ func flattenVertexAIFeatureOnlineStoreBigtableAutoScalingCpuUtilizationTarget(v 
 	return v // let terraform core handle it otherwise
 }
 
+func flattenVertexAIFeatureOnlineStoreBigtableZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIFeatureOnlineStoreOptimized(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -887,6 +944,23 @@ func flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConn
 	return v
 }
 
+func flattenVertexAIFeatureOnlineStoreEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenVertexAIFeatureOnlineStoreEncryptionSpecKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIFeatureOnlineStoreEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIFeatureOnlineStoreTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -918,6 +992,13 @@ func expandVertexAIFeatureOnlineStoreBigtable(v interface{}, d tpgresource.Terra
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedEnableDirectBigtableAccess, err := expandVertexAIFeatureOnlineStoreBigtableEnableDirectBigtableAccess(original["enable_direct_bigtable_access"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableDirectBigtableAccess); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableDirectBigtableAccess"] = transformedEnableDirectBigtableAccess
+	}
+
 	transformedAutoScaling, err := expandVertexAIFeatureOnlineStoreBigtableAutoScaling(original["auto_scaling"], d, config)
 	if err != nil {
 		return nil, err
@@ -925,7 +1006,18 @@ func expandVertexAIFeatureOnlineStoreBigtable(v interface{}, d tpgresource.Terra
 		transformed["autoScaling"] = transformedAutoScaling
 	}
 
+	transformedZone, err := expandVertexAIFeatureOnlineStoreBigtableZone(original["zone"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedZone); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["zone"] = transformedZone
+	}
+
 	return transformed, nil
+}
+
+func expandVertexAIFeatureOnlineStoreBigtableEnableDirectBigtableAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandVertexAIFeatureOnlineStoreBigtableAutoScaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -973,6 +1065,10 @@ func expandVertexAIFeatureOnlineStoreBigtableAutoScalingMaxNodeCount(v interface
 }
 
 func expandVertexAIFeatureOnlineStoreBigtableAutoScalingCpuUtilizationTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreBigtableZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1072,6 +1168,32 @@ func expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConne
 }
 
 func expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandVertexAIFeatureOnlineStoreEncryptionSpecKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIFeatureOnlineStoreEncryptionSpecKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

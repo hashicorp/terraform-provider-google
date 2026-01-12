@@ -638,7 +638,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
 * `trigger_fulfillment` -
   (Optional)
   The fulfillment to call when the condition is satisfied. At least one of triggerFulfillment and target must be specified. When both are defined, triggerFulfillment is executed first.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment).
 
 * `target_page` -
   (Optional)
@@ -651,12 +651,12 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment"></a>The `trigger_fulfillment` block supports:
+<a name="nested_transition_routes_trigger_fulfillment"></a>The `trigger_fulfillment` block supports:
 
 * `messages` -
   (Optional)
   The list of rich message responses to present to the user.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment_messages).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment_messages).
 
 * `webhook` -
   (Optional)
@@ -673,15 +673,15 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
 * `set_parameter_actions` -
   (Optional)
   Set parameter values before executing the webhook.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment_set_parameter_actions).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment_set_parameter_actions).
 
 * `conditional_cases` -
   (Optional)
   Conditional cases for this fulfillment.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment_conditional_cases).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment_conditional_cases).
 
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment_messages"></a>The `messages` block supports:
+<a name="nested_transition_routes_trigger_fulfillment_messages"></a>The `messages` block supports:
 
 * `channel` -
   (Optional)
@@ -690,7 +690,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
 * `text` -
   (Optional)
   The text response message.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_text).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment_messages_text).
 
 * `payload` -
   (Optional)
@@ -703,12 +703,12 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   You may set this, for example:
   * In the entryFulfillment of a Page if entering the page indicates that the conversation succeeded.
   * In a webhook response when you determine that you handled the customer issue.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_conversation_success).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment_messages_conversation_success).
 
 * `output_audio_text` -
   (Optional)
   A text or ssml response that is preferentially used for TTS output audio synthesis, as described in the comment on the ResponseMessage message.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_output_audio_text).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment_messages_output_audio_text).
 
 * `live_agent_handoff` -
   (Optional)
@@ -717,20 +717,20 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   You may set this, for example:
   * In the entryFulfillment of a Page if entering the page indicates something went extremely wrong in the conversation.
   * In a webhook response when you determine that the customer issue can only be handled by a human.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_live_agent_handoff).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment_messages_live_agent_handoff).
 
 * `play_audio` -
   (Optional)
   Specifies an audio clip to be played by the client as part of the response.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_play_audio).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment_messages_play_audio).
 
 * `telephony_transfer_call` -
   (Optional)
   Represents the signal that telles the client to transfer the phone call connected to the agent to a third-party endpoint.
-  Structure is [documented below](#nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_telephony_transfer_call).
+  Structure is [documented below](#nested_transition_routes_trigger_fulfillment_messages_telephony_transfer_call).
 
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_text"></a>The `text` block supports:
+<a name="nested_transition_routes_trigger_fulfillment_messages_text"></a>The `text` block supports:
 
 * `text` -
   (Optional)
@@ -740,13 +740,13 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_conversation_success"></a>The `conversation_success` block supports:
+<a name="nested_transition_routes_trigger_fulfillment_messages_conversation_success"></a>The `conversation_success` block supports:
 
 * `metadata` -
   (Optional)
   Custom metadata. Dialogflow doesn't impose any structure on this.
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_output_audio_text"></a>The `output_audio_text` block supports:
+<a name="nested_transition_routes_trigger_fulfillment_messages_output_audio_text"></a>The `output_audio_text` block supports:
 
 * `allow_playback_interruption` -
   (Output)
@@ -760,13 +760,13 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Optional)
   The SSML text to be synthesized. For more information, see SSML.
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_live_agent_handoff"></a>The `live_agent_handoff` block supports:
+<a name="nested_transition_routes_trigger_fulfillment_messages_live_agent_handoff"></a>The `live_agent_handoff` block supports:
 
 * `metadata` -
   (Optional)
   Custom metadata. Dialogflow doesn't impose any structure on this.
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_play_audio"></a>The `play_audio` block supports:
+<a name="nested_transition_routes_trigger_fulfillment_messages_play_audio"></a>The `play_audio` block supports:
 
 * `audio_uri` -
   (Required)
@@ -776,13 +776,13 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment_messages_messages_telephony_transfer_call"></a>The `telephony_transfer_call` block supports:
+<a name="nested_transition_routes_trigger_fulfillment_messages_telephony_transfer_call"></a>The `telephony_transfer_call` block supports:
 
 * `phone_number` -
   (Required)
   Transfer the call to a phone number in E.164 format.
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment_set_parameter_actions"></a>The `set_parameter_actions` block supports:
+<a name="nested_transition_routes_trigger_fulfillment_set_parameter_actions"></a>The `set_parameter_actions` block supports:
 
 * `parameter` -
   (Optional)
@@ -792,7 +792,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Optional)
   The new JSON-encoded value of the parameter. A null value clears the parameter.
 
-<a name="nested_transition_routes_transition_routes_trigger_fulfillment_conditional_cases"></a>The `conditional_cases` block supports:
+<a name="nested_transition_routes_trigger_fulfillment_conditional_cases"></a>The `conditional_cases` block supports:
 
 * `cases` -
   (Optional)
@@ -812,7 +812,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
 * `trigger_fulfillment` -
   (Optional)
   The fulfillment to call when the event occurs. Handling webhook errors with a fulfillment enabled with webhook could cause infinite loop. It is invalid to specify such fulfillment for a handler handling webhooks.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment).
 
 * `target_page` -
   (Optional)
@@ -825,12 +825,12 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment"></a>The `trigger_fulfillment` block supports:
+<a name="nested_event_handlers_trigger_fulfillment"></a>The `trigger_fulfillment` block supports:
 
 * `messages` -
   (Optional)
   The list of rich message responses to present to the user.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_messages).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment_messages).
 
 * `webhook` -
   (Optional)
@@ -847,12 +847,12 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
 * `set_parameter_actions` -
   (Optional)
   Set parameter values before executing the webhook.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_set_parameter_actions).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment_set_parameter_actions).
 
 * `conditional_cases` -
   (Optional)
   Conditional cases for this fulfillment.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_conditional_cases).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment_conditional_cases).
 
 * `enable_generative_fallback` -
   (Optional)
@@ -861,7 +861,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   This flag is only useful for fulfillments associated with no-match event handlers.
 
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment_messages"></a>The `messages` block supports:
+<a name="nested_event_handlers_trigger_fulfillment_messages"></a>The `messages` block supports:
 
 * `channel` -
   (Optional)
@@ -870,7 +870,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
 * `text` -
   (Optional)
   The text response message.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_text).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment_messages_text).
 
 * `payload` -
   (Optional)
@@ -883,12 +883,12 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   You may set this, for example:
   * In the entryFulfillment of a Page if entering the page indicates that the conversation succeeded.
   * In a webhook response when you determine that you handled the customer issue.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_conversation_success).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment_messages_conversation_success).
 
 * `output_audio_text` -
   (Optional)
   A text or ssml response that is preferentially used for TTS output audio synthesis, as described in the comment on the ResponseMessage message.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_output_audio_text).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment_messages_output_audio_text).
 
 * `live_agent_handoff` -
   (Optional)
@@ -897,20 +897,20 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   You may set this, for example:
   * In the entryFulfillment of a Page if entering the page indicates something went extremely wrong in the conversation.
   * In a webhook response when you determine that the customer issue can only be handled by a human.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_live_agent_handoff).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment_messages_live_agent_handoff).
 
 * `play_audio` -
   (Optional)
   Specifies an audio clip to be played by the client as part of the response.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_play_audio).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment_messages_play_audio).
 
 * `telephony_transfer_call` -
   (Optional)
   Represents the signal that telles the client to transfer the phone call connected to the agent to a third-party endpoint.
-  Structure is [documented below](#nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_telephony_transfer_call).
+  Structure is [documented below](#nested_event_handlers_trigger_fulfillment_messages_telephony_transfer_call).
 
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_text"></a>The `text` block supports:
+<a name="nested_event_handlers_trigger_fulfillment_messages_text"></a>The `text` block supports:
 
 * `text` -
   (Optional)
@@ -920,13 +920,13 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_conversation_success"></a>The `conversation_success` block supports:
+<a name="nested_event_handlers_trigger_fulfillment_messages_conversation_success"></a>The `conversation_success` block supports:
 
 * `metadata` -
   (Optional)
   Custom metadata. Dialogflow doesn't impose any structure on this.
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_output_audio_text"></a>The `output_audio_text` block supports:
+<a name="nested_event_handlers_trigger_fulfillment_messages_output_audio_text"></a>The `output_audio_text` block supports:
 
 * `allow_playback_interruption` -
   (Output)
@@ -940,13 +940,13 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Optional)
   The SSML text to be synthesized. For more information, see SSML.
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_live_agent_handoff"></a>The `live_agent_handoff` block supports:
+<a name="nested_event_handlers_trigger_fulfillment_messages_live_agent_handoff"></a>The `live_agent_handoff` block supports:
 
 * `metadata` -
   (Optional)
   Custom metadata. Dialogflow doesn't impose any structure on this.
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_play_audio"></a>The `play_audio` block supports:
+<a name="nested_event_handlers_trigger_fulfillment_messages_play_audio"></a>The `play_audio` block supports:
 
 * `audio_uri` -
   (Required)
@@ -956,13 +956,13 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment_messages_messages_telephony_transfer_call"></a>The `telephony_transfer_call` block supports:
+<a name="nested_event_handlers_trigger_fulfillment_messages_telephony_transfer_call"></a>The `telephony_transfer_call` block supports:
 
 * `phone_number` -
   (Required)
   Transfer the call to a phone number in E.164 format.
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment_set_parameter_actions"></a>The `set_parameter_actions` block supports:
+<a name="nested_event_handlers_trigger_fulfillment_set_parameter_actions"></a>The `set_parameter_actions` block supports:
 
 * `parameter` -
   (Optional)
@@ -972,7 +972,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Optional)
   The new JSON-encoded value of the parameter. A null value clears the parameter.
 
-<a name="nested_event_handlers_event_handlers_trigger_fulfillment_conditional_cases"></a>The `conditional_cases` block supports:
+<a name="nested_event_handlers_trigger_fulfillment_conditional_cases"></a>The `conditional_cases` block supports:
 
 * `cases` -
   (Optional)
@@ -1169,7 +1169,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Optional)
   The text response message.
   This field is part of a union field `message`: Only one of `text`, `payload`, `conversationSuccess`, `outputAudioText`, `liveAgentHandoff`, `endInteraction`, `playAudio`, `mixedAudio`, `telephonyTransferCall`, or `knowledgeInfoCard` may be set.
-  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_text).
+  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_text).
 
 * `payload` -
   (Optional)
@@ -1184,13 +1184,13 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   * In the entryFulfillment of a Page if entering the page indicates that the conversation succeeded.
   * In a webhook response when you determine that you handled the customer issue.
   This field is part of a union field `message`: Only one of `text`, `payload`, `conversationSuccess`, `outputAudioText`, `liveAgentHandoff`, `endInteraction`, `playAudio`, `mixedAudio`, `telephonyTransferCall`, or `knowledgeInfoCard` may be set.
-  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_conversation_success).
+  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_conversation_success).
 
 * `output_audio_text` -
   (Optional)
   A text or ssml response that is preferentially used for TTS output audio synthesis, as described in the comment on the ResponseMessage message.
   This field is part of a union field `message`: Only one of `text`, `payload`, `conversationSuccess`, `outputAudioText`, `liveAgentHandoff`, `endInteraction`, `playAudio`, `mixedAudio`, `telephonyTransferCall`, or `knowledgeInfoCard` may be set.
-  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_output_audio_text).
+  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_output_audio_text).
 
 * `live_agent_handoff` -
   (Optional)
@@ -1200,7 +1200,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   * In the entryFulfillment of a Page if entering the page indicates something went extremely wrong in the conversation.
   * In a webhook response when you determine that the customer issue can only be handled by a human.
   This field is part of a union field `message`: Only one of `text`, `payload`, `conversationSuccess`, `outputAudioText`, `liveAgentHandoff`, `endInteraction`, `playAudio`, `mixedAudio`, `telephonyTransferCall`, or `knowledgeInfoCard` may be set.
-  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_live_agent_handoff).
+  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_live_agent_handoff).
 
 * `end_interaction` -
   (Output)
@@ -1212,19 +1212,19 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Optional)
   Specifies an audio clip to be played by the client as part of the response.
   This field is part of a union field `message`: Only one of `text`, `payload`, `conversationSuccess`, `outputAudioText`, `liveAgentHandoff`, `endInteraction`, `playAudio`, `mixedAudio`, `telephonyTransferCall`, or `knowledgeInfoCard` may be set.
-  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_play_audio).
+  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_play_audio).
 
 * `mixed_audio` -
   (Output)
   Represents an audio message that is composed of both segments synthesized from the Dialogflow agent prompts and ones hosted externally at the specified URIs. The external URIs are specified via playAudio. This message is generated by Dialogflow only and not supposed to be defined by the user.
   This field is part of a union field `message`: Only one of `text`, `payload`, `conversationSuccess`, `outputAudioText`, `liveAgentHandoff`, `endInteraction`, `playAudio`, `mixedAudio`, `telephonyTransferCall`, or `knowledgeInfoCard` may be set.
-  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_mixed_audio).
+  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_mixed_audio).
 
 * `telephony_transfer_call` -
   (Optional)
   Represents the signal that telles the client to transfer the phone call connected to the agent to a third-party endpoint.
   This field is part of a union field `message`: Only one of `text`, `payload`, `conversationSuccess`, `outputAudioText`, `liveAgentHandoff`, `endInteraction`, `playAudio`, `mixedAudio`, `telephonyTransferCall`, or `knowledgeInfoCard` may be set.
-  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_telephony_transfer_call).
+  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_telephony_transfer_call).
 
 * `knowledge_info_card` -
   (Optional)
@@ -1234,7 +1234,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   This field is part of a union field `message`: Only one of `text`, `payload`, `conversationSuccess`, `outputAudioText`, `liveAgentHandoff`, `endInteraction`, `playAudio`, `mixedAudio`, `telephonyTransferCall`, or `knowledgeInfoCard` may be set.
 
 
-<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_text"></a>The `text` block supports:
+<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_text"></a>The `text` block supports:
 
 * `text` -
   (Optional)
@@ -1245,13 +1245,13 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
-<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_conversation_success"></a>The `conversation_success` block supports:
+<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_conversation_success"></a>The `conversation_success` block supports:
 
 * `metadata` -
   (Optional)
   Custom metadata. Dialogflow doesn't impose any structure on this.
 
-<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_output_audio_text"></a>The `output_audio_text` block supports:
+<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_output_audio_text"></a>The `output_audio_text` block supports:
 
 * `allow_playback_interruption` -
   (Output)
@@ -1267,13 +1267,13 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   The SSML text to be synthesized. For more information, see SSML.
   This field is part of a union field `source`: Only one of `text` or `ssml` may be set.
 
-<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_live_agent_handoff"></a>The `live_agent_handoff` block supports:
+<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_live_agent_handoff"></a>The `live_agent_handoff` block supports:
 
 * `metadata` -
   (Optional)
   Custom metadata. Dialogflow doesn't impose any structure on this.
 
-<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_play_audio"></a>The `play_audio` block supports:
+<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_play_audio"></a>The `play_audio` block supports:
 
 * `audio_uri` -
   (Required)
@@ -1283,15 +1283,15 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
-<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_mixed_audio"></a>The `mixed_audio` block contains:
+<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_mixed_audio"></a>The `mixed_audio` block contains:
 
 * `segments` -
   (Optional)
   Segments this audio response is composed of.
-  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_mixed_audio_segments).
+  Structure is [documented below](#nested_knowledge_connector_settings_trigger_fulfillment_messages_mixed_audio_segments).
 
 
-<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_mixed_audio_segments"></a>The `segments` block supports:
+<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_mixed_audio_segments"></a>The `segments` block supports:
 
 * `allow_playback_interruption` -
   (Output)
@@ -1308,7 +1308,7 @@ The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flo
   Client-specific URI that points to an audio clip accessible to the client. Dialogflow does not impose any validation on it.
   This field is part of a union field `content`: Only one of `audio` or `uri` may be set.
 
-<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_messages_telephony_transfer_call"></a>The `telephony_transfer_call` block supports:
+<a name="nested_knowledge_connector_settings_trigger_fulfillment_messages_telephony_transfer_call"></a>The `telephony_transfer_call` block supports:
 
 * `phone_number` -
   (Required)

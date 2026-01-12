@@ -1,74 +1,74 @@
-resource: 'google_compute_region_security_policy'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionSecurityPolicy.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SecurityPolicy'
+resource: google_compute_region_security_policy
+generation_type: mmv1
+source_file: products/compute/RegionSecurityPolicy.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityPolicy
 fields:
-  - api_field: 'advancedOptionsConfig.jsonCustomConfig.contentTypes'
-  - api_field: 'advancedOptionsConfig.jsonParsing'
-  - api_field: 'advancedOptionsConfig.logLevel'
-  - api_field: 'advancedOptionsConfig.userIpRequestHeaders'
-  - api_field: 'ddosProtectionConfig.ddosProtection'
-  - api_field: 'description'
-  - api_field: 'fingerprint'
-  - api_field: 'name'
-  - api_field: 'id'
-    field: 'policy_id'
-  - api_field: 'region'
-  - api_field: 'rules.action'
-  - api_field: 'rules.description'
-  - api_field: 'rules.match.config.srcIpRanges'
-  - api_field: 'rules.match.expr.expression'
-  - api_field: 'rules.match.versionedExpr'
-  - api_field: 'rules.networkMatch.destIpRanges'
-  - api_field: 'rules.networkMatch.destPorts'
-  - api_field: 'rules.networkMatch.ipProtocols'
-  - api_field: 'rules.networkMatch.srcAsns'
-  - api_field: 'rules.networkMatch.srcIpRanges'
-  - api_field: 'rules.networkMatch.srcPorts'
-  - api_field: 'rules.networkMatch.srcRegionCodes'
-  - api_field: 'rules.networkMatch.userDefinedFields.name'
-  - api_field: 'rules.networkMatch.userDefinedFields.values'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.op'
-    field: 'rules.preconfigured_waf_config.exclusion.request_cookie.operator'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.val'
-    field: 'rules.preconfigured_waf_config.exclusion.request_cookie.value'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.op'
-    field: 'rules.preconfigured_waf_config.exclusion.request_header.operator'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.val'
-    field: 'rules.preconfigured_waf_config.exclusion.request_header.value'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.op'
-    field: 'rules.preconfigured_waf_config.exclusion.request_query_param.operator'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.val'
-    field: 'rules.preconfigured_waf_config.exclusion.request_query_param.value'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.op'
-    field: 'rules.preconfigured_waf_config.exclusion.request_uri.operator'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.val'
-    field: 'rules.preconfigured_waf_config.exclusion.request_uri.value'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.targetRuleIds'
-    field: 'rules.preconfigured_waf_config.exclusion.target_rule_ids'
-  - api_field: 'rules.preconfiguredWafConfig.exclusions.targetRuleSet'
-    field: 'rules.preconfigured_waf_config.exclusion.target_rule_set'
-  - api_field: 'rules.preview'
-  - api_field: 'rules.priority'
-  - api_field: 'rules.rateLimitOptions.banDurationSec'
-  - api_field: 'rules.rateLimitOptions.banThreshold.count'
-  - api_field: 'rules.rateLimitOptions.banThreshold.intervalSec'
-  - api_field: 'rules.rateLimitOptions.conformAction'
-  - api_field: 'rules.rateLimitOptions.enforceOnKey'
-  - api_field: 'rules.rateLimitOptions.enforceOnKeyConfigs.enforceOnKeyName'
-  - api_field: 'rules.rateLimitOptions.enforceOnKeyConfigs.enforceOnKeyType'
-  - api_field: 'rules.rateLimitOptions.enforceOnKeyName'
-  - api_field: 'rules.rateLimitOptions.exceedAction'
-  - api_field: 'rules.rateLimitOptions.rateLimitThreshold.count'
-  - api_field: 'rules.rateLimitOptions.rateLimitThreshold.intervalSec'
-  - api_field: 'selfLink'
-  - api_field: 'selfLinkWithId'
-    field: 'self_link_with_policy_id'
-  - api_field: 'type'
-  - api_field: 'userDefinedFields.base'
-  - api_field: 'userDefinedFields.mask'
-  - api_field: 'userDefinedFields.name'
-  - api_field: 'userDefinedFields.offset'
-  - api_field: 'userDefinedFields.size'
+    - api_field: advancedOptionsConfig.jsonCustomConfig.contentTypes
+    - api_field: advancedOptionsConfig.jsonParsing
+    - api_field: advancedOptionsConfig.logLevel
+    - api_field: advancedOptionsConfig.userIpRequestHeaders
+    - api_field: ddosProtectionConfig.ddosProtection
+    - api_field: description
+    - api_field: fingerprint
+    - api_field: name
+    - api_field: id
+      field: policy_id
+    - api_field: region
+    - api_field: rules.action
+    - api_field: rules.description
+    - api_field: rules.match.config.srcIpRanges
+    - api_field: rules.match.expr.expression
+    - api_field: rules.match.versionedExpr
+    - api_field: rules.networkMatch.destIpRanges
+    - api_field: rules.networkMatch.destPorts
+    - api_field: rules.networkMatch.ipProtocols
+    - api_field: rules.networkMatch.srcAsns
+    - api_field: rules.networkMatch.srcIpRanges
+    - api_field: rules.networkMatch.srcPorts
+    - api_field: rules.networkMatch.srcRegionCodes
+    - api_field: rules.networkMatch.userDefinedFields.name
+    - api_field: rules.networkMatch.userDefinedFields.values
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.op
+      field: rules.preconfigured_waf_config.exclusion.request_cookie.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.val
+      field: rules.preconfigured_waf_config.exclusion.request_cookie.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.op
+      field: rules.preconfigured_waf_config.exclusion.request_header.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestHeadersToExclude.val
+      field: rules.preconfigured_waf_config.exclusion.request_header.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.op
+      field: rules.preconfigured_waf_config.exclusion.request_query_param.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestQueryParamsToExclude.val
+      field: rules.preconfigured_waf_config.exclusion.request_query_param.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.op
+      field: rules.preconfigured_waf_config.exclusion.request_uri.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestUrisToExclude.val
+      field: rules.preconfigured_waf_config.exclusion.request_uri.value
+    - api_field: rules.preconfiguredWafConfig.exclusions.targetRuleIds
+      field: rules.preconfigured_waf_config.exclusion.target_rule_ids
+    - api_field: rules.preconfiguredWafConfig.exclusions.targetRuleSet
+      field: rules.preconfigured_waf_config.exclusion.target_rule_set
+    - api_field: rules.preview
+    - api_field: rules.priority
+    - api_field: rules.rateLimitOptions.banDurationSec
+    - api_field: rules.rateLimitOptions.banThreshold.count
+    - api_field: rules.rateLimitOptions.banThreshold.intervalSec
+    - api_field: rules.rateLimitOptions.conformAction
+    - api_field: rules.rateLimitOptions.enforceOnKey
+    - api_field: rules.rateLimitOptions.enforceOnKeyConfigs.enforceOnKeyName
+    - api_field: rules.rateLimitOptions.enforceOnKeyConfigs.enforceOnKeyType
+    - api_field: rules.rateLimitOptions.enforceOnKeyName
+    - api_field: rules.rateLimitOptions.exceedAction
+    - api_field: rules.rateLimitOptions.rateLimitThreshold.count
+    - api_field: rules.rateLimitOptions.rateLimitThreshold.intervalSec
+    - api_field: selfLink
+    - api_field: selfLinkWithId
+      field: self_link_with_policy_id
+    - api_field: type
+    - api_field: userDefinedFields.base
+    - api_field: userDefinedFields.mask
+    - api_field: userDefinedFields.name
+    - api_field: userDefinedFields.offset
+    - api_field: userDefinedFields.size

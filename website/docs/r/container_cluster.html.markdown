@@ -1166,7 +1166,7 @@ sole_tenant_config {
 
 * `data_cache_count` (Optional) - Number of raw-block local NVMe SSD disks to be attached to the node utilized for GKE Data Cache. If zero, then GKE Data Cache will not be enabled in the nodes.
 
-<a name="nasted_fast_socket"></a>The `fast_socket` block supports:
+<a name="nested_fast_socket"></a>The `fast_socket` block supports:
 
 * `enabled` (Required) - Whether or not the NCCL Fast Socket is enabled
 
@@ -1242,7 +1242,7 @@ Structure is [documented below](#nested_node_kubelet_config).
 
 * `network_tags` (Optional) - The network tag config for the cluster's automatically provisioned node pools. Structure is [documented below](#nested_network_tags).
 
-* `linux_node_config` (Optional) -  Linux system configuration for the cluster's automatically provisioned node pools. Only `cgroup_mode` field is supported in `node_pool_auto_config`. Structure is [documented below](#nested_linux_node_config).
+* `linux_node_config` (Optional) -  Linux system configuration for the cluster's automatically provisioned node pools. Only `cgroup_mode` and `node_kernel_module_loading` fields are supported in `node_pool_auto_config`. Structure is [documented below](#nested_linux_node_config).
 
 <a name="nested_node_kubelet_config"></a>The `node_kubelet_config` block supports:
 
@@ -1325,7 +1325,7 @@ notification_config {
 <a name="rotation_config"></a>The `rotation_config` block supports:
 
 * `enabled` (Optional) - Enable the roation in Secret Manager add-on for this cluster.
-* `rotation_interval` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - The interval between two consecutive rotations. Default rotation interval is 2 minutes.
+* `rotation_interval` (Optional) - The interval between two consecutive rotations. Default rotation interval is 2 minutes.
 
 <a name="nested_secret_sync_config"></a>The `secret_sync_config` block supports:
 
@@ -1622,6 +1622,8 @@ linux_node_config {
 
 * `hugepages_config` - (Optional) Amounts for 2M and 1G hugepages. Structure is [documented below](#nested_hugepages_config).
 
+* `node_kernel_module_loading` - (Optional) Settings for kernel module loading. Structure is [documented below](#nested_node_kernel_module_loading_config).
+
 <a name="nested_hugepages_config"></a>The `hugepages_config` block supports:
 
 * `hugepage_size_2m` - (Optional) Amount of 2M hugepages.
@@ -1643,6 +1645,14 @@ linux_node_config {
     * `TRANSPARENT_HUGEPAGE_DEFRAG_MADVISE`: An application will enter direct reclaim and compaction like always, but only for regions that have used madvise(MADV_HUGEPAGE); all other regions will wake kswapd in the background to reclaim pages and wake kcompactd to compact memory so that THP is available in the near future.
     * `TRANSPARENT_HUGEPAGE_DEFRAG_NEVER`: An application will never enter direct reclaim or compaction.
     * `TRANSPARENT_HUGEPAGE_DEFRAG_UNSPECIFIED`: Default value. GKE will not modify the kernel configuration.
+
+<a name="nested_node_kernel_module_loading_config"></a>The `node_kernel_module_loading` block supports:
+
+* `policy` - (Optional) Possible kernel module loading policies.
+    Accepted values are:
+    * `POLICY_UNSPECIFIED`: Default if unset. GKE selects the image based on node type. For CPU and TPU nodes, the image will not allow loading external kernel modules. For GPU nodes, the image will allow loading any module, whether it is signed or not.
+    * `ENFORCE_SIGNED_MODULES`: Enforced signature verification: Node pools will use a Container-Optimized OS image configured to allow loading of *Google-signed* external kernel modules. Loadpin is enabled but configured to exclude modules, and kernel module signature checking is enforced.
+    * `DO_NOT_ENFORCE_SIGNED_MODULES`: Mirrors existing DEFAULT behavior: For CPU and TPU nodes, the image will not allow loading external kernel modules. For GPU nodes, the image will allow loading any module, whether it is signed or not.
 
 <a name="nested_containerd_config"></a>The `containerd_config` block supports:
 
@@ -1667,6 +1677,41 @@ linux_node_config {
 * `writable_cgroups` (Optional) - Configuration for writable cgroups. This allows containers to have a writable `/sys/fs/cgroup` directory, which is required for some workloads to create their own sub-cgroups. The `writable_cgroups` block supports:
 
   * `enabled` (Required) - Whether writable cgroups are enabled.
+
+* `registry_hosts` (Optional) - Defines containerd registry host configuration. Each `registry_hosts` entry represents a `hosts.toml` file. See [customize containerd configuration in GKE nodes](https://docs.cloud.google.com/kubernetes-engine/docs/how-to/customize-containerd-configuration#registryHosts) for more detail. Example:
+  ```hcl
+registry_hosts {
+  server = "REGISTRY_SERVER_FQDN"
+  hosts {
+    host = "MIRROR_FQDN"
+    capabilities = [
+      "HOST_CAPABILITY_PULL",
+      "HOST_CAPABILITY_RESOLVE",
+      "HOST_CAPABILITY_PUSH",
+    ]
+    override_path = false
+    dial_timeout = "30s"
+    header {
+      key = "HEADER_KEY"
+      value = [
+        "HEADER_VALUE_1",
+        "HEADER_VALUE_2",
+      ]
+    }
+    ca {
+      gcp_secret_manager_secret_uri = "projects/PROJECT_ID_OR_NUMBER/secrets/CA_SECRET/versions/VERSION"
+    }
+    client {
+      cert {
+        gcp_secret_manager_secret_uri = "projects/PROJECT_ID_OR_NUMBER/secrets/CLIENT_CERT_SECRET/versions/VERSION"
+      }
+      key {
+        gcp_secret_manager_secret_uri = "projects/PROJECT_ID_OR_NUMBER/secrets/CLIENT_KEY_SECRET/versions/VERSION"
+      }
+    }
+  }
+}
+  ```
 
 <a name="nested_vertical_pod_autoscaling"></a>The `vertical_pod_autoscaling` block supports:
 

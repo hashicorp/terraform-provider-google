@@ -1,26 +1,26 @@
-resource: 'google_apigee_target_server'
-generation_type: 'mmv1'
-source_file: 'products/apigee/TargetServer.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TargetServer'
+resource: google_apigee_target_server
+generation_type: mmv1
+source_file: products/apigee/TargetServer.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: TargetServer
 fields:
-  - api_field: 'description'
-  - field: 'env_id'
-    provider_only: true
-  - api_field: 'host'
-  - api_field: 'isEnabled'
-  - api_field: 'name'
-  - api_field: 'port'
-  - api_field: 'protocol'
-  - api_field: 'sSLInfo.ciphers'
-  - api_field: 'sSLInfo.clientAuthEnabled'
-  - api_field: 'sSLInfo.commonName.value'
-  - api_field: 'sSLInfo.commonName.wildcardMatch'
-  - api_field: 'sSLInfo.enabled'
-  - api_field: 'sSLInfo.enforce'
-  - api_field: 'sSLInfo.ignoreValidationErrors'
-  - api_field: 'sSLInfo.keyAlias'
-  - api_field: 'sSLInfo.keyStore'
-  - api_field: 'sSLInfo.protocols'
-  - api_field: 'sSLInfo.trustStore'
+    - api_field: description
+    - field: env_id
+      provider_only: true
+    - api_field: host
+    - api_field: isEnabled
+    - api_field: name
+    - api_field: port
+    - api_field: protocol
+    - api_field: sSLInfo.ciphers
+    - api_field: sSLInfo.clientAuthEnabled
+    - api_field: sSLInfo.commonName.value
+    - api_field: sSLInfo.commonName.wildcardMatch
+    - api_field: sSLInfo.enabled
+    - api_field: sSLInfo.enforce
+    - api_field: sSLInfo.ignoreValidationErrors
+    - api_field: sSLInfo.keyAlias
+    - api_field: sSLInfo.keyStore
+    - api_field: sSLInfo.protocols
+    - api_field: sSLInfo.trustStore

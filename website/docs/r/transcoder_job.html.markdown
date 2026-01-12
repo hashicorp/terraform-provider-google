@@ -879,23 +879,23 @@ The following arguments are supported:
 * `video_stream` -
   (Optional)
   Encoding of a video stream.
-  Structure is [documented below](#nested_config_elementary_streams_elementary_streams_video_stream).
+  Structure is [documented below](#nested_config_elementary_streams_video_stream).
 
 * `audio_stream` -
   (Optional)
   Encoding of an audio stream.
-  Structure is [documented below](#nested_config_elementary_streams_elementary_streams_audio_stream).
+  Structure is [documented below](#nested_config_elementary_streams_audio_stream).
 
 
-<a name="nested_config_elementary_streams_elementary_streams_video_stream"></a>The `video_stream` block supports:
+<a name="nested_config_elementary_streams_video_stream"></a>The `video_stream` block supports:
 
 * `h264` -
   (Optional)
   H264 codec settings
-  Structure is [documented below](#nested_config_elementary_streams_elementary_streams_video_stream_h264).
+  Structure is [documented below](#nested_config_elementary_streams_video_stream_h264).
 
 
-<a name="nested_config_elementary_streams_elementary_streams_video_stream_h264"></a>The `h264` block supports:
+<a name="nested_config_elementary_streams_video_stream_h264"></a>The `h264` block supports:
 
 * `width_pixels` -
   (Optional)
@@ -957,7 +957,7 @@ The following arguments are supported:
   (Optional)
   HLG color format setting for H264.
 
-<a name="nested_config_elementary_streams_elementary_streams_audio_stream"></a>The `audio_stream` block supports:
+<a name="nested_config_elementary_streams_audio_stream"></a>The `audio_stream` block supports:
 
 * `codec` -
   (Optional)
@@ -1000,14 +1000,14 @@ The following arguments are supported:
 * `segment_settings` -
   (Optional)
   Segment settings for ts, fmp4 and vtt.
-  Structure is [documented below](#nested_config_mux_streams_mux_streams_segment_settings).
+  Structure is [documented below](#nested_config_mux_streams_segment_settings).
 
 * `encryption_id` -
   (Optional)
   Identifier of the encryption configuration to use.
 
 
-<a name="nested_config_mux_streams_mux_streams_segment_settings"></a>The `segment_settings` block supports:
+<a name="nested_config_mux_streams_segment_settings"></a>The `segment_settings` block supports:
 
 * `segment_duration` -
   (Optional)
@@ -1051,34 +1051,34 @@ The following arguments are supported:
 * `image` -
   (Optional)
   Image overlay.
-  Structure is [documented below](#nested_config_overlays_overlays_image).
+  Structure is [documented below](#nested_config_overlays_image).
 
 * `animations` -
   (Optional)
   List of animations. The list should be chronological, without any time overlap.
-  Structure is [documented below](#nested_config_overlays_overlays_animations).
+  Structure is [documented below](#nested_config_overlays_animations).
 
 
-<a name="nested_config_overlays_overlays_image"></a>The `image` block supports:
+<a name="nested_config_overlays_image"></a>The `image` block supports:
 
 * `uri` -
   (Required)
   URI of the image in Cloud Storage. For example, gs://bucket/inputs/image.png.
 
-<a name="nested_config_overlays_overlays_animations"></a>The `animations` block supports:
+<a name="nested_config_overlays_animations"></a>The `animations` block supports:
 
 * `animation_fade` -
   (Optional)
   Display overlay object with fade animation.
-  Structure is [documented below](#nested_config_overlays_overlays_animations_animations_animation_fade).
+  Structure is [documented below](#nested_config_overlays_animations_animation_fade).
 
 
-<a name="nested_config_overlays_overlays_animations_animations_animation_fade"></a>The `animation_fade` block supports:
+<a name="nested_config_overlays_animations_animation_fade"></a>The `animation_fade` block supports:
 
 * `xy` -
   (Optional)
   Normalized coordinates based on output video resolution.
-  Structure is [documented below](#nested_config_overlays_overlays_animations_animations_animation_fade_xy).
+  Structure is [documented below](#nested_config_overlays_animations_animation_fade_xy).
 
 * `start_time_offset` -
   (Optional)
@@ -1098,7 +1098,7 @@ The following arguments are supported:
   Possible values are: `FADE_TYPE_UNSPECIFIED`, `FADE_IN`, `FADE_OUT`.
 
 
-<a name="nested_config_overlays_overlays_animations_animations_animation_fade_xy"></a>The `xy` block supports:
+<a name="nested_config_overlays_animations_animation_fade_xy"></a>The `xy` block supports:
 
 * `x` -
   (Optional)
@@ -1117,7 +1117,7 @@ The following arguments are supported:
 * `drm_systems` -
   (Optional)
   DRM system(s) to use; at least one must be specified. If a DRM system is omitted, it is considered disabled.
-  Structure is [documented below](#nested_config_encryptions_encryptions_drm_systems).
+  Structure is [documented below](#nested_config_encryptions_drm_systems).
 
 * `aes128` -
   (Optional)
@@ -1130,15 +1130,15 @@ The following arguments are supported:
 * `mpeg_cenc` -
   (Optional)
   Configuration for MPEG Common Encryption (MPEG-CENC).
-  Structure is [documented below](#nested_config_encryptions_encryptions_mpeg_cenc).
+  Structure is [documented below](#nested_config_encryptions_mpeg_cenc).
 
 * `secret_manager_key_source` -
   (Optional)
   Configuration for secrets stored in Google Secret Manager.
-  Structure is [documented below](#nested_config_encryptions_encryptions_secret_manager_key_source).
+  Structure is [documented below](#nested_config_encryptions_secret_manager_key_source).
 
 
-<a name="nested_config_encryptions_encryptions_drm_systems"></a>The `drm_systems` block supports:
+<a name="nested_config_encryptions_drm_systems"></a>The `drm_systems` block supports:
 
 * `widevine` -
   (Optional)
@@ -1156,13 +1156,13 @@ The following arguments are supported:
   (Optional)
   Clearkey configuration.
 
-<a name="nested_config_encryptions_encryptions_mpeg_cenc"></a>The `mpeg_cenc` block supports:
+<a name="nested_config_encryptions_mpeg_cenc"></a>The `mpeg_cenc` block supports:
 
 * `scheme` -
   (Required)
   Specify the encryption scheme.
 
-<a name="nested_config_encryptions_encryptions_secret_manager_key_source"></a>The `secret_manager_key_source` block supports:
+<a name="nested_config_encryptions_secret_manager_key_source"></a>The `secret_manager_key_source` block supports:
 
 * `secret_version` -
   (Required)

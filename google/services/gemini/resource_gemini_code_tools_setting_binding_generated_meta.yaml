@@ -1,24 +1,24 @@
-resource: 'google_gemini_code_tools_setting_binding'
-generation_type: 'mmv1'
-source_file: 'products/gemini/CodeToolsSettingBinding.yaml'
-api_service_name: 'cloudaicompanion.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'SettingBinding'
+resource: google_gemini_code_tools_setting_binding
+generation_type: mmv1
+source_file: products/gemini/CodeToolsSettingBinding.yaml
+api_service_name: cloudaicompanion.googleapis.com
+api_version: v1
+api_resource_type_kind: SettingBinding
 autogen_status: true
 fields:
-  - field: 'code_tools_setting_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'product'
-  - field: 'setting_binding_id'
-    provider_only: true
-  - api_field: 'target'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: code_tools_setting_id
+      provider_only: true
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: product
+    - field: setting_binding_id
+      provider_only: true
+    - api_field: target
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

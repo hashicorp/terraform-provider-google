@@ -556,10 +556,10 @@ Possible values: ENABLED, DISABLED, STAGED.
 * `object_id` -
   (Required)
   Describes values that are relevant in a CA certificate.
-  Structure is [documented below](#nested_config_x509_config_additional_extensions_additional_extensions_object_id).
+  Structure is [documented below](#nested_config_x509_config_additional_extensions_object_id).
 
 
-<a name="nested_config_x509_config_additional_extensions_additional_extensions_object_id"></a>The `object_id` block supports:
+<a name="nested_config_x509_config_additional_extensions_object_id"></a>The `object_id` block supports:
 
 * `object_id_path` -
   (Required)

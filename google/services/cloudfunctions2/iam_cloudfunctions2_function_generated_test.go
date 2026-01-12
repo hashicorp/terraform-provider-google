@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -59,7 +60,7 @@ func TestAccCloudfunctions2functionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions2_function_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-function-v2%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudfunctions2functionIAMBindingStateID("google_cloudfunctions2_function_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -69,7 +70,7 @@ func TestAccCloudfunctions2functionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions2_function_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-function-v2%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudfunctions2functionIAMBindingStateID("google_cloudfunctions2_function_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -99,7 +100,7 @@ func TestAccCloudfunctions2functionIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions2_function_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-function-v2%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudfunctions2functionIAMMemberStateID("google_cloudfunctions2_function_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -129,7 +130,7 @@ func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions2_function_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-function-v2%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudfunctions2functionIAMPolicyStateID("google_cloudfunctions2_function_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -138,7 +139,7 @@ func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions2_function_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-function-v2%s", context["random_suffix"])),
+				ImportStateIdFunc: generateCloudfunctions2functionIAMPolicyStateID("google_cloudfunctions2_function_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -416,4 +417,58 @@ resource "google_cloudfunctions2_function_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateCloudfunctions2functionIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		cloud_function := tpgresource.GetResourceNameFromSelfLink(rawState["cloud_function"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/functions/%s", project, location, cloud_function), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateCloudfunctions2functionIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		cloud_function := tpgresource.GetResourceNameFromSelfLink(rawState["cloud_function"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/functions/%s", project, location, cloud_function), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateCloudfunctions2functionIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		cloud_function := tpgresource.GetResourceNameFromSelfLink(rawState["cloud_function"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/functions/%s", project, location, cloud_function), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }
