@@ -143,6 +143,8 @@ fields:
     api_field: 'properties.networkInterfaces.networkIP'
   - field: 'network_interface.nic_type'
     api_field: 'properties.networkInterfaces.nicType'
+  - field: 'network_interface.igmp_query'
+    api_field: 'properties.networkInterfaces.igmpQuery'
   - field: 'network_interface.queue_count'
     api_field: 'properties.networkInterfaces.queueCount'
   - field: 'network_interface.stack_type'

@@ -172,6 +172,8 @@ fields:
     field: 'network_interface.network_ip'
   - api_field: 'networkInterfaces.nicType'
     field: 'network_interface.nic_type'
+  - api_field: 'networkInterfaces.igmpQuery'
+    field: 'network_interface.igmp_query'
   - api_field: 'networkInterfaces.queueCount'
     field: 'network_interface.queue_count'
   - api_field: 'networkInterfaces.stackType'

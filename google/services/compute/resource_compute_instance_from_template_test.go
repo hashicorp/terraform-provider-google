@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -1545,6 +1546,59 @@ func TestAccComputeInstanceFromTemplateWithOverride_interface(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceFromTemplate_IgmpQuery_v2(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	suffix := acctest.RandString(t, 10)
+	envRegion := envvar.GetTestRegionFromEnv()
+	context := map[string]interface{}{
+		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"igmp_query":    "IGMP_QUERY_V2",
+		"suffix":        suffix,
+		"env_region":    envRegion,
+	}
+	contextUpdate := map[string]interface{}{
+		"instance_name": instanceName,
+		"igmp_query":    "IGMP_QUERY_DISABLED",
+		"suffix":        suffix,
+		"env_region":    envRegion,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_igmpQuery_v2(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance_from_template.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance_from_template.foobar", "network_interface.0.igmp_query", "IGMP_QUERY_V2"),
+				),
+			},
+			{
+				Config: testAccComputeInstanceFromTemplate_igmpQuery_v2(contextUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance_from_template.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance_from_template.foobar", "network_interface.0.igmp_query", "IGMP_QUERY_DISABLED"),
+				),
+			},
+			{
+				Config: testAccComputeInstanceFromTemplate_igmpQuery_v2(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance_from_template.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance_from_template.foobar", "network_interface.0.igmp_query", "IGMP_QUERY_V2"),
+				),
+			},
+		},
+	})
+}
+
 func testAccComputeInstanceFromTemplateWithOverride_interface(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -1890,4 +1944,70 @@ resource "google_compute_instance_from_template" "foobar" {
   }
 }
 `, template, template, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_igmpQuery_v2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_network" "inst-test-network" {
+	name = "tf-test-network-%{suffix}"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "inst-test-subnetwork" {
+	name          = "tf-test-compute-subnet-%{suffix}"
+	region        = "%{env_region}"
+	network       = google_compute_network.inst-test-network.id
+	ip_cidr_range    = "10.0.0.0/22"
+}
+
+resource "google_compute_disk" "foobarroot" {
+  name = "%{instance_name}-disk-%{suffix}"
+  size = 100
+  type = "pd-balanced"
+  zone = "%{env_region}-a"
+}
+
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%{instance_name}-template-%{suffix}"
+  machine_type = "n1-standard-1"  // can't be e2 because of local-ssd
+
+  disk {
+    source      = google_compute_disk.foobarroot.name
+    auto_delete = true
+    boot        = true
+  }
+
+  network_interface {
+    network = google_compute_network.inst-test-network.id
+    subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+  }
+}
+
+resource "google_compute_instance_from_template" "foobar" {
+	name         = "%{instance_name}"
+	machine_type = "e2-medium"
+	zone         = "%{env_region}-a"
+
+ 	source_instance_template = google_compute_instance_template.foobar.self_link
+
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+		}
+	}
+
+	network_interface {
+		network = google_compute_network.inst-test-network.id
+		subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+		igmp_query = "%{igmp_query}"
+	}
+}
+`, context)
 }
