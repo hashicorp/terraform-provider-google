@@ -1,18 +1,18 @@
-resource: 'google_managed_kafka_topic'
-generation_type: 'mmv1'
-source_file: 'products/managedkafka/Topic.yaml'
-api_service_name: 'managedkafka.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Topic'
+resource: google_managed_kafka_topic
+generation_type: mmv1
+source_file: products/managedkafka/Topic.yaml
+api_service_name: managedkafka.googleapis.com
+api_version: v1
+api_resource_type_kind: Topic
 autogen_status: true
 fields:
-  - field: 'cluster'
-    provider_only: true
-  - api_field: 'configs'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'partitionCount'
-  - api_field: 'replicationFactor'
-  - field: 'topic_id'
-    provider_only: true
+    - field: cluster
+      provider_only: true
+    - api_field: configs
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: partitionCount
+    - api_field: replicationFactor
+    - field: topic_id
+      provider_only: true

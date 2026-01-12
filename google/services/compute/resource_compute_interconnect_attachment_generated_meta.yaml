@@ -1,41 +1,45 @@
-resource: 'google_compute_interconnect_attachment'
-generation_type: 'mmv1'
-source_file: 'products/compute/InterconnectAttachment.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InterconnectAttachment'
+resource: google_compute_interconnect_attachment
+generation_type: mmv1
+source_file: products/compute/InterconnectAttachment.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: InterconnectAttachment
 fields:
-  - api_field: 'adminEnabled'
-  - api_field: 'attachmentGroup'
-  - api_field: 'bandwidth'
-  - api_field: 'candidateSubnets'
-  - api_field: 'cloudRouterIpAddress'
-  - api_field: 'cloudRouterIpv6Address'
-  - api_field: 'creationTimestamp'
-  - api_field: 'customerRouterIpAddress'
-  - api_field: 'customerRouterIpv6Address'
-  - api_field: 'description'
-  - api_field: 'edgeAvailabilityDomain'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryption'
-  - api_field: 'googleReferenceId'
-  - api_field: 'interconnect'
-  - api_field: 'ipsecInternalAddresses'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'mtu'
-  - api_field: 'name'
-  - api_field: 'pairingKey'
-  - api_field: 'partnerAsn'
-  - api_field: 'privateInterconnectInfo.tag8021q'
-  - api_field: 'region'
-  - api_field: 'router'
-  - api_field: 'stackType'
-  - api_field: 'state'
-  - api_field: 'subnetLength'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'vlanTag8021q'
-  - api_field: 'selfLink'
+    - api_field: adminEnabled
+    - api_field: attachmentGroup
+    - api_field: bandwidth
+    - api_field: candidateCloudRouterIpAddress
+    - api_field: candidateCloudRouterIpv6Address
+    - api_field: candidateCustomerRouterIpAddress
+    - api_field: candidateCustomerRouterIpv6Address
+    - api_field: candidateSubnets
+    - api_field: cloudRouterIpAddress
+    - api_field: cloudRouterIpv6Address
+    - api_field: creationTimestamp
+    - api_field: customerRouterIpAddress
+    - api_field: customerRouterIpv6Address
+    - api_field: description
+    - api_field: edgeAvailabilityDomain
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryption
+    - api_field: googleReferenceId
+    - api_field: interconnect
+    - api_field: ipsecInternalAddresses
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: mtu
+    - api_field: name
+    - api_field: pairingKey
+    - api_field: partnerAsn
+    - api_field: privateInterconnectInfo.tag8021q
+    - api_field: region
+    - api_field: router
+    - api_field: stackType
+    - api_field: state
+    - api_field: subnetLength
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: vlanTag8021q
+    - api_field: selfLink

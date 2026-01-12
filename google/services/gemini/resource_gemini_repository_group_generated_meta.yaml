@@ -1,23 +1,23 @@
-resource: 'google_gemini_repository_group'
-generation_type: 'mmv1'
-source_file: 'products/gemini/RepositoryGroup.yaml'
-api_service_name: 'cloudaicompanion.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'RepositoryGroup'
+resource: google_gemini_repository_group
+generation_type: mmv1
+source_file: products/gemini/RepositoryGroup.yaml
+api_service_name: cloudaicompanion.googleapis.com
+api_version: v1
+api_resource_type_kind: RepositoryGroup
 fields:
-  - field: 'code_repository_index'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'repositories.branchPattern'
-  - api_field: 'repositories.resource'
-  - field: 'repository_group_id'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: code_repository_index
+      provider_only: true
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: repositories.branchPattern
+    - api_field: repositories.resource
+    - field: repository_group_id
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

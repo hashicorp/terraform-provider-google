@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -29,17 +30,41 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
-func TestAccStorageSignedUrl_basic(t *testing.T) {
+const objectPath = "object/objname"
+const stoargeApiHost = "storage.googleapis.com"
+
+func TestAccStorageSignedUrl_basicVirtualStyle(t *testing.T) {
 	t.Parallel()
+
+	bucketName := acctest.TestBucketName(t)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleSignedUrlConfig,
+				Config: testGoogleSignedUrlConfig(bucketName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccSignedUrlExists(t, "data.google_storage_object_signed_url.blerg"),
+					testAccSignedUrlVirtualStyleExists(t, "data.google_storage_object_signed_url.blerg", bucketName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageSignedUrl_basicPathStyle(t *testing.T) {
+	t.Parallel()
+
+	bucketName := acctest.TestBucketName(t) + ".com"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSignedUrlConfig(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSignedUrlPathStyleExists(t, "data.google_storage_object_signed_url.blerg", bucketName),
 				),
 			},
 		},
@@ -75,7 +100,7 @@ func TestAccStorageSignedUrl_accTest(t *testing.T) {
 	})
 }
 
-func testAccSignedUrlExists(t *testing.T, n string) resource.TestCheckFunc {
+func testAccSignedUrlVirtualStyleExists(t *testing.T, n, bucketName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		r := s.RootModule().Resources[n]
@@ -83,6 +108,30 @@ func testAccSignedUrlExists(t *testing.T, n string) resource.TestCheckFunc {
 
 		if a["signed_url"] == "" {
 			return fmt.Errorf("signed_url is empty: %v", a)
+		}
+
+		splitUrl := strings.Split(a["signed_url"], "/")
+		if splitUrl[2] != fmt.Sprintf("%s.%s", bucketName, stoargeApiHost) {
+			return fmt.Errorf("invalid virtual style URL")
+		}
+
+		return nil
+	}
+}
+
+func testAccSignedUrlPathStyleExists(t *testing.T, n, bucketName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		r := s.RootModule().Resources[n]
+		a := r.Primary.Attributes
+
+		if a["signed_url"] == "" {
+			return fmt.Errorf("signed_url is empty: %v", a)
+		}
+
+		urlPrefix := fmt.Sprintf("%s://%s/%s/%s", "https", stoargeApiHost, bucketName, objectPath)
+		if !strings.HasPrefix(a["signed_url"], urlPrefix) {
+			return fmt.Errorf("invalid path style URL")
 		}
 
 		return nil
@@ -147,13 +196,14 @@ func testAccSignedUrlRetrieval(n string, headers map[string]string) resource.Tes
 	}
 }
 
-const testGoogleSignedUrlConfig = `
+func testGoogleSignedUrlConfig(bucket string) string {
+	return fmt.Sprintf(`
 data "google_storage_object_signed_url" "blerg" {
-  bucket = "friedchicken"
-  path   = "path/to/file"
-
+  bucket      = "%s"
+  path        = "%s"
 }
-`
+`, bucket, objectPath)
+}
 
 func testAccTestGoogleStorageObjectSignedURL(bucketName string) string {
 	return fmt.Sprintf(`

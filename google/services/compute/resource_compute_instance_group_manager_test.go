@@ -2100,6 +2100,11 @@ resource "google_compute_instance_template" "igm-basic" {
     network = "default"
   }
 
+  scheduling {
+    automatic_restart   = true
+    on_host_maintenance = "TERMINATE"
+  }
+
   service_account {
     scopes = ["userinfo-email", "compute-ro", "storage-ro"]
   }
@@ -2208,6 +2213,11 @@ resource "google_compute_instance_template" "igm-basic" {
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
+  scheduling {
+    automatic_restart   = true
+    on_host_maintenance = "TERMINATE"
+  }
+
   disk {
     source_image = data.google_compute_image.my_image.self_link
     auto_delete  = true
@@ -2256,6 +2266,11 @@ resource "google_compute_instance_template" "igm-basic" {
   machine_type   = "a4-highgpu-8g"
   can_ip_forward = false
   tags           = ["foo", "bar"]
+
+  scheduling {
+    automatic_restart   = true
+    on_host_maintenance = "TERMINATE"
+  }
 
   disk {
     source_image = data.google_compute_image.my_image.self_link

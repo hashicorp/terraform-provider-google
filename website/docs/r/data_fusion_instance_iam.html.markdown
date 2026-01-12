@@ -128,9 +128,9 @@ exported:
 
 For all import syntaxes, the "resource in question" can take any of the following forms:
 
-* projects/{{project}}/locations/{{location}}/instances/{{name}}
-* {{project}}/{{location}}/{{name}}
-* {{location}}/{{name}}
+* projects/{{project}}/locations/{{region}}/instances/{{name}}
+* {{project}}/{{region}}/{{name}}
+* {{region}}/{{name}}
 * {{name}}
 
 Any variables not passed in the import command will be taken from the provider configuration.
@@ -139,17 +139,17 @@ Cloud Data Fusion instance IAM resources can be imported using the resource iden
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_data_fusion_instance_iam_member.editor "projects/{{project}}/locations/{{location}}/instances/{{instance}} roles/viewer user:jane@example.com"
+$ terraform import google_data_fusion_instance_iam_member.editor "projects/{{project}}/locations/{{region}}/instances/{{instance}} roles/viewer user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
 ```
-$ terraform import google_data_fusion_instance_iam_binding.editor "projects/{{project}}/locations/{{location}}/instances/{{instance}} roles/viewer"
+$ terraform import google_data_fusion_instance_iam_binding.editor "projects/{{project}}/locations/{{region}}/instances/{{instance}} roles/viewer"
 ```
 
 IAM policy imports use the identifier of the resource in question, e.g.
 ```
-$ terraform import google_data_fusion_instance_iam_policy.editor projects/{{project}}/locations/{{location}}/instances/{{instance}}
+$ terraform import google_data_fusion_instance_iam_policy.editor projects/{{project}}/locations/{{region}}/instances/{{instance}}
 ```
 
 -> **Custom Roles** If you're importing a IAM resource with a custom role, make sure to use the

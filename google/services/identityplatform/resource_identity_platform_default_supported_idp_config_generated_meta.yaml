@@ -1,13 +1,13 @@
-resource: 'google_identity_platform_default_supported_idp_config'
-generation_type: 'mmv1'
-source_file: 'products/identityplatform/DefaultSupportedIdpConfig.yaml'
-api_service_name: 'identitytoolkit.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'DefaultSupportedIdpConfig'
+resource: google_identity_platform_default_supported_idp_config
+generation_type: mmv1
+source_file: products/identityplatform/DefaultSupportedIdpConfig.yaml
+api_service_name: identitytoolkit.googleapis.com
+api_version: v2
+api_resource_type_kind: DefaultSupportedIdpConfig
 fields:
-  - api_field: 'clientId'
-  - api_field: 'clientSecret'
-  - api_field: 'enabled'
-  - field: 'idp_id'
-    provider_only: true
-  - api_field: 'name'
+    - api_field: clientId
+    - api_field: clientSecret
+    - api_field: enabled
+    - field: idp_id
+      provider_only: true
+    - api_field: name

@@ -1,31 +1,31 @@
-resource: 'google_bigquery_data_transfer_config'
-generation_type: 'mmv1'
-source_file: 'products/bigquerydatatransfer/Config.yaml'
-api_service_name: 'bigquerydatatransfer.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TransferConfig'
+resource: google_bigquery_data_transfer_config
+generation_type: mmv1
+source_file: products/bigquerydatatransfer/Config.yaml
+api_service_name: bigquerydatatransfer.googleapis.com
+api_version: v1
+api_resource_type_kind: TransferConfig
 fields:
-  - api_field: 'dataRefreshWindowDays'
-  - api_field: 'dataSourceId'
-  - api_field: 'destinationDatasetId'
-  - api_field: 'disabled'
-  - api_field: 'displayName'
-  - api_field: 'emailPreferences.enableFailureEmail'
-  - api_field: 'encryptionConfiguration.kmsKeyName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'notificationPubsubTopic'
-  - api_field: 'params'
-  - api_field: 'schedule'
-  - api_field: 'scheduleOptions.disableAutoScheduling'
-  - api_field: 'scheduleOptions.endTime'
-  - api_field: 'scheduleOptions.startTime'
-  - field: 'sensitive_params.secret_access_key'
-    provider_only: true
-  - field: 'sensitive_params.secret_access_key_wo'
-    provider_only: true
-  - field: 'sensitive_params.secret_access_key_wo_version'
-    provider_only: true
-  - field: 'service_account_name'
-    provider_only: true
+    - api_field: dataRefreshWindowDays
+    - api_field: dataSourceId
+    - api_field: destinationDatasetId
+    - api_field: disabled
+    - api_field: displayName
+    - api_field: emailPreferences.enableFailureEmail
+    - api_field: encryptionConfiguration.kmsKeyName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: notificationPubsubTopic
+    - api_field: params
+    - api_field: schedule
+    - api_field: scheduleOptions.disableAutoScheduling
+    - api_field: scheduleOptions.endTime
+    - api_field: scheduleOptions.startTime
+    - field: sensitive_params.secret_access_key
+      provider_only: true
+    - field: sensitive_params.secret_access_key_wo
+      provider_only: true
+    - field: sensitive_params.secret_access_key_wo_version
+      provider_only: true
+    - field: service_account_name
+      provider_only: true

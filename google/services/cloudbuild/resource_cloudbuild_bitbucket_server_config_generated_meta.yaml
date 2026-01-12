@@ -1,23 +1,23 @@
-resource: 'google_cloudbuild_bitbucket_server_config'
-generation_type: 'mmv1'
-source_file: 'products/cloudbuild/BitbucketServerConfig.yaml'
-api_service_name: 'cloudbuild.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BitbucketServerConfig'
+resource: google_cloudbuild_bitbucket_server_config
+generation_type: mmv1
+source_file: products/cloudbuild/BitbucketServerConfig.yaml
+api_service_name: cloudbuild.googleapis.com
+api_version: v1
+api_resource_type_kind: BitbucketServerConfig
 fields:
-  - api_field: 'apiKey'
-  - field: 'config_id'
-    provider_only: true
-  - api_field: 'connectedRepositories.projectKey'
-  - api_field: 'connectedRepositories.repoSlug'
-  - api_field: 'hostUri'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'peeredNetwork'
-  - api_field: 'secrets.adminAccessTokenVersionName'
-  - api_field: 'secrets.readAccessTokenVersionName'
-  - api_field: 'secrets.webhookSecretVersionName'
-  - api_field: 'sslCa'
-  - api_field: 'username'
-  - api_field: 'webhookKey'
+    - api_field: apiKey
+    - field: config_id
+      provider_only: true
+    - api_field: connectedRepositories.projectKey
+    - api_field: connectedRepositories.repoSlug
+    - api_field: hostUri
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: peeredNetwork
+    - api_field: secrets.adminAccessTokenVersionName
+    - api_field: secrets.readAccessTokenVersionName
+    - api_field: secrets.webhookSecretVersionName
+    - api_field: sslCa
+    - api_field: username
+    - api_field: webhookKey

@@ -363,23 +363,23 @@ The following arguments are supported:
 * `authentication_config` -
   (Optional)
   Represents a config used to authenticate message requests.
-  Structure is [documented below](#nested_destinations_destinations_authentication_config).
+  Structure is [documented below](#nested_destinations_authentication_config).
 
 * `output_payload_format` -
   (Optional)
   Represents the format of message data.
-  Structure is [documented below](#nested_destinations_destinations_output_payload_format).
+  Structure is [documented below](#nested_destinations_output_payload_format).
 
 * `network_config` -
   (Optional)
   Represents a network config to be used for destination resolution and
   connectivity.
-  Structure is [documented below](#nested_destinations_destinations_network_config).
+  Structure is [documented below](#nested_destinations_network_config).
 
 * `http_endpoint` -
   (Optional)
   Represents a HTTP endpoint destination.
-  Structure is [documented below](#nested_destinations_destinations_http_endpoint).
+  Structure is [documented below](#nested_destinations_http_endpoint).
 
 * `workflow` -
   (Optional)
@@ -402,7 +402,7 @@ The following arguments are supported:
   `projects/{project}/locations/{location}/topics/{topic}`
 
 
-<a name="nested_destinations_destinations_authentication_config"></a>The `authentication_config` block supports:
+<a name="nested_destinations_authentication_config"></a>The `authentication_config` block supports:
 
 * `google_oidc` -
   (Optional)
@@ -410,7 +410,7 @@ The following arguments are supported:
   a GCP service account. Use this authentication method to invoke your
   Cloud Run and Cloud Functions destinations or HTTP endpoints that
   support Google OIDC.
-  Structure is [documented below](#nested_destinations_destinations_authentication_config_google_oidc).
+  Structure is [documented below](#nested_destinations_authentication_config_google_oidc).
 
 * `oauth_token` -
   (Optional)
@@ -418,10 +418,10 @@ The following arguments are supported:
   [OAuth token](https://developers.google.com/identity/protocols/OAuth2).
   This type of authorization should generally only be used when calling
   Google APIs hosted on *.googleapis.com.
-  Structure is [documented below](#nested_destinations_destinations_authentication_config_oauth_token).
+  Structure is [documented below](#nested_destinations_authentication_config_oauth_token).
 
 
-<a name="nested_destinations_destinations_authentication_config_google_oidc"></a>The `google_oidc` block supports:
+<a name="nested_destinations_authentication_config_google_oidc"></a>The `google_oidc` block supports:
 
 * `service_account` -
   (Required)
@@ -439,7 +439,7 @@ The following arguments are supported:
   identifies the recipient that the JWT is intended for. If
   unspecified, the destination URI will be used.
 
-<a name="nested_destinations_destinations_authentication_config_oauth_token"></a>The `oauth_token` block supports:
+<a name="nested_destinations_authentication_config_oauth_token"></a>The `oauth_token` block supports:
 
 * `service_account` -
   (Required)
@@ -458,36 +458,36 @@ The following arguments are supported:
   specified, "https://www.googleapis.com/auth/cloud-platform" will be
   used.
 
-<a name="nested_destinations_destinations_output_payload_format"></a>The `output_payload_format` block supports:
+<a name="nested_destinations_output_payload_format"></a>The `output_payload_format` block supports:
 
 * `protobuf` -
   (Optional)
   The format of a Protobuf message payload.
-  Structure is [documented below](#nested_destinations_destinations_output_payload_format_protobuf).
+  Structure is [documented below](#nested_destinations_output_payload_format_protobuf).
 
 * `avro` -
   (Optional)
   The format of an AVRO message payload.
-  Structure is [documented below](#nested_destinations_destinations_output_payload_format_avro).
+  Structure is [documented below](#nested_destinations_output_payload_format_avro).
 
 * `json` -
   (Optional)
   The format of a JSON message payload.
 
 
-<a name="nested_destinations_destinations_output_payload_format_protobuf"></a>The `protobuf` block supports:
+<a name="nested_destinations_output_payload_format_protobuf"></a>The `protobuf` block supports:
 
 * `schema_definition` -
   (Optional)
   The entire schema definition is stored in this field.
 
-<a name="nested_destinations_destinations_output_payload_format_avro"></a>The `avro` block supports:
+<a name="nested_destinations_output_payload_format_avro"></a>The `avro` block supports:
 
 * `schema_definition` -
   (Optional)
   The entire schema definition is stored in this field.
 
-<a name="nested_destinations_destinations_network_config"></a>The `network_config` block supports:
+<a name="nested_destinations_network_config"></a>The `network_config` block supports:
 
 * `network_attachment` -
   (Optional)
@@ -497,7 +497,7 @@ The following arguments are supported:
   Required for HTTP endpoint destinations. Must not be specified for
   Workflows, MessageBus, or Topic destinations.
 
-<a name="nested_destinations_destinations_http_endpoint"></a>The `http_endpoint` block supports:
+<a name="nested_destinations_http_endpoint"></a>The `http_endpoint` block supports:
 
 * `uri` -
   (Required)
@@ -721,10 +721,10 @@ The following arguments are supported:
 * `transformation` -
   (Optional)
   Transformation defines the way to transform an incoming message.
-  Structure is [documented below](#nested_mediations_mediations_transformation).
+  Structure is [documented below](#nested_mediations_transformation).
 
 
-<a name="nested_mediations_mediations_transformation"></a>The `transformation` block supports:
+<a name="nested_mediations_transformation"></a>The `transformation` block supports:
 
 * `transformation_template` -
   (Optional)

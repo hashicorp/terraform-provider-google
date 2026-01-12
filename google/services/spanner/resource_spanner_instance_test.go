@@ -559,6 +559,45 @@ func TestAccSpannerInstance_freeInstanceBasicUpdate(t *testing.T) {
 	})
 }
 
+func TestAccSpannerInstance_autoscalingWithTotalCPUUtilizationPercent(t *testing.T) {
+	t.Parallel()
+
+	displayName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_autoscalingWithTotalCPUUtilizationPercent(displayName, 2000, 4000, 65, 85, 95),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.test", "state"),
+					resource.TestCheckResourceAttr("google_spanner_instance.test", "autoscaling_config.0.autoscaling_targets.0.total_cpu_utilization_percent", "85"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSpannerInstance_autoscalingWithTotalCPUUtilizationPercent(displayName, 3000, 5000, 75, 90, 95),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.test", "state"),
+					resource.TestCheckResourceAttr("google_spanner_instance.test", "autoscaling_config.0.autoscaling_targets.0.total_cpu_utilization_percent", "90"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccSpannerInstance_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
@@ -717,6 +756,7 @@ resource "google_spanner_instance" "basic" {
     }
     autoscaling_targets {
       high_priority_cpu_utilization_percent = %v
+      total_cpu_utilization_percent         = 85
       storage_utilization_percent           = %v
     }
   }
@@ -920,4 +960,26 @@ resource "google_spanner_instance" "main" {
   depends_on    = [google_project_service.spanner]
 }
 `, context)
+}
+
+func testAccSpannerInstance_autoscalingWithTotalCPUUtilizationPercent(name string, minProcessingUnits, maxProcessingUnits, highPriorityCPU, totalCPU, storageUtilization int) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "test" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s"
+  autoscaling_config {
+    autoscaling_limits {
+      max_processing_units = %d
+      min_processing_units = %d
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = %d
+      total_cpu_utilization_percent         = %d
+      storage_utilization_percent           = %d
+    }
+  }
+  edition = "ENTERPRISE"
+}
+`, name, name, maxProcessingUnits, minProcessingUnits, highPriorityCPU, totalCPU, storageUtilization)
 }

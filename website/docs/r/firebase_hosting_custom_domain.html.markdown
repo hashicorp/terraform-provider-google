@@ -301,10 +301,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `records` -
   (Optional)
   Records on the domain
-  Structure is [documented below](#nested_required_dns_updates_discovered_discovered_records).
+  Structure is [documented below](#nested_required_dns_updates_discovered_records).
 
 
-<a name="nested_required_dns_updates_discovered_discovered_records"></a>The `records` block supports:
+<a name="nested_required_dns_updates_discovered_records"></a>The `records` block supports:
 
 * `domain_name` -
   (Optional)
@@ -337,10 +337,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `records` -
   (Optional)
   Records on the domain
-  Structure is [documented below](#nested_required_dns_updates_desired_desired_records).
+  Structure is [documented below](#nested_required_dns_updates_desired_records).
 
 
-<a name="nested_required_dns_updates_desired_desired_records"></a>The `records` block supports:
+<a name="nested_required_dns_updates_desired_records"></a>The `records` block supports:
 
 * `domain_name` -
   (Optional)
@@ -443,10 +443,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `records` -
   (Optional)
   Records on the domain
-  Structure is [documented below](#nested_cert_verification_dns_discovered_discovered_records).
+  Structure is [documented below](#nested_cert_verification_dns_discovered_records).
 
 
-<a name="nested_cert_verification_dns_discovered_discovered_records"></a>The `records` block supports:
+<a name="nested_cert_verification_dns_discovered_records"></a>The `records` block supports:
 
 * `domain_name` -
   (Optional)
@@ -479,10 +479,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `records` -
   (Optional)
   Records on the domain
-  Structure is [documented below](#nested_cert_verification_dns_desired_desired_records).
+  Structure is [documented below](#nested_cert_verification_dns_desired_records).
 
 
-<a name="nested_cert_verification_dns_desired_desired_records"></a>The `records` block supports:
+<a name="nested_cert_verification_dns_desired_records"></a>The `records` block supports:
 
 * `domain_name` -
   (Optional)

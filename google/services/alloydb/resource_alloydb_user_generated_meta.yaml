@@ -1,19 +1,19 @@
-resource: 'google_alloydb_user'
-generation_type: 'mmv1'
-source_file: 'products/alloydb/User.yaml'
-api_service_name: 'alloydb.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'User'
+resource: google_alloydb_user
+generation_type: mmv1
+source_file: products/alloydb/User.yaml
+api_service_name: alloydb.googleapis.com
+api_version: v1
+api_resource_type_kind: User
 fields:
-  - field: 'cluster'
-    provider_only: true
-  - api_field: 'databaseRoles'
-  - api_field: 'name'
-  - api_field: 'password'
-  - api_field: 'password'
-    field: 'password_wo'
-  - field: 'password_wo_version'
-    provider_only: true
-  - field: 'user_id'
-    provider_only: true
-  - api_field: 'userType'
+    - field: cluster
+      provider_only: true
+    - api_field: databaseRoles
+    - api_field: name
+    - api_field: password
+    - api_field: password
+      field: password_wo
+    - field: password_wo_version
+      provider_only: true
+    - field: user_id
+      provider_only: true
+    - api_field: userType

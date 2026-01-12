@@ -15,7 +15,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package discoveryengine_test
+package compute_test
 
 import (
 	"fmt"
@@ -50,30 +50,29 @@ var (
 	_ = googleapi.Error{}
 )
 
-func TestAccDiscoveryEngineCmekConfig_discoveryengineCmekconfigDefaultExample(t *testing.T) {
+func TestAccComputeCrossSiteNetwork_computeCrossSiteNetworkBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us", "tftest-shared-key-5").CryptoKey.Name,
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDiscoveryEngineCmekConfigDestroyProducer(t),
+		CheckDestroy:             testAccCheckComputeCrossSiteNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDiscoveryEngineCmekConfig_discoveryengineCmekconfigDefaultExample(context),
+				Config: testAccComputeCrossSiteNetwork_computeCrossSiteNetworkBasicExample(context),
 			},
 			{
-				ResourceName:            "google_discovery_engine_cmek_config.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cmek_config_id", "location", "project", "set_default"},
+				ResourceName:      "google_compute_cross_site_network.example-cross-site-network",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
-				ResourceName:       "google_discovery_engine_cmek_config.default",
+				ResourceName:       "google_compute_cross_site_network.example-cross-site-network",
 				RefreshState:       true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
@@ -82,29 +81,22 @@ func TestAccDiscoveryEngineCmekConfig_discoveryengineCmekconfigDefaultExample(t 
 	})
 }
 
-func testAccDiscoveryEngineCmekConfig_discoveryengineCmekconfigDefaultExample(context map[string]interface{}) string {
+func testAccComputeCrossSiteNetwork_computeCrossSiteNetworkBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_discovery_engine_cmek_config" "default" {
-  location            = "us"
-  cmek_config_id      = "tf-test-cmek-config-id%{random_suffix}"
-  kms_key             = "%{kms_key_name}"
-  depends_on = [google_kms_crypto_key_iam_member.crypto_key]
+data "google_project" "project" {
 }
 
-data "google_project" "project" {}
-
-resource "google_kms_crypto_key_iam_member" "crypto_key" {
-  crypto_key_id = "%{kms_key_name}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-discoveryengine.iam.gserviceaccount.com"
+resource "google_compute_cross_site_network" "example-cross-site-network" {
+  name                 = "tf-test-test-cross-site-network%{random_suffix}"
+  description         = "Example cross site network%{random_suffix}"
 }
 `, context)
 }
 
-func testAccCheckDiscoveryEngineCmekConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckComputeCrossSiteNetworkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_discovery_engine_cmek_config" {
+			if rs.Type != "google_compute_cross_site_network" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -113,7 +105,7 @@ func testAccCheckDiscoveryEngineCmekConfigDestroyProducer(t *testing.T) func(s *
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -132,7 +124,7 @@ func testAccCheckDiscoveryEngineCmekConfigDestroyProducer(t *testing.T) func(s *
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("DiscoveryEngineCmekConfig still exists at %s", url)
+				return fmt.Errorf("ComputeCrossSiteNetwork still exists at %s", url)
 			}
 		}
 

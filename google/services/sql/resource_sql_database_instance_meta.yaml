@@ -79,6 +79,10 @@ fields:
   - field: 'restore_backup_context.instance_id'
   - field: 'restore_backup_context.project'
   - api_field: 'rootPassword'
+  - api_field: 'rootPassword'
+    field: 'root_password_wo'
+  - field: 'root_password_wo_version'
+    provider_only: true
   - api_field: 'selfLink'
   - api_field: 'serverCaCert.cert'
   - api_field: 'serverCaCert.commonName'
@@ -94,6 +98,7 @@ fields:
     field: 'settings.effective_availability_type'
   - api_field: 'settings.backupConfiguration.backupRetentionSettings.retainedBackups'
   - api_field: 'settings.backupConfiguration.backupRetentionSettings.retentionUnit'
+  - api_field: 'settings.backupConfiguration.backupTier'
   - api_field: 'settings.backupConfiguration.binaryLogEnabled'
   - api_field: 'settings.backupConfiguration.enabled'
   - api_field: 'settings.backupConfiguration.location'

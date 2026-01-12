@@ -1,23 +1,23 @@
-resource: 'google_beyondcorp_app_gateway'
-generation_type: 'mmv1'
-source_file: 'products/beyondcorp/AppGateway.yaml'
-api_service_name: 'beyondcorp.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AppGateway'
+resource: google_beyondcorp_app_gateway
+generation_type: mmv1
+source_file: products/beyondcorp/AppGateway.yaml
+api_service_name: beyondcorp.googleapis.com
+api_version: v1
+api_resource_type_kind: AppGateway
 fields:
-  - api_field: 'allocatedConnections.ingressPort'
-  - api_field: 'allocatedConnections.pscUri'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'hostType'
-  - api_field: 'labels'
-  - field: 'name'
-    provider_only: true
-  - field: 'region'
-    provider_only: true
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'uri'
+    - api_field: allocatedConnections.ingressPort
+    - api_field: allocatedConnections.pscUri
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: hostType
+    - api_field: labels
+    - field: name
+      provider_only: true
+    - field: region
+      provider_only: true
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: uri

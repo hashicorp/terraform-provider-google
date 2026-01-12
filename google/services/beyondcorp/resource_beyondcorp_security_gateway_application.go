@@ -986,9 +986,6 @@ func flattenBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextual
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["output_type"] =
 		flattenBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualHeadersUserInfoOutputType(original["outputType"], d, config)
@@ -1003,9 +1000,6 @@ func flattenBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextual
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["output_type"] =
 		flattenBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualHeadersGroupInfoOutputType(original["outputType"], d, config)
@@ -1020,9 +1014,6 @@ func flattenBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextual
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["output_type"] =
 		flattenBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualHeadersDeviceInfoOutputType(original["outputType"], d, config)
@@ -1333,21 +1324,21 @@ func expandBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualH
 	transformedUserInfo, err := expandBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualHeadersUserInfo(original["user_info"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUserInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["userInfo"] = transformedUserInfo
 	}
 
 	transformedGroupInfo, err := expandBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualHeadersGroupInfo(original["group_info"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedGroupInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["groupInfo"] = transformedGroupInfo
 	}
 
 	transformedDeviceInfo, err := expandBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualHeadersDeviceInfo(original["device_info"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDeviceInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["deviceInfo"] = transformedDeviceInfo
 	}
 
@@ -1366,8 +1357,13 @@ func expandBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualH
 		return nil, nil
 	}
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
@@ -1392,8 +1388,13 @@ func expandBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualH
 		return nil, nil
 	}
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
@@ -1418,8 +1419,13 @@ func expandBeyondcorpSecurityGatewayApplicationUpstreamsProxyProtocolContextualH
 		return nil, nil
 	}
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})

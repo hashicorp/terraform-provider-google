@@ -1,31 +1,31 @@
-resource: 'google_model_armor_floorsetting'
-generation_type: 'mmv1'
-source_file: 'products/modelarmorglobal/Floorsetting.yaml'
-api_service_name: 'modelarmor.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Floorsetting'
+resource: google_model_armor_floorsetting
+generation_type: mmv1
+source_file: products/modelarmorglobal/Floorsetting.yaml
+api_service_name: modelarmor.googleapis.com
+api_version: v1
+api_resource_type_kind: Floorsetting
 fields:
-  - api_field: 'aiPlatformFloorSetting.enableCloudLogging'
-  - api_field: 'aiPlatformFloorSetting.inspectAndBlock'
-  - api_field: 'aiPlatformFloorSetting.inspectOnly'
-  - api_field: 'createTime'
-  - api_field: 'enableFloorSettingEnforcement'
-  - api_field: 'filterConfig.maliciousUriFilterSettings.filterEnforcement'
-  - api_field: 'filterConfig.piAndJailbreakFilterSettings.confidenceLevel'
-  - api_field: 'filterConfig.piAndJailbreakFilterSettings.filterEnforcement'
-  - api_field: 'filterConfig.raiSettings.raiFilters.confidenceLevel'
-  - api_field: 'filterConfig.raiSettings.raiFilters.filterType'
-  - api_field: 'filterConfig.sdpSettings.advancedConfig.deidentifyTemplate'
-  - api_field: 'filterConfig.sdpSettings.advancedConfig.inspectTemplate'
-  - api_field: 'filterConfig.sdpSettings.basicConfig.filterEnforcement'
-  - api_field: 'floorSettingMetadata.multiLanguageDetection.enableMultiLanguageDetection'
-  - api_field: 'googleMcpServerFloorSetting.enableCloudLogging'
-  - api_field: 'googleMcpServerFloorSetting.inspectAndBlock'
-  - api_field: 'googleMcpServerFloorSetting.inspectOnly'
-  - api_field: 'integratedServices'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: aiPlatformFloorSetting.enableCloudLogging
+    - api_field: aiPlatformFloorSetting.inspectAndBlock
+    - api_field: aiPlatformFloorSetting.inspectOnly
+    - api_field: createTime
+    - api_field: enableFloorSettingEnforcement
+    - api_field: filterConfig.maliciousUriFilterSettings.filterEnforcement
+    - api_field: filterConfig.piAndJailbreakFilterSettings.confidenceLevel
+    - api_field: filterConfig.piAndJailbreakFilterSettings.filterEnforcement
+    - api_field: filterConfig.raiSettings.raiFilters.confidenceLevel
+    - api_field: filterConfig.raiSettings.raiFilters.filterType
+    - api_field: filterConfig.sdpSettings.advancedConfig.deidentifyTemplate
+    - api_field: filterConfig.sdpSettings.advancedConfig.inspectTemplate
+    - api_field: filterConfig.sdpSettings.basicConfig.filterEnforcement
+    - api_field: floorSettingMetadata.multiLanguageDetection.enableMultiLanguageDetection
+    - api_field: googleMcpServerFloorSetting.enableCloudLogging
+    - api_field: googleMcpServerFloorSetting.inspectAndBlock
+    - api_field: googleMcpServerFloorSetting.inspectOnly
+    - api_field: integratedServices
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: updateTime

@@ -1,74 +1,78 @@
-resource: 'google_datastream_connection_profile'
-generation_type: 'mmv1'
-source_file: 'products/datastream/ConnectionProfile.yaml'
-api_service_name: 'datastream.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ConnectionProfile'
+resource: google_datastream_connection_profile
+generation_type: mmv1
+source_file: products/datastream/ConnectionProfile.yaml
+api_service_name: datastream.googleapis.com
+api_version: v1
+api_resource_type_kind: ConnectionProfile
 fields:
-  - api_field: 'bigqueryProfile'
-  - field: 'connection_profile_id'
-    provider_only: true
-  - field: 'create_without_validation'
-    provider_only: true
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'forwardSshConnectivity.hostname'
-  - api_field: 'forwardSshConnectivity.password'
-  - api_field: 'forwardSshConnectivity.port'
-  - api_field: 'forwardSshConnectivity.privateKey'
-  - api_field: 'forwardSshConnectivity.username'
-  - api_field: 'gcsProfile.bucket'
-  - api_field: 'gcsProfile.rootPath'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mongodbProfile.hostAddresses.hostname'
-  - api_field: 'mongodbProfile.hostAddresses.port'
-  - api_field: 'mongodbProfile.password'
-  - api_field: 'mongodbProfile.replicaSet'
-  - api_field: 'mongodbProfile.secretManagerStoredPassword'
-  - api_field: 'mongodbProfile.srvConnectionFormat'
-  - api_field: 'mongodbProfile.sslConfig.caCertificate'
-  - api_field: 'mongodbProfile.sslConfig.caCertificateSet'
-  - api_field: 'mongodbProfile.sslConfig.clientCertificate'
-  - api_field: 'mongodbProfile.sslConfig.clientCertificateSet'
-  - api_field: 'mongodbProfile.sslConfig.clientKey'
-  - api_field: 'mongodbProfile.sslConfig.clientKeySet'
-  - api_field: 'mongodbProfile.sslConfig.secretManagerStoredClientKey'
-  - api_field: 'mongodbProfile.standardConnectionFormat.directConnection'
-  - api_field: 'mongodbProfile.username'
-  - api_field: 'mysqlProfile.hostname'
-  - api_field: 'mysqlProfile.password'
-  - api_field: 'mysqlProfile.port'
-  - api_field: 'mysqlProfile.secretManagerStoredPassword'
-  - api_field: 'mysqlProfile.sslConfig.caCertificate'
-  - api_field: 'mysqlProfile.sslConfig.caCertificateSet'
-  - api_field: 'mysqlProfile.sslConfig.clientCertificate'
-  - api_field: 'mysqlProfile.sslConfig.clientCertificateSet'
-  - api_field: 'mysqlProfile.sslConfig.clientKey'
-  - api_field: 'mysqlProfile.sslConfig.clientKeySet'
-  - api_field: 'mysqlProfile.username'
-  - api_field: 'name'
-  - api_field: 'oracleProfile.connectionAttributes'
-  - api_field: 'oracleProfile.databaseService'
-  - api_field: 'oracleProfile.hostname'
-  - api_field: 'oracleProfile.password'
-  - api_field: 'oracleProfile.port'
-  - api_field: 'oracleProfile.secretManagerStoredPassword'
-  - api_field: 'oracleProfile.username'
-  - api_field: 'postgresqlProfile.database'
-  - api_field: 'postgresqlProfile.hostname'
-  - api_field: 'postgresqlProfile.password'
-  - api_field: 'postgresqlProfile.port'
-  - api_field: 'postgresqlProfile.secretManagerStoredPassword'
-  - api_field: 'postgresqlProfile.username'
-  - api_field: 'privateConnectivity.privateConnection'
-  - api_field: 'sqlServerProfile.database'
-  - api_field: 'sqlServerProfile.hostname'
-  - api_field: 'sqlServerProfile.password'
-  - api_field: 'sqlServerProfile.port'
-  - api_field: 'sqlServerProfile.secretManagerStoredPassword'
-  - api_field: 'sqlServerProfile.username'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: bigqueryProfile
+    - field: connection_profile_id
+      provider_only: true
+    - field: create_without_validation
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: forwardSshConnectivity.hostname
+    - api_field: forwardSshConnectivity.password
+    - api_field: forwardSshConnectivity.port
+    - api_field: forwardSshConnectivity.privateKey
+    - api_field: forwardSshConnectivity.username
+    - api_field: gcsProfile.bucket
+    - api_field: gcsProfile.rootPath
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: mongodbProfile.hostAddresses.hostname
+    - api_field: mongodbProfile.hostAddresses.port
+    - api_field: mongodbProfile.password
+    - api_field: mongodbProfile.replicaSet
+    - api_field: mongodbProfile.secretManagerStoredPassword
+    - api_field: mongodbProfile.srvConnectionFormat
+    - api_field: mongodbProfile.sslConfig.caCertificate
+    - api_field: mongodbProfile.sslConfig.caCertificateSet
+    - api_field: mongodbProfile.sslConfig.clientCertificate
+    - api_field: mongodbProfile.sslConfig.clientCertificateSet
+    - api_field: mongodbProfile.sslConfig.clientKey
+    - api_field: mongodbProfile.sslConfig.clientKeySet
+    - api_field: mongodbProfile.sslConfig.secretManagerStoredClientKey
+    - api_field: mongodbProfile.standardConnectionFormat.directConnection
+    - api_field: mongodbProfile.username
+    - api_field: mysqlProfile.hostname
+    - api_field: mysqlProfile.password
+    - api_field: mysqlProfile.port
+    - api_field: mysqlProfile.secretManagerStoredPassword
+    - api_field: mysqlProfile.sslConfig.caCertificate
+    - api_field: mysqlProfile.sslConfig.caCertificateSet
+    - api_field: mysqlProfile.sslConfig.clientCertificate
+    - api_field: mysqlProfile.sslConfig.clientCertificateSet
+    - api_field: mysqlProfile.sslConfig.clientKey
+    - api_field: mysqlProfile.sslConfig.clientKeySet
+    - api_field: mysqlProfile.username
+    - api_field: name
+    - api_field: oracleProfile.connectionAttributes
+    - api_field: oracleProfile.databaseService
+    - api_field: oracleProfile.hostname
+    - api_field: oracleProfile.password
+    - api_field: oracleProfile.port
+    - api_field: oracleProfile.secretManagerStoredPassword
+    - api_field: oracleProfile.username
+    - api_field: postgresqlProfile.database
+    - api_field: postgresqlProfile.hostname
+    - api_field: postgresqlProfile.password
+    - api_field: postgresqlProfile.port
+    - api_field: postgresqlProfile.secretManagerStoredPassword
+    - api_field: postgresqlProfile.sslConfig.serverAndClientVerification.caCertificate
+    - api_field: postgresqlProfile.sslConfig.serverAndClientVerification.clientCertificate
+    - api_field: postgresqlProfile.sslConfig.serverAndClientVerification.clientKey
+    - api_field: postgresqlProfile.sslConfig.serverVerification.caCertificate
+    - api_field: postgresqlProfile.username
+    - api_field: privateConnectivity.privateConnection
+    - api_field: sqlServerProfile.database
+    - api_field: sqlServerProfile.hostname
+    - api_field: sqlServerProfile.password
+    - api_field: sqlServerProfile.port
+    - api_field: sqlServerProfile.secretManagerStoredPassword
+    - api_field: sqlServerProfile.username
+    - field: terraform_labels
+      provider_only: true

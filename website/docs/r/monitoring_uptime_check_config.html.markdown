@@ -387,10 +387,10 @@ The following arguments are supported:
 * `json_path_matcher` -
   (Optional)
   Information needed to perform a JSONPath content match. Used for `ContentMatcherOption::MATCHES_JSON_PATH` and `ContentMatcherOption::NOT_MATCHES_JSON_PATH`.
-  Structure is [documented below](#nested_content_matchers_content_matchers_json_path_matcher).
+  Structure is [documented below](#nested_content_matchers_json_path_matcher).
 
 
-<a name="nested_content_matchers_content_matchers_json_path_matcher"></a>The `json_path_matcher` block supports:
+<a name="nested_content_matchers_json_path_matcher"></a>The `json_path_matcher` block supports:
 
 * `json_path` -
   (Required)

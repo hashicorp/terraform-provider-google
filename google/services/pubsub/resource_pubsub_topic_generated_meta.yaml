@@ -1,50 +1,50 @@
-resource: 'google_pubsub_topic'
-generation_type: 'mmv1'
-source_file: 'products/pubsub/Topic.yaml'
-api_service_name: 'pubsub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Topic'
+resource: google_pubsub_topic
+generation_type: mmv1
+source_file: products/pubsub/Topic.yaml
+api_service_name: pubsub.googleapis.com
+api_version: v1
+api_resource_type_kind: Topic
 fields:
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'ingestionDataSourceSettings.awsKinesis.awsRoleArn'
-  - api_field: 'ingestionDataSourceSettings.awsKinesis.consumerArn'
-  - api_field: 'ingestionDataSourceSettings.awsKinesis.gcpServiceAccount'
-  - api_field: 'ingestionDataSourceSettings.awsKinesis.streamArn'
-  - api_field: 'ingestionDataSourceSettings.awsMsk.awsRoleArn'
-  - api_field: 'ingestionDataSourceSettings.awsMsk.clusterArn'
-  - api_field: 'ingestionDataSourceSettings.awsMsk.gcpServiceAccount'
-  - api_field: 'ingestionDataSourceSettings.awsMsk.topic'
-  - api_field: 'ingestionDataSourceSettings.azureEventHubs.clientId'
-  - api_field: 'ingestionDataSourceSettings.azureEventHubs.eventHub'
-  - api_field: 'ingestionDataSourceSettings.azureEventHubs.gcpServiceAccount'
-  - api_field: 'ingestionDataSourceSettings.azureEventHubs.namespace'
-  - api_field: 'ingestionDataSourceSettings.azureEventHubs.resourceGroup'
-  - api_field: 'ingestionDataSourceSettings.azureEventHubs.subscriptionId'
-  - api_field: 'ingestionDataSourceSettings.azureEventHubs.tenantId'
-  - api_field: 'ingestionDataSourceSettings.cloudStorage.avroFormat'
-  - api_field: 'ingestionDataSourceSettings.cloudStorage.bucket'
-  - api_field: 'ingestionDataSourceSettings.cloudStorage.matchGlob'
-  - api_field: 'ingestionDataSourceSettings.cloudStorage.minimumObjectCreateTime'
-  - api_field: 'ingestionDataSourceSettings.cloudStorage.pubsubAvroFormat'
-  - api_field: 'ingestionDataSourceSettings.cloudStorage.textFormat.delimiter'
-  - api_field: 'ingestionDataSourceSettings.confluentCloud.bootstrapServer'
-  - api_field: 'ingestionDataSourceSettings.confluentCloud.clusterId'
-  - api_field: 'ingestionDataSourceSettings.confluentCloud.gcpServiceAccount'
-  - api_field: 'ingestionDataSourceSettings.confluentCloud.identityPoolId'
-  - api_field: 'ingestionDataSourceSettings.confluentCloud.topic'
-  - api_field: 'ingestionDataSourceSettings.platformLogsSettings.severity'
-  - api_field: 'kmsKeyName'
-  - api_field: 'labels'
-  - api_field: 'messageRetentionDuration'
-  - api_field: 'messageStoragePolicy.allowedPersistenceRegions'
-  - api_field: 'messageStoragePolicy.enforceInTransit'
-  - api_field: 'messageTransforms.disabled'
-  - api_field: 'messageTransforms.javascriptUdf.code'
-  - api_field: 'messageTransforms.javascriptUdf.functionName'
-  - api_field: 'name'
-  - api_field: 'schemaSettings.encoding'
-  - api_field: 'schemaSettings.schema'
-  - api_field: 'tags'
-  - field: 'terraform_labels'
-    provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: ingestionDataSourceSettings.awsKinesis.awsRoleArn
+    - api_field: ingestionDataSourceSettings.awsKinesis.consumerArn
+    - api_field: ingestionDataSourceSettings.awsKinesis.gcpServiceAccount
+    - api_field: ingestionDataSourceSettings.awsKinesis.streamArn
+    - api_field: ingestionDataSourceSettings.awsMsk.awsRoleArn
+    - api_field: ingestionDataSourceSettings.awsMsk.clusterArn
+    - api_field: ingestionDataSourceSettings.awsMsk.gcpServiceAccount
+    - api_field: ingestionDataSourceSettings.awsMsk.topic
+    - api_field: ingestionDataSourceSettings.azureEventHubs.clientId
+    - api_field: ingestionDataSourceSettings.azureEventHubs.eventHub
+    - api_field: ingestionDataSourceSettings.azureEventHubs.gcpServiceAccount
+    - api_field: ingestionDataSourceSettings.azureEventHubs.namespace
+    - api_field: ingestionDataSourceSettings.azureEventHubs.resourceGroup
+    - api_field: ingestionDataSourceSettings.azureEventHubs.subscriptionId
+    - api_field: ingestionDataSourceSettings.azureEventHubs.tenantId
+    - api_field: ingestionDataSourceSettings.cloudStorage.avroFormat
+    - api_field: ingestionDataSourceSettings.cloudStorage.bucket
+    - api_field: ingestionDataSourceSettings.cloudStorage.matchGlob
+    - api_field: ingestionDataSourceSettings.cloudStorage.minimumObjectCreateTime
+    - api_field: ingestionDataSourceSettings.cloudStorage.pubsubAvroFormat
+    - api_field: ingestionDataSourceSettings.cloudStorage.textFormat.delimiter
+    - api_field: ingestionDataSourceSettings.confluentCloud.bootstrapServer
+    - api_field: ingestionDataSourceSettings.confluentCloud.clusterId
+    - api_field: ingestionDataSourceSettings.confluentCloud.gcpServiceAccount
+    - api_field: ingestionDataSourceSettings.confluentCloud.identityPoolId
+    - api_field: ingestionDataSourceSettings.confluentCloud.topic
+    - api_field: ingestionDataSourceSettings.platformLogsSettings.severity
+    - api_field: kmsKeyName
+    - api_field: labels
+    - api_field: messageRetentionDuration
+    - api_field: messageStoragePolicy.allowedPersistenceRegions
+    - api_field: messageStoragePolicy.enforceInTransit
+    - api_field: messageTransforms.disabled
+    - api_field: messageTransforms.javascriptUdf.code
+    - api_field: messageTransforms.javascriptUdf.functionName
+    - api_field: name
+    - api_field: schemaSettings.encoding
+    - api_field: schemaSettings.schema
+    - api_field: tags
+    - field: terraform_labels
+      provider_only: true

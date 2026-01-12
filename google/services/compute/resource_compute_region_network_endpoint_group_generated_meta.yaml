@@ -1,24 +1,24 @@
-resource: 'google_compute_region_network_endpoint_group'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionNetworkEndpointGroup.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NetworkEndpointGroup'
+resource: google_compute_region_network_endpoint_group
+generation_type: mmv1
+source_file: products/compute/RegionNetworkEndpointGroup.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: NetworkEndpointGroup
 fields:
-  - api_field: 'appEngine.service'
-  - api_field: 'appEngine.urlMask'
-  - api_field: 'appEngine.version'
-  - api_field: 'cloudFunction.function'
-  - api_field: 'cloudFunction.urlMask'
-  - api_field: 'cloudRun.service'
-  - api_field: 'cloudRun.tag'
-  - api_field: 'cloudRun.urlMask'
-  - api_field: 'description'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'networkEndpointType'
-  - api_field: 'pscData.producerPort'
-  - api_field: 'pscTargetService'
-  - api_field: 'region'
-  - api_field: 'subnetwork'
-  - api_field: 'selfLink'
+    - api_field: appEngine.service
+    - api_field: appEngine.urlMask
+    - api_field: appEngine.version
+    - api_field: cloudFunction.function
+    - api_field: cloudFunction.urlMask
+    - api_field: cloudRun.service
+    - api_field: cloudRun.tag
+    - api_field: cloudRun.urlMask
+    - api_field: description
+    - api_field: name
+    - api_field: network
+    - api_field: networkEndpointType
+    - api_field: pscData.producerPort
+    - api_field: pscTargetService
+    - api_field: region
+    - api_field: subnetwork
+    - api_field: selfLink

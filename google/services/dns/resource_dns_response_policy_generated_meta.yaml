@@ -1,11 +1,11 @@
-resource: 'google_dns_response_policy'
-generation_type: 'mmv1'
-source_file: 'products/dns/ResponsePolicy.yaml'
-api_service_name: 'dns.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ResponsePolicy'
+resource: google_dns_response_policy
+generation_type: mmv1
+source_file: products/dns/ResponsePolicy.yaml
+api_service_name: dns.googleapis.com
+api_version: v1
+api_resource_type_kind: ResponsePolicy
 fields:
-  - api_field: 'description'
-  - api_field: 'gkeClusters.gkeClusterName'
-  - api_field: 'networks.networkUrl'
-  - api_field: 'responsePolicyName'
+    - api_field: description
+    - api_field: gkeClusters.gkeClusterName
+    - api_field: networks.networkUrl
+    - api_field: responsePolicyName

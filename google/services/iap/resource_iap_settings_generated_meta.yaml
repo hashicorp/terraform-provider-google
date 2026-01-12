@@ -1,31 +1,31 @@
-resource: 'google_iap_settings'
-generation_type: 'mmv1'
-source_file: 'products/iap/Settings.yaml'
-api_service_name: 'iap.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Settings'
+resource: google_iap_settings
+generation_type: mmv1
+source_file: products/iap/Settings.yaml
+api_service_name: iap.googleapis.com
+api_version: v1
+api_resource_type_kind: Settings
 fields:
-  - api_field: 'accessSettings.allowedDomainsSettings.domains'
-  - api_field: 'accessSettings.allowedDomainsSettings.enable'
-  - api_field: 'accessSettings.corsSettings.allowHttpOptions'
-  - api_field: 'accessSettings.gcipSettings.loginPageUri'
-  - api_field: 'accessSettings.gcipSettings.tenantIds'
-  - api_field: 'accessSettings.identitySources'
-  - api_field: 'accessSettings.oauthSettings.loginHint'
-  - api_field: 'accessSettings.oauthSettings.programmaticClients'
-  - api_field: 'accessSettings.reauthSettings.maxAge'
-  - api_field: 'accessSettings.reauthSettings.method'
-  - api_field: 'accessSettings.reauthSettings.policyType'
-  - api_field: 'accessSettings.workforceIdentitySettings.oauth2.clientId'
-  - api_field: 'accessSettings.workforceIdentitySettings.oauth2.clientSecret'
-  - api_field: 'accessSettings.workforceIdentitySettings.oauth2.clientSecretSha256'
-  - api_field: 'accessSettings.workforceIdentitySettings.workforcePools'
-  - api_field: 'applicationSettings.accessDeniedPageSettings.accessDeniedPageUri'
-  - api_field: 'applicationSettings.accessDeniedPageSettings.generateTroubleshootingUri'
-  - api_field: 'applicationSettings.accessDeniedPageSettings.remediationTokenGenerationEnabled'
-  - api_field: 'applicationSettings.attributePropagationSettings.enable'
-  - api_field: 'applicationSettings.attributePropagationSettings.expression'
-  - api_field: 'applicationSettings.attributePropagationSettings.outputCredentials'
-  - api_field: 'applicationSettings.cookieDomain'
-  - api_field: 'applicationSettings.csmSettings.rctokenAud'
-  - api_field: 'name'
+    - api_field: accessSettings.allowedDomainsSettings.domains
+    - api_field: accessSettings.allowedDomainsSettings.enable
+    - api_field: accessSettings.corsSettings.allowHttpOptions
+    - api_field: accessSettings.gcipSettings.loginPageUri
+    - api_field: accessSettings.gcipSettings.tenantIds
+    - api_field: accessSettings.identitySources
+    - api_field: accessSettings.oauthSettings.loginHint
+    - api_field: accessSettings.oauthSettings.programmaticClients
+    - api_field: accessSettings.reauthSettings.maxAge
+    - api_field: accessSettings.reauthSettings.method
+    - api_field: accessSettings.reauthSettings.policyType
+    - api_field: accessSettings.workforceIdentitySettings.oauth2.clientId
+    - api_field: accessSettings.workforceIdentitySettings.oauth2.clientSecret
+    - api_field: accessSettings.workforceIdentitySettings.oauth2.clientSecretSha256
+    - api_field: accessSettings.workforceIdentitySettings.workforcePools
+    - api_field: applicationSettings.accessDeniedPageSettings.accessDeniedPageUri
+    - api_field: applicationSettings.accessDeniedPageSettings.generateTroubleshootingUri
+    - api_field: applicationSettings.accessDeniedPageSettings.remediationTokenGenerationEnabled
+    - api_field: applicationSettings.attributePropagationSettings.enable
+    - api_field: applicationSettings.attributePropagationSettings.expression
+    - api_field: applicationSettings.attributePropagationSettings.outputCredentials
+    - api_field: applicationSettings.cookieDomain
+    - api_field: applicationSettings.csmSettings.rctokenAud
+    - api_field: name

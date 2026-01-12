@@ -112,11 +112,11 @@ func ResourceNetappHostGroup() *schema.Resource {
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
 				return map[string]*schema.Schema{
-					"location": {
+					"name": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 					},
-					"name": {
+					"location": {
 						Type:              schema.TypeString,
 						RequiredForImport: true,
 					},
@@ -221,6 +221,12 @@ func resourceNetappHostGroupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := make(map[string]interface{})
+	nameProp, err := expandNetappHostGroupName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	descriptionProp, err := expandNetappHostGroupDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -295,14 +301,14 @@ func resourceNetappHostGroupCreate(d *schema.ResourceData, meta interface{}) err
 
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
-		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
-			if err = identity.Set("location", locationValue.(string)); err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
 			if err = identity.Set("name", nameValue.(string)); err != nil {
 				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
 		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
@@ -371,6 +377,9 @@ func resourceNetappHostGroupRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading HostGroup: %s", err)
 	}
 
+	if err := d.Set("name", flattenNetappHostGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HostGroup: %s", err)
+	}
 	if err := d.Set("state", flattenNetappHostGroupState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HostGroup: %s", err)
 	}
@@ -401,16 +410,16 @@ func resourceNetappHostGroupRead(d *schema.ResourceData, meta interface{}) error
 
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
-		if v, ok := identity.GetOk("location"); !ok && v == "" {
-			err = identity.Set("location", d.Get("location").(string))
-			if err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
 		if v, ok := identity.GetOk("name"); !ok && v == "" {
 			err = identity.Set("name", d.Get("name").(string))
 			if err != nil {
 				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
 		if v, ok := identity.GetOk("project"); !ok && v == "" {
@@ -435,14 +444,14 @@ func resourceNetappHostGroupUpdate(d *schema.ResourceData, meta interface{}) err
 
 	identity, err := d.Identity()
 	if err == nil && identity != nil {
-		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
-			if err = identity.Set("location", locationValue.(string)); err != nil {
-				return fmt.Errorf("Error setting location: %s", err)
-			}
-		}
 		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
 			if err = identity.Set("name", nameValue.(string)); err != nil {
 				return fmt.Errorf("Error setting name: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
 			}
 		}
 		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
@@ -621,6 +630,13 @@ func resourceNetappHostGroupImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenNetappHostGroupName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.GetResourceNameFromSelfLink(v.(string))
+}
+
 func flattenNetappHostGroupState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -677,6 +693,10 @@ func flattenNetappHostGroupTerraformLabels(v interface{}, d *schema.ResourceData
 
 func flattenNetappHostGroupEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func expandNetappHostGroupName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNetappHostGroupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

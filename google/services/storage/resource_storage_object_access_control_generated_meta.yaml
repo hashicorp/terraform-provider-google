@@ -1,17 +1,17 @@
-resource: 'google_storage_object_access_control'
-generation_type: 'mmv1'
-source_file: 'products/storage/ObjectAccessControl.yaml'
-api_service_name: 'storage.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ObjectAccessControl'
+resource: google_storage_object_access_control
+generation_type: mmv1
+source_file: products/storage/ObjectAccessControl.yaml
+api_service_name: storage.googleapis.com
+api_version: v1
+api_resource_type_kind: ObjectAccessControl
 fields:
-  - api_field: 'bucket'
-  - api_field: 'domain'
-  - api_field: 'email'
-  - api_field: 'entity'
-  - api_field: 'entityId'
-  - api_field: 'generation'
-  - api_field: 'object'
-  - api_field: 'projectTeam.projectNumber'
-  - api_field: 'projectTeam.team'
-  - api_field: 'role'
+    - api_field: bucket
+    - api_field: domain
+    - api_field: email
+    - api_field: entity
+    - api_field: entityId
+    - api_field: generation
+    - api_field: object
+    - api_field: projectTeam.projectNumber
+    - api_field: projectTeam.team
+    - api_field: role

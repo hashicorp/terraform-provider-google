@@ -1359,6 +1359,88 @@ resource "google_datastream_stream" "default" {
     }
 }
 ```
+## Example Usage - Datastream Stream Rule Sets Bigquery
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_datastream_stream" "stream" {
+    stream_id = "rules-stream"
+    location = "us-central1"
+    display_name = "BigQuery Stream with Rules"
+
+    source_config {
+        source_connection_profile = "rules-source-profile"
+        mysql_source_config {
+          include_objects {
+            mysql_databases {
+              database = "my_database"
+            }
+          }
+          binary_log_position {}
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = "rules-dest-profile"
+        bigquery_destination_config {
+            single_target_dataset {
+              dataset_id = "rules-project:rules-dataset"
+            }
+        }
+    }
+
+    backfill_none {}
+
+    rule_sets {
+      object_filter {
+        source_object_identifier {
+          mysql_identifier {
+            database = "test_database"
+            table    = "test_table_1"
+          }
+        }
+      }
+      customization_rules {
+        bigquery_clustering {
+          columns = ["user_id"]
+        }
+      }
+      customization_rules {
+        bigquery_partitioning {
+          ingestion_time_partition {
+          }
+        }
+      }
+    }
+    
+    rule_sets {
+      object_filter {
+        source_object_identifier {
+          mysql_identifier {
+            database = "test_database"
+            table    = "test_table_2"
+          }
+        }
+      }
+      customization_rules {
+        bigquery_clustering {
+          columns = ["event_time"]
+        }
+      }
+      customization_rules {
+    	bigquery_partitioning {
+          time_unit_partition {
+            column = "event_time"
+            partitioning_time_granularity = "PARTITIONING_TIME_GRANULARITY_DAY"
+          }
+    	}
+      }
+    }
+}
+```
 ## Example Usage - Datastream Stream Salesforce
 
 
@@ -1494,6 +1576,11 @@ The following arguments are supported:
   A reference to a KMS encryption key. If provided, it will be used to encrypt the data. If left blank, data
   will be encrypted using an internal Stream-specific encryption key provisioned through KMS.
 
+* `rule_sets` -
+  (Optional)
+  Rule sets to apply to the stream.
+  Structure is [documented below](#nested_rule_sets).
+
 * `create_without_validation` -
   (Optional)
   Create the stream without validating it.
@@ -1593,10 +1680,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `mysql_tables` -
   (Optional)
   Tables in the database.
-  Structure is [documented below](#nested_source_config_mysql_source_config_include_objects_mysql_databases_mysql_databases_mysql_tables).
+  Structure is [documented below](#nested_source_config_mysql_source_config_include_objects_mysql_databases_mysql_tables).
 
 
-<a name="nested_source_config_mysql_source_config_include_objects_mysql_databases_mysql_databases_mysql_tables"></a>The `mysql_tables` block supports:
+<a name="nested_source_config_mysql_source_config_include_objects_mysql_databases_mysql_tables"></a>The `mysql_tables` block supports:
 
 * `table` -
   (Required)
@@ -1605,10 +1692,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `mysql_columns` -
   (Optional)
   MySQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_source_config_mysql_source_config_include_objects_mysql_databases_mysql_databases_mysql_tables_mysql_tables_mysql_columns).
+  Structure is [documented below](#nested_source_config_mysql_source_config_include_objects_mysql_databases_mysql_tables_mysql_columns).
 
 
-<a name="nested_source_config_mysql_source_config_include_objects_mysql_databases_mysql_databases_mysql_tables_mysql_tables_mysql_columns"></a>The `mysql_columns` block supports:
+<a name="nested_source_config_mysql_source_config_include_objects_mysql_databases_mysql_tables_mysql_columns"></a>The `mysql_columns` block supports:
 
 * `column` -
   (Optional)
@@ -1656,10 +1743,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `mysql_tables` -
   (Optional)
   Tables in the database.
-  Structure is [documented below](#nested_source_config_mysql_source_config_exclude_objects_mysql_databases_mysql_databases_mysql_tables).
+  Structure is [documented below](#nested_source_config_mysql_source_config_exclude_objects_mysql_databases_mysql_tables).
 
 
-<a name="nested_source_config_mysql_source_config_exclude_objects_mysql_databases_mysql_databases_mysql_tables"></a>The `mysql_tables` block supports:
+<a name="nested_source_config_mysql_source_config_exclude_objects_mysql_databases_mysql_tables"></a>The `mysql_tables` block supports:
 
 * `table` -
   (Required)
@@ -1668,10 +1755,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `mysql_columns` -
   (Optional)
   MySQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_source_config_mysql_source_config_exclude_objects_mysql_databases_mysql_databases_mysql_tables_mysql_tables_mysql_columns).
+  Structure is [documented below](#nested_source_config_mysql_source_config_exclude_objects_mysql_databases_mysql_tables_mysql_columns).
 
 
-<a name="nested_source_config_mysql_source_config_exclude_objects_mysql_databases_mysql_databases_mysql_tables_mysql_tables_mysql_columns"></a>The `mysql_columns` block supports:
+<a name="nested_source_config_mysql_source_config_exclude_objects_mysql_databases_mysql_tables_mysql_columns"></a>The `mysql_columns` block supports:
 
 * `column` -
   (Optional)
@@ -1750,10 +1837,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `oracle_tables` -
   (Optional)
   Tables in the database.
-  Structure is [documented below](#nested_source_config_oracle_source_config_include_objects_oracle_schemas_oracle_schemas_oracle_tables).
+  Structure is [documented below](#nested_source_config_oracle_source_config_include_objects_oracle_schemas_oracle_tables).
 
 
-<a name="nested_source_config_oracle_source_config_include_objects_oracle_schemas_oracle_schemas_oracle_tables"></a>The `oracle_tables` block supports:
+<a name="nested_source_config_oracle_source_config_include_objects_oracle_schemas_oracle_tables"></a>The `oracle_tables` block supports:
 
 * `table` -
   (Required)
@@ -1762,10 +1849,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `oracle_columns` -
   (Optional)
   Oracle columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_source_config_oracle_source_config_include_objects_oracle_schemas_oracle_schemas_oracle_tables_oracle_tables_oracle_columns).
+  Structure is [documented below](#nested_source_config_oracle_source_config_include_objects_oracle_schemas_oracle_tables_oracle_columns).
 
 
-<a name="nested_source_config_oracle_source_config_include_objects_oracle_schemas_oracle_schemas_oracle_tables_oracle_tables_oracle_columns"></a>The `oracle_columns` block supports:
+<a name="nested_source_config_oracle_source_config_include_objects_oracle_schemas_oracle_tables_oracle_columns"></a>The `oracle_columns` block supports:
 
 * `column` -
   (Optional)
@@ -1821,10 +1908,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `oracle_tables` -
   (Optional)
   Tables in the database.
-  Structure is [documented below](#nested_source_config_oracle_source_config_exclude_objects_oracle_schemas_oracle_schemas_oracle_tables).
+  Structure is [documented below](#nested_source_config_oracle_source_config_exclude_objects_oracle_schemas_oracle_tables).
 
 
-<a name="nested_source_config_oracle_source_config_exclude_objects_oracle_schemas_oracle_schemas_oracle_tables"></a>The `oracle_tables` block supports:
+<a name="nested_source_config_oracle_source_config_exclude_objects_oracle_schemas_oracle_tables"></a>The `oracle_tables` block supports:
 
 * `table` -
   (Required)
@@ -1833,10 +1920,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `oracle_columns` -
   (Optional)
   Oracle columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_source_config_oracle_source_config_exclude_objects_oracle_schemas_oracle_schemas_oracle_tables_oracle_tables_oracle_columns).
+  Structure is [documented below](#nested_source_config_oracle_source_config_exclude_objects_oracle_schemas_oracle_tables_oracle_columns).
 
 
-<a name="nested_source_config_oracle_source_config_exclude_objects_oracle_schemas_oracle_schemas_oracle_tables_oracle_tables_oracle_columns"></a>The `oracle_columns` block supports:
+<a name="nested_source_config_oracle_source_config_exclude_objects_oracle_schemas_oracle_tables_oracle_columns"></a>The `oracle_columns` block supports:
 
 * `column` -
   (Optional)
@@ -1920,10 +2007,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `postgresql_tables` -
   (Optional)
   Tables in the schema.
-  Structure is [documented below](#nested_source_config_postgresql_source_config_include_objects_postgresql_schemas_postgresql_schemas_postgresql_tables).
+  Structure is [documented below](#nested_source_config_postgresql_source_config_include_objects_postgresql_schemas_postgresql_tables).
 
 
-<a name="nested_source_config_postgresql_source_config_include_objects_postgresql_schemas_postgresql_schemas_postgresql_tables"></a>The `postgresql_tables` block supports:
+<a name="nested_source_config_postgresql_source_config_include_objects_postgresql_schemas_postgresql_tables"></a>The `postgresql_tables` block supports:
 
 * `table` -
   (Required)
@@ -1932,10 +2019,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `postgresql_columns` -
   (Optional)
   PostgreSQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_source_config_postgresql_source_config_include_objects_postgresql_schemas_postgresql_schemas_postgresql_tables_postgresql_tables_postgresql_columns).
+  Structure is [documented below](#nested_source_config_postgresql_source_config_include_objects_postgresql_schemas_postgresql_tables_postgresql_columns).
 
 
-<a name="nested_source_config_postgresql_source_config_include_objects_postgresql_schemas_postgresql_schemas_postgresql_tables_postgresql_tables_postgresql_columns"></a>The `postgresql_columns` block supports:
+<a name="nested_source_config_postgresql_source_config_include_objects_postgresql_schemas_postgresql_tables_postgresql_columns"></a>The `postgresql_columns` block supports:
 
 * `column` -
   (Optional)
@@ -1987,10 +2074,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `postgresql_tables` -
   (Optional)
   Tables in the schema.
-  Structure is [documented below](#nested_source_config_postgresql_source_config_exclude_objects_postgresql_schemas_postgresql_schemas_postgresql_tables).
+  Structure is [documented below](#nested_source_config_postgresql_source_config_exclude_objects_postgresql_schemas_postgresql_tables).
 
 
-<a name="nested_source_config_postgresql_source_config_exclude_objects_postgresql_schemas_postgresql_schemas_postgresql_tables"></a>The `postgresql_tables` block supports:
+<a name="nested_source_config_postgresql_source_config_exclude_objects_postgresql_schemas_postgresql_tables"></a>The `postgresql_tables` block supports:
 
 * `table` -
   (Required)
@@ -1999,10 +2086,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `postgresql_columns` -
   (Optional)
   PostgreSQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_source_config_postgresql_source_config_exclude_objects_postgresql_schemas_postgresql_schemas_postgresql_tables_postgresql_tables_postgresql_columns).
+  Structure is [documented below](#nested_source_config_postgresql_source_config_exclude_objects_postgresql_schemas_postgresql_tables_postgresql_columns).
 
 
-<a name="nested_source_config_postgresql_source_config_exclude_objects_postgresql_schemas_postgresql_schemas_postgresql_tables_postgresql_tables_postgresql_columns"></a>The `postgresql_columns` block supports:
+<a name="nested_source_config_postgresql_source_config_exclude_objects_postgresql_schemas_postgresql_tables_postgresql_columns"></a>The `postgresql_columns` block supports:
 
 * `column` -
   (Optional)
@@ -2083,10 +2170,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `tables` -
   (Optional)
   Tables in the database.
-  Structure is [documented below](#nested_source_config_sql_server_source_config_include_objects_schemas_schemas_tables).
+  Structure is [documented below](#nested_source_config_sql_server_source_config_include_objects_schemas_tables).
 
 
-<a name="nested_source_config_sql_server_source_config_include_objects_schemas_schemas_tables"></a>The `tables` block supports:
+<a name="nested_source_config_sql_server_source_config_include_objects_schemas_tables"></a>The `tables` block supports:
 
 * `table` -
   (Required)
@@ -2095,10 +2182,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `columns` -
   (Optional)
   SQL Server columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_source_config_sql_server_source_config_include_objects_schemas_schemas_tables_tables_columns).
+  Structure is [documented below](#nested_source_config_sql_server_source_config_include_objects_schemas_tables_columns).
 
 
-<a name="nested_source_config_sql_server_source_config_include_objects_schemas_schemas_tables_tables_columns"></a>The `columns` block supports:
+<a name="nested_source_config_sql_server_source_config_include_objects_schemas_tables_columns"></a>The `columns` block supports:
 
 * `column` -
   (Optional)
@@ -2150,10 +2237,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `tables` -
   (Optional)
   Tables in the database.
-  Structure is [documented below](#nested_source_config_sql_server_source_config_exclude_objects_schemas_schemas_tables).
+  Structure is [documented below](#nested_source_config_sql_server_source_config_exclude_objects_schemas_tables).
 
 
-<a name="nested_source_config_sql_server_source_config_exclude_objects_schemas_schemas_tables"></a>The `tables` block supports:
+<a name="nested_source_config_sql_server_source_config_exclude_objects_schemas_tables"></a>The `tables` block supports:
 
 * `table` -
   (Required)
@@ -2162,10 +2249,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `columns` -
   (Optional)
   SQL Server columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_source_config_sql_server_source_config_exclude_objects_schemas_schemas_tables_tables_columns).
+  Structure is [documented below](#nested_source_config_sql_server_source_config_exclude_objects_schemas_tables_columns).
 
 
-<a name="nested_source_config_sql_server_source_config_exclude_objects_schemas_schemas_tables_tables_columns"></a>The `columns` block supports:
+<a name="nested_source_config_sql_server_source_config_exclude_objects_schemas_tables_columns"></a>The `columns` block supports:
 
 * `column` -
   (Optional)
@@ -2234,10 +2321,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `fields` -
   (Optional)
   Fields in the Salesforce object. When unspecified as part of include/exclude objects, includes/excludes everything/nothing.
-  Structure is [documented below](#nested_source_config_salesforce_source_config_include_objects_objects_objects_fields).
+  Structure is [documented below](#nested_source_config_salesforce_source_config_include_objects_objects_fields).
 
 
-<a name="nested_source_config_salesforce_source_config_include_objects_objects_objects_fields"></a>The `fields` block supports:
+<a name="nested_source_config_salesforce_source_config_include_objects_objects_fields"></a>The `fields` block supports:
 
 * `name` -
   (Optional)
@@ -2260,10 +2347,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `fields` -
   (Optional)
   Fields in the Salesforce object. When unspecified as part of include/exclude objects, includes/excludes everything/nothing.
-  Structure is [documented below](#nested_source_config_salesforce_source_config_exclude_objects_objects_objects_fields).
+  Structure is [documented below](#nested_source_config_salesforce_source_config_exclude_objects_objects_fields).
 
 
-<a name="nested_source_config_salesforce_source_config_exclude_objects_objects_objects_fields"></a>The `fields` block supports:
+<a name="nested_source_config_salesforce_source_config_exclude_objects_objects_fields"></a>The `fields` block supports:
 
 * `name` -
   (Optional)
@@ -2305,10 +2392,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `collections` -
   (Optional)
   Collections in the database.
-  Structure is [documented below](#nested_source_config_mongodb_source_config_include_objects_databases_databases_collections).
+  Structure is [documented below](#nested_source_config_mongodb_source_config_include_objects_databases_collections).
 
 
-<a name="nested_source_config_mongodb_source_config_include_objects_databases_databases_collections"></a>The `collections` block supports:
+<a name="nested_source_config_mongodb_source_config_include_objects_databases_collections"></a>The `collections` block supports:
 
 * `collection` -
   (Optional)
@@ -2317,10 +2404,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `fields` -
   (Optional)
   Fields in the collection.
-  Structure is [documented below](#nested_source_config_mongodb_source_config_include_objects_databases_databases_collections_collections_fields).
+  Structure is [documented below](#nested_source_config_mongodb_source_config_include_objects_databases_collections_fields).
 
 
-<a name="nested_source_config_mongodb_source_config_include_objects_databases_databases_collections_collections_fields"></a>The `fields` block supports:
+<a name="nested_source_config_mongodb_source_config_include_objects_databases_collections_fields"></a>The `fields` block supports:
 
 * `field` -
   (Optional)
@@ -2343,10 +2430,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `collections` -
   (Optional)
   Collections in the database.
-  Structure is [documented below](#nested_source_config_mongodb_source_config_exclude_objects_databases_databases_collections).
+  Structure is [documented below](#nested_source_config_mongodb_source_config_exclude_objects_databases_collections).
 
 
-<a name="nested_source_config_mongodb_source_config_exclude_objects_databases_databases_collections"></a>The `collections` block supports:
+<a name="nested_source_config_mongodb_source_config_exclude_objects_databases_collections"></a>The `collections` block supports:
 
 * `collection` -
   (Optional)
@@ -2355,10 +2442,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `fields` -
   (Optional)
   Fields in the collection.
-  Structure is [documented below](#nested_source_config_mongodb_source_config_exclude_objects_databases_databases_collections_collections_fields).
+  Structure is [documented below](#nested_source_config_mongodb_source_config_exclude_objects_databases_collections_fields).
 
 
-<a name="nested_source_config_mongodb_source_config_exclude_objects_databases_databases_collections_collections_fields"></a>The `fields` block supports:
+<a name="nested_source_config_mongodb_source_config_exclude_objects_databases_collections_fields"></a>The `fields` block supports:
 
 * `field` -
   (Optional)
@@ -2565,10 +2652,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `mysql_tables` -
   (Optional)
   Tables in the database.
-  Structure is [documented below](#nested_backfill_all_mysql_excluded_objects_mysql_databases_mysql_databases_mysql_tables).
+  Structure is [documented below](#nested_backfill_all_mysql_excluded_objects_mysql_databases_mysql_tables).
 
 
-<a name="nested_backfill_all_mysql_excluded_objects_mysql_databases_mysql_databases_mysql_tables"></a>The `mysql_tables` block supports:
+<a name="nested_backfill_all_mysql_excluded_objects_mysql_databases_mysql_tables"></a>The `mysql_tables` block supports:
 
 * `table` -
   (Required)
@@ -2577,10 +2664,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `mysql_columns` -
   (Optional)
   MySQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_backfill_all_mysql_excluded_objects_mysql_databases_mysql_databases_mysql_tables_mysql_tables_mysql_columns).
+  Structure is [documented below](#nested_backfill_all_mysql_excluded_objects_mysql_databases_mysql_tables_mysql_columns).
 
 
-<a name="nested_backfill_all_mysql_excluded_objects_mysql_databases_mysql_databases_mysql_tables_mysql_tables_mysql_columns"></a>The `mysql_columns` block supports:
+<a name="nested_backfill_all_mysql_excluded_objects_mysql_databases_mysql_tables_mysql_columns"></a>The `mysql_columns` block supports:
 
 * `column` -
   (Optional)
@@ -2628,10 +2715,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `postgresql_tables` -
   (Optional)
   Tables in the schema.
-  Structure is [documented below](#nested_backfill_all_postgresql_excluded_objects_postgresql_schemas_postgresql_schemas_postgresql_tables).
+  Structure is [documented below](#nested_backfill_all_postgresql_excluded_objects_postgresql_schemas_postgresql_tables).
 
 
-<a name="nested_backfill_all_postgresql_excluded_objects_postgresql_schemas_postgresql_schemas_postgresql_tables"></a>The `postgresql_tables` block supports:
+<a name="nested_backfill_all_postgresql_excluded_objects_postgresql_schemas_postgresql_tables"></a>The `postgresql_tables` block supports:
 
 * `table` -
   (Required)
@@ -2640,10 +2727,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `postgresql_columns` -
   (Optional)
   PostgreSQL columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_backfill_all_postgresql_excluded_objects_postgresql_schemas_postgresql_schemas_postgresql_tables_postgresql_tables_postgresql_columns).
+  Structure is [documented below](#nested_backfill_all_postgresql_excluded_objects_postgresql_schemas_postgresql_tables_postgresql_columns).
 
 
-<a name="nested_backfill_all_postgresql_excluded_objects_postgresql_schemas_postgresql_schemas_postgresql_tables_postgresql_tables_postgresql_columns"></a>The `postgresql_columns` block supports:
+<a name="nested_backfill_all_postgresql_excluded_objects_postgresql_schemas_postgresql_tables_postgresql_columns"></a>The `postgresql_columns` block supports:
 
 * `column` -
   (Optional)
@@ -2695,10 +2782,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `oracle_tables` -
   (Optional)
   Tables in the database.
-  Structure is [documented below](#nested_backfill_all_oracle_excluded_objects_oracle_schemas_oracle_schemas_oracle_tables).
+  Structure is [documented below](#nested_backfill_all_oracle_excluded_objects_oracle_schemas_oracle_tables).
 
 
-<a name="nested_backfill_all_oracle_excluded_objects_oracle_schemas_oracle_schemas_oracle_tables"></a>The `oracle_tables` block supports:
+<a name="nested_backfill_all_oracle_excluded_objects_oracle_schemas_oracle_tables"></a>The `oracle_tables` block supports:
 
 * `table` -
   (Required)
@@ -2707,10 +2794,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `oracle_columns` -
   (Optional)
   Oracle columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_backfill_all_oracle_excluded_objects_oracle_schemas_oracle_schemas_oracle_tables_oracle_tables_oracle_columns).
+  Structure is [documented below](#nested_backfill_all_oracle_excluded_objects_oracle_schemas_oracle_tables_oracle_columns).
 
 
-<a name="nested_backfill_all_oracle_excluded_objects_oracle_schemas_oracle_schemas_oracle_tables_oracle_tables_oracle_columns"></a>The `oracle_columns` block supports:
+<a name="nested_backfill_all_oracle_excluded_objects_oracle_schemas_oracle_tables_oracle_columns"></a>The `oracle_columns` block supports:
 
 * `column` -
   (Optional)
@@ -2766,10 +2853,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `tables` -
   (Optional)
   Tables in the database.
-  Structure is [documented below](#nested_backfill_all_sql_server_excluded_objects_schemas_schemas_tables).
+  Structure is [documented below](#nested_backfill_all_sql_server_excluded_objects_schemas_tables).
 
 
-<a name="nested_backfill_all_sql_server_excluded_objects_schemas_schemas_tables"></a>The `tables` block supports:
+<a name="nested_backfill_all_sql_server_excluded_objects_schemas_tables"></a>The `tables` block supports:
 
 * `table` -
   (Required)
@@ -2778,10 +2865,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `columns` -
   (Optional)
   SQL Server columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
-  Structure is [documented below](#nested_backfill_all_sql_server_excluded_objects_schemas_schemas_tables_tables_columns).
+  Structure is [documented below](#nested_backfill_all_sql_server_excluded_objects_schemas_tables_columns).
 
 
-<a name="nested_backfill_all_sql_server_excluded_objects_schemas_schemas_tables_tables_columns"></a>The `columns` block supports:
+<a name="nested_backfill_all_sql_server_excluded_objects_schemas_tables_columns"></a>The `columns` block supports:
 
 * `column` -
   (Optional)
@@ -2833,10 +2920,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `fields` -
   (Optional)
   Fields in the Salesforce object. When unspecified as part of include/exclude objects, includes/excludes everything/nothing.
-  Structure is [documented below](#nested_backfill_all_salesforce_excluded_objects_objects_objects_fields).
+  Structure is [documented below](#nested_backfill_all_salesforce_excluded_objects_objects_fields).
 
 
-<a name="nested_backfill_all_salesforce_excluded_objects_objects_objects_fields"></a>The `fields` block supports:
+<a name="nested_backfill_all_salesforce_excluded_objects_objects_fields"></a>The `fields` block supports:
 
 * `name` -
   (Optional)
@@ -2859,10 +2946,10 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `collections` -
   (Optional)
   Collections in the database.
-  Structure is [documented below](#nested_backfill_all_mongodb_excluded_objects_databases_databases_collections).
+  Structure is [documented below](#nested_backfill_all_mongodb_excluded_objects_databases_collections).
 
 
-<a name="nested_backfill_all_mongodb_excluded_objects_databases_databases_collections"></a>The `collections` block supports:
+<a name="nested_backfill_all_mongodb_excluded_objects_databases_collections"></a>The `collections` block supports:
 
 * `collection` -
   (Required)
@@ -2871,14 +2958,201 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `fields` -
   (Optional)
   Fields in the collection.
-  Structure is [documented below](#nested_backfill_all_mongodb_excluded_objects_databases_databases_collections_collections_fields).
+  Structure is [documented below](#nested_backfill_all_mongodb_excluded_objects_databases_collections_fields).
 
 
-<a name="nested_backfill_all_mongodb_excluded_objects_databases_databases_collections_collections_fields"></a>The `fields` block supports:
+<a name="nested_backfill_all_mongodb_excluded_objects_databases_collections_fields"></a>The `fields` block supports:
 
 * `field` -
   (Optional)
   Field name.
+
+<a name="nested_rule_sets"></a>The `rule_sets` block supports:
+
+* `customization_rules` -
+  (Required)
+  List of customization rules to apply.
+  Structure is [documented below](#nested_rule_sets_customization_rules).
+
+* `object_filter` -
+  (Required)
+  Object filter to apply the customization rules to.
+  Structure is [documented below](#nested_rule_sets_object_filter).
+
+
+<a name="nested_rule_sets_customization_rules"></a>The `customization_rules` block supports:
+
+* `bigquery_partitioning` -
+  (Optional)
+  BigQuery partitioning rule.
+  Structure is [documented below](#nested_rule_sets_customization_rules_bigquery_partitioning).
+
+* `bigquery_clustering` -
+  (Optional)
+  BigQuery clustering rule.
+  Structure is [documented below](#nested_rule_sets_customization_rules_bigquery_clustering).
+
+
+<a name="nested_rule_sets_customization_rules_bigquery_partitioning"></a>The `bigquery_partitioning` block supports:
+
+* `integer_range_partition` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_customization_rules_bigquery_partitioning_integer_range_partition).
+
+* `time_unit_partition` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_customization_rules_bigquery_partitioning_time_unit_partition).
+
+* `ingestion_time_partition` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_customization_rules_bigquery_partitioning_ingestion_time_partition).
+
+* `require_partition_filter` -
+  (Optional)
+  If true, queries over the table require a partition filter.
+
+
+<a name="nested_rule_sets_customization_rules_bigquery_partitioning_integer_range_partition"></a>The `integer_range_partition` block supports:
+
+* `column` -
+  (Required)
+  The partitioning column.
+
+* `start` -
+  (Required)
+  The starting value for range partitioning (inclusive).
+
+* `end` -
+  (Required)
+  The ending value for range partitioning (exclusive).
+
+* `interval` -
+  (Required)
+  The interval of each range within the partition.
+
+<a name="nested_rule_sets_customization_rules_bigquery_partitioning_time_unit_partition"></a>The `time_unit_partition` block supports:
+
+* `column` -
+  (Required)
+  The partitioning column.
+
+* `partitioning_time_granularity` -
+  (Optional)
+  Partition granularity.
+  Possible values are: `PARTITIONING_TIME_GRANULARITY_UNSPECIFIED`, `PARTITIONING_TIME_GRANULARITY_HOUR`, `PARTITIONING_TIME_GRANULARITY_DAY`, `PARTITIONING_TIME_GRANULARITY_MONTH`, `PARTITIONING_TIME_GRANULARITY_YEAR`.
+
+<a name="nested_rule_sets_customization_rules_bigquery_partitioning_ingestion_time_partition"></a>The `ingestion_time_partition` block supports:
+
+* `partitioning_time_granularity` -
+  (Optional)
+  Partition granularity.
+  Possible values are: `PARTITIONING_TIME_GRANULARITY_UNSPECIFIED`, `PARTITIONING_TIME_GRANULARITY_HOUR`, `PARTITIONING_TIME_GRANULARITY_DAY`, `PARTITIONING_TIME_GRANULARITY_MONTH`, `PARTITIONING_TIME_GRANULARITY_YEAR`.
+
+<a name="nested_rule_sets_customization_rules_bigquery_clustering"></a>The `bigquery_clustering` block supports:
+
+* `columns` -
+  (Required)
+  Column names to set as clustering columns.
+
+<a name="nested_rule_sets_object_filter"></a>The `object_filter` block supports:
+
+* `source_object_identifier` -
+  (Optional)
+  Specific source object identifier.
+  Structure is [documented below](#nested_rule_sets_object_filter_source_object_identifier).
+
+
+<a name="nested_rule_sets_object_filter_source_object_identifier"></a>The `source_object_identifier` block supports:
+
+* `oracle_identifier` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_object_filter_source_object_identifier_oracle_identifier).
+
+* `mysql_identifier` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_object_filter_source_object_identifier_mysql_identifier).
+
+* `postgresql_identifier` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_object_filter_source_object_identifier_postgresql_identifier).
+
+* `sql_server_identifier` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_object_filter_source_object_identifier_sql_server_identifier).
+
+* `salesforce_identifier` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_object_filter_source_object_identifier_salesforce_identifier).
+
+* `mongodb_identifier` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_object_filter_source_object_identifier_mongodb_identifier).
+
+
+<a name="nested_rule_sets_object_filter_source_object_identifier_oracle_identifier"></a>The `oracle_identifier` block supports:
+
+* `schema` -
+  (Required)
+  The schema name.
+
+* `table` -
+  (Required)
+  The table name.
+
+<a name="nested_rule_sets_object_filter_source_object_identifier_mysql_identifier"></a>The `mysql_identifier` block supports:
+
+* `database` -
+  (Required)
+  The database name.
+
+* `table` -
+  (Required)
+  The table name.
+
+<a name="nested_rule_sets_object_filter_source_object_identifier_postgresql_identifier"></a>The `postgresql_identifier` block supports:
+
+* `schema` -
+  (Required)
+  The schema name.
+
+* `table` -
+  (Required)
+  The table name.
+
+<a name="nested_rule_sets_object_filter_source_object_identifier_sql_server_identifier"></a>The `sql_server_identifier` block supports:
+
+* `schema` -
+  (Required)
+  The schema name.
+
+* `table` -
+  (Required)
+  The table name.
+
+<a name="nested_rule_sets_object_filter_source_object_identifier_salesforce_identifier"></a>The `salesforce_identifier` block supports:
+
+* `object_name` -
+  (Required)
+  The Salesforce object name.
+
+<a name="nested_rule_sets_object_filter_source_object_identifier_mongodb_identifier"></a>The `mongodb_identifier` block supports:
+
+* `database` -
+  (Required)
+  The MongoDB database name.
+
+* `collection` -
+  (Required)
+  The MongoDB collection name.
 
 ## Attributes Reference
 

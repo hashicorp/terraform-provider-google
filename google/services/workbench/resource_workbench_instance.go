@@ -131,6 +131,7 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"enable-guest-attributes",
 	"enable-oslogin",
 	"proxy-registration-url",
+	"enable-jupyterlab4",
 }
 
 func WorkbenchInstanceMetadataDiffSuppress(k, old, new string, d *schema.ResourceData) bool {

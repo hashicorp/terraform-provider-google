@@ -1,121 +1,121 @@
-resource: 'google_oracle_database_autonomous_database'
-generation_type: 'mmv1'
-source_file: 'products/oracledatabase/AutonomousDatabase.yaml'
-api_service_name: 'oracledatabase.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AutonomousDatabase'
+resource: google_oracle_database_autonomous_database
+generation_type: mmv1
+source_file: products/oracledatabase/AutonomousDatabase.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: AutonomousDatabase
 autogen_status: true
 fields:
-  - api_field: 'adminPassword'
-  - field: 'autonomous_database_id'
-    provider_only: true
-  - api_field: 'cidr'
-  - api_field: 'createTime'
-  - api_field: 'database'
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'entitlementId'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'odbNetwork'
-  - api_field: 'odbSubnet'
-  - api_field: 'properties.actualUsedDataStorageSizeTb'
-  - api_field: 'properties.allocatedStorageSizeTb'
-  - api_field: 'properties.apexDetails.apexVersion'
-  - api_field: 'properties.apexDetails.ordsVersion'
-  - api_field: 'properties.arePrimaryAllowlistedIpsUsed'
-  - api_field: 'properties.autonomousContainerDatabaseId'
-  - api_field: 'properties.availableUpgradeVersions'
-  - api_field: 'properties.backupRetentionPeriodDays'
-  - api_field: 'properties.characterSet'
-  - api_field: 'properties.computeCount'
-  - api_field: 'properties.connectionStrings.allConnectionStrings.high'
-  - api_field: 'properties.connectionStrings.allConnectionStrings.low'
-  - api_field: 'properties.connectionStrings.allConnectionStrings.medium'
-  - api_field: 'properties.connectionStrings.dedicated'
-  - api_field: 'properties.connectionStrings.high'
-  - api_field: 'properties.connectionStrings.low'
-  - api_field: 'properties.connectionStrings.medium'
-  - api_field: 'properties.connectionStrings.profiles.consumerGroup'
-  - api_field: 'properties.connectionStrings.profiles.displayName'
-  - api_field: 'properties.connectionStrings.profiles.hostFormat'
-  - api_field: 'properties.connectionStrings.profiles.isRegional'
-  - api_field: 'properties.connectionStrings.profiles.protocol'
-  - api_field: 'properties.connectionStrings.profiles.sessionMode'
-  - api_field: 'properties.connectionStrings.profiles.syntaxFormat'
-  - api_field: 'properties.connectionStrings.profiles.tlsAuthentication'
-  - api_field: 'properties.connectionStrings.profiles.value'
-  - api_field: 'properties.connectionUrls.apexUri'
-  - api_field: 'properties.connectionUrls.databaseTransformsUri'
-  - api_field: 'properties.connectionUrls.graphStudioUri'
-  - api_field: 'properties.connectionUrls.machineLearningNotebookUri'
-  - api_field: 'properties.connectionUrls.machineLearningUserManagementUri'
-  - api_field: 'properties.connectionUrls.mongoDbUri'
-  - api_field: 'properties.connectionUrls.ordsUri'
-  - api_field: 'properties.connectionUrls.sqlDevWebUri'
-  - api_field: 'properties.cpuCoreCount'
-  - api_field: 'properties.customerContacts.email'
-  - api_field: 'properties.dataSafeState'
-  - api_field: 'properties.dataStorageSizeGb'
-  - api_field: 'properties.dataStorageSizeTb'
-  - api_field: 'properties.databaseManagementState'
-  - api_field: 'properties.dbEdition'
-  - api_field: 'properties.dbVersion'
-  - api_field: 'properties.dbWorkload'
-  - api_field: 'properties.failedDataRecoveryDuration'
-  - api_field: 'properties.isAutoScalingEnabled'
-  - api_field: 'properties.isLocalDataGuardEnabled'
-  - api_field: 'properties.isStorageAutoScalingEnabled'
-  - api_field: 'properties.licenseType'
-  - api_field: 'properties.lifecycleDetails'
-  - api_field: 'properties.localAdgAutoFailoverMaxDataLossLimit'
-  - api_field: 'properties.localDisasterRecoveryType'
-  - api_field: 'properties.localStandbyDb.dataGuardRoleChangedTime'
-  - api_field: 'properties.localStandbyDb.disasterRecoveryRoleChangedTime'
-  - api_field: 'properties.localStandbyDb.lagTimeDuration'
-  - api_field: 'properties.localStandbyDb.lifecycleDetails'
-  - api_field: 'properties.localStandbyDb.state'
-  - api_field: 'properties.maintenanceBeginTime'
-  - api_field: 'properties.maintenanceEndTime'
-  - api_field: 'properties.maintenanceScheduleType'
-  - api_field: 'properties.memoryPerOracleComputeUnitGbs'
-  - api_field: 'properties.memoryTableGbs'
-  - api_field: 'properties.mtlsConnectionRequired'
-  - api_field: 'properties.nCharacterSet'
-  - api_field: 'properties.nextLongTermBackupTime'
-  - api_field: 'properties.ociUrl'
-  - api_field: 'properties.ocid'
-  - api_field: 'properties.openMode'
-  - api_field: 'properties.operationsInsightsState'
-  - api_field: 'properties.peerDbIds'
-  - api_field: 'properties.permissionLevel'
-  - api_field: 'properties.privateEndpoint'
-  - api_field: 'properties.privateEndpointIp'
-  - api_field: 'properties.privateEndpointLabel'
-  - api_field: 'properties.refreshableMode'
-  - api_field: 'properties.refreshableState'
-  - api_field: 'properties.role'
-  - api_field: 'properties.scheduledOperationDetails.dayOfWeek'
-  - api_field: 'properties.scheduledOperationDetails.startTime.hours'
-  - api_field: 'properties.scheduledOperationDetails.startTime.minutes'
-  - api_field: 'properties.scheduledOperationDetails.startTime.nanos'
-  - api_field: 'properties.scheduledOperationDetails.startTime.seconds'
-  - api_field: 'properties.scheduledOperationDetails.stopTime.hours'
-  - api_field: 'properties.scheduledOperationDetails.stopTime.minutes'
-  - api_field: 'properties.scheduledOperationDetails.stopTime.nanos'
-  - api_field: 'properties.scheduledOperationDetails.stopTime.seconds'
-  - api_field: 'properties.secretId'
-  - api_field: 'properties.sqlWebDeveloperUrl'
-  - api_field: 'properties.state'
-  - api_field: 'properties.supportedCloneRegions'
-  - api_field: 'properties.totalAutoBackupStorageSizeGbs'
-  - api_field: 'properties.usedDataStorageSizeTbs'
-  - api_field: 'properties.vaultId'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: adminPassword
+    - field: autonomous_database_id
+      provider_only: true
+    - api_field: cidr
+    - api_field: createTime
+    - api_field: database
+    - field: deletion_protection
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: entitlementId
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: network
+    - api_field: odbNetwork
+    - api_field: odbSubnet
+    - api_field: properties.actualUsedDataStorageSizeTb
+    - api_field: properties.allocatedStorageSizeTb
+    - api_field: properties.apexDetails.apexVersion
+    - api_field: properties.apexDetails.ordsVersion
+    - api_field: properties.arePrimaryAllowlistedIpsUsed
+    - api_field: properties.autonomousContainerDatabaseId
+    - api_field: properties.availableUpgradeVersions
+    - api_field: properties.backupRetentionPeriodDays
+    - api_field: properties.characterSet
+    - api_field: properties.computeCount
+    - api_field: properties.connectionStrings.allConnectionStrings.high
+    - api_field: properties.connectionStrings.allConnectionStrings.low
+    - api_field: properties.connectionStrings.allConnectionStrings.medium
+    - api_field: properties.connectionStrings.dedicated
+    - api_field: properties.connectionStrings.high
+    - api_field: properties.connectionStrings.low
+    - api_field: properties.connectionStrings.medium
+    - api_field: properties.connectionStrings.profiles.consumerGroup
+    - api_field: properties.connectionStrings.profiles.displayName
+    - api_field: properties.connectionStrings.profiles.hostFormat
+    - api_field: properties.connectionStrings.profiles.isRegional
+    - api_field: properties.connectionStrings.profiles.protocol
+    - api_field: properties.connectionStrings.profiles.sessionMode
+    - api_field: properties.connectionStrings.profiles.syntaxFormat
+    - api_field: properties.connectionStrings.profiles.tlsAuthentication
+    - api_field: properties.connectionStrings.profiles.value
+    - api_field: properties.connectionUrls.apexUri
+    - api_field: properties.connectionUrls.databaseTransformsUri
+    - api_field: properties.connectionUrls.graphStudioUri
+    - api_field: properties.connectionUrls.machineLearningNotebookUri
+    - api_field: properties.connectionUrls.machineLearningUserManagementUri
+    - api_field: properties.connectionUrls.mongoDbUri
+    - api_field: properties.connectionUrls.ordsUri
+    - api_field: properties.connectionUrls.sqlDevWebUri
+    - api_field: properties.cpuCoreCount
+    - api_field: properties.customerContacts.email
+    - api_field: properties.dataSafeState
+    - api_field: properties.dataStorageSizeGb
+    - api_field: properties.dataStorageSizeTb
+    - api_field: properties.databaseManagementState
+    - api_field: properties.dbEdition
+    - api_field: properties.dbVersion
+    - api_field: properties.dbWorkload
+    - api_field: properties.failedDataRecoveryDuration
+    - api_field: properties.isAutoScalingEnabled
+    - api_field: properties.isLocalDataGuardEnabled
+    - api_field: properties.isStorageAutoScalingEnabled
+    - api_field: properties.licenseType
+    - api_field: properties.lifecycleDetails
+    - api_field: properties.localAdgAutoFailoverMaxDataLossLimit
+    - api_field: properties.localDisasterRecoveryType
+    - api_field: properties.localStandbyDb.dataGuardRoleChangedTime
+    - api_field: properties.localStandbyDb.disasterRecoveryRoleChangedTime
+    - api_field: properties.localStandbyDb.lagTimeDuration
+    - api_field: properties.localStandbyDb.lifecycleDetails
+    - api_field: properties.localStandbyDb.state
+    - api_field: properties.maintenanceBeginTime
+    - api_field: properties.maintenanceEndTime
+    - api_field: properties.maintenanceScheduleType
+    - api_field: properties.memoryPerOracleComputeUnitGbs
+    - api_field: properties.memoryTableGbs
+    - api_field: properties.mtlsConnectionRequired
+    - api_field: properties.nCharacterSet
+    - api_field: properties.nextLongTermBackupTime
+    - api_field: properties.ociUrl
+    - api_field: properties.ocid
+    - api_field: properties.openMode
+    - api_field: properties.operationsInsightsState
+    - api_field: properties.peerDbIds
+    - api_field: properties.permissionLevel
+    - api_field: properties.privateEndpoint
+    - api_field: properties.privateEndpointIp
+    - api_field: properties.privateEndpointLabel
+    - api_field: properties.refreshableMode
+    - api_field: properties.refreshableState
+    - api_field: properties.role
+    - api_field: properties.scheduledOperationDetails.dayOfWeek
+    - api_field: properties.scheduledOperationDetails.startTime.hours
+    - api_field: properties.scheduledOperationDetails.startTime.minutes
+    - api_field: properties.scheduledOperationDetails.startTime.nanos
+    - api_field: properties.scheduledOperationDetails.startTime.seconds
+    - api_field: properties.scheduledOperationDetails.stopTime.hours
+    - api_field: properties.scheduledOperationDetails.stopTime.minutes
+    - api_field: properties.scheduledOperationDetails.stopTime.nanos
+    - api_field: properties.scheduledOperationDetails.stopTime.seconds
+    - api_field: properties.secretId
+    - api_field: properties.sqlWebDeveloperUrl
+    - api_field: properties.state
+    - api_field: properties.supportedCloneRegions
+    - api_field: properties.totalAutoBackupStorageSizeGbs
+    - api_field: properties.usedDataStorageSizeTbs
+    - api_field: properties.vaultId
+    - field: terraform_labels
+      provider_only: true

@@ -1,68 +1,68 @@
-resource: 'google_compute_disk'
-generation_type: 'mmv1'
-source_file: 'products/compute/Disk.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Disk'
+resource: google_compute_disk
+generation_type: mmv1
+source_file: products/compute/Disk.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Disk
 fields:
-  - api_field: 'accessMode'
-  - api_field: 'architecture'
-  - api_field: 'asyncPrimaryDisk.disk'
-  - field: 'create_snapshot_before_destroy'
-    provider_only: true
-  - field: 'create_snapshot_before_destroy_prefix'
-    provider_only: true
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'diskEncryptionKey.kmsKeyName'
-    field: 'disk_encryption_key.kms_key_self_link'
-  - api_field: 'diskEncryptionKey.kmsKeyServiceAccount'
-  - api_field: 'diskEncryptionKey.rawKey'
-  - api_field: 'diskEncryptionKey.rsaEncryptedKey'
-  - api_field: 'diskEncryptionKey.sha256'
-  - api_field: 'id'
-    field: 'disk_id'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enableConfidentialCompute'
-  - api_field: 'guestOsFeatures.type'
-  - api_field: 'sourceImage'
-    field: 'image'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'lastAttachTimestamp'
-  - api_field: 'lastDetachTimestamp'
-  - api_field: 'licenses'
-  - api_field: 'name'
-  - api_field: 'params.resourceManagerTags'
-  - api_field: 'physicalBlockSizeBytes'
-  - api_field: 'provisionedIops'
-  - api_field: 'provisionedThroughput'
-  - api_field: 'sizeGb'
-    field: 'size'
-  - api_field: 'sourceSnapshot'
-    field: 'snapshot'
-  - api_field: 'sourceDisk'
-  - api_field: 'sourceDiskId'
-  - api_field: 'sourceImageEncryptionKey.kmsKeyName'
-    field: 'source_image_encryption_key.kms_key_self_link'
-  - api_field: 'sourceImageEncryptionKey.kmsKeyServiceAccount'
-  - api_field: 'sourceImageEncryptionKey.rawKey'
-  - api_field: 'sourceImageEncryptionKey.sha256'
-  - api_field: 'sourceImageId'
-  - api_field: 'sourceInstantSnapshot'
-  - api_field: 'sourceInstantSnapshotId'
-  - api_field: 'sourceSnapshotEncryptionKey.kmsKeyName'
-    field: 'source_snapshot_encryption_key.kms_key_self_link'
-  - api_field: 'sourceSnapshotEncryptionKey.kmsKeyServiceAccount'
-  - api_field: 'sourceSnapshotEncryptionKey.rawKey'
-  - api_field: 'sourceSnapshotEncryptionKey.sha256'
-  - api_field: 'sourceSnapshotId'
-  - api_field: 'sourceStorageObject'
-  - api_field: 'storagePool'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'users'
-  - api_field: 'zone'
-  - api_field: 'selfLink'
+    - api_field: accessMode
+    - api_field: architecture
+    - api_field: asyncPrimaryDisk.disk
+    - field: create_snapshot_before_destroy
+      provider_only: true
+    - field: create_snapshot_before_destroy_prefix
+      provider_only: true
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: diskEncryptionKey.kmsKeyName
+      field: disk_encryption_key.kms_key_self_link
+    - api_field: diskEncryptionKey.kmsKeyServiceAccount
+    - api_field: diskEncryptionKey.rawKey
+    - api_field: diskEncryptionKey.rsaEncryptedKey
+    - api_field: diskEncryptionKey.sha256
+    - api_field: id
+      field: disk_id
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableConfidentialCompute
+    - api_field: guestOsFeatures.type
+    - api_field: sourceImage
+      field: image
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: lastAttachTimestamp
+    - api_field: lastDetachTimestamp
+    - api_field: licenses
+    - api_field: name
+    - api_field: params.resourceManagerTags
+    - api_field: physicalBlockSizeBytes
+    - api_field: provisionedIops
+    - api_field: provisionedThroughput
+    - api_field: sizeGb
+      field: size
+    - api_field: sourceSnapshot
+      field: snapshot
+    - api_field: sourceDisk
+    - api_field: sourceDiskId
+    - api_field: sourceImageEncryptionKey.kmsKeyName
+      field: source_image_encryption_key.kms_key_self_link
+    - api_field: sourceImageEncryptionKey.kmsKeyServiceAccount
+    - api_field: sourceImageEncryptionKey.rawKey
+    - api_field: sourceImageEncryptionKey.sha256
+    - api_field: sourceImageId
+    - api_field: sourceInstantSnapshot
+    - api_field: sourceInstantSnapshotId
+    - api_field: sourceSnapshotEncryptionKey.kmsKeyName
+      field: source_snapshot_encryption_key.kms_key_self_link
+    - api_field: sourceSnapshotEncryptionKey.kmsKeyServiceAccount
+    - api_field: sourceSnapshotEncryptionKey.rawKey
+    - api_field: sourceSnapshotEncryptionKey.sha256
+    - api_field: sourceSnapshotId
+    - api_field: sourceStorageObject
+    - api_field: storagePool
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: users
+    - api_field: zone
+    - api_field: selfLink

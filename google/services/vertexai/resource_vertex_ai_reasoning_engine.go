@@ -211,17 +211,17 @@ Engine deployment.`,
 										Type:     schema.TypeInt,
 										Computed: true,
 										Optional: true,
-										Description: `Optional. The minimum number of application instances that will be
-kept running at all times. Defaults to 1. Range: [0, 10].`,
+										Description: `Optional. The maximum number of application instances that can be
+launched to handle increased traffic. Defaults to 100.
+Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable
+range is [1, 100].`,
 									},
 									"min_instances": {
 										Type:     schema.TypeInt,
 										Computed: true,
 										Optional: true,
-										Description: `Optional. The maximum number of application instances that can be
-launched to handle increased traffic. Defaults to 100.
-Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable
-range is [1, 100].`,
+										Description: `Optional. The minimum number of application instances that will be
+kept running at all times. Defaults to 1. Range: [0, 10].`,
 									},
 									"resource_limits": {
 										Type:     schema.TypeMap,

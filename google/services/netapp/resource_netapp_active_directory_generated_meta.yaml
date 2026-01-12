@@ -1,36 +1,36 @@
-resource: 'google_netapp_active_directory'
-generation_type: 'mmv1'
-source_file: 'products/netapp/ActiveDirectory.yaml'
-api_service_name: 'netapp.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ActiveDirectory'
+resource: google_netapp_active_directory
+generation_type: mmv1
+source_file: products/netapp/ActiveDirectory.yaml
+api_service_name: netapp.googleapis.com
+api_version: v1
+api_resource_type_kind: ActiveDirectory
 fields:
-  - api_field: 'administrators'
-  - api_field: 'aesEncryption'
-  - api_field: 'backupOperators'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'dns'
-  - api_field: 'domain'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptDcConnections'
-  - api_field: 'kdcHostname'
-  - api_field: 'kdcIp'
-  - api_field: 'labels'
-  - api_field: 'ldapSigning'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'netBiosPrefix'
-  - api_field: 'nfsUsersWithLdap'
-  - api_field: 'organizationalUnit'
-  - api_field: 'password'
-  - api_field: 'securityOperators'
-  - api_field: 'site'
-  - api_field: 'state'
-  - api_field: 'stateDetails'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'username'
+    - api_field: administrators
+    - api_field: aesEncryption
+    - api_field: backupOperators
+    - api_field: createTime
+    - api_field: description
+    - api_field: dns
+    - api_field: domain
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptDcConnections
+    - api_field: kdcHostname
+    - api_field: kdcIp
+    - api_field: labels
+    - api_field: ldapSigning
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: netBiosPrefix
+    - api_field: nfsUsersWithLdap
+    - api_field: organizationalUnit
+    - api_field: password
+    - api_field: securityOperators
+    - api_field: site
+    - api_field: state
+    - api_field: stateDetails
+    - field: terraform_labels
+      provider_only: true
+    - api_field: username

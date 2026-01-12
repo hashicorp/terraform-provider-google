@@ -29,7 +29,7 @@ To get more information about RegionalParameterVersion, see:
 * [API documentation](https://cloud.google.com/secret-manager/parameter-manager/docs/reference/rest/v1/projects.locations.parameters.versions)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `payload.parameter_data`.
+values will be stored in the raw state as plain text: `parameter_data`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">

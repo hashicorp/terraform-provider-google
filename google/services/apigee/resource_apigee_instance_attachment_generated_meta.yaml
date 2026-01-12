@@ -1,11 +1,11 @@
-resource: 'google_apigee_instance_attachment'
-generation_type: 'mmv1'
-source_file: 'products/apigee/InstanceAttachment.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InstanceAttachment'
+resource: google_apigee_instance_attachment
+generation_type: mmv1
+source_file: products/apigee/InstanceAttachment.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: InstanceAttachment
 fields:
-  - api_field: 'environment'
-  - field: 'instance_id'
-    provider_only: true
-  - api_field: 'name'
+    - api_field: environment
+    - field: instance_id
+      provider_only: true
+    - api_field: name

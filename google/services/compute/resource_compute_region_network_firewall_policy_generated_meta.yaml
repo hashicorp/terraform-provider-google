@@ -1,19 +1,19 @@
-resource: 'google_compute_region_network_firewall_policy'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionNetworkFirewallPolicy.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'FirewallPolicy'
+resource: google_compute_region_network_firewall_policy
+generation_type: mmv1
+source_file: products/compute/RegionNetworkFirewallPolicy.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: FirewallPolicy
 fields:
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'fingerprint'
-  - api_field: 'name'
-  - api_field: 'policyType'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'id'
-    field: 'region_network_firewall_policy_id'
-  - api_field: 'ruleTupleCount'
-  - api_field: 'selfLink'
-  - api_field: 'selfLinkWithId'
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: fingerprint
+    - api_field: name
+    - api_field: policyType
+    - field: region
+      provider_only: true
+    - api_field: id
+      field: region_network_firewall_policy_id
+    - api_field: ruleTupleCount
+    - api_field: selfLink
+    - api_field: selfLinkWithId

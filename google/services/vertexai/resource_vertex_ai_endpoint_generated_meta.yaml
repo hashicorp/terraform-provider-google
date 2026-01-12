@@ -1,65 +1,65 @@
-resource: 'google_vertex_ai_endpoint'
-generation_type: 'mmv1'
-source_file: 'products/vertexai/Endpoint.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Endpoint'
+resource: google_vertex_ai_endpoint
+generation_type: mmv1
+source_file: products/vertexai/Endpoint.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: Endpoint
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/endpoints/{endpoint}'
+    - projects/{project}/locations/{location}/endpoints/{endpoint}
 fields:
-  - api_field: 'createTime'
-  - api_field: 'dedicatedEndpointDns'
-  - api_field: 'dedicatedEndpointEnabled'
-  - api_field: 'deployedModels.automaticResources.maxReplicaCount'
-  - api_field: 'deployedModels.automaticResources.minReplicaCount'
-  - api_field: 'deployedModels.createTime'
-  - api_field: 'deployedModels.dedicatedResources.autoscalingMetricSpecs.metricName'
-  - api_field: 'deployedModels.dedicatedResources.autoscalingMetricSpecs.target'
-  - api_field: 'deployedModels.dedicatedResources.machineSpec.acceleratorCount'
-  - api_field: 'deployedModels.dedicatedResources.machineSpec.acceleratorType'
-  - api_field: 'deployedModels.dedicatedResources.machineSpec.machineType'
-  - api_field: 'deployedModels.dedicatedResources.maxReplicaCount'
-  - api_field: 'deployedModels.dedicatedResources.minReplicaCount'
-  - api_field: 'deployedModels.displayName'
-  - api_field: 'deployedModels.enableAccessLogging'
-  - api_field: 'deployedModels.enableContainerLogging'
-  - api_field: 'deployedModels.id'
-  - api_field: 'deployedModels.model'
-  - api_field: 'deployedModels.modelVersionId'
-  - api_field: 'deployedModels.privateEndpoints.explainHttpUri'
-  - api_field: 'deployedModels.privateEndpoints.healthHttpUri'
-  - api_field: 'deployedModels.privateEndpoints.predictHttpUri'
-  - api_field: 'deployedModels.privateEndpoints.serviceAttachment'
-  - api_field: 'deployedModels.serviceAccount'
-  - api_field: 'deployedModels.sharedResources'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionSpec.kmsKeyName'
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'modelDeploymentMonitoringJob'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'network'
-  - api_field: 'predictRequestResponseLoggingConfig.bigqueryDestination.outputUri'
-  - api_field: 'predictRequestResponseLoggingConfig.enabled'
-  - api_field: 'predictRequestResponseLoggingConfig.samplingRate'
-  - api_field: 'privateServiceConnectConfig.enablePrivateServiceConnect'
-  - api_field: 'privateServiceConnectConfig.projectAllowlist'
-  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.errorMessage'
-  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.forwardingRule'
-  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.ipAddress'
-  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.network'
-  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.projectId'
-  - api_field: 'privateServiceConnectConfig.pscAutomationConfigs.state'
-  - field: 'region'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'trafficSplit'
-    json: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: dedicatedEndpointDns
+    - api_field: dedicatedEndpointEnabled
+    - api_field: deployedModels.automaticResources.maxReplicaCount
+    - api_field: deployedModels.automaticResources.minReplicaCount
+    - api_field: deployedModels.createTime
+    - api_field: deployedModels.dedicatedResources.autoscalingMetricSpecs.metricName
+    - api_field: deployedModels.dedicatedResources.autoscalingMetricSpecs.target
+    - api_field: deployedModels.dedicatedResources.machineSpec.acceleratorCount
+    - api_field: deployedModels.dedicatedResources.machineSpec.acceleratorType
+    - api_field: deployedModels.dedicatedResources.machineSpec.machineType
+    - api_field: deployedModels.dedicatedResources.maxReplicaCount
+    - api_field: deployedModels.dedicatedResources.minReplicaCount
+    - api_field: deployedModels.displayName
+    - api_field: deployedModels.enableAccessLogging
+    - api_field: deployedModels.enableContainerLogging
+    - api_field: deployedModels.id
+    - api_field: deployedModels.model
+    - api_field: deployedModels.modelVersionId
+    - api_field: deployedModels.privateEndpoints.explainHttpUri
+    - api_field: deployedModels.privateEndpoints.healthHttpUri
+    - api_field: deployedModels.privateEndpoints.predictHttpUri
+    - api_field: deployedModels.privateEndpoints.serviceAttachment
+    - api_field: deployedModels.serviceAccount
+    - api_field: deployedModels.sharedResources
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: modelDeploymentMonitoringJob
+    - field: name
+      provider_only: true
+    - api_field: network
+    - api_field: predictRequestResponseLoggingConfig.bigqueryDestination.outputUri
+    - api_field: predictRequestResponseLoggingConfig.enabled
+    - api_field: predictRequestResponseLoggingConfig.samplingRate
+    - api_field: privateServiceConnectConfig.enablePrivateServiceConnect
+    - api_field: privateServiceConnectConfig.projectAllowlist
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.errorMessage
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.forwardingRule
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.ipAddress
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.network
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.projectId
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.state
+    - field: region
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: trafficSplit
+      json: true
+    - api_field: updateTime

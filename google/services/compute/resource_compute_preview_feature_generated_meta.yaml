@@ -1,11 +1,11 @@
-resource: 'google_compute_preview_feature'
-generation_type: 'mmv1'
-source_file: 'products/compute/PreviewFeature.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'PreviewFeature'
+resource: google_compute_preview_feature
+generation_type: mmv1
+source_file: products/compute/PreviewFeature.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: PreviewFeature
 fields:
-  - api_field: 'activationStatus'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'rolloutOperation.rolloutInput.predefinedRolloutPlan'
+    - api_field: activationStatus
+    - field: name
+      provider_only: true
+    - api_field: rolloutOperation.rolloutInput.predefinedRolloutPlan

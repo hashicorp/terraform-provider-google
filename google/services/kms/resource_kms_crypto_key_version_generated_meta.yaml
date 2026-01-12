@@ -1,23 +1,23 @@
-resource: 'google_kms_crypto_key_version'
-generation_type: 'mmv1'
-source_file: 'products/kms/CryptoKeyVersion.yaml'
-api_service_name: 'cloudkms.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CryptoKeyVersion'
+resource: google_kms_crypto_key_version
+generation_type: mmv1
+source_file: products/kms/CryptoKeyVersion.yaml
+api_service_name: cloudkms.googleapis.com
+api_version: v1
+api_resource_type_kind: CryptoKeyVersion
 fields:
-  - api_field: 'algorithm'
-  - api_field: 'attestation.certChains.caviumCerts'
-  - api_field: 'attestation.certChains.googleCardCerts'
-  - api_field: 'attestation.certChains.googlePartitionCerts'
-  - api_field: 'attestation.content'
-  - api_field: 'attestation.externalProtectionLevelOptions.ekmConnectionKeyPath'
-  - api_field: 'attestation.externalProtectionLevelOptions.externalKeyUri'
-  - api_field: 'attestation.format'
-  - field: 'crypto_key'
-    provider_only: true
-  - api_field: 'externalProtectionLevelOptions.ekmConnectionKeyPath'
-  - api_field: 'externalProtectionLevelOptions.externalKeyUri'
-  - api_field: 'generateTime'
-  - api_field: 'name'
-  - api_field: 'protectionLevel'
-  - api_field: 'state'
+    - api_field: algorithm
+    - api_field: attestation.certChains.caviumCerts
+    - api_field: attestation.certChains.googleCardCerts
+    - api_field: attestation.certChains.googlePartitionCerts
+    - api_field: attestation.content
+    - api_field: attestation.externalProtectionLevelOptions.ekmConnectionKeyPath
+    - api_field: attestation.externalProtectionLevelOptions.externalKeyUri
+    - api_field: attestation.format
+    - field: crypto_key
+      provider_only: true
+    - api_field: externalProtectionLevelOptions.ekmConnectionKeyPath
+    - api_field: externalProtectionLevelOptions.externalKeyUri
+    - api_field: generateTime
+    - api_field: name
+    - api_field: protectionLevel
+    - api_field: state

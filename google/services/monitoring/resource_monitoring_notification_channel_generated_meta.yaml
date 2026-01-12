@@ -1,23 +1,23 @@
-resource: 'google_monitoring_notification_channel'
-generation_type: 'mmv1'
-source_file: 'products/monitoring/NotificationChannel.yaml'
-api_service_name: 'monitoring.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'NotificationChannel'
+resource: google_monitoring_notification_channel
+generation_type: mmv1
+source_file: products/monitoring/NotificationChannel.yaml
+api_service_name: monitoring.googleapis.com
+api_version: v3
+api_resource_type_kind: NotificationChannel
 fields:
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'enabled'
-  - field: 'force_delete'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'name'
-  - field: 'sensitive_labels.auth_token'
-    provider_only: true
-  - field: 'sensitive_labels.password'
-    provider_only: true
-  - field: 'sensitive_labels.service_key'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'userLabels'
-  - api_field: 'verificationStatus'
+    - api_field: description
+    - api_field: displayName
+    - api_field: enabled
+    - field: force_delete
+      provider_only: true
+    - api_field: labels
+    - api_field: name
+    - field: sensitive_labels.auth_token
+      provider_only: true
+    - field: sensitive_labels.password
+      provider_only: true
+    - field: sensitive_labels.service_key
+      provider_only: true
+    - api_field: type
+    - api_field: userLabels
+    - api_field: verificationStatus

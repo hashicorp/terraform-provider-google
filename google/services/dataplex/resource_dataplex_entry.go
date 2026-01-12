@@ -571,7 +571,7 @@ func resourceDataplexEntryCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}/entries?entryId={{entry_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/entryGroups/{{entry_group_id}}/entries/{{entry_id}}")
 	if err != nil {
 		return err
 	}
@@ -591,15 +591,22 @@ func resourceDataplexEntryCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	headers := make(http.Header)
+	if v, ok := d.GetOkExists("entry_group_id"); ok && strings.HasPrefix(v.(string), "@") {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"allow_missing": "false",
+			"updateMask": "aspects"})
+	} else {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"allow_missing": "true"})
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutCreate),
-		Headers:   headers,
+		Config:               config,
+		Method:               "PATCH",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsDataplex1PEntryIngestedError},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Entry: %s", err)
@@ -674,12 +681,13 @@ func resourceDataplexEntryRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Headers:   headers,
+		Config:               config,
+		Method:               "GET",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsDataplex1PEntryIngestedError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataplexEntry %q", d.Id()))
@@ -891,6 +899,8 @@ func resourceDataplexEntryUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"allow_missing": "false"})
+
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
@@ -899,14 +909,15 @@ func resourceDataplexEntryUpdate(d *schema.ResourceData, meta interface{}) error
 	// if updateMask is empty we are not updating anything so skip the post
 	if len(updateMask) > 0 {
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
+			Config:               config,
+			Method:               "PATCH",
+			Project:              billingProject,
+			RawURL:               url,
+			UserAgent:            userAgent,
+			Body:                 obj,
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			Headers:              headers,
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsDataplex1PEntryIngestedError},
 		})
 
 		if err != nil {
@@ -948,17 +959,23 @@ func resourceDataplexEntryDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	headers := make(http.Header)
+	if v, ok := d.GetOkExists("entry_group_id"); ok && strings.HasPrefix(v.(string), "@") {
+		// Ingestion based resources need to be removed from terraform state but cannot be deleted in Dataplex.
+		d.SetId("")
+		return nil
+	}
 
 	log.Printf("[DEBUG] Deleting Entry %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
+		Config:               config,
+		Method:               "DELETE",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutDelete),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsDataplex1PEntryIngestedError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Entry")

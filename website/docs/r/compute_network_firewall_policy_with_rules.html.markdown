@@ -205,7 +205,7 @@ The following arguments are supported:
 * `match` -
   (Required)
   A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding 'action' is enforced.
-  Structure is [documented below](#nested_rule_rule_match).
+  Structure is [documented below](#nested_rule_match).
 
 * `target_secure_tag` -
   (Optional)
@@ -220,7 +220,7 @@ The following arguments are supported:
   <code>targetSecureTag</code> are specified, the firewall rule applies
   to all instances on the specified network.
   Maximum number of target label tags allowed is 256.
-  Structure is [documented below](#nested_rule_rule_target_secure_tag).
+  Structure is [documented below](#nested_rule_target_secure_tag).
 
 * `action` -
   (Required)
@@ -263,7 +263,7 @@ The following arguments are supported:
   enabled.
 
 
-<a name="nested_rule_rule_match"></a>The `match` block supports:
+<a name="nested_rule_match"></a>The `match` block supports:
 
 * `src_ip_ranges` -
   (Optional)
@@ -336,7 +336,7 @@ The following arguments are supported:
 * `layer4_config` -
   (Required)
   Pairs of IP protocols and ports that the rule should match.
-  Structure is [documented below](#nested_rule_rule_match_layer4_config).
+  Structure is [documented below](#nested_rule_match_layer4_config).
 
 * `src_secure_tag` -
   (Optional)
@@ -345,10 +345,10 @@ The following arguments are supported:
   For INGRESS rule, if all the <code>srcSecureTag</code> are INEFFECTIVE,
   and there is no <code>srcIpRange</code>, this rule will be ignored.
   Maximum number of source tag values allowed is 256.
-  Structure is [documented below](#nested_rule_rule_match_src_secure_tag).
+  Structure is [documented below](#nested_rule_match_src_secure_tag).
 
 
-<a name="nested_rule_rule_match_layer4_config"></a>The `layer4_config` block supports:
+<a name="nested_rule_match_layer4_config"></a>The `layer4_config` block supports:
 
 * `ip_protocol` -
   (Required)
@@ -367,7 +367,7 @@ The following arguments are supported:
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
 
-<a name="nested_rule_rule_match_src_secure_tag"></a>The `src_secure_tag` block supports:
+<a name="nested_rule_match_src_secure_tag"></a>The `src_secure_tag` block supports:
 
 * `name` -
   (Optional)
@@ -380,7 +380,7 @@ The following arguments are supported:
   `INEFFECTIVE`. A secure tag is `INEFFECTIVE` when it is deleted
   or its network is deleted.
 
-<a name="nested_rule_rule_target_secure_tag"></a>The `target_secure_tag` block supports:
+<a name="nested_rule_target_secure_tag"></a>The `target_secure_tag` block supports:
 
 * `name` -
   (Optional)
@@ -442,7 +442,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `match` -
   (Output)
   A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding 'action' is enforced.
-  Structure is [documented below](#nested_predefined_rules_predefined_rules_match).
+  Structure is [documented below](#nested_predefined_rules_match).
 
 * `target_secure_tag` -
   (Output)
@@ -457,7 +457,7 @@ In addition to the arguments listed above, the following computed attributes are
   <code>targetSecureTag</code> are specified, the firewall rule applies
   to all instances on the specified network.
   Maximum number of target label tags allowed is 256.
-  Structure is [documented below](#nested_predefined_rules_predefined_rules_target_secure_tag).
+  Structure is [documented below](#nested_predefined_rules_target_secure_tag).
 
 * `action` -
   (Output)
@@ -499,7 +499,7 @@ In addition to the arguments listed above, the following computed attributes are
   enabled.
 
 
-<a name="nested_predefined_rules_predefined_rules_match"></a>The `match` block contains:
+<a name="nested_predefined_rules_match"></a>The `match` block contains:
 
 * `src_ip_ranges` -
   (Output)
@@ -558,7 +558,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `layer4_config` -
   (Output)
   Pairs of IP protocols and ports that the rule should match.
-  Structure is [documented below](#nested_predefined_rules_predefined_rules_match_layer4_config).
+  Structure is [documented below](#nested_predefined_rules_match_layer4_config).
 
 * `src_secure_tag` -
   (Output)
@@ -567,10 +567,10 @@ In addition to the arguments listed above, the following computed attributes are
   For INGRESS rule, if all the <code>srcSecureTag</code> are INEFFECTIVE,
   and there is no <code>srcIpRange</code>, this rule will be ignored.
   Maximum number of source tag values allowed is 256.
-  Structure is [documented below](#nested_predefined_rules_predefined_rules_match_src_secure_tag).
+  Structure is [documented below](#nested_predefined_rules_match_src_secure_tag).
 
 
-<a name="nested_predefined_rules_predefined_rules_match_layer4_config"></a>The `layer4_config` block contains:
+<a name="nested_predefined_rules_match_layer4_config"></a>The `layer4_config` block contains:
 
 * `ip_protocol` -
   (Output)
@@ -589,7 +589,7 @@ In addition to the arguments listed above, the following computed attributes are
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
 
-<a name="nested_predefined_rules_predefined_rules_match_src_secure_tag"></a>The `src_secure_tag` block contains:
+<a name="nested_predefined_rules_match_src_secure_tag"></a>The `src_secure_tag` block contains:
 
 * `name` -
   (Output)
@@ -602,7 +602,7 @@ In addition to the arguments listed above, the following computed attributes are
   `INEFFECTIVE`. A secure tag is `INEFFECTIVE` when it is deleted
   or its network is deleted.
 
-<a name="nested_predefined_rules_predefined_rules_target_secure_tag"></a>The `target_secure_tag` block contains:
+<a name="nested_predefined_rules_target_secure_tag"></a>The `target_secure_tag` block contains:
 
 * `name` -
   (Output)

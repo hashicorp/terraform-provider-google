@@ -1,47 +1,47 @@
-resource: 'google_firebase_app_hosting_build'
-generation_type: 'mmv1'
-source_file: 'products/firebaseapphosting/Build.yaml'
-api_service_name: 'firebaseapphosting.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Build'
+resource: google_firebase_app_hosting_build
+generation_type: mmv1
+source_file: products/firebaseapphosting/Build.yaml
+api_service_name: firebaseapphosting.googleapis.com
+api_version: v1
+api_resource_type_kind: Build
 autogen_status: true
 fields:
-  - api_field: 'annotations'
-  - field: 'backend'
-    provider_only: true
-  - field: 'build_id'
-    provider_only: true
-  - api_field: 'buildLogsUri'
-  - api_field: 'createTime'
-  - api_field: 'displayName'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'environment'
-  - api_field: 'error.code'
-  - api_field: 'error.details'
-  - api_field: 'error.message'
-  - api_field: 'errorSource'
-  - api_field: 'etag'
-  - api_field: 'image'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'source.codebase.author.displayName'
-  - api_field: 'source.codebase.author.email'
-  - api_field: 'source.codebase.author.imageUri'
-  - api_field: 'source.codebase.branch'
-  - api_field: 'source.codebase.commit'
-  - api_field: 'source.codebase.commitMessage'
-  - api_field: 'source.codebase.commitTime'
-  - api_field: 'source.codebase.displayName'
-  - api_field: 'source.codebase.hash'
-  - api_field: 'source.codebase.uri'
-  - api_field: 'source.container.image'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - field: backend
+      provider_only: true
+    - field: build_id
+      provider_only: true
+    - api_field: buildLogsUri
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: environment
+    - api_field: error.code
+    - api_field: error.details
+    - api_field: error.message
+    - api_field: errorSource
+    - api_field: etag
+    - api_field: image
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: source.codebase.author.displayName
+    - api_field: source.codebase.author.email
+    - api_field: source.codebase.author.imageUri
+    - api_field: source.codebase.branch
+    - api_field: source.codebase.commit
+    - api_field: source.codebase.commitMessage
+    - api_field: source.codebase.commitTime
+    - api_field: source.codebase.displayName
+    - api_field: source.codebase.hash
+    - api_field: source.codebase.uri
+    - api_field: source.container.image
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

@@ -1,12 +1,12 @@
-resource: 'google_resource_manager_capability'
-generation_type: 'mmv1'
-source_file: 'products/resourcemanager3/Capability.yaml'
-api_service_name: 'cloudresourcemanager.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Capability'
+resource: google_resource_manager_capability
+generation_type: mmv1
+source_file: products/resourcemanager3/Capability.yaml
+api_service_name: cloudresourcemanager.googleapis.com
+api_version: v3
+api_resource_type_kind: Capability
 fields:
-  - field: 'capability_name'
-    provider_only: true
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'value'
+    - field: capability_name
+      provider_only: true
+    - field: parent
+      provider_only: true
+    - api_field: value

@@ -1,24 +1,24 @@
-resource: 'google_network_security_client_tls_policy'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/ClientTlsPolicy.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ClientTlsPolicy'
+resource: google_network_security_client_tls_policy
+generation_type: mmv1
+source_file: products/networksecurity/ClientTlsPolicy.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: ClientTlsPolicy
 fields:
-  - api_field: 'clientCertificate.certificateProviderInstance.pluginInstance'
-  - api_field: 'clientCertificate.grpcEndpoint.targetUri'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'serverValidationCa.certificateProviderInstance.pluginInstance'
-  - api_field: 'serverValidationCa.grpcEndpoint.targetUri'
-  - api_field: 'sni'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: clientCertificate.certificateProviderInstance.pluginInstance
+    - api_field: clientCertificate.grpcEndpoint.targetUri
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: serverValidationCa.certificateProviderInstance.pluginInstance
+    - api_field: serverValidationCa.grpcEndpoint.targetUri
+    - api_field: sni
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

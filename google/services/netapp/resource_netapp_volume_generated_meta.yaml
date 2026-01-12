@@ -1,115 +1,115 @@
-resource: 'google_netapp_volume'
-generation_type: 'mmv1'
-source_file: 'products/netapp/Volume.yaml'
-api_service_name: 'netapp.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Volume'
+resource: google_netapp_volume
+generation_type: mmv1
+source_file: products/netapp/Volume.yaml
+api_service_name: netapp.googleapis.com
+api_version: v1
+api_resource_type_kind: Volume
 fields:
-  - api_field: 'activeDirectory'
-  - api_field: 'backupConfig.backupPolicies'
-  - api_field: 'backupConfig.backupVault'
-  - api_field: 'backupConfig.scheduledBackupEnabled'
-  - api_field: 'blockDevices.hostGroups'
-  - api_field: 'blockDevices.identifier'
-  - api_field: 'blockDevices.name'
-  - api_field: 'blockDevices.osType'
-  - api_field: 'blockDevices.sizeGib'
-  - api_field: 'cacheParameters.cacheConfig.cifsChangeNotifyEnabled'
-  - api_field: 'cacheParameters.cacheState'
-  - api_field: 'cacheParameters.command'
-  - api_field: 'cacheParameters.enableGlobalFileLock'
-  - api_field: 'cacheParameters.passphrase'
-  - api_field: 'cacheParameters.peerClusterName'
-  - api_field: 'cacheParameters.peerIpAddresses'
-  - api_field: 'cacheParameters.peerSvmName'
-  - api_field: 'cacheParameters.peerVolumeName'
-  - api_field: 'cacheParameters.peeringCommandExpiryTime'
-  - api_field: 'cacheParameters.stateDetails'
-  - api_field: 'capacityGib'
-  - api_field: 'coldTierSizeGib'
-  - api_field: 'createTime'
-  - field: 'deletion_policy'
-    provider_only: true
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionType'
-  - api_field: 'exportPolicy.rules.accessType'
-  - api_field: 'exportPolicy.rules.allowedClients'
-  - api_field: 'exportPolicy.rules.anonUid'
-  - api_field: 'exportPolicy.rules.hasRootAccess'
-  - api_field: 'exportPolicy.rules.kerberos5ReadOnly'
-  - api_field: 'exportPolicy.rules.kerberos5ReadWrite'
-  - api_field: 'exportPolicy.rules.kerberos5iReadOnly'
-  - api_field: 'exportPolicy.rules.kerberos5iReadWrite'
-  - api_field: 'exportPolicy.rules.kerberos5pReadOnly'
-  - api_field: 'exportPolicy.rules.kerberos5pReadWrite'
-  - api_field: 'exportPolicy.rules.nfsv3'
-  - api_field: 'exportPolicy.rules.nfsv4'
-  - api_field: 'exportPolicy.rules.squashMode'
-  - api_field: 'hasReplication'
-  - api_field: 'hotTierSizeUsedGib'
-  - api_field: 'hybridReplicationParameters.clusterLocation'
-  - api_field: 'hybridReplicationParameters.description'
-  - api_field: 'hybridReplicationParameters.hybridReplicationType'
-  - api_field: 'hybridReplicationParameters.labels'
-  - api_field: 'hybridReplicationParameters.largeVolumeConstituentCount'
-  - api_field: 'hybridReplicationParameters.peerClusterName'
-  - api_field: 'hybridReplicationParameters.peerIpAddresses'
-  - api_field: 'hybridReplicationParameters.peerSvmName'
-  - api_field: 'hybridReplicationParameters.peerVolumeName'
-  - api_field: 'hybridReplicationParameters.replication'
-  - api_field: 'hybridReplicationParameters.replicationSchedule'
-  - api_field: 'kerberosEnabled'
-  - api_field: 'kmsConfig'
-  - api_field: 'labels'
-  - api_field: 'largeCapacity'
-  - api_field: 'ldapEnabled'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mountOptions.export'
-  - api_field: 'mountOptions.exportFull'
-  - api_field: 'mountOptions.instructions'
-  - api_field: 'mountOptions.ipAddress'
-  - api_field: 'mountOptions.protocol'
-  - api_field: 'multipleEndpoints'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'network'
-  - api_field: 'protocols'
-  - api_field: 'psaRange'
-  - api_field: 'replicaZone'
-  - api_field: 'restoreParameters.sourceBackup'
-  - api_field: 'restoreParameters.sourceSnapshot'
-  - api_field: 'restrictedActions'
-  - api_field: 'securityStyle'
-  - api_field: 'serviceLevel'
-  - api_field: 'shareName'
-  - api_field: 'smbSettings'
-  - api_field: 'snapshotDirectory'
-  - api_field: 'snapshotPolicy.dailySchedule.hour'
-  - api_field: 'snapshotPolicy.dailySchedule.minute'
-  - api_field: 'snapshotPolicy.dailySchedule.snapshotsToKeep'
-  - api_field: 'snapshotPolicy.enabled'
-  - api_field: 'snapshotPolicy.hourlySchedule.minute'
-  - api_field: 'snapshotPolicy.hourlySchedule.snapshotsToKeep'
-  - api_field: 'snapshotPolicy.monthlySchedule.daysOfMonth'
-  - api_field: 'snapshotPolicy.monthlySchedule.hour'
-  - api_field: 'snapshotPolicy.monthlySchedule.minute'
-  - api_field: 'snapshotPolicy.monthlySchedule.snapshotsToKeep'
-  - api_field: 'snapshotPolicy.weeklySchedule.day'
-  - api_field: 'snapshotPolicy.weeklySchedule.hour'
-  - api_field: 'snapshotPolicy.weeklySchedule.minute'
-  - api_field: 'snapshotPolicy.weeklySchedule.snapshotsToKeep'
-  - api_field: 'state'
-  - api_field: 'stateDetails'
-  - api_field: 'storagePool'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'throughputMibps'
-  - api_field: 'tieringPolicy.coolingThresholdDays'
-  - api_field: 'tieringPolicy.hotTierBypassModeEnabled'
-  - api_field: 'tieringPolicy.tierAction'
-  - api_field: 'unixPermissions'
-  - api_field: 'usedGib'
-  - api_field: 'zone'
+    - api_field: activeDirectory
+    - api_field: backupConfig.backupPolicies
+    - api_field: backupConfig.backupVault
+    - api_field: backupConfig.scheduledBackupEnabled
+    - api_field: blockDevices.hostGroups
+    - api_field: blockDevices.identifier
+    - api_field: blockDevices.name
+    - api_field: blockDevices.osType
+    - api_field: blockDevices.sizeGib
+    - api_field: cacheParameters.cacheConfig.cifsChangeNotifyEnabled
+    - api_field: cacheParameters.cacheState
+    - api_field: cacheParameters.command
+    - api_field: cacheParameters.enableGlobalFileLock
+    - api_field: cacheParameters.passphrase
+    - api_field: cacheParameters.peerClusterName
+    - api_field: cacheParameters.peerIpAddresses
+    - api_field: cacheParameters.peerSvmName
+    - api_field: cacheParameters.peerVolumeName
+    - api_field: cacheParameters.peeringCommandExpiryTime
+    - api_field: cacheParameters.stateDetails
+    - api_field: capacityGib
+    - api_field: coldTierSizeGib
+    - api_field: createTime
+    - field: deletion_policy
+      provider_only: true
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionType
+    - api_field: exportPolicy.rules.accessType
+    - api_field: exportPolicy.rules.allowedClients
+    - api_field: exportPolicy.rules.anonUid
+    - api_field: exportPolicy.rules.hasRootAccess
+    - api_field: exportPolicy.rules.kerberos5ReadOnly
+    - api_field: exportPolicy.rules.kerberos5ReadWrite
+    - api_field: exportPolicy.rules.kerberos5iReadOnly
+    - api_field: exportPolicy.rules.kerberos5iReadWrite
+    - api_field: exportPolicy.rules.kerberos5pReadOnly
+    - api_field: exportPolicy.rules.kerberos5pReadWrite
+    - api_field: exportPolicy.rules.nfsv3
+    - api_field: exportPolicy.rules.nfsv4
+    - api_field: exportPolicy.rules.squashMode
+    - api_field: hasReplication
+    - api_field: hotTierSizeUsedGib
+    - api_field: hybridReplicationParameters.clusterLocation
+    - api_field: hybridReplicationParameters.description
+    - api_field: hybridReplicationParameters.hybridReplicationType
+    - api_field: hybridReplicationParameters.labels
+    - api_field: hybridReplicationParameters.largeVolumeConstituentCount
+    - api_field: hybridReplicationParameters.peerClusterName
+    - api_field: hybridReplicationParameters.peerIpAddresses
+    - api_field: hybridReplicationParameters.peerSvmName
+    - api_field: hybridReplicationParameters.peerVolumeName
+    - api_field: hybridReplicationParameters.replication
+    - api_field: hybridReplicationParameters.replicationSchedule
+    - api_field: kerberosEnabled
+    - api_field: kmsConfig
+    - api_field: labels
+    - api_field: largeCapacity
+    - api_field: ldapEnabled
+    - field: location
+      provider_only: true
+    - api_field: mountOptions.export
+    - api_field: mountOptions.exportFull
+    - api_field: mountOptions.instructions
+    - api_field: mountOptions.ipAddress
+    - api_field: mountOptions.protocol
+    - api_field: multipleEndpoints
+    - field: name
+      provider_only: true
+    - api_field: network
+    - api_field: protocols
+    - api_field: psaRange
+    - api_field: replicaZone
+    - api_field: restoreParameters.sourceBackup
+    - api_field: restoreParameters.sourceSnapshot
+    - api_field: restrictedActions
+    - api_field: securityStyle
+    - api_field: serviceLevel
+    - api_field: shareName
+    - api_field: smbSettings
+    - api_field: snapshotDirectory
+    - api_field: snapshotPolicy.dailySchedule.hour
+    - api_field: snapshotPolicy.dailySchedule.minute
+    - api_field: snapshotPolicy.dailySchedule.snapshotsToKeep
+    - api_field: snapshotPolicy.enabled
+    - api_field: snapshotPolicy.hourlySchedule.minute
+    - api_field: snapshotPolicy.hourlySchedule.snapshotsToKeep
+    - api_field: snapshotPolicy.monthlySchedule.daysOfMonth
+    - api_field: snapshotPolicy.monthlySchedule.hour
+    - api_field: snapshotPolicy.monthlySchedule.minute
+    - api_field: snapshotPolicy.monthlySchedule.snapshotsToKeep
+    - api_field: snapshotPolicy.weeklySchedule.day
+    - api_field: snapshotPolicy.weeklySchedule.hour
+    - api_field: snapshotPolicy.weeklySchedule.minute
+    - api_field: snapshotPolicy.weeklySchedule.snapshotsToKeep
+    - api_field: state
+    - api_field: stateDetails
+    - api_field: storagePool
+    - field: terraform_labels
+      provider_only: true
+    - api_field: throughputMibps
+    - api_field: tieringPolicy.coolingThresholdDays
+    - api_field: tieringPolicy.hotTierBypassModeEnabled
+    - api_field: tieringPolicy.tierAction
+    - api_field: unixPermissions
+    - api_field: usedGib
+    - api_field: zone

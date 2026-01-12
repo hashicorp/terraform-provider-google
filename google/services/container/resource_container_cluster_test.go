@@ -193,6 +193,9 @@ func TestAccContainerCluster_resourceManagerTags(t *testing.T) {
 func TestAccContainerCluster_networkingModeRoutes(t *testing.T) {
 	t.Parallel()
 
+	// separate shared network name because test requests a specific CIDR
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster-moderoutes")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster-moderoutes", networkName)
 	firstClusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	secondClusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
@@ -201,7 +204,7 @@ func TestAccContainerCluster_networkingModeRoutes(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_networkingModeRoutes(firstClusterName, secondClusterName),
+				Config: testAccContainerCluster_networkingModeRoutes(firstClusterName, secondClusterName, networkName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "networking_mode", "ROUTES"),
 					resource.TestCheckResourceAttr("google_container_cluster.secondary", "networking_mode", "ROUTES")),
@@ -789,6 +792,10 @@ func TestAccContainerCluster_inTransitEncryptionConfig(t *testing.T) {
 
 func TestAccContainerCluster_networkPerformanceConfig(t *testing.T) {
 	t.Parallel()
+
+	// Skip in VCR until the test issue is resolved
+	// https://github.com/hashicorp/terraform-provider-google/issues/24850
+	acctest.SkipIfVcr(t)
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
@@ -2058,25 +2065,10 @@ func TestAccContainerCluster_withNodeConfigLinuxNodeConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			// Lastly, update the setting in-place. V1 since UNSPECIFIED is default
+			// From version 1.35+, cgroup mode v1 will be blocked.
 			{
-				Config: testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1", false, ""),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"google_container_cluster.with_linux_node_config",
-						"node_config.0.linux_node_config.0.cgroup_mode", "CGROUP_MODE_V1",
-					),
-				),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						acctest.ExpectNoDelete(),
-					},
-				},
-			},
-			{
-				ResourceName:            "google_container_cluster.with_linux_node_config",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+				Config:      testAccContainerCluster_withNodeConfigLinuxNodeConfig(clusterName, networkName, subnetworkName, "CGROUP_MODE_V1", false, ""),
+				ExpectError: regexp.MustCompile("Node pools with cgroupv1 is not supported"),
 			},
 			// Update linux config transparent hugepage
 			{
@@ -6933,13 +6925,15 @@ resource "google_container_cluster" "primary" {
 `, projectID, name, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_networkingModeRoutes(firstName, secondName string) string {
+func testAccContainerCluster_networkingModeRoutes(firstName, secondName, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name                = "%s"
   location            = "us-central1-a"
   initial_node_count  = 1
   networking_mode     = "ROUTES"
+  network             = "%s"
+  subnetwork          = "%s"
   deletion_protection = false
 }
 
@@ -6947,10 +6941,12 @@ resource "google_container_cluster" "secondary" {
   name                = "%s"
   location            = "us-central1-a"
   initial_node_count  = 1
+  network             = "%s"
+  subnetwork          = "%s"
   cluster_ipv4_cidr   = "10.96.0.0/14"
   deletion_protection = false
 }
-`, firstName, secondName)
+`, firstName, networkName, subnetworkName, secondName, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_misc(name, networkName, subnetworkName string) string {
@@ -13142,6 +13138,328 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 }
 `, secretID, clusterName, customDomain, networkName, subnetworkName)
+}
+
+func TestAccContainerCluster_registryHosts(t *testing.T) {
+	// This test also checks containerd_config and its updates
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePoolName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	secretID := fmt.Sprintf("tf-test-secret-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_registryHosts(secretID, clusterName, networkName, subnetworkName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_pool_defaults.0.node_config_defaults.0.containerd_config.0.registry_hosts.0.server",
+						"custom.example.com",
+					),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_pool_defaults.0.node_config_defaults.0.containerd_config.0.registry_hosts.0.hosts.0.host",
+						"custom.mirror.com",
+					),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "min_master_version"},
+			},
+			// The above tests the default for _new_ node pools; this tests the configuration for default-pool if
+			// defined within the `container_cluster` resource
+			{
+				Config: testAccContainerCluster_withNodeConfigRegistryHosts(secretID, clusterName, networkName, subnetworkName, "foo.example.com", "foo.mirror.com"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_config.0.containerd_config.0.registry_hosts.0.server",
+						"foo.example.com",
+					),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_config.0.containerd_config.0.registry_hosts.0.hosts.0.host",
+						"foo.mirror.com",
+					),
+				),
+			},
+			// We're already testing going from no `node_config` to having one in the previous step, but test updating
+			// anyway.
+			{
+				Config: testAccContainerCluster_withNodeConfigRegistryHosts(secretID, clusterName, networkName, subnetworkName, "bar.example.org", "bar.mirror.org"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_config.0.containerd_config.0.registry_hosts.0.server",
+						"bar.example.org",
+					),
+					resource.TestCheckResourceAttr(
+						"google_container_cluster.primary",
+						"node_config.0.containerd_config.0.registry_hosts.0.hosts.0.host",
+						"bar.mirror.org",
+					),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "min_master_version"},
+			},
+			// This last test *will* force recreation, and tests a (named) node pool defined in
+			// `google_container_cluster.node_pool`. Deletions are expected here too.
+			{
+				Config: testAccContainerCluster_withNodePoolRegistryHosts(secretID, clusterName, nodePoolName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "min_master_version"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_registryHosts(secretID, clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "test_project" {}
+
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_secret_manager_secret" "secret_basic" {
+  secret_id = "%s"
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret_version_basic" {
+  secret      = google_secret_manager_secret.secret_basic.id
+  secret_data = "dummypassword"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_iam" {
+  secret_id  = google_secret_manager_secret.secret_basic.id
+  role       = "roles/secretmanager.admin"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret_version.secret_version_basic]
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+  }
+  node_pool_defaults {
+    node_config_defaults {
+      containerd_config {
+        registry_hosts {
+          server = "custom.example.com"
+          hosts {
+            host = "custom.mirror.com"
+            capabilities = ["HOST_CAPABILITY_PULL","HOST_CAPABILITY_RESOLVE"]
+            override_path = false
+            dial_timeout = "30s"
+            header {
+              key = "header_key"
+              value = ["header_value_1","header_value_2"]
+            }
+            ca {
+              gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret_version_basic.name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, secretID, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodePoolRegistryHosts(secretID, clusterName, nodePoolName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_project" "test_project" {}
+
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_secret_manager_secret" "secret_basic" {
+  secret_id = "%s"
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+resource "google_secret_manager_secret_version" "secret_version_basic" {
+  secret      = google_secret_manager_secret.secret_basic.id
+  secret_data = "dummypassword"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_iam" {
+  secret_id  = google_secret_manager_secret.secret_basic.id
+  role       = "roles/secretmanager.admin"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret_version.secret_version_basic]
+}
+resource "google_container_cluster" "primary" {
+  name     = "%s"
+  location = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 1
+    node_config {
+      oauth_scopes = [
+        "https://www.googleapis.com/auth/cloud-platform",
+      ]
+      containerd_config {
+        registry_hosts {
+          server = "custom.example.com"
+          hosts {
+            host = "custom.mirror.com"
+            capabilities = ["HOST_CAPABILITY_PULL","HOST_CAPABILITY_PUSH"]
+            override_path = true
+            dial_timeout = "30s"
+            header {
+              key = "header_key"
+              value = ["header_value_1","header_value_2"]
+            }
+            ca {
+              gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret_version_basic.name
+            }
+            client {
+              cert {
+                gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret_version_basic.name
+              }
+              key {
+                gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret_version_basic.name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, secretID, clusterName, nodePoolName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodeConfigRegistryHosts(secretID, clusterName, networkName, subnetworkName, customServer, customMirror string) string {
+	return fmt.Sprintf(`
+data "google_project" "test_project" {}
+
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_secret_manager_secret" "secret_basic" {
+  secret_id = "%s"
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+resource "google_secret_manager_secret_version" "secret_version_basic" {
+  secret      = google_secret_manager_secret.secret_basic.id
+  secret_data = "dummypassword"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_iam" {
+  secret_id  = google_secret_manager_secret.secret_basic.id
+  role       = "roles/secretmanager.admin"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret_version.secret_version_basic]
+}
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    containerd_config {
+      registry_hosts {
+        server = "%s"
+        hosts {
+          host = "%s"
+          capabilities = ["HOST_CAPABILITY_PULL","HOST_CAPABILITY_PUSH"]
+          override_path = true
+          dial_timeout = "30s"
+          header {
+            key = "header_key"
+            value = ["header_value_1","header_value_2"]
+          }
+          ca {
+            gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret_version_basic.name
+          }
+          client {
+            cert {
+              gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret_version_basic.name
+            }
+            key {
+              gcp_secret_manager_secret_uri = google_secret_manager_secret_version.secret_version_basic.name
+            }
+          }
+        }
+      }
+    }
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, secretID, clusterName, customServer, customMirror, networkName, subnetworkName)
 }
 
 func TestAccContainerCluster_writableCgroups(t *testing.T) {

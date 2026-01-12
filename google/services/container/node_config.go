@@ -49,6 +49,7 @@ func schemaContainerdConfig() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
 		Optional:    true,
+		Computed:    true,
 		Description: "Parameters for containerd configuration.",
 		MaxItems:    1,
 		Elem: &schema.Resource{Schema: map[string]*schema.Schema{
@@ -105,6 +106,111 @@ func schemaContainerdConfig() *schema.Schema {
 						},
 					},
 				},
+			},
+			"registry_hosts": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Configures containerd registry host configuration. Each registry_hosts entry represents a hosts.toml file.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"server": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Defines the host name of the registry server.",
+						},
+						"hosts": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Configures a list of host-specific configurations for the server.",
+							Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+								"host": {
+									Type:        schema.TypeString,
+									Required:    true,
+									Description: "Configures the registry host/mirror.",
+								},
+								"capabilities": {
+									Type:        schema.TypeList,
+									Optional:    true,
+									Description: "Represent the capabilities of the registry host, specifying what operations a host is capable of performing.",
+									Elem:        &schema.Schema{Type: schema.TypeString},
+								},
+								"override_path": {
+									Type:        schema.TypeBool,
+									Optional:    true,
+									Description: "Indicate the host's API root endpoint is defined in the URL path rather than by the API specification.",
+								},
+								"dial_timeout": {
+									Type:        schema.TypeString,
+									Optional:    true,
+									Description: "Specifies the maximum duration allowed for a connection attempt to complete.",
+								},
+								"header": {
+									Type:        schema.TypeList,
+									Optional:    true,
+									Description: "Configures the registry host headers.",
+									Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+										"key": {
+											Type:        schema.TypeString,
+											Required:    true,
+											Description: "Configures the header key.",
+										},
+										"value": {
+											Type:        schema.TypeList,
+											Required:    true,
+											Description: "Configures the header value.",
+											Elem:        &schema.Schema{Type: schema.TypeString},
+										},
+									}},
+								},
+								"ca": {
+									Type:        schema.TypeList,
+									Optional:    true,
+									Description: "Configures the registry host certificate.",
+									Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+										"gcp_secret_manager_secret_uri": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Description: "URI for the Secret Manager secret that hosts the certificate.",
+										},
+									}},
+								},
+								"client": {
+									Type:        schema.TypeList,
+									Optional:    true,
+									Description: "Configures the registry host client certificate and key.",
+									Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+										"cert": {
+											Type:        schema.TypeList,
+											Required:    true,
+											MaxItems:    1,
+											Description: "Configures the client certificate.",
+											Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+												"gcp_secret_manager_secret_uri": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "URI for the Secret Manager secret that hosts the client certificate.",
+												},
+											}},
+										},
+										"key": {
+											Type:        schema.TypeList,
+											Optional:    true,
+											MaxItems:    1,
+											Description: "Configures the client private key.",
+											Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+												"gcp_secret_manager_secret_uri": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "URI for the Secret Manager secret that hosts the private key.",
+												},
+											}},
+										},
+									}},
+								},
+							},
+							},
+						},
+					}},
 			},
 		}},
 	}
@@ -1984,6 +2090,7 @@ func expandContainerdConfig(v interface{}) *container.ContainerdConfig {
 	cc := &container.ContainerdConfig{}
 	cc.PrivateRegistryAccessConfig = expandPrivateRegistryAccessConfig(cfg["private_registry_access_config"])
 	cc.WritableCgroups = expandWritableCgroups(cfg["writable_cgroups"])
+	cc.RegistryHosts = expandRegistryHosts(cfg["registry_hosts"])
 	return cc
 }
 
@@ -2073,6 +2180,122 @@ func expandWritableCgroups(v interface{}) *container.WritableCgroups {
 		wcg.Enabled = enabled.(bool)
 	}
 	return wcg
+}
+
+func expandRegistryHosts(v interface{}) []*container.RegistryHostConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	registryHosts := make([]*container.RegistryHostConfig, 0, len(ls))
+	for _, raw := range ls {
+		data := raw.(map[string]interface{})
+		rh := &container.RegistryHostConfig{
+			Server: data["server"].(string),
+		}
+		if v, ok := data["hosts"]; ok {
+			hosts := v.([]interface{})
+			rh.Hosts = make([]*container.HostConfig, 0, len(hosts))
+			for _, rawHost := range hosts {
+				hostData := rawHost.(map[string]interface{})
+				h := &container.HostConfig{
+					Host: hostData["host"].(string),
+				}
+				if v, ok := hostData["override_path"]; ok {
+					h.OverridePath = v.(bool)
+				}
+				if v, ok := hostData["dial_timeout"]; ok {
+					h.DialTimeout = v.(string)
+				}
+				if v, ok := hostData["capabilities"]; ok {
+					cap := v.([]interface{})
+					h.Capabilities = make([]string, len(cap))
+					for i, c := range cap {
+						h.Capabilities[i] = c.(string)
+					}
+				}
+				if v, ok := hostData["header"]; ok {
+					headers := v.([]interface{})
+					h.Header = make([]*container.RegistryHeader, len(headers))
+					for i, headerRaw := range headers {
+						h.Header[i] = expandRegistryHeader(headerRaw)
+					}
+				}
+				if v, ok := hostData["ca"]; ok {
+					ca := v.([]interface{})
+					h.Ca = make([]*container.CertificateConfig, len(ca))
+					for i, caRaw := range ca {
+						h.Ca[i] = expandRegistryCertificateConfig(caRaw)
+					}
+				}
+				if v, ok := hostData["client"]; ok {
+					client := v.([]interface{})
+					h.Client = make([]*container.CertificateConfigPair, len(client))
+					for i, clientRaw := range client {
+						h.Client[i] = expandRegistryCertificateConfigPair(clientRaw)
+					}
+				}
+				rh.Hosts = append(rh.Hosts, h)
+			}
+		}
+		registryHosts = append(registryHosts, rh)
+	}
+	return registryHosts
+}
+
+func expandRegistryHeader(v interface{}) *container.RegistryHeader {
+	header := &container.RegistryHeader{}
+	if v == nil {
+		return header
+	}
+	ls := v.(map[string]interface{})
+	if val, ok := ls["key"]; ok {
+		header.Key = val.(string)
+	}
+	if val, ok := ls["value"]; ok {
+		headerVal := val.([]interface{})
+		header.Value = make([]string, len(headerVal))
+		for i, hv := range headerVal {
+			header.Value[i] = hv.(string)
+		}
+	}
+	return header
+}
+
+func expandRegistryCertificateConfig(v interface{}) *container.CertificateConfig {
+	cfg := &container.CertificateConfig{}
+	if v == nil {
+		return cfg
+	}
+	ls := v.(map[string]interface{})
+	if val, ok := ls["gcp_secret_manager_secret_uri"]; ok {
+		cfg.GcpSecretManagerSecretUri = val.(string)
+	}
+	return cfg
+}
+
+func expandRegistryCertificateConfigPair(v interface{}) *container.CertificateConfigPair {
+	cfg := &container.CertificateConfigPair{}
+	if v == nil {
+		return cfg
+	}
+	ls := v.(map[string]interface{})
+	if val, ok := ls["cert"]; ok {
+		certRaw := val.([]interface{})
+		if len(certRaw) > 0 {
+			cfg.Cert = expandRegistryCertificateConfig(certRaw[0])
+		}
+	}
+	if val, ok := ls["key"]; ok {
+		keyRaw := val.([]interface{})
+		if len(keyRaw) > 0 {
+			cfg.Key = expandRegistryCertificateConfig(keyRaw[0])
+		}
+	}
+	return cfg
 }
 
 func expandSoleTenantConfig(v interface{}) *container.SoleTenantConfig {
@@ -2595,7 +2818,87 @@ func flattenContainerdConfig(c *container.ContainerdConfig) []map[string]interfa
 	if c.WritableCgroups != nil {
 		r["writable_cgroups"] = flattenWritableCgroups(c.WritableCgroups)
 	}
+	if c.RegistryHosts != nil {
+		r["registry_hosts"] = flattenRegistryHosts(c.RegistryHosts)
+	}
 	return append(result, r)
+}
+
+func flattenRegistryHosts(registryHosts []*container.RegistryHostConfig) []map[string]interface{} {
+	items := []map[string]interface{}{}
+	if len(registryHosts) == 0 {
+		return items
+	}
+
+	for _, host := range registryHosts {
+		item := make(map[string]interface{})
+		item["server"] = host.Server
+		item["hosts"] = flattenHostInRegistryHosts(host.Hosts)
+		items = append(items, item)
+	}
+	return items
+}
+
+func flattenHostInRegistryHosts(hosts []*container.HostConfig) []map[string]interface{} {
+	items := make([]map[string]interface{}, 0, len(hosts))
+	if len(hosts) == 0 {
+		return items
+	}
+	for _, h := range hosts {
+		item := make(map[string]interface{})
+		item["host"] = h.Host
+		item["capabilities"] = h.Capabilities
+		item["override_path"] = h.OverridePath
+		item["dial_timeout"] = h.DialTimeout
+
+		if h.Header != nil {
+			tmp := make([]interface{}, len(h.Header))
+			for i, val := range h.Header {
+				tmp[i] = map[string]interface{}{
+					"key":   val.Key,
+					"value": val.Value,
+				}
+			}
+			item["header"] = tmp
+		}
+
+		if h.Ca != nil {
+			tmp := make([]interface{}, len(h.Ca))
+			for i, val := range h.Ca {
+				if val != nil && val.GcpSecretManagerSecretUri != "" {
+					tmp[i] = map[string]interface{}{
+						"gcp_secret_manager_secret_uri": val.GcpSecretManagerSecretUri,
+					}
+				}
+			}
+			item["ca"] = tmp
+		}
+
+		if h.Client != nil {
+			tmp := make([]interface{}, len(h.Client))
+			for i, val := range h.Client {
+				currentClient := map[string]interface{}{}
+				if val != nil && val.Cert != nil && val.Cert.GcpSecretManagerSecretUri != "" {
+					currentClient["cert"] = []interface{}{
+						map[string]interface{}{
+							"gcp_secret_manager_secret_uri": val.Cert.GcpSecretManagerSecretUri,
+						},
+					}
+				}
+				if val != nil && val.Key != nil && val.Key.GcpSecretManagerSecretUri != "" {
+					currentClient["key"] = []interface{}{
+						map[string]interface{}{
+							"gcp_secret_manager_secret_uri": val.Key.GcpSecretManagerSecretUri,
+						},
+					}
+				}
+				tmp[i] = currentClient
+			}
+			item["client"] = tmp
+		}
+		items = append(items, item)
+	}
+	return items
 }
 
 func flattenPrivateRegistryAccessConfig(c *container.PrivateRegistryAccessConfig) []map[string]interface{} {

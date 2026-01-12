@@ -1,23 +1,23 @@
-resource: 'google_colab_runtime'
-generation_type: 'mmv1'
-source_file: 'products/colab/Runtime.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NotebookRuntime'
+resource: google_colab_runtime
+generation_type: mmv1
+source_file: products/colab/Runtime.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: NotebookRuntime
 fields:
-  - field: 'auto_upgrade'
-    provider_only: true
-  - api_field: 'description'
-  - field: 'desired_state'
-    provider_only: true
-  - api_field: 'displayName'
-  - api_field: 'expirationTime'
-  - api_field: 'isUpgradable'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'notebookRuntimeTemplateRef.notebookRuntimeTemplate'
-  - api_field: 'notebookRuntimeType'
-  - api_field: 'runtimeUser'
-  - api_field: 'state'
+    - field: auto_upgrade
+      provider_only: true
+    - api_field: description
+    - field: desired_state
+      provider_only: true
+    - api_field: displayName
+    - api_field: expirationTime
+    - api_field: isUpgradable
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: notebookRuntimeTemplateRef.notebookRuntimeTemplate
+    - api_field: notebookRuntimeType
+    - api_field: runtimeUser
+    - api_field: state

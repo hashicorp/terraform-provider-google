@@ -1,22 +1,22 @@
-resource: 'google_network_services_edge_cache_keyset'
-generation_type: 'mmv1'
-source_file: 'products/networkservices/EdgeCacheKeyset.yaml'
-api_service_name: 'networkservices.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'EdgeCacheKeyset'
+resource: google_network_services_edge_cache_keyset
+generation_type: mmv1
+source_file: products/networkservices/EdgeCacheKeyset.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: EdgeCacheKeyset
 fields:
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'publicKeys.id'
-    field: 'public_key.id'
-  - api_field: 'publicKeys.managed'
-    field: 'public_key.managed'
-  - api_field: 'publicKeys.value'
-    field: 'public_key.value'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'validationSharedKeys.secretVersion'
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: name
+      provider_only: true
+    - api_field: publicKeys.id
+      field: public_key.id
+    - api_field: publicKeys.managed
+      field: public_key.managed
+    - api_field: publicKeys.value
+      field: public_key.value
+    - field: terraform_labels
+      provider_only: true
+    - api_field: validationSharedKeys.secretVersion

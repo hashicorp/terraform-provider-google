@@ -1,38 +1,38 @@
-resource: 'google_dialogflow_cx_tool'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/Tool.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Tool'
+resource: google_dialogflow_cx_tool
+generation_type: mmv1
+source_file: products/dialogflowcx/Tool.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: Tool
 fields:
-  - api_field: 'dataStoreSpec.dataStoreConnections.dataStore'
-  - api_field: 'dataStoreSpec.dataStoreConnections.dataStoreType'
-  - api_field: 'dataStoreSpec.dataStoreConnections.documentProcessingMode'
-  - api_field: 'dataStoreSpec.fallbackPrompt'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'functionSpec.inputSchema'
-    json: true
-  - api_field: 'functionSpec.outputSchema'
-    json: true
-  - api_field: 'name'
-  - api_field: 'openApiSpec.authentication.apiKeyConfig.apiKey'
-  - api_field: 'openApiSpec.authentication.apiKeyConfig.keyName'
-  - api_field: 'openApiSpec.authentication.apiKeyConfig.requestLocation'
-  - api_field: 'openApiSpec.authentication.apiKeyConfig.secretVersionForApiKey'
-  - api_field: 'openApiSpec.authentication.bearerTokenConfig.secretVersionForToken'
-  - api_field: 'openApiSpec.authentication.bearerTokenConfig.token'
-  - api_field: 'openApiSpec.authentication.oauthConfig.clientId'
-  - api_field: 'openApiSpec.authentication.oauthConfig.clientSecret'
-  - api_field: 'openApiSpec.authentication.oauthConfig.oauthGrantType'
-  - api_field: 'openApiSpec.authentication.oauthConfig.scopes'
-  - api_field: 'openApiSpec.authentication.oauthConfig.secretVersionForClientSecret'
-  - api_field: 'openApiSpec.authentication.oauthConfig.tokenEndpoint'
-  - api_field: 'openApiSpec.authentication.serviceAgentAuthConfig.serviceAgentAuth'
-  - api_field: 'openApiSpec.serviceDirectoryConfig.service'
-  - api_field: 'openApiSpec.textSchema'
-  - api_field: 'openApiSpec.tlsConfig.caCerts.cert'
-  - api_field: 'openApiSpec.tlsConfig.caCerts.displayName'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'toolType'
+    - api_field: dataStoreSpec.dataStoreConnections.dataStore
+    - api_field: dataStoreSpec.dataStoreConnections.dataStoreType
+    - api_field: dataStoreSpec.dataStoreConnections.documentProcessingMode
+    - api_field: dataStoreSpec.fallbackPrompt
+    - api_field: description
+    - api_field: displayName
+    - api_field: functionSpec.inputSchema
+      json: true
+    - api_field: functionSpec.outputSchema
+      json: true
+    - api_field: name
+    - api_field: openApiSpec.authentication.apiKeyConfig.apiKey
+    - api_field: openApiSpec.authentication.apiKeyConfig.keyName
+    - api_field: openApiSpec.authentication.apiKeyConfig.requestLocation
+    - api_field: openApiSpec.authentication.apiKeyConfig.secretVersionForApiKey
+    - api_field: openApiSpec.authentication.bearerTokenConfig.secretVersionForToken
+    - api_field: openApiSpec.authentication.bearerTokenConfig.token
+    - api_field: openApiSpec.authentication.oauthConfig.clientId
+    - api_field: openApiSpec.authentication.oauthConfig.clientSecret
+    - api_field: openApiSpec.authentication.oauthConfig.oauthGrantType
+    - api_field: openApiSpec.authentication.oauthConfig.scopes
+    - api_field: openApiSpec.authentication.oauthConfig.secretVersionForClientSecret
+    - api_field: openApiSpec.authentication.oauthConfig.tokenEndpoint
+    - api_field: openApiSpec.authentication.serviceAgentAuthConfig.serviceAgentAuth
+    - api_field: openApiSpec.serviceDirectoryConfig.service
+    - api_field: openApiSpec.textSchema
+    - api_field: openApiSpec.tlsConfig.caCerts.cert
+    - api_field: openApiSpec.tlsConfig.caCerts.displayName
+    - field: parent
+      provider_only: true
+    - api_field: toolType

@@ -1,20 +1,20 @@
-resource: 'google_kms_key_ring_import_job'
-generation_type: 'mmv1'
-source_file: 'products/kms/KeyRingImportJob.yaml'
-api_service_name: 'cloudkms.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ImportJob'
-cai_asset_name_format: '//cloudkms.googleapis.com/{{key_ring}}/importJobs/{{import_job_id}}'
+resource: google_kms_key_ring_import_job
+generation_type: mmv1
+source_file: products/kms/KeyRingImportJob.yaml
+api_service_name: cloudkms.googleapis.com
+api_version: v1
+api_resource_type_kind: ImportJob
+cai_asset_name_format: //cloudkms.googleapis.com/{{key_ring}}/importJobs/{{import_job_id}}
 fields:
-  - api_field: 'attestation.content'
-  - api_field: 'attestation.format'
-  - api_field: 'expireTime'
-  - field: 'import_job_id'
-    provider_only: true
-  - api_field: 'importMethod'
-  - field: 'key_ring'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'protectionLevel'
-  - api_field: 'publicKey.pem'
-  - api_field: 'state'
+    - api_field: attestation.content
+    - api_field: attestation.format
+    - api_field: expireTime
+    - field: import_job_id
+      provider_only: true
+    - api_field: importMethod
+    - field: key_ring
+      provider_only: true
+    - api_field: name
+    - api_field: protectionLevel
+    - api_field: publicKey.pem
+    - api_field: state

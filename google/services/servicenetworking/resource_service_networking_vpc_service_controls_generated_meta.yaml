@@ -1,13 +1,13 @@
-resource: 'google_service_networking_vpc_service_controls'
-generation_type: 'mmv1'
-source_file: 'products/servicenetworking/VPCServiceControls.yaml'
-api_service_name: 'servicenetworking.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'VpcServiceControls'
+resource: google_service_networking_vpc_service_controls
+generation_type: mmv1
+source_file: products/servicenetworking/VPCServiceControls.yaml
+api_service_name: servicenetworking.googleapis.com
+api_version: v1
+api_resource_type_kind: VpcServiceControls
 fields:
-  - api_field: 'enabled'
-  - field: 'network'
-    provider_only: true
-  - api_field: 'project'
-  - field: 'service'
-    provider_only: true
+    - api_field: enabled
+    - field: network
+      provider_only: true
+    - api_field: project
+    - field: service
+      provider_only: true

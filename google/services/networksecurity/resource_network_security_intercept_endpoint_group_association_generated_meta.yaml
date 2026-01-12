@@ -1,27 +1,27 @@
-resource: 'google_network_security_intercept_endpoint_group_association'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/InterceptEndpointGroupAssociation.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InterceptEndpointGroupAssociation'
+resource: google_network_security_intercept_endpoint_group_association
+generation_type: mmv1
+source_file: products/networksecurity/InterceptEndpointGroupAssociation.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: InterceptEndpointGroupAssociation
 fields:
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'interceptEndpointGroup'
-  - field: 'intercept_endpoint_group_association_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'locations.location'
-  - api_field: 'locations.state'
-  - api_field: 'locationsDetails.location'
-  - api_field: 'locationsDetails.state'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'reconciling'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: interceptEndpointGroup
+    - field: intercept_endpoint_group_association_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: locations.location
+    - api_field: locations.state
+    - api_field: locationsDetails.location
+    - api_field: locationsDetails.state
+    - api_field: name
+    - api_field: network
+    - api_field: reconciling
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

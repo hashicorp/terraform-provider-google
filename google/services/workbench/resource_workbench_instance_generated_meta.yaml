@@ -1,73 +1,73 @@
-resource: 'google_workbench_instance'
-generation_type: 'mmv1'
-source_file: 'products/workbench/Instance.yaml'
-api_service_name: 'notebooks.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Instance'
+resource: google_workbench_instance
+generation_type: mmv1
+source_file: products/workbench/Instance.yaml
+api_service_name: notebooks.googleapis.com
+api_version: v2
+api_resource_type_kind: Instance
 fields:
-  - api_field: 'createTime'
-  - api_field: 'creator'
-  - field: 'desired_state'
-    provider_only: true
-  - api_field: 'disableProxyAccess'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enableManagedEuc'
-  - api_field: 'enableThirdPartyIdentity'
-  - api_field: 'gceSetup.acceleratorConfigs.coreCount'
-  - api_field: 'gceSetup.acceleratorConfigs.type'
-  - api_field: 'gceSetup.bootDisk.diskEncryption'
-  - api_field: 'gceSetup.bootDisk.diskSizeGb'
-  - api_field: 'gceSetup.bootDisk.diskType'
-  - api_field: 'gceSetup.bootDisk.kmsKey'
-  - api_field: 'gceSetup.confidentialInstanceConfig.confidentialInstanceType'
-  - api_field: 'gceSetup.containerImage.repository'
-  - api_field: 'gceSetup.containerImage.tag'
-  - api_field: 'gceSetup.dataDisks.diskEncryption'
-  - api_field: 'gceSetup.dataDisks.diskSizeGb'
-  - api_field: 'gceSetup.dataDisks.diskType'
-  - api_field: 'gceSetup.dataDisks.kmsKey'
-  - api_field: 'gceSetup.disablePublicIp'
-  - api_field: 'gceSetup.enableIpForwarding'
-  - api_field: 'gceSetup.machineType'
-  - api_field: 'gceSetup.metadata'
-  - api_field: 'gceSetup.networkInterfaces.accessConfigs.externalIp'
-  - api_field: 'gceSetup.networkInterfaces.network'
-  - api_field: 'gceSetup.networkInterfaces.nicType'
-  - api_field: 'gceSetup.networkInterfaces.subnet'
-  - api_field: 'gceSetup.reservationAffinity.consumeReservationType'
-  - api_field: 'gceSetup.reservationAffinity.key'
-  - api_field: 'gceSetup.reservationAffinity.values'
-  - api_field: 'gceSetup.serviceAccounts.email'
-  - api_field: 'gceSetup.serviceAccounts.scopes'
-  - api_field: 'gceSetup.shieldedInstanceConfig.enableIntegrityMonitoring'
-  - api_field: 'gceSetup.shieldedInstanceConfig.enableSecureBoot'
-  - api_field: 'gceSetup.shieldedInstanceConfig.enableVtpm'
-  - api_field: 'gceSetup.tags'
-  - api_field: 'gceSetup.vmImage.family'
-  - api_field: 'gceSetup.vmImage.name'
-  - api_field: 'gceSetup.vmImage.project'
-  - api_field: 'healthInfo'
-  - api_field: 'healthState'
-  - field: 'instance_id'
-    provider_only: true
-  - api_field: 'instanceOwners'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'proxyUri'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - api_field: 'upgradeHistory.action'
-  - api_field: 'upgradeHistory.containerImage'
-  - api_field: 'upgradeHistory.createTime'
-  - api_field: 'upgradeHistory.framework'
-  - api_field: 'upgradeHistory.snapshot'
-  - api_field: 'upgradeHistory.state'
-  - api_field: 'upgradeHistory.targetVersion'
-  - api_field: 'upgradeHistory.version'
-  - api_field: 'upgradeHistory.vmImage'
+    - api_field: createTime
+    - api_field: creator
+    - field: desired_state
+      provider_only: true
+    - api_field: disableProxyAccess
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableManagedEuc
+    - api_field: enableThirdPartyIdentity
+    - api_field: gceSetup.acceleratorConfigs.coreCount
+    - api_field: gceSetup.acceleratorConfigs.type
+    - api_field: gceSetup.bootDisk.diskEncryption
+    - api_field: gceSetup.bootDisk.diskSizeGb
+    - api_field: gceSetup.bootDisk.diskType
+    - api_field: gceSetup.bootDisk.kmsKey
+    - api_field: gceSetup.confidentialInstanceConfig.confidentialInstanceType
+    - api_field: gceSetup.containerImage.repository
+    - api_field: gceSetup.containerImage.tag
+    - api_field: gceSetup.dataDisks.diskEncryption
+    - api_field: gceSetup.dataDisks.diskSizeGb
+    - api_field: gceSetup.dataDisks.diskType
+    - api_field: gceSetup.dataDisks.kmsKey
+    - api_field: gceSetup.disablePublicIp
+    - api_field: gceSetup.enableIpForwarding
+    - api_field: gceSetup.machineType
+    - api_field: gceSetup.metadata
+    - api_field: gceSetup.networkInterfaces.accessConfigs.externalIp
+    - api_field: gceSetup.networkInterfaces.network
+    - api_field: gceSetup.networkInterfaces.nicType
+    - api_field: gceSetup.networkInterfaces.subnet
+    - api_field: gceSetup.reservationAffinity.consumeReservationType
+    - api_field: gceSetup.reservationAffinity.key
+    - api_field: gceSetup.reservationAffinity.values
+    - api_field: gceSetup.serviceAccounts.email
+    - api_field: gceSetup.serviceAccounts.scopes
+    - api_field: gceSetup.shieldedInstanceConfig.enableIntegrityMonitoring
+    - api_field: gceSetup.shieldedInstanceConfig.enableSecureBoot
+    - api_field: gceSetup.shieldedInstanceConfig.enableVtpm
+    - api_field: gceSetup.tags
+    - api_field: gceSetup.vmImage.family
+    - api_field: gceSetup.vmImage.name
+    - api_field: gceSetup.vmImage.project
+    - api_field: healthInfo
+    - api_field: healthState
+    - field: instance_id
+      provider_only: true
+    - api_field: instanceOwners
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: proxyUri
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: upgradeHistory.action
+    - api_field: upgradeHistory.containerImage
+    - api_field: upgradeHistory.createTime
+    - api_field: upgradeHistory.framework
+    - api_field: upgradeHistory.snapshot
+    - api_field: upgradeHistory.state
+    - api_field: upgradeHistory.targetVersion
+    - api_field: upgradeHistory.version
+    - api_field: upgradeHistory.vmImage

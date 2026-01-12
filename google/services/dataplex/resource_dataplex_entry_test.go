@@ -852,3 +852,313 @@ resource "google_dataplex_entry" "test_entry_full" {
 }
 `, context)
 }
+
+func TestAccDataplexEntry_dataplexEntryUpdateBigQuery(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"project_id":     envvar.GetTestProjectFromEnv(),
+		"random_suffix":  acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexEntryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataplexEntry_dataplexEntryFullUpdateBigQueryPrepare(context),
+			},
+			{
+				ResourceName:            "google_dataplex_entry.test_entry_bigquery_table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"aspects", "dataset_id", "table_id", "entry_id", "location"},
+			},
+			{
+				Config: testAccDataplexEntry_dataplexEntryBigQueryUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_dataplex_entry.test_entry_bigquery_table", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_dataplex_entry.test_entry_bigquery_table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"aspects", "dataset_id", "table_id", "entry_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDataplexEntry_dataplexEntryFullUpdateBigQueryPrepare(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataplex_aspect_type" "aspect-type-full-one" {
+  aspect_type_id = "tf-test-aspect-type-full%{random_suffix}-one"
+  location     = "us-central1"
+  project      = "%{project_number}"
+
+  metadata_template = <<EOF
+{
+  "name": "tf-test-template",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "type",
+      "type": "enum",
+      "annotations": {
+        "displayName": "Type",
+        "description": "Specifies the type of view represented by the entry."
+      },
+      "index": 1,
+      "constraints": {
+        "required": true
+      },
+      "enumValues": [
+        {
+          "name": "VIEW",
+          "index": 1
+        },
+        {
+          "name": "BOMB",
+          "index": 2
+        }
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "google_dataplex_aspect_type" "aspect-type-full-two" {
+  aspect_type_id         = "tf-test-aspect-type-full%{random_suffix}-two"
+  location     = "us-central1"
+  project      = "%{project_number}"
+
+  metadata_template = <<EOF
+{
+  "name": "tf-test-template",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "story",
+      "type": "enum",
+      "annotations": {
+        "displayName": "Story",
+        "description": "Specifies the story of an entry."
+      },
+      "index": 1,
+      "constraints": {
+        "required": true
+      },
+      "enumValues": [
+        {
+          "name": "SEQUENCE",
+          "index": 1
+        },
+        {
+          "name": "BALLOON",
+          "index": 2
+        }
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "google_bigquery_dataset" "example-dataset" {
+  dataset_id                  = "tf_test_dataset%{random_suffix}"
+  friendly_name               = "Example Dataset"
+  location                    = "us-central1"
+  delete_contents_on_destroy  = true
+}
+
+
+resource "google_bigquery_table" "example-table" {
+  dataset_id = google_bigquery_dataset.example-dataset.dataset_id
+  table_id   = "tf_test_table%{random_suffix}"
+  deletion_protection = false
+  # Define the table schema
+  schema = jsonencode([
+    {
+      name = "event_time"
+      type = "TIMESTAMP"
+      mode = "REQUIRED"
+    },
+    {
+      name = "user_id"
+      type = "STRING"
+      mode = "NULLABLE"
+    },
+    {
+      name = "event_type"
+      type = "STRING"
+      mode = "NULLABLE"
+    }
+  ])
+}
+
+resource "google_dataplex_entry" "test_entry_bigquery_table" {
+  entry_group_id = "@bigquery"
+  project = "%{project_number}"
+  location = "us-central1"
+  entry_id = "bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.example-dataset.dataset_id}/tables/${google_bigquery_table.example-table.table_id}"
+  entry_type = "projects/655216118709/locations/global/entryTypes/bigquery-table"
+  fully_qualified_name = "bigquery:%{project_id}.${google_bigquery_dataset.example-dataset.dataset_id}.${google_bigquery_table.example-table.table_id}"
+  parent_entry = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.example-dataset.dataset_id}"
+
+  aspects {
+    aspect_key = "%{project_number}.us-central1.${google_dataplex_aspect_type.aspect-type-full-one.aspect_type_id}"
+    aspect {
+      data = <<EOF
+          {"type": "VIEW"    }
+        EOF
+    }
+  }
+
+  aspects {
+    aspect_key = "%{project_number}.us-central1.${google_dataplex_aspect_type.aspect-type-full-two.aspect_type_id}@Schema.event_type"
+    aspect {
+      data = <<EOF
+          {"story": "SEQUENCE"    }
+        EOF
+    }
+  }
+ depends_on = [google_dataplex_aspect_type.aspect-type-full-two, google_dataplex_aspect_type.aspect-type-full-one]
+}`, context)
+}
+
+func testAccDataplexEntry_dataplexEntryBigQueryUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_dataplex_aspect_type" "aspect-type-full-one" {
+  aspect_type_id = "tf-test-aspect-type-full%{random_suffix}-one"
+  location     = "us-central1"
+  project      = "%{project_number}"
+
+  metadata_template = <<EOF
+{
+  "name": "tf-test-template",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "type",
+      "type": "enum",
+      "annotations": {
+        "displayName": "Type",
+        "description": "Specifies the type of view represented by the entry."
+      },
+      "index": 1,
+      "constraints": {
+        "required": true
+      },
+      "enumValues": [
+        {
+          "name": "VIEW",
+          "index": 1
+        },
+        {
+          "name": "BOMB",
+          "index": 2
+        }
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "google_dataplex_aspect_type" "aspect-type-full-two" {
+  aspect_type_id         = "tf-test-aspect-type-full%{random_suffix}-two"
+  location     = "us-central1"
+  project      = "%{project_number}"
+
+  metadata_template = <<EOF
+{
+  "name": "tf-test-template",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "story",
+      "type": "enum",
+      "annotations": {
+        "displayName": "Story",
+        "description": "Specifies the story of an entry."
+      },
+      "index": 1,
+      "constraints": {
+        "required": true
+      },
+      "enumValues": [
+        {
+          "name": "SEQUENCE",
+          "index": 1
+        },
+        {
+          "name": "BALLOON",
+          "index": 2
+        }
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "google_bigquery_dataset" "example-dataset" {
+  dataset_id                  = "tf_test_dataset%{random_suffix}"
+  friendly_name               = "Example Dataset"
+  location                    = "us-central1"
+  delete_contents_on_destroy  = true
+}
+
+
+resource "google_bigquery_table" "example-table" {
+  dataset_id = google_bigquery_dataset.example-dataset.dataset_id
+  table_id   = "tf_test_table%{random_suffix}"
+  deletion_protection = false
+  # Define the table schema
+  schema = jsonencode([
+    {
+      name = "event_time"
+      type = "TIMESTAMP"
+      mode = "REQUIRED"
+    },
+    {
+      name = "user_id"
+      type = "STRING"
+      mode = "NULLABLE"
+    },
+    {
+      name = "event_type"
+      type = "STRING"
+      mode = "NULLABLE"
+    }
+  ])
+}
+
+resource "google_dataplex_entry" "test_entry_bigquery_table" {
+  entry_group_id = "@bigquery"
+  project = "%{project_number}"
+  location = "us-central1"
+  entry_id = "bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.example-dataset.dataset_id}/tables/${google_bigquery_table.example-table.table_id}"
+  entry_type = "projects/655216118709/locations/global/entryTypes/bigquery-table"
+  fully_qualified_name = "bigquery:%{project_id}.${google_bigquery_dataset.example-dataset.dataset_id}.${google_bigquery_table.example-table.table_id}"
+  parent_entry = "projects/%{project_number}/locations/us-central1/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/%{project_id}/datasets/${google_bigquery_dataset.example-dataset.dataset_id}"
+
+  aspects {
+    aspect_key = "%{project_number}.us-central1.${google_dataplex_aspect_type.aspect-type-full-one.aspect_type_id}"
+    aspect {
+      data = <<EOF
+          {"type": "BOMB"    }
+        EOF
+    }
+  }
+
+ depends_on = [google_dataplex_aspect_type.aspect-type-full-two, google_dataplex_aspect_type.aspect-type-full-one]
+}`, context)
+}

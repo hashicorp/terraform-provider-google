@@ -342,7 +342,7 @@ The following arguments are supported:
   If none of the resource groups are applicable for a VM, the VM is
   considered to be non-compliant w.r.t this policy. This behavior can be
   toggled by the flag `allow_no_resource_group_match`
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups).
 
 * `allow_no_resource_group_match` -
   (Optional)
@@ -352,7 +352,7 @@ The following arguments are supported:
   policy has nothing to validate or enforce.
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups"></a>The `resource_groups` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups"></a>The `resource_groups` block supports:
 
 * `inventory_filters` -
   (Optional)
@@ -366,16 +366,16 @@ The following arguments are supported:
   inventory_filters[1].os_short_name='centos'
   If the list is empty, this resource group will be applied to the target
   VM unconditionally.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_inventory_filters).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_inventory_filters).
 
 * `resources` -
   (Required)
   List of resources configured for this resource group.
   The resources are executed in the exact order specified here.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources).
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_inventory_filters"></a>The `inventory_filters` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_inventory_filters"></a>The `inventory_filters` block supports:
 
 * `os_short_name` -
   (Required)
@@ -389,7 +389,7 @@ The following arguments are supported:
   version of `7`, specify the following value for this field `7.*`
   An empty string matches all OS versions.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources"></a>The `resources` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources"></a>The `resources` block supports:
 
 * `id` -
   (Required)
@@ -403,12 +403,12 @@ The following arguments are supported:
 * `pkg` -
   (Optional)
   A resource that manages a system package.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg).
 
 * `repository` -
   (Optional)
   A resource that manages a package repository.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository).
 
 * `exec` -
   (Optional)
@@ -434,27 +434,27 @@ The following arguments are supported:
   code of `0` unless an `exit` statement is provided in the script. So, for
   reasons of consistency and being explicit, exit codes `100` and `101`
   were chosen.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec).
 
 * `file` -
   (Optional)
   A resource that manages the state of a file.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_file).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_file).
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg"></a>The `pkg` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg"></a>The `pkg` block supports:
 
 * `googet` -
   (Optional)
   A package managed by GooGet.
   - install: `googet -noconfirm install package`
   - remove: `googet -noconfirm remove package`
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_googet).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_googet).
 
 * `msi` -
   (Optional)
   An MSI package. MSI packages only support INSTALLED state.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_msi).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_msi).
 
 * `desired_state` -
   (Required)
@@ -466,45 +466,45 @@ The following arguments are supported:
   A package managed by APT.
   - install: `apt-get update && apt-get -y install [name]`
   - remove: `apt-get -y remove [name]`
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_apt).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_apt).
 
 * `deb` -
   (Optional)
   A deb package file. dpkg packages only support INSTALLED state.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_deb).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_deb).
 
 * `yum` -
   (Optional)
   A package managed by YUM.
   - install: `yum -y install package`
   - remove: `yum -y remove package`
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_yum).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_yum).
 
 * `zypper` -
   (Optional)
   A package managed by Zypper.
   - install: `zypper -y install package`
   - remove: `zypper -y rm package`
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_zypper).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_zypper).
 
 * `rpm` -
   (Optional)
   An RPM package file. RPM packages only support INSTALLED state.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_rpm).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_rpm).
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_googet"></a>The `googet` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_googet"></a>The `googet` block supports:
 
 * `name` -
   (Required)
   Package name.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_msi"></a>The `msi` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_msi"></a>The `msi` block supports:
 
 * `source` -
   (Required)
   A remote or local file.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_msi_source).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_msi_source).
 
 * `properties` -
   (Optional)
@@ -514,17 +514,17 @@ The following arguments are supported:
   REBOOT=ReallySuppress`.
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_msi_source"></a>The `source` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_msi_source"></a>The `source` block supports:
 
 * `remote` -
   (Optional)
   Specifies a file available via some URI.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_msi_source_remote).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_msi_source_remote).
 
 * `gcs` -
   (Optional)
   Specifies a file available as a Cloud Storage Object.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_msi_source_gcs).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_msi_source_gcs).
 
 * `local_path` -
   (Optional)
@@ -538,7 +538,7 @@ The following arguments are supported:
   Cloud Storage: An object generation number must be specified.
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_msi_source_remote"></a>The `remote` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_msi_source_remote"></a>The `remote` block supports:
 
 * `uri` -
   (Required)
@@ -549,7 +549,7 @@ The following arguments are supported:
   (Optional)
   SHA256 checksum of the remote file.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_msi_source_gcs"></a>The `gcs` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_msi_source_gcs"></a>The `gcs` block supports:
 
 * `bucket` -
   (Required)
@@ -563,18 +563,18 @@ The following arguments are supported:
   (Optional)
   Generation number of the Cloud Storage object.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_apt"></a>The `apt` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_apt"></a>The `apt` block supports:
 
 * `name` -
   (Required)
   Package name.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_deb"></a>The `deb` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_deb"></a>The `deb` block supports:
 
 * `source` -
   (Required)
   A remote or local file.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_deb_source).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_deb_source).
 
 * `pull_deps` -
   (Optional)
@@ -584,17 +584,17 @@ The following arguments are supported:
   package.deb`
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_deb_source"></a>The `source` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_deb_source"></a>The `source` block supports:
 
 * `remote` -
   (Optional)
   Specifies a file available via some URI.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_deb_source_remote).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_deb_source_remote).
 
 * `gcs` -
   (Optional)
   Specifies a file available as a Cloud Storage Object.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_deb_source_gcs).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_deb_source_gcs).
 
 * `local_path` -
   (Optional)
@@ -608,7 +608,7 @@ The following arguments are supported:
   Cloud Storage: An object generation number must be specified.
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_deb_source_remote"></a>The `remote` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_deb_source_remote"></a>The `remote` block supports:
 
 * `sha256_checksum` -
   (Optional)
@@ -619,7 +619,7 @@ The following arguments are supported:
   URI from which to fetch the object. It should contain both the
   protocol and path following the format `{protocol}://{location}`.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_deb_source_gcs"></a>The `gcs` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_deb_source_gcs"></a>The `gcs` block supports:
 
 * `generation` -
   (Optional)
@@ -633,19 +633,19 @@ The following arguments are supported:
   (Required)
   Name of the Cloud Storage object.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_yum"></a>The `yum` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_yum"></a>The `yum` block supports:
 
 * `name` -
   (Required)
   Package name.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_zypper"></a>The `zypper` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_zypper"></a>The `zypper` block supports:
 
 * `name` -
   (Required)
   Package name.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_rpm"></a>The `rpm` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_rpm"></a>The `rpm` block supports:
 
 * `pull_deps` -
   (Optional)
@@ -657,20 +657,20 @@ The following arguments are supported:
 * `source` -
   (Required)
   A remote or local file.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_rpm_source).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_rpm_source).
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_rpm_source"></a>The `source` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_rpm_source"></a>The `source` block supports:
 
 * `remote` -
   (Optional)
   Specifies a file available via some URI.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_rpm_source_remote).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_rpm_source_remote).
 
 * `gcs` -
   (Optional)
   Specifies a file available as a Cloud Storage Object.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_rpm_source_gcs).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_rpm_source_gcs).
 
 * `local_path` -
   (Optional)
@@ -684,7 +684,7 @@ The following arguments are supported:
   Cloud Storage: An object generation number must be specified.
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_rpm_source_remote"></a>The `remote` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_rpm_source_remote"></a>The `remote` block supports:
 
 * `uri` -
   (Required)
@@ -695,7 +695,7 @@ The following arguments are supported:
   (Optional)
   SHA256 checksum of the remote file.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_pkg_rpm_source_gcs"></a>The `gcs` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_pkg_rpm_source_gcs"></a>The `gcs` block supports:
 
 * `bucket` -
   (Required)
@@ -709,38 +709,38 @@ The following arguments are supported:
   (Optional)
   Generation number of the Cloud Storage object.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository"></a>The `repository` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository"></a>The `repository` block supports:
 
 * `apt` -
   (Optional)
   Represents a single apt package repository. These will be added to
   a repo file that will be managed at
   `/etc/apt/sources.list.d/google_osconfig.list`.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository_apt).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository_apt).
 
 * `yum` -
   (Optional)
   Represents a single yum package repository. These are added to a
   repo file that is managed at
   `/etc/yum.repos.d/google_osconfig.repo`.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository_yum).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository_yum).
 
 * `zypper` -
   (Optional)
   Represents a single zypper package repository. These are added to a
   repo file that is managed at
   `/etc/zypp/repos.d/google_osconfig.repo`.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository_zypper).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository_zypper).
 
 * `goo` -
   (Optional)
   Represents a Goo package repository. These are added to a repo file
   that is managed at
   `C:/ProgramData/GooGet/repos/google_osconfig.repo`.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository_goo).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository_goo).
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository_apt"></a>The `apt` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository_apt"></a>The `apt` block supports:
 
 * `components` -
   (Required)
@@ -765,7 +765,7 @@ The following arguments are supported:
   (Required)
   Distribution of this repository.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository_yum"></a>The `yum` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository_yum"></a>The `yum` block supports:
 
 * `display_name` -
   (Optional)
@@ -786,7 +786,7 @@ The following arguments are supported:
   `display_name` is omitted. This id is also used as the unique
   identifier when checking for resource conflicts.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository_zypper"></a>The `zypper` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository_zypper"></a>The `zypper` block supports:
 
 * `base_url` -
   (Required)
@@ -807,7 +807,7 @@ The following arguments are supported:
   (Optional)
   The display name of the repository.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_repository_goo"></a>The `goo` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_repository_goo"></a>The `goo` block supports:
 
 * `name` -
   (Required)
@@ -817,100 +817,20 @@ The following arguments are supported:
   (Required)
   The url of the repository.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec"></a>The `exec` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec"></a>The `exec` block supports:
 
 * `validate` -
   (Required)
   A file or script to execute.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_validate).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_validate).
 
 * `enforce` -
   (Optional)
   A file or script to execute.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_enforce).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_enforce).
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_validate"></a>The `validate` block supports:
-
-* `args` -
-  (Optional)
-  Optional arguments to pass to the source during execution.
-
-* `interpreter` -
-  (Required)
-  The script interpreter to use.
-  Possible values are: `NONE`, `SHELL`, `POWERSHELL`.
-
-* `output_file_path` -
-  (Optional)
-  Only recorded for enforce Exec.
-  Path to an output file (that is created by this Exec) whose
-  content will be recorded in OSPolicyResourceCompliance after a
-  successful run. Absence or failure to read this file will result in
-  this ExecResource being non-compliant. Output file size is limited to
-  500K bytes.
-
-* `file` -
-  (Optional)
-  A remote or local file.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_validate_file).
-
-* `script` -
-  (Optional)
-  An inline script.
-  The size of the script is limited to 32KiB.
-
-
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_validate_file"></a>The `file` block supports:
-
-* `allow_insecure` -
-  (Optional)
-  Defaults to false. When false, files are subject to validations
-  based on the file type:
-  Remote: A checksum must be specified.
-  Cloud Storage: An object generation number must be specified.
-
-* `remote` -
-  (Optional)
-  Specifies a file available via some URI.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_validate_file_remote).
-
-* `gcs` -
-  (Optional)
-  Specifies a file available as a Cloud Storage Object.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_validate_file_gcs).
-
-* `local_path` -
-  (Optional)
-  A local path within the VM to use.
-
-
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_validate_file_remote"></a>The `remote` block supports:
-
-* `uri` -
-  (Required)
-  URI from which to fetch the object. It should contain both the
-  protocol and path following the format `{protocol}://{location}`.
-
-* `sha256_checksum` -
-  (Optional)
-  SHA256 checksum of the remote file.
-
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_validate_file_gcs"></a>The `gcs` block supports:
-
-* `bucket` -
-  (Required)
-  Bucket of the Cloud Storage object.
-
-* `object` -
-  (Required)
-  Name of the Cloud Storage object.
-
-* `generation` -
-  (Optional)
-  Generation number of the Cloud Storage object.
-
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_enforce"></a>The `enforce` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_validate"></a>The `validate` block supports:
 
 * `args` -
   (Optional)
@@ -933,7 +853,7 @@ The following arguments are supported:
 * `file` -
   (Optional)
   A remote or local file.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_enforce_file).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_validate_file).
 
 * `script` -
   (Optional)
@@ -941,21 +861,7 @@ The following arguments are supported:
   The size of the script is limited to 32KiB.
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_enforce_file"></a>The `file` block supports:
-
-* `remote` -
-  (Optional)
-  Specifies a file available via some URI.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_enforce_file_remote).
-
-* `gcs` -
-  (Optional)
-  Specifies a file available as a Cloud Storage Object.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_enforce_file_gcs).
-
-* `local_path` -
-  (Optional)
-  A local path within the VM to use.
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_validate_file"></a>The `file` block supports:
 
 * `allow_insecure` -
   (Optional)
@@ -964,8 +870,22 @@ The following arguments are supported:
   Remote: A checksum must be specified.
   Cloud Storage: An object generation number must be specified.
 
+* `remote` -
+  (Optional)
+  Specifies a file available via some URI.
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_validate_file_remote).
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_enforce_file_remote"></a>The `remote` block supports:
+* `gcs` -
+  (Optional)
+  Specifies a file available as a Cloud Storage Object.
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_validate_file_gcs).
+
+* `local_path` -
+  (Optional)
+  A local path within the VM to use.
+
+
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_validate_file_remote"></a>The `remote` block supports:
 
 * `uri` -
   (Required)
@@ -976,7 +896,7 @@ The following arguments are supported:
   (Optional)
   SHA256 checksum of the remote file.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_exec_enforce_file_gcs"></a>The `gcs` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_validate_file_gcs"></a>The `gcs` block supports:
 
 * `bucket` -
   (Required)
@@ -990,12 +910,92 @@ The following arguments are supported:
   (Optional)
   Generation number of the Cloud Storage object.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_file"></a>The `file` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_enforce"></a>The `enforce` block supports:
+
+* `args` -
+  (Optional)
+  Optional arguments to pass to the source during execution.
+
+* `interpreter` -
+  (Required)
+  The script interpreter to use.
+  Possible values are: `NONE`, `SHELL`, `POWERSHELL`.
+
+* `output_file_path` -
+  (Optional)
+  Only recorded for enforce Exec.
+  Path to an output file (that is created by this Exec) whose
+  content will be recorded in OSPolicyResourceCompliance after a
+  successful run. Absence or failure to read this file will result in
+  this ExecResource being non-compliant. Output file size is limited to
+  500K bytes.
 
 * `file` -
   (Optional)
   A remote or local file.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_file_file).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_enforce_file).
+
+* `script` -
+  (Optional)
+  An inline script.
+  The size of the script is limited to 32KiB.
+
+
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_enforce_file"></a>The `file` block supports:
+
+* `remote` -
+  (Optional)
+  Specifies a file available via some URI.
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_enforce_file_remote).
+
+* `gcs` -
+  (Optional)
+  Specifies a file available as a Cloud Storage Object.
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_enforce_file_gcs).
+
+* `local_path` -
+  (Optional)
+  A local path within the VM to use.
+
+* `allow_insecure` -
+  (Optional)
+  Defaults to false. When false, files are subject to validations
+  based on the file type:
+  Remote: A checksum must be specified.
+  Cloud Storage: An object generation number must be specified.
+
+
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_enforce_file_remote"></a>The `remote` block supports:
+
+* `uri` -
+  (Required)
+  URI from which to fetch the object. It should contain both the
+  protocol and path following the format `{protocol}://{location}`.
+
+* `sha256_checksum` -
+  (Optional)
+  SHA256 checksum of the remote file.
+
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_exec_enforce_file_gcs"></a>The `gcs` block supports:
+
+* `bucket` -
+  (Required)
+  Bucket of the Cloud Storage object.
+
+* `object` -
+  (Required)
+  Name of the Cloud Storage object.
+
+* `generation` -
+  (Optional)
+  Generation number of the Cloud Storage object.
+
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_file"></a>The `file` block supports:
+
+* `file` -
+  (Optional)
+  A remote or local file.
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_file_file).
 
 * `content` -
   (Optional)
@@ -1027,7 +1027,7 @@ The following arguments are supported:
   read only: 4
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_file_file"></a>The `file` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_file_file"></a>The `file` block supports:
 
 * `allow_insecure` -
   (Optional)
@@ -1039,19 +1039,19 @@ The following arguments are supported:
 * `remote` -
   (Optional)
   Specifies a file available via some URI.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_file_file_remote).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_file_file_remote).
 
 * `gcs` -
   (Optional)
   Specifies a file available as a Cloud Storage Object.
-  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_file_file_gcs).
+  Structure is [documented below](#nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_file_file_gcs).
 
 * `local_path` -
   (Optional)
   A local path within the VM to use.
 
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_file_file_remote"></a>The `remote` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_file_file_remote"></a>The `remote` block supports:
 
 * `uri` -
   (Required)
@@ -1062,7 +1062,7 @@ The following arguments are supported:
   (Optional)
   SHA256 checksum of the remote file.
 
-<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_os_policies_resource_groups_resource_groups_resources_resources_file_file_gcs"></a>The `gcs` block supports:
+<a name="nested_orchestrated_resource_os_policy_assignment_v1_payload_os_policies_resource_groups_resources_file_file_gcs"></a>The `gcs` block supports:
 
 * `bucket` -
   (Required)
@@ -1180,15 +1180,15 @@ The following arguments are supported:
 * `resource_hierarchy_selector` -
   (Optional)
   Selector containing Cloud Resource Manager resource hierarchy nodes.
-  Structure is [documented below](#nested_orchestration_scope_selectors_selectors_resource_hierarchy_selector).
+  Structure is [documented below](#nested_orchestration_scope_selectors_resource_hierarchy_selector).
 
 * `location_selector` -
   (Optional)
   Selector containing locations in scope.
-  Structure is [documented below](#nested_orchestration_scope_selectors_selectors_location_selector).
+  Structure is [documented below](#nested_orchestration_scope_selectors_location_selector).
 
 
-<a name="nested_orchestration_scope_selectors_selectors_resource_hierarchy_selector"></a>The `resource_hierarchy_selector` block supports:
+<a name="nested_orchestration_scope_selectors_resource_hierarchy_selector"></a>The `resource_hierarchy_selector` block supports:
 
 * `included_projects` -
   (Optional)
@@ -1200,7 +1200,7 @@ The following arguments are supported:
   Names of the folders in scope.
   Format: `folders/{folder_id}`
 
-<a name="nested_orchestration_scope_selectors_selectors_location_selector"></a>The `location_selector` block supports:
+<a name="nested_orchestration_scope_selectors_location_selector"></a>The `location_selector` block supports:
 
 * `included_locations` -
   (Optional)

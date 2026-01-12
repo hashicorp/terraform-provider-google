@@ -1,13 +1,13 @@
-resource: 'google_monitoring_custom_service'
-generation_type: 'mmv1'
-source_file: 'products/monitoring/Service.yaml'
-api_service_name: 'monitoring.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'Service'
+resource: google_monitoring_custom_service
+generation_type: mmv1
+source_file: products/monitoring/Service.yaml
+api_service_name: monitoring.googleapis.com
+api_version: v3
+api_resource_type_kind: Service
 fields:
-  - api_field: 'displayName'
-  - api_field: 'name'
-  - api_field: 'name'
-    field: 'service_id'
-  - api_field: 'telemetry.resourceName'
-  - api_field: 'userLabels'
+    - api_field: displayName
+    - api_field: name
+    - api_field: name
+      field: service_id
+    - api_field: telemetry.resourceName
+    - api_field: userLabels

@@ -1,25 +1,25 @@
-resource: 'google_gke_hub_membership_binding'
-generation_type: 'mmv1'
-source_file: 'products/gkehub2/MembershipBinding.yaml'
-api_service_name: 'gkehub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'MembershipBinding'
+resource: google_gke_hub_membership_binding
+generation_type: mmv1
+source_file: products/gkehub2/MembershipBinding.yaml
+api_service_name: gkehub.googleapis.com
+api_version: v1
+api_resource_type_kind: MembershipBinding
 fields:
-  - api_field: 'createTime'
-  - api_field: 'deleteTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'membership_binding_id'
-    provider_only: true
-  - field: 'membership_id'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'scope'
-  - api_field: 'state.code'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: deleteTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: membership_binding_id
+      provider_only: true
+    - field: membership_id
+      provider_only: true
+    - api_field: name
+    - api_field: scope
+    - api_field: state.code
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

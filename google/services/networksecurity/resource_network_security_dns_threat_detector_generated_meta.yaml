@@ -1,0 +1,20 @@
+resource: google_network_security_dns_threat_detector
+generation_type: mmv1
+source_file: products/networksecurity/DnsThreatDetector.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: DnsThreatDetector
+fields:
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: excludedNetworks
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: provider
+      field: threat_detector_provider
+    - api_field: updateTime

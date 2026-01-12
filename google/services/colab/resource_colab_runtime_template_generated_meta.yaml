@@ -1,32 +1,35 @@
-resource: 'google_colab_runtime_template'
-generation_type: 'mmv1'
-source_file: 'products/colab/RuntimeTemplate.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NotebookRuntimeTemplate'
+resource: google_colab_runtime_template
+generation_type: mmv1
+source_file: products/colab/RuntimeTemplate.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: NotebookRuntimeTemplate
 fields:
-  - api_field: 'dataPersistentDiskSpec.diskSizeGb'
-  - api_field: 'dataPersistentDiskSpec.diskType'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionSpec.kmsKeyName'
-  - api_field: 'eucConfig.eucDisabled'
-  - api_field: 'idleShutdownConfig.idleTimeout'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'machineSpec.acceleratorCount'
-  - api_field: 'machineSpec.acceleratorType'
-  - api_field: 'machineSpec.machineType'
-  - api_field: 'name'
-  - api_field: 'networkSpec.enableInternetAccess'
-  - api_field: 'networkSpec.network'
-  - api_field: 'networkSpec.subnetwork'
-  - api_field: 'networkTags'
-  - api_field: 'shieldedVmConfig.enableSecureBoot'
-  - api_field: 'softwareConfig.env.name'
-  - api_field: 'softwareConfig.env.value'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: dataPersistentDiskSpec.diskSizeGb
+    - api_field: dataPersistentDiskSpec.diskType
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: eucConfig.eucDisabled
+    - api_field: idleShutdownConfig.idleTimeout
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: machineSpec.acceleratorCount
+    - api_field: machineSpec.acceleratorType
+    - api_field: machineSpec.machineType
+    - api_field: name
+    - api_field: networkSpec.enableInternetAccess
+    - api_field: networkSpec.network
+    - api_field: networkSpec.subnetwork
+    - api_field: networkTags
+    - api_field: shieldedVmConfig.enableSecureBoot
+    - api_field: softwareConfig.env.name
+    - api_field: softwareConfig.env.value
+    - api_field: softwareConfig.postStartupScriptConfig.postStartupScript
+    - api_field: softwareConfig.postStartupScriptConfig.postStartupScriptBehavior
+    - api_field: softwareConfig.postStartupScriptConfig.postStartupScriptUrl
+    - field: terraform_labels
+      provider_only: true

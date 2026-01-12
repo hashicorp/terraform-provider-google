@@ -32,6 +32,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimTenant_update(t *testing.T)
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
+		"hard_delete":   true,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -46,7 +47,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimTenant_update(t *testing.T)
 				ResourceName:            "google_iam_workforce_pool_provider_scim_tenant.scim_tenant",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"state"},
+				ImportStateVerifyIgnore: []string{"state", "hard_delete"},
 			},
 			{
 				Config: testAccIAMWorkforcePoolWorkforcePoolProviderScimTenant_update(context),
@@ -60,7 +61,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimTenant_update(t *testing.T)
 				ResourceName:            "google_iam_workforce_pool_provider_scim_tenant.scim_tenant",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"state"},
+				ImportStateVerifyIgnore: []string{"state", "hard_delete"},
 			},
 		},
 	})
@@ -112,6 +113,7 @@ resource "google_iam_workforce_pool_provider_scim_tenant" "scim_tenant" {
     "google.subject"  = "user.externalId",
     "google.group"    = "group.externalId"
   }
+  hard_delete = "%{hard_delete}"
   # state, base_uri, purge_time and service_agent are output only, not settable
 }
 
@@ -164,6 +166,7 @@ resource "google_iam_workforce_pool_provider_scim_tenant" "scim_tenant" {
     "google.subject"  = "user.externalId",
     "google.group"    = "group.externalId"
   }
+  hard_delete = "%{hard_delete}"
   # state, base_uri, purge_time and service_agent are output only, not settable
 }
 `, context)

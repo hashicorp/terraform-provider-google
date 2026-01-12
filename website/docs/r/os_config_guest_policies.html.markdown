@@ -328,25 +328,25 @@ The following arguments are supported:
 * `apt` -
   (Optional)
   An Apt Repository.
-  Structure is [documented below](#nested_package_repositories_package_repositories_apt).
+  Structure is [documented below](#nested_package_repositories_apt).
 
 * `yum` -
   (Optional)
   A Yum Repository.
-  Structure is [documented below](#nested_package_repositories_package_repositories_yum).
+  Structure is [documented below](#nested_package_repositories_yum).
 
 * `zypper` -
   (Optional)
   A Zypper Repository.
-  Structure is [documented below](#nested_package_repositories_package_repositories_zypper).
+  Structure is [documented below](#nested_package_repositories_zypper).
 
 * `goo` -
   (Optional)
   A Goo Repository.
-  Structure is [documented below](#nested_package_repositories_package_repositories_goo).
+  Structure is [documented below](#nested_package_repositories_goo).
 
 
-<a name="nested_package_repositories_package_repositories_apt"></a>The `apt` block supports:
+<a name="nested_package_repositories_apt"></a>The `apt` block supports:
 
 * `archive_type` -
   (Optional)
@@ -371,7 +371,7 @@ The following arguments are supported:
   URI of the key file for this repository. The agent maintains a keyring at
   /etc/apt/trusted.gpg.d/osconfig_agent_managed.gpg containing all the keys in any applied guest policy.
 
-<a name="nested_package_repositories_package_repositories_yum"></a>The `yum` block supports:
+<a name="nested_package_repositories_yum"></a>The `yum` block supports:
 
 * `id` -
   (Required)
@@ -390,7 +390,7 @@ The following arguments are supported:
   (Optional)
   URIs of GPG keys.
 
-<a name="nested_package_repositories_package_repositories_zypper"></a>The `zypper` block supports:
+<a name="nested_package_repositories_zypper"></a>The `zypper` block supports:
 
 * `id` -
   (Required)
@@ -409,7 +409,7 @@ The following arguments are supported:
   (Optional)
   URIs of GPG keys.
 
-<a name="nested_package_repositories_package_repositories_goo"></a>The `goo` block supports:
+<a name="nested_package_repositories_goo"></a>The `goo` block supports:
 
 * `name` -
   (Required)
@@ -435,19 +435,19 @@ The following arguments are supported:
 * `artifacts` -
   (Optional)
   Resources available to be used in the steps in the recipe.
-  Structure is [documented below](#nested_recipes_recipes_artifacts).
+  Structure is [documented below](#nested_recipes_artifacts).
 
 * `install_steps` -
   (Optional)
   Actions to be taken for installing this recipe. On failure it stops executing steps and does not attempt another installation.
   Any steps taken (including partially completed steps) are not rolled back.
-  Structure is [documented below](#nested_recipes_recipes_install_steps).
+  Structure is [documented below](#nested_recipes_install_steps).
 
 * `update_steps` -
   (Optional)
   Actions to be taken for updating this recipe. On failure it stops executing steps and does not attempt another update for this recipe.
   Any steps taken (including partially completed steps) are not rolled back.
-  Structure is [documented below](#nested_recipes_recipes_update_steps).
+  Structure is [documented below](#nested_recipes_update_steps).
 
 * `desired_state` -
   (Optional)
@@ -460,7 +460,7 @@ The following arguments are supported:
   Possible values are: `INSTALLED`, `UPDATED`, `REMOVED`.
 
 
-<a name="nested_recipes_recipes_artifacts"></a>The `artifacts` block supports:
+<a name="nested_recipes_artifacts"></a>The `artifacts` block supports:
 
 * `id` -
   (Required)
@@ -476,15 +476,15 @@ The following arguments are supported:
 * `remote` -
   (Optional)
   A generic remote artifact.
-  Structure is [documented below](#nested_recipes_recipes_artifacts_artifacts_remote).
+  Structure is [documented below](#nested_recipes_artifacts_remote).
 
 * `gcs` -
   (Optional)
   A Google Cloud Storage artifact.
-  Structure is [documented below](#nested_recipes_recipes_artifacts_artifacts_gcs).
+  Structure is [documented below](#nested_recipes_artifacts_gcs).
 
 
-<a name="nested_recipes_recipes_artifacts_artifacts_remote"></a>The `remote` block supports:
+<a name="nested_recipes_artifacts_remote"></a>The `remote` block supports:
 
 * `uri` -
   (Optional)
@@ -496,7 +496,7 @@ The following arguments are supported:
   If the checksum is not empty and it doesn't match the artifact then the recipe installation fails before running any
   of the steps.
 
-<a name="nested_recipes_recipes_artifacts_artifacts_gcs"></a>The `gcs` block supports:
+<a name="nested_recipes_artifacts_gcs"></a>The `gcs` block supports:
 
 * `bucket` -
   (Optional)
@@ -513,45 +513,45 @@ The following arguments are supported:
   Must be provided if allowInsecure is false. Generation number of the Google Cloud Storage object.
   https://storage.googleapis.com/my-bucket/foo/bar#1234567 this value would be 1234567.
 
-<a name="nested_recipes_recipes_install_steps"></a>The `install_steps` block supports:
+<a name="nested_recipes_install_steps"></a>The `install_steps` block supports:
 
 * `file_copy` -
   (Optional)
   Copies a file onto the instance.
-  Structure is [documented below](#nested_recipes_recipes_install_steps_install_steps_file_copy).
+  Structure is [documented below](#nested_recipes_install_steps_file_copy).
 
 * `archive_extraction` -
   (Optional)
   Extracts an archive into the specified directory.
-  Structure is [documented below](#nested_recipes_recipes_install_steps_install_steps_archive_extraction).
+  Structure is [documented below](#nested_recipes_install_steps_archive_extraction).
 
 * `msi_installation` -
   (Optional)
   Installs an MSI file.
-  Structure is [documented below](#nested_recipes_recipes_install_steps_install_steps_msi_installation).
+  Structure is [documented below](#nested_recipes_install_steps_msi_installation).
 
 * `dpkg_installation` -
   (Optional)
   Installs a deb file via dpkg.
-  Structure is [documented below](#nested_recipes_recipes_install_steps_install_steps_dpkg_installation).
+  Structure is [documented below](#nested_recipes_install_steps_dpkg_installation).
 
 * `rpm_installation` -
   (Optional)
   Installs an rpm file via the rpm utility.
-  Structure is [documented below](#nested_recipes_recipes_install_steps_install_steps_rpm_installation).
+  Structure is [documented below](#nested_recipes_install_steps_rpm_installation).
 
 * `file_exec` -
   (Optional)
   Executes an artifact or local file.
-  Structure is [documented below](#nested_recipes_recipes_install_steps_install_steps_file_exec).
+  Structure is [documented below](#nested_recipes_install_steps_file_exec).
 
 * `script_run` -
   (Optional)
   Runs commands in a shell.
-  Structure is [documented below](#nested_recipes_recipes_install_steps_install_steps_script_run).
+  Structure is [documented below](#nested_recipes_install_steps_script_run).
 
 
-<a name="nested_recipes_recipes_install_steps_install_steps_file_copy"></a>The `file_copy` block supports:
+<a name="nested_recipes_install_steps_file_copy"></a>The `file_copy` block supports:
 
 * `artifact_id` -
   (Required)
@@ -575,7 +575,7 @@ The following arguments are supported:
   Below are some examples of permissions and their associated values:
   read, write, and execute: 7 read and execute: 5 read and write: 6 read only: 4
 
-<a name="nested_recipes_recipes_install_steps_install_steps_archive_extraction"></a>The `archive_extraction` block supports:
+<a name="nested_recipes_install_steps_archive_extraction"></a>The `archive_extraction` block supports:
 
 * `artifact_id` -
   (Required)
@@ -590,7 +590,7 @@ The following arguments are supported:
   The type of the archive to extract.
   Possible values are: `TAR`, `TAR_GZIP`, `TAR_BZIP`, `TAR_LZMA`, `TAR_XZ`, `ZIP`.
 
-<a name="nested_recipes_recipes_install_steps_install_steps_msi_installation"></a>The `msi_installation` block supports:
+<a name="nested_recipes_install_steps_msi_installation"></a>The `msi_installation` block supports:
 
 * `artifact_id` -
   (Required)
@@ -604,19 +604,19 @@ The following arguments are supported:
   (Optional)
   Return codes that indicate that the software installed or updated successfully. Behaviour defaults to [0]
 
-<a name="nested_recipes_recipes_install_steps_install_steps_dpkg_installation"></a>The `dpkg_installation` block supports:
+<a name="nested_recipes_install_steps_dpkg_installation"></a>The `dpkg_installation` block supports:
 
 * `artifact_id` -
   (Required)
   The id of the relevant artifact in the recipe.
 
-<a name="nested_recipes_recipes_install_steps_install_steps_rpm_installation"></a>The `rpm_installation` block supports:
+<a name="nested_recipes_install_steps_rpm_installation"></a>The `rpm_installation` block supports:
 
 * `artifact_id` -
   (Required)
   The id of the relevant artifact in the recipe.
 
-<a name="nested_recipes_recipes_install_steps_install_steps_file_exec"></a>The `file_exec` block supports:
+<a name="nested_recipes_install_steps_file_exec"></a>The `file_exec` block supports:
 
 * `args` -
   (Optional)
@@ -634,7 +634,7 @@ The following arguments are supported:
   (Optional)
   The absolute path of the file on the local filesystem.
 
-<a name="nested_recipes_recipes_install_steps_install_steps_script_run"></a>The `script_run` block supports:
+<a name="nested_recipes_install_steps_script_run"></a>The `script_run` block supports:
 
 * `script` -
   (Required)
@@ -650,45 +650,45 @@ The following arguments are supported:
   which likely only succeed for scripts with shebang lines.
   Possible values are: `SHELL`, `POWERSHELL`.
 
-<a name="nested_recipes_recipes_update_steps"></a>The `update_steps` block supports:
+<a name="nested_recipes_update_steps"></a>The `update_steps` block supports:
 
 * `file_copy` -
   (Optional)
   Copies a file onto the instance.
-  Structure is [documented below](#nested_recipes_recipes_update_steps_update_steps_file_copy).
+  Structure is [documented below](#nested_recipes_update_steps_file_copy).
 
 * `archive_extraction` -
   (Optional)
   Extracts an archive into the specified directory.
-  Structure is [documented below](#nested_recipes_recipes_update_steps_update_steps_archive_extraction).
+  Structure is [documented below](#nested_recipes_update_steps_archive_extraction).
 
 * `msi_installation` -
   (Optional)
   Installs an MSI file.
-  Structure is [documented below](#nested_recipes_recipes_update_steps_update_steps_msi_installation).
+  Structure is [documented below](#nested_recipes_update_steps_msi_installation).
 
 * `dpkg_installation` -
   (Optional)
   Installs a deb file via dpkg.
-  Structure is [documented below](#nested_recipes_recipes_update_steps_update_steps_dpkg_installation).
+  Structure is [documented below](#nested_recipes_update_steps_dpkg_installation).
 
 * `rpm_installation` -
   (Optional)
   Installs an rpm file via the rpm utility.
-  Structure is [documented below](#nested_recipes_recipes_update_steps_update_steps_rpm_installation).
+  Structure is [documented below](#nested_recipes_update_steps_rpm_installation).
 
 * `file_exec` -
   (Optional)
   Executes an artifact or local file.
-  Structure is [documented below](#nested_recipes_recipes_update_steps_update_steps_file_exec).
+  Structure is [documented below](#nested_recipes_update_steps_file_exec).
 
 * `script_run` -
   (Optional)
   Runs commands in a shell.
-  Structure is [documented below](#nested_recipes_recipes_update_steps_update_steps_script_run).
+  Structure is [documented below](#nested_recipes_update_steps_script_run).
 
 
-<a name="nested_recipes_recipes_update_steps_update_steps_file_copy"></a>The `file_copy` block supports:
+<a name="nested_recipes_update_steps_file_copy"></a>The `file_copy` block supports:
 
 * `artifact_id` -
   (Required)
@@ -712,7 +712,7 @@ The following arguments are supported:
   Below are some examples of permissions and their associated values:
   read, write, and execute: 7 read and execute: 5 read and write: 6 read only: 4
 
-<a name="nested_recipes_recipes_update_steps_update_steps_archive_extraction"></a>The `archive_extraction` block supports:
+<a name="nested_recipes_update_steps_archive_extraction"></a>The `archive_extraction` block supports:
 
 * `artifact_id` -
   (Required)
@@ -727,7 +727,7 @@ The following arguments are supported:
   The type of the archive to extract.
   Possible values are: `TAR`, `TAR_GZIP`, `TAR_BZIP`, `TAR_LZMA`, `TAR_XZ`, `ZIP`.
 
-<a name="nested_recipes_recipes_update_steps_update_steps_msi_installation"></a>The `msi_installation` block supports:
+<a name="nested_recipes_update_steps_msi_installation"></a>The `msi_installation` block supports:
 
 * `artifact_id` -
   (Required)
@@ -741,19 +741,19 @@ The following arguments are supported:
   (Optional)
   Return codes that indicate that the software installed or updated successfully. Behaviour defaults to [0]
 
-<a name="nested_recipes_recipes_update_steps_update_steps_dpkg_installation"></a>The `dpkg_installation` block supports:
+<a name="nested_recipes_update_steps_dpkg_installation"></a>The `dpkg_installation` block supports:
 
 * `artifact_id` -
   (Required)
   The id of the relevant artifact in the recipe.
 
-<a name="nested_recipes_recipes_update_steps_update_steps_rpm_installation"></a>The `rpm_installation` block supports:
+<a name="nested_recipes_update_steps_rpm_installation"></a>The `rpm_installation` block supports:
 
 * `artifact_id` -
   (Required)
   The id of the relevant artifact in the recipe.
 
-<a name="nested_recipes_recipes_update_steps_update_steps_file_exec"></a>The `file_exec` block supports:
+<a name="nested_recipes_update_steps_file_exec"></a>The `file_exec` block supports:
 
 * `args` -
   (Optional)
@@ -771,7 +771,7 @@ The following arguments are supported:
   (Optional)
   The absolute path of the file on the local filesystem.
 
-<a name="nested_recipes_recipes_update_steps_update_steps_script_run"></a>The `script_run` block supports:
+<a name="nested_recipes_update_steps_script_run"></a>The `script_run` block supports:
 
 * `script` -
   (Required)

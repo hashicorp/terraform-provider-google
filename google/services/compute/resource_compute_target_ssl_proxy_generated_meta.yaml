@@ -1,19 +1,19 @@
-resource: 'google_compute_target_ssl_proxy'
-generation_type: 'mmv1'
-source_file: 'products/compute/TargetSslProxy.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'TargetSslProxy'
+resource: google_compute_target_ssl_proxy
+generation_type: mmv1
+source_file: products/compute/TargetSslProxy.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: TargetSslProxy
 fields:
-  - api_field: 'service'
-    field: 'backend_service'
-  - api_field: 'certificateMap'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'name'
-  - api_field: 'proxyHeader'
-  - api_field: 'id'
-    field: 'proxy_id'
-  - api_field: 'sslCertificates'
-  - api_field: 'sslPolicy'
-  - api_field: 'selfLink'
+    - api_field: service
+      field: backend_service
+    - api_field: certificateMap
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: name
+    - api_field: proxyHeader
+    - api_field: id
+      field: proxy_id
+    - api_field: sslCertificates
+    - api_field: sslPolicy
+    - api_field: selfLink

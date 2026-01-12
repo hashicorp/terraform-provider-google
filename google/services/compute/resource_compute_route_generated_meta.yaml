@@ -1,35 +1,35 @@
-resource: 'google_compute_route'
-generation_type: 'mmv1'
-source_file: 'products/compute/Route.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Route'
+resource: google_compute_route
+generation_type: mmv1
+source_file: products/compute/Route.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Route
 fields:
-  - api_field: 'asPaths.asLists'
-  - api_field: 'asPaths.pathSegmentType'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'destRange'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'nextHopGateway'
-  - api_field: 'nextHopHub'
-  - api_field: 'nextHopIlb'
-  - api_field: 'nextHopInstance'
-  - api_field: 'nextHopInterRegionCost'
-  - api_field: 'nextHopIp'
-  - api_field: 'nextHopMed'
-  - api_field: 'nextHopNetwork'
-  - api_field: 'nextHopOrigin'
-  - api_field: 'nextHopPeering'
-  - api_field: 'nextHopVpnTunnel'
-  - api_field: 'params.resourceManagerTags'
-  - api_field: 'priority'
-  - api_field: 'routeStatus'
-  - api_field: 'routeType'
-  - api_field: 'tags'
-  - api_field: 'warnings.code'
-  - api_field: 'warnings.data.key'
-  - api_field: 'warnings.data.value'
-  - api_field: 'warnings.message'
-  - api_field: 'selfLink'
+    - api_field: asPaths.asLists
+    - api_field: asPaths.pathSegmentType
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: destRange
+    - api_field: name
+    - api_field: network
+    - api_field: nextHopGateway
+    - api_field: nextHopHub
+    - api_field: nextHopIlb
+    - api_field: nextHopInstance
+    - api_field: nextHopInterRegionCost
+    - api_field: nextHopIp
+    - api_field: nextHopMed
+    - api_field: nextHopNetwork
+    - api_field: nextHopOrigin
+    - api_field: nextHopPeering
+    - api_field: nextHopVpnTunnel
+    - api_field: params.resourceManagerTags
+    - api_field: priority
+    - api_field: routeStatus
+    - api_field: routeType
+    - api_field: tags
+    - api_field: warnings.code
+    - api_field: warnings.data.key
+    - api_field: warnings.data.value
+    - api_field: warnings.message
+    - api_field: selfLink

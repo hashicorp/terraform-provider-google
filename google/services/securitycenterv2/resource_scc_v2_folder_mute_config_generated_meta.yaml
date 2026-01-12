@@ -1,22 +1,22 @@
-resource: 'google_scc_v2_folder_mute_config'
-generation_type: 'mmv1'
-source_file: 'products/securitycenterv2/FolderMuteConfig.yaml'
-api_service_name: 'securitycenter.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'MuteConfig'
+resource: google_scc_v2_folder_mute_config
+generation_type: mmv1
+source_file: products/securitycenterv2/FolderMuteConfig.yaml
+api_service_name: securitycenter.googleapis.com
+api_version: v2
+api_resource_type_kind: MuteConfig
 api_variant_patterns:
-  - 'folders/{folder}/locations/{location}/muteConfigs/{muteConfig}'
+    - folders/{folder}/locations/{location}/muteConfigs/{muteConfig}
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'filter'
-  - field: 'folder'
-    provider_only: true
-  - field: 'location'
-    provider_only: true
-  - api_field: 'mostRecentEditor'
-  - field: 'mute_config_id'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'type'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: filter
+    - field: folder
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: mostRecentEditor
+    - field: mute_config_id
+      provider_only: true
+    - api_field: name
+    - api_field: type
+    - api_field: updateTime

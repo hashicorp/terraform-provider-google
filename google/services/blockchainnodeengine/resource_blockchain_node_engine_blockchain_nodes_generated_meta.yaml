@@ -1,34 +1,34 @@
-resource: 'google_blockchain_node_engine_blockchain_nodes'
-generation_type: 'mmv1'
-source_file: 'products/blockchainnodeengine/BlockchainNodes.yaml'
-api_service_name: 'blockchainnodeengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BlockchainNode'
+resource: google_blockchain_node_engine_blockchain_nodes
+generation_type: mmv1
+source_file: products/blockchainnodeengine/BlockchainNodes.yaml
+api_service_name: blockchainnodeengine.googleapis.com
+api_version: v1
+api_resource_type_kind: BlockchainNode
 fields:
-  - field: 'blockchain_node_id'
-    provider_only: true
-  - api_field: 'blockchainType'
-  - api_field: 'connectionInfo.endpointInfo.jsonRpcApiEndpoint'
-  - api_field: 'connectionInfo.endpointInfo.websocketsApiEndpoint'
-  - api_field: 'connectionInfo.serviceAttachment'
-  - api_field: 'createTime'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'ethereumDetails.additionalEndpoints.beaconApiEndpoint'
-  - api_field: 'ethereumDetails.additionalEndpoints.beaconPrometheusMetricsApiEndpoint'
-  - api_field: 'ethereumDetails.additionalEndpoints.executionClientPrometheusMetricsApiEndpoint'
-  - api_field: 'ethereumDetails.apiEnableAdmin'
-  - api_field: 'ethereumDetails.apiEnableDebug'
-  - api_field: 'ethereumDetails.consensusClient'
-  - api_field: 'ethereumDetails.executionClient'
-  - api_field: 'ethereumDetails.gethDetails.garbageCollectionMode'
-  - api_field: 'ethereumDetails.network'
-  - api_field: 'ethereumDetails.nodeType'
-  - api_field: 'ethereumDetails.validatorConfig.mevRelayUrls'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - field: blockchain_node_id
+      provider_only: true
+    - api_field: blockchainType
+    - api_field: connectionInfo.endpointInfo.jsonRpcApiEndpoint
+    - api_field: connectionInfo.endpointInfo.websocketsApiEndpoint
+    - api_field: connectionInfo.serviceAttachment
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: ethereumDetails.additionalEndpoints.beaconApiEndpoint
+    - api_field: ethereumDetails.additionalEndpoints.beaconPrometheusMetricsApiEndpoint
+    - api_field: ethereumDetails.additionalEndpoints.executionClientPrometheusMetricsApiEndpoint
+    - api_field: ethereumDetails.apiEnableAdmin
+    - api_field: ethereumDetails.apiEnableDebug
+    - api_field: ethereumDetails.consensusClient
+    - api_field: ethereumDetails.executionClient
+    - api_field: ethereumDetails.gethDetails.garbageCollectionMode
+    - api_field: ethereumDetails.network
+    - api_field: ethereumDetails.nodeType
+    - api_field: ethereumDetails.validatorConfig.mevRelayUrls
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

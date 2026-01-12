@@ -1,18 +1,18 @@
-resource: 'google_app_engine_domain_mapping'
-generation_type: 'mmv1'
-source_file: 'products/appengine/DomainMapping.yaml'
-api_service_name: 'appengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DomainMapping'
+resource: google_app_engine_domain_mapping
+generation_type: mmv1
+source_file: products/appengine/DomainMapping.yaml
+api_service_name: appengine.googleapis.com
+api_version: v1
+api_resource_type_kind: DomainMapping
 fields:
-  - api_field: 'id'
-    field: 'domain_name'
-  - api_field: 'name'
-  - field: 'override_strategy'
-    provider_only: true
-  - api_field: 'resourceRecords.name'
-  - api_field: 'resourceRecords.rrdata'
-  - api_field: 'resourceRecords.type'
-  - api_field: 'sslSettings.certificateId'
-  - api_field: 'sslSettings.pendingManagedCertificateId'
-  - api_field: 'sslSettings.sslManagementType'
+    - api_field: id
+      field: domain_name
+    - api_field: name
+    - field: override_strategy
+      provider_only: true
+    - api_field: resourceRecords.name
+    - api_field: resourceRecords.rrdata
+    - api_field: resourceRecords.type
+    - api_field: sslSettings.certificateId
+    - api_field: sslSettings.pendingManagedCertificateId
+    - api_field: sslSettings.sslManagementType

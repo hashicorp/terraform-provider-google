@@ -182,7 +182,7 @@ for information on how to write a filter.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Location ID of the parent organization. Only global is supported at the moment.`,
+				Description: `Location ID for the parent project. Defaults to 'global' if location is not provided.`,
 				Default:     "global",
 			},
 			"pubsub_topic": {
@@ -560,7 +560,6 @@ func resourceSecurityCenterV2ProjectNotificationConfigDelete(d *schema.ResourceD
 }
 
 func resourceSecurityCenterV2ProjectNotificationConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
@@ -569,9 +568,9 @@ func resourceSecurityCenterV2ProjectNotificationConfigImport(d *schema.ResourceD
 	}
 
 	stringParts := strings.Split(d.Get("name").(string), "/")
-	if len(stringParts) < 2 {
+	if len(stringParts) != 6 {
 		return nil, fmt.Errorf(
-			"Could not split project from name: %s",
+			"Unexpected format of ID (%s), expected projects/{{project}}/locations/{{location}}/notificationConfigs/{{config_id}}",
 			d.Get("name"),
 		)
 	}
@@ -579,6 +578,15 @@ func resourceSecurityCenterV2ProjectNotificationConfigImport(d *schema.ResourceD
 	if err := d.Set("project", stringParts[1]); err != nil {
 		return nil, fmt.Errorf("Error setting project: %s", err)
 	}
+
+	if err := d.Set("location", stringParts[3]); err != nil {
+		return nil, fmt.Errorf("Error setting location: %s", err)
+	}
+
+	if err := d.Set("config_id", stringParts[5]); err != nil {
+		return nil, fmt.Errorf("Error setting config_id: %s", err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 

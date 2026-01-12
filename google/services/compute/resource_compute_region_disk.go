@@ -1310,7 +1310,8 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 			if disks, ok := instanceRes["disks"].([]interface{}); ok {
 				for _, diskInterface := range disks {
 					disk := diskInterface.(map[string]interface{})
-					if tpgresource.CompareSelfLinkOrResourceName("", disk["source"].(string), self, nil) {
+					// source is nil for scratch disks
+					if source := disk["source"]; source != nil && tpgresource.CompareSelfLinkOrResourceName("", source.(string), self, nil) {
 						detachCalls = append(detachCalls, detachArgs{
 							project:    instanceProject,
 							zone:       tpgresource.GetResourceNameFromSelfLink(instanceRes["zone"].(string)),

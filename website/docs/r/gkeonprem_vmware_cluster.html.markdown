@@ -476,10 +476,10 @@ The following arguments are supported:
 * `ips` -
   (Required)
   The node's network configurations used by the VMware User Cluster.
-  Structure is [documented below](#nested_network_config_static_ip_config_ip_blocks_ip_blocks_ips).
+  Structure is [documented below](#nested_network_config_static_ip_config_ip_blocks_ips).
 
 
-<a name="nested_network_config_static_ip_config_ip_blocks_ip_blocks_ips"></a>The `ips` block supports:
+<a name="nested_network_config_static_ip_config_ip_blocks_ips"></a>The `ips` block supports:
 
 * `ip` -
   (Required)

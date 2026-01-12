@@ -41,7 +41,6 @@ resource "google_pubsub_topic" "scc_v2_project_notification" {
 resource "google_scc_v2_project_notification_config" "custom_notification_config" {
   config_id    = "my-config"
   project      = "my-project-name"
-  location     = "global"
   description  = "My custom Cloud Security Command Center Finding Notification Configuration"
   pubsub_topic =  google_pubsub_topic.scc_v2_project_notification.id
 
@@ -77,7 +76,7 @@ The following arguments are supported:
 
 * `location` -
   (Optional)
-  Location ID of the parent organization. Only global is supported at the moment.
+  Location ID for the parent project. Defaults to `global` if location is not provided.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

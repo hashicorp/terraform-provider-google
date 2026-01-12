@@ -18,16 +18,15 @@ package bigquerydatatransfer_test
 
 import (
 	"fmt"
-	"strings"
-	"testing"
-	"time"
-
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigquerydatatransfer"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"strings"
+	"testing"
+	"time"
 )
 
 func TestBigqueryDataTransferConfig_resourceBigqueryDTCParamsCustomDiffFuncForceNewWhenGoogleCloudStorage(t *testing.T) {
@@ -657,6 +656,19 @@ resource "google_pubsub_topic" "my_topic" {
   name = "tf-test-my-topic-%s"
 }
 
+resource "google_bigquery_table" "my_table" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  table_id   = "my_table"
+  schema     = <<EOF
+  [
+    { "name": "name", "type": "STRING" },
+    { "name": "x", "type": "INTEGER" }
+  ]
+  EOF
+}
+
 resource "google_bigquery_data_transfer_config" "query_config" {
   depends_on = [google_project_iam_member.permissions]
 
@@ -675,7 +687,7 @@ resource "google_bigquery_data_transfer_config" "query_config" {
     enable_failure_email = true
   }
   params = {
-    destination_table_name_template = "my_table"
+    destination_table_name_template = google_bigquery_table.my_table.table_id
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT name FROM tabl WHERE x = '%s'"
   }
@@ -705,6 +717,13 @@ resource "google_bigquery_dataset" "my_dataset" {
   location      = "asia-northeast1"
 }
 
+resource "google_bigquery_table" "my_table" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  table_id   = "my_table"
+}
+
 resource "google_bigquery_data_transfer_config" "query_config" {
   depends_on = [google_project_iam_member.data_editor]
 
@@ -715,7 +734,7 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   service_account_name   = google_service_account.bqwriter.email
   params = {
-    destination_table_name_template = "my_table"
+    destination_table_name_template = google_bigquery_table.my_table.table_id
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT 1 AS a"
   }
@@ -737,6 +756,26 @@ resource "google_pubsub_topic" "my_topic" {
   name = "tf-test-my-topic-%s"
 }
 
+resource "google_bigquery_dataset" "my_dataset" {
+  dataset_id    = "my_dataset%s"
+  friendly_name = "foo"
+  description   = "bar"
+  location      = "asia-northeast1"
+}
+
+resource "google_bigquery_table" "my_table" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  table_id   = "my_table"
+  schema     = <<EOF
+  [
+    { "name": "name", "type": "STRING" },
+    { "name": "x", "type": "INTEGER" }
+  ]
+  EOF
+}
+
 resource "google_bigquery_data_transfer_config" "query_config" {
   depends_on = [google_project_iam_member.permissions]
 
@@ -754,12 +793,12 @@ resource "google_bigquery_data_transfer_config" "query_config" {
     enable_failure_email = true
   }
   params = {
-    destination_table_name_template = "my_table"
+    destination_table_name_template = google_bigquery_table.my_table.table_id
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT name FROM tabl WHERE x = '%s'"
   }
 }
-`, random_suffix, random_suffix, schedule, start_time, end_time, letter)
+`, random_suffix, random_suffix, random_suffix, schedule, start_time, end_time, letter)
 }
 
 func testAccBigqueryDataTransferConfig_booleanParam(random_suffix string) string {
@@ -860,7 +899,7 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   schedule               = "first sunday of quarter 00:00"
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   params = {
-    destination_table_name_template = "my_table"
+    destination_table_name_template = google_bigquery_table.my_table.table_id
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT name FROM table WHERE x = 'y'"
   }
@@ -871,6 +910,19 @@ resource "google_bigquery_dataset" "my_dataset" {
   friendly_name = "foo"
   description   = "bar"
   location      = "us-central1"
+}
+
+resource "google_bigquery_table" "my_table" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  table_id   = "my_table"
+  schema     = <<EOF
+  [
+    { "name": "name", "type": "STRING" },
+    { "name": "x", "type": "INTEGER" }
+  ]
+  EOF
 }
 `, random_suffix, random_suffix, random_suffix, random_suffix, random_suffix, random_suffix, random_suffix, random_suffix)
 }
@@ -884,6 +936,19 @@ resource "google_bigquery_dataset" "dataset" {
   location         = "US"
 }
 
+resource "google_bigquery_table" "my_table" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  table_id   = "the-table-%s-%s"
+  schema     = <<EOF
+  [
+    { "name": "name", "type": "STRING" },
+    { "name": "x", "type": "INTEGER" }
+  ]
+  EOF
+}
+
 resource "google_bigquery_data_transfer_config" "update_config" {
   display_name           = "tf-test-%s"
   data_source_id         = "google_cloud_storage"
@@ -892,13 +957,13 @@ resource "google_bigquery_data_transfer_config" "update_config" {
 
   params = {
     data_path_template              = "gs://bq-bucket-%s-%s/*.json"
-    destination_table_name_template = "the-table-%s-%s"
+    destination_table_name_template = google_bigquery_table.my_table.table_id
     file_format                     = "JSON"
     max_bad_records                 = 0
     write_disposition               = "APPEND"
   }
 }
-`, random_suffix, random_suffix, random_suffix, path, random_suffix, table)
+`, random_suffix, random_suffix, table, random_suffix, random_suffix, path)
 }
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_updateServiceAccount(random_suffix string, service_account string) string {
@@ -923,6 +988,19 @@ resource "google_bigquery_dataset" "my_dataset" {
   location      = "asia-northeast1"
 }
 
+resource "google_bigquery_table" "my_table" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  table_id   = "my_table"
+  schema     = <<EOF
+  [
+    { "name": "name", "type": "STRING" },
+    { "name": "x", "type": "INTEGER" }
+  ]
+  EOF
+}
+
 resource "google_bigquery_data_transfer_config" "query_config" {
   depends_on = [google_project_iam_member.data_editor]
 
@@ -933,7 +1011,7 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   service_account_name   = google_service_account.bqwriter%s.email
   params = {
-    destination_table_name_template = "my_table"
+    destination_table_name_template = google_bigquery_table.my_table.table_id
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT 1 AS a"
   }

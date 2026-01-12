@@ -963,7 +963,7 @@ The following arguments are supported:
   (Optional)
   Javascript User Defined Function. If multiple Javascript UDFs are specified on a resource,
   each one must have a unique `function_name`.
-  Structure is [documented below](#nested_message_transforms_message_transforms_javascript_udf).
+  Structure is [documented below](#nested_message_transforms_javascript_udf).
 
 * `disabled` -
   (Optional)
@@ -971,7 +971,7 @@ The following arguments are supported:
   the transform will be applied to messages. Default: `true`.
 
 
-<a name="nested_message_transforms_message_transforms_javascript_udf"></a>The `javascript_udf` block supports:
+<a name="nested_message_transforms_javascript_udf"></a>The `javascript_udf` block supports:
 
 * `function_name` -
   (Required)

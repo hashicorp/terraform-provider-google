@@ -181,9 +181,7 @@ The following arguments are supported:
 
 - - -
 
-* `force_destroy` - (Optional, Default: false) When deleting a bucket, this
-    boolean option will delete all contained objects. If you try to delete a
-    bucket that contains objects, Terraform will fail that run.
+* `force_destroy` - (Optional, Default: false) When true, before deleting a bucket, delete all objects within the bucket, or Anywhere Caches caching data for that bucket. Otherwise, buckets with objects/caches will fail. Anywhere Cache requires additional permissions to interact with and will be assumed not present when Terraform is not permissioned, attempting to delete the bucket anyways. This may result in the objects in the bucket getting destroyed but not the bucket itself if there is a cache in use with the bucket. Force deletion may take a long time to delete buckets with lots of objects or with any Anywhere Caches (80m+).
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.

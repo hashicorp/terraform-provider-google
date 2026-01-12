@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -68,7 +69,7 @@ func TestAccIapWebTypeAppEngineIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor", context["project_id"], context["project_id"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMBindingStateID("google_iap_web_type_app_engine_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -78,7 +79,7 @@ func TestAccIapWebTypeAppEngineIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor", context["project_id"], context["project_id"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMBindingStateID("google_iap_web_type_app_engine_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccIapWebTypeAppEngineIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", context["project_id"], context["project_id"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMMemberStateID("google_iap_web_type_app_engine_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -156,7 +157,7 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s", context["project_id"], context["project_id"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMPolicyStateID("google_iap_web_type_app_engine_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -165,7 +166,7 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s", context["project_id"], context["project_id"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMPolicyStateID("google_iap_web_type_app_engine_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -203,7 +204,7 @@ func TestAccIapWebTypeAppEngineIamBindingGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor %s", context["project_id"], context["project_id"], context["condition_title"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMBindingStateID("google_iap_web_type_app_engine_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -243,19 +244,19 @@ func TestAccIapWebTypeAppEngineIamBindingGenerated_withAndWithoutCondition(t *te
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor", context["project_id"], context["project_id"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMBindingStateID("google_iap_web_type_app_engine_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor %s", context["project_id"], context["project_id"], context["condition_title"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMBindingStateID("google_iap_web_type_app_engine_iam_binding.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor %s", context["project_id"], context["project_id"], context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMBindingStateID("google_iap_web_type_app_engine_iam_binding.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -293,7 +294,7 @@ func TestAccIapWebTypeAppEngineIamMemberGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", context["project_id"], context["project_id"], context["condition_title"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMMemberStateID("google_iap_web_type_app_engine_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -333,19 +334,19 @@ func TestAccIapWebTypeAppEngineIamMemberGenerated_withAndWithoutCondition(t *tes
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", context["project_id"], context["project_id"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMMemberStateID("google_iap_web_type_app_engine_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", context["project_id"], context["project_id"], context["condition_title"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMMemberStateID("google_iap_web_type_app_engine_iam_member.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", context["project_id"], context["project_id"], context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMMemberStateID("google_iap_web_type_app_engine_iam_member.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -393,7 +394,7 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s", context["project_id"], context["project_id"]),
+				ImportStateIdFunc: generateIapWebTypeAppEngineIAMPolicyStateID("google_iap_web_type_app_engine_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -886,4 +887,62 @@ resource "google_iap_web_type_app_engine_iam_policy" "foo" {
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
+}
+func generateIapWebTypeAppEngineIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		appId := appIdShortName(rawState["app_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/appengine-%s", project, appId), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIapWebTypeAppEngineIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		appId := appIdShortName(rawState["app_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/appengine-%s", project, appId), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIapWebTypeAppEngineIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		appId := appIdShortName(rawState["app_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/appengine-%s", project, appId), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
+}
+
+func appIdShortName(appId string) string {
+	appIdParts := strings.SplitN(appId, "appengine-", 2)
+	if len(appIdParts) == 2 {
+		return appIdParts[1]
+	}
+	return appId
 }

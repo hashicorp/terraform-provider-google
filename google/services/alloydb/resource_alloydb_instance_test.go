@@ -90,6 +90,27 @@ data "google_compute_network" "default" {
 `, context)
 }
 
+func testAccAlloydbInstance_deleteInstance(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
+  }
+
+  deletion_protection = false
+}
+
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+`, context)
+}
+
 func testAccAlloydbInstance_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_instance" "default" {
@@ -682,7 +703,7 @@ resource "google_alloydb_instance" "default" {
 
   client_connection_config {
     require_connectors = %{require_connectors}
-  }	
+  }
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -719,7 +740,7 @@ resource "google_alloydb_instance" "default" {
     ssl_config {
       ssl_mode = "%{ssl_mode}"
     }
-  }	
+  }
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -853,7 +874,7 @@ resource "google_alloydb_instance" "default" {
     enable_public_ip = %{enable_public_ip}
     enable_outbound_public_ip = %{enable_outbound_public_ip}
     %{authorized_external_networks}
-  }	
+  }
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -893,7 +914,7 @@ resource "google_alloydb_instance" "default" {
     authorized_external_networks {
       cidr_range = "%{cidr_range}"
     }
-  }	
+  }
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -1230,6 +1251,475 @@ data "google_compute_network" "default" {
 
 data "google_compute_global_address" "private_ip_alloc" {
   name =  "%{address_name}"
+}
+`, context)
+}
+
+// This test passes if an instance is able to do the following:
+//   - Be created with only managed connection pooling enabled
+//   - Be created with managed connection pooling enabled with some flags set
+//   - Be updated to disable managed connection pooling
+//   - Be updated to only enable managed connection pooling
+//   - Be updated to enable managed connection pooling and its flags
+//   - Be update to only update a few flags
+func TestAccAlloydbInstance_connectionPoolConfig(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-connection-pool-config")
+
+	context := map[string]interface{}{
+		"random_suffix":                  suffix,
+		"network_name":                   networkName,
+		"enabled":                        true,
+		"pool_mode":                      "transaction",
+		"max_pool_size":                  1000,
+		"min_pool_size":                  50,
+		"max_client_connections":         250,
+		"client_connection_idle_timeout": 60,
+		"server_connection_idle_timeout": 60,
+		"query_wait_timeout":             30,
+		"max_prepared_statements":        10,
+		"ignore_startup_parameters":      "timezone,lc_monetary,icu_validation_level",
+		"server_lifetime":                600,
+		"stats_users":                    "foo,bar",
+	}
+	context2 := map[string]interface{}{
+		"random_suffix": suffix,
+		"network_name":  networkName,
+		"enabled":       false,
+	}
+	context3 := map[string]interface{}{
+		"random_suffix": suffix,
+		"network_name":  networkName,
+		"enabled":       true,
+	}
+	context4 := map[string]interface{}{
+		"random_suffix":             suffix,
+		"network_name":              networkName,
+		"enabled":                   true,
+		"pool_mode":                 "session",
+		"min_pool_size":             100,
+		"query_wait_timeout":        120,
+		"ignore_startup_parameters": "timezone,icu_validation_level,client_encoding,datestyle,intervalstyle",
+		"stats_users":               "bar,baz,qux",
+	}
+	context5 := map[string]interface{}{
+		"random_suffix":                  suffix,
+		"network_name":                   networkName,
+		"enabled":                        true,
+		"pool_mode":                      "session",
+		"max_pool_size":                  1000,
+		"min_pool_size":                  100,
+		"max_client_connections":         250,
+		"client_connection_idle_timeout": 60,
+		"server_connection_idle_timeout": 60,
+		"query_wait_timeout":             120,
+		"max_prepared_statements":        10,
+		"ignore_startup_parameters":      "timezone,icu_validation_level,client_encoding,datestyle,intervalstyle",
+		"server_lifetime":                600,
+		"stats_users":                    "bar,baz,qux",
+	}
+	context6 := map[string]interface{}{
+		"random_suffix": suffix,
+		"network_name":  networkName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbInstance_connectionPoolConfigNoFlags(context3),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config:  testAccAlloydbInstance_deleteInstance(context6),
+				Destroy: true,
+			},
+			{
+				Config: testAccAlloydbInstance_connectionPoolConfigWithAllFlags(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.pool_mode", "transaction"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.max_pool_size", "1000"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.min_pool_size", "50"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.max_client_connections", "250"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.client_connection_idle_timeout", "60"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.server_connection_idle_timeout", "60"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.query_wait_timeout", "30"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.max_prepared_statements", "10"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.ignore_startup_parameters", "timezone,lc_monetary,icu_validation_level"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.server_lifetime", "600"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.stats_users", "foo,bar"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_connectionPoolConfigNoFlags(context2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_connectionPoolConfigNoFlags(context3),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_connectionPoolConfigWithAllFlags(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.pool_mode", "transaction"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.max_pool_size", "1000"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.min_pool_size", "50"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.max_client_connections", "250"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.client_connection_idle_timeout", "60"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.server_connection_idle_timeout", "60"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.query_wait_timeout", "30"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.max_prepared_statements", "10"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.ignore_startup_parameters", "timezone,lc_monetary,icu_validation_level"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.server_lifetime", "600"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.stats_users", "foo,bar"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_connectionPoolConfigWithAllFlags(context5),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.pool_mode", "session"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.max_pool_size", "1000"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.min_pool_size", "100"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.max_client_connections", "250"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.client_connection_idle_timeout", "60"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.server_connection_idle_timeout", "60"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.query_wait_timeout", "120"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.max_prepared_statements", "10"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.ignore_startup_parameters", "timezone,icu_validation_level,client_encoding,datestyle,intervalstyle"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.server_lifetime", "600"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.stats_users", "bar,baz,qux"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_connectionPoolConfigNoFlags(context2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_connectionPoolConfigWithSomeFlags(context4),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.pool_mode", "session"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.min_pool_size", "100"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.query_wait_timeout", "120"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.ignore_startup_parameters", "timezone,icu_validation_level,client_encoding,datestyle,intervalstyle"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "connection_pool_config.0.flags.stats_users", "bar,baz,qux"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+		},
+	})
+}
+
+func testAccAlloydbInstance_connectionPoolConfigNoFlags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  connection_pool_config {
+    enabled = %{enabled}
+  }	
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+
+  deletion_protection = false
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+	name = "%{network_name}"
+}
+`, context)
+}
+
+func testAccAlloydbInstance_connectionPoolConfigWithAllFlags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  connection_pool_config {
+    enabled = %{enabled}
+    flags = {
+      "pool_mode" = "%{pool_mode}"
+      "max_pool_size" = %{max_pool_size}
+      "min_pool_size" = %{min_pool_size}
+      "max_client_connections" = %{max_client_connections}
+      "client_connection_idle_timeout" = %{client_connection_idle_timeout}
+      "server_connection_idle_timeout" = %{server_connection_idle_timeout}
+      "query_wait_timeout" = %{query_wait_timeout}
+      "max_prepared_statements" = %{max_prepared_statements}
+      "ignore_startup_parameters" = "%{ignore_startup_parameters}"
+      "server_lifetime" = %{server_lifetime}
+      "stats_users" = "%{stats_users}"
+		}
+  }	
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+
+  deletion_protection = false
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+	name = "%{network_name}"
+}
+`, context)
+}
+
+func testAccAlloydbInstance_connectionPoolConfigWithSomeFlags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  connection_pool_config {
+    enabled = %{enabled}
+    flags = {
+      "pool_mode" = "%{pool_mode}"
+      "min_pool_size" = %{min_pool_size}
+      "query_wait_timeout" = %{query_wait_timeout}
+      "ignore_startup_parameters" = "%{ignore_startup_parameters}"
+      "stats_users" = "%{stats_users}"
+		}
+  }	
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+
+  deletion_protection = false
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+	name = "%{network_name}"
+}
+`, context)
+}
+
+func TestAccAlloydbInstance_ObservabilityConfig_Update(t *testing.T) {
+	t.Parallel()
+	random_suffix := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1")
+
+	// 1. Initial State: Everything Enabled
+	contextEnableAll := map[string]interface{}{
+		"random_suffix":                 random_suffix,
+		"network_name":                  networkName,
+		"enabled":                       true,
+		"preserve_comments":             true,
+		"track_wait_events":             true,
+		"max_query_string_length":       1024,
+		"record_application_tags":       true,
+		"query_plans_per_minute":        10,
+		"track_active_queries":          true,
+		"assistive_experiences_enabled": false,
+	}
+
+	contextDisable := map[string]interface{}{
+		"random_suffix": random_suffix,
+		"network_name":  networkName,
+	}
+
+	// 3. Re-Enable Main Toggle, but Disable Sub-features (Test Case 2)
+	contextEnabledButSubFeaturesDisabled := map[string]interface{}{
+		"random_suffix":                 random_suffix,
+		"network_name":                  networkName,
+		"enabled":                       true,
+		"preserve_comments":             false,
+		"track_wait_events":             false,
+		"max_query_string_length":       2048,
+		"record_application_tags":       false,
+		"query_plans_per_minute":        5,
+		"track_active_queries":          false,
+		"assistive_experiences_enabled": false,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbInstance_ObservabilityConfig(contextEnableAll),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.max_query_string_length", "1024"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.track_wait_events", "true"),
+				),
+			},
+			{
+				Config: testAccAlloydbInstance_ObservabilityConfig_Disabled(contextDisable),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.enabled", "false"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.max_query_string_length", "10240"), // Disabled default value
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.query_plans_per_minute", "20"),     // default value
+				),
+			},
+			// Step 3: Mark enabled = true and turn all the other booleans to false
+			{
+				Config: testAccAlloydbInstance_ObservabilityConfig(contextEnabledButSubFeaturesDisabled),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.preserve_comments", "false"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.track_wait_events", "false"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "observability_config.0.max_query_string_length", "2048"),
+				),
+			},
+		},
+	})
+}
+
+func testAccAlloydbInstance_ObservabilityConfig_Disabled(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  machine_config {
+    cpu_count = 2
+  }
+  observability_config {
+    enabled = false
+  }
+}
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
+  }
+  deletion_protection = false
+}
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+`, context)
+}
+func testAccAlloydbInstance_ObservabilityConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+  machine_config {
+    cpu_count = 2
+  }
+  observability_config {
+    enabled                        = %{enabled}
+    preserve_comments              = %{preserve_comments}
+    track_wait_events              = %{track_wait_events}
+    max_query_string_length        = %{max_query_string_length}
+    record_application_tags        = %{record_application_tags}
+    query_plans_per_minute         = %{query_plans_per_minute}
+    track_active_queries           = %{track_active_queries}
+    assistive_experiences_enabled  = %{assistive_experiences_enabled}
+  }
+}
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+  initial_user {
+    password = "tf-test-alloydb-cluster%{random_suffix}"
+  }
+  deletion_protection = false
+}
+data "google_compute_network" "default" {
+  name = "%{network_name}"
 }
 `, context)
 }

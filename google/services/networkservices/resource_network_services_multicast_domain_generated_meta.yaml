@@ -1,28 +1,29 @@
-resource: 'google_network_services_multicast_domain'
-generation_type: 'mmv1'
-source_file: 'products/networkservices/MulticastDomain.yaml'
-api_service_name: 'networkservices.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'MulticastDomain'
+resource: google_network_services_multicast_domain
+generation_type: mmv1
+source_file: products/networkservices/MulticastDomain.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: MulticastDomain
 autogen_status: true
 fields:
-  - api_field: 'adminNetwork'
-  - api_field: 'connection.connectionType'
-    field: 'connection_config.connection_type'
-  - api_field: 'connection.nccHub'
-    field: 'connection_config.ncc_hub'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'multicastDomainGroup'
-  - field: 'multicast_domain_id'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uniqueId'
-  - api_field: 'updateTime'
+    - api_field: adminNetwork
+    - api_field: connection.connectionType
+      field: connection_config.connection_type
+    - api_field: connection.nccHub
+      field: connection_config.ncc_hub
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: multicastDomainGroup
+    - field: multicast_domain_id
+      provider_only: true
+    - api_field: name
+    - api_field: state.state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uniqueId
+    - api_field: updateTime

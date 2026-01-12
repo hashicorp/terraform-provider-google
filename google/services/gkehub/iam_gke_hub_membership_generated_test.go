@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -60,7 +61,7 @@ func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHubMembershipIAMBindingStateID("google_gke_hub_membership_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +71,7 @@ func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHubMembershipIAMBindingStateID("google_gke_hub_membership_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +102,7 @@ func TestAccGKEHubMembershipIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHubMembershipIAMMemberStateID("google_gke_hub_membership_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -132,7 +133,7 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHubMembershipIAMPolicyStateID("google_gke_hub_membership_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -141,7 +142,7 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateIdFunc: generateGKEHubMembershipIAMPolicyStateID("google_gke_hub_membership_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -319,4 +320,58 @@ resource "google_gke_hub_membership_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateGKEHubMembershipIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		membership_id := tpgresource.GetResourceNameFromSelfLink(rawState["membership_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/memberships/%s", project, location, membership_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateGKEHubMembershipIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		membership_id := tpgresource.GetResourceNameFromSelfLink(rawState["membership_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/memberships/%s", project, location, membership_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateGKEHubMembershipIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		membership_id := tpgresource.GetResourceNameFromSelfLink(rawState["membership_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/memberships/%s", project, location, membership_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

@@ -1,22 +1,22 @@
-resource: 'google_vertex_ai_dataset'
-generation_type: 'mmv1'
-source_file: 'products/vertexai/Dataset.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Dataset'
+resource: google_vertex_ai_dataset
+generation_type: mmv1
+source_file: products/vertexai/Dataset.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: Dataset
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/datasets/{dataset}'
+    - projects/{project}/locations/{location}/datasets/{dataset}
 fields:
-  - api_field: 'createTime'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionSpec.kmsKeyName'
-  - api_field: 'labels'
-  - api_field: 'metadataSchemaUri'
-  - api_field: 'name'
-  - field: 'region'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: labels
+    - api_field: metadataSchemaUri
+    - api_field: name
+    - field: region
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

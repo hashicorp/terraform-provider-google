@@ -1,179 +1,179 @@
-resource: 'google_bigquery_job'
-generation_type: 'mmv1'
-source_file: 'products/bigquery/Job.yaml'
-api_service_name: 'bigquery.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Job'
+resource: google_bigquery_job
+generation_type: mmv1
+source_file: products/bigquery/Job.yaml
+api_service_name: bigquery.googleapis.com
+api_version: v2
+api_resource_type_kind: Job
 fields:
-  - api_field: 'configuration.copy.createDisposition'
-    field: 'copy.create_disposition'
-  - api_field: 'configuration.copy.destinationEncryptionConfiguration.kmsKeyName'
-    field: 'copy.destination_encryption_configuration.kms_key_name'
-  - api_field: 'configuration.copy.destinationEncryptionConfiguration.kmsKeyVersion'
-    field: 'copy.destination_encryption_configuration.kms_key_version'
-  - api_field: 'configuration.copy.destinationTable.datasetId'
-    field: 'copy.destination_table.dataset_id'
-  - api_field: 'configuration.copy.destinationTable.projectId'
-    field: 'copy.destination_table.project_id'
-  - api_field: 'configuration.copy.destinationTable.tableId'
-    field: 'copy.destination_table.table_id'
-  - api_field: 'configuration.copy.sourceTables.datasetId'
-    field: 'copy.source_tables.dataset_id'
-  - api_field: 'configuration.copy.sourceTables.projectId'
-    field: 'copy.source_tables.project_id'
-  - api_field: 'configuration.copy.sourceTables.tableId'
-    field: 'copy.source_tables.table_id'
-  - api_field: 'configuration.copy.writeDisposition'
-    field: 'copy.write_disposition'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'configuration.extract.compression'
-    field: 'extract.compression'
-  - api_field: 'configuration.extract.destinationFormat'
-    field: 'extract.destination_format'
-  - api_field: 'configuration.extract.destinationUris'
-    field: 'extract.destination_uris'
-  - api_field: 'configuration.extract.fieldDelimiter'
-    field: 'extract.field_delimiter'
-  - api_field: 'configuration.extract.printHeader'
-    field: 'extract.print_header'
-  - api_field: 'configuration.extract.sourceModel.datasetId'
-    field: 'extract.source_model.dataset_id'
-  - api_field: 'configuration.extract.sourceModel.modelId'
-    field: 'extract.source_model.model_id'
-  - api_field: 'configuration.extract.sourceModel.projectId'
-    field: 'extract.source_model.project_id'
-  - api_field: 'configuration.extract.sourceTable.datasetId'
-    field: 'extract.source_table.dataset_id'
-  - api_field: 'configuration.extract.sourceTable.projectId'
-    field: 'extract.source_table.project_id'
-  - api_field: 'configuration.extract.sourceTable.tableId'
-    field: 'extract.source_table.table_id'
-  - api_field: 'configuration.extract.useAvroLogicalTypes'
-    field: 'extract.use_avro_logical_types'
-  - api_field: 'jobReference.jobId'
-    field: 'job_id'
-  - api_field: 'configuration.jobTimeoutMs'
-    field: 'job_timeout_ms'
-  - api_field: 'configuration.jobType'
-    field: 'job_type'
-  - api_field: 'configuration.labels'
-    field: 'labels'
-  - api_field: 'configuration.load.allowJaggedRows'
-    field: 'load.allow_jagged_rows'
-  - api_field: 'configuration.load.allowQuotedNewlines'
-    field: 'load.allow_quoted_newlines'
-  - api_field: 'configuration.load.autodetect'
-    field: 'load.autodetect'
-  - api_field: 'configuration.load.createDisposition'
-    field: 'load.create_disposition'
-  - api_field: 'configuration.load.destinationEncryptionConfiguration.kmsKeyName'
-    field: 'load.destination_encryption_configuration.kms_key_name'
-  - api_field: 'configuration.load.destinationEncryptionConfiguration.kmsKeyVersion'
-    field: 'load.destination_encryption_configuration.kms_key_version'
-  - api_field: 'configuration.load.destinationTable.datasetId'
-    field: 'load.destination_table.dataset_id'
-  - api_field: 'configuration.load.destinationTable.projectId'
-    field: 'load.destination_table.project_id'
-  - api_field: 'configuration.load.destinationTable.tableId'
-    field: 'load.destination_table.table_id'
-  - api_field: 'configuration.load.encoding'
-    field: 'load.encoding'
-  - api_field: 'configuration.load.fieldDelimiter'
-    field: 'load.field_delimiter'
-  - api_field: 'configuration.load.ignoreUnknownValues'
-    field: 'load.ignore_unknown_values'
-  - api_field: 'configuration.load.jsonExtension'
-    field: 'load.json_extension'
-  - api_field: 'configuration.load.maxBadRecords'
-    field: 'load.max_bad_records'
-  - api_field: 'configuration.load.nullMarker'
-    field: 'load.null_marker'
-  - api_field: 'configuration.load.parquetOptions.enableListInference'
-    field: 'load.parquet_options.enable_list_inference'
-  - api_field: 'configuration.load.parquetOptions.enumAsString'
-    field: 'load.parquet_options.enum_as_string'
-  - api_field: 'configuration.load.projectionFields'
-    field: 'load.projection_fields'
-  - api_field: 'configuration.load.quote'
-    field: 'load.quote'
-  - api_field: 'configuration.load.schemaUpdateOptions'
-    field: 'load.schema_update_options'
-  - api_field: 'configuration.load.skipLeadingRows'
-    field: 'load.skip_leading_rows'
-  - api_field: 'configuration.load.sourceFormat'
-    field: 'load.source_format'
-  - api_field: 'configuration.load.sourceUris'
-    field: 'load.source_uris'
-  - api_field: 'configuration.load.timePartitioning.expirationMs'
-    field: 'load.time_partitioning.expiration_ms'
-  - api_field: 'configuration.load.timePartitioning.field'
-    field: 'load.time_partitioning.field'
-  - api_field: 'configuration.load.timePartitioning.type'
-    field: 'load.time_partitioning.type'
-  - api_field: 'configuration.load.writeDisposition'
-    field: 'load.write_disposition'
-  - api_field: 'jobReference.location'
-    field: 'location'
-  - api_field: 'configuration.query.allowLargeResults'
-    field: 'query.allow_large_results'
-  - api_field: 'configuration.query.connectionProperties.key'
-    field: 'query.connection_properties.key'
-  - api_field: 'configuration.query.connectionProperties.value'
-    field: 'query.connection_properties.value'
-  - api_field: 'configuration.query.createDisposition'
-    field: 'query.create_disposition'
-  - api_field: 'configuration.query.defaultDataset.datasetId'
-    field: 'query.default_dataset.dataset_id'
-  - api_field: 'configuration.query.defaultDataset.projectId'
-    field: 'query.default_dataset.project_id'
-  - api_field: 'configuration.query.destinationEncryptionConfiguration.kmsKeyName'
-    field: 'query.destination_encryption_configuration.kms_key_name'
-  - api_field: 'configuration.query.destinationEncryptionConfiguration.kmsKeyVersion'
-    field: 'query.destination_encryption_configuration.kms_key_version'
-  - api_field: 'configuration.query.destinationTable.datasetId'
-    field: 'query.destination_table.dataset_id'
-  - api_field: 'configuration.query.destinationTable.projectId'
-    field: 'query.destination_table.project_id'
-  - api_field: 'configuration.query.destinationTable.tableId'
-    field: 'query.destination_table.table_id'
-  - api_field: 'configuration.query.flattenResults'
-    field: 'query.flatten_results'
-  - api_field: 'configuration.query.maximumBillingTier'
-    field: 'query.maximum_billing_tier'
-  - api_field: 'configuration.query.maximumBytesBilled'
-    field: 'query.maximum_bytes_billed'
-  - api_field: 'configuration.query.parameterMode'
-    field: 'query.parameter_mode'
-  - api_field: 'configuration.query.priority'
-    field: 'query.priority'
-  - api_field: 'configuration.query.query'
-    field: 'query.query'
-  - api_field: 'configuration.query.schemaUpdateOptions'
-    field: 'query.schema_update_options'
-  - api_field: 'configuration.query.scriptOptions.keyResultStatement'
-    field: 'query.script_options.key_result_statement'
-  - api_field: 'configuration.query.scriptOptions.statementByteBudget'
-    field: 'query.script_options.statement_byte_budget'
-  - api_field: 'configuration.query.scriptOptions.statementTimeoutMs'
-    field: 'query.script_options.statement_timeout_ms'
-  - api_field: 'configuration.query.useLegacySql'
-    field: 'query.use_legacy_sql'
-  - api_field: 'configuration.query.useQueryCache'
-    field: 'query.use_query_cache'
-  - api_field: 'configuration.query.userDefinedFunctionResources.inlineCode'
-    field: 'query.user_defined_function_resources.inline_code'
-  - api_field: 'configuration.query.userDefinedFunctionResources.resourceUri'
-    field: 'query.user_defined_function_resources.resource_uri'
-  - api_field: 'configuration.query.writeDisposition'
-    field: 'query.write_disposition'
-  - api_field: 'status.errorResult.location'
-  - api_field: 'status.errorResult.message'
-  - api_field: 'status.errorResult.reason'
-  - api_field: 'status.errors.location'
-  - api_field: 'status.errors.message'
-  - api_field: 'status.errors.reason'
-  - api_field: 'status.state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'user_email'
+    - api_field: configuration.copy.createDisposition
+      field: copy.create_disposition
+    - api_field: configuration.copy.destinationEncryptionConfiguration.kmsKeyName
+      field: copy.destination_encryption_configuration.kms_key_name
+    - api_field: configuration.copy.destinationEncryptionConfiguration.kmsKeyVersion
+      field: copy.destination_encryption_configuration.kms_key_version
+    - api_field: configuration.copy.destinationTable.datasetId
+      field: copy.destination_table.dataset_id
+    - api_field: configuration.copy.destinationTable.projectId
+      field: copy.destination_table.project_id
+    - api_field: configuration.copy.destinationTable.tableId
+      field: copy.destination_table.table_id
+    - api_field: configuration.copy.sourceTables.datasetId
+      field: copy.source_tables.dataset_id
+    - api_field: configuration.copy.sourceTables.projectId
+      field: copy.source_tables.project_id
+    - api_field: configuration.copy.sourceTables.tableId
+      field: copy.source_tables.table_id
+    - api_field: configuration.copy.writeDisposition
+      field: copy.write_disposition
+    - field: effective_labels
+      provider_only: true
+    - api_field: configuration.extract.compression
+      field: extract.compression
+    - api_field: configuration.extract.destinationFormat
+      field: extract.destination_format
+    - api_field: configuration.extract.destinationUris
+      field: extract.destination_uris
+    - api_field: configuration.extract.fieldDelimiter
+      field: extract.field_delimiter
+    - api_field: configuration.extract.printHeader
+      field: extract.print_header
+    - api_field: configuration.extract.sourceModel.datasetId
+      field: extract.source_model.dataset_id
+    - api_field: configuration.extract.sourceModel.modelId
+      field: extract.source_model.model_id
+    - api_field: configuration.extract.sourceModel.projectId
+      field: extract.source_model.project_id
+    - api_field: configuration.extract.sourceTable.datasetId
+      field: extract.source_table.dataset_id
+    - api_field: configuration.extract.sourceTable.projectId
+      field: extract.source_table.project_id
+    - api_field: configuration.extract.sourceTable.tableId
+      field: extract.source_table.table_id
+    - api_field: configuration.extract.useAvroLogicalTypes
+      field: extract.use_avro_logical_types
+    - api_field: jobReference.jobId
+      field: job_id
+    - api_field: configuration.jobTimeoutMs
+      field: job_timeout_ms
+    - api_field: configuration.jobType
+      field: job_type
+    - api_field: configuration.labels
+      field: labels
+    - api_field: configuration.load.allowJaggedRows
+      field: load.allow_jagged_rows
+    - api_field: configuration.load.allowQuotedNewlines
+      field: load.allow_quoted_newlines
+    - api_field: configuration.load.autodetect
+      field: load.autodetect
+    - api_field: configuration.load.createDisposition
+      field: load.create_disposition
+    - api_field: configuration.load.destinationEncryptionConfiguration.kmsKeyName
+      field: load.destination_encryption_configuration.kms_key_name
+    - api_field: configuration.load.destinationEncryptionConfiguration.kmsKeyVersion
+      field: load.destination_encryption_configuration.kms_key_version
+    - api_field: configuration.load.destinationTable.datasetId
+      field: load.destination_table.dataset_id
+    - api_field: configuration.load.destinationTable.projectId
+      field: load.destination_table.project_id
+    - api_field: configuration.load.destinationTable.tableId
+      field: load.destination_table.table_id
+    - api_field: configuration.load.encoding
+      field: load.encoding
+    - api_field: configuration.load.fieldDelimiter
+      field: load.field_delimiter
+    - api_field: configuration.load.ignoreUnknownValues
+      field: load.ignore_unknown_values
+    - api_field: configuration.load.jsonExtension
+      field: load.json_extension
+    - api_field: configuration.load.maxBadRecords
+      field: load.max_bad_records
+    - api_field: configuration.load.nullMarker
+      field: load.null_marker
+    - api_field: configuration.load.parquetOptions.enableListInference
+      field: load.parquet_options.enable_list_inference
+    - api_field: configuration.load.parquetOptions.enumAsString
+      field: load.parquet_options.enum_as_string
+    - api_field: configuration.load.projectionFields
+      field: load.projection_fields
+    - api_field: configuration.load.quote
+      field: load.quote
+    - api_field: configuration.load.schemaUpdateOptions
+      field: load.schema_update_options
+    - api_field: configuration.load.skipLeadingRows
+      field: load.skip_leading_rows
+    - api_field: configuration.load.sourceFormat
+      field: load.source_format
+    - api_field: configuration.load.sourceUris
+      field: load.source_uris
+    - api_field: configuration.load.timePartitioning.expirationMs
+      field: load.time_partitioning.expiration_ms
+    - api_field: configuration.load.timePartitioning.field
+      field: load.time_partitioning.field
+    - api_field: configuration.load.timePartitioning.type
+      field: load.time_partitioning.type
+    - api_field: configuration.load.writeDisposition
+      field: load.write_disposition
+    - api_field: jobReference.location
+      field: location
+    - api_field: configuration.query.allowLargeResults
+      field: query.allow_large_results
+    - api_field: configuration.query.connectionProperties.key
+      field: query.connection_properties.key
+    - api_field: configuration.query.connectionProperties.value
+      field: query.connection_properties.value
+    - api_field: configuration.query.createDisposition
+      field: query.create_disposition
+    - api_field: configuration.query.defaultDataset.datasetId
+      field: query.default_dataset.dataset_id
+    - api_field: configuration.query.defaultDataset.projectId
+      field: query.default_dataset.project_id
+    - api_field: configuration.query.destinationEncryptionConfiguration.kmsKeyName
+      field: query.destination_encryption_configuration.kms_key_name
+    - api_field: configuration.query.destinationEncryptionConfiguration.kmsKeyVersion
+      field: query.destination_encryption_configuration.kms_key_version
+    - api_field: configuration.query.destinationTable.datasetId
+      field: query.destination_table.dataset_id
+    - api_field: configuration.query.destinationTable.projectId
+      field: query.destination_table.project_id
+    - api_field: configuration.query.destinationTable.tableId
+      field: query.destination_table.table_id
+    - api_field: configuration.query.flattenResults
+      field: query.flatten_results
+    - api_field: configuration.query.maximumBillingTier
+      field: query.maximum_billing_tier
+    - api_field: configuration.query.maximumBytesBilled
+      field: query.maximum_bytes_billed
+    - api_field: configuration.query.parameterMode
+      field: query.parameter_mode
+    - api_field: configuration.query.priority
+      field: query.priority
+    - api_field: configuration.query.query
+      field: query.query
+    - api_field: configuration.query.schemaUpdateOptions
+      field: query.schema_update_options
+    - api_field: configuration.query.scriptOptions.keyResultStatement
+      field: query.script_options.key_result_statement
+    - api_field: configuration.query.scriptOptions.statementByteBudget
+      field: query.script_options.statement_byte_budget
+    - api_field: configuration.query.scriptOptions.statementTimeoutMs
+      field: query.script_options.statement_timeout_ms
+    - api_field: configuration.query.useLegacySql
+      field: query.use_legacy_sql
+    - api_field: configuration.query.useQueryCache
+      field: query.use_query_cache
+    - api_field: configuration.query.userDefinedFunctionResources.inlineCode
+      field: query.user_defined_function_resources.inline_code
+    - api_field: configuration.query.userDefinedFunctionResources.resourceUri
+      field: query.user_defined_function_resources.resource_uri
+    - api_field: configuration.query.writeDisposition
+      field: query.write_disposition
+    - api_field: status.errorResult.location
+    - api_field: status.errorResult.message
+    - api_field: status.errorResult.reason
+    - api_field: status.errors.location
+    - api_field: status.errors.message
+    - api_field: status.errors.reason
+    - api_field: status.state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: user_email

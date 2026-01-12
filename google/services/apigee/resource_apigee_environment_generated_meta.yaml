@@ -1,23 +1,23 @@
-resource: 'google_apigee_environment'
-generation_type: 'mmv1'
-source_file: 'products/apigee/Environment.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Environment'
+resource: google_apigee_environment
+generation_type: mmv1
+source_file: products/apigee/Environment.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: Environment
 fields:
-  - api_field: 'apiProxyType'
-  - api_field: 'clientIpResolutionConfig.headerIndexAlgorithm.ipHeaderIndex'
-  - api_field: 'clientIpResolutionConfig.headerIndexAlgorithm.ipHeaderName'
-  - api_field: 'deploymentType'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'forwardProxyUri'
-  - api_field: 'name'
-  - api_field: 'nodeConfig.currentAggregateNodeCount'
-  - api_field: 'nodeConfig.maxNodeCount'
-  - api_field: 'nodeConfig.minNodeCount'
-  - field: 'org_id'
-    provider_only: true
-  - api_field: 'properties.property.name'
-  - api_field: 'properties.property.value'
-  - api_field: 'type'
+    - api_field: apiProxyType
+    - api_field: clientIpResolutionConfig.headerIndexAlgorithm.ipHeaderIndex
+    - api_field: clientIpResolutionConfig.headerIndexAlgorithm.ipHeaderName
+    - api_field: deploymentType
+    - api_field: description
+    - api_field: displayName
+    - api_field: forwardProxyUri
+    - api_field: name
+    - api_field: nodeConfig.currentAggregateNodeCount
+    - api_field: nodeConfig.maxNodeCount
+    - api_field: nodeConfig.minNodeCount
+    - field: org_id
+      provider_only: true
+    - api_field: properties.property.name
+    - api_field: properties.property.value
+    - api_field: type

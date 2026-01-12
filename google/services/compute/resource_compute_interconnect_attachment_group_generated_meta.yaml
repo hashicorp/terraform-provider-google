@@ -1,26 +1,29 @@
-resource: 'google_compute_interconnect_attachment_group'
-generation_type: 'mmv1'
-source_file: 'products/compute/InterconnectAttachmentGroup.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InterconnectAttachmentGroup'
+resource: google_compute_interconnect_attachment_group
+generation_type: mmv1
+source_file: products/compute/InterconnectAttachmentGroup.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: InterconnectAttachmentGroup
 fields:
-  - api_field: 'attachments.mapObjectName.attachment'
-  - api_field: 'configured.availabilitySla.effectiveSla'
-  - api_field: 'configured.availabilitySla.intendedSlaBlockers.attachments'
-  - api_field: 'configured.availabilitySla.intendedSlaBlockers.blockerType'
-  - api_field: 'configured.availabilitySla.intendedSlaBlockers.documentationLink'
-  - api_field: 'configured.availabilitySla.intendedSlaBlockers.explanation'
-  - api_field: 'configured.availabilitySla.intendedSlaBlockers.metros'
-  - api_field: 'configured.availabilitySla.intendedSlaBlockers.regions'
-  - api_field: 'configured.availabilitySla.intendedSlaBlockers.zones'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'intent.availabilitySla'
-  - api_field: 'interconnectGroup'
-  - api_field: 'logicalStructure.regions.metros.facilities.facility'
-  - api_field: 'logicalStructure.regions.metros.facilities.zones.attachment'
-  - api_field: 'logicalStructure.regions.metros.facilities.zones.zone'
-  - api_field: 'logicalStructure.regions.metros.metro'
-  - api_field: 'logicalStructure.regions.region'
-  - api_field: 'name'
+    - api_field: attachments.key
+      field: attachments.name
+    - api_field: attachments.value.attachment
+      field: attachments.attachment
+    - api_field: configured.availabilitySla.effectiveSla
+    - api_field: configured.availabilitySla.intendedSlaBlockers.attachments
+    - api_field: configured.availabilitySla.intendedSlaBlockers.blockerType
+    - api_field: configured.availabilitySla.intendedSlaBlockers.documentationLink
+    - api_field: configured.availabilitySla.intendedSlaBlockers.explanation
+    - api_field: configured.availabilitySla.intendedSlaBlockers.metros
+    - api_field: configured.availabilitySla.intendedSlaBlockers.regions
+    - api_field: configured.availabilitySla.intendedSlaBlockers.zones
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: intent.availabilitySla
+    - api_field: interconnectGroup
+    - api_field: logicalStructure.regions.metros.facilities.facility
+    - api_field: logicalStructure.regions.metros.facilities.zones.attachment
+    - api_field: logicalStructure.regions.metros.facilities.zones.zone
+    - api_field: logicalStructure.regions.metros.metro
+    - api_field: logicalStructure.regions.region
+    - api_field: name

@@ -1,30 +1,33 @@
-resource: 'google_vertex_ai_feature_online_store'
-generation_type: 'mmv1'
-source_file: 'products/vertexai/FeatureOnlineStore.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'FeatureOnlineStore'
+resource: google_vertex_ai_feature_online_store
+generation_type: mmv1
+source_file: products/vertexai/FeatureOnlineStore.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: FeatureOnlineStore
 fields:
-  - api_field: 'bigtable.autoScaling.cpuUtilizationTarget'
-  - api_field: 'bigtable.autoScaling.maxNodeCount'
-  - api_field: 'bigtable.autoScaling.minNodeCount'
-  - api_field: 'createTime'
-  - api_field: 'dedicatedServingEndpoint.privateServiceConnectConfig.enablePrivateServiceConnect'
-  - api_field: 'dedicatedServingEndpoint.privateServiceConnectConfig.projectAllowlist'
-  - api_field: 'dedicatedServingEndpoint.publicEndpointDomainName'
-  - api_field: 'dedicatedServingEndpoint.serviceAttachment'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - field: 'force_destroy'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'optimized'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: bigtable.autoScaling.cpuUtilizationTarget
+    - api_field: bigtable.autoScaling.maxNodeCount
+    - api_field: bigtable.autoScaling.minNodeCount
+    - api_field: bigtable.enableDirectBigtableAccess
+    - api_field: bigtable.zone
+    - api_field: createTime
+    - api_field: dedicatedServingEndpoint.privateServiceConnectConfig.enablePrivateServiceConnect
+    - api_field: dedicatedServingEndpoint.privateServiceConnectConfig.projectAllowlist
+    - api_field: dedicatedServingEndpoint.publicEndpointDomainName
+    - api_field: dedicatedServingEndpoint.serviceAttachment
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: etag
+    - field: force_destroy
+      provider_only: true
+    - api_field: labels
+    - field: name
+      provider_only: true
+    - api_field: optimized
+    - field: region
+      provider_only: true
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

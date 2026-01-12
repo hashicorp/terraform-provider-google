@@ -242,10 +242,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `locations` -
   (Output)
   The list of locations where the deployment group is present.
-  Structure is [documented below](#nested_connected_deployment_groups_connected_deployment_groups_locations).
+  Structure is [documented below](#nested_connected_deployment_groups_locations).
 
 
-<a name="nested_connected_deployment_groups_connected_deployment_groups_locations"></a>The `locations` block contains:
+<a name="nested_connected_deployment_groups_locations"></a>The `locations` block contains:
 
 * `location` -
   (Output)

@@ -1183,10 +1183,10 @@ The following arguments are supported:
 * `custom_metrics` -
   (Optional)
   The set of custom metrics that are used for <code>CUSTOM_METRICS</code> BalancingMode.
-  Structure is [documented below](#nested_backend_backend_custom_metrics).
+  Structure is [documented below](#nested_backend_custom_metrics).
 
 
-<a name="nested_backend_backend_custom_metrics"></a>The `custom_metrics` block supports:
+<a name="nested_backend_custom_metrics"></a>The `custom_metrics` block supports:
 
 * `name` -
   (Required)
@@ -1465,16 +1465,16 @@ The following arguments are supported:
 * `policy` -
   (Optional)
   The configuration for a built-in load balancing policy.
-  Structure is [documented below](#nested_locality_lb_policies_locality_lb_policies_policy).
+  Structure is [documented below](#nested_locality_lb_policies_policy).
 
 * `custom_policy` -
   (Optional)
   The configuration for a custom policy implemented by the user and
   deployed with the client.
-  Structure is [documented below](#nested_locality_lb_policies_locality_lb_policies_custom_policy).
+  Structure is [documented below](#nested_locality_lb_policies_custom_policy).
 
 
-<a name="nested_locality_lb_policies_locality_lb_policies_policy"></a>The `policy` block supports:
+<a name="nested_locality_lb_policies_policy"></a>The `policy` block supports:
 
 * `name` -
   (Required)
@@ -1506,7 +1506,7 @@ The following arguments are supported:
               Maglev, refer to https://ai.google/research/pubs/pub44824
   Possible values are: `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, `MAGLEV`.
 
-<a name="nested_locality_lb_policies_locality_lb_policies_custom_policy"></a>The `custom_policy` block supports:
+<a name="nested_locality_lb_policies_custom_policy"></a>The `custom_policy` block supports:
 
 * `name` -
   (Required)

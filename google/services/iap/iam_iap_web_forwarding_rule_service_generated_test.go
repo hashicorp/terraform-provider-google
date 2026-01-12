@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -60,7 +61,7 @@ func TestAccIapWebForwardingRuleServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMBindingStateID("google_iap_web_forwarding_rule_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +71,7 @@ func TestAccIapWebForwardingRuleServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMBindingStateID("google_iap_web_forwarding_rule_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +102,7 @@ func TestAccIapWebForwardingRuleServiceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMMemberStateID("google_iap_web_forwarding_rule_service_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -132,7 +133,7 @@ func TestAccIapWebForwardingRuleServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMPolicyStateID("google_iap_web_forwarding_rule_service_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -141,7 +142,7 @@ func TestAccIapWebForwardingRuleServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMPolicyStateID("google_iap_web_forwarding_rule_service_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -171,7 +172,7 @@ func TestAccIapWebForwardingRuleServiceIamBindingGenerated_withCondition(t *test
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMBindingStateID("google_iap_web_forwarding_rule_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -203,19 +204,19 @@ func TestAccIapWebForwardingRuleServiceIamBindingGenerated_withAndWithoutConditi
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMBindingStateID("google_iap_web_forwarding_rule_service_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMBindingStateID("google_iap_web_forwarding_rule_service_iam_binding.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMBindingStateID("google_iap_web_forwarding_rule_service_iam_binding.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -245,7 +246,7 @@ func TestAccIapWebForwardingRuleServiceIamMemberGenerated_withCondition(t *testi
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMMemberStateID("google_iap_web_forwarding_rule_service_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -277,19 +278,19 @@ func TestAccIapWebForwardingRuleServiceIamMemberGenerated_withAndWithoutConditio
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMMemberStateID("google_iap_web_forwarding_rule_service_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMMemberStateID("google_iap_web_forwarding_rule_service_iam_member.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMMemberStateID("google_iap_web_forwarding_rule_service_iam_member.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -329,7 +330,7 @@ func TestAccIapWebForwardingRuleServiceIamPolicyGenerated_withCondition(t *testi
 			},
 			{
 				ResourceName:      "google_iap_web_forwarding_rule_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-forwarding-rule-service%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIapWebForwardingRuleServiceIAMPolicyStateID("google_iap_web_forwarding_rule_service_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -922,4 +923,54 @@ resource "google_iap_web_forwarding_rule_service_iam_policy" "foo" {
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
+}
+func generateIapWebForwardingRuleServiceIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		forwarding_rule_service_name := tpgresource.GetResourceNameFromSelfLink(rawState["forwarding_rule_service_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s", project, forwarding_rule_service_name), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIapWebForwardingRuleServiceIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		forwarding_rule_service_name := tpgresource.GetResourceNameFromSelfLink(rawState["forwarding_rule_service_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s", project, forwarding_rule_service_name), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIapWebForwardingRuleServiceIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		forwarding_rule_service_name := tpgresource.GetResourceNameFromSelfLink(rawState["forwarding_rule_service_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/iap_web/forwarding_rule/services/%s", project, forwarding_rule_service_name), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

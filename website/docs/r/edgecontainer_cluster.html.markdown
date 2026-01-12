@@ -273,14 +273,14 @@ The following arguments are supported:
 * `window` -
   (Optional)
   Represents an arbitrary window of time.
-  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusions_maintenance_exclusions_window).
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusions_window).
 
 * `id` -
   (Optional)
   A unique (per cluster) id for the window.
 
 
-<a name="nested_maintenance_policy_maintenance_exclusions_maintenance_exclusions_window"></a>The `window` block supports:
+<a name="nested_maintenance_policy_maintenance_exclusions_window"></a>The `window` block supports:
 
 * `start_time` -
   (Optional)

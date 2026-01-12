@@ -1,41 +1,41 @@
-resource: 'google_container_attached_cluster'
-generation_type: 'mmv1'
-source_file: 'products/containerattached/Cluster.yaml'
-api_service_name: 'gkemulticloud.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AttachedCluster'
+resource: google_container_attached_cluster
+generation_type: mmv1
+source_file: products/containerattached/Cluster.yaml
+api_service_name: gkemulticloud.googleapis.com
+api_version: v1
+api_resource_type_kind: AttachedCluster
 fields:
-  - api_field: 'annotations'
-  - api_field: 'authorization.adminGroups'
-  - api_field: 'authorization.adminUsers'
-  - api_field: 'binaryAuthorization.evaluationMode'
-  - api_field: 'clusterRegion'
-  - api_field: 'createTime'
-  - field: 'deletion_policy'
-    provider_only: true
-  - api_field: 'description'
-  - api_field: 'distribution'
-  - field: 'effective_annotations'
-    provider_only: true
-  - api_field: 'errors.message'
-  - api_field: 'fleet.membership'
-  - api_field: 'fleet.project'
-  - api_field: 'kubernetesVersion'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'loggingConfig.componentConfig.enableComponents'
-  - api_field: 'monitoringConfig.managedPrometheusConfig.enabled'
-  - api_field: 'name'
-  - api_field: 'oidcConfig.issuerUrl'
-  - api_field: 'oidcConfig.jwks'
-  - api_field: 'platformVersion'
-  - api_field: 'proxyConfig.kubernetesSecret.name'
-  - api_field: 'proxyConfig.kubernetesSecret.namespace'
-  - api_field: 'reconciling'
-  - api_field: 'securityPostureConfig.vulnerabilityMode'
-  - api_field: 'state'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
-  - api_field: 'workloadIdentityConfig.identityProvider'
-  - api_field: 'workloadIdentityConfig.issuerUri'
-  - api_field: 'workloadIdentityConfig.workloadPool'
+    - api_field: annotations
+    - api_field: authorization.adminGroups
+    - api_field: authorization.adminUsers
+    - api_field: binaryAuthorization.evaluationMode
+    - api_field: clusterRegion
+    - api_field: createTime
+    - field: deletion_policy
+      provider_only: true
+    - api_field: description
+    - api_field: distribution
+    - field: effective_annotations
+      provider_only: true
+    - api_field: errors.message
+    - api_field: fleet.membership
+    - api_field: fleet.project
+    - api_field: kubernetesVersion
+    - field: location
+      provider_only: true
+    - api_field: loggingConfig.componentConfig.enableComponents
+    - api_field: monitoringConfig.managedPrometheusConfig.enabled
+    - api_field: name
+    - api_field: oidcConfig.issuerUrl
+    - api_field: oidcConfig.jwks
+    - api_field: platformVersion
+    - api_field: proxyConfig.kubernetesSecret.name
+    - api_field: proxyConfig.kubernetesSecret.namespace
+    - api_field: reconciling
+    - api_field: securityPostureConfig.vulnerabilityMode
+    - api_field: state
+    - api_field: uid
+    - api_field: updateTime
+    - api_field: workloadIdentityConfig.identityProvider
+    - api_field: workloadIdentityConfig.issuerUri
+    - api_field: workloadIdentityConfig.workloadPool

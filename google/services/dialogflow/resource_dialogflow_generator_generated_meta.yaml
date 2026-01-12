@@ -1,33 +1,33 @@
-resource: 'google_dialogflow_generator'
-generation_type: 'mmv1'
-source_file: 'products/dialogflow/Generator.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Generator'
+resource: google_dialogflow_generator
+generation_type: mmv1
+source_file: products/dialogflow/Generator.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v2
+api_resource_type_kind: Generator
 fields:
-  - api_field: 'description'
-  - api_field: 'generatorId'
-  - api_field: 'inferenceParameter.maxOutputTokens'
-  - api_field: 'inferenceParameter.temperature'
-  - api_field: 'inferenceParameter.topK'
-  - api_field: 'inferenceParameter.topP'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'publishedModel'
-  - api_field: 'summarizationContext.fewShotExamples.conversationContext.messageEntries.createTime'
-  - api_field: 'summarizationContext.fewShotExamples.conversationContext.messageEntries.languageCode'
-  - api_field: 'summarizationContext.fewShotExamples.conversationContext.messageEntries.role'
-  - api_field: 'summarizationContext.fewShotExamples.conversationContext.messageEntries.text'
-  - api_field: 'summarizationContext.fewShotExamples.extraInfo'
-  - api_field: 'summarizationContext.fewShotExamples.output.summarySuggestion.summarySections.section'
-  - api_field: 'summarizationContext.fewShotExamples.output.summarySuggestion.summarySections.summary'
-  - api_field: 'summarizationContext.fewShotExamples.summarizationSectionList.summarizationSections.definition'
-  - api_field: 'summarizationContext.fewShotExamples.summarizationSectionList.summarizationSections.key'
-  - api_field: 'summarizationContext.fewShotExamples.summarizationSectionList.summarizationSections.type'
-  - api_field: 'summarizationContext.outputLanguageCode'
-  - api_field: 'summarizationContext.summarizationSections.definition'
-  - api_field: 'summarizationContext.summarizationSections.key'
-  - api_field: 'summarizationContext.summarizationSections.type'
-  - api_field: 'summarizationContext.version'
-  - api_field: 'triggerEvent'
+    - api_field: description
+    - api_field: generatorId
+    - api_field: inferenceParameter.maxOutputTokens
+    - api_field: inferenceParameter.temperature
+    - api_field: inferenceParameter.topK
+    - api_field: inferenceParameter.topP
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: publishedModel
+    - api_field: summarizationContext.fewShotExamples.conversationContext.messageEntries.createTime
+    - api_field: summarizationContext.fewShotExamples.conversationContext.messageEntries.languageCode
+    - api_field: summarizationContext.fewShotExamples.conversationContext.messageEntries.role
+    - api_field: summarizationContext.fewShotExamples.conversationContext.messageEntries.text
+    - api_field: summarizationContext.fewShotExamples.extraInfo
+    - api_field: summarizationContext.fewShotExamples.output.summarySuggestion.summarySections.section
+    - api_field: summarizationContext.fewShotExamples.output.summarySuggestion.summarySections.summary
+    - api_field: summarizationContext.fewShotExamples.summarizationSectionList.summarizationSections.definition
+    - api_field: summarizationContext.fewShotExamples.summarizationSectionList.summarizationSections.key
+    - api_field: summarizationContext.fewShotExamples.summarizationSectionList.summarizationSections.type
+    - api_field: summarizationContext.outputLanguageCode
+    - api_field: summarizationContext.summarizationSections.definition
+    - api_field: summarizationContext.summarizationSections.key
+    - api_field: summarizationContext.summarizationSections.type
+    - api_field: summarizationContext.version
+    - api_field: triggerEvent

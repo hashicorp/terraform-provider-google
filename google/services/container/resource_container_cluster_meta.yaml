@@ -177,13 +177,15 @@ fields:
   - field: 'maintenance_policy.daily_maintenance_window.start_time'
     api_field: 'maintenancePolicy.window.dailyMaintenanceWindow.startTime'
   - field: 'maintenance_policy.maintenance_exclusion.end_time'
-    api_field: 'maintenance_policy.window.maintenance_exclusion.end_time'
+    api_field: 'maintenancePolicy.window.maintenanceExclusions.value.endTime'
   - field: 'maintenance_policy.maintenance_exclusion.exclusion_name'
-    api_field: 'maintenance_policy.window.maintenance_exclusion.exclusion_name'
+    api_field: 'maintenancePolicy.window.maintenanceExclusions.key'
+  - field: 'maintenance_policy.maintenance_exclusion.exclusion_options.end_time_behavior'
+    api_field: 'maintenancePolicy.window.maintenanceExclusions.value.maintenanceExclusionOptions.endTimeBehavior'
   - field: 'maintenance_policy.maintenance_exclusion.exclusion_options.scope'
-    api_field: 'maintenance_policy.window.maintenance_exclusion.exclusion_options.scope'
+    api_field: 'maintenancePolicy.window.maintenanceExclusions.value.maintenanceExclusionOptions.scope'
   - field: 'maintenance_policy.maintenance_exclusion.start_time'
-    api_field: 'maintenance_policy.window.maintenance_exclusion.start_time'
+    api_field: 'maintenancePolicy.window.maintenanceExclusions.value.startTime'
   - field: 'maintenance_policy.recurring_window.end_time'
     api_field: 'maintenancePolicy.window.recurringWindow.window.endTime'
   - field: 'maintenance_policy.recurring_window.recurrence'
@@ -234,6 +236,16 @@ fields:
   - api_field: 'nodeConfig.containerdConfig.privateRegistryAccessConfig.certificateAuthorityDomainConfig.gcpSecretManagerCertificateConfig.secretUri'
   - api_field: 'nodeConfig.containerdConfig.privateRegistryAccessConfig.enabled'
   - api_field: 'nodeConfig.containerdConfig.writableCgroups.enabled'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.server'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.host'
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.capabilities
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.overridePath 
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.header.key
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.header.value
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.ca.gcpSecretManagerSecretUri
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.client.cert.gcpSecretManagerSecretUri
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.client.key.gcpSecretManagerSecretUri
+  - api_field: 'nodeConfig.containerdConfig.registryHosts.hosts.dialTimeout
   - api_field: 'nodeConfig.diskSizeGb'
   - api_field: 'nodeConfig.diskType'
   - field: 'node_config.effective_taints.effect'
@@ -305,6 +317,7 @@ fields:
     api_field: 'nodeConfig.linuxNodeConfig.hugepages.hugepageSize1g'
   - field: 'node_config.linux_node_config.hugepages_config.hugepage_size_2m'
     api_field: 'nodeConfig.linuxNodeConfig.hugepages.hugepageSize2m'
+  - api_field: 'nodeConfig.linuxNodeConfig.nodeKernelModuleLoading.policy'
   - api_field: 'nodeConfig.linuxNodeConfig.sysctls'
   - api_field: 'nodeConfig.linuxNodeConfig.transparentHugepageDefrag'
   - api_field: 'nodeConfig.linuxNodeConfig.transparentHugepageEnabled'
@@ -428,6 +441,8 @@ fields:
     api_field: 'nodePools.config.containerdConfig.privateRegistryAccessConfig.certificateAuthorityDomainConfig.gcpSecretManagerCertificateConfig.secretUri'
   - field: 'node_pool.node_config.containerd_config.private_registry_access_config.enabled'
     api_field: 'nodePools.config.containerdConfig.privateRegistryAccessConfig.enabled'
+  - field: 'node_pool.node_config.containerd_config.writable_cgroups.enabled'
+    api_field: 'nodePools.config.containerdConfig.writableCgroups.enabled'
   - field: 'node_pool.node_config.disk_size_gb'
     api_field: 'nodePools.config.diskSizeGb'
   - field: 'node_pool.node_config.disk_type'
@@ -548,6 +563,8 @@ fields:
     api_field: 'nodePools.config.linuxNodeConfig.hugepages.hugepageSize1g'
   - field: 'node_pool.node_config.linux_node_config.hugepages_config.hugepage_size_2m'
     api_field: 'nodePools.config.linuxNodeConfig.hugepages.hugepageSize2m'
+  - field: 'node_pool.node_config.linux_node_config.node_kernel_module_loading.policy'
+    api_field: 'nodePools.config.linuxNodeConfig.nodeKernelModuleLoading.policy'
   - field: 'node_pool.node_config.linux_node_config.sysctls'
     api_field: 'nodePools.config.linuxNodeConfig.sysctls'
   - field: 'node_pool.node_config.linux_node_config.transparent_hugepage_defrag'
@@ -649,6 +666,7 @@ fields:
   - field: 'node_pool.version'
     api_field: 'nodePools.version'
   - api_field: 'nodePoolAutoConfig.linuxNodeConfig.cgroupMode'
+  - api_field: 'nodePoolAutoConfig.linuxNodeConfig.nodeKernelModuleLoading.policy'
   - api_field: 'nodePoolAutoConfig.networkTags.tags'
   - api_field: 'nodePoolAutoConfig.nodeKubeletConfig.insecureKubeletReadonlyPortEnabled'
   - field: 'node_pool_auto_config.resource_manager_tags'
@@ -657,6 +675,16 @@ fields:
   - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.privateRegistryAccessConfig.certificateAuthorityDomainConfig.gcpSecretManagerCertificateConfig.secretUri'
   - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.privateRegistryAccessConfig.enabled'
   - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.writableCgroups.enabled'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.server'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.host'
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.capabilities
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.overridePath 
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.header.key
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.header.value
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.ca.gcpSecretManagerSecretUri
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.client.cert.gcpSecretManagerSecretUri
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.client.key.gcpSecretManagerSecretUri
+  - api_field: 'nodePoolDefaults.nodeConfigDefaults.containerdConfig.registryHosts.hosts.dialTimeout
   - api_field: 'nodePoolDefaults.nodeConfigDefaults.gcfsConfig.enabled'
   - field: 'node_pool_defaults.node_config_defaults.insecure_kubelet_readonly_port_enabled'
     api_field: 'nodePoolDefaults.nodeConfigDefaults.nodeKubeletConfig.insecureKubeletReadonlyPortEnabled'

@@ -1,13 +1,13 @@
-resource: 'google_firestore_backup_schedule'
-generation_type: 'mmv1'
-source_file: 'products/firestore/BackupSchedule.yaml'
-api_service_name: 'firestore.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BackupSchedule'
+resource: google_firestore_backup_schedule
+generation_type: mmv1
+source_file: products/firestore/BackupSchedule.yaml
+api_service_name: firestore.googleapis.com
+api_version: v1
+api_resource_type_kind: BackupSchedule
 fields:
-  - api_field: 'dailyRecurrence'
-  - field: 'database'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'retention'
-  - api_field: 'weeklyRecurrence.day'
+    - api_field: dailyRecurrence
+    - field: database
+      provider_only: true
+    - api_field: name
+    - api_field: retention
+    - api_field: weeklyRecurrence.day

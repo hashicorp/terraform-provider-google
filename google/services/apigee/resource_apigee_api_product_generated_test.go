@@ -290,6 +290,17 @@ resource "google_apigee_instance" "apigee_instance" {
   peering_cidr_range = "SLASH_22"
 }
 
+resource "google_apigee_environment" "env_dev" {
+  name   = "dev"
+  org_id = google_apigee_organization.apigee_org.id
+}
+
+resource "google_apigee_api" "test_apigee_api" {
+  name          = "hello-world"
+  org_id        = google_apigee_organization.apigee_org.name
+  config_bundle = "./test-fixtures/apigee_api_bundle.zip"
+}
+
 resource "google_apigee_api_product" "apigee_api_product" {
   org_id        = google_apigee_organization.apigee_org.id
   name          = "legacy-operation-api-product"
@@ -304,7 +315,7 @@ resource "google_apigee_api_product" "apigee_api_product" {
     value = "private"
   }
 
-  environments = ["dev", "hom"]
+  environments = ["dev"]
   proxies      = ["hello-world"]
   api_resources = [
     "/",
@@ -321,7 +332,9 @@ resource "google_apigee_api_product" "apigee_api_product" {
   quota_counter_scope = "PROXY"
 
   depends_on = [
-    google_apigee_instance.apigee_instance
+    google_apigee_instance.apigee_instance,
+    google_apigee_environment.env_dev,
+    google_apigee_api.test_apigee_api
   ]
 }
 `, context)
@@ -440,6 +453,11 @@ resource "google_apigee_instance" "apigee_instance" {
   peering_cidr_range = "SLASH_22"
 }
 
+resource "google_apigee_environment" "env_dev" {
+  name   = "dev"
+  org_id = google_apigee_organization.apigee_org.id
+}
+
 resource "google_apigee_api_product" "apigee_api_product" {
   org_id        = google_apigee_organization.apigee_org.id
   name          = "full-api-product"
@@ -454,7 +472,7 @@ resource "google_apigee_api_product" "apigee_api_product" {
   quota_time_unit     = "day"
   quota_counter_scope = "PROXY"
 
-  environments = ["dev", "hom"]
+  environments = ["dev"]
   scopes = [
     "read:weather",
     "write:reports"
@@ -596,7 +614,8 @@ resource "google_apigee_api_product" "apigee_api_product" {
   }
 
   depends_on = [
-    google_apigee_instance.apigee_instance
+    google_apigee_instance.apigee_instance,
+    google_apigee_environment.env_dev
   ]
 }
 `, context)

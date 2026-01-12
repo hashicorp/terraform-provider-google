@@ -1,42 +1,46 @@
-resource: 'google_identity_platform_config'
-generation_type: 'mmv1'
-source_file: 'products/identityplatform/Config.yaml'
-api_service_name: 'identitytoolkit.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Config'
+resource: google_identity_platform_config
+generation_type: mmv1
+source_file: products/identityplatform/Config.yaml
+api_service_name: identitytoolkit.googleapis.com
+api_version: v2
+api_resource_type_kind: Config
 fields:
-  - api_field: 'authorizedDomains'
-  - api_field: 'autodeleteAnonymousUsers'
-  - api_field: 'blockingFunctions.forwardInboundCredentials.accessToken'
-  - api_field: 'blockingFunctions.forwardInboundCredentials.idToken'
-  - api_field: 'blockingFunctions.forwardInboundCredentials.refreshToken'
-  - api_field: 'blockingFunctions.triggers.triggers.functionUri'
-  - api_field: 'blockingFunctions.triggers.triggers.updateTime'
-  - api_field: 'client.apiKey'
-  - api_field: 'client.firebaseSubdomain'
-  - api_field: 'client.permissions.disabledUserDeletion'
-  - api_field: 'client.permissions.disabledUserSignup'
-  - api_field: 'mfa.enabledProviders'
-  - api_field: 'mfa.providerConfigs.state'
-  - api_field: 'mfa.providerConfigs.totpProviderConfig.adjacentIntervals'
-  - api_field: 'mfa.state'
-  - api_field: 'monitoring.requestLogging.enabled'
-  - api_field: 'multiTenant.allowTenants'
-  - api_field: 'multiTenant.defaultTenantLocation'
-  - api_field: 'name'
-  - api_field: 'quota.signUpQuotaConfig.quota'
-  - api_field: 'quota.signUpQuotaConfig.quotaDuration'
-  - api_field: 'quota.signUpQuotaConfig.startTime'
-  - api_field: 'signIn.allowDuplicateEmails'
-  - api_field: 'signIn.anonymous.enabled'
-  - api_field: 'signIn.email.enabled'
-  - api_field: 'signIn.email.passwordRequired'
-  - api_field: 'signIn.hashConfig.algorithm'
-  - api_field: 'signIn.hashConfig.memoryCost'
-  - api_field: 'signIn.hashConfig.rounds'
-  - api_field: 'signIn.hashConfig.saltSeparator'
-  - api_field: 'signIn.hashConfig.signerKey'
-  - api_field: 'signIn.phoneNumber.enabled'
-  - api_field: 'signIn.phoneNumber.testPhoneNumbers'
-  - api_field: 'smsRegionConfig.allowByDefault.disallowedRegions'
-  - api_field: 'smsRegionConfig.allowlistOnly.allowedRegions'
+    - api_field: authorizedDomains
+    - api_field: autodeleteAnonymousUsers
+    - api_field: blockingFunctions.forwardInboundCredentials.accessToken
+    - api_field: blockingFunctions.forwardInboundCredentials.idToken
+    - api_field: blockingFunctions.forwardInboundCredentials.refreshToken
+    - api_field: blockingFunctions.triggers.key
+      field: blocking_functions.triggers.event_type
+    - api_field: blockingFunctions.triggers.value.functionUri
+      field: blocking_functions.triggers.function_uri
+    - api_field: blockingFunctions.triggers.value.updateTime
+      field: blocking_functions.triggers.update_time
+    - api_field: client.apiKey
+    - api_field: client.firebaseSubdomain
+    - api_field: client.permissions.disabledUserDeletion
+    - api_field: client.permissions.disabledUserSignup
+    - api_field: mfa.enabledProviders
+    - api_field: mfa.providerConfigs.state
+    - api_field: mfa.providerConfigs.totpProviderConfig.adjacentIntervals
+    - api_field: mfa.state
+    - api_field: monitoring.requestLogging.enabled
+    - api_field: multiTenant.allowTenants
+    - api_field: multiTenant.defaultTenantLocation
+    - api_field: name
+    - api_field: quota.signUpQuotaConfig.quota
+    - api_field: quota.signUpQuotaConfig.quotaDuration
+    - api_field: quota.signUpQuotaConfig.startTime
+    - api_field: signIn.allowDuplicateEmails
+    - api_field: signIn.anonymous.enabled
+    - api_field: signIn.email.enabled
+    - api_field: signIn.email.passwordRequired
+    - api_field: signIn.hashConfig.algorithm
+    - api_field: signIn.hashConfig.memoryCost
+    - api_field: signIn.hashConfig.rounds
+    - api_field: signIn.hashConfig.saltSeparator
+    - api_field: signIn.hashConfig.signerKey
+    - api_field: signIn.phoneNumber.enabled
+    - api_field: signIn.phoneNumber.testPhoneNumbers
+    - api_field: smsRegionConfig.allowByDefault.disallowedRegions
+    - api_field: smsRegionConfig.allowlistOnly.allowedRegions

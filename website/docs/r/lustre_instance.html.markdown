@@ -132,10 +132,57 @@ The following arguments are supported:
   (Optional)
   The KMS key id to use for encryption of the Lustre instance.
 
+* `access_rules_options` -
+  (Optional)
+  Access control rules for the Lustre instance. Configures default root
+  squashing behavior and specific access rules based on IP addresses.
+  Structure is [documented below](#nested_access_rules_options).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
+
+<a name="nested_access_rules_options"></a>The `access_rules_options` block supports:
+
+* `default_squash_mode` -
+  (Required)
+  Set to "ROOT_SQUASH" to enable root squashing by default.
+  Other values include "NO_SQUASH".
+  Possible values are: `ROOT_SQUASH`, `NO_SQUASH`.
+
+* `default_squash_uid` -
+  (Optional)
+  The UID to map the root user to when root squashing is enabled
+  (e.g., 65534 for nobody).
+
+* `default_squash_gid` -
+  (Optional)
+  The GID to map the root user to when root squashing is enabled
+  (e.g., 65534 for nobody).
+
+* `access_rules` -
+  (Optional)
+  An array of access rule exceptions. Each rule defines IP address ranges
+  that should have different squash behavior than the default.
+  Structure is [documented below](#nested_access_rules_options_access_rules).
+
+
+<a name="nested_access_rules_options_access_rules"></a>The `access_rules` block supports:
+
+* `name` -
+  (Required)
+  A unique identifier for the access rule.
+
+* `ip_address_ranges` -
+  (Required)
+  An array of IP address strings or CIDR ranges that this rule applies to.
+
+* `squash_mode` -
+  (Required)
+  The squash mode for this specific rule. Currently, only "NO_SQUASH"
+  is supported for exceptions.
+  Possible values are: `NO_SQUASH`.
 
 ## Attributes Reference
 
@@ -175,9 +222,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 40 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `create` - Default is 120 minutes.
+- `update` - Default is 60 minutes.
+- `delete` - Default is 60 minutes.
 
 ## Import
 

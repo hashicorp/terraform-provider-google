@@ -1,25 +1,25 @@
-resource: 'google_discovery_engine_search_engine'
-generation_type: 'mmv1'
-source_file: 'products/discoveryengine/SearchEngine.yaml'
-api_service_name: 'discoveryengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Engine'
+resource: google_discovery_engine_search_engine
+generation_type: mmv1
+source_file: products/discoveryengine/SearchEngine.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Engine
 fields:
-  - api_field: 'appType'
-  - field: 'collection_id'
-    provider_only: true
-  - api_field: 'commonConfig.companyName'
-  - api_field: 'createTime'
-  - api_field: 'dataStoreIds'
-  - api_field: 'displayName'
-  - field: 'engine_id'
-    provider_only: true
-  - api_field: 'features'
-  - api_field: 'industryVertical'
-  - api_field: 'kmsKeyName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'searchEngineConfig.searchAddOns'
-  - api_field: 'searchEngineConfig.searchTier'
-  - api_field: 'updateTime'
+    - api_field: appType
+    - field: collection_id
+      provider_only: true
+    - api_field: commonConfig.companyName
+    - api_field: createTime
+    - api_field: dataStoreIds
+    - api_field: displayName
+    - field: engine_id
+      provider_only: true
+    - api_field: features
+    - api_field: industryVertical
+    - api_field: kmsKeyName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: searchEngineConfig.searchAddOns
+    - api_field: searchEngineConfig.searchTier
+    - api_field: updateTime

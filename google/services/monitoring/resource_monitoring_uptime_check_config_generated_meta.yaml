@@ -1,46 +1,46 @@
-resource: 'google_monitoring_uptime_check_config'
-generation_type: 'mmv1'
-source_file: 'products/monitoring/UptimeCheckConfig.yaml'
-api_service_name: 'monitoring.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'UptimeCheckConfig'
+resource: google_monitoring_uptime_check_config
+generation_type: mmv1
+source_file: products/monitoring/UptimeCheckConfig.yaml
+api_service_name: monitoring.googleapis.com
+api_version: v3
+api_resource_type_kind: UptimeCheckConfig
 fields:
-  - api_field: 'checkerType'
-  - api_field: 'contentMatchers.content'
-  - api_field: 'contentMatchers.jsonPathMatcher.jsonMatcher'
-  - api_field: 'contentMatchers.jsonPathMatcher.jsonPath'
-  - api_field: 'contentMatchers.matcher'
-  - api_field: 'displayName'
-  - api_field: 'httpCheck.acceptedResponseStatusCodes.statusClass'
-  - api_field: 'httpCheck.acceptedResponseStatusCodes.statusValue'
-  - api_field: 'httpCheck.authInfo.password'
-  - api_field: 'httpCheck.authInfo.passwordWo'
-  - api_field: 'httpCheck.authInfo.passwordWoVersion'
-  - api_field: 'httpCheck.authInfo.username'
-  - api_field: 'httpCheck.body'
-  - api_field: 'httpCheck.contentType'
-  - api_field: 'httpCheck.customContentType'
-  - api_field: 'httpCheck.headers'
-  - api_field: 'httpCheck.maskHeaders'
-  - api_field: 'httpCheck.path'
-  - api_field: 'httpCheck.pingConfig.pingsCount'
-  - api_field: 'httpCheck.port'
-  - api_field: 'httpCheck.requestMethod'
-  - api_field: 'httpCheck.serviceAgentAuthentication.type'
-  - api_field: 'httpCheck.useSsl'
-  - api_field: 'httpCheck.validateSsl'
-  - api_field: 'logCheckFailures'
-  - api_field: 'monitoredResource.labels'
-  - api_field: 'monitoredResource.type'
-  - api_field: 'name'
-  - api_field: 'period'
-  - api_field: 'resourceGroup.groupId'
-  - api_field: 'resourceGroup.resourceType'
-  - api_field: 'selectedRegions'
-  - api_field: 'syntheticMonitor.cloudFunctionV2.name'
-  - api_field: 'tcpCheck.pingConfig.pingsCount'
-  - api_field: 'tcpCheck.port'
-  - api_field: 'timeout'
-  - api_field: 'id'
-    field: 'uptime_check_id'
-  - api_field: 'userLabels'
+    - api_field: checkerType
+    - api_field: contentMatchers.content
+    - api_field: contentMatchers.jsonPathMatcher.jsonMatcher
+    - api_field: contentMatchers.jsonPathMatcher.jsonPath
+    - api_field: contentMatchers.matcher
+    - api_field: displayName
+    - api_field: httpCheck.acceptedResponseStatusCodes.statusClass
+    - api_field: httpCheck.acceptedResponseStatusCodes.statusValue
+    - api_field: httpCheck.authInfo.password
+    - api_field: httpCheck.authInfo.passwordWo
+    - api_field: httpCheck.authInfo.passwordWoVersion
+    - api_field: httpCheck.authInfo.username
+    - api_field: httpCheck.body
+    - api_field: httpCheck.contentType
+    - api_field: httpCheck.customContentType
+    - api_field: httpCheck.headers
+    - api_field: httpCheck.maskHeaders
+    - api_field: httpCheck.path
+    - api_field: httpCheck.pingConfig.pingsCount
+    - api_field: httpCheck.port
+    - api_field: httpCheck.requestMethod
+    - api_field: httpCheck.serviceAgentAuthentication.type
+    - api_field: httpCheck.useSsl
+    - api_field: httpCheck.validateSsl
+    - api_field: logCheckFailures
+    - api_field: monitoredResource.labels
+    - api_field: monitoredResource.type
+    - api_field: name
+    - api_field: period
+    - api_field: resourceGroup.groupId
+    - api_field: resourceGroup.resourceType
+    - api_field: selectedRegions
+    - api_field: syntheticMonitor.cloudFunctionV2.name
+    - api_field: tcpCheck.pingConfig.pingsCount
+    - api_field: tcpCheck.port
+    - api_field: timeout
+    - api_field: id
+      field: uptime_check_id
+    - api_field: userLabels

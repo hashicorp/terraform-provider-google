@@ -341,19 +341,19 @@ The following arguments are supported:
 
 * `connections` -
   (Optional)
-  Structure is [documented below](#nested_desired_user_created_endpoints_desired_user_created_endpoints_connections).
+  Structure is [documented below](#nested_desired_user_created_endpoints_connections).
 
 
-<a name="nested_desired_user_created_endpoints_desired_user_created_endpoints_connections"></a>The `connections` block supports:
+<a name="nested_desired_user_created_endpoints_connections"></a>The `connections` block supports:
 
 * `psc_connection` -
   (Optional)
   Detailed information of a PSC connection that is created by the customer
   who owns the cluster.
-  Structure is [documented below](#nested_desired_user_created_endpoints_desired_user_created_endpoints_connections_connections_psc_connection).
+  Structure is [documented below](#nested_desired_user_created_endpoints_connections_psc_connection).
 
 
-<a name="nested_desired_user_created_endpoints_desired_user_created_endpoints_connections_connections_psc_connection"></a>The `psc_connection` block supports:
+<a name="nested_desired_user_created_endpoints_connections_psc_connection"></a>The `psc_connection` block supports:
 
 * `psc_connection_id` -
   (Required)

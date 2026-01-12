@@ -1,45 +1,45 @@
-resource: 'google_compute_vpn_tunnel'
-generation_type: 'mmv1'
-source_file: 'products/compute/VpnTunnel.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'VpnTunnel'
+resource: google_compute_vpn_tunnel
+generation_type: mmv1
+source_file: products/compute/VpnTunnel.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: VpnTunnel
 fields:
-  - api_field: 'cipherSuite.phase1.dh'
-  - api_field: 'cipherSuite.phase1.encryption'
-  - api_field: 'cipherSuite.phase1.integrity'
-  - api_field: 'cipherSuite.phase1.prf'
-  - api_field: 'cipherSuite.phase2.encryption'
-  - api_field: 'cipherSuite.phase2.integrity'
-  - api_field: 'cipherSuite.phase2.pfs'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'detailedStatus'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'ikeVersion'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'localTrafficSelector'
-  - api_field: 'name'
-  - api_field: 'peerExternalGateway'
-  - api_field: 'peerExternalGatewayInterface'
-  - api_field: 'peerGcpGateway'
-  - api_field: 'peerIp'
-  - api_field: 'region'
-  - api_field: 'remoteTrafficSelector'
-  - api_field: 'router'
-  - api_field: 'sharedSecret'
-  - api_field: 'sharedSecretHash'
-  - api_field: 'sharedSecret'
-    field: 'shared_secret_wo'
-  - field: 'shared_secret_wo_version'
-    provider_only: true
-  - api_field: 'targetVpnGateway'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'id'
-    field: 'tunnel_id'
-  - api_field: 'vpnGateway'
-  - api_field: 'vpnGatewayInterface'
-  - api_field: 'selfLink'
+    - api_field: cipherSuite.phase1.dh
+    - api_field: cipherSuite.phase1.encryption
+    - api_field: cipherSuite.phase1.integrity
+    - api_field: cipherSuite.phase1.prf
+    - api_field: cipherSuite.phase2.encryption
+    - api_field: cipherSuite.phase2.integrity
+    - api_field: cipherSuite.phase2.pfs
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: detailedStatus
+    - field: effective_labels
+      provider_only: true
+    - api_field: ikeVersion
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: localTrafficSelector
+    - api_field: name
+    - api_field: peerExternalGateway
+    - api_field: peerExternalGatewayInterface
+    - api_field: peerGcpGateway
+    - api_field: peerIp
+    - api_field: region
+    - api_field: remoteTrafficSelector
+    - api_field: router
+    - api_field: sharedSecret
+    - api_field: sharedSecretHash
+    - api_field: sharedSecret
+      field: shared_secret_wo
+    - field: shared_secret_wo_version
+      provider_only: true
+    - api_field: targetVpnGateway
+    - field: terraform_labels
+      provider_only: true
+    - api_field: id
+      field: tunnel_id
+    - api_field: vpnGateway
+    - api_field: vpnGatewayInterface
+    - api_field: selfLink

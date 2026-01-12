@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -60,7 +61,7 @@ func TestAccPrivatecaCaPoolIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMBindingStateID("google_privateca_ca_pool_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +71,7 @@ func TestAccPrivatecaCaPoolIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMBindingStateID("google_privateca_ca_pool_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +102,7 @@ func TestAccPrivatecaCaPoolIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMMemberStateID("google_privateca_ca_pool_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -132,7 +133,7 @@ func TestAccPrivatecaCaPoolIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMPolicyStateID("google_privateca_ca_pool_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -141,7 +142,7 @@ func TestAccPrivatecaCaPoolIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMPolicyStateID("google_privateca_ca_pool_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -171,7 +172,7 @@ func TestAccPrivatecaCaPoolIamBindingGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMBindingStateID("google_privateca_ca_pool_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -203,19 +204,19 @@ func TestAccPrivatecaCaPoolIamBindingGenerated_withAndWithoutCondition(t *testin
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMBindingStateID("google_privateca_ca_pool_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMBindingStateID("google_privateca_ca_pool_iam_binding.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMBindingStateID("google_privateca_ca_pool_iam_binding.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -245,7 +246,7 @@ func TestAccPrivatecaCaPoolIamMemberGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMMemberStateID("google_privateca_ca_pool_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -277,19 +278,19 @@ func TestAccPrivatecaCaPoolIamMemberGenerated_withAndWithoutCondition(t *testing
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMMemberStateID("google_privateca_ca_pool_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMMemberStateID("google_privateca_ca_pool_iam_member.foo2"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s roles/privateca.certificateManager user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMMemberStateID("google_privateca_ca_pool_iam_member.foo3"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -329,7 +330,7 @@ func TestAccPrivatecaCaPoolIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_ca_pool_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/caPools/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generatePrivatecaCaPoolIAMPolicyStateID("google_privateca_ca_pool_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -657,4 +658,57 @@ resource "google_privateca_ca_pool_iam_policy" "foo" {
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
+}
+func generatePrivatecaCaPoolIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		ca_pool := tpgresource.GetResourceNameFromSelfLink(rawState["ca_pool"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/caPools/%s", project, location, ca_pool), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generatePrivatecaCaPoolIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		ca_pool := tpgresource.GetResourceNameFromSelfLink(rawState["ca_pool"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/caPools/%s", project, location, ca_pool), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generatePrivatecaCaPoolIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		ca_pool := tpgresource.GetResourceNameFromSelfLink(rawState["ca_pool"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/caPools/%s", project, location, ca_pool), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

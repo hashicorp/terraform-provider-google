@@ -1,26 +1,28 @@
-resource: 'google_vertex_ai_index_endpoint'
-generation_type: 'mmv1'
-source_file: 'products/vertexai/IndexEndpoint.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'IndexEndpoint'
+resource: google_vertex_ai_index_endpoint
+generation_type: mmv1
+source_file: products/vertexai/IndexEndpoint.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: IndexEndpoint
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionSpec.kmsKeyName'
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'privateServiceConnectConfig.enablePrivateServiceConnect'
-  - api_field: 'privateServiceConnectConfig.projectAllowlist'
-  - api_field: 'publicEndpointDomainName'
-  - api_field: 'publicEndpointEnabled'
-  - field: 'region'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: etag
+    - api_field: labels
+    - api_field: name
+    - api_field: network
+    - api_field: privateServiceConnectConfig.enablePrivateServiceConnect
+    - api_field: privateServiceConnectConfig.projectAllowlist
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.network
+    - api_field: privateServiceConnectConfig.pscAutomationConfigs.projectId
+    - api_field: publicEndpointDomainName
+    - api_field: publicEndpointEnabled
+    - field: region
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

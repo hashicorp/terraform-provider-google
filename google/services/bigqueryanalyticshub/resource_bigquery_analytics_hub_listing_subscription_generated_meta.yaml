@@ -1,34 +1,38 @@
-resource: 'google_bigquery_analytics_hub_listing_subscription'
-generation_type: 'mmv1'
-source_file: 'products/bigqueryanalyticshub/ListingSubscription.yaml'
-api_service_name: 'analyticshub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Subscription'
+resource: google_bigquery_analytics_hub_listing_subscription
+generation_type: mmv1
+source_file: products/bigqueryanalyticshub/ListingSubscription.yaml
+api_service_name: analyticshub.googleapis.com
+api_version: v1
+api_resource_type_kind: Subscription
 fields:
-  - api_field: 'commercialInfo.cloudMarketplace.order'
-  - api_field: 'creationTime'
-  - field: 'data_exchange_id'
-    provider_only: true
-  - api_field: 'destinationDataset.datasetReference.datasetId'
-  - api_field: 'destinationDataset.datasetReference.projectId'
-  - api_field: 'destinationDataset.description'
-  - api_field: 'destinationDataset.friendlyName'
-  - api_field: 'destinationDataset.labels'
-  - api_field: 'destinationDataset.location'
-  - api_field: 'lastModifyTime'
-  - api_field: 'linkedDatasetMap.linked_resource.linkedDataset'
-  - api_field: 'linkedDatasetMap.linked_resource.listing'
-  - api_field: 'linkedResources.linkedDataset'
-  - api_field: 'linkedResources.listing'
-  - field: 'listing_id'
-    provider_only: true
-  - field: 'location'
-    provider_only: true
-  - api_field: 'logLinkedDatasetQueryUserEmail'
-  - api_field: 'name'
-  - api_field: 'organizationDisplayName'
-  - api_field: 'organizationId'
-  - api_field: 'resourceType'
-  - api_field: 'state'
-  - api_field: 'subscriberContact'
-  - api_field: 'subscriptionId'
+    - api_field: commercialInfo.cloudMarketplace.order
+    - api_field: creationTime
+    - field: data_exchange_id
+      provider_only: true
+    - api_field: destinationDataset.datasetReference.datasetId
+    - api_field: destinationDataset.datasetReference.projectId
+    - api_field: destinationDataset.description
+    - api_field: destinationDataset.friendlyName
+    - api_field: destinationDataset.labels
+    - api_field: destinationDataset.location
+    - api_field: lastModifyTime
+    - api_field: linkedDatasetMap.key
+      field: linked_dataset_map.resource_name
+    - api_field: linkedDatasetMap.value.linkedDataset
+      field: linked_dataset_map.linked_dataset
+    - api_field: linkedDatasetMap.value.listing
+      field: linked_dataset_map.listing
+    - api_field: linkedResources.linkedDataset
+    - api_field: linkedResources.listing
+    - field: listing_id
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: logLinkedDatasetQueryUserEmail
+    - api_field: name
+    - api_field: organizationDisplayName
+    - api_field: organizationId
+    - api_field: resourceType
+    - api_field: state
+    - api_field: subscriberContact
+    - api_field: subscriptionId

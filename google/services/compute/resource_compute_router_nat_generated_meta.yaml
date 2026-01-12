@@ -1,75 +1,75 @@
-resource: 'google_compute_router_nat'
-generation_type: 'mmv1'
-source_file: 'products/compute/RouterNat.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Router'
+resource: google_compute_router_nat
+generation_type: mmv1
+source_file: products/compute/RouterNat.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Router
 fields:
-  - api_field: 'nats.autoNetworkTier'
-    field: 'auto_network_tier'
-  - api_field: 'nats.drainNatIps'
-    field: 'drain_nat_ips'
-  - api_field: 'nats.enableDynamicPortAllocation'
-    field: 'enable_dynamic_port_allocation'
-  - api_field: 'nats.enableEndpointIndependentMapping'
-    field: 'enable_endpoint_independent_mapping'
-  - api_field: 'nats.endpointTypes'
-    field: 'endpoint_types'
-  - api_field: 'nats.icmpIdleTimeoutSec'
-    field: 'icmp_idle_timeout_sec'
-  - api_field: 'nats.initialNatIps'
-    field: 'initial_nat_ips'
-  - api_field: 'nats.logConfig.enable'
-    field: 'log_config.enable'
-  - api_field: 'nats.logConfig.filter'
-    field: 'log_config.filter'
-  - api_field: 'nats.maxPortsPerVm'
-    field: 'max_ports_per_vm'
-  - api_field: 'nats.minPortsPerVm'
-    field: 'min_ports_per_vm'
-  - api_field: 'nats.name'
-    field: 'name'
-  - api_field: 'nats.nat64Subnetworks.name'
-    field: 'nat64_subnetwork.name'
-  - api_field: 'nats.natIpAllocateOption'
-    field: 'nat_ip_allocate_option'
-  - api_field: 'nats.natIps'
-    field: 'nat_ips'
-  - field: 'region'
-    provider_only: true
-  - field: 'router'
-    provider_only: true
-  - api_field: 'nats.rules.action.sourceNatActiveIps'
-    field: 'rules.action.source_nat_active_ips'
-  - api_field: 'nats.rules.action.sourceNatActiveRanges'
-    field: 'rules.action.source_nat_active_ranges'
-  - api_field: 'nats.rules.action.sourceNatDrainIps'
-    field: 'rules.action.source_nat_drain_ips'
-  - api_field: 'nats.rules.action.sourceNatDrainRanges'
-    field: 'rules.action.source_nat_drain_ranges'
-  - api_field: 'nats.rules.description'
-    field: 'rules.description'
-  - api_field: 'nats.rules.match'
-    field: 'rules.match'
-  - api_field: 'nats.rules.ruleNumber'
-    field: 'rules.rule_number'
-  - api_field: 'nats.sourceSubnetworkIpRangesToNat'
-    field: 'source_subnetwork_ip_ranges_to_nat'
-  - api_field: 'nats.sourceSubnetworkIpRangesToNat64'
-    field: 'source_subnetwork_ip_ranges_to_nat64'
-  - api_field: 'nats.subnetworks.name'
-    field: 'subnetwork.name'
-  - api_field: 'nats.subnetworks.secondaryIpRangeNames'
-    field: 'subnetwork.secondary_ip_range_names'
-  - api_field: 'nats.subnetworks.sourceIpRangesToNat'
-    field: 'subnetwork.source_ip_ranges_to_nat'
-  - api_field: 'nats.tcpEstablishedIdleTimeoutSec'
-    field: 'tcp_established_idle_timeout_sec'
-  - api_field: 'nats.tcpTimeWaitTimeoutSec'
-    field: 'tcp_time_wait_timeout_sec'
-  - api_field: 'nats.tcpTransitoryIdleTimeoutSec'
-    field: 'tcp_transitory_idle_timeout_sec'
-  - api_field: 'nats.type'
-    field: 'type'
-  - api_field: 'nats.udpIdleTimeoutSec'
-    field: 'udp_idle_timeout_sec'
+    - api_field: nats.autoNetworkTier
+      field: auto_network_tier
+    - api_field: nats.drainNatIps
+      field: drain_nat_ips
+    - api_field: nats.enableDynamicPortAllocation
+      field: enable_dynamic_port_allocation
+    - api_field: nats.enableEndpointIndependentMapping
+      field: enable_endpoint_independent_mapping
+    - api_field: nats.endpointTypes
+      field: endpoint_types
+    - api_field: nats.icmpIdleTimeoutSec
+      field: icmp_idle_timeout_sec
+    - api_field: nats.initialNatIps
+      field: initial_nat_ips
+    - api_field: nats.logConfig.enable
+      field: log_config.enable
+    - api_field: nats.logConfig.filter
+      field: log_config.filter
+    - api_field: nats.maxPortsPerVm
+      field: max_ports_per_vm
+    - api_field: nats.minPortsPerVm
+      field: min_ports_per_vm
+    - api_field: nats.name
+      field: name
+    - api_field: nats.nat64Subnetworks.name
+      field: nat64_subnetwork.name
+    - api_field: nats.natIpAllocateOption
+      field: nat_ip_allocate_option
+    - api_field: nats.natIps
+      field: nat_ips
+    - field: region
+      provider_only: true
+    - field: router
+      provider_only: true
+    - api_field: nats.rules.action.sourceNatActiveIps
+      field: rules.action.source_nat_active_ips
+    - api_field: nats.rules.action.sourceNatActiveRanges
+      field: rules.action.source_nat_active_ranges
+    - api_field: nats.rules.action.sourceNatDrainIps
+      field: rules.action.source_nat_drain_ips
+    - api_field: nats.rules.action.sourceNatDrainRanges
+      field: rules.action.source_nat_drain_ranges
+    - api_field: nats.rules.description
+      field: rules.description
+    - api_field: nats.rules.match
+      field: rules.match
+    - api_field: nats.rules.ruleNumber
+      field: rules.rule_number
+    - api_field: nats.sourceSubnetworkIpRangesToNat
+      field: source_subnetwork_ip_ranges_to_nat
+    - api_field: nats.sourceSubnetworkIpRangesToNat64
+      field: source_subnetwork_ip_ranges_to_nat64
+    - api_field: nats.subnetworks.name
+      field: subnetwork.name
+    - api_field: nats.subnetworks.secondaryIpRangeNames
+      field: subnetwork.secondary_ip_range_names
+    - api_field: nats.subnetworks.sourceIpRangesToNat
+      field: subnetwork.source_ip_ranges_to_nat
+    - api_field: nats.tcpEstablishedIdleTimeoutSec
+      field: tcp_established_idle_timeout_sec
+    - api_field: nats.tcpTimeWaitTimeoutSec
+      field: tcp_time_wait_timeout_sec
+    - api_field: nats.tcpTransitoryIdleTimeoutSec
+      field: tcp_transitory_idle_timeout_sec
+    - api_field: nats.type
+      field: type
+    - api_field: nats.udpIdleTimeoutSec
+      field: udp_idle_timeout_sec

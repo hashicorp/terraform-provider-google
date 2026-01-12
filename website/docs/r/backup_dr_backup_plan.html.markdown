@@ -45,6 +45,7 @@ resource "google_backup_dr_backup_plan" "my-backup-plan-1" {
   backup_plan_id = "backup-plan-simple-test"
   resource_type  = "compute.googleapis.com/Instance"
   backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
+  max_custom_on_demand_retention_days = 30
 
   backup_rules {
     rule_id                = "rule-1"
@@ -80,6 +81,7 @@ resource "google_backup_dr_backup_plan" "my-disk-backup-plan-1" {
   backup_plan_id = "backup-plan-disk-test"
   resource_type  = "compute.googleapis.com/Disk"
   backup_vault   = google_backup_dr_backup_vault.my_backup_vault.id
+  max_custom_on_demand_retention_days = 30
 
   backup_rules {
     rule_id                = "rule-1"
@@ -165,6 +167,10 @@ The following arguments are supported:
   (Optional)
   The description allows for additional details about `BackupPlan` and its use cases to be provided.
 
+* `max_custom_on_demand_retention_days` -
+  (Optional)
+  The maximum number of days for which an on-demand backup taken with custom retention can be retained.
+
 * `log_retention_days` -
   (Optional)
   This is only applicable for CloudSql resource. Days for which logs will be stored. This value should be greater than or equal to minimum enforced log retention duration of the backup vault.
@@ -187,10 +193,10 @@ The following arguments are supported:
 * `standard_schedule` -
   (Required)
   StandardSchedule defines a schedule that runs within the confines of a defined window of days.
-  Structure is [documented below](#nested_backup_rules_backup_rules_standard_schedule).
+  Structure is [documented below](#nested_backup_rules_standard_schedule).
 
 
-<a name="nested_backup_rules_backup_rules_standard_schedule"></a>The `standard_schedule` block supports:
+<a name="nested_backup_rules_standard_schedule"></a>The `standard_schedule` block supports:
 
 * `recurrence_type` -
   (Required)
@@ -214,7 +220,7 @@ The following arguments are supported:
 * `week_day_of_month` -
   (Optional)
   Specifies a week day of the month like FIRST SUNDAY or LAST MONDAY, on which jobs will run.
-  Structure is [documented below](#nested_backup_rules_backup_rules_standard_schedule_week_day_of_month).
+  Structure is [documented below](#nested_backup_rules_standard_schedule_week_day_of_month).
 
 * `months` -
   (Optional)
@@ -229,10 +235,10 @@ The following arguments are supported:
   (Optional)
   A BackupWindow defines the window of the day during which backup jobs will run. Jobs are queued at the beginning of the window and will be marked as
   `NOT_RUN` if they do not start by the end of the window.
-  Structure is [documented below](#nested_backup_rules_backup_rules_standard_schedule_backup_window).
+  Structure is [documented below](#nested_backup_rules_standard_schedule_backup_window).
 
 
-<a name="nested_backup_rules_backup_rules_standard_schedule_week_day_of_month"></a>The `week_day_of_month` block supports:
+<a name="nested_backup_rules_standard_schedule_week_day_of_month"></a>The `week_day_of_month` block supports:
 
 * `week_of_month` -
   (Required)
@@ -244,7 +250,7 @@ The following arguments are supported:
   Specifies the day of the week.
   Possible values are: `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
-<a name="nested_backup_rules_backup_rules_standard_schedule_backup_window"></a>The `backup_window` block supports:
+<a name="nested_backup_rules_standard_schedule_backup_window"></a>The `backup_window` block supports:
 
 * `start_hour_of_day` -
   (Required)

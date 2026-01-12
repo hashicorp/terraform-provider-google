@@ -1,24 +1,24 @@
-resource: 'google_netapp_backup_policy'
-generation_type: 'mmv1'
-source_file: 'products/netapp/BackupPolicy.yaml'
-api_service_name: 'netapp.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BackupPolicy'
+resource: google_netapp_backup_policy
+generation_type: mmv1
+source_file: products/netapp/BackupPolicy.yaml
+api_service_name: netapp.googleapis.com
+api_version: v1
+api_resource_type_kind: BackupPolicy
 fields:
-  - api_field: 'assignedVolumeCount'
-  - api_field: 'createTime'
-  - api_field: 'dailyBackupLimit'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'enabled'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'monthlyBackupLimit'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'weeklyBackupLimit'
+    - api_field: assignedVolumeCount
+    - api_field: createTime
+    - api_field: dailyBackupLimit
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: enabled
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: monthlyBackupLimit
+    - field: name
+      provider_only: true
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: weeklyBackupLimit

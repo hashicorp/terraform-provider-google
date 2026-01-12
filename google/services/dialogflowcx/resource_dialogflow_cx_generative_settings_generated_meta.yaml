@@ -1,26 +1,26 @@
-resource: 'google_dialogflow_cx_generative_settings'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/GenerativeSettings.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'GenerativeSettings'
+resource: google_dialogflow_cx_generative_settings
+generation_type: mmv1
+source_file: products/dialogflowcx/GenerativeSettings.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: GenerativeSettings
 fields:
-  - api_field: 'fallbackSettings.promptTemplates.displayName'
-  - api_field: 'fallbackSettings.promptTemplates.frozen'
-  - api_field: 'fallbackSettings.promptTemplates.promptText'
-  - api_field: 'fallbackSettings.selectedPrompt'
-  - api_field: 'generativeSafetySettings.bannedPhrases.languageCode'
-  - api_field: 'generativeSafetySettings.bannedPhrases.text'
-  - api_field: 'generativeSafetySettings.defaultBannedPhraseMatchStrategy'
-  - api_field: 'knowledgeConnectorSettings.agent'
-  - api_field: 'knowledgeConnectorSettings.agentIdentity'
-  - api_field: 'knowledgeConnectorSettings.agentScope'
-  - api_field: 'knowledgeConnectorSettings.business'
-  - api_field: 'knowledgeConnectorSettings.businessDescription'
-  - api_field: 'knowledgeConnectorSettings.disableDataStoreFallback'
-  - api_field: 'languageCode'
-  - api_field: 'llmModelSettings.model'
-  - api_field: 'llmModelSettings.promptText'
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
+    - api_field: fallbackSettings.promptTemplates.displayName
+    - api_field: fallbackSettings.promptTemplates.frozen
+    - api_field: fallbackSettings.promptTemplates.promptText
+    - api_field: fallbackSettings.selectedPrompt
+    - api_field: generativeSafetySettings.bannedPhrases.languageCode
+    - api_field: generativeSafetySettings.bannedPhrases.text
+    - api_field: generativeSafetySettings.defaultBannedPhraseMatchStrategy
+    - api_field: knowledgeConnectorSettings.agent
+    - api_field: knowledgeConnectorSettings.agentIdentity
+    - api_field: knowledgeConnectorSettings.agentScope
+    - api_field: knowledgeConnectorSettings.business
+    - api_field: knowledgeConnectorSettings.businessDescription
+    - api_field: knowledgeConnectorSettings.disableDataStoreFallback
+    - api_field: languageCode
+    - api_field: llmModelSettings.model
+    - api_field: llmModelSettings.promptText
+    - api_field: name
+    - field: parent
+      provider_only: true

@@ -1,42 +1,42 @@
-resource: 'google_apphub_service'
-generation_type: 'mmv1'
-source_file: 'products/apphub/Service.yaml'
-api_service_name: 'apphub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Service'
+resource: google_apphub_service
+generation_type: mmv1
+source_file: products/apphub/Service.yaml
+api_service_name: apphub.googleapis.com
+api_version: v1
+api_resource_type_kind: Service
 api_variant_patterns:
-  - 'projects/{project}/locations/{location}/applications/{application}/services/{service}'
+    - projects/{project}/locations/{location}/applications/{application}/services/{service}
 autogen_status: true
 fields:
-  - field: 'application_id'
-    provider_only: true
-  - api_field: 'attributes.businessOwners.displayName'
-  - api_field: 'attributes.businessOwners.email'
-  - api_field: 'attributes.criticality.type'
-  - api_field: 'attributes.developerOwners.displayName'
-  - api_field: 'attributes.developerOwners.email'
-  - api_field: 'attributes.environment.type'
-  - api_field: 'attributes.operatorOwners.displayName'
-  - api_field: 'attributes.operatorOwners.email'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'discoveredService'
-  - api_field: 'displayName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'service_id'
-    provider_only: true
-  - api_field: 'serviceProperties.extendedMetadata.key'
-  - api_field: 'serviceProperties.extendedMetadata.value.extendedMetadataSchema'
-  - api_field: 'serviceProperties.extendedMetadata.value.metadataStruct'
-  - api_field: 'serviceProperties.functionalType.type'
-  - api_field: 'serviceProperties.gcpProject'
-  - api_field: 'serviceProperties.identity.principal'
-  - api_field: 'serviceProperties.location'
-  - api_field: 'serviceProperties.registrationType.type'
-  - api_field: 'serviceProperties.zone'
-  - api_field: 'serviceReference.uri'
-  - api_field: 'state'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - field: application_id
+      provider_only: true
+    - api_field: attributes.businessOwners.displayName
+    - api_field: attributes.businessOwners.email
+    - api_field: attributes.criticality.type
+    - api_field: attributes.developerOwners.displayName
+    - api_field: attributes.developerOwners.email
+    - api_field: attributes.environment.type
+    - api_field: attributes.operatorOwners.displayName
+    - api_field: attributes.operatorOwners.email
+    - api_field: createTime
+    - api_field: description
+    - api_field: discoveredService
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: service_id
+      provider_only: true
+    - api_field: serviceProperties.extendedMetadata.key
+    - api_field: serviceProperties.extendedMetadata.value.extendedMetadataSchema
+    - api_field: serviceProperties.extendedMetadata.value.metadataStruct
+    - api_field: serviceProperties.functionalType.type
+    - api_field: serviceProperties.gcpProject
+    - api_field: serviceProperties.identity.principal
+    - api_field: serviceProperties.location
+    - api_field: serviceProperties.registrationType.type
+    - api_field: serviceProperties.zone
+    - api_field: serviceReference.uri
+    - api_field: state
+    - api_field: uid
+    - api_field: updateTime

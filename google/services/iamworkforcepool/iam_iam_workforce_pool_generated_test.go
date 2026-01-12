@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -57,7 +58,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iam_workforce_pool_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("locations/%s/workforcePools/%s roles/iam.workforcePoolViewer", "global", fmt.Sprintf("tf-test-example-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIAMWorkforcePoolWorkforcePoolIAMBindingStateID("google_iam_workforce_pool_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -67,7 +68,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iam_workforce_pool_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("locations/%s/workforcePools/%s roles/iam.workforcePoolViewer", "global", fmt.Sprintf("tf-test-example-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIAMWorkforcePoolWorkforcePoolIAMBindingStateID("google_iam_workforce_pool_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -95,7 +96,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iam_workforce_pool_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("locations/%s/workforcePools/%s roles/iam.workforcePoolViewer user:admin@hashicorptest.com", "global", fmt.Sprintf("tf-test-example-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIAMWorkforcePoolWorkforcePoolIAMMemberStateID("google_iam_workforce_pool_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iam_workforce_pool_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("locations/%s/workforcePools/%s", "global", fmt.Sprintf("tf-test-example-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIAMWorkforcePoolWorkforcePoolIAMPolicyStateID("google_iam_workforce_pool_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -135,7 +136,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iam_workforce_pool_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("locations/%s/workforcePools/%s", "global", fmt.Sprintf("tf-test-example-pool%s", context["random_suffix"])),
+				ImportStateIdFunc: generateIAMWorkforcePoolWorkforcePoolIAMPolicyStateID("google_iam_workforce_pool_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -246,4 +247,55 @@ resource "google_iam_workforce_pool_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateIAMWorkforcePoolWorkforcePoolIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		workforce_pool_id := tpgresource.GetResourceNameFromSelfLink(rawState["workforce_pool_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("locations/%s/workforcePools/%s", location, workforce_pool_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIAMWorkforcePoolWorkforcePoolIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		workforce_pool_id := tpgresource.GetResourceNameFromSelfLink(rawState["workforce_pool_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("locations/%s/workforcePools/%s", location, workforce_pool_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateIAMWorkforcePoolWorkforcePoolIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		workforce_pool_id := tpgresource.GetResourceNameFromSelfLink(rawState["workforce_pool_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("locations/%s/workforcePools/%s", location, workforce_pool_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

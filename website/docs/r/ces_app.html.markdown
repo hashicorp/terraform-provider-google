@@ -874,10 +874,10 @@ The following arguments are supported:
 * `schema` -
   (Required)
   Represents a select subset of an OpenAPI 3.0 schema object.
-  Structure is [documented below](#nested_variable_declarations_variable_declarations_schema).
+  Structure is [documented below](#nested_variable_declarations_schema).
 
 
-<a name="nested_variable_declarations_variable_declarations_schema"></a>The `schema` block supports:
+<a name="nested_variable_declarations_schema"></a>The `schema` block supports:
 
 * `title` -
   (Optional)

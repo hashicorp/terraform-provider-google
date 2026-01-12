@@ -1,116 +1,116 @@
-resource: 'google_cloud_run_v2_job'
-generation_type: 'mmv1'
-source_file: 'products/cloudrunv2/Job.yaml'
-api_service_name: 'run.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Job'
+resource: google_cloud_run_v2_job
+generation_type: mmv1
+source_file: products/cloudrunv2/Job.yaml
+api_service_name: run.googleapis.com
+api_version: v2
+api_resource_type_kind: Job
 fields:
-  - api_field: 'annotations'
-  - api_field: 'binaryAuthorization.breakglassJustification'
-  - api_field: 'binaryAuthorization.policy'
-  - api_field: 'binaryAuthorization.useDefault'
-  - api_field: 'client'
-  - api_field: 'clientVersion'
-  - api_field: 'conditions.executionReason'
-  - api_field: 'conditions.lastTransitionTime'
-  - api_field: 'conditions.message'
-  - api_field: 'conditions.reason'
-  - api_field: 'conditions.revisionReason'
-  - api_field: 'conditions.severity'
-  - api_field: 'conditions.state'
-  - api_field: 'conditions.type'
-  - api_field: 'createTime'
-  - api_field: 'creator'
-  - api_field: 'deleteTime'
-  - field: 'deletion_protection'
-    provider_only: true
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'executionCount'
-  - api_field: 'expireTime'
-  - api_field: 'generation'
-  - api_field: 'labels'
-  - api_field: 'lastModifier'
-  - api_field: 'latestCreatedExecution.completionTime'
-  - api_field: 'latestCreatedExecution.createTime'
-  - api_field: 'latestCreatedExecution.name'
-  - api_field: 'launchStage'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'observedGeneration'
-  - api_field: 'reconciling'
-  - api_field: 'template.annotations'
-  - api_field: 'template.labels'
-  - api_field: 'template.parallelism'
-  - api_field: 'template.taskCount'
-  - api_field: 'template.template.containers.args'
-  - api_field: 'template.template.containers.command'
-  - api_field: 'template.template.containers.dependsOn'
-  - api_field: 'template.template.containers.env.name'
-  - api_field: 'template.template.containers.env.value'
-  - api_field: 'template.template.containers.env.valueSource.secretKeyRef.secret'
-  - api_field: 'template.template.containers.env.valueSource.secretKeyRef.version'
-  - api_field: 'template.template.containers.image'
-  - api_field: 'template.template.containers.name'
-  - api_field: 'template.template.containers.ports.containerPort'
-  - api_field: 'template.template.containers.ports.name'
-  - api_field: 'template.template.containers.resources.limits'
-  - api_field: 'template.template.containers.startupProbe.failureThreshold'
-  - api_field: 'template.template.containers.startupProbe.grpc.port'
-  - api_field: 'template.template.containers.startupProbe.grpc.service'
-  - api_field: 'template.template.containers.startupProbe.httpGet.httpHeaders.name'
-  - api_field: 'template.template.containers.startupProbe.httpGet.httpHeaders.value'
-  - api_field: 'template.template.containers.startupProbe.httpGet.path'
-  - api_field: 'template.template.containers.startupProbe.httpGet.port'
-  - api_field: 'template.template.containers.startupProbe.initialDelaySeconds'
-  - api_field: 'template.template.containers.startupProbe.periodSeconds'
-  - api_field: 'template.template.containers.startupProbe.tcpSocket.port'
-  - api_field: 'template.template.containers.startupProbe.timeoutSeconds'
-  - api_field: 'template.template.containers.volumeMounts.mountPath'
-  - api_field: 'template.template.containers.volumeMounts.name'
-  - api_field: 'template.template.containers.volumeMounts.subPath'
-  - api_field: 'template.template.containers.workingDir'
-  - api_field: 'template.template.encryptionKey'
-  - api_field: 'template.template.executionEnvironment'
-  - api_field: 'template.template.gpuZonalRedundancyDisabled'
-  - api_field: 'template.template.maxRetries'
-  - api_field: 'template.template.nodeSelector.accelerator'
-  - api_field: 'template.template.serviceAccount'
-  - api_field: 'template.template.timeout'
-  - api_field: 'template.template.volumes.cloudSqlInstance.instances'
-  - api_field: 'template.template.volumes.emptyDir.medium'
-  - api_field: 'template.template.volumes.emptyDir.sizeLimit'
-  - api_field: 'template.template.volumes.gcs.bucket'
-  - api_field: 'template.template.volumes.gcs.mountOptions'
-  - api_field: 'template.template.volumes.gcs.readOnly'
-  - api_field: 'template.template.volumes.name'
-  - api_field: 'template.template.volumes.nfs.path'
-  - api_field: 'template.template.volumes.nfs.readOnly'
-  - api_field: 'template.template.volumes.nfs.server'
-  - api_field: 'template.template.volumes.secret.defaultMode'
-  - api_field: 'template.template.volumes.secret.items.mode'
-  - api_field: 'template.template.volumes.secret.items.path'
-  - api_field: 'template.template.volumes.secret.items.version'
-  - api_field: 'template.template.volumes.secret.secret'
-  - api_field: 'template.template.vpcAccess.connector'
-  - api_field: 'template.template.vpcAccess.egress'
-  - api_field: 'template.template.vpcAccess.networkInterfaces.network'
-  - api_field: 'template.template.vpcAccess.networkInterfaces.subnetwork'
-  - api_field: 'template.template.vpcAccess.networkInterfaces.tags'
-  - api_field: 'terminalCondition.executionReason'
-  - api_field: 'terminalCondition.lastTransitionTime'
-  - api_field: 'terminalCondition.message'
-  - api_field: 'terminalCondition.reason'
-  - api_field: 'terminalCondition.revisionReason'
-  - api_field: 'terminalCondition.severity'
-  - api_field: 'terminalCondition.state'
-  - api_field: 'terminalCondition.type'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: binaryAuthorization.breakglassJustification
+    - api_field: binaryAuthorization.policy
+    - api_field: binaryAuthorization.useDefault
+    - api_field: client
+    - api_field: clientVersion
+    - api_field: conditions.executionReason
+    - api_field: conditions.lastTransitionTime
+    - api_field: conditions.message
+    - api_field: conditions.reason
+    - api_field: conditions.revisionReason
+    - api_field: conditions.severity
+    - api_field: conditions.state
+    - api_field: conditions.type
+    - api_field: createTime
+    - api_field: creator
+    - api_field: deleteTime
+    - field: deletion_protection
+      provider_only: true
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: executionCount
+    - api_field: expireTime
+    - api_field: generation
+    - api_field: labels
+    - api_field: lastModifier
+    - api_field: latestCreatedExecution.completionTime
+    - api_field: latestCreatedExecution.createTime
+    - api_field: latestCreatedExecution.name
+    - api_field: launchStage
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: observedGeneration
+    - api_field: reconciling
+    - api_field: template.annotations
+    - api_field: template.labels
+    - api_field: template.parallelism
+    - api_field: template.taskCount
+    - api_field: template.template.containers.args
+    - api_field: template.template.containers.command
+    - api_field: template.template.containers.dependsOn
+    - api_field: template.template.containers.env.name
+    - api_field: template.template.containers.env.value
+    - api_field: template.template.containers.env.valueSource.secretKeyRef.secret
+    - api_field: template.template.containers.env.valueSource.secretKeyRef.version
+    - api_field: template.template.containers.image
+    - api_field: template.template.containers.name
+    - api_field: template.template.containers.ports.containerPort
+    - api_field: template.template.containers.ports.name
+    - api_field: template.template.containers.resources.limits
+    - api_field: template.template.containers.startupProbe.failureThreshold
+    - api_field: template.template.containers.startupProbe.grpc.port
+    - api_field: template.template.containers.startupProbe.grpc.service
+    - api_field: template.template.containers.startupProbe.httpGet.httpHeaders.name
+    - api_field: template.template.containers.startupProbe.httpGet.httpHeaders.value
+    - api_field: template.template.containers.startupProbe.httpGet.path
+    - api_field: template.template.containers.startupProbe.httpGet.port
+    - api_field: template.template.containers.startupProbe.initialDelaySeconds
+    - api_field: template.template.containers.startupProbe.periodSeconds
+    - api_field: template.template.containers.startupProbe.tcpSocket.port
+    - api_field: template.template.containers.startupProbe.timeoutSeconds
+    - api_field: template.template.containers.volumeMounts.mountPath
+    - api_field: template.template.containers.volumeMounts.name
+    - api_field: template.template.containers.volumeMounts.subPath
+    - api_field: template.template.containers.workingDir
+    - api_field: template.template.encryptionKey
+    - api_field: template.template.executionEnvironment
+    - api_field: template.template.gpuZonalRedundancyDisabled
+    - api_field: template.template.maxRetries
+    - api_field: template.template.nodeSelector.accelerator
+    - api_field: template.template.serviceAccount
+    - api_field: template.template.timeout
+    - api_field: template.template.volumes.cloudSqlInstance.instances
+    - api_field: template.template.volumes.emptyDir.medium
+    - api_field: template.template.volumes.emptyDir.sizeLimit
+    - api_field: template.template.volumes.gcs.bucket
+    - api_field: template.template.volumes.gcs.mountOptions
+    - api_field: template.template.volumes.gcs.readOnly
+    - api_field: template.template.volumes.name
+    - api_field: template.template.volumes.nfs.path
+    - api_field: template.template.volumes.nfs.readOnly
+    - api_field: template.template.volumes.nfs.server
+    - api_field: template.template.volumes.secret.defaultMode
+    - api_field: template.template.volumes.secret.items.mode
+    - api_field: template.template.volumes.secret.items.path
+    - api_field: template.template.volumes.secret.items.version
+    - api_field: template.template.volumes.secret.secret
+    - api_field: template.template.vpcAccess.connector
+    - api_field: template.template.vpcAccess.egress
+    - api_field: template.template.vpcAccess.networkInterfaces.network
+    - api_field: template.template.vpcAccess.networkInterfaces.subnetwork
+    - api_field: template.template.vpcAccess.networkInterfaces.tags
+    - api_field: terminalCondition.executionReason
+    - api_field: terminalCondition.lastTransitionTime
+    - api_field: terminalCondition.message
+    - api_field: terminalCondition.reason
+    - api_field: terminalCondition.revisionReason
+    - api_field: terminalCondition.severity
+    - api_field: terminalCondition.state
+    - api_field: terminalCondition.type
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

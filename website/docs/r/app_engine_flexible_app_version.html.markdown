@@ -467,22 +467,22 @@ The following arguments are supported:
   (Optional)
   Executes a script to handle the requests that match this URL pattern.
   Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".
-  Structure is [documented below](#nested_handlers_handlers_script).
+  Structure is [documented below](#nested_handlers_script).
 
 * `static_files` -
   (Optional)
   Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files.
   Static file handlers describe which files in the application directory are static files, and which URLs serve them.
-  Structure is [documented below](#nested_handlers_handlers_static_files).
+  Structure is [documented below](#nested_handlers_static_files).
 
 
-<a name="nested_handlers_handlers_script"></a>The `script` block supports:
+<a name="nested_handlers_script"></a>The `script` block supports:
 
 * `script_path` -
   (Required)
   Path to the script from the application root directory.
 
-<a name="nested_handlers_handlers_static_files"></a>The `static_files` block supports:
+<a name="nested_handlers_static_files"></a>The `static_files` block supports:
 
 * `path` -
   (Optional)

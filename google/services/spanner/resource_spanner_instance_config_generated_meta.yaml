@@ -1,19 +1,19 @@
-resource: 'google_spanner_instance_config'
-generation_type: 'mmv1'
-source_file: 'products/spanner/InstanceConfig.yaml'
-api_service_name: 'spanner.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'InstanceConfig'
+resource: google_spanner_instance_config
+generation_type: mmv1
+source_file: products/spanner/InstanceConfig.yaml
+api_service_name: spanner.googleapis.com
+api_version: v1
+api_resource_type_kind: InstanceConfig
 fields:
-  - api_field: 'baseConfig'
-  - api_field: 'configType'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'replicas.defaultLeaderLocation'
-  - api_field: 'replicas.location'
-  - api_field: 'replicas.type'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: baseConfig
+    - api_field: configType
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: name
+    - api_field: replicas.defaultLeaderLocation
+    - api_field: replicas.location
+    - api_field: replicas.type
+    - field: terraform_labels
+      provider_only: true

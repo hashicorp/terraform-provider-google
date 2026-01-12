@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccComputeSnapshotIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_snapshot_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/snapshots/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeSnapshotIAMBindingStateID("google_compute_snapshot_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccComputeSnapshotIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_snapshot_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/snapshots/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeSnapshotIAMBindingStateID("google_compute_snapshot_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccComputeSnapshotIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_snapshot_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/snapshots/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeSnapshotIAMMemberStateID("google_compute_snapshot_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccComputeSnapshotIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_snapshot_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/snapshots/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeSnapshotIAMPolicyStateID("google_compute_snapshot_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccComputeSnapshotIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_snapshot_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/snapshots/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-snapshot%s", context["random_suffix"])),
+				ImportStateIdFunc: generateComputeSnapshotIAMPolicyStateID("google_compute_snapshot_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -318,4 +319,55 @@ resource "google_compute_snapshot_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateComputeSnapshotIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/global/snapshots/%s", project, name), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateComputeSnapshotIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/global/snapshots/%s", project, name), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateComputeSnapshotIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		name := tpgresource.GetResourceNameFromSelfLink(rawState["name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/global/snapshots/%s", project, name), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

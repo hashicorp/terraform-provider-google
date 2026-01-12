@@ -1,38 +1,38 @@
-resource: 'google_database_migration_service_migration_job'
-generation_type: 'mmv1'
-source_file: 'products/databasemigrationservice/MigrationJob.yaml'
-api_service_name: 'datamigration.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'MigrationJob'
+resource: google_database_migration_service_migration_job
+generation_type: mmv1
+source_file: products/databasemigrationservice/MigrationJob.yaml
+api_service_name: datamigration.googleapis.com
+api_version: v1
+api_resource_type_kind: MigrationJob
 fields:
-  - api_field: 'createTime'
-  - api_field: 'destination'
-  - api_field: 'displayName'
-  - api_field: 'dumpFlags.dumpFlags.name'
-  - api_field: 'dumpFlags.dumpFlags.value'
-  - api_field: 'dumpPath'
-  - api_field: 'dumpType'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'error.code'
-  - api_field: 'error.details'
-  - api_field: 'error.message'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'migration_job_id'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'performanceConfig.dumpParallelLevel'
-  - api_field: 'phase'
-  - api_field: 'reverseSshConnectivity.vm'
-  - api_field: 'reverseSshConnectivity.vmIp'
-  - api_field: 'reverseSshConnectivity.vmPort'
-  - api_field: 'reverseSshConnectivity.vpc'
-  - api_field: 'source'
-  - api_field: 'state'
-  - api_field: 'staticIpConnectivity'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'vpcPeeringConnectivity.vpc'
+    - api_field: createTime
+    - api_field: destination
+    - api_field: displayName
+    - api_field: dumpFlags.dumpFlags.name
+    - api_field: dumpFlags.dumpFlags.value
+    - api_field: dumpPath
+    - api_field: dumpType
+    - field: effective_labels
+      provider_only: true
+    - api_field: error.code
+    - api_field: error.details
+    - api_field: error.message
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: migration_job_id
+      provider_only: true
+    - api_field: name
+    - api_field: performanceConfig.dumpParallelLevel
+    - api_field: phase
+    - api_field: reverseSshConnectivity.vm
+    - api_field: reverseSshConnectivity.vmIp
+    - api_field: reverseSshConnectivity.vmPort
+    - api_field: reverseSshConnectivity.vpc
+    - api_field: source
+    - api_field: state
+    - api_field: staticIpConnectivity
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: vpcPeeringConnectivity.vpc

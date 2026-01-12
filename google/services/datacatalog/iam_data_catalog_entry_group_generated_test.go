@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccDataCatalogEntryGroupIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_entry_group_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_group%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogEntryGroupIAMBindingStateID("google_data_catalog_entry_group_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccDataCatalogEntryGroupIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_entry_group_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_group%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogEntryGroupIAMBindingStateID("google_data_catalog_entry_group_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccDataCatalogEntryGroupIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_entry_group_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_group%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogEntryGroupIAMMemberStateID("google_data_catalog_entry_group_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccDataCatalogEntryGroupIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_entry_group_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_group%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogEntryGroupIAMPolicyStateID("google_data_catalog_entry_group_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccDataCatalogEntryGroupIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_entry_group_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_group%s", context["random_suffix"])),
+				ImportStateIdFunc: generateDataCatalogEntryGroupIAMPolicyStateID("google_data_catalog_entry_group_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -217,4 +218,58 @@ resource "google_data_catalog_entry_group_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateDataCatalogEntryGroupIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		region := tpgresource.GetResourceNameFromSelfLink(rawState["region"])
+		entry_group := tpgresource.GetResourceNameFromSelfLink(rawState["entry_group"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s", project, region, entry_group), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataCatalogEntryGroupIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		region := tpgresource.GetResourceNameFromSelfLink(rawState["region"])
+		entry_group := tpgresource.GetResourceNameFromSelfLink(rawState["entry_group"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s", project, region, entry_group), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateDataCatalogEntryGroupIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		region := tpgresource.GetResourceNameFromSelfLink(rawState["region"])
+		entry_group := tpgresource.GetResourceNameFromSelfLink(rawState["entry_group"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/entryGroups/%s", project, region, entry_group), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

@@ -1,27 +1,27 @@
-resource: 'google_eventarc_message_bus'
-generation_type: 'mmv1'
-source_file: 'products/eventarc/MessageBus.yaml'
-api_service_name: 'eventarc.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'MessageBus'
+resource: google_eventarc_message_bus
+generation_type: mmv1
+source_file: products/eventarc/MessageBus.yaml
+api_service_name: eventarc.googleapis.com
+api_version: v1
+api_resource_type_kind: MessageBus
 fields:
-  - api_field: 'annotations'
-  - api_field: 'createTime'
-  - api_field: 'cryptoKeyName'
-  - api_field: 'displayName'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'loggingConfig.logSeverity'
-  - field: 'message_bus_id'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: annotations
+    - api_field: createTime
+    - api_field: cryptoKeyName
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: loggingConfig.logSeverity
+    - field: message_bus_id
+      provider_only: true
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime

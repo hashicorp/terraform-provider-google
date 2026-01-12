@@ -1,62 +1,68 @@
-resource: 'google_looker_instance'
-generation_type: 'mmv1'
-source_file: 'products/looker/Instance.yaml'
-api_service_name: 'looker.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Instance'
+resource: google_looker_instance
+generation_type: mmv1
+source_file: products/looker/Instance.yaml
+api_service_name: looker.googleapis.com
+api_version: v1
+api_resource_type_kind: Instance
 fields:
-  - api_field: 'adminSettings.allowedEmailDomains'
-  - api_field: 'consumerNetwork'
-  - api_field: 'controlledEgressConfig.egressFqdns'
-  - api_field: 'controlledEgressConfig.marketplaceEnabled'
-  - api_field: 'controlledEgressEnabled'
-  - api_field: 'createTime'
-  - api_field: 'customDomain.domain'
-  - api_field: 'customDomain.state'
-  - field: 'deletion_policy'
-    provider_only: true
-  - api_field: 'denyMaintenancePeriod.endDate.day'
-  - api_field: 'denyMaintenancePeriod.endDate.month'
-  - api_field: 'denyMaintenancePeriod.endDate.year'
-  - api_field: 'denyMaintenancePeriod.startDate.day'
-  - api_field: 'denyMaintenancePeriod.startDate.month'
-  - api_field: 'denyMaintenancePeriod.startDate.year'
-  - api_field: 'denyMaintenancePeriod.time.hours'
-  - api_field: 'denyMaintenancePeriod.time.minutes'
-  - api_field: 'denyMaintenancePeriod.time.nanos'
-  - api_field: 'denyMaintenancePeriod.time.seconds'
-  - api_field: 'egressPublicIp'
-  - api_field: 'encryptionConfig.kmsKeyName'
-  - api_field: 'encryptionConfig.kmsKeyNameVersion'
-  - api_field: 'encryptionConfig.kmsKeyState'
-  - api_field: 'fipsEnabled'
-  - api_field: 'geminiEnabled'
-  - api_field: 'ingressPrivateIp'
-  - api_field: 'ingressPublicIp'
-  - api_field: 'lookerUri'
-  - api_field: 'lookerVersion'
-  - api_field: 'maintenanceWindow.dayOfWeek'
-  - api_field: 'maintenanceWindow.startTime.hours'
-  - api_field: 'maintenanceWindow.startTime.minutes'
-  - api_field: 'maintenanceWindow.startTime.nanos'
-  - api_field: 'maintenanceWindow.startTime.seconds'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'oauthConfig.clientId'
-  - api_field: 'oauthConfig.clientSecret'
-  - api_field: 'platformEdition'
-  - api_field: 'privateIpEnabled'
-  - api_field: 'pscConfig.allowedVpcs'
-  - api_field: 'pscConfig.lookerServiceAttachmentUri'
-  - api_field: 'pscConfig.serviceAttachments.connectionStatus'
-  - api_field: 'pscConfig.serviceAttachments.localFqdn'
-  - api_field: 'pscConfig.serviceAttachments.targetServiceAttachmentUri'
-  - api_field: 'pscEnabled'
-  - api_field: 'publicIpEnabled'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'reservedRange'
-  - api_field: 'updateTime'
-  - api_field: 'userMetadata.additionalDeveloperUserCount'
-  - api_field: 'userMetadata.additionalStandardUserCount'
-  - api_field: 'userMetadata.additionalViewerUserCount'
+    - api_field: adminSettings.allowedEmailDomains
+    - api_field: consumerNetwork
+    - api_field: controlledEgressConfig.egressFqdns
+    - api_field: controlledEgressConfig.marketplaceEnabled
+    - api_field: controlledEgressEnabled
+    - api_field: createTime
+    - api_field: customDomain.domain
+    - api_field: customDomain.state
+    - field: deletion_policy
+      provider_only: true
+    - api_field: denyMaintenancePeriod.endDate.day
+    - api_field: denyMaintenancePeriod.endDate.month
+    - api_field: denyMaintenancePeriod.endDate.year
+    - api_field: denyMaintenancePeriod.startDate.day
+    - api_field: denyMaintenancePeriod.startDate.month
+    - api_field: denyMaintenancePeriod.startDate.year
+    - api_field: denyMaintenancePeriod.time.hours
+    - api_field: denyMaintenancePeriod.time.minutes
+    - api_field: denyMaintenancePeriod.time.nanos
+    - api_field: denyMaintenancePeriod.time.seconds
+    - api_field: egressPublicIp
+    - api_field: encryptionConfig.kmsKeyName
+    - api_field: encryptionConfig.kmsKeyNameVersion
+    - api_field: encryptionConfig.kmsKeyState
+    - api_field: fipsEnabled
+    - api_field: geminiEnabled
+    - api_field: ingressPrivateIp
+    - api_field: ingressPublicIp
+    - api_field: lookerUri
+    - api_field: lookerVersion
+    - api_field: maintenanceWindow.dayOfWeek
+    - api_field: maintenanceWindow.startTime.hours
+    - api_field: maintenanceWindow.startTime.minutes
+    - api_field: maintenanceWindow.startTime.nanos
+    - api_field: maintenanceWindow.startTime.seconds
+    - field: name
+      provider_only: true
+    - api_field: oauthConfig.clientId
+    - api_field: oauthConfig.clientSecret
+    - api_field: periodicExportConfig.gcsUri
+    - api_field: periodicExportConfig.kmsKey
+    - api_field: periodicExportConfig.startTime.hours
+    - api_field: periodicExportConfig.startTime.minutes
+    - api_field: periodicExportConfig.startTime.nanos
+    - api_field: periodicExportConfig.startTime.seconds
+    - api_field: platformEdition
+    - api_field: privateIpEnabled
+    - api_field: pscConfig.allowedVpcs
+    - api_field: pscConfig.lookerServiceAttachmentUri
+    - api_field: pscConfig.serviceAttachments.connectionStatus
+    - api_field: pscConfig.serviceAttachments.localFqdn
+    - api_field: pscConfig.serviceAttachments.targetServiceAttachmentUri
+    - api_field: pscEnabled
+    - api_field: publicIpEnabled
+    - field: region
+      provider_only: true
+    - api_field: reservedRange
+    - api_field: updateTime
+    - api_field: userMetadata.additionalDeveloperUserCount
+    - api_field: userMetadata.additionalStandardUserCount
+    - api_field: userMetadata.additionalViewerUserCount

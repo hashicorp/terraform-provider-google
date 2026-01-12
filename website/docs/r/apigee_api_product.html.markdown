@@ -118,6 +118,17 @@ resource "google_apigee_instance" "apigee_instance" {
   peering_cidr_range = "SLASH_22"
 }
 
+resource "google_apigee_environment" "env_dev" {
+  name   = "dev"
+  org_id = google_apigee_organization.apigee_org.id
+}
+
+resource "google_apigee_api" "test_apigee_api" {
+  name          = "hello-world"
+  org_id        = google_apigee_organization.apigee_org.name
+  config_bundle = "apigee_api_bundle.zip"
+}
+
 resource "google_apigee_api_product" "full_api_product" {
   org_id        = google_apigee_organization.apigee_org.id
   name          = "my-product"
@@ -132,7 +143,7 @@ resource "google_apigee_api_product" "full_api_product" {
     value = "private"
   }
 
-  environments = ["dev", "hom"]
+  environments = ["dev"]
   proxies      = ["hello-world"]
   api_resources = [
     "/",
@@ -149,7 +160,9 @@ resource "google_apigee_api_product" "full_api_product" {
   quota_counter_scope = "PROXY"
 
   depends_on = [
-    google_apigee_instance.apigee_instance
+    google_apigee_instance.apigee_instance,
+    google_apigee_environment.env_dev,
+    google_apigee_api.test_apigee_api
   ]
 }
 ```
@@ -191,6 +204,11 @@ resource "google_apigee_instance" "apigee_instance" {
   peering_cidr_range = "SLASH_22"
 }
 
+resource "google_apigee_environment" "env_dev" {
+  name   = "dev"
+  org_id = google_apigee_organization.apigee_org.id
+}
+
 resource "google_apigee_api_product" "full_api_product" {
   org_id        = google_apigee_organization.apigee_org.id
   name          = "my-product"
@@ -205,7 +223,7 @@ resource "google_apigee_api_product" "full_api_product" {
   quota_time_unit     = "day"
   quota_counter_scope = "PROXY"
 
-  environments = ["dev", "hom"]
+  environments = ["dev"]
 
   # Set them in reverse order to test set
   scopes = [
@@ -349,7 +367,8 @@ resource "google_apigee_api_product" "full_api_product" {
   }
 
   depends_on = [
-    google_apigee_instance.apigee_instance
+    google_apigee_instance.apigee_instance,
+    google_apigee_environment.env_dev
   ]
 }
 ```
@@ -481,20 +500,20 @@ The following arguments are supported:
   (Optional)
   List of resource/method pairs for the API proxy or remote service to which quota will applied.
   Note: Currently, you can specify only a single resource/method pair. The call will fail if more than one resource/method pair is provided.
-  Structure is [documented below](#nested_operation_group_operation_configs_operation_configs_operations).
+  Structure is [documented below](#nested_operation_group_operation_configs_operations).
 
 * `quota` -
   (Optional)
   Quota parameters to be enforced for the resources, methods, and API source combination. If none are specified, quota enforcement will not be done.
-  Structure is [documented below](#nested_operation_group_operation_configs_operation_configs_quota).
+  Structure is [documented below](#nested_operation_group_operation_configs_quota).
 
 * `attributes` -
   (Optional)
   Custom attributes associated with the operation.
-  Structure is [documented below](#nested_operation_group_operation_configs_operation_configs_attributes).
+  Structure is [documented below](#nested_operation_group_operation_configs_attributes).
 
 
-<a name="nested_operation_group_operation_configs_operation_configs_operations"></a>The `operations` block supports:
+<a name="nested_operation_group_operation_configs_operations"></a>The `operations` block supports:
 
 * `resource` -
   (Optional)
@@ -504,7 +523,7 @@ The following arguments are supported:
   (Optional)
   Methods refers to the REST verbs, when none specified, all verb types are allowed.
 
-<a name="nested_operation_group_operation_configs_operation_configs_quota"></a>The `quota` block supports:
+<a name="nested_operation_group_operation_configs_quota"></a>The `quota` block supports:
 
 * `limit` -
   (Optional)
@@ -518,7 +537,7 @@ The following arguments are supported:
   (Optional)
   Time unit defined for the interval. Valid values include second, minute, hour, day, month or year. If limit and interval are valid, the default value is hour; otherwise, the default is null.
 
-<a name="nested_operation_group_operation_configs_operation_configs_attributes"></a>The `attributes` block supports:
+<a name="nested_operation_group_operation_configs_attributes"></a>The `attributes` block supports:
 
 * `name` -
   (Optional)
@@ -551,20 +570,20 @@ The following arguments are supported:
   (Optional)
   Required. List of GraphQL name/operation type pairs for the proxy or remote service to which quota will be applied. If only operation types are specified, the quota will be applied to all GraphQL requests irrespective of the GraphQL name.
   Note: Currently, you can specify only a single GraphQLOperation. Specifying more than one will cause the operation to fail.
-  Structure is [documented below](#nested_graphql_operation_group_operation_configs_operation_configs_operations).
+  Structure is [documented below](#nested_graphql_operation_group_operation_configs_operations).
 
 * `quota` -
   (Optional)
   Quota parameters to be enforced for the resources, methods, and API source combination. If none are specified, quota enforcement will not be done.
-  Structure is [documented below](#nested_graphql_operation_group_operation_configs_operation_configs_quota).
+  Structure is [documented below](#nested_graphql_operation_group_operation_configs_quota).
 
 * `attributes` -
   (Optional)
   Custom attributes associated with the operation.
-  Structure is [documented below](#nested_graphql_operation_group_operation_configs_operation_configs_attributes).
+  Structure is [documented below](#nested_graphql_operation_group_operation_configs_attributes).
 
 
-<a name="nested_graphql_operation_group_operation_configs_operation_configs_operations"></a>The `operations` block supports:
+<a name="nested_graphql_operation_group_operation_configs_operations"></a>The `operations` block supports:
 
 * `operation_types` -
   (Optional)
@@ -575,7 +594,7 @@ The following arguments are supported:
   (Optional)
   GraphQL operation name. The name and operation type will be used to apply quotas. If no name is specified, the quota will be applied to all GraphQL operations irrespective of their operation names in the payload.
 
-<a name="nested_graphql_operation_group_operation_configs_operation_configs_quota"></a>The `quota` block supports:
+<a name="nested_graphql_operation_group_operation_configs_quota"></a>The `quota` block supports:
 
 * `limit` -
   (Optional)
@@ -589,7 +608,7 @@ The following arguments are supported:
   (Optional)
   Time unit defined for the interval. Valid values include second, minute, hour, day, month or year. If limit and interval are valid, the default value is hour; otherwise, the default is null.
 
-<a name="nested_graphql_operation_group_operation_configs_operation_configs_attributes"></a>The `attributes` block supports:
+<a name="nested_graphql_operation_group_operation_configs_attributes"></a>The `attributes` block supports:
 
 * `name` -
   (Optional)
@@ -622,19 +641,19 @@ The following arguments are supported:
 * `quota` -
   (Optional)
   Quota parameters to be enforced for the resources, methods, and API source combination. If none are specified, quota enforcement will not be done.
-  Structure is [documented below](#nested_grpc_operation_group_operation_configs_operation_configs_quota).
+  Structure is [documented below](#nested_grpc_operation_group_operation_configs_quota).
 
 * `attributes` -
   (Optional)
   Custom attributes associated with the operation.
-  Structure is [documented below](#nested_grpc_operation_group_operation_configs_operation_configs_attributes).
+  Structure is [documented below](#nested_grpc_operation_group_operation_configs_attributes).
 
 * `service` -
   (Optional)
   Required. gRPC Service name associated to be associated with the API proxy, on which quota rules can be applied upon.
 
 
-<a name="nested_grpc_operation_group_operation_configs_operation_configs_quota"></a>The `quota` block supports:
+<a name="nested_grpc_operation_group_operation_configs_quota"></a>The `quota` block supports:
 
 * `limit` -
   (Optional)
@@ -648,7 +667,7 @@ The following arguments are supported:
   (Optional)
   Time unit defined for the interval. Valid values include second, minute, hour, day, month or year. If limit and interval are valid, the default value is hour; otherwise, the default is null.
 
-<a name="nested_grpc_operation_group_operation_configs_operation_configs_attributes"></a>The `attributes` block supports:
+<a name="nested_grpc_operation_group_operation_configs_attributes"></a>The `attributes` block supports:
 
 * `name` -
   (Optional)

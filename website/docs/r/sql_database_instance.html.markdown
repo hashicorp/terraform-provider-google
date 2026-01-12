@@ -284,6 +284,46 @@ resource "google_sql_database_instance" "main" {
 }
 ```
 
+### Cloud SQL Instance created with backupdr_backup
+~> **NOTE:** For restoring from a backupdr_backup, note that the backup must be in active state. List down the backups using `google_backup_dr_backup`. Replace `backupdr_backup_full_path` with the backup name.
+
+```hcl
+resource "google_sql_database_instance" "instance" {
+  name             = "main-instance"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier    = "db-f1-micro"
+    backup_configuration {
+      enabled = true
+      binary_log_enabled = true
+    }
+    backupdr_backup = "backupdr_backup_full_path"
+  }
+}
+```
+
+### Cloud SQL Instance created using point_in_time_restore
+~> **NOTE:** Replace `backupdr_datasource` with the full datasource path, `time_stamp` should be in the format of `YYYY-MM-DDTHH:MM:SSZ`.
+
+```hcl
+resource "google_sql_database_instance" "instance" {
+  name             = "main-instance"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier    = "db-f1-micro"
+    backup_configuration {
+      enabled = true
+      binary_log_enabled = true
+    }
+  }
+  point_in_time_restore_context {
+   datasource      = "backupdr_datasource"
+   target_instance = "target_instance_name"
+   point_in_time   = "time_stamp"
+ }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -470,6 +510,8 @@ The optional `settings.backup_configuration` subblock supports:
     Can only be used with MySQL.
 
 * `enabled` - (Optional) True if backup configuration is enabled.
+
+* `backup_tier` - (Computed) The backup tier that manages the backups for the instance.
 
 * `start_time` - (Optional) `HH:MM` format time indicating when backup
     configuration starts.
@@ -702,7 +744,7 @@ block during resource creation/update will trigger the restore action after the 
 
 * `project` - (Optional) The full project ID of the source instance.`
 
-The optional, computed `replication_cluster` block represents a primary instance and disaster recovery replica pair. Applicable to MySQL and PostgreSQL. This field can be set only after both the primary and replica are created. This block supports:
+The optional, computed `replication_cluster` block represents a primary instance and disaster recovery replica pair. Applicable to MySQL and PostgreSQL. This field can be set if the primary has psa_write_endpoint set or both the primary and replica are created. This block supports:
 
 * `psa_write_endpoint`: Read-only field which if set, indicates this instance has a private service access (PSA) DNS endpoint that is pointing to the primary instance of the cluster. If this instance is the primary, then the DNS endpoint points to this instance. After a switchover or replica failover operation, this DNS endpoint points to the promoted instance. This is a read-only field, returned to the user as information. This field can exist even if a standalone instance doesn't have a DR replica yet or the DR replica is deleted.
 

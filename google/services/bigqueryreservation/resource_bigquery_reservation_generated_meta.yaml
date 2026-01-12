@@ -1,24 +1,24 @@
-resource: 'google_bigquery_reservation'
-generation_type: 'mmv1'
-source_file: 'products/bigqueryreservation/Reservation.yaml'
-api_service_name: 'bigqueryreservation.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Reservation'
+resource: google_bigquery_reservation
+generation_type: mmv1
+source_file: products/bigqueryreservation/Reservation.yaml
+api_service_name: bigqueryreservation.googleapis.com
+api_version: v1
+api_resource_type_kind: Reservation
 fields:
-  - api_field: 'autoscale.currentSlots'
-  - api_field: 'autoscale.maxSlots'
-  - api_field: 'concurrency'
-  - api_field: 'edition'
-  - api_field: 'ignoreIdleSlots'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'originalPrimaryLocation'
-  - api_field: 'primaryLocation'
-  - api_field: 'replicationStatus.error.code'
-  - api_field: 'replicationStatus.error.message'
-  - api_field: 'replicationStatus.lastErrorTime'
-  - api_field: 'replicationStatus.lastReplicationTime'
-  - api_field: 'secondaryLocation'
-  - api_field: 'slotCapacity'
+    - api_field: autoscale.currentSlots
+    - api_field: autoscale.maxSlots
+    - api_field: concurrency
+    - api_field: edition
+    - api_field: ignoreIdleSlots
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: originalPrimaryLocation
+    - api_field: primaryLocation
+    - api_field: replicationStatus.error.code
+    - api_field: replicationStatus.error.message
+    - api_field: replicationStatus.lastErrorTime
+    - api_field: replicationStatus.lastReplicationTime
+    - api_field: secondaryLocation
+    - api_field: slotCapacity

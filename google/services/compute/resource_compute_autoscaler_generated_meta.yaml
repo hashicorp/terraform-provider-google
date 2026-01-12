@@ -1,46 +1,54 @@
-resource: 'google_compute_autoscaler'
-generation_type: 'mmv1'
-source_file: 'products/compute/Autoscaler.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Autoscaler'
+resource: google_compute_autoscaler
+generation_type: mmv1
+source_file: products/compute/Autoscaler.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Autoscaler
 api_variant_patterns:
-  - 'projects/{project}/zones/{zone}/autoscalers/{autoscaler}'
+    - projects/{project}/zones/{zone}/autoscalers/{autoscaler}
 fields:
-  - api_field: 'autoscalingPolicy.coolDownPeriodSec'
-    field: 'autoscaling_policy.cooldown_period'
-  - api_field: 'autoscalingPolicy.cpuUtilization.predictiveMethod'
-  - api_field: 'autoscalingPolicy.cpuUtilization.utilizationTarget'
-    field: 'autoscaling_policy.cpu_utilization.target'
-  - api_field: 'autoscalingPolicy.loadBalancingUtilization.utilizationTarget'
-    field: 'autoscaling_policy.load_balancing_utilization.target'
-  - api_field: 'autoscalingPolicy.maxNumReplicas'
-    field: 'autoscaling_policy.max_replicas'
-  - api_field: 'autoscalingPolicy.customMetricUtilizations.filter'
-    field: 'autoscaling_policy.metric.filter'
-  - api_field: 'autoscalingPolicy.customMetricUtilizations.metric'
-    field: 'autoscaling_policy.metric.name'
-  - api_field: 'autoscalingPolicy.customMetricUtilizations.singleInstanceAssignment'
-    field: 'autoscaling_policy.metric.single_instance_assignment'
-  - api_field: 'autoscalingPolicy.customMetricUtilizations.utilizationTarget'
-    field: 'autoscaling_policy.metric.target'
-  - api_field: 'autoscalingPolicy.customMetricUtilizations.utilizationTargetType'
-    field: 'autoscaling_policy.metric.type'
-  - api_field: 'autoscalingPolicy.minNumReplicas'
-    field: 'autoscaling_policy.min_replicas'
-  - api_field: 'autoscalingPolicy.mode'
-  - api_field: 'autoscalingPolicy.scaleInControl.maxScaledInReplicas.fixed'
-  - api_field: 'autoscalingPolicy.scaleInControl.maxScaledInReplicas.percent'
-  - api_field: 'autoscalingPolicy.scaleInControl.timeWindowSec'
-  - api_field: 'autoscalingPolicy.scalingSchedules.scalingSchedule.description'
-  - api_field: 'autoscalingPolicy.scalingSchedules.scalingSchedule.disabled'
-  - api_field: 'autoscalingPolicy.scalingSchedules.scalingSchedule.durationSec'
-  - api_field: 'autoscalingPolicy.scalingSchedules.scalingSchedule.minRequiredReplicas'
-  - api_field: 'autoscalingPolicy.scalingSchedules.scalingSchedule.schedule'
-  - api_field: 'autoscalingPolicy.scalingSchedules.scalingSchedule.timeZone'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'name'
-  - api_field: 'target'
-  - api_field: 'zone'
-  - api_field: 'selfLink'
+    - api_field: autoscalingPolicy.coolDownPeriodSec
+      field: autoscaling_policy.cooldown_period
+    - api_field: autoscalingPolicy.cpuUtilization.predictiveMethod
+    - api_field: autoscalingPolicy.cpuUtilization.utilizationTarget
+      field: autoscaling_policy.cpu_utilization.target
+    - api_field: autoscalingPolicy.loadBalancingUtilization.utilizationTarget
+      field: autoscaling_policy.load_balancing_utilization.target
+    - api_field: autoscalingPolicy.maxNumReplicas
+      field: autoscaling_policy.max_replicas
+    - api_field: autoscalingPolicy.customMetricUtilizations.filter
+      field: autoscaling_policy.metric.filter
+    - api_field: autoscalingPolicy.customMetricUtilizations.metric
+      field: autoscaling_policy.metric.name
+    - api_field: autoscalingPolicy.customMetricUtilizations.singleInstanceAssignment
+      field: autoscaling_policy.metric.single_instance_assignment
+    - api_field: autoscalingPolicy.customMetricUtilizations.utilizationTarget
+      field: autoscaling_policy.metric.target
+    - api_field: autoscalingPolicy.customMetricUtilizations.utilizationTargetType
+      field: autoscaling_policy.metric.type
+    - api_field: autoscalingPolicy.minNumReplicas
+      field: autoscaling_policy.min_replicas
+    - api_field: autoscalingPolicy.mode
+    - api_field: autoscalingPolicy.scaleInControl.maxScaledInReplicas.fixed
+    - api_field: autoscalingPolicy.scaleInControl.maxScaledInReplicas.percent
+    - api_field: autoscalingPolicy.scaleInControl.timeWindowSec
+    - api_field: autoscalingPolicy.scalingSchedules.key
+      field: autoscaling_policy.scaling_schedules.name
+    - api_field: autoscalingPolicy.scalingSchedules.value.description
+      field: autoscaling_policy.scaling_schedules.description
+    - api_field: autoscalingPolicy.scalingSchedules.value.disabled
+      field: autoscaling_policy.scaling_schedules.disabled
+    - api_field: autoscalingPolicy.scalingSchedules.value.durationSec
+      field: autoscaling_policy.scaling_schedules.duration_sec
+    - api_field: autoscalingPolicy.scalingSchedules.value.minRequiredReplicas
+      field: autoscaling_policy.scaling_schedules.min_required_replicas
+    - api_field: autoscalingPolicy.scalingSchedules.value.schedule
+      field: autoscaling_policy.scaling_schedules.schedule
+    - api_field: autoscalingPolicy.scalingSchedules.value.timeZone
+      field: autoscaling_policy.scaling_schedules.time_zone
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: name
+    - api_field: target
+    - api_field: zone
+    - api_field: selfLink

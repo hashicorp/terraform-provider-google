@@ -1,35 +1,35 @@
-resource: 'google_firebase_app_hosting_backend'
-generation_type: 'mmv1'
-source_file: 'products/firebaseapphosting/Backend.yaml'
-api_service_name: 'firebaseapphosting.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Backend'
+resource: google_firebase_app_hosting_backend
+generation_type: mmv1
+source_file: products/firebaseapphosting/Backend.yaml
+api_service_name: firebaseapphosting.googleapis.com
+api_version: v1
+api_resource_type_kind: Backend
 autogen_status: true
 fields:
-  - api_field: 'annotations'
-  - api_field: 'appId'
-  - field: 'backend_id'
-    provider_only: true
-  - api_field: 'codebase.repository'
-  - api_field: 'codebase.rootDirectory'
-  - api_field: 'createTime'
-  - api_field: 'deleteTime'
-  - api_field: 'displayName'
-  - field: 'effective_annotations'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'environment'
-  - api_field: 'etag'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'managedResources.runService.service'
-  - api_field: 'name'
-  - api_field: 'serviceAccount'
-  - api_field: 'servingLocality'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'uid'
-  - api_field: 'updateTime'
-  - api_field: 'uri'
+    - api_field: annotations
+    - api_field: appId
+    - field: backend_id
+      provider_only: true
+    - api_field: codebase.repository
+    - api_field: codebase.rootDirectory
+    - api_field: createTime
+    - api_field: deleteTime
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: environment
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: managedResources.runService.service
+    - api_field: name
+    - api_field: serviceAccount
+    - api_field: servingLocality
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime
+    - api_field: uri

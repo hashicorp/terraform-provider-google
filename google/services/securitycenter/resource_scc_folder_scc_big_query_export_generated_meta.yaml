@@ -1,21 +1,21 @@
-resource: 'google_scc_folder_scc_big_query_export'
-generation_type: 'mmv1'
-source_file: 'products/securitycenter/FolderSccBigQueryExport.yaml'
-api_service_name: 'securitycenter.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BigQueryExport'
+resource: google_scc_folder_scc_big_query_export
+generation_type: mmv1
+source_file: products/securitycenter/FolderSccBigQueryExport.yaml
+api_service_name: securitycenter.googleapis.com
+api_version: v1
+api_resource_type_kind: BigQueryExport
 api_variant_patterns:
-  - 'folders/{folder}/bigQueryExports/{bigQueryExport}'
+    - folders/{folder}/bigQueryExports/{bigQueryExport}
 fields:
-  - field: 'big_query_export_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - api_field: 'dataset'
-  - api_field: 'description'
-  - api_field: 'filter'
-  - field: 'folder'
-    provider_only: true
-  - api_field: 'mostRecentEditor'
-  - api_field: 'name'
-  - api_field: 'principal'
-  - api_field: 'updateTime'
+    - field: big_query_export_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: dataset
+    - api_field: description
+    - api_field: filter
+    - field: folder
+      provider_only: true
+    - api_field: mostRecentEditor
+    - api_field: name
+    - api_field: principal
+    - api_field: updateTime

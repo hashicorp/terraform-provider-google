@@ -747,55 +747,6 @@ resource "google_filestore_instance" "default" {
 `, context)
 }
 
-func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolCustomAudiencesExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckCloudRunV2WorkerPoolDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolCustomAudiencesExample(context),
-			},
-			{
-				ResourceName:            "google_cloud_run_v2_worker_pool.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
-			},
-			{
-				ResourceName:       "google_cloud_run_v2_worker_pool.default",
-				RefreshState:       true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolCustomAudiencesExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_cloud_run_v2_worker_pool" "default" {
-  name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
-  location = "us-central1"
-  deletion_protection = false
-  launch_stage = "BETA"
-
-  custom_audiences = ["aud1"]
-  template {
-    containers {
-      image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
-    }
-  }
-}
-`, context)
-}
-
 func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample(t *testing.T) {
 	t.Parallel()
 

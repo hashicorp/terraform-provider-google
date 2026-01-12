@@ -1,13 +1,13 @@
-resource: 'google_resource_manager_lien'
-generation_type: 'mmv1'
-source_file: 'products/resourcemanager/Lien.yaml'
-api_service_name: 'cloudresourcemanager.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Lien'
+resource: google_resource_manager_lien
+generation_type: mmv1
+source_file: products/resourcemanager/Lien.yaml
+api_service_name: cloudresourcemanager.googleapis.com
+api_version: v1
+api_resource_type_kind: Lien
 fields:
-  - api_field: 'createTime'
-  - api_field: 'name'
-  - api_field: 'origin'
-  - api_field: 'parent'
-  - api_field: 'reason'
-  - api_field: 'restrictions'
+    - api_field: createTime
+    - api_field: name
+    - api_field: origin
+    - api_field: parent
+    - api_field: reason
+    - api_field: restrictions

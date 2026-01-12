@@ -1,23 +1,23 @@
-resource: 'google_compute_external_vpn_gateway'
-generation_type: 'mmv1'
-source_file: 'products/compute/ExternalVpnGateway.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ExternalVpnGateway'
+resource: google_compute_external_vpn_gateway
+generation_type: mmv1
+source_file: products/compute/ExternalVpnGateway.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: ExternalVpnGateway
 fields:
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'interfaces.id'
-    field: 'interface.id'
-  - api_field: 'interfaces.ipAddress'
-    field: 'interface.ip_address'
-  - api_field: 'interfaces.ipv6Address'
-    field: 'interface.ipv6_address'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'redundancyType'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'selfLink'
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: interfaces.id
+      field: interface.id
+    - api_field: interfaces.ipAddress
+      field: interface.ip_address
+    - api_field: interfaces.ipv6Address
+      field: interface.ipv6_address
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: name
+    - api_field: redundancyType
+    - field: terraform_labels
+      provider_only: true
+    - api_field: selfLink

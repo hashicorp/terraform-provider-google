@@ -1,20 +1,20 @@
-resource: 'google_dialogflow_agent'
-generation_type: 'mmv1'
-source_file: 'products/dialogflow/Agent.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'Agent'
+resource: google_dialogflow_agent
+generation_type: mmv1
+source_file: products/dialogflow/Agent.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v2
+api_resource_type_kind: Agent
 fields:
-  - api_field: 'apiVersion'
-  - api_field: 'avatarUri'
-  - api_field: 'avatarUri'
-    field: 'avatar_uri_backend'
-  - api_field: 'classificationThreshold'
-  - api_field: 'defaultLanguageCode'
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - api_field: 'enableLogging'
-  - api_field: 'matchMode'
-  - api_field: 'supportedLanguageCodes'
-  - api_field: 'tier'
-  - api_field: 'timeZone'
+    - api_field: apiVersion
+    - api_field: avatarUri
+    - api_field: avatarUri
+      field: avatar_uri_backend
+    - api_field: classificationThreshold
+    - api_field: defaultLanguageCode
+    - api_field: description
+    - api_field: displayName
+    - api_field: enableLogging
+    - api_field: matchMode
+    - api_field: supportedLanguageCodes
+    - api_field: tier
+    - api_field: timeZone

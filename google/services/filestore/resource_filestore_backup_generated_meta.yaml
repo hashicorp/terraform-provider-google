@@ -1,27 +1,27 @@
-resource: 'google_filestore_backup'
-generation_type: 'mmv1'
-source_file: 'products/filestore/Backup.yaml'
-api_service_name: 'file.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Backup'
+resource: google_filestore_backup
+generation_type: mmv1
+source_file: products/filestore/Backup.yaml
+api_service_name: file.googleapis.com
+api_version: v1
+api_resource_type_kind: Backup
 fields:
-  - api_field: 'capacityGb'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'downloadBytes'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'kmsKeyName'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'sourceFileShare'
-  - api_field: 'sourceInstance'
-  - api_field: 'sourceInstanceTier'
-  - api_field: 'state'
-  - api_field: 'storageBytes'
-  - api_field: 'tags'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: capacityGb
+    - api_field: createTime
+    - api_field: description
+    - api_field: downloadBytes
+    - field: effective_labels
+      provider_only: true
+    - api_field: kmsKeyName
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: sourceFileShare
+    - api_field: sourceInstance
+    - api_field: sourceInstanceTier
+    - api_field: state
+    - api_field: storageBytes
+    - api_field: tags
+    - field: terraform_labels
+      provider_only: true

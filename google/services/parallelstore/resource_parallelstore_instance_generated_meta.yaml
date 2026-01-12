@@ -1,31 +1,31 @@
-resource: 'google_parallelstore_instance'
-generation_type: 'mmv1'
-source_file: 'products/parallelstore/Instance.yaml'
-api_service_name: 'parallelstore.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Instance'
+resource: google_parallelstore_instance
+generation_type: mmv1
+source_file: products/parallelstore/Instance.yaml
+api_service_name: parallelstore.googleapis.com
+api_version: v1
+api_resource_type_kind: Instance
 autogen_status: true
 fields:
-  - api_field: 'accessPoints'
-  - api_field: 'capacityGib'
-  - api_field: 'createTime'
-  - api_field: 'daosVersion'
-  - api_field: 'deploymentType'
-  - api_field: 'description'
-  - api_field: 'directoryStripeLevel'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'effectiveReservedIpRange'
-  - api_field: 'fileStripeLevel'
-  - field: 'instance_id'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'reservedIpRange'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: accessPoints
+    - api_field: capacityGib
+    - api_field: createTime
+    - api_field: daosVersion
+    - api_field: deploymentType
+    - api_field: description
+    - api_field: directoryStripeLevel
+    - field: effective_labels
+      provider_only: true
+    - api_field: effectiveReservedIpRange
+    - api_field: fileStripeLevel
+    - field: instance_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: network
+    - api_field: reservedIpRange
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

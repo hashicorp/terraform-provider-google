@@ -1,52 +1,53 @@
-resource: 'google_compute_interconnect'
-generation_type: 'mmv1'
-source_file: 'products/compute/Interconnect.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Interconnect'
+resource: google_compute_interconnect
+generation_type: mmv1
+source_file: products/compute/Interconnect.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Interconnect
 fields:
-  - api_field: 'adminEnabled'
-  - api_field: 'availableFeatures'
-  - api_field: 'circuitInfos.customerDemarcId'
-  - api_field: 'circuitInfos.googleCircuitId'
-  - api_field: 'circuitInfos.googleDemarcId'
-  - api_field: 'creationTimestamp'
-  - api_field: 'customerName'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'expectedOutages.affectedCircuits'
-  - api_field: 'expectedOutages.description'
-  - api_field: 'expectedOutages.endTime'
-  - api_field: 'expectedOutages.issueType'
-  - api_field: 'expectedOutages.name'
-  - api_field: 'expectedOutages.source'
-  - api_field: 'expectedOutages.startTime'
-  - api_field: 'expectedOutages.state'
-  - api_field: 'googleIpAddress'
-  - api_field: 'googleReferenceId'
-  - api_field: 'interconnectAttachments'
-  - api_field: 'interconnectGroups'
-  - api_field: 'interconnectType'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'linkType'
-  - api_field: 'location'
-  - api_field: 'macsec.failOpen'
-  - api_field: 'macsec.preSharedKeys.failOpen'
-  - api_field: 'macsec.preSharedKeys.name'
-  - api_field: 'macsec.preSharedKeys.startTime'
-  - api_field: 'macsecEnabled'
-  - api_field: 'name'
-  - api_field: 'nocContactEmail'
-  - api_field: 'operationalStatus'
-  - api_field: 'params.resourceManagerTags'
-  - api_field: 'peerIpAddress'
-  - api_field: 'provisionedLinkCount'
-  - api_field: 'remoteLocation'
-  - api_field: 'requestedFeatures'
-  - api_field: 'requestedLinkCount'
-  - api_field: 'satisfiesPzs'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: adminEnabled
+    - api_field: availableFeatures
+    - api_field: circuitInfos.customerDemarcId
+    - api_field: circuitInfos.googleCircuitId
+    - api_field: circuitInfos.googleDemarcId
+    - api_field: creationTimestamp
+    - api_field: customerName
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: expectedOutages.affectedCircuits
+    - api_field: expectedOutages.description
+    - api_field: expectedOutages.endTime
+    - api_field: expectedOutages.issueType
+    - api_field: expectedOutages.name
+    - api_field: expectedOutages.source
+    - api_field: expectedOutages.startTime
+    - api_field: expectedOutages.state
+    - api_field: googleIpAddress
+    - api_field: googleReferenceId
+    - api_field: interconnectAttachments
+    - api_field: interconnectGroups
+    - api_field: interconnectType
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: linkType
+    - api_field: location
+    - api_field: macsec.failOpen
+    - api_field: macsec.preSharedKeys.failOpen
+    - api_field: macsec.preSharedKeys.name
+    - api_field: macsec.preSharedKeys.startTime
+    - api_field: macsecEnabled
+    - api_field: name
+    - api_field: nocContactEmail
+    - api_field: operationalStatus
+    - api_field: params.resourceManagerTags
+    - api_field: peerIpAddress
+    - api_field: provisionedLinkCount
+    - api_field: remoteLocation
+    - api_field: requestedFeatures
+    - api_field: requestedLinkCount
+    - api_field: satisfiesPzs
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: wireGroups

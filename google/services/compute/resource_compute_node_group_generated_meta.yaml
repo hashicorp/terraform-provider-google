@@ -1,23 +1,26 @@
-resource: 'google_compute_node_group'
-generation_type: 'mmv1'
-source_file: 'products/compute/NodeGroup.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NodeGroup'
+resource: google_compute_node_group
+generation_type: mmv1
+source_file: products/compute/NodeGroup.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: NodeGroup
 fields:
-  - api_field: 'autoscalingPolicy.maxNodes'
-  - api_field: 'autoscalingPolicy.minNodes'
-  - api_field: 'autoscalingPolicy.mode'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - field: 'initial_size'
-    provider_only: true
-  - api_field: 'maintenancePolicy'
-  - api_field: 'maintenanceWindow.startTime'
-  - api_field: 'name'
-  - api_field: 'nodeTemplate'
-  - api_field: 'shareSettings.projectMap.projectConfig.projectId'
-  - api_field: 'shareSettings.shareType'
-  - api_field: 'size'
-  - api_field: 'zone'
-  - api_field: 'selfLink'
+    - api_field: autoscalingPolicy.maxNodes
+    - api_field: autoscalingPolicy.minNodes
+    - api_field: autoscalingPolicy.mode
+    - api_field: creationTimestamp
+    - api_field: description
+    - field: initial_size
+      provider_only: true
+    - api_field: maintenancePolicy
+    - api_field: maintenanceWindow.startTime
+    - api_field: name
+    - api_field: nodeTemplate
+    - api_field: shareSettings.projectMap.key
+      field: share_settings.project_map.id
+    - api_field: shareSettings.projectMap.value.projectId
+      field: share_settings.project_map.project_id
+    - api_field: shareSettings.shareType
+    - api_field: size
+    - api_field: zone
+    - api_field: selfLink

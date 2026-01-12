@@ -1,15 +1,15 @@
-resource: 'google_apphub_service_project_attachment'
-generation_type: 'mmv1'
-source_file: 'products/apphub/ServiceProjectAttachment.yaml'
-api_service_name: 'apphub.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ServiceProjectAttachment'
+resource: google_apphub_service_project_attachment
+generation_type: mmv1
+source_file: products/apphub/ServiceProjectAttachment.yaml
+api_service_name: apphub.googleapis.com
+api_version: v1
+api_resource_type_kind: ServiceProjectAttachment
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - api_field: 'name'
-  - api_field: 'serviceProject'
-  - field: 'service_project_attachment_id'
-    provider_only: true
-  - api_field: 'state'
-  - api_field: 'uid'
+    - api_field: createTime
+    - api_field: name
+    - api_field: serviceProject
+    - field: service_project_attachment_id
+      provider_only: true
+    - api_field: state
+    - api_field: uid

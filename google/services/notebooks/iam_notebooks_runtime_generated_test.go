@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -55,7 +56,7 @@ func TestAccNotebooksRuntimeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_runtime_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/runtimes/%s roles/viewer", envvar.GetTestProjectFromEnv(), "us-central1", fmt.Sprintf("tf-test-notebooks-runtime%s", context["random_suffix"])),
+				ImportStateIdFunc: generateNotebooksRuntimeIAMBindingStateID("google_notebooks_runtime_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +66,7 @@ func TestAccNotebooksRuntimeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_runtime_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/runtimes/%s roles/viewer", envvar.GetTestProjectFromEnv(), "us-central1", fmt.Sprintf("tf-test-notebooks-runtime%s", context["random_suffix"])),
+				ImportStateIdFunc: generateNotebooksRuntimeIAMBindingStateID("google_notebooks_runtime_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +92,7 @@ func TestAccNotebooksRuntimeIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_runtime_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/runtimes/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), "us-central1", fmt.Sprintf("tf-test-notebooks-runtime%s", context["random_suffix"])),
+				ImportStateIdFunc: generateNotebooksRuntimeIAMMemberStateID("google_notebooks_runtime_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccNotebooksRuntimeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_runtime_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/runtimes/%s", envvar.GetTestProjectFromEnv(), "us-central1", fmt.Sprintf("tf-test-notebooks-runtime%s", context["random_suffix"])),
+				ImportStateIdFunc: generateNotebooksRuntimeIAMPolicyStateID("google_notebooks_runtime_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -126,7 +127,7 @@ func TestAccNotebooksRuntimeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_runtime_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/runtimes/%s", envvar.GetTestProjectFromEnv(), "us-central1", fmt.Sprintf("tf-test-notebooks-runtime%s", context["random_suffix"])),
+				ImportStateIdFunc: generateNotebooksRuntimeIAMPolicyStateID("google_notebooks_runtime_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -309,4 +310,58 @@ resource "google_notebooks_runtime_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateNotebooksRuntimeIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		runtime_name := tpgresource.GetResourceNameFromSelfLink(rawState["runtime_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/runtimes/%s", project, location, runtime_name), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateNotebooksRuntimeIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		runtime_name := tpgresource.GetResourceNameFromSelfLink(rawState["runtime_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/runtimes/%s", project, location, runtime_name), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateNotebooksRuntimeIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		project := tpgresource.GetResourceNameFromSelfLink(rawState["project"])
+		location := tpgresource.GetResourceNameFromSelfLink(rawState["location"])
+		runtime_name := tpgresource.GetResourceNameFromSelfLink(rawState["runtime_name"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("projects/%s/locations/%s/runtimes/%s", project, location, runtime_name), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

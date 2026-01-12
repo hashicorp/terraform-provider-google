@@ -1,11 +1,11 @@
-resource: 'google_kms_autokey_config'
-generation_type: 'mmv1'
-source_file: 'products/kms/AutokeyConfig.yaml'
-api_service_name: 'cloudkms.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AutokeyConfig'
+resource: google_kms_autokey_config
+generation_type: mmv1
+source_file: products/kms/AutokeyConfig.yaml
+api_service_name: cloudkms.googleapis.com
+api_version: v1
+api_resource_type_kind: AutokeyConfig
 fields:
-  - api_field: 'etag'
-  - field: 'folder'
-    provider_only: true
-  - api_field: 'keyProject'
+    - api_field: etag
+    - field: folder
+      provider_only: true
+    - api_field: keyProject

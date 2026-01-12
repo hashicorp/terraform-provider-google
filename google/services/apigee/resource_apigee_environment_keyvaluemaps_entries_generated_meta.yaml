@@ -1,11 +1,11 @@
-resource: 'google_apigee_environment_keyvaluemaps_entries'
-generation_type: 'mmv1'
-source_file: 'products/apigee/EnvironmentKeyvaluemapsEntries.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'KeyValueEntry'
+resource: google_apigee_environment_keyvaluemaps_entries
+generation_type: mmv1
+source_file: products/apigee/EnvironmentKeyvaluemapsEntries.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: KeyValueEntry
 fields:
-  - field: 'env_keyvaluemap_id'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'value'
+    - field: env_keyvaluemap_id
+      provider_only: true
+    - api_field: name
+    - api_field: value

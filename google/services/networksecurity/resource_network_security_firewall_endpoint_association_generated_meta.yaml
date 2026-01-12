@@ -1,27 +1,27 @@
-resource: 'google_network_security_firewall_endpoint_association'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/FirewallEndpointAssociation.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'FirewallEndpointAssociation'
+resource: google_network_security_firewall_endpoint_association
+generation_type: mmv1
+source_file: products/networksecurity/FirewallEndpointAssociation.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: FirewallEndpointAssociation
 fields:
-  - api_field: 'createTime'
-  - api_field: 'disabled'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'firewallEndpoint'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - api_field: 'network'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'reconciling'
-  - api_field: 'selfLink'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'tlsInspectionPolicy'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: disabled
+    - field: effective_labels
+      provider_only: true
+    - api_field: firewallEndpoint
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: network
+    - field: parent
+      provider_only: true
+    - api_field: reconciling
+    - api_field: selfLink
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: tlsInspectionPolicy
+    - api_field: updateTime

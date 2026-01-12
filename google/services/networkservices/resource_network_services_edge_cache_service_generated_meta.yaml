@@ -1,165 +1,165 @@
-resource: 'google_network_services_edge_cache_service'
-generation_type: 'mmv1'
-source_file: 'products/networkservices/EdgeCacheService.yaml'
-api_service_name: 'networkservices.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'EdgeCacheService'
+resource: google_network_services_edge_cache_service
+generation_type: mmv1
+source_file: products/networkservices/EdgeCacheService.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: EdgeCacheService
 fields:
-  - api_field: 'description'
-  - api_field: 'disableHttp2'
-  - api_field: 'disableQuic'
-  - api_field: 'edgeSecurityPolicy'
-  - api_field: 'edgeSslCertificates'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'ipv4Addresses'
-  - api_field: 'ipv6Addresses'
-  - api_field: 'labels'
-  - api_field: 'logConfig.enable'
-  - api_field: 'logConfig.sampleRate'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'requireTls'
-  - api_field: 'routing.hostRules.description'
-    field: 'routing.host_rule.description'
-  - api_field: 'routing.hostRules.hosts'
-    field: 'routing.host_rule.hosts'
-  - api_field: 'routing.hostRules.pathMatcher'
-    field: 'routing.host_rule.path_matcher'
-  - api_field: 'routing.pathMatchers.description'
-    field: 'routing.path_matcher.description'
-  - api_field: 'routing.pathMatchers.name'
-    field: 'routing.path_matcher.name'
-  - api_field: 'routing.pathMatchers.routeRules.description'
-    field: 'routing.path_matcher.route_rule.description'
-  - api_field: 'routing.pathMatchers.routeRules.headerAction.requestHeadersToAdd.headerName'
-    field: 'routing.path_matcher.route_rule.header_action.request_header_to_add.header_name'
-  - api_field: 'routing.pathMatchers.routeRules.headerAction.requestHeadersToAdd.headerValue'
-    field: 'routing.path_matcher.route_rule.header_action.request_header_to_add.header_value'
-  - api_field: 'routing.pathMatchers.routeRules.headerAction.requestHeadersToAdd.replace'
-    field: 'routing.path_matcher.route_rule.header_action.request_header_to_add.replace'
-  - api_field: 'routing.pathMatchers.routeRules.headerAction.requestHeadersToRemove.headerName'
-    field: 'routing.path_matcher.route_rule.header_action.request_header_to_remove.header_name'
-  - api_field: 'routing.pathMatchers.routeRules.headerAction.responseHeadersToAdd.headerName'
-    field: 'routing.path_matcher.route_rule.header_action.response_header_to_add.header_name'
-  - api_field: 'routing.pathMatchers.routeRules.headerAction.responseHeadersToAdd.headerValue'
-    field: 'routing.path_matcher.route_rule.header_action.response_header_to_add.header_value'
-  - api_field: 'routing.pathMatchers.routeRules.headerAction.responseHeadersToAdd.replace'
-    field: 'routing.path_matcher.route_rule.header_action.response_header_to_add.replace'
-  - api_field: 'routing.pathMatchers.routeRules.headerAction.responseHeadersToRemove.headerName'
-    field: 'routing.path_matcher.route_rule.header_action.response_header_to_remove.header_name'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.fullPathMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.full_path_match'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.headerMatches.exactMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.header_match.exact_match'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.headerMatches.headerName'
-    field: 'routing.path_matcher.route_rule.match_rule.header_match.header_name'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.headerMatches.invertMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.header_match.invert_match'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.headerMatches.prefixMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.header_match.prefix_match'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.headerMatches.presentMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.header_match.present_match'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.headerMatches.suffixMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.header_match.suffix_match'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.ignoreCase'
-    field: 'routing.path_matcher.route_rule.match_rule.ignore_case'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.pathTemplateMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.path_template_match'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.prefixMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.prefix_match'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.queryParameterMatches.exactMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.query_parameter_match.exact_match'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.queryParameterMatches.name'
-    field: 'routing.path_matcher.route_rule.match_rule.query_parameter_match.name'
-  - api_field: 'routing.pathMatchers.routeRules.matchRules.queryParameterMatches.presentMatch'
-    field: 'routing.path_matcher.route_rule.match_rule.query_parameter_match.present_match'
-  - api_field: 'routing.pathMatchers.routeRules.origin'
-    field: 'routing.path_matcher.route_rule.origin'
-  - api_field: 'routing.pathMatchers.routeRules.priority'
-    field: 'routing.path_matcher.route_rule.priority'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.actions'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.actions'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.copiedParameters'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.copied_parameters'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.keyset'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.keyset'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.tokenQueryParameter'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.token_query_parameter'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.tokenTtl'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.token_ttl'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.excludeHost'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.exclude_host'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.excludeQueryString'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.exclude_query_string'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.excludedQueryParameters'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.excluded_query_parameters'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.includeProtocol'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.include_protocol'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.includedCookieNames'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.included_cookie_names'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.includedHeaderNames'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.included_header_names'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.includedQueryParameters'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.included_query_parameters'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheMode'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.cache_mode'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.clientTtl'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.client_ttl'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.defaultTtl'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.default_ttl'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.maxTtl'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.max_ttl'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.negativeCaching'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.negative_caching'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.negativeCachingPolicy'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.negative_caching_policy'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedRequestKeyset'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.signed_request_keyset'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedRequestMaximumExpirationTtl'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.signed_request_maximum_expiration_ttl'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedRequestMode'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.signed_request_mode'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedTokenOptions.allowedSignatureAlgorithms'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.signed_token_options.allowed_signature_algorithms'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedTokenOptions.tokenQueryParameter'
-    field: 'routing.path_matcher.route_rule.route_action.cdn_policy.signed_token_options.token_query_parameter'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.compressionMode'
-    field: 'routing.path_matcher.route_rule.route_action.compression_mode'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.corsPolicy.allowCredentials'
-    field: 'routing.path_matcher.route_rule.route_action.cors_policy.allow_credentials'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.corsPolicy.allowHeaders'
-    field: 'routing.path_matcher.route_rule.route_action.cors_policy.allow_headers'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.corsPolicy.allowMethods'
-    field: 'routing.path_matcher.route_rule.route_action.cors_policy.allow_methods'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.corsPolicy.allowOrigins'
-    field: 'routing.path_matcher.route_rule.route_action.cors_policy.allow_origins'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.corsPolicy.disabled'
-    field: 'routing.path_matcher.route_rule.route_action.cors_policy.disabled'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.corsPolicy.exposeHeaders'
-    field: 'routing.path_matcher.route_rule.route_action.cors_policy.expose_headers'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.corsPolicy.maxAge'
-    field: 'routing.path_matcher.route_rule.route_action.cors_policy.max_age'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.urlRewrite.hostRewrite'
-    field: 'routing.path_matcher.route_rule.route_action.url_rewrite.host_rewrite'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.urlRewrite.pathPrefixRewrite'
-    field: 'routing.path_matcher.route_rule.route_action.url_rewrite.path_prefix_rewrite'
-  - api_field: 'routing.pathMatchers.routeRules.routeAction.urlRewrite.pathTemplateRewrite'
-    field: 'routing.path_matcher.route_rule.route_action.url_rewrite.path_template_rewrite'
-  - api_field: 'routing.pathMatchers.routeRules.routeMethods.allowedMethods'
-    field: 'routing.path_matcher.route_rule.route_methods.allowed_methods'
-  - api_field: 'routing.pathMatchers.routeRules.urlRedirect.hostRedirect'
-    field: 'routing.path_matcher.route_rule.url_redirect.host_redirect'
-  - api_field: 'routing.pathMatchers.routeRules.urlRedirect.httpsRedirect'
-    field: 'routing.path_matcher.route_rule.url_redirect.https_redirect'
-  - api_field: 'routing.pathMatchers.routeRules.urlRedirect.pathRedirect'
-    field: 'routing.path_matcher.route_rule.url_redirect.path_redirect'
-  - api_field: 'routing.pathMatchers.routeRules.urlRedirect.prefixRedirect'
-    field: 'routing.path_matcher.route_rule.url_redirect.prefix_redirect'
-  - api_field: 'routing.pathMatchers.routeRules.urlRedirect.redirectResponseCode'
-    field: 'routing.path_matcher.route_rule.url_redirect.redirect_response_code'
-  - api_field: 'routing.pathMatchers.routeRules.urlRedirect.stripQuery'
-    field: 'routing.path_matcher.route_rule.url_redirect.strip_query'
-  - api_field: 'sslPolicy'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: description
+    - api_field: disableHttp2
+    - api_field: disableQuic
+    - api_field: edgeSecurityPolicy
+    - api_field: edgeSslCertificates
+    - field: effective_labels
+      provider_only: true
+    - api_field: ipv4Addresses
+    - api_field: ipv6Addresses
+    - api_field: labels
+    - api_field: logConfig.enable
+    - api_field: logConfig.sampleRate
+    - field: name
+      provider_only: true
+    - api_field: requireTls
+    - api_field: routing.hostRules.description
+      field: routing.host_rule.description
+    - api_field: routing.hostRules.hosts
+      field: routing.host_rule.hosts
+    - api_field: routing.hostRules.pathMatcher
+      field: routing.host_rule.path_matcher
+    - api_field: routing.pathMatchers.description
+      field: routing.path_matcher.description
+    - api_field: routing.pathMatchers.name
+      field: routing.path_matcher.name
+    - api_field: routing.pathMatchers.routeRules.description
+      field: routing.path_matcher.route_rule.description
+    - api_field: routing.pathMatchers.routeRules.headerAction.requestHeadersToAdd.headerName
+      field: routing.path_matcher.route_rule.header_action.request_header_to_add.header_name
+    - api_field: routing.pathMatchers.routeRules.headerAction.requestHeadersToAdd.headerValue
+      field: routing.path_matcher.route_rule.header_action.request_header_to_add.header_value
+    - api_field: routing.pathMatchers.routeRules.headerAction.requestHeadersToAdd.replace
+      field: routing.path_matcher.route_rule.header_action.request_header_to_add.replace
+    - api_field: routing.pathMatchers.routeRules.headerAction.requestHeadersToRemove.headerName
+      field: routing.path_matcher.route_rule.header_action.request_header_to_remove.header_name
+    - api_field: routing.pathMatchers.routeRules.headerAction.responseHeadersToAdd.headerName
+      field: routing.path_matcher.route_rule.header_action.response_header_to_add.header_name
+    - api_field: routing.pathMatchers.routeRules.headerAction.responseHeadersToAdd.headerValue
+      field: routing.path_matcher.route_rule.header_action.response_header_to_add.header_value
+    - api_field: routing.pathMatchers.routeRules.headerAction.responseHeadersToAdd.replace
+      field: routing.path_matcher.route_rule.header_action.response_header_to_add.replace
+    - api_field: routing.pathMatchers.routeRules.headerAction.responseHeadersToRemove.headerName
+      field: routing.path_matcher.route_rule.header_action.response_header_to_remove.header_name
+    - api_field: routing.pathMatchers.routeRules.matchRules.fullPathMatch
+      field: routing.path_matcher.route_rule.match_rule.full_path_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.headerMatches.exactMatch
+      field: routing.path_matcher.route_rule.match_rule.header_match.exact_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.headerMatches.headerName
+      field: routing.path_matcher.route_rule.match_rule.header_match.header_name
+    - api_field: routing.pathMatchers.routeRules.matchRules.headerMatches.invertMatch
+      field: routing.path_matcher.route_rule.match_rule.header_match.invert_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.headerMatches.prefixMatch
+      field: routing.path_matcher.route_rule.match_rule.header_match.prefix_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.headerMatches.presentMatch
+      field: routing.path_matcher.route_rule.match_rule.header_match.present_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.headerMatches.suffixMatch
+      field: routing.path_matcher.route_rule.match_rule.header_match.suffix_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.ignoreCase
+      field: routing.path_matcher.route_rule.match_rule.ignore_case
+    - api_field: routing.pathMatchers.routeRules.matchRules.pathTemplateMatch
+      field: routing.path_matcher.route_rule.match_rule.path_template_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.prefixMatch
+      field: routing.path_matcher.route_rule.match_rule.prefix_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.queryParameterMatches.exactMatch
+      field: routing.path_matcher.route_rule.match_rule.query_parameter_match.exact_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.queryParameterMatches.name
+      field: routing.path_matcher.route_rule.match_rule.query_parameter_match.name
+    - api_field: routing.pathMatchers.routeRules.matchRules.queryParameterMatches.presentMatch
+      field: routing.path_matcher.route_rule.match_rule.query_parameter_match.present_match
+    - api_field: routing.pathMatchers.routeRules.origin
+      field: routing.path_matcher.route_rule.origin
+    - api_field: routing.pathMatchers.routeRules.priority
+      field: routing.path_matcher.route_rule.priority
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.actions
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.actions
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.copiedParameters
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.copied_parameters
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.keyset
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.keyset
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.tokenQueryParameter
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.token_query_parameter
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.addSignatures.tokenTtl
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.add_signatures.token_ttl
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.excludeHost
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.exclude_host
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.excludeQueryString
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.exclude_query_string
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.excludedQueryParameters
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.excluded_query_parameters
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.includeProtocol
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.include_protocol
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.includedCookieNames
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.included_cookie_names
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.includedHeaderNames
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.included_header_names
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheKeyPolicy.includedQueryParameters
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.cache_key_policy.included_query_parameters
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.cacheMode
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.cache_mode
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.clientTtl
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.client_ttl
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.defaultTtl
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.default_ttl
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.maxTtl
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.max_ttl
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.negativeCaching
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.negative_caching
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.negativeCachingPolicy
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.negative_caching_policy
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedRequestKeyset
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.signed_request_keyset
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedRequestMaximumExpirationTtl
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.signed_request_maximum_expiration_ttl
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedRequestMode
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.signed_request_mode
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedTokenOptions.allowedSignatureAlgorithms
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.signed_token_options.allowed_signature_algorithms
+    - api_field: routing.pathMatchers.routeRules.routeAction.cdnPolicy.signedTokenOptions.tokenQueryParameter
+      field: routing.path_matcher.route_rule.route_action.cdn_policy.signed_token_options.token_query_parameter
+    - api_field: routing.pathMatchers.routeRules.routeAction.compressionMode
+      field: routing.path_matcher.route_rule.route_action.compression_mode
+    - api_field: routing.pathMatchers.routeRules.routeAction.corsPolicy.allowCredentials
+      field: routing.path_matcher.route_rule.route_action.cors_policy.allow_credentials
+    - api_field: routing.pathMatchers.routeRules.routeAction.corsPolicy.allowHeaders
+      field: routing.path_matcher.route_rule.route_action.cors_policy.allow_headers
+    - api_field: routing.pathMatchers.routeRules.routeAction.corsPolicy.allowMethods
+      field: routing.path_matcher.route_rule.route_action.cors_policy.allow_methods
+    - api_field: routing.pathMatchers.routeRules.routeAction.corsPolicy.allowOrigins
+      field: routing.path_matcher.route_rule.route_action.cors_policy.allow_origins
+    - api_field: routing.pathMatchers.routeRules.routeAction.corsPolicy.disabled
+      field: routing.path_matcher.route_rule.route_action.cors_policy.disabled
+    - api_field: routing.pathMatchers.routeRules.routeAction.corsPolicy.exposeHeaders
+      field: routing.path_matcher.route_rule.route_action.cors_policy.expose_headers
+    - api_field: routing.pathMatchers.routeRules.routeAction.corsPolicy.maxAge
+      field: routing.path_matcher.route_rule.route_action.cors_policy.max_age
+    - api_field: routing.pathMatchers.routeRules.routeAction.urlRewrite.hostRewrite
+      field: routing.path_matcher.route_rule.route_action.url_rewrite.host_rewrite
+    - api_field: routing.pathMatchers.routeRules.routeAction.urlRewrite.pathPrefixRewrite
+      field: routing.path_matcher.route_rule.route_action.url_rewrite.path_prefix_rewrite
+    - api_field: routing.pathMatchers.routeRules.routeAction.urlRewrite.pathTemplateRewrite
+      field: routing.path_matcher.route_rule.route_action.url_rewrite.path_template_rewrite
+    - api_field: routing.pathMatchers.routeRules.routeMethods.allowedMethods
+      field: routing.path_matcher.route_rule.route_methods.allowed_methods
+    - api_field: routing.pathMatchers.routeRules.urlRedirect.hostRedirect
+      field: routing.path_matcher.route_rule.url_redirect.host_redirect
+    - api_field: routing.pathMatchers.routeRules.urlRedirect.httpsRedirect
+      field: routing.path_matcher.route_rule.url_redirect.https_redirect
+    - api_field: routing.pathMatchers.routeRules.urlRedirect.pathRedirect
+      field: routing.path_matcher.route_rule.url_redirect.path_redirect
+    - api_field: routing.pathMatchers.routeRules.urlRedirect.prefixRedirect
+      field: routing.path_matcher.route_rule.url_redirect.prefix_redirect
+    - api_field: routing.pathMatchers.routeRules.urlRedirect.redirectResponseCode
+      field: routing.path_matcher.route_rule.url_redirect.redirect_response_code
+    - api_field: routing.pathMatchers.routeRules.urlRedirect.stripQuery
+      field: routing.path_matcher.route_rule.url_redirect.strip_query
+    - api_field: sslPolicy
+    - field: terraform_labels
+      provider_only: true

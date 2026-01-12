@@ -1,31 +1,31 @@
-resource: 'google_network_management_vpc_flow_logs_config'
-generation_type: 'mmv1'
-source_file: 'products/networkmanagement/VpcFlowLogsConfig.yaml'
-api_service_name: 'networkmanagement.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'VpcFlowLogsConfig'
+resource: google_network_management_vpc_flow_logs_config
+generation_type: mmv1
+source_file: products/networkmanagement/VpcFlowLogsConfig.yaml
+api_service_name: networkmanagement.googleapis.com
+api_version: v1
+api_resource_type_kind: VpcFlowLogsConfig
 fields:
-  - api_field: 'aggregationInterval'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'filterExpr'
-  - api_field: 'flowSampling'
-  - api_field: 'interconnectAttachment'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'metadata'
-  - api_field: 'metadataFields'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'state'
-  - api_field: 'subnet'
-  - api_field: 'targetResourceState'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
-  - field: 'vpc_flow_logs_config_id'
-    provider_only: true
-  - api_field: 'vpnTunnel'
+    - api_field: aggregationInterval
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: filterExpr
+    - api_field: flowSampling
+    - api_field: interconnectAttachment
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: metadata
+    - api_field: metadataFields
+    - api_field: name
+    - api_field: network
+    - api_field: state
+    - api_field: subnet
+    - api_field: targetResourceState
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: vpc_flow_logs_config_id
+      provider_only: true
+    - api_field: vpnTunnel

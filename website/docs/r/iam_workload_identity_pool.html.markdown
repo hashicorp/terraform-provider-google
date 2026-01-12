@@ -242,10 +242,10 @@ The following arguments are supported:
   List of Trust Anchors to be used while performing validation against a given
   `TrustStore`. The incoming end entity's certificate must be chained up to one of the
   trust anchors here.
-  Structure is [documented below](#nested_inline_trust_config_additional_trust_bundles_trust_store_trust_anchors).
+  Structure is [documented below](#nested_inline_trust_config_additional_trust_bundles_trust_anchors).
 
 
-<a name="nested_inline_trust_config_additional_trust_bundles_trust_store_trust_anchors"></a>The `trust_anchors` block supports:
+<a name="nested_inline_trust_config_additional_trust_bundles_trust_anchors"></a>The `trust_anchors` block supports:
 
 * `pem_certificate` -
   (Required)

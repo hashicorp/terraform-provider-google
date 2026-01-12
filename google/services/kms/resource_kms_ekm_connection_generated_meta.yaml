@@ -1,26 +1,26 @@
-resource: 'google_kms_ekm_connection'
-generation_type: 'mmv1'
-source_file: 'products/kms/EkmConnection.yaml'
-api_service_name: 'cloudkms.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'EkmConnection'
+resource: google_kms_ekm_connection
+generation_type: mmv1
+source_file: products/kms/EkmConnection.yaml
+api_service_name: cloudkms.googleapis.com
+api_version: v1
+api_resource_type_kind: EkmConnection
 fields:
-  - api_field: 'createTime'
-  - api_field: 'cryptoSpacePath'
-  - api_field: 'etag'
-  - api_field: 'keyManagementMode'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'serviceResolvers.endpointFilter'
-  - api_field: 'serviceResolvers.hostname'
-  - api_field: 'serviceResolvers.serverCertificates.issuer'
-  - api_field: 'serviceResolvers.serverCertificates.notAfterTime'
-  - api_field: 'serviceResolvers.serverCertificates.notBeforeTime'
-  - api_field: 'serviceResolvers.serverCertificates.parsed'
-  - api_field: 'serviceResolvers.serverCertificates.rawDer'
-  - api_field: 'serviceResolvers.serverCertificates.serialNumber'
-  - api_field: 'serviceResolvers.serverCertificates.sha256Fingerprint'
-  - api_field: 'serviceResolvers.serverCertificates.subject'
-  - api_field: 'serviceResolvers.serverCertificates.subjectAlternativeDnsNames'
-  - api_field: 'serviceResolvers.serviceDirectoryService'
+    - api_field: createTime
+    - api_field: cryptoSpacePath
+    - api_field: etag
+    - api_field: keyManagementMode
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: serviceResolvers.endpointFilter
+    - api_field: serviceResolvers.hostname
+    - api_field: serviceResolvers.serverCertificates.issuer
+    - api_field: serviceResolvers.serverCertificates.notAfterTime
+    - api_field: serviceResolvers.serverCertificates.notBeforeTime
+    - api_field: serviceResolvers.serverCertificates.parsed
+    - api_field: serviceResolvers.serverCertificates.rawDer
+    - api_field: serviceResolvers.serverCertificates.serialNumber
+    - api_field: serviceResolvers.serverCertificates.sha256Fingerprint
+    - api_field: serviceResolvers.serverCertificates.subject
+    - api_field: serviceResolvers.serverCertificates.subjectAlternativeDnsNames
+    - api_field: serviceResolvers.serviceDirectoryService

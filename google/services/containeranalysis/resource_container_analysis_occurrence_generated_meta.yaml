@@ -1,17 +1,17 @@
-resource: 'google_container_analysis_occurrence'
-generation_type: 'mmv1'
-source_file: 'products/containeranalysis/Occurrence.yaml'
-api_service_name: 'containeranalysis.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Occurrence'
+resource: google_container_analysis_occurrence
+generation_type: mmv1
+source_file: products/containeranalysis/Occurrence.yaml
+api_service_name: containeranalysis.googleapis.com
+api_version: v1
+api_resource_type_kind: Occurrence
 fields:
-  - api_field: 'attestation.serializedPayload'
-  - api_field: 'attestation.signatures.publicKeyId'
-  - api_field: 'attestation.signatures.signature'
-  - api_field: 'createTime'
-  - api_field: 'kind'
-  - api_field: 'name'
-  - api_field: 'noteName'
-  - api_field: 'remediation'
-  - api_field: 'resourceUri'
-  - api_field: 'updateTime'
+    - api_field: attestation.serializedPayload
+    - api_field: attestation.signatures.publicKeyId
+    - api_field: attestation.signatures.signature
+    - api_field: createTime
+    - api_field: kind
+    - api_field: name
+    - api_field: noteName
+    - api_field: remediation
+    - api_field: resourceUri
+    - api_field: updateTime

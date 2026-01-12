@@ -1,62 +1,62 @@
-resource: 'google_compute_region_health_check'
-generation_type: 'mmv1'
-source_file: 'products/compute/RegionHealthCheck.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'HealthCheck'
+resource: google_compute_region_health_check
+generation_type: mmv1
+source_file: products/compute/RegionHealthCheck.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: HealthCheck
 api_variant_patterns:
-  - 'projects/{project}/regions/{region}/healthChecks/{healthCheck}'
+    - projects/{project}/regions/{region}/healthChecks/{healthCheck}
 fields:
-  - api_field: 'checkIntervalSec'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - api_field: 'grpcHealthCheck.grpcServiceName'
-  - api_field: 'grpcHealthCheck.port'
-  - api_field: 'grpcHealthCheck.portName'
-  - api_field: 'grpcHealthCheck.portSpecification'
-  - api_field: 'grpcTlsHealthCheck.grpcServiceName'
-  - api_field: 'grpcTlsHealthCheck.port'
-  - api_field: 'grpcTlsHealthCheck.portSpecification'
-  - api_field: 'id'
-    field: 'health_check_id'
-  - api_field: 'healthyThreshold'
-  - api_field: 'http2HealthCheck.host'
-  - api_field: 'http2HealthCheck.port'
-  - api_field: 'http2HealthCheck.portName'
-  - api_field: 'http2HealthCheck.portSpecification'
-  - api_field: 'http2HealthCheck.proxyHeader'
-  - api_field: 'http2HealthCheck.requestPath'
-  - api_field: 'http2HealthCheck.response'
-  - api_field: 'httpHealthCheck.host'
-  - api_field: 'httpHealthCheck.port'
-  - api_field: 'httpHealthCheck.portName'
-  - api_field: 'httpHealthCheck.portSpecification'
-  - api_field: 'httpHealthCheck.proxyHeader'
-  - api_field: 'httpHealthCheck.requestPath'
-  - api_field: 'httpHealthCheck.response'
-  - api_field: 'httpsHealthCheck.host'
-  - api_field: 'httpsHealthCheck.port'
-  - api_field: 'httpsHealthCheck.portName'
-  - api_field: 'httpsHealthCheck.portSpecification'
-  - api_field: 'httpsHealthCheck.proxyHeader'
-  - api_field: 'httpsHealthCheck.requestPath'
-  - api_field: 'httpsHealthCheck.response'
-  - api_field: 'logConfig.enable'
-  - api_field: 'name'
-  - api_field: 'region'
-  - api_field: 'sslHealthCheck.port'
-  - api_field: 'sslHealthCheck.portName'
-  - api_field: 'sslHealthCheck.portSpecification'
-  - api_field: 'sslHealthCheck.proxyHeader'
-  - api_field: 'sslHealthCheck.request'
-  - api_field: 'sslHealthCheck.response'
-  - api_field: 'tcpHealthCheck.port'
-  - api_field: 'tcpHealthCheck.portName'
-  - api_field: 'tcpHealthCheck.portSpecification'
-  - api_field: 'tcpHealthCheck.proxyHeader'
-  - api_field: 'tcpHealthCheck.request'
-  - api_field: 'tcpHealthCheck.response'
-  - api_field: 'timeoutSec'
-  - api_field: 'type'
-  - api_field: 'unhealthyThreshold'
-  - api_field: 'selfLink'
+    - api_field: checkIntervalSec
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: grpcHealthCheck.grpcServiceName
+    - api_field: grpcHealthCheck.port
+    - api_field: grpcHealthCheck.portName
+    - api_field: grpcHealthCheck.portSpecification
+    - api_field: grpcTlsHealthCheck.grpcServiceName
+    - api_field: grpcTlsHealthCheck.port
+    - api_field: grpcTlsHealthCheck.portSpecification
+    - api_field: id
+      field: health_check_id
+    - api_field: healthyThreshold
+    - api_field: http2HealthCheck.host
+    - api_field: http2HealthCheck.port
+    - api_field: http2HealthCheck.portName
+    - api_field: http2HealthCheck.portSpecification
+    - api_field: http2HealthCheck.proxyHeader
+    - api_field: http2HealthCheck.requestPath
+    - api_field: http2HealthCheck.response
+    - api_field: httpHealthCheck.host
+    - api_field: httpHealthCheck.port
+    - api_field: httpHealthCheck.portName
+    - api_field: httpHealthCheck.portSpecification
+    - api_field: httpHealthCheck.proxyHeader
+    - api_field: httpHealthCheck.requestPath
+    - api_field: httpHealthCheck.response
+    - api_field: httpsHealthCheck.host
+    - api_field: httpsHealthCheck.port
+    - api_field: httpsHealthCheck.portName
+    - api_field: httpsHealthCheck.portSpecification
+    - api_field: httpsHealthCheck.proxyHeader
+    - api_field: httpsHealthCheck.requestPath
+    - api_field: httpsHealthCheck.response
+    - api_field: logConfig.enable
+    - api_field: name
+    - api_field: region
+    - api_field: sslHealthCheck.port
+    - api_field: sslHealthCheck.portName
+    - api_field: sslHealthCheck.portSpecification
+    - api_field: sslHealthCheck.proxyHeader
+    - api_field: sslHealthCheck.request
+    - api_field: sslHealthCheck.response
+    - api_field: tcpHealthCheck.port
+    - api_field: tcpHealthCheck.portName
+    - api_field: tcpHealthCheck.portSpecification
+    - api_field: tcpHealthCheck.proxyHeader
+    - api_field: tcpHealthCheck.request
+    - api_field: tcpHealthCheck.response
+    - api_field: timeoutSec
+    - api_field: type
+    - api_field: unhealthyThreshold
+    - api_field: selfLink

@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -60,7 +61,7 @@ func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_apigee_environment_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/environments/%s roles/viewer", fmt.Sprintf("organizations/tf-test%s", context["random_suffix"]), fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateApigeeEnvironmentIAMBindingStateID("google_apigee_environment_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +71,7 @@ func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_apigee_environment_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/environments/%s roles/viewer", fmt.Sprintf("organizations/tf-test%s", context["random_suffix"]), fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateApigeeEnvironmentIAMBindingStateID("google_apigee_environment_iam_binding.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +102,7 @@ func TestAccApigeeEnvironmentIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_apigee_environment_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s/environments/%s roles/viewer user:admin@hashicorptest.com", fmt.Sprintf("organizations/tf-test%s", context["random_suffix"]), fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateApigeeEnvironmentIAMMemberStateID("google_apigee_environment_iam_member.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -132,7 +133,7 @@ func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_apigee_environment_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("%s/environments/%s", fmt.Sprintf("organizations/tf-test%s", context["random_suffix"]), fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateApigeeEnvironmentIAMPolicyStateID("google_apigee_environment_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -141,7 +142,7 @@ func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_apigee_environment_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("%s/environments/%s", fmt.Sprintf("organizations/tf-test%s", context["random_suffix"]), fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportStateIdFunc: generateApigeeEnvironmentIAMPolicyStateID("google_apigee_environment_iam_policy.foo"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -598,4 +599,55 @@ resource "google_apigee_environment_iam_binding" "foo" {
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
+}
+
+func generateApigeeEnvironmentIAMPolicyStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		org_id := rawState["org_id"]
+		env_id := tpgresource.GetResourceNameFromSelfLink(rawState["env_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("%s/environments/%s", org_id, env_id), "", "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateApigeeEnvironmentIAMBindingStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		org_id := rawState["org_id"]
+		env_id := tpgresource.GetResourceNameFromSelfLink(rawState["env_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("%s/environments/%s", org_id, env_id), rawState["role"], "", rawState["condition.0.title"]), nil
+	}
+}
+
+func generateApigeeEnvironmentIAMMemberStateID(iamResourceAddr string) func(*terraform.State) (string, error) {
+	return func(state *terraform.State) (string, error) {
+		var rawState map[string]string
+		for _, m := range state.Modules {
+			if len(m.Resources) > 0 {
+				if v, ok := m.Resources[iamResourceAddr]; ok {
+					rawState = v.Primary.Attributes
+				}
+			}
+		}
+		fmt.Printf("raw state %s\n", rawState)
+		org_id := rawState["org_id"]
+		env_id := tpgresource.GetResourceNameFromSelfLink(rawState["env_id"])
+		return acctest.BuildIAMImportId(fmt.Sprintf("%s/environments/%s", org_id, env_id), rawState["role"], rawState["member"], rawState["condition.0.title"]), nil
+	}
 }

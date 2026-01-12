@@ -391,45 +391,27 @@ The following arguments are supported:
 * `request_header` -
   (Optional)
   Request header whose value will be excluded from inspection during preconfigured WAF evaluation.
-  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_exclusion_request_header).
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_header).
 
 * `request_cookie` -
   (Optional)
   Request cookie whose value will be excluded from inspection during preconfigured WAF evaluation.
-  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_exclusion_request_cookie).
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_cookie).
 
 * `request_uri` -
   (Optional)
   Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation.
   When specifying this field, the query or fragment part should be excluded.
-  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_exclusion_request_uri).
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_uri).
 
 * `request_query_param` -
   (Optional)
   Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation.
   Note that the parameter can be in the query string or in the POST body.
-  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_exclusion_request_query_param).
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_query_param).
 
 
-<a name="nested_preconfigured_waf_config_exclusion_exclusion_request_header"></a>The `request_header` block supports:
-
-* `operator` -
-  (Required)
-  You can specify an exact match or a partial match by using a field operator and a field value.
-  Available options:
-  EQUALS: The operator matches if the field value equals the specified value.
-  STARTS_WITH: The operator matches if the field value starts with the specified value.
-  ENDS_WITH: The operator matches if the field value ends with the specified value.
-  CONTAINS: The operator matches if the field value contains the specified value.
-  EQUALS_ANY: The operator matches if the field value is any value.
-  Possible values are: `CONTAINS`, `ENDS_WITH`, `EQUALS`, `EQUALS_ANY`, `STARTS_WITH`.
-
-* `value` -
-  (Optional)
-  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
-  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
-
-<a name="nested_preconfigured_waf_config_exclusion_exclusion_request_cookie"></a>The `request_cookie` block supports:
+<a name="nested_preconfigured_waf_config_exclusion_request_header"></a>The `request_header` block supports:
 
 * `operator` -
   (Required)
@@ -447,7 +429,7 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_preconfigured_waf_config_exclusion_exclusion_request_uri"></a>The `request_uri` block supports:
+<a name="nested_preconfigured_waf_config_exclusion_request_cookie"></a>The `request_cookie` block supports:
 
 * `operator` -
   (Required)
@@ -465,7 +447,25 @@ The following arguments are supported:
   A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
   The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
 
-<a name="nested_preconfigured_waf_config_exclusion_exclusion_request_query_param"></a>The `request_query_param` block supports:
+<a name="nested_preconfigured_waf_config_exclusion_request_uri"></a>The `request_uri` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+  Possible values are: `CONTAINS`, `ENDS_WITH`, `EQUALS`, `EQUALS_ANY`, `STARTS_WITH`.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_preconfigured_waf_config_exclusion_request_query_param"></a>The `request_query_param` block supports:
 
 * `operator` -
   (Required)

@@ -117,7 +117,7 @@ func ResourceDiscoveryEngineCmekConfig() *schema.Resource {
 					},
 					"cmek_config_id": {
 						Type:              schema.TypeString,
-						OptionalForImport: true,
+						RequiredForImport: true,
 					},
 					"project": {
 						Type:              schema.TypeString,
@@ -127,6 +127,12 @@ func ResourceDiscoveryEngineCmekConfig() *schema.Resource {
 			},
 		},
 		Schema: map[string]*schema.Schema{
+			"cmek_config_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The unique id of the cmek config.`,
+			},
 			"kms_key": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -140,12 +146,6 @@ func ResourceDiscoveryEngineCmekConfig() *schema.Resource {
 				ForceNew: true,
 				Description: `The geographic location where the CMEK config should reside. The value can
 only be one of "us" and "eu".`,
-			},
-			"cmek_config_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The unique id of the cmek config.`,
 			},
 			"set_default": {
 				Type:     schema.TypeBool,

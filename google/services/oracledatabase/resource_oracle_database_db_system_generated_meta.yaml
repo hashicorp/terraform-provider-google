@@ -1,75 +1,75 @@
-resource: 'google_oracle_database_db_system'
-generation_type: 'mmv1'
-source_file: 'products/oracledatabase/DbSystem.yaml'
-api_service_name: 'oracledatabase.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DbSystem'
+resource: google_oracle_database_db_system
+generation_type: mmv1
+source_file: products/oracledatabase/DbSystem.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: DbSystem
 autogen_status: true
 fields:
-  - api_field: 'createTime'
-  - field: 'db_system_id'
-    provider_only: true
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'entitlementId'
-  - api_field: 'gcpOracleZone'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'ociUrl'
-  - api_field: 'odbNetwork'
-  - api_field: 'odbSubnet'
-  - api_field: 'properties.computeCount'
-  - api_field: 'properties.computeModel'
-  - api_field: 'properties.dataCollectionOptions.isDiagnosticsEventsEnabled'
-  - api_field: 'properties.dataCollectionOptions.isIncidentLogsEnabled'
-  - api_field: 'properties.dataStorageSizeGb'
-  - api_field: 'properties.databaseEdition'
-  - api_field: 'properties.dbHome.database.adminPassword'
-  - api_field: 'properties.dbHome.database.characterSet'
-  - api_field: 'properties.dbHome.database.createTime'
-  - api_field: 'properties.dbHome.database.databaseId'
-  - api_field: 'properties.dbHome.database.dbHomeName'
-  - api_field: 'properties.dbHome.database.dbName'
-  - api_field: 'properties.dbHome.database.dbUniqueName'
-  - api_field: 'properties.dbHome.database.gcpOracleZone'
-  - api_field: 'properties.dbHome.database.name'
-  - api_field: 'properties.dbHome.database.ncharacterSet'
-  - api_field: 'properties.dbHome.database.ociUrl'
-  - api_field: 'properties.dbHome.database.opsInsightsStatus'
-  - api_field: 'properties.dbHome.database.properties.databaseManagementConfig.managementState'
-  - api_field: 'properties.dbHome.database.properties.databaseManagementConfig.managementType'
-  - api_field: 'properties.dbHome.database.properties.dbBackupConfig.autoBackupEnabled'
-  - api_field: 'properties.dbHome.database.properties.dbBackupConfig.autoFullBackupDay'
-  - api_field: 'properties.dbHome.database.properties.dbBackupConfig.autoFullBackupWindow'
-  - api_field: 'properties.dbHome.database.properties.dbBackupConfig.autoIncrementalBackupWindow'
-  - api_field: 'properties.dbHome.database.properties.dbBackupConfig.backupDeletionPolicy'
-  - api_field: 'properties.dbHome.database.properties.dbBackupConfig.backupDestinationDetails.type'
-  - api_field: 'properties.dbHome.database.properties.dbBackupConfig.retentionPeriodDays'
-  - api_field: 'properties.dbHome.database.properties.dbVersion'
-  - api_field: 'properties.dbHome.database.properties.state'
-  - api_field: 'properties.dbHome.database.tdeWalletPassword'
-  - api_field: 'properties.dbHome.dbVersion'
-  - api_field: 'properties.dbHome.displayName'
-  - api_field: 'properties.dbHome.isUnifiedAuditingEnabled'
-  - api_field: 'properties.dbSystemOptions.storageManagement'
-  - api_field: 'properties.domain'
-  - api_field: 'properties.hostname'
-  - api_field: 'properties.hostnamePrefix'
-  - api_field: 'properties.initialDataStorageSizeGb'
-  - api_field: 'properties.licenseModel'
-  - api_field: 'properties.lifecycleState'
-  - api_field: 'properties.memorySizeGb'
-  - api_field: 'properties.nodeCount'
-  - api_field: 'properties.ocid'
-  - api_field: 'properties.privateIp'
-  - api_field: 'properties.recoStorageSizeGb'
-  - api_field: 'properties.shape'
-  - api_field: 'properties.sshPublicKeys'
-  - api_field: 'properties.timeZone.id'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: createTime
+    - field: db_system_id
+      provider_only: true
+    - field: deletion_protection
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: entitlementId
+    - api_field: gcpOracleZone
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: ociUrl
+    - api_field: odbNetwork
+    - api_field: odbSubnet
+    - api_field: properties.computeCount
+    - api_field: properties.computeModel
+    - api_field: properties.dataCollectionOptions.isDiagnosticsEventsEnabled
+    - api_field: properties.dataCollectionOptions.isIncidentLogsEnabled
+    - api_field: properties.dataStorageSizeGb
+    - api_field: properties.databaseEdition
+    - api_field: properties.dbHome.database.adminPassword
+    - api_field: properties.dbHome.database.characterSet
+    - api_field: properties.dbHome.database.createTime
+    - api_field: properties.dbHome.database.databaseId
+    - api_field: properties.dbHome.database.dbHomeName
+    - api_field: properties.dbHome.database.dbName
+    - api_field: properties.dbHome.database.dbUniqueName
+    - api_field: properties.dbHome.database.gcpOracleZone
+    - api_field: properties.dbHome.database.name
+    - api_field: properties.dbHome.database.ncharacterSet
+    - api_field: properties.dbHome.database.ociUrl
+    - api_field: properties.dbHome.database.opsInsightsStatus
+    - api_field: properties.dbHome.database.properties.databaseManagementConfig.managementState
+    - api_field: properties.dbHome.database.properties.databaseManagementConfig.managementType
+    - api_field: properties.dbHome.database.properties.dbBackupConfig.autoBackupEnabled
+    - api_field: properties.dbHome.database.properties.dbBackupConfig.autoFullBackupDay
+    - api_field: properties.dbHome.database.properties.dbBackupConfig.autoFullBackupWindow
+    - api_field: properties.dbHome.database.properties.dbBackupConfig.autoIncrementalBackupWindow
+    - api_field: properties.dbHome.database.properties.dbBackupConfig.backupDeletionPolicy
+    - api_field: properties.dbHome.database.properties.dbBackupConfig.backupDestinationDetails.type
+    - api_field: properties.dbHome.database.properties.dbBackupConfig.retentionPeriodDays
+    - api_field: properties.dbHome.database.properties.dbVersion
+    - api_field: properties.dbHome.database.properties.state
+    - api_field: properties.dbHome.database.tdeWalletPassword
+    - api_field: properties.dbHome.dbVersion
+    - api_field: properties.dbHome.displayName
+    - api_field: properties.dbHome.isUnifiedAuditingEnabled
+    - api_field: properties.dbSystemOptions.storageManagement
+    - api_field: properties.domain
+    - api_field: properties.hostname
+    - api_field: properties.hostnamePrefix
+    - api_field: properties.initialDataStorageSizeGb
+    - api_field: properties.licenseModel
+    - api_field: properties.lifecycleState
+    - api_field: properties.memorySizeGb
+    - api_field: properties.nodeCount
+    - api_field: properties.ocid
+    - api_field: properties.privateIp
+    - api_field: properties.recoStorageSizeGb
+    - api_field: properties.shape
+    - api_field: properties.sshPublicKeys
+    - api_field: properties.timeZone.id
+    - field: terraform_labels
+      provider_only: true

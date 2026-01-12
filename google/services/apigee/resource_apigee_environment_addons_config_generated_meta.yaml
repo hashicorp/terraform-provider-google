@@ -1,10 +1,10 @@
-resource: 'google_apigee_environment_addons_config'
-generation_type: 'mmv1'
-source_file: 'products/apigee/EnvironmentAddonsConfig.yaml'
-api_service_name: 'apigee.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AddonsConfig'
+resource: google_apigee_environment_addons_config
+generation_type: mmv1
+source_file: products/apigee/EnvironmentAddonsConfig.yaml
+api_service_name: apigee.googleapis.com
+api_version: v1
+api_resource_type_kind: AddonsConfig
 fields:
-  - api_field: 'analyticsEnabled'
-  - field: 'env_id'
-    provider_only: true
+    - api_field: analyticsEnabled
+    - field: env_id
+      provider_only: true

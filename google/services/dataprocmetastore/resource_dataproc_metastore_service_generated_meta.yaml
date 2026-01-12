@@ -1,56 +1,60 @@
-resource: 'google_dataproc_metastore_service'
-generation_type: 'mmv1'
-source_file: 'products/metastore/Service.yaml'
-api_service_name: 'metastore.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Service'
+resource: google_dataproc_metastore_service
+generation_type: mmv1
+source_file: products/metastore/Service.yaml
+api_service_name: metastore.googleapis.com
+api_version: v1
+api_resource_type_kind: Service
 fields:
-  - api_field: 'artifactGcsUri'
-  - api_field: 'createTime'
-  - api_field: 'databaseType'
-  - api_field: 'deletionProtection'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'encryptionConfig.kmsKey'
-  - api_field: 'endpointUri'
-  - api_field: 'hiveMetastoreConfig.auxiliaryVersions.auxiliaryVersions.configOverrides'
-  - api_field: 'hiveMetastoreConfig.auxiliaryVersions.auxiliaryVersions.version'
-  - api_field: 'hiveMetastoreConfig.configOverrides'
-  - api_field: 'hiveMetastoreConfig.endpointProtocol'
-  - api_field: 'hiveMetastoreConfig.kerberosConfig.keytab.cloudSecret'
-  - api_field: 'hiveMetastoreConfig.kerberosConfig.krb5ConfigGcsUri'
-  - api_field: 'hiveMetastoreConfig.kerberosConfig.principal'
-  - api_field: 'hiveMetastoreConfig.version'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'maintenanceWindow.dayOfWeek'
-  - api_field: 'maintenanceWindow.hourOfDay'
-  - api_field: 'metadataIntegration.dataCatalogConfig.enabled'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'networkConfig.consumers.endpointUri'
-  - api_field: 'networkConfig.consumers.subnetwork'
-  - api_field: 'port'
-  - api_field: 'releaseChannel'
-  - api_field: 'scalingConfig.autoscalingConfig.autoscalingEnabled'
-  - api_field: 'scalingConfig.autoscalingConfig.autoscalingFactor'
-  - api_field: 'scalingConfig.autoscalingConfig.limitConfig.maxScalingFactor'
-  - api_field: 'scalingConfig.autoscalingConfig.limitConfig.minScalingFactor'
-  - api_field: 'scalingConfig.instanceSize'
-  - api_field: 'scalingConfig.scalingFactor'
-  - api_field: 'scheduledBackup.backupLocation'
-  - api_field: 'scheduledBackup.cronSchedule'
-  - api_field: 'scheduledBackup.enabled'
-  - api_field: 'scheduledBackup.timeZone'
-  - field: 'service_id'
-    provider_only: true
-  - api_field: 'state'
-  - api_field: 'stateMessage'
-  - api_field: 'tags'
-  - api_field: 'telemetryConfig.logFormat'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'tier'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: artifactGcsUri
+    - api_field: createTime
+    - api_field: databaseType
+    - api_field: deletionProtection
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionConfig.kmsKey
+    - api_field: endpointUri
+    - api_field: hiveMetastoreConfig.auxiliaryVersions.key
+      field: hive_metastore_config.auxiliary_versions.key
+    - api_field: hiveMetastoreConfig.auxiliaryVersions.value.configOverrides
+      field: hive_metastore_config.auxiliary_versions.config_overrides
+    - api_field: hiveMetastoreConfig.auxiliaryVersions.value.version
+      field: hive_metastore_config.auxiliary_versions.version
+    - api_field: hiveMetastoreConfig.configOverrides
+    - api_field: hiveMetastoreConfig.endpointProtocol
+    - api_field: hiveMetastoreConfig.kerberosConfig.keytab.cloudSecret
+    - api_field: hiveMetastoreConfig.kerberosConfig.krb5ConfigGcsUri
+    - api_field: hiveMetastoreConfig.kerberosConfig.principal
+    - api_field: hiveMetastoreConfig.version
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: maintenanceWindow.dayOfWeek
+    - api_field: maintenanceWindow.hourOfDay
+    - api_field: metadataIntegration.dataCatalogConfig.enabled
+    - api_field: name
+    - api_field: network
+    - api_field: networkConfig.consumers.endpointUri
+    - api_field: networkConfig.consumers.subnetwork
+    - api_field: port
+    - api_field: releaseChannel
+    - api_field: scalingConfig.autoscalingConfig.autoscalingEnabled
+    - api_field: scalingConfig.autoscalingConfig.autoscalingFactor
+    - api_field: scalingConfig.autoscalingConfig.limitConfig.maxScalingFactor
+    - api_field: scalingConfig.autoscalingConfig.limitConfig.minScalingFactor
+    - api_field: scalingConfig.instanceSize
+    - api_field: scalingConfig.scalingFactor
+    - api_field: scheduledBackup.backupLocation
+    - api_field: scheduledBackup.cronSchedule
+    - api_field: scheduledBackup.enabled
+    - api_field: scheduledBackup.timeZone
+    - field: service_id
+      provider_only: true
+    - api_field: state
+    - api_field: stateMessage
+    - api_field: tags
+    - api_field: telemetryConfig.logFormat
+    - field: terraform_labels
+      provider_only: true
+    - api_field: tier
+    - api_field: uid
+    - api_field: updateTime

@@ -76,7 +76,9 @@ func NetworkEndpointsNetworkEndpointConvertToAny(endpoint NetworkEndpointsNetwor
 	m := make(map[string]interface{})
 	m["ip_address"] = endpoint.IPAddress
 	m["port"] = endpoint.Port
-	m["instance"] = endpoint.Instance
+	if endpoint.Instance != "" {
+		m["instance"] = endpoint.Instance
+	}
 	return m
 }
 
@@ -281,6 +283,7 @@ range).`,
 			},
 			"instance": {
 				Type:             schema.TypeString,
+				Computed:         true,
 				Optional:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description: `The name for a specific VM instance that the IP address belongs to.
@@ -627,6 +630,10 @@ func resourceComputeNetworkEndpointsUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
+	if len(lastPage) == 0 {
+		return resourceComputeNetworkEndpointsRead(d, meta)
+	}
+
 	obj = map[string]interface{}{
 		"networkEndpoints": lastPage,
 	}
@@ -869,6 +876,10 @@ func expandComputeNetworkEndpointsNetworkEndpoints(v interface{}, d tpgresource.
 }
 
 func expandComputeNetworkEndpointsNetworkEndpointsInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if tpgresource.IsEmptyValue(reflect.ValueOf(v.(string))) {
+		return nil, nil
+	}
+
 	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
 }
 

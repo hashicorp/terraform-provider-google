@@ -1,20 +1,20 @@
-resource: 'google_dialogflow_cx_entity_type'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/EntityType.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'EntityType'
+resource: google_dialogflow_cx_entity_type
+generation_type: mmv1
+source_file: products/dialogflowcx/EntityType.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: EntityType
 fields:
-  - api_field: 'autoExpansionMode'
-  - api_field: 'displayName'
-  - api_field: 'enableFuzzyExtraction'
-  - api_field: 'entities.synonyms'
-  - api_field: 'entities.value'
-  - api_field: 'excludedPhrases.value'
-  - api_field: 'kind'
-  - field: 'language_code'
-    provider_only: true
-  - api_field: 'name'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'redact'
+    - api_field: autoExpansionMode
+    - api_field: displayName
+    - api_field: enableFuzzyExtraction
+    - api_field: entities.synonyms
+    - api_field: entities.value
+    - api_field: excludedPhrases.value
+    - api_field: kind
+    - field: language_code
+      provider_only: true
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: redact

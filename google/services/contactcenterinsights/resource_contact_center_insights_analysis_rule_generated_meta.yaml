@@ -1,31 +1,31 @@
-resource: 'google_contact_center_insights_analysis_rule'
-generation_type: 'mmv1'
-source_file: 'products/contactcenterinsights/AnalysisRule.yaml'
-api_service_name: 'contactcenterinsights.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'AnalysisRule'
+resource: google_contact_center_insights_analysis_rule
+generation_type: mmv1
+source_file: products/contactcenterinsights/AnalysisRule.yaml
+api_service_name: contactcenterinsights.googleapis.com
+api_version: v1
+api_resource_type_kind: AnalysisRule
 autogen_status: true
 fields:
-  - api_field: 'active'
-  - api_field: 'analysisPercentage'
-  - api_field: 'annotatorSelector.issueModels'
-  - api_field: 'annotatorSelector.phraseMatchers'
-  - api_field: 'annotatorSelector.qaConfig.scorecardList.qaScorecardRevisions'
-  - api_field: 'annotatorSelector.runEntityAnnotator'
-  - api_field: 'annotatorSelector.runIntentAnnotator'
-  - api_field: 'annotatorSelector.runInterruptionAnnotator'
-  - api_field: 'annotatorSelector.runIssueModelAnnotator'
-  - api_field: 'annotatorSelector.runPhraseMatcherAnnotator'
-  - api_field: 'annotatorSelector.runQaAnnotator'
-  - api_field: 'annotatorSelector.runSentimentAnnotator'
-  - api_field: 'annotatorSelector.runSilenceAnnotator'
-  - api_field: 'annotatorSelector.runSummarizationAnnotator'
-  - api_field: 'annotatorSelector.summarizationConfig.conversationProfile'
-  - api_field: 'annotatorSelector.summarizationConfig.summarizationModel'
-  - api_field: 'conversationFilter'
-  - api_field: 'createTime'
-  - api_field: 'displayName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'updateTime'
+    - api_field: active
+    - api_field: analysisPercentage
+    - api_field: annotatorSelector.issueModels
+    - api_field: annotatorSelector.phraseMatchers
+    - api_field: annotatorSelector.qaConfig.scorecardList.qaScorecardRevisions
+    - api_field: annotatorSelector.runEntityAnnotator
+    - api_field: annotatorSelector.runIntentAnnotator
+    - api_field: annotatorSelector.runInterruptionAnnotator
+    - api_field: annotatorSelector.runIssueModelAnnotator
+    - api_field: annotatorSelector.runPhraseMatcherAnnotator
+    - api_field: annotatorSelector.runQaAnnotator
+    - api_field: annotatorSelector.runSentimentAnnotator
+    - api_field: annotatorSelector.runSilenceAnnotator
+    - api_field: annotatorSelector.runSummarizationAnnotator
+    - api_field: annotatorSelector.summarizationConfig.conversationProfile
+    - api_field: annotatorSelector.summarizationConfig.summarizationModel
+    - api_field: conversationFilter
+    - api_field: createTime
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: updateTime

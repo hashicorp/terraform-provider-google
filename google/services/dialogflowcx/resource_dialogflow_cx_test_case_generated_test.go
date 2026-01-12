@@ -51,6 +51,7 @@ var (
 )
 
 func TestAccDialogflowCXTestCase_dialogflowcxTestCaseFullExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{

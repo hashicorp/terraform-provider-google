@@ -1,20 +1,20 @@
-resource: 'google_integration_connectors_managed_zone'
-generation_type: 'mmv1'
-source_file: 'products/integrationconnectors/ManagedZone.yaml'
-api_service_name: 'connectors.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ManagedZone'
+resource: google_integration_connectors_managed_zone
+generation_type: mmv1
+source_file: products/integrationconnectors/ManagedZone.yaml
+api_service_name: connectors.googleapis.com
+api_version: v1
+api_resource_type_kind: ManagedZone
 fields:
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - api_field: 'dns'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'targetProject'
-  - api_field: 'targetVpc'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: description
+    - api_field: dns
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: name
+      provider_only: true
+    - api_field: targetProject
+    - api_field: targetVpc
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

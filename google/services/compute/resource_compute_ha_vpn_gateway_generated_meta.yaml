@@ -1,23 +1,23 @@
-resource: 'google_compute_ha_vpn_gateway'
-generation_type: 'mmv1'
-source_file: 'products/compute/HaVpnGateway.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'VpnGateway'
+resource: google_compute_ha_vpn_gateway
+generation_type: mmv1
+source_file: products/compute/HaVpnGateway.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: VpnGateway
 fields:
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'gatewayIpVersion'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'region'
-  - api_field: 'stackType'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'vpnInterfaces.id'
-  - api_field: 'vpnInterfaces.interconnectAttachment'
-  - api_field: 'vpnInterfaces.ipAddress'
-  - api_field: 'selfLink'
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: gatewayIpVersion
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: name
+    - api_field: network
+    - api_field: region
+    - api_field: stackType
+    - field: terraform_labels
+      provider_only: true
+    - api_field: vpnInterfaces.id
+    - api_field: vpnInterfaces.interconnectAttachment
+    - api_field: vpnInterfaces.ipAddress
+    - api_field: selfLink

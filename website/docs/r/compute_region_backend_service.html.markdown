@@ -1118,10 +1118,10 @@ The following arguments are supported:
 * `custom_metrics` -
   (Optional)
   The set of custom metrics that are used for <code>CUSTOM_METRICS</code> BalancingMode.
-  Structure is [documented below](#nested_backend_backend_custom_metrics).
+  Structure is [documented below](#nested_backend_custom_metrics).
 
 
-<a name="nested_backend_backend_custom_metrics"></a>The `custom_metrics` block supports:
+<a name="nested_backend_custom_metrics"></a>The `custom_metrics` block supports:
 
 * `name` -
   (Required)

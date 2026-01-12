@@ -199,9 +199,7 @@ resource "google_dataplex_datascan" "full_quality" {
 
   execution_spec {
     trigger {
-      schedule {
-        cron = "TZ=America/New_York 1 1 * * *"
-      }
+      on_demand {}
     }
   }
 

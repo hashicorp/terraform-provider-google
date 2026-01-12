@@ -1,49 +1,49 @@
-resource: 'google_compute_forwarding_rule'
-generation_type: 'mmv1'
-source_file: 'products/compute/ForwardingRule.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'ForwardingRule'
+resource: google_compute_forwarding_rule
+generation_type: mmv1
+source_file: products/compute/ForwardingRule.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: ForwardingRule
 api_variant_patterns:
-  - 'projects/{project}/regions/{region}/forwardingRules/{forwardingRule}'
+    - projects/{project}/regions/{region}/forwardingRules/{forwardingRule}
 fields:
-  - api_field: 'allPorts'
-  - api_field: 'allowGlobalAccess'
-  - api_field: 'allowPscGlobalAccess'
-  - api_field: 'backendService'
-  - api_field: 'baseForwardingRule'
-  - api_field: 'creationTimestamp'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'id'
-    field: 'forwarding_rule_id'
-  - api_field: 'IPAddress'
-  - api_field: 'ipCollection'
-  - api_field: 'IPProtocol'
-  - api_field: 'ipVersion'
-  - api_field: 'isMirroringCollector'
-  - api_field: 'labelFingerprint'
-  - api_field: 'labels'
-  - api_field: 'loadBalancingScheme'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'networkTier'
-  - api_field: 'noAutomateDnsZone'
-  - api_field: 'portRange'
-  - api_field: 'ports'
-  - api_field: 'pscConnectionId'
-  - api_field: 'pscConnectionStatus'
-  - field: 'recreate_closed_psc'
-    provider_only: true
-  - api_field: 'region'
-  - api_field: 'serviceDirectoryRegistrations.namespace'
-  - api_field: 'serviceDirectoryRegistrations.service'
-  - api_field: 'serviceLabel'
-  - api_field: 'serviceName'
-  - api_field: 'sourceIpRanges'
-  - api_field: 'subnetwork'
-  - api_field: 'target'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'selfLink'
+    - api_field: allPorts
+    - api_field: allowGlobalAccess
+    - api_field: allowPscGlobalAccess
+    - api_field: backendService
+    - api_field: baseForwardingRule
+    - api_field: creationTimestamp
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: id
+      field: forwarding_rule_id
+    - api_field: IPAddress
+    - api_field: ipCollection
+    - api_field: IPProtocol
+    - api_field: ipVersion
+    - api_field: isMirroringCollector
+    - api_field: labelFingerprint
+    - api_field: labels
+    - api_field: loadBalancingScheme
+    - api_field: name
+    - api_field: network
+    - api_field: networkTier
+    - api_field: noAutomateDnsZone
+    - api_field: portRange
+    - api_field: ports
+    - api_field: pscConnectionId
+    - api_field: pscConnectionStatus
+    - field: recreate_closed_psc
+      provider_only: true
+    - api_field: region
+    - api_field: serviceDirectoryRegistrations.namespace
+    - api_field: serviceDirectoryRegistrations.service
+    - api_field: serviceLabel
+    - api_field: serviceName
+    - api_field: sourceIpRanges
+    - api_field: subnetwork
+    - api_field: target
+    - field: terraform_labels
+      provider_only: true
+    - api_field: selfLink

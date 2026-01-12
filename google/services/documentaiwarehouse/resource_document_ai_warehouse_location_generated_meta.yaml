@@ -1,15 +1,15 @@
-resource: 'google_document_ai_warehouse_location'
-generation_type: 'mmv1'
-source_file: 'products/documentaiwarehouse/Location.yaml'
-api_service_name: 'contentwarehouse.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Location'
+resource: google_document_ai_warehouse_location
+generation_type: mmv1
+source_file: products/documentaiwarehouse/Location.yaml
+api_service_name: contentwarehouse.googleapis.com
+api_version: v1
+api_resource_type_kind: Location
 fields:
-  - api_field: 'accessControlMode'
-  - api_field: 'databaseType'
-  - api_field: 'documentCreatorDefaultRole'
-  - api_field: 'kmsKey'
-  - field: 'location'
-    provider_only: true
-  - field: 'project_number'
-    provider_only: true
+    - api_field: accessControlMode
+    - api_field: databaseType
+    - api_field: documentCreatorDefaultRole
+    - api_field: kmsKey
+    - field: location
+      provider_only: true
+    - field: project_number
+      provider_only: true

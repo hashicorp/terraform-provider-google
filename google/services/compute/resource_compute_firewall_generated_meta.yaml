@@ -1,31 +1,31 @@
-resource: 'google_compute_firewall'
-generation_type: 'mmv1'
-source_file: 'products/compute/Firewall.yaml'
-api_service_name: 'compute.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Firewall'
+resource: google_compute_firewall
+generation_type: mmv1
+source_file: products/compute/Firewall.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Firewall
 fields:
-  - api_field: 'allowed.ports'
-    field: 'allow.ports'
-  - api_field: 'allowed.IPProtocol'
-    field: 'allow.protocol'
-  - api_field: 'creationTimestamp'
-  - api_field: 'denied.ports'
-    field: 'deny.ports'
-  - api_field: 'denied.IPProtocol'
-    field: 'deny.protocol'
-  - api_field: 'description'
-  - api_field: 'destinationRanges'
-  - api_field: 'direction'
-  - api_field: 'disabled'
-  - api_field: 'logConfig.metadata'
-  - api_field: 'name'
-  - api_field: 'network'
-  - api_field: 'params.resourceManagerTags'
-  - api_field: 'priority'
-  - api_field: 'sourceRanges'
-  - api_field: 'sourceServiceAccounts'
-  - api_field: 'sourceTags'
-  - api_field: 'targetServiceAccounts'
-  - api_field: 'targetTags'
-  - api_field: 'selfLink'
+    - api_field: allowed.ports
+      field: allow.ports
+    - api_field: allowed.IPProtocol
+      field: allow.protocol
+    - api_field: creationTimestamp
+    - api_field: denied.ports
+      field: deny.ports
+    - api_field: denied.IPProtocol
+      field: deny.protocol
+    - api_field: description
+    - api_field: destinationRanges
+    - api_field: direction
+    - api_field: disabled
+    - api_field: logConfig.metadata
+    - api_field: name
+    - api_field: network
+    - api_field: params.resourceManagerTags
+    - api_field: priority
+    - api_field: sourceRanges
+    - api_field: sourceServiceAccounts
+    - api_field: sourceTags
+    - api_field: targetServiceAccounts
+    - api_field: targetTags
+    - api_field: selfLink

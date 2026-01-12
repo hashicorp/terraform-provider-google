@@ -1,13 +1,13 @@
-resource: 'google_document_ai_processor'
-generation_type: 'mmv1'
-source_file: 'products/documentai/Processor.yaml'
-api_service_name: 'documentai.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Processor'
+resource: google_document_ai_processor
+generation_type: mmv1
+source_file: products/documentai/Processor.yaml
+api_service_name: documentai.googleapis.com
+api_version: v1
+api_resource_type_kind: Processor
 fields:
-  - api_field: 'displayName'
-  - api_field: 'kmsKeyName'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'type'
+    - api_field: displayName
+    - api_field: kmsKeyName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: type

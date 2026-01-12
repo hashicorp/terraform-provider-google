@@ -70,7 +70,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimTenant_iamWorkforcePoolProv
 				ResourceName:            "google_iam_workforce_pool_provider_scim_tenant.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "provider_id", "scim_tenant_id", "workforce_pool_id"},
+				ImportStateVerifyIgnore: []string{"hard_delete", "location", "provider_id", "scim_tenant_id", "workforce_pool_id"},
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider_scim_tenant.example",
@@ -128,6 +128,7 @@ resource "google_iam_workforce_pool_provider_scim_tenant" "example" {
     "google.subject"  = "user.externalId",
     "google.group"    = "group.externalId"
   }
+  hard_delete         = true
   # state, base_uri, purge_time and service_agent are output only, not settable
 }
 

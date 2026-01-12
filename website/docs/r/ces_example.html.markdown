@@ -248,25 +248,25 @@ The following arguments are supported:
 * `chunks` -
   (Optional)
   Content of the message as a series of chunks.
-  Structure is [documented below](#nested_messages_messages_chunks).
+  Structure is [documented below](#nested_messages_chunks).
 
 * `role` -
   (Optional)
   The role within the conversation, e.g., user, agent.
 
 
-<a name="nested_messages_messages_chunks"></a>The `chunks` block supports:
+<a name="nested_messages_chunks"></a>The `chunks` block supports:
 
 * `agent_transfer` -
   (Optional)
   Represents an event indicating the transfer of a conversation to a different
   agent.
-  Structure is [documented below](#nested_messages_messages_chunks_chunks_agent_transfer).
+  Structure is [documented below](#nested_messages_chunks_agent_transfer).
 
 * `image` -
   (Optional)
   Represents an image input or output in the conversation.
-  Structure is [documented below](#nested_messages_messages_chunks_chunks_image).
+  Structure is [documented below](#nested_messages_chunks_image).
 
 * `text` -
   (Optional)
@@ -275,12 +275,12 @@ The following arguments are supported:
 * `tool_call` -
   (Optional)
   Request for the client or the agent to execute the specified tool.
-  Structure is [documented below](#nested_messages_messages_chunks_chunks_tool_call).
+  Structure is [documented below](#nested_messages_chunks_tool_call).
 
 * `tool_response` -
   (Optional)
   The execution result of a specific tool from the client or the agent.
-  Structure is [documented below](#nested_messages_messages_chunks_chunks_tool_response).
+  Structure is [documented below](#nested_messages_chunks_tool_response).
 
 * `updated_variables` -
   (Optional)
@@ -288,7 +288,7 @@ The following arguments are supported:
   keyed by variable names.
 
 
-<a name="nested_messages_messages_chunks_chunks_agent_transfer"></a>The `agent_transfer` block supports:
+<a name="nested_messages_chunks_agent_transfer"></a>The `agent_transfer` block supports:
 
 * `display_name` -
   (Output)
@@ -300,7 +300,7 @@ The following arguments are supported:
   handle the conversation from this point forward.
   Format: `projects/{project}/locations/{location}/apps/{app}/agents/{agent}`
 
-<a name="nested_messages_messages_chunks_chunks_image"></a>The `image` block supports:
+<a name="nested_messages_chunks_image"></a>The `image` block supports:
 
 * `data` -
   (Required)
@@ -314,7 +314,7 @@ The following arguments are supported:
   * image/jpeg
   * image/webp
 
-<a name="nested_messages_messages_chunks_chunks_tool_call"></a>The `tool_call` block supports:
+<a name="nested_messages_chunks_tool_call"></a>The `tool_call` block supports:
 
 * `args` -
   (Optional)
@@ -338,10 +338,10 @@ The following arguments are supported:
 * `toolset_tool` -
   (Optional)
   A tool that is created from a toolset.
-  Structure is [documented below](#nested_messages_messages_chunks_chunks_tool_call_toolset_tool).
+  Structure is [documented below](#nested_messages_chunks_tool_call_toolset_tool).
 
 
-<a name="nested_messages_messages_chunks_chunks_tool_call_toolset_tool"></a>The `toolset_tool` block supports:
+<a name="nested_messages_chunks_tool_call_toolset_tool"></a>The `toolset_tool` block supports:
 
 * `toolset` -
   (Required)
@@ -353,7 +353,7 @@ The following arguments are supported:
   (Optional)
   The tool ID to filter the tools to retrieve the schema for.
 
-<a name="nested_messages_messages_chunks_chunks_tool_response"></a>The `tool_response` block supports:
+<a name="nested_messages_chunks_tool_response"></a>The `tool_response` block supports:
 
 * `display_name` -
   (Output)
@@ -378,10 +378,10 @@ The following arguments are supported:
 * `toolset_tool` -
   (Optional)
   A tool that is created from a toolset.
-  Structure is [documented below](#nested_messages_messages_chunks_chunks_tool_response_toolset_tool).
+  Structure is [documented below](#nested_messages_chunks_tool_response_toolset_tool).
 
 
-<a name="nested_messages_messages_chunks_chunks_tool_response_toolset_tool"></a>The `toolset_tool` block supports:
+<a name="nested_messages_chunks_tool_response_toolset_tool"></a>The `toolset_tool` block supports:
 
 * `toolset` -
   (Required)

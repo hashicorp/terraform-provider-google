@@ -187,6 +187,34 @@ For attachments of type PARTNER, the Google Partner that is operating the interc
 Output only for PARTNER type, mutable for PARTNER_PROVIDER and DEDICATED,
 Defaults to BPS_10G Possible values: ["BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G", "BPS_100G"]`,
 			},
+			"candidate_cloud_router_ip_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Single IPv4 address + prefix length to be configured on the cloud router interface for this
+interconnect attachment. Example: 203.0.113.1/29`,
+			},
+			"candidate_cloud_router_ipv6_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Single IPv6 address + prefix length to be configured on the cloud router interface for this
+interconnect attachment. Example: 2001:db8::1/125`,
+			},
+			"candidate_customer_router_ip_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Single IPv4 address + prefix length to be configured on the customer router interface for this
+interconnect attachment. Example: 203.0.113.2/29`,
+			},
+			"candidate_customer_router_ipv6_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Single IPv6 address + prefix length to be configured on the customer router interface for this
+interconnect attachment. Example: 2001:db8::2/125`,
+			},
 			"candidate_subnets": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -549,6 +577,30 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
 		obj["labelFingerprint"] = labelFingerprintProp
 	}
+	candidateCloudRouterIpAddressProp, err := expandComputeInterconnectAttachmentCandidateCloudRouterIpAddress(d.Get("candidate_cloud_router_ip_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("candidate_cloud_router_ip_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(candidateCloudRouterIpAddressProp)) && (ok || !reflect.DeepEqual(v, candidateCloudRouterIpAddressProp)) {
+		obj["candidateCloudRouterIpAddress"] = candidateCloudRouterIpAddressProp
+	}
+	candidateCustomerRouterIpAddressProp, err := expandComputeInterconnectAttachmentCandidateCustomerRouterIpAddress(d.Get("candidate_customer_router_ip_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("candidate_customer_router_ip_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(candidateCustomerRouterIpAddressProp)) && (ok || !reflect.DeepEqual(v, candidateCustomerRouterIpAddressProp)) {
+		obj["candidateCustomerRouterIpAddress"] = candidateCustomerRouterIpAddressProp
+	}
+	candidateCloudRouterIpv6AddressProp, err := expandComputeInterconnectAttachmentCandidateCloudRouterIpv6Address(d.Get("candidate_cloud_router_ipv6_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("candidate_cloud_router_ipv6_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(candidateCloudRouterIpv6AddressProp)) && (ok || !reflect.DeepEqual(v, candidateCloudRouterIpv6AddressProp)) {
+		obj["candidateCloudRouterIpv6Address"] = candidateCloudRouterIpv6AddressProp
+	}
+	candidateCustomerRouterIpv6AddressProp, err := expandComputeInterconnectAttachmentCandidateCustomerRouterIpv6Address(d.Get("candidate_customer_router_ipv6_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("candidate_customer_router_ipv6_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(candidateCustomerRouterIpv6AddressProp)) && (ok || !reflect.DeepEqual(v, candidateCustomerRouterIpv6AddressProp)) {
+		obj["candidateCustomerRouterIpv6Address"] = candidateCustomerRouterIpv6AddressProp
+	}
 	effectiveLabelsProp, err := expandComputeInterconnectAttachmentEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -818,6 +870,18 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("label_fingerprint", flattenComputeInterconnectAttachmentLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("candidate_cloud_router_ip_address", flattenComputeInterconnectAttachmentCandidateCloudRouterIpAddress(res["candidateCloudRouterIpAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("candidate_customer_router_ip_address", flattenComputeInterconnectAttachmentCandidateCustomerRouterIpAddress(res["candidateCustomerRouterIpAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("candidate_cloud_router_ipv6_address", flattenComputeInterconnectAttachmentCandidateCloudRouterIpv6Address(res["candidateCloudRouterIpv6Address"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("candidate_customer_router_ipv6_address", flattenComputeInterconnectAttachmentCandidateCustomerRouterIpv6Address(res["candidateCustomerRouterIpv6Address"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("attachment_group", flattenComputeInterconnectAttachmentAttachmentGroup(res["attachmentGroup"], d, config)); err != nil {
@@ -1277,6 +1341,22 @@ func flattenComputeInterconnectAttachmentLabelFingerprint(v interface{}, d *sche
 	return v
 }
 
+func flattenComputeInterconnectAttachmentCandidateCloudRouterIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentCandidateCustomerRouterIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentCandidateCloudRouterIpv6Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentCandidateCustomerRouterIpv6Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeInterconnectAttachmentAttachmentGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1384,6 +1464,22 @@ func expandComputeInterconnectAttachmentSubnetLength(v interface{}, d tpgresourc
 }
 
 func expandComputeInterconnectAttachmentLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentCandidateCloudRouterIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentCandidateCustomerRouterIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentCandidateCloudRouterIpv6Address(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentCandidateCustomerRouterIpv6Address(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

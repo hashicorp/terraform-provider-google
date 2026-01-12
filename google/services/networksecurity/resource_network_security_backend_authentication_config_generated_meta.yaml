@@ -1,22 +1,22 @@
-resource: 'google_network_security_backend_authentication_config'
-generation_type: 'mmv1'
-source_file: 'products/networksecurity/BackendAuthenticationConfig.yaml'
-api_service_name: 'networksecurity.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'BackendAuthenticationConfig'
+resource: google_network_security_backend_authentication_config
+generation_type: mmv1
+source_file: products/networksecurity/BackendAuthenticationConfig.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: BackendAuthenticationConfig
 fields:
-  - api_field: 'clientCertificate'
-  - api_field: 'createTime'
-  - api_field: 'description'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - field: 'name'
-    provider_only: true
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'trustConfig'
-  - api_field: 'updateTime'
-  - api_field: 'wellKnownRoots'
+    - api_field: clientCertificate
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: trustConfig
+    - api_field: updateTime
+    - api_field: wellKnownRoots

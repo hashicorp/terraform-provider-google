@@ -1,22 +1,22 @@
-resource: 'google_active_directory_domain'
-generation_type: 'mmv1'
-source_file: 'products/activedirectory/Domain.yaml'
-api_service_name: 'managedidentities.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Domain'
+resource: google_active_directory_domain
+generation_type: mmv1
+source_file: products/activedirectory/Domain.yaml
+api_service_name: managedidentities.googleapis.com
+api_version: v1
+api_resource_type_kind: Domain
 fields:
-  - api_field: 'admin'
-  - api_field: 'authorizedNetworks'
-  - field: 'deletion_protection'
-    provider_only: true
-  - field: 'domain_name'
-    provider_only: true
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'fqdn'
-  - api_field: 'labels'
-  - api_field: 'locations'
-  - api_field: 'name'
-  - api_field: 'reservedIpRange'
-  - field: 'terraform_labels'
-    provider_only: true
+    - api_field: admin
+    - api_field: authorizedNetworks
+    - field: deletion_protection
+      provider_only: true
+    - field: domain_name
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: fqdn
+    - api_field: labels
+    - api_field: locations
+    - api_field: name
+    - api_field: reservedIpRange
+    - field: terraform_labels
+      provider_only: true

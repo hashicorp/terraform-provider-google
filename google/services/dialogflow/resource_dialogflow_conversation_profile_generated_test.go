@@ -85,7 +85,7 @@ func testAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 	return acctest.Nprintf(`
 resource "google_dialogflow_agent" "basic_agent" {
   display_name = "example_agent"
-  default_language_code = "en-us"
+  default_language_code = "en"
   time_zone = "America/New_York"
 }
 resource "google_dialogflow_conversation_profile" "basic_profile" {

@@ -41,3 +41,20 @@ The following arguments are supported:
 * `project` - (Required) The Google Cloud Project in which the Backup belongs.
 * `data_source_id` - (Required) The ID of the Data Source in which the Backup belongs.
 * `backup_vault_id` - (Required) The ID of the Backup Vault of the Data Source in which the Backup belongs.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `name` - Name of resource
+
+* `backups` - List of all backups under data source. Structure is defined below.
+
+The `backups` block supports:
+
+* `name` - Name of the resource.
+* `location` - Location of the resource.
+* `backup_id` - Id of the requesting object, Backup.
+* `backup_vault_id` - Name of the Backup Vault associated with Backup.
+* `data_source_id` - Name of the Data Source associated with Backup.
+* `create_time` - The time when the backup was created.

@@ -1,59 +1,59 @@
-resource: 'google_oracle_database_cloud_exadata_infrastructure'
-generation_type: 'mmv1'
-source_file: 'products/oracledatabase/CloudExadataInfrastructure.yaml'
-api_service_name: 'oracledatabase.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'CloudExadataInfrastructure'
+resource: google_oracle_database_cloud_exadata_infrastructure
+generation_type: mmv1
+source_file: products/oracledatabase/CloudExadataInfrastructure.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: CloudExadataInfrastructure
 autogen_status: true
 fields:
-  - field: 'cloud_exadata_infrastructure_id'
-    provider_only: true
-  - api_field: 'createTime'
-  - field: 'deletion_protection'
-    provider_only: true
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'entitlementId'
-  - api_field: 'gcpOracleZone'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'properties.activatedStorageCount'
-  - api_field: 'properties.additionalStorageCount'
-  - api_field: 'properties.availableStorageSizeGb'
-  - api_field: 'properties.computeCount'
-  - api_field: 'properties.cpuCount'
-  - api_field: 'properties.customerContacts.email'
-  - api_field: 'properties.dataStorageSizeTb'
-  - api_field: 'properties.dbNodeStorageSizeGb'
-  - api_field: 'properties.dbServerVersion'
-  - api_field: 'properties.maintenanceWindow.customActionTimeoutMins'
-  - api_field: 'properties.maintenanceWindow.daysOfWeek'
-  - api_field: 'properties.maintenanceWindow.hoursOfDay'
-  - api_field: 'properties.maintenanceWindow.isCustomActionTimeoutEnabled'
-  - api_field: 'properties.maintenanceWindow.leadTimeWeek'
-  - api_field: 'properties.maintenanceWindow.months'
-  - api_field: 'properties.maintenanceWindow.patchingMode'
-  - api_field: 'properties.maintenanceWindow.preference'
-  - api_field: 'properties.maintenanceWindow.weeksOfMonth'
-  - api_field: 'properties.maxCpuCount'
-  - api_field: 'properties.maxDataStorageTb'
-  - api_field: 'properties.maxDbNodeStorageSizeGb'
-  - api_field: 'properties.maxMemoryGb'
-  - api_field: 'properties.memorySizeGb'
-  - api_field: 'properties.monthlyDbServerVersion'
-  - api_field: 'properties.monthlyStorageServerVersion'
-  - api_field: 'properties.nextMaintenanceRunId'
-  - api_field: 'properties.nextMaintenanceRunTime'
-  - api_field: 'properties.nextSecurityMaintenanceRunTime'
-  - api_field: 'properties.ociUrl'
-  - api_field: 'properties.ocid'
-  - api_field: 'properties.shape'
-  - api_field: 'properties.state'
-  - api_field: 'properties.storageCount'
-  - api_field: 'properties.storageServerVersion'
-  - api_field: 'properties.totalStorageSizeGb'
-  - field: 'terraform_labels'
-    provider_only: true
+    - field: cloud_exadata_infrastructure_id
+      provider_only: true
+    - api_field: createTime
+    - field: deletion_protection
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: entitlementId
+    - api_field: gcpOracleZone
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: properties.activatedStorageCount
+    - api_field: properties.additionalStorageCount
+    - api_field: properties.availableStorageSizeGb
+    - api_field: properties.computeCount
+    - api_field: properties.cpuCount
+    - api_field: properties.customerContacts.email
+    - api_field: properties.dataStorageSizeTb
+    - api_field: properties.dbNodeStorageSizeGb
+    - api_field: properties.dbServerVersion
+    - api_field: properties.maintenanceWindow.customActionTimeoutMins
+    - api_field: properties.maintenanceWindow.daysOfWeek
+    - api_field: properties.maintenanceWindow.hoursOfDay
+    - api_field: properties.maintenanceWindow.isCustomActionTimeoutEnabled
+    - api_field: properties.maintenanceWindow.leadTimeWeek
+    - api_field: properties.maintenanceWindow.months
+    - api_field: properties.maintenanceWindow.patchingMode
+    - api_field: properties.maintenanceWindow.preference
+    - api_field: properties.maintenanceWindow.weeksOfMonth
+    - api_field: properties.maxCpuCount
+    - api_field: properties.maxDataStorageTb
+    - api_field: properties.maxDbNodeStorageSizeGb
+    - api_field: properties.maxMemoryGb
+    - api_field: properties.memorySizeGb
+    - api_field: properties.monthlyDbServerVersion
+    - api_field: properties.monthlyStorageServerVersion
+    - api_field: properties.nextMaintenanceRunId
+    - api_field: properties.nextMaintenanceRunTime
+    - api_field: properties.nextSecurityMaintenanceRunTime
+    - api_field: properties.ociUrl
+    - api_field: properties.ocid
+    - api_field: properties.shape
+    - api_field: properties.state
+    - api_field: properties.storageCount
+    - api_field: properties.storageServerVersion
+    - api_field: properties.totalStorageSizeGb
+    - field: terraform_labels
+      provider_only: true

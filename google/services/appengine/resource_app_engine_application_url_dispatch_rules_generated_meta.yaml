@@ -1,10 +1,10 @@
-resource: 'google_app_engine_application_url_dispatch_rules'
-generation_type: 'mmv1'
-source_file: 'products/appengine/ApplicationUrlDispatchRules.yaml'
-api_service_name: 'appengine.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Application'
+resource: google_app_engine_application_url_dispatch_rules
+generation_type: mmv1
+source_file: products/appengine/ApplicationUrlDispatchRules.yaml
+api_service_name: appengine.googleapis.com
+api_version: v1
+api_resource_type_kind: Application
 fields:
-  - api_field: 'dispatchRules.domain'
-  - api_field: 'dispatchRules.path'
-  - api_field: 'dispatchRules.service'
+    - api_field: dispatchRules.domain
+    - api_field: dispatchRules.path
+    - api_field: dispatchRules.service

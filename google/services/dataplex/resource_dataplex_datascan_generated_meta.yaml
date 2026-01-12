@@ -1,82 +1,83 @@
-resource: 'google_dataplex_datascan'
-generation_type: 'mmv1'
-source_file: 'products/dataplex/Datascan.yaml'
-api_service_name: 'dataplex.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'DataScan'
+resource: google_dataplex_datascan
+generation_type: mmv1
+source_file: products/dataplex/Datascan.yaml
+api_service_name: dataplex.googleapis.com
+api_version: v1
+api_resource_type_kind: DataScan
 fields:
-  - api_field: 'createTime'
-  - api_field: 'data.entity'
-  - api_field: 'data.resource'
-  - api_field: 'dataDiscoverySpec.bigqueryPublishingConfig.connection'
-  - api_field: 'dataDiscoverySpec.bigqueryPublishingConfig.location'
-  - api_field: 'dataDiscoverySpec.bigqueryPublishingConfig.project'
-  - api_field: 'dataDiscoverySpec.bigqueryPublishingConfig.tableType'
-  - api_field: 'dataDiscoverySpec.storageConfig.csvOptions.delimiter'
-  - api_field: 'dataDiscoverySpec.storageConfig.csvOptions.encoding'
-  - api_field: 'dataDiscoverySpec.storageConfig.csvOptions.headerRows'
-  - api_field: 'dataDiscoverySpec.storageConfig.csvOptions.quote'
-  - api_field: 'dataDiscoverySpec.storageConfig.csvOptions.typeInferenceDisabled'
-  - api_field: 'dataDiscoverySpec.storageConfig.excludePatterns'
-  - api_field: 'dataDiscoverySpec.storageConfig.includePatterns'
-  - api_field: 'dataDiscoverySpec.storageConfig.jsonOptions.encoding'
-  - api_field: 'dataDiscoverySpec.storageConfig.jsonOptions.typeInferenceDisabled'
-  - api_field: 'dataDocumentationSpec'
-  - api_field: 'dataProfileSpec.catalogPublishingEnabled'
-  - api_field: 'dataProfileSpec.excludeFields.fieldNames'
-  - api_field: 'dataProfileSpec.includeFields.fieldNames'
-  - api_field: 'dataProfileSpec.postScanActions.bigqueryExport.resultsTable'
-  - api_field: 'dataProfileSpec.rowFilter'
-  - api_field: 'dataProfileSpec.samplingPercent'
-  - api_field: 'dataQualitySpec.catalogPublishingEnabled'
-  - api_field: 'dataQualitySpec.postScanActions.bigqueryExport.resultsTable'
-  - api_field: 'dataQualitySpec.postScanActions.notificationReport.jobEndTrigger'
-  - api_field: 'dataQualitySpec.postScanActions.notificationReport.jobFailureTrigger'
-  - api_field: 'dataQualitySpec.postScanActions.notificationReport.recipients.emails'
-  - api_field: 'dataQualitySpec.postScanActions.notificationReport.scoreThresholdTrigger.scoreThreshold'
-  - api_field: 'dataQualitySpec.rowFilter'
-  - api_field: 'dataQualitySpec.rules.column'
-  - api_field: 'dataQualitySpec.rules.description'
-  - api_field: 'dataQualitySpec.rules.dimension'
-  - api_field: 'dataQualitySpec.rules.ignoreNull'
-  - api_field: 'dataQualitySpec.rules.name'
-  - api_field: 'dataQualitySpec.rules.nonNullExpectation'
-  - api_field: 'dataQualitySpec.rules.rangeExpectation.maxValue'
-  - api_field: 'dataQualitySpec.rules.rangeExpectation.minValue'
-  - api_field: 'dataQualitySpec.rules.rangeExpectation.strictMaxEnabled'
-  - api_field: 'dataQualitySpec.rules.rangeExpectation.strictMinEnabled'
-  - api_field: 'dataQualitySpec.rules.regexExpectation.regex'
-  - api_field: 'dataQualitySpec.rules.rowConditionExpectation.sqlExpression'
-  - api_field: 'dataQualitySpec.rules.setExpectation.values'
-  - api_field: 'dataQualitySpec.rules.sqlAssertion.sqlStatement'
-  - api_field: 'dataQualitySpec.rules.statisticRangeExpectation.maxValue'
-  - api_field: 'dataQualitySpec.rules.statisticRangeExpectation.minValue'
-  - api_field: 'dataQualitySpec.rules.statisticRangeExpectation.statistic'
-  - api_field: 'dataQualitySpec.rules.statisticRangeExpectation.strictMaxEnabled'
-  - api_field: 'dataQualitySpec.rules.statisticRangeExpectation.strictMinEnabled'
-  - api_field: 'dataQualitySpec.rules.suspended'
-  - api_field: 'dataQualitySpec.rules.tableConditionExpectation.sqlExpression'
-  - api_field: 'dataQualitySpec.rules.threshold'
-  - api_field: 'dataQualitySpec.rules.uniquenessExpectation'
-  - api_field: 'dataQualitySpec.samplingPercent'
-  - field: 'data_scan_id'
-    provider_only: true
-  - api_field: 'description'
-  - api_field: 'displayName'
-  - field: 'effective_labels'
-    provider_only: true
-  - api_field: 'executionSpec.field'
-  - api_field: 'executionSpec.trigger.onDemand'
-  - api_field: 'executionSpec.trigger.schedule.cron'
-  - api_field: 'executionStatus.latestJobEndTime'
-  - api_field: 'executionStatus.latestJobStartTime'
-  - api_field: 'labels'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'name'
-  - api_field: 'state'
-  - field: 'terraform_labels'
-    provider_only: true
-  - api_field: 'type'
-  - api_field: 'uid'
-  - api_field: 'updateTime'
+    - api_field: createTime
+    - api_field: data.entity
+    - api_field: data.resource
+    - api_field: dataDiscoverySpec.bigqueryPublishingConfig.connection
+    - api_field: dataDiscoverySpec.bigqueryPublishingConfig.location
+    - api_field: dataDiscoverySpec.bigqueryPublishingConfig.project
+    - api_field: dataDiscoverySpec.bigqueryPublishingConfig.tableType
+    - api_field: dataDiscoverySpec.storageConfig.csvOptions.delimiter
+    - api_field: dataDiscoverySpec.storageConfig.csvOptions.encoding
+    - api_field: dataDiscoverySpec.storageConfig.csvOptions.headerRows
+    - api_field: dataDiscoverySpec.storageConfig.csvOptions.quote
+    - api_field: dataDiscoverySpec.storageConfig.csvOptions.typeInferenceDisabled
+    - api_field: dataDiscoverySpec.storageConfig.excludePatterns
+    - api_field: dataDiscoverySpec.storageConfig.includePatterns
+    - api_field: dataDiscoverySpec.storageConfig.jsonOptions.encoding
+    - api_field: dataDiscoverySpec.storageConfig.jsonOptions.typeInferenceDisabled
+    - api_field: dataDocumentationSpec
+    - api_field: dataProfileSpec.catalogPublishingEnabled
+    - api_field: dataProfileSpec.excludeFields.fieldNames
+    - api_field: dataProfileSpec.includeFields.fieldNames
+    - api_field: dataProfileSpec.postScanActions.bigqueryExport.resultsTable
+    - api_field: dataProfileSpec.rowFilter
+    - api_field: dataProfileSpec.samplingPercent
+    - api_field: dataQualitySpec.catalogPublishingEnabled
+    - api_field: dataQualitySpec.postScanActions.bigqueryExport.resultsTable
+    - api_field: dataQualitySpec.postScanActions.notificationReport.jobEndTrigger
+    - api_field: dataQualitySpec.postScanActions.notificationReport.jobFailureTrigger
+    - api_field: dataQualitySpec.postScanActions.notificationReport.recipients.emails
+    - api_field: dataQualitySpec.postScanActions.notificationReport.scoreThresholdTrigger.scoreThreshold
+    - api_field: dataQualitySpec.rowFilter
+    - api_field: dataQualitySpec.rules.column
+    - api_field: dataQualitySpec.rules.description
+    - api_field: dataQualitySpec.rules.dimension
+    - api_field: dataQualitySpec.rules.ignoreNull
+    - api_field: dataQualitySpec.rules.name
+    - api_field: dataQualitySpec.rules.nonNullExpectation
+    - api_field: dataQualitySpec.rules.rangeExpectation.maxValue
+    - api_field: dataQualitySpec.rules.rangeExpectation.minValue
+    - api_field: dataQualitySpec.rules.rangeExpectation.strictMaxEnabled
+    - api_field: dataQualitySpec.rules.rangeExpectation.strictMinEnabled
+    - api_field: dataQualitySpec.rules.regexExpectation.regex
+    - api_field: dataQualitySpec.rules.rowConditionExpectation.sqlExpression
+    - api_field: dataQualitySpec.rules.setExpectation.values
+    - api_field: dataQualitySpec.rules.sqlAssertion.sqlStatement
+    - api_field: dataQualitySpec.rules.statisticRangeExpectation.maxValue
+    - api_field: dataQualitySpec.rules.statisticRangeExpectation.minValue
+    - api_field: dataQualitySpec.rules.statisticRangeExpectation.statistic
+    - api_field: dataQualitySpec.rules.statisticRangeExpectation.strictMaxEnabled
+    - api_field: dataQualitySpec.rules.statisticRangeExpectation.strictMinEnabled
+    - api_field: dataQualitySpec.rules.suspended
+    - api_field: dataQualitySpec.rules.tableConditionExpectation.sqlExpression
+    - api_field: dataQualitySpec.rules.threshold
+    - api_field: dataQualitySpec.rules.uniquenessExpectation
+    - api_field: dataQualitySpec.samplingPercent
+    - field: data_scan_id
+      provider_only: true
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: executionSpec.field
+    - api_field: executionSpec.trigger.onDemand
+    - api_field: executionSpec.trigger.oneTime.ttlAfterScanCompletion
+    - api_field: executionSpec.trigger.schedule.cron
+    - api_field: executionStatus.latestJobEndTime
+    - api_field: executionStatus.latestJobStartTime
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: type
+    - api_field: uid
+    - api_field: updateTime

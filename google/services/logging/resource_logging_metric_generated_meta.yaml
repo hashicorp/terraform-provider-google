@@ -1,29 +1,29 @@
-resource: 'google_logging_metric'
-generation_type: 'mmv1'
-source_file: 'products/logging/Metric.yaml'
-api_service_name: 'logging.googleapis.com'
-api_version: 'v2'
-api_resource_type_kind: 'LogMetric'
-cai_asset_name_format: '//logging.googleapis.com/projects/{{project}}/metrics/{{%name}}'
+resource: google_logging_metric
+generation_type: mmv1
+source_file: products/logging/Metric.yaml
+api_service_name: logging.googleapis.com
+api_version: v2
+api_resource_type_kind: LogMetric
+cai_asset_name_format: //logging.googleapis.com/projects/{{project}}/metrics/{{%name}}
 fields:
-  - api_field: 'bucketName'
-  - api_field: 'bucketOptions.explicitBuckets.bounds'
-  - api_field: 'bucketOptions.exponentialBuckets.growthFactor'
-  - api_field: 'bucketOptions.exponentialBuckets.numFiniteBuckets'
-  - api_field: 'bucketOptions.exponentialBuckets.scale'
-  - api_field: 'bucketOptions.linearBuckets.numFiniteBuckets'
-  - api_field: 'bucketOptions.linearBuckets.offset'
-  - api_field: 'bucketOptions.linearBuckets.width'
-  - api_field: 'description'
-  - api_field: 'disabled'
-  - api_field: 'filter'
-  - api_field: 'labelExtractors'
-  - api_field: 'metricDescriptor.displayName'
-  - api_field: 'metricDescriptor.labels.description'
-  - api_field: 'metricDescriptor.labels.key'
-  - api_field: 'metricDescriptor.labels.valueType'
-  - api_field: 'metricDescriptor.metricKind'
-  - api_field: 'metricDescriptor.unit'
-  - api_field: 'metricDescriptor.valueType'
-  - api_field: 'name'
-  - api_field: 'valueExtractor'
+    - api_field: bucketName
+    - api_field: bucketOptions.explicitBuckets.bounds
+    - api_field: bucketOptions.exponentialBuckets.growthFactor
+    - api_field: bucketOptions.exponentialBuckets.numFiniteBuckets
+    - api_field: bucketOptions.exponentialBuckets.scale
+    - api_field: bucketOptions.linearBuckets.numFiniteBuckets
+    - api_field: bucketOptions.linearBuckets.offset
+    - api_field: bucketOptions.linearBuckets.width
+    - api_field: description
+    - api_field: disabled
+    - api_field: filter
+    - api_field: labelExtractors
+    - api_field: metricDescriptor.displayName
+    - api_field: metricDescriptor.labels.description
+    - api_field: metricDescriptor.labels.key
+    - api_field: metricDescriptor.labels.valueType
+    - api_field: metricDescriptor.metricKind
+    - api_field: metricDescriptor.unit
+    - api_field: metricDescriptor.valueType
+    - api_field: name
+    - api_field: valueExtractor

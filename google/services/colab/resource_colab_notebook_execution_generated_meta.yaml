@@ -1,30 +1,30 @@
-resource: 'google_colab_notebook_execution'
-generation_type: 'mmv1'
-source_file: 'products/colab/NotebookExecution.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'NotebookExecutionJob'
+resource: google_colab_notebook_execution
+generation_type: mmv1
+source_file: products/colab/NotebookExecution.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: NotebookExecutionJob
 fields:
-  - api_field: 'customEnvironmentSpec.machineSpec.acceleratorCount'
-  - api_field: 'customEnvironmentSpec.machineSpec.acceleratorType'
-  - api_field: 'customEnvironmentSpec.machineSpec.machineType'
-  - api_field: 'customEnvironmentSpec.networkSpec.enableInternetAccess'
-  - api_field: 'customEnvironmentSpec.networkSpec.network'
-  - api_field: 'customEnvironmentSpec.networkSpec.subnetwork'
-  - api_field: 'customEnvironmentSpec.persistentDiskSpec.diskSizeGb'
-  - api_field: 'customEnvironmentSpec.persistentDiskSpec.diskType'
-  - api_field: 'dataformRepositorySource.commitSha'
-  - api_field: 'dataformRepositorySource.dataformRepositoryResourceName'
-  - api_field: 'directNotebookSource.content'
-  - api_field: 'displayName'
-  - api_field: 'executionTimeout'
-  - api_field: 'executionUser'
-  - api_field: 'gcsNotebookSource.generation'
-  - api_field: 'gcsNotebookSource.uri'
-  - api_field: 'gcsOutputUri'
-  - field: 'location'
-    provider_only: true
-  - field: 'notebook_execution_job_id'
-    provider_only: true
-  - api_field: 'notebookRuntimeTemplateResourceName'
-  - api_field: 'serviceAccount'
+    - api_field: customEnvironmentSpec.machineSpec.acceleratorCount
+    - api_field: customEnvironmentSpec.machineSpec.acceleratorType
+    - api_field: customEnvironmentSpec.machineSpec.machineType
+    - api_field: customEnvironmentSpec.networkSpec.enableInternetAccess
+    - api_field: customEnvironmentSpec.networkSpec.network
+    - api_field: customEnvironmentSpec.networkSpec.subnetwork
+    - api_field: customEnvironmentSpec.persistentDiskSpec.diskSizeGb
+    - api_field: customEnvironmentSpec.persistentDiskSpec.diskType
+    - api_field: dataformRepositorySource.commitSha
+    - api_field: dataformRepositorySource.dataformRepositoryResourceName
+    - api_field: directNotebookSource.content
+    - api_field: displayName
+    - api_field: executionTimeout
+    - api_field: executionUser
+    - api_field: gcsNotebookSource.generation
+    - api_field: gcsNotebookSource.uri
+    - api_field: gcsOutputUri
+    - field: location
+      provider_only: true
+    - field: notebook_execution_job_id
+      provider_only: true
+    - api_field: notebookRuntimeTemplateResourceName
+    - api_field: serviceAccount

@@ -1,59 +1,59 @@
-resource: 'google_dialogflow_cx_test_case'
-generation_type: 'mmv1'
-source_file: 'products/dialogflowcx/TestCase.yaml'
-api_service_name: 'dialogflow.googleapis.com'
-api_version: 'v3'
-api_resource_type_kind: 'TestCase'
+resource: google_dialogflow_cx_test_case
+generation_type: mmv1
+source_file: products/dialogflowcx/TestCase.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: TestCase
 fields:
-  - api_field: 'creationTime'
-  - api_field: 'displayName'
-  - api_field: 'lastTestResult.conversationTurns.userInput.enableSentimentAnalysis'
-  - api_field: 'lastTestResult.conversationTurns.userInput.injectedParameters'
-    json: true
-  - api_field: 'lastTestResult.conversationTurns.userInput.input.dtmf.digits'
-  - api_field: 'lastTestResult.conversationTurns.userInput.input.dtmf.finishDigit'
-  - api_field: 'lastTestResult.conversationTurns.userInput.input.event.event'
-  - api_field: 'lastTestResult.conversationTurns.userInput.input.languageCode'
-  - api_field: 'lastTestResult.conversationTurns.userInput.input.text.text'
-  - api_field: 'lastTestResult.conversationTurns.userInput.isWebhookEnabled'
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.currentPage.displayName'
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.currentPage.name'
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.differences.description'
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.differences.type'
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.sessionParameters'
-    json: true
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.status.code'
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.status.details'
-    json: true
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.status.message'
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.textResponses.text'
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.triggeredIntent.displayName'
-  - api_field: 'lastTestResult.conversationTurns.virtualAgentOutput.triggeredIntent.name'
-  - api_field: 'lastTestResult.environment'
-  - api_field: 'lastTestResult.name'
-  - api_field: 'lastTestResult.testResult'
-  - api_field: 'lastTestResult.testTime'
-  - api_field: 'name'
-  - api_field: 'notes'
-  - field: 'parent'
-    provider_only: true
-  - api_field: 'tags'
-  - api_field: 'testCaseConversationTurns.userInput.enableSentimentAnalysis'
-  - api_field: 'testCaseConversationTurns.userInput.injectedParameters'
-    json: true
-  - api_field: 'testCaseConversationTurns.userInput.input.dtmf.digits'
-  - api_field: 'testCaseConversationTurns.userInput.input.dtmf.finishDigit'
-  - api_field: 'testCaseConversationTurns.userInput.input.event.event'
-  - api_field: 'testCaseConversationTurns.userInput.input.languageCode'
-  - api_field: 'testCaseConversationTurns.userInput.input.text.text'
-  - api_field: 'testCaseConversationTurns.userInput.isWebhookEnabled'
-  - api_field: 'testCaseConversationTurns.virtualAgentOutput.currentPage.displayName'
-  - api_field: 'testCaseConversationTurns.virtualAgentOutput.currentPage.name'
-  - api_field: 'testCaseConversationTurns.virtualAgentOutput.sessionParameters'
-    json: true
-  - api_field: 'testCaseConversationTurns.virtualAgentOutput.textResponses.text'
-  - api_field: 'testCaseConversationTurns.virtualAgentOutput.triggeredIntent.displayName'
-  - api_field: 'testCaseConversationTurns.virtualAgentOutput.triggeredIntent.name'
-  - api_field: 'testConfig.flow'
-  - api_field: 'testConfig.page'
-  - api_field: 'testConfig.trackingParameters'
+    - api_field: creationTime
+    - api_field: displayName
+    - api_field: lastTestResult.conversationTurns.userInput.enableSentimentAnalysis
+    - api_field: lastTestResult.conversationTurns.userInput.injectedParameters
+      json: true
+    - api_field: lastTestResult.conversationTurns.userInput.input.dtmf.digits
+    - api_field: lastTestResult.conversationTurns.userInput.input.dtmf.finishDigit
+    - api_field: lastTestResult.conversationTurns.userInput.input.event.event
+    - api_field: lastTestResult.conversationTurns.userInput.input.languageCode
+    - api_field: lastTestResult.conversationTurns.userInput.input.text.text
+    - api_field: lastTestResult.conversationTurns.userInput.isWebhookEnabled
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.currentPage.displayName
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.currentPage.name
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.differences.description
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.differences.type
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.sessionParameters
+      json: true
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.status.code
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.status.details
+      json: true
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.status.message
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.textResponses.text
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.triggeredIntent.displayName
+    - api_field: lastTestResult.conversationTurns.virtualAgentOutput.triggeredIntent.name
+    - api_field: lastTestResult.environment
+    - api_field: lastTestResult.name
+    - api_field: lastTestResult.testResult
+    - api_field: lastTestResult.testTime
+    - api_field: name
+    - api_field: notes
+    - field: parent
+      provider_only: true
+    - api_field: tags
+    - api_field: testCaseConversationTurns.userInput.enableSentimentAnalysis
+    - api_field: testCaseConversationTurns.userInput.injectedParameters
+      json: true
+    - api_field: testCaseConversationTurns.userInput.input.dtmf.digits
+    - api_field: testCaseConversationTurns.userInput.input.dtmf.finishDigit
+    - api_field: testCaseConversationTurns.userInput.input.event.event
+    - api_field: testCaseConversationTurns.userInput.input.languageCode
+    - api_field: testCaseConversationTurns.userInput.input.text.text
+    - api_field: testCaseConversationTurns.userInput.isWebhookEnabled
+    - api_field: testCaseConversationTurns.virtualAgentOutput.currentPage.displayName
+    - api_field: testCaseConversationTurns.virtualAgentOutput.currentPage.name
+    - api_field: testCaseConversationTurns.virtualAgentOutput.sessionParameters
+      json: true
+    - api_field: testCaseConversationTurns.virtualAgentOutput.textResponses.text
+    - api_field: testCaseConversationTurns.virtualAgentOutput.triggeredIntent.displayName
+    - api_field: testCaseConversationTurns.virtualAgentOutput.triggeredIntent.name
+    - api_field: testConfig.flow
+    - api_field: testConfig.page
+    - api_field: testConfig.trackingParameters

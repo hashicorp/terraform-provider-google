@@ -622,6 +622,56 @@ resource "google_cloud_run_v2_service" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_service_zip_deploy&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Service Zip Deploy
+
+
+```hcl
+resource "google_storage_bucket" "sourcebucket" {
+  provider = google-beta
+  name     = "${data.google_project.project.project_id}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "source_tar" {
+  provider = google-beta
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.sourcebucket.name
+  source = "./test-fixtures/cr-zip-nodejs-hello.tar.gz"
+}
+
+resource "google_cloud_run_v2_service" "default" {
+  provider = google-beta
+  name     = "cloudrun-zip-service"
+  location = "us-central1"
+  deletion_protection = false
+
+  template {
+    containers {
+      image = "scratch"
+      base_image_uri = "us-central1-docker.pkg.dev/serverless-runtimes/google-24-full/runtimes/nodejs24"
+      command = ["node"]
+      args = ["index.js"]
+      source_code {
+        cloud_storage_source {
+          bucket = google_storage_bucket.sourcebucket.name
+          object = google_storage_bucket_object.source_tar.name
+          generation = google_storage_bucket_object.source_tar.generation
+        }
+      }
+    }
+  }
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -891,23 +941,23 @@ When the field is set to false, deleting the service is allowed.
 * `env` -
   (Optional)
   List of environment variables to set in the container.
-  Structure is [documented below](#nested_template_containers_containers_env).
+  Structure is [documented below](#nested_template_containers_env).
 
 * `resources` -
   (Optional)
   Compute Resource requirements by this container. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
-  Structure is [documented below](#nested_template_containers_containers_resources).
+  Structure is [documented below](#nested_template_containers_resources).
 
 * `ports` -
   (Optional)
   List of ports to expose from the container. Only a single port can be specified. The specified ports must be listening on all interfaces (0.0.0.0) within the container to be accessible.
   If omitted, a port number will be chosen and passed to the container through the PORT environment variable for the container to listen on
-  Structure is [documented below](#nested_template_containers_containers_ports).
+  Structure is [documented below](#nested_template_containers_ports).
 
 * `volume_mounts` -
   (Optional)
   Volume to mount into the container's filesystem.
-  Structure is [documented below](#nested_template_containers_containers_volume_mounts).
+  Structure is [documented below](#nested_template_containers_volume_mounts).
 
 * `working_dir` -
   (Optional)
@@ -916,12 +966,12 @@ When the field is set to false, deleting the service is allowed.
 * `liveness_probe` -
   (Optional)
   Periodic probe of container liveness. Container will be restarted if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-  Structure is [documented below](#nested_template_containers_containers_liveness_probe).
+  Structure is [documented below](#nested_template_containers_liveness_probe).
 
 * `startup_probe` -
   (Optional)
   Startup probe of application within the container. All other probes are disabled if a startup probe is provided, until it succeeds. Container will not be added to service endpoints if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-  Structure is [documented below](#nested_template_containers_containers_startup_probe).
+  Structure is [documented below](#nested_template_containers_startup_probe).
 
 * `depends_on` -
   (Optional)
@@ -934,10 +984,15 @@ When the field is set to false, deleting the service is allowed.
 * `build_info` -
   (Output)
   The build info of the container image.
-  Structure is [documented below](#nested_template_containers_containers_build_info).
+  Structure is [documented below](#nested_template_containers_build_info).
+
+* `source_code` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Location of the source.
+  Structure is [documented below](#nested_template_containers_source_code).
 
 
-<a name="nested_template_containers_containers_env"></a>The `env` block supports:
+<a name="nested_template_containers_env"></a>The `env` block supports:
 
 * `name` -
   (Required)
@@ -950,18 +1005,18 @@ When the field is set to false, deleting the service is allowed.
 * `value_source` -
   (Optional)
   Source for the environment variable's value.
-  Structure is [documented below](#nested_template_containers_containers_env_env_value_source).
+  Structure is [documented below](#nested_template_containers_env_value_source).
 
 
-<a name="nested_template_containers_containers_env_env_value_source"></a>The `value_source` block supports:
+<a name="nested_template_containers_env_value_source"></a>The `value_source` block supports:
 
 * `secret_key_ref` -
   (Optional)
   Selects a secret and a specific version from Cloud Secret Manager.
-  Structure is [documented below](#nested_template_containers_containers_env_env_value_source_secret_key_ref).
+  Structure is [documented below](#nested_template_containers_env_value_source_secret_key_ref).
 
 
-<a name="nested_template_containers_containers_env_env_value_source_secret_key_ref"></a>The `secret_key_ref` block supports:
+<a name="nested_template_containers_env_value_source_secret_key_ref"></a>The `secret_key_ref` block supports:
 
 * `secret` -
   (Required)
@@ -971,7 +1026,7 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   The Cloud Secret Manager secret version. Can be 'latest' for the latest value or an integer for a specific version.
 
-<a name="nested_template_containers_containers_resources"></a>The `resources` block supports:
+<a name="nested_template_containers_resources"></a>The `resources` block supports:
 
 * `limits` -
   (Optional)
@@ -986,7 +1041,7 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   Determines whether CPU should be boosted on startup of a new container instance above the requested CPU threshold, this can help reduce cold-start latency.
 
-<a name="nested_template_containers_containers_ports"></a>The `ports` block supports:
+<a name="nested_template_containers_ports"></a>The `ports` block supports:
 
 * `name` -
   (Optional)
@@ -996,7 +1051,7 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   Port number the container listens on. This must be a valid TCP port number, 0 < containerPort < 65536.
 
-<a name="nested_template_containers_containers_volume_mounts"></a>The `volume_mounts` block supports:
+<a name="nested_template_containers_volume_mounts"></a>The `volume_mounts` block supports:
 
 * `name` -
   (Required)
@@ -1010,7 +1065,7 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   Path within the volume from which the container's volume should be mounted.
 
-<a name="nested_template_containers_containers_liveness_probe"></a>The `liveness_probe` block supports:
+<a name="nested_template_containers_liveness_probe"></a>The `liveness_probe` block supports:
 
 * `initial_delay_seconds` -
   (Optional)
@@ -1031,20 +1086,20 @@ When the field is set to false, deleting the service is allowed.
 * `http_get` -
   (Optional)
   HTTPGet specifies the http request to perform.
-  Structure is [documented below](#nested_template_containers_containers_liveness_probe_http_get).
+  Structure is [documented below](#nested_template_containers_liveness_probe_http_get).
 
 * `grpc` -
   (Optional)
   GRPC specifies an action involving a GRPC port.
-  Structure is [documented below](#nested_template_containers_containers_liveness_probe_grpc).
+  Structure is [documented below](#nested_template_containers_liveness_probe_grpc).
 
 * `tcp_socket` -
   (Optional)
   TCPSocketAction describes an action based on opening a socket
-  Structure is [documented below](#nested_template_containers_containers_liveness_probe_tcp_socket).
+  Structure is [documented below](#nested_template_containers_liveness_probe_tcp_socket).
 
 
-<a name="nested_template_containers_containers_liveness_probe_http_get"></a>The `http_get` block supports:
+<a name="nested_template_containers_liveness_probe_http_get"></a>The `http_get` block supports:
 
 * `path` -
   (Optional)
@@ -1058,10 +1113,10 @@ When the field is set to false, deleting the service is allowed.
 * `http_headers` -
   (Optional)
   Custom headers to set in the request. HTTP allows repeated headers.
-  Structure is [documented below](#nested_template_containers_containers_liveness_probe_http_get_http_headers).
+  Structure is [documented below](#nested_template_containers_liveness_probe_http_get_http_headers).
 
 
-<a name="nested_template_containers_containers_liveness_probe_http_get_http_headers"></a>The `http_headers` block supports:
+<a name="nested_template_containers_liveness_probe_http_get_http_headers"></a>The `http_headers` block supports:
 
 * `name` -
   (Required)
@@ -1071,7 +1126,7 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   The header field value
 
-<a name="nested_template_containers_containers_liveness_probe_grpc"></a>The `grpc` block supports:
+<a name="nested_template_containers_liveness_probe_grpc"></a>The `grpc` block supports:
 
 * `port` -
   (Optional)
@@ -1084,7 +1139,7 @@ When the field is set to false, deleting the service is allowed.
   (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
   If this is not specified, the default behavior is defined by gRPC.
 
-<a name="nested_template_containers_containers_liveness_probe_tcp_socket"></a>The `tcp_socket` block supports:
+<a name="nested_template_containers_liveness_probe_tcp_socket"></a>The `tcp_socket` block supports:
 
 * `port` -
   (Required)
@@ -1092,7 +1147,7 @@ When the field is set to false, deleting the service is allowed.
   If not specified, defaults to the exposed port of the container, which
   is the value of container.ports[0].containerPort.
 
-<a name="nested_template_containers_containers_startup_probe"></a>The `startup_probe` block supports:
+<a name="nested_template_containers_startup_probe"></a>The `startup_probe` block supports:
 
 * `initial_delay_seconds` -
   (Optional)
@@ -1113,20 +1168,20 @@ When the field is set to false, deleting the service is allowed.
 * `http_get` -
   (Optional)
   HTTPGet specifies the http request to perform. Exactly one of HTTPGet or TCPSocket must be specified.
-  Structure is [documented below](#nested_template_containers_containers_startup_probe_http_get).
+  Structure is [documented below](#nested_template_containers_startup_probe_http_get).
 
 * `tcp_socket` -
   (Optional)
   TCPSocket specifies an action involving a TCP port. Exactly one of HTTPGet or TCPSocket must be specified.
-  Structure is [documented below](#nested_template_containers_containers_startup_probe_tcp_socket).
+  Structure is [documented below](#nested_template_containers_startup_probe_tcp_socket).
 
 * `grpc` -
   (Optional)
   GRPC specifies an action involving a GRPC port.
-  Structure is [documented below](#nested_template_containers_containers_startup_probe_grpc).
+  Structure is [documented below](#nested_template_containers_startup_probe_grpc).
 
 
-<a name="nested_template_containers_containers_startup_probe_http_get"></a>The `http_get` block supports:
+<a name="nested_template_containers_startup_probe_http_get"></a>The `http_get` block supports:
 
 * `path` -
   (Optional)
@@ -1140,10 +1195,10 @@ When the field is set to false, deleting the service is allowed.
 * `http_headers` -
   (Optional)
   Custom headers to set in the request. HTTP allows repeated headers.
-  Structure is [documented below](#nested_template_containers_containers_startup_probe_http_get_http_headers).
+  Structure is [documented below](#nested_template_containers_startup_probe_http_get_http_headers).
 
 
-<a name="nested_template_containers_containers_startup_probe_http_get_http_headers"></a>The `http_headers` block supports:
+<a name="nested_template_containers_startup_probe_http_get_http_headers"></a>The `http_headers` block supports:
 
 * `name` -
   (Required)
@@ -1153,14 +1208,14 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   The header field value
 
-<a name="nested_template_containers_containers_startup_probe_tcp_socket"></a>The `tcp_socket` block supports:
+<a name="nested_template_containers_startup_probe_tcp_socket"></a>The `tcp_socket` block supports:
 
 * `port` -
   (Optional)
   Port number to access on the container. Must be in the range 1 to 65535.
   If not specified, defaults to the same value as container.ports[0].containerPort.
 
-<a name="nested_template_containers_containers_startup_probe_grpc"></a>The `grpc` block supports:
+<a name="nested_template_containers_startup_probe_grpc"></a>The `grpc` block supports:
 
 * `port` -
   (Optional)
@@ -1173,7 +1228,7 @@ When the field is set to false, deleting the service is allowed.
   (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
   If this is not specified, the default behavior is defined by gRPC.
 
-<a name="nested_template_containers_containers_build_info"></a>The `build_info` block contains:
+<a name="nested_template_containers_build_info"></a>The `build_info` block contains:
 
 * `function_target` -
   (Output)
@@ -1182,6 +1237,28 @@ When the field is set to false, deleting the service is allowed.
 * `source_location` -
   (Output)
   Source code location of the image.
+
+<a name="nested_template_containers_source_code"></a>The `source_code` block supports:
+
+* `cloud_storage_source` -
+  (Optional)
+  Cloud Storage source.
+  Structure is [documented below](#nested_template_containers_source_code_cloud_storage_source).
+
+
+<a name="nested_template_containers_source_code_cloud_storage_source"></a>The `cloud_storage_source` block supports:
+
+* `bucket` -
+  (Required)
+  The Cloud Storage bucket name.
+
+* `object` -
+  (Required)
+  The Cloud Storage object name.
+
+* `generation` -
+  (Optional)
+  The Cloud Storage object generation. The is an int64 value. As with most Google APIs, its JSON representation will be a string instead of an integer.
 
 <a name="nested_template_volumes"></a>The `volumes` block supports:
 
@@ -1192,30 +1269,30 @@ When the field is set to false, deleting the service is allowed.
 * `secret` -
   (Optional)
   Secret represents a secret that should populate this volume. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
-  Structure is [documented below](#nested_template_volumes_volumes_secret).
+  Structure is [documented below](#nested_template_volumes_secret).
 
 * `cloud_sql_instance` -
   (Optional)
   For Cloud SQL volumes, contains the specific instances that should be mounted. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run.
-  Structure is [documented below](#nested_template_volumes_volumes_cloud_sql_instance).
+  Structure is [documented below](#nested_template_volumes_cloud_sql_instance).
 
 * `empty_dir` -
   (Optional)
   Ephemeral storage used as a shared volume.
-  Structure is [documented below](#nested_template_volumes_volumes_empty_dir).
+  Structure is [documented below](#nested_template_volumes_empty_dir).
 
 * `gcs` -
   (Optional)
   Cloud Storage bucket mounted as a volume using GCSFuse. This feature is only supported in the gen2 execution environment.
-  Structure is [documented below](#nested_template_volumes_volumes_gcs).
+  Structure is [documented below](#nested_template_volumes_gcs).
 
 * `nfs` -
   (Optional)
   Represents an NFS mount.
-  Structure is [documented below](#nested_template_volumes_volumes_nfs).
+  Structure is [documented below](#nested_template_volumes_nfs).
 
 
-<a name="nested_template_volumes_volumes_secret"></a>The `secret` block supports:
+<a name="nested_template_volumes_secret"></a>The `secret` block supports:
 
 * `secret` -
   (Required)
@@ -1228,10 +1305,10 @@ When the field is set to false, deleting the service is allowed.
 * `items` -
   (Optional)
   If unspecified, the volume will expose a file whose name is the secret, relative to VolumeMount.mount_path. If specified, the key will be used as the version to fetch from Cloud Secret Manager and the path will be the name of the file exposed in the volume. When items are defined, they must specify a path and a version.
-  Structure is [documented below](#nested_template_volumes_volumes_secret_items).
+  Structure is [documented below](#nested_template_volumes_secret_items).
 
 
-<a name="nested_template_volumes_volumes_secret_items"></a>The `items` block supports:
+<a name="nested_template_volumes_secret_items"></a>The `items` block supports:
 
 * `path` -
   (Required)
@@ -1245,13 +1322,13 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   Integer octal mode bits to use on this file, must be a value between 01 and 0777 (octal). If 0 or not set, the Volume's default mode will be used.
 
-<a name="nested_template_volumes_volumes_cloud_sql_instance"></a>The `cloud_sql_instance` block supports:
+<a name="nested_template_volumes_cloud_sql_instance"></a>The `cloud_sql_instance` block supports:
 
 * `instances` -
   (Optional)
   The Cloud SQL instance connection names, as can be found in https://console.cloud.google.com/sql/instances. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run. Format: {project}:{location}:{instance}
 
-<a name="nested_template_volumes_volumes_empty_dir"></a>The `empty_dir` block supports:
+<a name="nested_template_volumes_empty_dir"></a>The `empty_dir` block supports:
 
 * `medium` -
   (Optional)
@@ -1263,7 +1340,7 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir.
 
-<a name="nested_template_volumes_volumes_gcs"></a>The `gcs` block supports:
+<a name="nested_template_volumes_gcs"></a>The `gcs` block supports:
 
 * `bucket` -
   (Required)
@@ -1278,7 +1355,7 @@ When the field is set to false, deleting the service is allowed.
   A list of flags to pass to the gcsfuse command for configuring this volume.
   Flags should be passed without leading dashes.
 
-<a name="nested_template_volumes_volumes_nfs"></a>The `nfs` block supports:
+<a name="nested_template_volumes_nfs"></a>The `nfs` block supports:
 
 * `server` -
   (Required)

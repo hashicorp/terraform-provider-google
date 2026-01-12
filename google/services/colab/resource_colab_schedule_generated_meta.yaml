@@ -1,30 +1,30 @@
-resource: 'google_colab_schedule'
-generation_type: 'mmv1'
-source_file: 'products/colab/Schedule.yaml'
-api_service_name: 'aiplatform.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Schedule'
+resource: google_colab_schedule
+generation_type: mmv1
+source_file: products/colab/Schedule.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: Schedule
 fields:
-  - api_field: 'allowQueueing'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.dataformRepositorySource.commitSha'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.dataformRepositorySource.dataformRepositoryResourceName'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.displayName'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.executionTimeout'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.executionUser'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.gcsNotebookSource.generation'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.gcsNotebookSource.uri'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.gcsOutputUri'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.notebookRuntimeTemplateResourceName'
-  - api_field: 'createNotebookExecutionJobRequest.notebookExecutionJob.serviceAccount'
-  - api_field: 'cron'
-  - field: 'desired_state'
-    provider_only: true
-  - api_field: 'displayName'
-  - api_field: 'endTime'
-  - field: 'location'
-    provider_only: true
-  - api_field: 'maxConcurrentRunCount'
-  - api_field: 'maxRunCount'
-  - api_field: 'name'
-  - api_field: 'startTime'
-  - api_field: 'state'
+    - api_field: allowQueueing
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.dataformRepositorySource.commitSha
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.dataformRepositorySource.dataformRepositoryResourceName
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.displayName
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.executionTimeout
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.executionUser
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.gcsNotebookSource.generation
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.gcsNotebookSource.uri
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.gcsOutputUri
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.notebookRuntimeTemplateResourceName
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.serviceAccount
+    - api_field: cron
+    - field: desired_state
+      provider_only: true
+    - api_field: displayName
+    - api_field: endTime
+    - field: location
+      provider_only: true
+    - api_field: maxConcurrentRunCount
+    - api_field: maxRunCount
+    - api_field: name
+    - api_field: startTime
+    - api_field: state

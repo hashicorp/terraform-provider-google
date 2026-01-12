@@ -1,73 +1,78 @@
-resource: 'google_redis_cluster'
-generation_type: 'mmv1'
-source_file: 'products/redis/Cluster.yaml'
-api_service_name: 'redis.googleapis.com'
-api_version: 'v1'
-api_resource_type_kind: 'Cluster'
+resource: google_redis_cluster
+generation_type: mmv1
+source_file: products/redis/Cluster.yaml
+api_service_name: redis.googleapis.com
+api_version: v1
+api_resource_type_kind: Cluster
 fields:
-  - api_field: 'authorizationMode'
-  - api_field: 'automatedBackupConfig.fixedFrequencySchedule.startTime.hours'
-  - api_field: 'automatedBackupConfig.retention'
-  - api_field: 'availableMaintenanceVersions'
-  - api_field: 'backupCollection'
-  - api_field: 'createTime'
-  - api_field: 'crossClusterReplicationConfig.clusterRole'
-  - api_field: 'crossClusterReplicationConfig.membership.primaryCluster.cluster'
-  - api_field: 'crossClusterReplicationConfig.membership.primaryCluster.uid'
-  - api_field: 'crossClusterReplicationConfig.membership.secondaryClusters.cluster'
-  - api_field: 'crossClusterReplicationConfig.membership.secondaryClusters.uid'
-  - api_field: 'crossClusterReplicationConfig.primaryCluster.cluster'
-  - api_field: 'crossClusterReplicationConfig.primaryCluster.uid'
-  - api_field: 'crossClusterReplicationConfig.secondaryClusters.cluster'
-  - api_field: 'crossClusterReplicationConfig.secondaryClusters.uid'
-  - api_field: 'crossClusterReplicationConfig.updateTime'
-  - api_field: 'deletionProtectionEnabled'
-  - api_field: 'discoveryEndpoints.address'
-  - api_field: 'discoveryEndpoints.port'
-  - api_field: 'discoveryEndpoints.pscConfig.network'
-  - api_field: 'effectiveMaintenanceVersion'
-  - api_field: 'gcsSource.uris'
-  - api_field: 'kmsKey'
-  - api_field: 'maintenancePolicy.createTime'
-  - api_field: 'maintenancePolicy.updateTime'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.day'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.duration'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.hours'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.minutes'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.nanos'
-  - api_field: 'maintenancePolicy.weeklyMaintenanceWindow.startTime.seconds'
-  - api_field: 'maintenanceSchedule.endTime'
-  - api_field: 'maintenanceSchedule.scheduleDeadlineTime'
-  - api_field: 'maintenanceSchedule.startTime'
-  - api_field: 'maintenanceVersion'
-  - api_field: 'managedBackupSource.backup'
-  - api_field: 'managedServerCa.caCerts.certificates'
-  - field: 'name'
-    provider_only: true
-  - api_field: 'nodeType'
-  - api_field: 'persistenceConfig.aofConfig.appendFsync'
-  - api_field: 'persistenceConfig.mode'
-  - api_field: 'persistenceConfig.rdbConfig.rdbSnapshotPeriod'
-  - api_field: 'persistenceConfig.rdbConfig.rdbSnapshotStartTime'
-  - api_field: 'preciseSizeGb'
-  - api_field: 'pscConfigs.network'
-  - api_field: 'pscConnections.address'
-  - api_field: 'pscConnections.forwardingRule'
-  - api_field: 'pscConnections.network'
-  - api_field: 'pscConnections.projectId'
-  - api_field: 'pscConnections.pscConnectionId'
-  - api_field: 'pscServiceAttachments.connectionType'
-  - api_field: 'pscServiceAttachments.serviceAttachment'
-  - api_field: 'redisConfigs'
-  - field: 'region'
-    provider_only: true
-  - api_field: 'replicaCount'
-  - api_field: 'shardCount'
-  - api_field: 'sizeGb'
-  - api_field: 'state'
-  - api_field: 'stateInfo.updateInfo.targetReplicaCount'
-  - api_field: 'stateInfo.updateInfo.targetShardCount'
-  - api_field: 'transitEncryptionMode'
-  - api_field: 'uid'
-  - api_field: 'zoneDistributionConfig.mode'
-  - api_field: 'zoneDistributionConfig.zone'
+    - api_field: authorizationMode
+    - api_field: automatedBackupConfig.fixedFrequencySchedule.startTime.hours
+    - api_field: automatedBackupConfig.retention
+    - api_field: availableMaintenanceVersions
+    - api_field: backupCollection
+    - api_field: createTime
+    - api_field: crossClusterReplicationConfig.clusterRole
+    - api_field: crossClusterReplicationConfig.membership.primaryCluster.cluster
+    - api_field: crossClusterReplicationConfig.membership.primaryCluster.uid
+    - api_field: crossClusterReplicationConfig.membership.secondaryClusters.cluster
+    - api_field: crossClusterReplicationConfig.membership.secondaryClusters.uid
+    - api_field: crossClusterReplicationConfig.primaryCluster.cluster
+    - api_field: crossClusterReplicationConfig.primaryCluster.uid
+    - api_field: crossClusterReplicationConfig.secondaryClusters.cluster
+    - api_field: crossClusterReplicationConfig.secondaryClusters.uid
+    - api_field: crossClusterReplicationConfig.updateTime
+    - api_field: deletionProtectionEnabled
+    - api_field: discoveryEndpoints.address
+    - api_field: discoveryEndpoints.port
+    - api_field: discoveryEndpoints.pscConfig.network
+    - field: effective_labels
+      provider_only: true
+    - api_field: effectiveMaintenanceVersion
+    - api_field: gcsSource.uris
+    - api_field: kmsKey
+    - api_field: labels
+    - api_field: maintenancePolicy.createTime
+    - api_field: maintenancePolicy.updateTime
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.day
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.duration
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.hours
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.minutes
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.nanos
+    - api_field: maintenancePolicy.weeklyMaintenanceWindow.startTime.seconds
+    - api_field: maintenanceSchedule.endTime
+    - api_field: maintenanceSchedule.scheduleDeadlineTime
+    - api_field: maintenanceSchedule.startTime
+    - api_field: maintenanceVersion
+    - api_field: managedBackupSource.backup
+    - api_field: managedServerCa.caCerts.certificates
+    - field: name
+      provider_only: true
+    - api_field: nodeType
+    - api_field: persistenceConfig.aofConfig.appendFsync
+    - api_field: persistenceConfig.mode
+    - api_field: persistenceConfig.rdbConfig.rdbSnapshotPeriod
+    - api_field: persistenceConfig.rdbConfig.rdbSnapshotStartTime
+    - api_field: preciseSizeGb
+    - api_field: pscConfigs.network
+    - api_field: pscConnections.address
+    - api_field: pscConnections.forwardingRule
+    - api_field: pscConnections.network
+    - api_field: pscConnections.projectId
+    - api_field: pscConnections.pscConnectionId
+    - api_field: pscServiceAttachments.connectionType
+    - api_field: pscServiceAttachments.serviceAttachment
+    - api_field: redisConfigs
+    - field: region
+      provider_only: true
+    - api_field: replicaCount
+    - api_field: shardCount
+    - api_field: sizeGb
+    - api_field: state
+    - api_field: stateInfo.updateInfo.targetReplicaCount
+    - api_field: stateInfo.updateInfo.targetShardCount
+    - field: terraform_labels
+      provider_only: true
+    - api_field: transitEncryptionMode
+    - api_field: uid
+    - api_field: zoneDistributionConfig.mode
+    - api_field: zoneDistributionConfig.zone

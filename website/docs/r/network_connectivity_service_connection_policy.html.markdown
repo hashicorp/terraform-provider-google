@@ -191,7 +191,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `error` -
   (Optional)
   The most recent error during operating this connection.
-  Structure is [documented below](#nested_psc_connections_psc_connections_error).
+  Structure is [documented below](#nested_psc_connections_error).
 
 * `gce_operation` -
   (Optional)
@@ -208,10 +208,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `error_info` -
   (Optional)
   The error info for the latest error during operating this connection.
-  Structure is [documented below](#nested_psc_connections_psc_connections_error_info).
+  Structure is [documented below](#nested_psc_connections_error_info).
 
 
-<a name="nested_psc_connections_psc_connections_error"></a>The `error` block supports:
+<a name="nested_psc_connections_error"></a>The `error` block supports:
 
 * `message` -
   (Optional)
@@ -225,7 +225,7 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   A list of messages that carry the error details.
 
-<a name="nested_psc_connections_psc_connections_error_info"></a>The `error_info` block supports:
+<a name="nested_psc_connections_error_info"></a>The `error_info` block supports:
 
 * `reason` -
   (Optional)
