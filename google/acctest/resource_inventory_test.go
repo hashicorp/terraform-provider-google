@@ -243,14 +243,17 @@ func TestValidateResourceMetadata(t *testing.T) {
 
 	// Validate yaml files
 	for resourceName, m := range metaResources {
+		if m.Resource == "" {
+			t.Errorf("`resource` is missing from %s", m.Path)
+		}
 		if m.ServicePackage == "" {
-			t.Errorf("%s isn't in a service package", resourceName)
+			t.Errorf("can't detect service package for %s", m.Path)
 		}
 
 		if m.ApiServiceName == "" {
 			// Allowlist google_container_registry because it doesn't clearly correspond to a service
 			if resourceName != "google_container_registry" {
-				t.Errorf("%s is missing `api_service_name`", m.Path)
+				t.Errorf("`api_service_name` is missing from %s", m.Path)
 			}
 		}
 
