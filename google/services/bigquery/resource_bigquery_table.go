@@ -266,6 +266,10 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 			return false
 		}
 		return bigQueryTableTypeEq(valA.(string), valB.(string))
+	case "collation":
+		equivalentSet := []interface{}{nil, ""}
+		eq := valueIsInArray(valA, equivalentSet) && valueIsInArray(valB, equivalentSet)
+		return eq
 	case "policyTags":
 		eq := bigQueryTableNormalizePolicyTags(valA) == nil && bigQueryTableNormalizePolicyTags(valB) == nil
 		return eq
@@ -3130,6 +3134,17 @@ func expandSchema(raw interface{}, managePolicyTags bool) (*bigquery.TableSchema
 		return nil, err
 	}
 
+	// Get raw fields to distinguish between unset fields and fields set to empty values.
+	var rawFields []interface{}
+	if err := json.Unmarshal([]byte(raw.(string)), &rawFields); err != nil {
+		return nil, fmt.Errorf("error parsing raw schema json: %s", err)
+	}
+
+	schemaForceSendFieldKeys := []string{"collation"}
+	if err := setSchemaForceSendFields(fields, rawFields, schemaForceSendFieldKeys); err != nil {
+		return nil, err
+	}
+
 	if managePolicyTags {
 		for _, field := range fields {
 			setEmptyPolicyTagsInSchema(field)
@@ -3146,6 +3161,33 @@ func flattenSchema(tableSchema *bigquery.TableSchema) (string, error) {
 	}
 
 	return string(schema), nil
+}
+
+// setSchemaForceSendFields recursively traverses the schema and adds fields
+// to ForceSendFields if a matching key is present in the raw JSON configuration.
+func setSchemaForceSendFields(fields []*bigquery.TableFieldSchema, rawFields []interface{}, schemaForceSendFieldKeys []string) error {
+	for i, field := range fields {
+		rawField := rawFields[i].(map[string]interface{})
+
+		for _, key := range schemaForceSendFieldKeys {
+			// If the key is present in the raw JSON (even if empty), force send it.
+			if _, ok := rawField[key]; ok {
+				// Convert JSON key to Struct Field Name (e.g., "collation" -> "Collation")
+				fieldName := strings.Title(key)
+				field.ForceSendFields = append(field.ForceSendFields, fieldName)
+			}
+		}
+
+		// Recurse for nested fields
+		if len(field.Fields) > 0 {
+			if rawNested, ok := rawField["fields"].([]interface{}); ok {
+				if err := setSchemaForceSendFields(field.Fields, rawNested, schemaForceSendFieldKeys); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // Explicitly set empty PolicyTags unless the PolicyTags field is specified in the schema.

@@ -1823,6 +1823,32 @@ func TestAccBigQueryTable_Update_SchemaWithPolicyTagsToEmptyPolicyTagNames(t *te
 	})
 }
 
+func TestAccBigQueryTable_SchemaWithEmptyCollation(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"dataset_id": fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10)),
+		"table_id":   fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithEmptyCollation(context),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryTable_invalidSchemas(t *testing.T) {
 	t.Parallel()
 	// Pending VCR support in https://github.com/hashicorp/terraform-provider-google/issues/15427.
@@ -4991,6 +5017,32 @@ resource "google_bigquery_table" "test" {
   EOF
 }
 `, datasetID, tableID, schema)
+}
+
+func testAccBigQueryTableWithEmptyCollation(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%{dataset_id}"
+  location   = "US"
+
+  default_table_expiration_ms = null
+  default_collation           = "und:ci"
+}
+
+resource "google_bigquery_table" "test" {
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%{table_id}"
+  deletion_protection = false
+
+  schema = jsonencode([
+    {
+      name      = "source"
+      type      = "STRING"
+      collation = ""
+    }
+  ])
+}
+`, context)
 }
 
 func testAccBigQueryTableWithSchemaAndRowAccessPolicy(context map[string]interface{}) string {
