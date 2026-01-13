@@ -112,11 +112,6 @@ func (mc *MetadataCache) Populate() error {
 			return nil
 		}
 
-		// Skip if resource is empty
-		if metadata.Resource == "" {
-			return nil
-		}
-
 		if _, ok := mc.cache[metadata.Resource]; ok {
 			return fmt.Errorf("duplicate resource: %s in %s", metadata.Resource, path)
 		}
