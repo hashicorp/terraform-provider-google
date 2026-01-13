@@ -137,39 +137,12 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"services": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Description: `Maps services to their current or planned states. Service names are keys,
 and the associated values describe the state of the service.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"service_name": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: `The name of the service, like "big-query" or "cloud-storage".
-This corresponds to the map key in the API.`,
-						},
-						"states": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: `The state and activation time details for the service.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"effective_time": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The time when the state becomes effective`,
-									},
-									"state": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The state of the resource.`,
-									},
-								},
-							},
-						},
-					},
-				},
+				Elem: networkconnectivityMulticloudDataTransferConfigServicesSchema(),
+				// Default schema.HashSchema is used.
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -229,6 +202,38 @@ created, the new resource is assigned a different and unique ID.`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func networkconnectivityMulticloudDataTransferConfigServicesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"service_name": {
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The name of the service, like "big-query" or "cloud-storage".
+This corresponds to the map key in the API.`,
+			},
+			"states": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The state and activation time details for the service.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"effective_time": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The time when the state becomes effective`,
+						},
+						"state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The state of the resource.`,
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -739,10 +744,7 @@ func expandNetworkConnectivityMulticloudDataTransferConfigServices(v interface{}
 		return make(map[string]interface{}), nil
 	}
 
-	l, ok := v.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("expected 'services' to be a list, got %T", v)
-	}
+	l := v.(*schema.Set).List()
 
 	req := make(map[string]interface{})
 	for _, raw := range l {
