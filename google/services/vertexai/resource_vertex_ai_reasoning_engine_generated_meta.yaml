@@ -20,6 +20,10 @@ fields:
     - api_field: spec.deploymentSpec.env.value
     - api_field: spec.deploymentSpec.maxInstances
     - api_field: spec.deploymentSpec.minInstances
+    - api_field: spec.deploymentSpec.pscInterfaceConfig.dnsPeeringConfigs.domain
+    - api_field: spec.deploymentSpec.pscInterfaceConfig.dnsPeeringConfigs.targetNetwork
+    - api_field: spec.deploymentSpec.pscInterfaceConfig.dnsPeeringConfigs.targetProject
+    - api_field: spec.deploymentSpec.pscInterfaceConfig.networkAttachment
     - api_field: spec.deploymentSpec.resourceLimits
     - api_field: spec.deploymentSpec.secretEnv.name
     - api_field: spec.deploymentSpec.secretEnv.secretRef.secret

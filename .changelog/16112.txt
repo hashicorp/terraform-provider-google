@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertex_ai: added `deployment_spec.psc_interface_config` to `google_vertex_ai_reasoning_engine`
+```

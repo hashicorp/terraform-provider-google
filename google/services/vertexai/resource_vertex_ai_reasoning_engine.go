@@ -204,6 +204,59 @@ range is [1, 100].`,
 										Description: `Optional. The minimum number of application instances that will be
 kept running at all times. Defaults to 1. Range: [0, 10].`,
 									},
+									"psc_interface_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Configuration for PSC-Interface.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"dns_peering_configs": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Optional. DNS peering configurations.
+When specified, Vertex AI will attempt to configure DNS
+peering zones in the tenant project VPC to resolve the
+specified domains using the target network's Cloud DNS.
+The user must grant the dns.peer role to the Vertex AI
+service Agent on the target project.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"domain": {
+																Type:     schema.TypeString,
+																Required: true,
+																Description: `Required. The DNS name suffix of the zone being peered
+to, e.g., "my-internal-domain.corp.".
+Must end with a dot.`,
+															},
+															"target_network": {
+																Type:     schema.TypeString,
+																Required: true,
+																Description: `Required. The VPC network name in the targetProject
+where the DNS zone specified by 'domain' is visible.`,
+															},
+															"target_project": {
+																Type:     schema.TypeString,
+																Required: true,
+																Description: `Required. The project id hosting the Cloud DNS managed
+zone that contains the 'domain'.
+The Vertex AI service Agent requires the dns.peer role
+on this project.`,
+															},
+														},
+													},
+												},
+												"network_attachment": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Optional. The name of the Compute Engine network attachment
+to attach to the resource within the region and user project.
+To specify this field, you must have already created a network attachment.
+This field is only used for resources using PSC-Interface.`,
+												},
+											},
+										},
+									},
 									"resource_limits": {
 										Type:     schema.TypeMap,
 										Computed: true,
@@ -876,6 +929,8 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpec(v interface{}, d *schema.R
 		flattenVertexAIReasoningEngineSpecDeploymentSpecEnv(original["env"], d, config)
 	transformed["secret_env"] =
 		flattenVertexAIReasoningEngineSpecDeploymentSpecSecretEnv(original["secretEnv"], d, config)
+	transformed["psc_interface_config"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfig(original["pscInterfaceConfig"], d, config)
 	transformed["resource_limits"] =
 		flattenVertexAIReasoningEngineSpecDeploymentSpecResourceLimits(original["resourceLimits"], d, config)
 	transformed["min_instances"] =
@@ -956,6 +1011,57 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpecSecretEnvSecretRefSecret(v 
 }
 
 func flattenVertexAIReasoningEngineSpecDeploymentSpecSecretEnvSecretRefVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["network_attachment"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigNetworkAttachment(original["networkAttachment"], d, config)
+	transformed["dns_peering_configs"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigs(original["dnsPeeringConfigs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigNetworkAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"domain":         flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsDomain(original["domain"], d, config),
+			"target_project": flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsTargetProject(original["targetProject"], d, config),
+			"target_network": flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsTargetNetwork(original["targetNetwork"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsDomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsTargetProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsTargetNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1243,6 +1349,13 @@ func expandVertexAIReasoningEngineSpecDeploymentSpec(v interface{}, d tpgresourc
 		transformed["secretEnv"] = transformedSecretEnv
 	}
 
+	transformedPscInterfaceConfig, err := expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfig(original["psc_interface_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPscInterfaceConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pscInterfaceConfig"] = transformedPscInterfaceConfig
+	}
+
 	transformedResourceLimits, err := expandVertexAIReasoningEngineSpecDeploymentSpecResourceLimits(original["resource_limits"], d, config)
 	if err != nil {
 		return nil, err
@@ -1386,6 +1499,90 @@ func expandVertexAIReasoningEngineSpecDeploymentSpecSecretEnvSecretRefSecret(v i
 }
 
 func expandVertexAIReasoningEngineSpecDeploymentSpecSecretEnvSecretRefVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedNetworkAttachment, err := expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigNetworkAttachment(original["network_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkAttachment"] = transformedNetworkAttachment
+	}
+
+	transformedDnsPeeringConfigs, err := expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigs(original["dns_peering_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDnsPeeringConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dnsPeeringConfigs"] = transformedDnsPeeringConfigs
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigNetworkAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDomain, err := expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsDomain(original["domain"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDomain); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["domain"] = transformedDomain
+		}
+
+		transformedTargetProject, err := expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsTargetProject(original["target_project"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTargetProject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["targetProject"] = transformedTargetProject
+		}
+
+		transformedTargetNetwork, err := expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsTargetNetwork(original["target_network"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTargetNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["targetNetwork"] = transformedTargetNetwork
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsDomain(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsTargetProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeeringConfigsTargetNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -60,6 +60,108 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   }
 }
 ```
+## Example Usage - Vertex Ai Reasoning Engine Psc Interface
+
+
+```hcl
+# When PSC-I is configured, Agent deletion will fail,
+# although the agent will be deleted.
+# Bug at https://github.com/hashicorp/terraform-provider-google/issues/25637
+
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "reasoning-engine"
+  description  = "A basic reasoning engine"
+  region       = "us-central1"
+
+  spec {
+    agent_framework = "google-adk"
+
+    package_spec {
+      python_version           = "3.11"
+      dependency_files_gcs_uri = "${google_storage_bucket.bucket.url}/${google_storage_bucket_object.bucket_obj_dependencies_tar_gz.name}"
+      pickle_object_gcs_uri    = "${google_storage_bucket.bucket.url}/${google_storage_bucket_object.bucket_obj_pickle.name}"
+      requirements_gcs_uri     = "${google_storage_bucket.bucket.url}/${google_storage_bucket_object.bucket_obj_requirements_txt.name}"
+    }
+
+    deployment_spec {
+
+      psc_interface_config {
+        network_attachment = google_compute_network_attachment.network_attachment.id
+
+        dns_peering_configs {
+          domain         = "example.com."
+          target_project = data.google_project.project.project_id
+          target_network = google_compute_network.network.name
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    time_sleep.wait_35_minutes
+  ]
+}
+
+resource "google_storage_bucket_object" "bucket_obj_requirements_txt" {
+  name   = "requirements.txt"
+  bucket = google_storage_bucket.bucket.id
+  source = "./test-fixtures/requirements_adk.txt"
+}
+
+resource "google_storage_bucket_object" "bucket_obj_pickle" {
+  name   = "code.pkl"
+  bucket = google_storage_bucket.bucket.id
+  source = "./test-fixtures/pickle_adk.pkl"
+}
+
+resource "google_storage_bucket_object" "bucket_obj_dependencies_tar_gz" {
+  name   = "dependencies.tar.gz"
+  bucket = google_storage_bucket.bucket.id
+  source = "./test-fixtures/dependencies_adk.tar.gz"
+}
+
+resource "google_storage_bucket" "bucket" {
+  name                        = "reasoning-engine"
+  location                    = "us-central1"
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
+# Destroy network attachment 35 minutes after reasoning engine is deleted.
+# It guarantees that the network attachment has no more active PSC interfaces.
+resource "time_sleep" "wait_35_minutes" {
+  destroy_duration = "35m"
+
+  depends_on = [
+    google_compute_network_attachment.network_attachment
+  ]
+}
+
+resource "google_compute_network_attachment" "network_attachment" {
+  name                  = "network-attachment"
+  region                = "us-central1"
+  connection_preference = "ACCEPT_MANUAL"
+
+  subnetworks = [
+    google_compute_subnetwork.subnetwork.id
+  ]
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "subnetwork"
+  region        = "us-central1"
+  ip_cidr_range = "10.0.0.0/16"
+  network       = google_compute_network.network.id
+}
+
+resource "google_compute_network" "network" {
+  name                    = "network"
+  auto_create_subnetworks = false
+}
+
+data "google_project" "project" {
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_full&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -344,6 +446,11 @@ The following arguments are supported:
   Platform Reasoning Engine service Agent.
   Structure is [documented below](#nested_spec_deployment_spec_secret_env).
 
+* `psc_interface_config` -
+  (Optional)
+  Optional. Configuration for PSC-Interface.
+  Structure is [documented below](#nested_spec_deployment_spec_psc_interface_config).
+
 * `resource_limits` -
   (Optional)
   Optional. Resource limits for each container.
@@ -418,6 +525,46 @@ The following arguments are supported:
   The Cloud Secret Manager secret version. Can be 'latest'
   for the latest version, an integer for a specific
   version, or a version alias.
+
+<a name="nested_spec_deployment_spec_psc_interface_config"></a>The `psc_interface_config` block supports:
+
+* `network_attachment` -
+  (Optional)
+  Optional. The name of the Compute Engine network attachment
+  to attach to the resource within the region and user project.
+  To specify this field, you must have already created a network attachment.
+  This field is only used for resources using PSC-Interface.
+
+* `dns_peering_configs` -
+  (Optional)
+  Optional. DNS peering configurations.
+  When specified, Vertex AI will attempt to configure DNS
+  peering zones in the tenant project VPC to resolve the
+  specified domains using the target network's Cloud DNS.
+  The user must grant the dns.peer role to the Vertex AI
+  service Agent on the target project.
+  Structure is [documented below](#nested_spec_deployment_spec_psc_interface_config_dns_peering_configs).
+
+
+<a name="nested_spec_deployment_spec_psc_interface_config_dns_peering_configs"></a>The `dns_peering_configs` block supports:
+
+* `domain` -
+  (Required)
+  Required. The DNS name suffix of the zone being peered
+  to, e.g., "my-internal-domain.corp.".
+  Must end with a dot.
+
+* `target_project` -
+  (Required)
+  Required. The project id hosting the Cloud DNS managed
+  zone that contains the 'domain'.
+  The Vertex AI service Agent requires the dns.peer role
+  on this project.
+
+* `target_network` -
+  (Required)
+  Required. The VPC network name in the targetProject
+  where the DNS zone specified by 'domain' is visible.
 
 <a name="nested_spec_package_spec"></a>The `package_spec` block supports:
 
