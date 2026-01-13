@@ -1,0 +1,7 @@
+```release-note:breaking-change
+networkconnectivity: changed `services` in `google_network_connectivity_multicloud_data_transfer_config` from TypeList to TypeSet. The order of or value of interpolations referencing the field may change.
+```
+
+```release-note:bug
+networkconnectivity: fixed a diff on `services` in `google_network_connectivity_multicloud_data_transfer_config` reordering elements
+```

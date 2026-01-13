@@ -75,6 +75,23 @@ func TestAccNetworkConnectivityMulticloudDataTransferConfig_update(t *testing.T)
 				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
 			{
+				Config: testAccNetworkConnectivityMulticloudDataTransferConfig_basic(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_connectivity_multicloud_data_transfer_config.example", plancheck.ResourceActionNoop),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_network_connectivity_multicloud_data_transfer_config.example", "services.#", "2"),
+				),
+			},
+			{
+				ResourceName:            "google_network_connectivity_multicloud_data_transfer_config.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
 				Config: testAccNetworkConnectivityMulticloudDataTransferConfig_addService(context),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
@@ -147,10 +164,10 @@ resource "google_network_connectivity_multicloud_data_transfer_config" "example"
   location    = "europe-west2"
   description = "A config for update tests"
   services {
-    service_name = "cloud-run"
+    service_name = "cloud-storage"
   }
   services {
-    service_name = "cloud-storage"
+    service_name = "cloud-run"
   }
 }
 `, context)
