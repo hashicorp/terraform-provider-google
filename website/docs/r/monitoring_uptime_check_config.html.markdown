@@ -188,9 +188,6 @@ resource "google_monitoring_uptime_check_config" "https" {
     port = "443"
     use_ssl = true
     validate_ssl = true
-    service_agent_authentication {
-      type = "OIDC_TOKEN"
-    }
   }
 
   monitored_resource {
