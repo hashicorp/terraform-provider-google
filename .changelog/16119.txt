@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: improved `google_container_cluster` reconciliation time by caching node pools and instance group managers after a list call instead of getting each one seperately.
+```
