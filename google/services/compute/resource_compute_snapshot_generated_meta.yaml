@@ -30,6 +30,7 @@ fields:
     - api_field: sourceDiskEncryptionKey.kmsKeyServiceAccount
     - api_field: sourceDiskEncryptionKey.rawKey
     - api_field: sourceDiskEncryptionKey.rsaEncryptedKey
+    - api_field: sourceInstantSnapshot
     - api_field: storageBytes
     - api_field: storageLocations
     - field: terraform_labels
