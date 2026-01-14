@@ -311,6 +311,15 @@ func TestAccComputeSecurityPolicy_withAdvancedOptionsConfig(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			// Add request_body_inspection_size value
+			{
+				Config: testAccComputeSecurityPolicy_withAdvancedOptionsConfig_update4(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config: testAccComputeSecurityPolicy_basic(spName, "CLOUD_ARMOR"),
 			},
@@ -1483,6 +1492,26 @@ resource "google_compute_security_policy" "policy" {
     log_level    = "NORMAL"
     user_ip_request_headers = [
     ]
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withAdvancedOptionsConfig_update4(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  advanced_options_config {
+    json_parsing = "STANDARD_WITH_GRAPHQL"
+    json_custom_config {
+      content_types = [
+        "application/json",
+        "application/vnd.hyper+json"
+      ]
+    }
+    log_level    = "NORMAL"
+    user_ip_request_headers = []
+    request_body_inspection_size = "64KB"
   }
 }
 `, spName)
