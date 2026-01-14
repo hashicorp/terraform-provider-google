@@ -328,6 +328,125 @@ resource "google_dialogflow_cx_webhook" "flexible_webhook" {
 `, context)
 }
 
+func TestAccDialogflowCXWebhook_dialogflowcxWebhookWithServiceAccountAuthExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"service_account": envvar.GetTestServiceAccountFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXWebhookDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXWebhook_dialogflowcxWebhookWithServiceAccountAuthExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_webhook.webhook_use_service_account",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXWebhook_dialogflowcxWebhookWithServiceAccountAuthExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location = "global"
+  default_language_code = "en"
+  supported_language_codes = ["it","de","es"]
+  time_zone = "America/New_York"
+  description = "Example description."
+  avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_webhook" "webhook_use_service_account" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyWebhook"
+  generic_web_service {
+		uri = "https://example.googleapis.com"
+    webhook_type = "STANDARD"
+    service_account_auth_config {
+      service_account = "%{service_account}"
+    }
+	}
+}
+`, context)
+}
+
+func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryWithServiceAccountAuthExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"service_account": envvar.GetTestServiceAccountFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXWebhookDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryWithServiceAccountAuthExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_webhook.webhook_use_service_account",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"generic_web_service.0.oauth_config.0.client_secret", "parent", "service_directory.0.generic_web_service.0.oauth_config.0.client_secret"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryWithServiceAccountAuthExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location = "us-central1"
+  default_language_code = "en"
+  supported_language_codes = ["it","de","es"]
+  time_zone = "America/New_York"
+  description = "Example description."
+  avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_webhook" "webhook_use_service_account" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyWebhook"
+  service_directory {
+    service = "projects/example-proj/locations/us-central1/namespaces/example-namespace/services/example-service"
+    generic_web_service {
+      uri = "https://example.googleapis.com"
+      webhook_type = "STANDARD"
+      service_account_auth_config {
+        service_account = "%{service_account}"
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckDialogflowCXWebhookDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
