@@ -24,6 +24,7 @@ fields:
       field: generic_web_service.secret_versions_for_request_headers.key
     - api_field: genericWebService.secretVersionsForRequestHeaders.value.secretVersion
       field: generic_web_service.secret_versions_for_request_headers.secret_version
+    - api_field: genericWebService.serviceAccountAuthConfig.serviceAccount
     - api_field: genericWebService.serviceAgentAuth
     - api_field: genericWebService.uri
     - api_field: genericWebService.webhookType
@@ -46,6 +47,7 @@ fields:
       field: service_directory.generic_web_service.secret_versions_for_request_headers.key
     - api_field: serviceDirectory.genericWebService.secretVersionsForRequestHeaders.value.secretVersion
       field: service_directory.generic_web_service.secret_versions_for_request_headers.secret_version
+    - api_field: serviceDirectory.genericWebService.serviceAccountAuthConfig.serviceAccount
     - api_field: serviceDirectory.genericWebService.serviceAgentAuth
     - api_field: serviceDirectory.genericWebService.uri
     - api_field: serviceDirectory.genericWebService.webhookType
