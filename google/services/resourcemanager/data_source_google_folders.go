@@ -88,7 +88,13 @@ func dataSourceGoogleFoldersRead(d *schema.ResourceData, meta interface{}) error
 
 	for {
 		params["parent"] = d.Get("parent_id").(string)
-		url := "https://cloudresourcemanager.googleapis.com/v3/folders"
+		url := ""
+		universeDomain := config.UniverseDomain
+		if universeDomain != "" && universeDomain != "googleapis.com" {
+			url = fmt.Sprintf("https://cloudresourcemanager.%s/v3/folders", universeDomain)
+		} else {
+			url = fmt.Sprintf("https://cloudresourcemanager.googleapis.com/v3/folders")
+		}
 
 		url, err := transport_tpg.AddQueryParams(url, params)
 		if err != nil {
