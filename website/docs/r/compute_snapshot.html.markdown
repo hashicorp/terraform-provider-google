@@ -114,6 +114,45 @@ resource "google_compute_disk" "persistent" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=snapshot_basic_source_instant_snapshot&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Snapshot Basic Source Instant Snapshot
+
+
+```hcl
+resource "google_compute_snapshot" "snapshot" {
+  name        = "my-snapshot"
+  zone        = "us-central1-a"
+  source_instant_snapshot = google_compute_instant_snapshot.instant_snapshot.id
+}
+
+resource "google_compute_instant_snapshot" "instant_snapshot" {
+  name        = "my-instant-snapshot"
+  source_disk = google_compute_disk.persistent.self_link
+  zone        = google_compute_disk.persistent.zone
+
+  description = "A test snapshot"
+  labels = {
+	foo = "bar"
+  }
+}
+
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "persistent" {
+  name  = "debian-disk"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=snapshot_chainname&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -162,10 +201,14 @@ The following arguments are supported:
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
 
+
 * `source_disk` -
-  (Required)
+  (Optional)
   A reference to the disk used to create this snapshot.
 
+* `source_instant_snapshot` -
+  (Optional)
+  A reference to the instant snapshot used to create this snapshot.
 
 * `chain_name` -
   (Optional)
