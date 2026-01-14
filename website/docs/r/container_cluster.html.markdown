@@ -542,6 +542,8 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
    This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
    See [Enable Lustre CSI driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/lustre-csi-driver-new-volume) for more information.
 
+* `pod_snapshot_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The status of the Pod Snapshot addon. It is disabled by default. Set `enabled = true` to enable.
+
 This example `addons_config` disables two addons:
 
 ```hcl
