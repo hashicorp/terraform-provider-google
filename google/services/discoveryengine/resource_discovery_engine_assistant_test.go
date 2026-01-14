@@ -80,7 +80,7 @@ resource "google_discovery_engine_assistant" "basic" {
   location                      = "global"
   collection_id                 = "default_collection"
   engine_id                     = google_discovery_engine_search_engine.basic.engine_id
-  assistant_id                  = "tf-test-assistant-id%{random_suffix}"
+  assistant_id                  = "default_assistant"
   display_name                  = "tf-test-Assistant"
   description                   = "Assistant Description"
   generation_config {
@@ -125,7 +125,7 @@ resource "google_discovery_engine_assistant" "basic" {
   location                      = "global"
   collection_id                 = "default_collection"
   engine_id                     = google_discovery_engine_search_engine.basic.engine_id
-  assistant_id                  = "tf-test-assistant-id%{random_suffix}"
+  assistant_id                  = "default_assistant"
   display_name                  = "updated-tf-test-Assistant"
   description                   = "New Assistant Description"
   generation_config {
