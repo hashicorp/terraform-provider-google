@@ -1030,6 +1030,24 @@ func TestAccNetappVolume_volumeExportPolicyWithSquashMode(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
 			},
 			{
+				Config: testAccNetappVolume_volumeExportPolicyWithRootSquashModeUpdate(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappVolume_volumeExportPolicyWithNoRootSquashModeUpdate(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
 				Config: testAccNetappVolume_volumeExportPolicyWithSquashMode_allSquash(context),
 			},
 			{
@@ -1086,6 +1104,78 @@ func testAccNetappVolume_volumeExportPolicyWithoutSquashMode(context map[string]
               allowed_clients = "0.0.0.0/0"
               nfsv3                 = true
               has_root_access = "true"
+          }
+      }
+  }
+
+  data "google_compute_network" "default" {
+      name = "%{network_name}"
+  }
+  `, context)
+}
+
+func testAccNetappVolume_volumeExportPolicyWithRootSquashModeUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_netapp_storage_pool" "default" {
+      name = "tf-test-pool%{random_suffix}"
+      location = "northamerica-northeast1"
+      service_level = "PREMIUM"
+      capacity_gib = "2048"
+      network = data.google_compute_network.default.id
+  }
+    resource "time_sleep" "wait_3_minutes" {
+        depends_on = [google_netapp_storage_pool.default]
+        create_duration = "3m"
+    }
+  resource "google_netapp_volume" "test_volume" {
+      location = "northamerica-northeast1"
+      name = "tf-test-test-volume%{random_suffix}"
+      capacity_gib = "200"
+      share_name = "tf-test-test-volume%{random_suffix}"
+      storage_pool = google_netapp_storage_pool.default.name
+      protocols = ["NFSV3"]
+      export_policy {
+          rules {
+              access_type     = "READ_NONE"
+              allowed_clients = "0.0.0.0/0"
+              nfsv3                 = true
+              squash_mode = "ROOT_SQUASH"
+          }
+      }
+  }
+
+  data "google_compute_network" "default" {
+      name = "%{network_name}"
+  }
+  `, context)
+}
+
+func testAccNetappVolume_volumeExportPolicyWithNoRootSquashModeUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_netapp_storage_pool" "default" {
+      name = "tf-test-pool%{random_suffix}"
+      location = "northamerica-northeast1"
+      service_level = "PREMIUM"
+      capacity_gib = "2048"
+      network = data.google_compute_network.default.id
+  }
+    resource "time_sleep" "wait_3_minutes" {
+        depends_on = [google_netapp_storage_pool.default]
+        create_duration = "3m"
+    }
+  resource "google_netapp_volume" "test_volume" {
+      location = "northamerica-northeast1"
+      name = "tf-test-test-volume%{random_suffix}"
+      capacity_gib = "200"
+      share_name = "tf-test-test-volume%{random_suffix}"
+      storage_pool = google_netapp_storage_pool.default.name
+      protocols = ["NFSV3"]
+      export_policy {
+          rules {
+              access_type     = "READ_NONE"
+              allowed_clients = "0.0.0.0/0"
+              nfsv3                 = true
+              squash_mode = "NO_ROOT_SQUASH"
           }
       }
   }
@@ -1352,4 +1442,48 @@ func testAccNetappVolume_volumeNfsv4BasicExample_update(context map[string]inter
         name = "%{network_name}"
     }
   `, context)
+}
+
+func TestSuppressSquashModeDiff(t *testing.T) {
+	cases := map[string]struct {
+		Old      string
+		New      string
+		Expected bool
+	}{
+		"Old is NO_ROOT_SQUASH, New is empty": {
+			Old: "NO_ROOT_SQUASH", New: "", Expected: true,
+		},
+		"Old is ROOT_SQUASH, New is empty": {
+			Old: "ROOT_SQUASH", New: "", Expected: true,
+		},
+		"user explicitly sets a value": {
+			Old: "NO_ROOT_SQUASH", New: "SOME_OTHER_MODE", Expected: false,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if netapp.SuppressSquashModeDiff("key", tc.Old, tc.New, nil) != tc.Expected {
+				t.Fatalf("Expected %v for %s vs %s", tc.Expected, tc.Old, tc.New)
+			}
+		})
+	}
+}
+
+func TestSuppressHasRootAccessDiff(t *testing.T) {
+	cases := map[string]struct {
+		Old      string
+		New      string
+		Expected bool
+	}{
+		"new is empty":                 {Old: "true", New: "", Expected: true},
+		"user explicitly sets a value": {Old: "true", New: "false", Expected: false},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if netapp.SuppressHasRootAccessDiff("key", tc.Old, tc.New, nil) != tc.Expected {
+				t.Fatalf("Expected %v for %s vs %s", tc.Expected, tc.Old, tc.New)
+			}
+		})
+	}
 }

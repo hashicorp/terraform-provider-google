@@ -1,0 +1,3 @@
+```release-note:bug
+netapp: fixed export_policy update bug with squash_mode in netapp volume
+```
