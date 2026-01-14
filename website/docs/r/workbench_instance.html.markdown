@@ -250,6 +250,7 @@ resource "google_workbench_instance" "instance" {
     metadata = {
       terraform = "true",
       serial-port-logging-enable = "false"
+      "enable-jupyterlab4" = "false"
     }
 
     reservation_affinity {
