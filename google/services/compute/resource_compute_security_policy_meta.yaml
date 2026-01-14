@@ -33,6 +33,7 @@ fields:
   - api_field: 'advancedOptionsConfig.jsonCustomConfig.contentTypes'
   - api_field: 'advancedOptionsConfig.jsonParsing'
   - api_field: 'advancedOptionsConfig.logLevel'
+  - api_field: 'advancedOptionsConfig.requestBodyInspectionSize'
   - api_field: 'advancedOptionsConfig.userIpRequestHeaders'
   - api_field: 'description'
   - field: 'effective_labels'
