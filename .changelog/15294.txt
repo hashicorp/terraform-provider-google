@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `FIPS_202205` enum to `PROFILE` field in `SSL_POLICY` and `REGION_SSL_POLICY` resources, and added `TLS_1_3` enum to `MIN_TLS_VERSION` field in `SSL_POLICY` and `REGION_SSL_POLICY` resources.
+```
