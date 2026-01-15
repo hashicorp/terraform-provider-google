@@ -162,7 +162,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorUpdateImmutableFieldCauseReplac
 					},
 				},
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_vpc_access_connector.connector", "name", fmt.Sprintf("immutable%s", context["random_suffix"])),
+					resource.TestCheckResourceAttr("google_vpc_access_connector.connector", "name", fmt.Sprintf("tf-test-immut%s", context["random_suffix"])),
 				),
 			},
 			{
@@ -333,7 +333,7 @@ resource "google_compute_network" "custom_test" {
 func testAccVPCAccessConnector_vpcAccessConnectorUpdateImmutableField(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vpc_access_connector" "connector" {
-  name          = "immutable%{random_suffix}"
+  name          = "tf-test-immut%{random_suffix}"
   subnet {
     name = google_compute_subnetwork.custom_test.name
   }
