@@ -3241,6 +3241,36 @@ func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodePoolNodeDrainConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodePoolNodeDrainConfig(cluster, np, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool_node_drain_config",
+						"node_pool.0.node_drain_config.0.respect_pdb_during_node_pool_deletion", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_pool_node_drain_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 	t.Parallel()
 
@@ -9988,6 +10018,31 @@ resource "google_container_cluster" "with_node_pool_node_config" {
   network    = "%s"
   subnetwork = "%s"
 
+  deletion_protection = false
+}
+`, cluster, np, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodePoolNodeDrainConfig(cluster, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_node_pool_node_drain_config" {
+  name     = "%s"
+  location = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  node_pool {
+    name       = "%s"
+    initial_node_count = 1
+    node_drain_config {
+      respect_pdb_during_node_pool_deletion = true
+    }
+  }
+
+  network    = "%s"
+  subnetwork = "%s"
   deletion_protection = false
 }
 `, cluster, np, networkName, subnetworkName)

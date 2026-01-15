@@ -168,6 +168,8 @@ cluster.
 * `node_count` - (Optional) The number of nodes per instance group. This field can be used to
     update the number of nodes per instance group but should not be used alongside `autoscaling`.
 
+* `node_drain_config` - (Optional) The node drain configuration of the pool. Structure is [documented below](#nested_node_drain_config).
+
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
 
@@ -254,11 +256,14 @@ cluster.
 <a name="network_performance_config"></a>The `network_performance_config` block supports:
 
 * `total_egress_bandwidth_tier` (Required) - Specifies the total network bandwidth tier for the NodePool. [Valid values](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters.nodePools#NodePool.Tier) include: "TIER_1" and "TIER_UNSPECIFIED".
-* ```
 
 <a name="pod_cidr_overprovision_config"></a>The `pod_cidr_overprovision_config` block supports:
 
 * `disabled` (Required) - Whether pod cidr overprovision is disabled.
+
+<a name="nested_node_drain_config"></a>The `node_drain_config` block supports:
+
+* `respect_pdb_during_node_pool_deletion` - (Optional) Whether to respect PodDisruptionBudget policy during node pool deletion.
 
 <a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
 

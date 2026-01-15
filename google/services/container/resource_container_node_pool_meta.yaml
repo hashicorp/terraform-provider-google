@@ -278,6 +278,8 @@ fields:
     api_field: 'config.windowsNodeConfig.osVersion'
   - field: 'node_config.workload_metadata_config.mode'
     api_field: 'config.workloadMetadataConfig.mode'
+  - field: 'node_drain_config.respect_pdb_during_node_pool_deletion'
+    api_field: 'nodeDrainConfig.respectPdbDuringNodePoolDeletion'
   - field: 'node_count'
     provider_only: true
   - field: 'node_locations'
