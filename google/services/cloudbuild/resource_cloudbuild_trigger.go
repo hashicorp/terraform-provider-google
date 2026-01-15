@@ -2611,7 +2611,7 @@ func flattenCloudBuildTriggerPubsubConfig(v interface{}, d *schema.ResourceData,
 	transformed["topic"] =
 		flattenCloudBuildTriggerPubsubConfigTopic(original["topic"], d, config)
 	transformed["service_account_email"] =
-		flattenCloudBuildTriggerPubsubConfigServiceAccountEmail(original["service_account_email"], d, config)
+		flattenCloudBuildTriggerPubsubConfigServiceAccountEmail(original["serviceAccountEmail"], d, config)
 	transformed["state"] =
 		flattenCloudBuildTriggerPubsubConfigState(original["state"], d, config)
 	return []interface{}{transformed}
@@ -4178,7 +4178,7 @@ func expandCloudBuildTriggerPubsubConfig(v interface{}, d tpgresource.TerraformR
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["service_account_email"] = transformedServiceAccountEmail
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
 	}
 
 	transformedState, err := expandCloudBuildTriggerPubsubConfigState(original["state"], d, config)
