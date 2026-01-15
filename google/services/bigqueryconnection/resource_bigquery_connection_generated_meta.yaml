@@ -27,7 +27,7 @@ fields:
     - api_field: cloudSql.instanceId
     - api_field: cloudSql.serviceAccountId
     - api_field: cloudSql.type
-    - api_field: connection_id
+    - api_field: connectionId
     - api_field: description
     - api_field: friendlyName
     - api_field: hasCredential
