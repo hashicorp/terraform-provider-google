@@ -645,6 +645,22 @@ var schemaNodePool = map[string]*schema.Schema{
 			},
 		},
 	},
+
+	"node_drain_config": {
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		Description: `Node drain configuration for this NodePool.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"respect_pdb_during_node_pool_deletion": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: `Whether to respect PodDisruptionBudget policy during node pool deletion.`,
+				},
+			},
+		},
+	},
 }
 
 type NodePoolInformation struct {
@@ -1238,6 +1254,15 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "node_drain_config"); ok {
+		nodeDrainConfig := v.([]interface{})[0].(map[string]interface{})
+		np.NodeDrainConfig = &container.NodeDrainConfig{}
+
+		if v, ok := nodeDrainConfig["respect_pdb_during_node_pool_deletion"]; ok {
+			np.NodeDrainConfig.RespectPdbDuringNodePoolDeletion = v.(bool)
+		}
+	}
+
 	return np, nil
 }
 
@@ -1280,6 +1305,17 @@ func flattenNodePoolUpgradeSettings(us *container.UpgradeSettings) []map[string]
 
 	upgradeSettings["strategy"] = us.Strategy
 	return []map[string]interface{}{upgradeSettings}
+}
+
+func flattenNodePoolNodeDrainConfig(ndc *container.NodeDrainConfig) []map[string]interface{} {
+	if ndc == nil {
+		return nil
+	}
+
+	nodeDrainConfig := make(map[string]interface{})
+
+	nodeDrainConfig["respect_pdb_during_node_pool_deletion"] = ndc.RespectPdbDuringNodePoolDeletion
+	return []map[string]interface{}{nodeDrainConfig}
 }
 
 func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *container.NodePool, prefix string) (map[string]interface{}, error) {
@@ -1384,6 +1420,10 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 		nodePool["upgrade_settings"] = flattenNodePoolUpgradeSettings(np.UpgradeSettings)
 	} else {
 		delete(nodePool, "upgrade_settings")
+	}
+
+	if np.NodeDrainConfig != nil {
+		nodePool["node_drain_config"] = flattenNodePoolNodeDrainConfig(np.NodeDrainConfig)
 	}
 
 	return nodePool, nil
@@ -1818,6 +1858,43 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 			log.Printf("[INFO] Updated network_config for node pool %s", name)
 		}
+	}
+
+	if d.HasChange(prefix + "node_drain_config") {
+		nodeDrainConfig := &container.NodeDrainConfig{}
+		if v, ok := d.GetOk(prefix + "node_drain_config"); ok {
+			nodeDrain := v.([]interface{})[0].(map[string]interface{})
+			if v, ok := nodeDrain["respect_pdb_during_node_pool_deletion"]; ok {
+				nodeDrainConfig.RespectPdbDuringNodePoolDeletion = v.(bool)
+			}
+		}
+		req := &container.UpdateNodePoolRequest{
+			NodeDrainConfig: nodeDrainConfig,
+		}
+
+		updateF := func() error {
+			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+
+			if config.UserProjectOverride {
+				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+			}
+			op, err := clusterNodePoolsUpdateCall.Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return ContainerOperationWait(config, op,
+				nodePoolInfo.project,
+				nodePoolInfo.location,
+				"updating GKE node pool node_drain_config", userAgent, timeout)
+		}
+
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] Updated node_drain_config in Node Pool %s", name)
 	}
 
 	return nil
