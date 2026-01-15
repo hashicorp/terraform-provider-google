@@ -415,7 +415,7 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("connection_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(connectionIdProp)) && (ok || !reflect.DeepEqual(v, connectionIdProp)) {
-		obj["connection_id"] = connectionIdProp
+		obj["connectionId"] = connectionIdProp
 	}
 	friendlyNameProp, err := expandBigqueryConnectionConnectionFriendlyName(d.Get("friendly_name"), d, config)
 	if err != nil {
@@ -574,7 +574,7 @@ func resourceBigqueryConnectionConnectionRead(d *schema.ResourceData, meta inter
 	if err := d.Set("name", flattenBigqueryConnectionConnectionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
-	if err := d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId(res["connection_id"], d, config)); err != nil {
+	if err := d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId(res["connectionId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
 	if err := d.Set("friendly_name", flattenBigqueryConnectionConnectionFriendlyName(res["friendlyName"], d, config)); err != nil {
@@ -1598,8 +1598,8 @@ func expandBigqueryConnectionConnectionSparkSparkHistoryServerConfigDataprocClus
 }
 
 func resourceBigqueryConnectionConnectionEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// connection_id is needed to qualify the URL but cannot be sent in the body
-	delete(obj, "connection_id")
+	// connectionId is needed to qualify the URL but cannot be sent in the body
+	delete(obj, "connectionId")
 	return obj, nil
 }
 
@@ -1611,7 +1611,7 @@ func resourceBigqueryConnectionConnectionPostCreateSetComputedFields(d *schema.R
 	}
 	// connection_id is set by API when unset
 	if tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("connection_id"))) {
-		if err := d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId(res["connection_id"], d, config)); err != nil {
+		if err := d.Set("connection_id", flattenBigqueryConnectionConnectionConnectionId(res["connectionId"], d, config)); err != nil {
 			return fmt.Errorf(`Error setting computed identity field "connection_id": %s`, err)
 		}
 	}
