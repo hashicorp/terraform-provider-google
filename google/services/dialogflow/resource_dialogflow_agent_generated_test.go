@@ -54,6 +54,7 @@ func TestAccDialogflowAgent_dialogflowAgentFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -77,7 +78,31 @@ func TestAccDialogflowAgent_dialogflowAgentFullExample(t *testing.T) {
 
 func testAccDialogflowAgent_dialogflowAgentFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_project" "agent_project" {
+  project_id = "tf-test-my-project%{random_suffix}"
+  name = "tf-test-my-project%{random_suffix}"
+  org_id = "%{org_id}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "agent_project" {
+  project = google_project.agent_project.project_id
+  service = "dialogflow.googleapis.com"
+  disable_dependent_services = false
+}
+
+resource "google_service_account" "dialogflow_service_account" {
+  account_id = "tf-test-my-account%{random_suffix}"
+}
+
+resource "google_project_iam_member" "agent_create" {
+  project = google_project_service.agent_project.project
+  role    = "roles/dialogflow.admin"
+  member  = "serviceAccount:${google_service_account.dialogflow_service_account.email}"
+}
+
 resource "google_dialogflow_agent" "full_agent" {
+  project = google_project.agent_project.project_id
   display_name = "tf-test-dialogflow-agent%{random_suffix}"
   default_language_code = "en"
   supported_language_codes = ["fr","de","es"]
