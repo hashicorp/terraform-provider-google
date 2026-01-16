@@ -1,0 +1,3 @@
+```release-note:bug
+cloudasset: fixed bug in `google_cloud_asset_folder_feed` where `folder_id` was always empty
+```

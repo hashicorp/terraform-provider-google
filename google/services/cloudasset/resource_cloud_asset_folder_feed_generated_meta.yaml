@@ -22,5 +22,6 @@ fields:
     - api_field: feedOutputConfig.pubsubDestination.topic
     - field: folder
       provider_only: true
-    - api_field: folder_id
+    - field: folder_id
+      provider_only: true
     - api_field: name

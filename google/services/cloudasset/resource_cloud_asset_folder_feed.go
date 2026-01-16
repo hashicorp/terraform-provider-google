@@ -368,9 +368,6 @@ func resourceCloudAssetFolderFeedRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudAssetFolderFeed %q", d.Id()))
 	}
 
-	if err := d.Set("folder_id", flattenCloudAssetFolderFeedFolderId(res["folder_id"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FolderFeed: %s", err)
-	}
 	if err := d.Set("name", flattenCloudAssetFolderFeedName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FolderFeed: %s", err)
 	}
@@ -556,10 +553,6 @@ func resourceCloudAssetFolderFeedImport(d *schema.ResourceData, meta interface{}
 		return nil, err
 	}
 	return []*schema.ResourceData{d}, nil
-}
-
-func flattenCloudAssetFolderFeedFolderId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenCloudAssetFolderFeedName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
