@@ -40,6 +40,12 @@ fields:
     - api_field: backfillAll.postgresqlExcludedObjects.postgresqlSchemas.schema
     - api_field: backfillAll.salesforceExcludedObjects.objects.fields.name
     - api_field: backfillAll.salesforceExcludedObjects.objects.objectName
+    - api_field: backfillAll.spannerExcludedObjects.schemas.schema
+    - api_field: backfillAll.spannerExcludedObjects.schemas.tables.columns.column
+    - api_field: backfillAll.spannerExcludedObjects.schemas.tables.columns.dataType
+    - api_field: backfillAll.spannerExcludedObjects.schemas.tables.columns.isPrimaryKey
+    - api_field: backfillAll.spannerExcludedObjects.schemas.tables.columns.ordinalPosition
+    - api_field: backfillAll.spannerExcludedObjects.schemas.tables.table
     - api_field: backfillAll.sqlServerExcludedObjects.schemas.schema
     - api_field: backfillAll.sqlServerExcludedObjects.schemas.tables.columns.column
     - api_field: backfillAll.sqlServerExcludedObjects.schemas.tables.columns.dataType
@@ -101,6 +107,8 @@ fields:
     - api_field: ruleSets.objectFilter.sourceObjectIdentifier.postgresqlIdentifier.schema
     - api_field: ruleSets.objectFilter.sourceObjectIdentifier.postgresqlIdentifier.table
     - api_field: ruleSets.objectFilter.sourceObjectIdentifier.salesforceIdentifier.objectName
+    - api_field: ruleSets.objectFilter.sourceObjectIdentifier.spannerIdentifier.schema
+    - api_field: ruleSets.objectFilter.sourceObjectIdentifier.spannerIdentifier.table
     - api_field: ruleSets.objectFilter.sourceObjectIdentifier.sqlServerIdentifier.schema
     - api_field: ruleSets.objectFilter.sourceObjectIdentifier.sqlServerIdentifier.table
     - api_field: sourceConfig.mongodbSourceConfig.excludeObjects.databases.collections.collection
@@ -187,6 +195,24 @@ fields:
     - api_field: sourceConfig.salesforceSourceConfig.includeObjects.objects.objectName
     - api_field: sourceConfig.salesforceSourceConfig.pollingInterval
     - api_field: sourceConfig.sourceConnectionProfile
+    - api_field: sourceConfig.spannerSourceConfig.backfillDataBoostEnabled
+    - api_field: sourceConfig.spannerSourceConfig.changeStreamName
+    - api_field: sourceConfig.spannerSourceConfig.excludeObjects.schemas.schema
+    - api_field: sourceConfig.spannerSourceConfig.excludeObjects.schemas.tables.columns.column
+    - api_field: sourceConfig.spannerSourceConfig.excludeObjects.schemas.tables.columns.dataType
+    - api_field: sourceConfig.spannerSourceConfig.excludeObjects.schemas.tables.columns.isPrimaryKey
+    - api_field: sourceConfig.spannerSourceConfig.excludeObjects.schemas.tables.columns.ordinalPosition
+    - api_field: sourceConfig.spannerSourceConfig.excludeObjects.schemas.tables.table
+    - api_field: sourceConfig.spannerSourceConfig.fgacRole
+    - api_field: sourceConfig.spannerSourceConfig.includeObjects.schemas.schema
+    - api_field: sourceConfig.spannerSourceConfig.includeObjects.schemas.tables.columns.column
+    - api_field: sourceConfig.spannerSourceConfig.includeObjects.schemas.tables.columns.dataType
+    - api_field: sourceConfig.spannerSourceConfig.includeObjects.schemas.tables.columns.isPrimaryKey
+    - api_field: sourceConfig.spannerSourceConfig.includeObjects.schemas.tables.columns.ordinalPosition
+    - api_field: sourceConfig.spannerSourceConfig.includeObjects.schemas.tables.table
+    - api_field: sourceConfig.spannerSourceConfig.maxConcurrentBackfillTasks
+    - api_field: sourceConfig.spannerSourceConfig.maxConcurrentCdcTasks
+    - api_field: sourceConfig.spannerSourceConfig.spannerRpcPriority
     - api_field: sourceConfig.sqlServerSourceConfig.changeTables
     - api_field: sourceConfig.sqlServerSourceConfig.excludeObjects.schemas.schema
     - api_field: sourceConfig.sqlServerSourceConfig.excludeObjects.schemas.tables.columns.column
