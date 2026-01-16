@@ -12,8 +12,8 @@ fields:
       field: bgp_best_path_selection_mode
     - api_field: routingConfig.bgpInterRegionCost
       field: bgp_inter_region_cost
-    - api_field: routingConfig.delete_bgp_always_compare_med
-      field: delete_bgp_always_compare_med
+    - field: delete_bgp_always_compare_med
+      provider_only: true
     - field: delete_default_routes_on_create
       provider_only: true
     - api_field: description
