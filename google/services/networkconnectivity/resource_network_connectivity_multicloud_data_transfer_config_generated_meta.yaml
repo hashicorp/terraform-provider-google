@@ -17,9 +17,12 @@ fields:
       provider_only: true
     - field: name
       provider_only: true
-    - api_field: services.service_name
-    - api_field: services.states.effective_time
-    - api_field: services.states.state
+    - api_field: services.key
+      field: services.service_name
+    - api_field: services.value.states.effectiveTime
+      field: services.states.effective_time
+    - api_field: services.value.states.state
+      field: services.states.state
     - field: terraform_labels
       provider_only: true
     - api_field: uid
