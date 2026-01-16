@@ -71,7 +71,7 @@ func TestAccCloudAssetFolderFeed_cloudAssetFolderFeedExample(t *testing.T) {
 				ResourceName:            "google_cloud_asset_folder_feed.folder_feed",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_project", "feed_id", "folder"},
+				ImportStateVerifyIgnore: []string{"billing_project", "feed_id", "folder", "folder_id"},
 			},
 		},
 	})
