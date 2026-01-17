@@ -59,8 +59,8 @@ type Metadata struct {
 type MetadataField struct {
 	ApiField     string `yaml:"api_field"`
 	Field        string `yaml:"field"`
-	ProviderOnly string `yaml:"provider_only"`
-	Json         string `yaml:"json"`
+	ProviderOnly bool   `yaml:"provider_only"`
+	Json         bool   `yaml:"json"`
 }
 
 type MetadataCache struct {

@@ -21,7 +21,6 @@ fields:
     - api_field: genericWebService.requestHeaders
     - api_field: genericWebService.secretVersionForUsernamePassword
     - api_field: genericWebService.secretVersionsForRequestHeaders.key
-      field: generic_web_service.secret_versions_for_request_headers.key
     - api_field: genericWebService.secretVersionsForRequestHeaders.value.secretVersion
       field: generic_web_service.secret_versions_for_request_headers.secret_version
     - api_field: genericWebService.serviceAccountAuthConfig.serviceAccount
@@ -44,7 +43,6 @@ fields:
     - api_field: serviceDirectory.genericWebService.requestHeaders
     - api_field: serviceDirectory.genericWebService.secretVersionForUsernamePassword
     - api_field: serviceDirectory.genericWebService.secretVersionsForRequestHeaders.key
-      field: service_directory.generic_web_service.secret_versions_for_request_headers.key
     - api_field: serviceDirectory.genericWebService.secretVersionsForRequestHeaders.value.secretVersion
       field: service_directory.generic_web_service.secret_versions_for_request_headers.secret_version
     - api_field: serviceDirectory.genericWebService.serviceAccountAuthConfig.serviceAccount
