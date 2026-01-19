@@ -719,3 +719,68 @@ resource "google_cloudbuild_trigger" "build_trigger" {
 }
 `, name)
 }
+
+func TestAccCloudBuildTrigger_manualTrigger(t *testing.T) {
+	t.Parallel()
+	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_manualTrigger(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.manual_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudBuildTrigger_manualTriggerUpdate(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.manual_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_manualTrigger(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "manual_trigger" {
+  name        = "%s"
+  description = "Manual trigger without source configuration"
+
+  build {
+    step {
+      name = "gcr.io/cloud-builders/gcloud"
+      args = ["version"]
+    }
+  }
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_manualTriggerUpdate(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "manual_trigger" {
+  name        = "%s"
+  description = "Updated manual trigger"
+
+  build {
+    step {
+      name = "gcr.io/cloud-builders/gcloud"
+      args = ["version"]
+    }
+    step {
+      name = "gcr.io/cloud-builders/gcloud"
+      args = ["info"]
+    }
+  }
+}
+`, name)
+}
