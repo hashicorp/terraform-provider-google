@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -253,30 +254,46 @@ func testAccCheckGoogleProjectDefaultServiceAccountsChanges(t *testing.T, projec
 func testAccCheckGoogleProjectDefaultServiceAccountsRevert(t *testing.T, project, action string) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-		response, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.List(resourcemanager.PrefixedProject(project)).Do()
-		if err != nil {
-			return fmt.Errorf("failed to list service accounts on project %q: %v", project, err)
-		}
-		for _, sa := range response.Accounts {
-			if testAccIsDefaultServiceAccount(sa.DisplayName) {
-				// We agreed to not revert the DEPRIVILEGE action because will be hard to track the roles over the time
-				if action == "DISABLE" {
-					if sa.Disabled {
-						return fmt.Errorf("compute engine default service account is not enabled, disable field is %t", sa.Disabled)
+
+		attempts := 5
+		delay := 1 * time.Second
+		maxDelay := 30 * time.Second
+
+		for i := 0; i < attempts; i++ {
+			response, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.List(resourcemanager.PrefixedProject(project)).Do()
+
+			if err != nil {
+				return fmt.Errorf("failed to list service accounts on project %q: %v", project, err)
+			}
+			for _, sa := range response.Accounts {
+				if testAccIsDefaultServiceAccount(sa.DisplayName) {
+					// We agreed to not revert the DEPRIVILEGE action because will be hard to track the roles over the time
+					if action == "DISABLE" {
+						if !sa.Disabled {
+							return nil
+						}
+					} else if action == "DELETE" {
+						// A deleted service account was found meaning the undelete action triggered
+						// on destroy worked
+						return nil
 					}
-				} else if action == "DELETE" {
-					// A deleted service account was found meaning the undelete action triggered
-					// on destroy worked
-					return nil
 				}
 			}
+
+			delay = min(delay*2, maxDelay)
+			time.Sleep(delay)
 		}
+
 		// if action is DELETE, the service account should be found in the previous loop
 		// due to undelete action
 		if action == "DELETE" {
 			return fmt.Errorf("service account changes were not reverted after destroy")
 		}
 
+		// if action is DISABLE, the serice account should be found and enabled in the previous loop
+		if action == "DISABLE" {
+			return fmt.Errorf("compute engine default service account is not enabled")
+		}
 		return nil
 	}
 }
