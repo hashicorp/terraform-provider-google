@@ -454,6 +454,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_vmwareengine_private_cloud":                          vmwareengine.DataSourceVmwareenginePrivateCloud(),
 	"google_vmwareengine_subnet":                                 vmwareengine.DataSourceVmwareengineSubnet(),
 	"google_vmwareengine_vcenter_credentials":                    vmwareengine.DataSourceVmwareengineVcenterCredentials(),
+	"google_vmwareengine_datastore":                              vmwareengine.DataSourceVmwareengineDatastore(),
 	"google_compute_region_backend_service":                      compute.DataSourceGoogleComputeRegionBackendService(),
 	"google_network_management_connectivity_test_run":            networkmanagement.DataSourceGoogleNetworkManagementTestRun(),
 	"google_network_management_connectivity_tests":               networkmanagement.DataSourceGoogleNetworkManagementConnectivityTests(),
@@ -591,9 +592,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 708
+// Generated resources: 709
 // Generated IAM resources: 327
-// Total generated resources: 1035
+// Total generated resources: 1036
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1587,6 +1588,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_vertex_ai_reasoning_engine":                                          vertexai.ResourceVertexAIReasoningEngine(),
 	"google_vertex_ai_tensorboard":                                               vertexai.ResourceVertexAITensorboard(),
 	"google_vmwareengine_cluster":                                                vmwareengine.ResourceVmwareengineCluster(),
+	"google_vmwareengine_datastore":                                              vmwareengine.ResourceVmwareengineDatastore(),
 	"google_vmwareengine_external_access_rule":                                   vmwareengine.ResourceVmwareengineExternalAccessRule(),
 	"google_vmwareengine_external_address":                                       vmwareengine.ResourceVmwareengineExternalAddress(),
 	"google_vmwareengine_network":                                                vmwareengine.ResourceVmwareengineNetwork(),
