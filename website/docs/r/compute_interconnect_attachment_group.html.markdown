@@ -185,6 +185,14 @@ In addition to the arguments listed above, the following computed attributes are
   Interconnects.
 
 * `attachment` -
+  (Output, Deprecated)
+  URLs of Attachments in the given zone, to the given
+  region, on Interconnects in the given facility and metro. Every
+  Attachment in the AG has such an entry.
+
+  ~> **Warning:** `attachment` is deprecated and will be removed in a future major release. Use `attachments` instead.
+
+* `attachments` -
   (Output)
   URLs of Attachments in the given zone, to the given
   region, on Interconnects in the given facility and metro. Every
