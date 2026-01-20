@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_vmwareengine_datastore`
+```
+
+```release-note:new-datasource
+`google_vmwareengine_datastore`
+```
