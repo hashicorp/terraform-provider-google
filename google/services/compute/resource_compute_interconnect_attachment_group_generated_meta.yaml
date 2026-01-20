@@ -23,6 +23,7 @@ fields:
     - api_field: interconnectGroup
     - api_field: logicalStructure.regions.metros.facilities.facility
     - api_field: logicalStructure.regions.metros.facilities.zones.attachment
+    - api_field: logicalStructure.regions.metros.facilities.zones.attachments
     - api_field: logicalStructure.regions.metros.facilities.zones.zone
     - api_field: logicalStructure.regions.metros.metro
     - api_field: logicalStructure.regions.region
