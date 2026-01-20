@@ -297,8 +297,8 @@ resource "google_sql_database_instance" "instance" {
       enabled = true
       binary_log_enabled = true
     }
-    backupdr_backup = "backupdr_backup_full_path"
   }
+  backupdr_backup = "backupdr_backup_full_path"
 }
 ```
 
