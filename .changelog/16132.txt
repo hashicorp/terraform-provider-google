@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `managed_opentelemetry_config`to `google_container_cluster` resource
+```
