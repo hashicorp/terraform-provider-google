@@ -1,0 +1,3 @@
+```release-note:bug
+cloud_security_compliance: update the example in documentation for `google_cloud_security_compliance_framework_deployment`
+```
