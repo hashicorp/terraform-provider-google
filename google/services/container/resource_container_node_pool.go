@@ -528,6 +528,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		Description: `Networking configuration for this NodePool. If specified, it overrides the cluster-level defaults.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+
 				"create_pod_range": {
 					Type:        schema.TypeBool,
 					Optional:    true,
@@ -558,6 +559,7 @@ var schemaNodePool = map[string]*schema.Schema{
 				"additional_node_network_configs": {
 					Type:        schema.TypeList,
 					Optional:    true,
+					Computed:    true,
 					ForceNew:    true,
 					Description: `We specify the additional node networks for this node pool using this list. Each node network corresponds to an additional interface`,
 					Elem: &schema.Resource{
@@ -565,12 +567,14 @@ var schemaNodePool = map[string]*schema.Schema{
 							"network": {
 								Type:        schema.TypeString,
 								Optional:    true,
+								Computed:    true,
 								ForceNew:    true,
 								Description: `Name of the VPC where the additional interface belongs.`,
 							},
 							"subnetwork": {
 								Type:        schema.TypeString,
 								Optional:    true,
+								Computed:    true,
 								ForceNew:    true,
 								Description: `Name of the subnetwork where the additional interface belongs.`,
 							},

@@ -6215,3 +6215,402 @@ resource "google_container_node_pool" "np" {
 }
 `, cluster, np, networkName, subnetworkName, storagePoolResourceName, location)
 }
+
+func testAccContainerNodePool_acceleratorNetworkProfile(clusterName, npName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name     = "%[1]s"
+  location = "us-central1-c"
+
+  remove_default_node_pool = true
+  initial_node_count       = 1
+
+  datapath_provider       = "ADVANCED_DATAPATH"
+  ip_allocation_policy    {} 
+  deletion_protection     = false
+}
+
+resource "google_container_node_pool" "np" {
+  name     = "%[2]s"
+  cluster  = google_container_cluster.primary.id
+  location = "us-central1-c"
+  
+  initial_node_count = 0
+
+  // Flex start configuration
+  queued_provisioning {
+    enabled = true
+  }
+  
+  autoscaling {
+    min_node_count = 0
+    max_node_count = 1
+  }
+  
+  node_config {
+    machine_type = "a3-highgpu-8g"
+    
+    guest_accelerator {
+      type  = "nvidia-h100-80gb"
+      count = 8
+      gpu_driver_installation_config {
+        gpu_driver_version = "LATEST"
+      }
+    }
+
+    // Disable Reservations for Flex Start
+    reservation_affinity {
+      consume_reservation_type = "NO_RESERVATION"
+    }
+    
+    ephemeral_storage_local_ssd_config {
+      local_ssd_count = 16
+    }
+    
+    oauth_scopes = [ "https://www.googleapis.com/auth/cloud-platform" ]
+  }
+
+  network_config {
+    accelerator_network_profile = "auto"
+  }
+}
+`, clusterName, npName)
+}
+
+func TestAccContainerNodePool_acceleratorNetworkProfile(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+
+	resourceName := "google_container_node_pool.np"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_acceleratorNetworkProfile(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", npName),
+					resource.TestCheckResourceAttr(resourceName, "node_config.0.machine_type", "a3-highgpu-8g"),
+					resource.TestCheckResourceAttr(resourceName, "network_config.0.accelerator_network_profile", "auto"),
+					resource.TestCheckResourceAttrSet(resourceName, "network_config.0.additional_node_network_configs.0.network"),
+					resource.TestCheckResourceAttrSet(resourceName, "network_config.0.additional_node_network_configs.0.subnetwork"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_node_count", "cluster", "terraform_labels", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_acceleratorNetworkProfile_manual(clusterName, npName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "main_net" {
+  name                    = "%[1]s-main-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "main_subnet" {
+  name                     = "%[1]s-main-subnet"
+  network                  = google_compute_network.main_net.name
+  ip_cidr_range            = "10.0.0.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+}
+
+// The Additional Network
+resource "google_compute_network" "add_net" {
+  name                    = "%[1]s-add-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "add_subnet" {
+  name          = "%[1]s-add-subnet"
+  network       = google_compute_network.add_net.name
+  ip_cidr_range = "10.1.0.0/24"
+  region        = "us-central1"
+}
+
+resource "google_container_cluster" "cluster" {
+  name     = "%[1]s"
+  location = "us-central1-c"
+  
+  network    = google_compute_network.main_net.id
+  subnetwork = google_compute_subnetwork.main_subnet.id
+
+  datapath_provider       = "ADVANCED_DATAPATH"
+
+  // Standard VPC-native setup
+  ip_allocation_policy {
+    cluster_ipv4_cidr_block  = "/16"
+    services_ipv4_cidr_block = "/22"
+  }
+
+  deletion_protection = false
+  initial_node_count  = 1
+}
+
+resource "google_container_node_pool" "np" {
+  name     = "%[2]s"
+  cluster  = google_container_cluster.cluster.id
+  location = "us-central1-c"
+  initial_node_count = 0
+
+  // Enabling Flex Start
+  queued_provisioning {
+	enabled = true
+  }
+  autoscaling {
+    min_node_count = 0
+    max_node_count = 1
+  }
+  node_config {
+    machine_type = "a3-highgpu-8g"
+    oauth_scopes = [ "https://www.googleapis.com/auth/cloud-platform" ]
+	guest_accelerator {
+		type = "nvidia-h100-80gb"
+		count = 8
+		gpu_driver_installation_config {
+			gpu_driver_version = "LATEST"
+		}
+	}
+	// Flex Start requirement
+	reservation_affinity {
+      consume_reservation_type = "NO_RESERVATION"
+    }
+	ephemeral_storage_local_ssd_config {
+      local_ssd_count = 16
+    }
+  }
+
+  network_config {
+    additional_node_network_configs {
+      network    = google_compute_network.add_net.name
+      subnetwork = google_compute_subnetwork.add_subnet.name
+    }
+  }
+}
+`, clusterName, npName)
+}
+
+func testAccContainerNodePool_acceleratorNetworkProfile_basic(clusterName, npName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "main_net" {
+  name                    = "%[1]s-main-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "main_subnet" {
+  name                     = "%[1]s-main-subnet"
+  network                  = google_compute_network.main_net.name
+  ip_cidr_range            = "10.0.0.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+}
+
+resource "google_container_cluster" "cluster" {
+  name     = "%[1]s"
+  location = "us-central1-c"
+  
+  network    = google_compute_network.main_net.id
+  subnetwork = google_compute_subnetwork.main_subnet.id
+
+  datapath_provider       = "ADVANCED_DATAPATH"
+
+  ip_allocation_policy {
+    cluster_ipv4_cidr_block  = "/16"
+    services_ipv4_cidr_block = "/22"
+  }
+
+  deletion_protection = false
+  initial_node_count  = 1
+}
+
+resource "google_container_node_pool" "np" {
+  name     = "%[2]s"
+  cluster  = google_container_cluster.cluster.id
+  location = "us-central1-c"
+  initial_node_count = 0
+
+  // Enabling Flex Start
+  queued_provisioning {
+	enabled = true
+  }
+  autoscaling {
+    min_node_count = 0
+    max_node_count = 1
+  }
+  node_config {
+    machine_type = "a3-highgpu-8g"
+    oauth_scopes = [ "https://www.googleapis.com/auth/cloud-platform" ]
+	guest_accelerator {
+		type = "nvidia-h100-80gb"
+		count = 8
+		gpu_driver_installation_config {
+			gpu_driver_version = "LATEST"
+		}
+	}
+	// Flex Start requirement
+	reservation_affinity {
+      consume_reservation_type = "NO_RESERVATION"
+    }
+	ephemeral_storage_local_ssd_config {
+      local_ssd_count = 16
+    }
+  }
+
+  // TEST CHANGE: Removing network_config entirely
+}
+`, clusterName, npName)
+}
+
+func testAccContainerNodePool_acceleratorNetworkProfile_auto(clusterName, npName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "main_net" {
+  name                    = "%[1]s-main-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "main_subnet" {
+  name                     = "%[1]s-main-subnet"
+  network                  = google_compute_network.main_net.name
+  ip_cidr_range            = "10.0.0.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+}
+
+resource "google_container_cluster" "cluster" {
+  name     = "%[1]s"
+  location = "us-central1-c"
+  
+  network    = google_compute_network.main_net.id
+  subnetwork = google_compute_subnetwork.main_subnet.id
+
+  datapath_provider       = "ADVANCED_DATAPATH"
+
+  ip_allocation_policy {
+    cluster_ipv4_cidr_block  = "/16"
+    services_ipv4_cidr_block = "/22"
+  }
+
+  deletion_protection = false
+  initial_node_count  = 1
+}
+
+resource "google_container_node_pool" "np" {
+  name     = "%[2]s"
+  cluster  = google_container_cluster.cluster.id
+  location = "us-central1-c"
+  initial_node_count = 0
+  
+  // Enabling Flex Start
+  queued_provisioning {
+	enabled = true
+  }
+  autoscaling {
+    min_node_count = 0
+    max_node_count = 1
+  }
+  node_config {
+    machine_type = "a3-highgpu-8g"
+    oauth_scopes = [ "https://www.googleapis.com/auth/cloud-platform" ]
+	guest_accelerator {
+		type = "nvidia-h100-80gb"
+		count = 8
+		gpu_driver_installation_config {
+			gpu_driver_version = "LATEST"
+		}
+	}
+	// Flex Start requirement
+	reservation_affinity {
+      consume_reservation_type = "NO_RESERVATION"
+    }
+	ephemeral_storage_local_ssd_config {
+      local_ssd_count = 16
+    }
+  }
+
+  // Setting ANP to AUTO
+  network_config {
+    accelerator_network_profile = "auto"
+  }
+}
+`, clusterName, npName)
+}
+
+func TestAccContainerNodePool_acceleratorNetworkProfile_Lifecycle(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	resourceName := "google_container_node_pool.np"
+	importIgnore := []string{"deletion_protection", "cluster", "initial_node_count"}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Step 1: Create with Manual Config (ANP Off)
+			{
+				Config: testAccContainerNodePool_acceleratorNetworkProfile_manual(clusterName, npName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", npName),
+					resource.TestCheckResourceAttr(resourceName, "node_config.0.machine_type", "a3-highgpu-8g"),
+					resource.TestCheckResourceAttr(resourceName, "network_config.0.additional_node_network_configs.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_config.0.accelerator_network_profile", ""),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: importIgnore,
+			},
+			// Step 2: Remove Manual Config (Expect Replacement)
+			{
+				Config: testAccContainerNodePool_acceleratorNetworkProfile_basic(clusterName, npName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionReplace),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "network_config.0.additional_node_network_configs.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "network_config.0.accelerator_network_profile", ""),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: importIgnore,
+			},
+			// Step 3: Enable ANP (Auto) (Expect Replacement Again)
+			{
+				Config: testAccContainerNodePool_acceleratorNetworkProfile_auto(clusterName, npName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionReplace),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "network_config.0.accelerator_network_profile", "auto"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: importIgnore,
+			},
+		},
+	})
+}

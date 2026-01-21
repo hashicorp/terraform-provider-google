@@ -22,6 +22,7 @@ fields:
   - api_field: 'name'
   - field: 'name_prefix'
     provider_only: true
+  
   - api_field: 'networkConfig.additionalNodeNetworkConfigs.network'
   - api_field: 'networkConfig.additionalNodeNetworkConfigs.subnetwork'
   - field: 'network_config.additional_pod_network_configs.max_pods_per_node'
