@@ -72,7 +72,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 				ResourceName:            "google_oracle_database_autonomous_database.myADB",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
 			},
 		},
 	})
@@ -128,7 +128,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 				ResourceName:            "google_oracle_database_autonomous_database.myADB",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
 			},
 		},
 	})
@@ -203,7 +203,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseOdb
 				ResourceName:            "google_oracle_database_autonomous_database.myADB",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
 			},
 		},
 	})
@@ -253,7 +253,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabasePub
 				ResourceName:            "google_oracle_database_autonomous_database.myADB",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
 			},
 		},
 	})
@@ -274,6 +274,52 @@ resource "google_oracle_database_autonomous_database" "myADB"{
     db_workload = "OLTP"
     license_type = "LICENSE_INCLUDED"
     mtls_connection_required = "true"
+    }
+  deletion_protection = "%{deletion_protection}"
+}
+`, context)
+}
+
+func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseDisasterRecoveryExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"adb_id":                    "do-not-delete-dr-adb",
+		"deletion_protection":       false,
+		"enable_backup_replication": true,
+		"location":                  "us-west3",
+		"peer_adb_name":             "projects/oci-terraform-testing-prod/locations/us-east4/autonomousDatabases/do-not-delete-dr-adb",
+		"project":                   "oci-terraform-testing-prod",
+		"random_suffix":             acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOracleDatabaseAutonomousDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseDisasterRecoveryExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_autonomous_database.myADB",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseDisasterRecoveryExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_oracle_database_autonomous_database" "myADB"{
+  autonomous_database_id = "%{adb_id}"
+  location = "%{location}"
+  project = "%{project}"
+  source_config {
+    autonomous_database = "%{peer_adb_name}"
+    automatic_backups_replication_enabled = "%{enable_backup_replication}"
     }
   deletion_protection = "%{deletion_protection}"
 }

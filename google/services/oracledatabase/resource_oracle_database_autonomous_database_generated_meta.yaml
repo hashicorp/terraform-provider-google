@@ -14,6 +14,7 @@ fields:
     - api_field: database
     - field: deletion_protection
       provider_only: true
+    - api_field: disasterRecoverySupportedLocations
     - api_field: displayName
     - field: effective_labels
       provider_only: true
@@ -25,6 +26,7 @@ fields:
     - api_field: network
     - api_field: odbNetwork
     - api_field: odbSubnet
+    - api_field: peerAutonomousDatabases
     - api_field: properties.actualUsedDataStorageSizeTb
     - api_field: properties.allocatedStorageSizeTb
     - api_field: properties.apexDetails.apexVersion
@@ -117,5 +119,7 @@ fields:
     - api_field: properties.totalAutoBackupStorageSizeGbs
     - api_field: properties.usedDataStorageSizeTbs
     - api_field: properties.vaultId
+    - api_field: sourceConfig.automaticBackupsReplicationEnabled
+    - api_field: sourceConfig.autonomousDatabase
     - field: terraform_labels
       provider_only: true
