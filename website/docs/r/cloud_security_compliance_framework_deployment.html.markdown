@@ -192,37 +192,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
     }
   }
 
-  cloud_control_metadata {
-    enforcement_mode = "AUDIT"
-    
-    cloud_control_details {
-      name                  = "organizations/123456789/locations/global/cloudControls/builtin-assign-correct-bucket-label"
-      major_revision_id     = "1"
 
-      parameters {
-        name = "threshold"
-        parameter_value {
-          number_value = 100.5
-        }
-      }
-      
-      parameters {
-        name = "regions"
-        parameter_value {
-          string_list_value {
-            values = ["us-central1", "us-west1", "us-east1"]
-          }
-        }
-      }
-      
-      parameters {
-        name = "location"
-        parameter_value {
-          string_value = "us-central1"
-        }
-      }
-    }
-  }
 }
 ```
 ## Example Usage - Cloudsecuritycompliance Framework Deployment Folder Creation
