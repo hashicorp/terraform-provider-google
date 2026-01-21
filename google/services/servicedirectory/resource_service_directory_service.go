@@ -291,6 +291,7 @@ func resourceServiceDirectoryServiceUpdate(d *schema.ResourceData, meta interfac
 	if d.HasChange("metadata") {
 		updateMask = append(updateMask, "annotations")
 	}
+
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
@@ -303,25 +304,21 @@ func resourceServiceDirectoryServiceUpdate(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
-	// if updateMask is empty we are not updating anything so skip the post
-	if len(updateMask) > 0 {
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
 
-		if err != nil {
-			return fmt.Errorf("Error updating Service %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Service %q: %#v", d.Id(), res)
-		}
-
+	if err != nil {
+		return fmt.Errorf("Error updating Service %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Service %q: %#v", d.Id(), res)
 	}
 
 	return resourceServiceDirectoryServiceRead(d, meta)
@@ -448,12 +445,14 @@ func expandServiceDirectoryServiceMetadata(v interface{}, d tpgresource.Terrafor
 }
 
 func resourceServiceDirectoryServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+
 	if obj["metadata"] == nil {
 		return obj, nil
 	}
 
 	obj["annotations"] = obj["metadata"].(map[string]string)
 	delete(obj, "metadata")
+
 	return obj, nil
 }
 
