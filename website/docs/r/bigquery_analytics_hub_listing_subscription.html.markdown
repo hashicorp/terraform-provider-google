@@ -85,6 +85,43 @@ resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
   }
 }
 ```
+## Example Usage - Bigquery Analyticshub Listing Subscription Multiregion
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
+  location         = "us"
+  data_exchange_id = "my_data_exchange"
+  display_name     = "my_data_exchange"
+}
+
+resource "google_bigquery_analytics_hub_listing" "subscription" {
+  location         = "us"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = "my_listing"
+  display_name     = "my_listing"
+
+  bigquery_dataset {
+    dataset = "projects/project_id/datasets/my_listing_example2"
+    replica_locations = ["eu"]
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
+  location = "us"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id = google_bigquery_analytics_hub_listing.subscription.listing_id
+
+  destination_dataset {
+    location = "us"
+    dataset_reference {
+      project_id = google_bigquery_analytics_hub_data_exchange.subscription.project
+      dataset_id = "destination_dataset"
+    }
+    replica_locations = ["eu"]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -138,6 +175,10 @@ The following arguments are supported:
   (Optional)
   The labels associated with this dataset. You can use these to
   organize and group your datasets.
+
+* `replica_locations` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  List of regions where the subscriber wants dataset replicas.
 
 
 <a name="nested_destination_dataset_dataset_reference"></a>The `dataset_reference` block supports:
