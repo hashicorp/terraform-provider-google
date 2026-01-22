@@ -21,7 +21,7 @@ description: |-
 # google_projects
 
 Retrieve information about a set of projects based on a filter. See the
-[REST API](https://cloud.google.com/resource-manager/reference/rest/v1/projects/list)
+[REST API](https://docs.cloud.google.com/resource-manager/reference/rest/v1/projects/list)
 for more details.
 
 ## Example Usage - searching for projects about to be deleted in an org
@@ -40,7 +40,7 @@ data "google_project" "deletion-candidate" {
 
 The following arguments are supported:
 
-* `filter` - (Required) A string filter as defined in the [REST API](https://cloud.google.com/resource-manager/reference/rest/v1/projects/list#query-parameters).
+* `filter` - (Required) A string filter as defined in the [REST API](https://docs.cloud.google.com/resource-manager/reference/rest/v1/projects/list#query-parameters).
 
 
 ## Attributes Reference

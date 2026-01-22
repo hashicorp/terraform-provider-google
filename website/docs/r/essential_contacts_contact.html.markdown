@@ -26,9 +26,9 @@ A contact that will receive notifications from Google Cloud.
 
 To get more information about Contact, see:
 
-* [API documentation](https://cloud.google.com/resource-manager/docs/reference/essentialcontacts/rest/v1/projects.contacts)
+* [API documentation](https://docs.cloud.google.com/resource-manager/docs/reference/essentialcontacts/rest/v1/projects.contacts)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/resource-manager/docs/managing-notification-contacts)
+    * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/managing-notification-contacts)
 
 ~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
 you must specify a `billing_project` and set `user_project_override` to true

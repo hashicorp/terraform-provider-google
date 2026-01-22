@@ -22,7 +22,7 @@ description: |-
 
 Use this data source to get project details.
 For more information see
-[API](https://cloud.google.com/resource-manager/reference/rest/v1/projects#Project)
+[API](https://docs.cloud.google.com/resource-manager/reference/rest/v1/projects#Project)
 
 ## Example Usage
 

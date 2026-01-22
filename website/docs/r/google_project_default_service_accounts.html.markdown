@@ -24,7 +24,7 @@ Allows management of Google Cloud Platform project default service accounts.
 
 When certain service APIs are enabled, Google Cloud Platform automatically creates service accounts to help get started, but
 this is not recommended for production environments as per [Google's documentation](https://cloud.google.com/iam/docs/service-accounts#default).
-See the [Organization documentation](https://cloud.google.com/resource-manager/docs/quickstarts) for more details.
+See the [Organization documentation](https://docs.cloud.google.com/resource-manager/docs/quickstarts) for more details.
 
 ~> **WARNING** Some Google Cloud products do not work if the default service accounts are deleted so it is better to `DEPRIVILEGE` as
 Google **CAN NOT** recover service accounts that have been deleted for more than 30 days.

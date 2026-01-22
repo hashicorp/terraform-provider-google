@@ -260,7 +260,7 @@ configuration with `image_type=WINDOWS_LTSC` or `WINDOWS_SAC`.
 
 ```hcl
 resource "google_container_cluster" "demo_cluster" {
-  project  = "" # Replace with your Project ID, https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects
+  project  = "" # Replace with your Project ID, https://docs.cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects
   name     = "demo-cluster"
   location = "us-west1-a"
 

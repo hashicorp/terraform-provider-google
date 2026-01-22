@@ -24,9 +24,9 @@ A LocationTagBinding represents a connection between a TagValue and a non-global
 
 To get more information about LocationTagBinding, see:
 
-* [API documentation](https://cloud.google.com/resource-manager/reference/rest/v3/tagBindings)
+* [API documentation](https://docs.cloud.google.com/resource-manager/reference/rest/v3/tagBindings)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+    * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
 
 ## Example Usage - Cloud Run Service
 

@@ -26,9 +26,9 @@ A TagBinding represents a connection between a TagValue and a cloud resource (cu
 
 To get more information about TagBinding, see:
 
-* [API documentation](https://cloud.google.com/resource-manager/reference/rest/v3/tagBindings)
+* [API documentation](https://docs.cloud.google.com/resource-manager/reference/rest/v3/tagBindings)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+    * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
 
 ## Example Usage - Tag Binding Basic
 

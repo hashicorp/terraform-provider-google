@@ -23,11 +23,11 @@ description: |-
 Allows creation and management of a Google Cloud Platform project.
 
 Projects created with this resource must be associated with an Organization.
-See the [Organization documentation](https://cloud.google.com/resource-manager/docs/quickstarts) for more details.
+See the [Organization documentation](https://docs.cloud.google.com/resource-manager/docs/quickstarts) for more details.
 
 The user or service account that is running Terraform when creating a `google_project`
 resource must have `roles/resourcemanager.projectCreator` on the specified organization. See the
-[Access Control for Organizations Using IAM](https://cloud.google.com/resource-manager/docs/access-control-org)
+[Access Control for Organizations Using IAM](https://docs.cloud.google.com/resource-manager/docs/access-control-org)
 doc for more information.
 
 ~> This resource reads the specified billing account on every terraform apply and plan operation so you must have permissions on the specified billing account.
@@ -38,9 +38,9 @@ doc for more information.
 
 To get more information about projects, see:
 
-* [API documentation](https://cloud.google.com/resource-manager/reference/rest/v1/projects)
+* [API documentation](https://docs.cloud.google.com/resource-manager/reference/rest/v1/projects)
 * How-to Guides
-    * [Creating and managing projects](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
+    * [Creating and managing projects](https://docs.cloud.google.com/resource-manager/docs/creating-managing-projects)
 
 ## Example Usage
 
