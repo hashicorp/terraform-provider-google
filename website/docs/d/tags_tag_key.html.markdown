@@ -64,3 +64,6 @@ In addition to the arguments listed above, the following attributes are exported
 * `update_time` -
   Update time.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `allowed_values_regex` -
+  Regular expression constraint for dynamic tag values, follows RE2 syntax. If present, it implicitly allows dynamic values (constrained by the regex).

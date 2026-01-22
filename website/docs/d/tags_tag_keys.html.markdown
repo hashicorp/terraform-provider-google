@@ -73,3 +73,6 @@ In addition to the arguments listed above, the following attributes are exported
 * `purpose_data` - 
   Purpose data corresponds to the policy system that the tag is intended for. See documentation for Purpose for formatting of this field.
 
+* `allowed_values_regex` -
+  Regular expression constraint for dynamic tag values, follows RE2 syntax. If present, it implicitly allows dynamic values (constrained by the regex).
+
