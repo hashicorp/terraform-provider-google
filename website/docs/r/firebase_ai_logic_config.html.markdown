@@ -16,12 +16,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Firebase AI Logic"
 description: |-
-  Configuration for Firbase AI Logic.
+  Configuration for Firebase AI Logic.
 ---
 
 # google_firebase_ai_logic_config
 
-Configuration for Firbase AI Logic.
+Configuration for Firebase AI Logic.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
