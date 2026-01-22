@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `source_column_match` field to `csv_options` in `google_bigquery_table` resource
+```

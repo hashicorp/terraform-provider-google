@@ -845,6 +845,12 @@ func ResourceBigQueryTable() *schema.Resource {
 										Default:     0,
 										Description: `The number of rows at the top of a CSV file that BigQuery will skip when reading the data.`,
 									},
+									"source_column_match": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"POSITION", "NAME"}, false),
+										Description:  `Specifies how source columns are matched to the table schema. Valid values are POSITION (columns matched by position, assuming same ordering) or NAME (columns matched by name, reads header row and reorders columns to align with schema field names).`,
+									},
 								},
 							},
 						},
@@ -2769,6 +2775,10 @@ func expandCsvOptions(configured interface{}) *bigquery.CsvOptions {
 		opts.SkipLeadingRows = int64(v.(int))
 	}
 
+	if v, ok := raw["source_column_match"]; ok {
+		opts.SourceColumnMatch = v.(string)
+	}
+
 	if v, ok := raw["quote"]; ok {
 		quote := v.(string)
 		opts.Quote = &quote
@@ -2800,6 +2810,10 @@ func flattenCsvOptions(opts *bigquery.CsvOptions) []map[string]interface{} {
 
 	if opts.SkipLeadingRows != 0 {
 		result["skip_leading_rows"] = opts.SkipLeadingRows
+	}
+
+	if opts.SourceColumnMatch != "" {
+		result["source_column_match"] = opts.SourceColumnMatch
 	}
 
 	if opts.Quote != nil {
