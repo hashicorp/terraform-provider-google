@@ -42,6 +42,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
+	"cloud.google.com/go/bigquery"
 	backupdr "google.golang.org/api/backupdr/v1"
 	"google.golang.org/api/cloudbilling/v1"
 	cloudkms "google.golang.org/api/cloudkms/v1"
@@ -2398,5 +2399,100 @@ func BootstrapIntegrationsClient(t *testing.T, locationID string) BootstrapClien
 		ProjectID: projectID,
 		Region:    locationID,
 		IsGMEK:    true,
+	}
+}
+func AddBigQueryDatasetReplica(projectID string, datasetID string, primaryLocation string, replicaLocation string) (string, error) {
+	ctx := context.Background()
+
+	client, err := bigquery.NewClient(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("failed to create BigQuery client: %w", err)
+	}
+	defer client.Close()
+
+	log.Printf("INFO: Attempting to create dataset '%s' in project '%s' at location '%s'", datasetID, projectID, primaryLocation)
+	datasetRef := client.Dataset(datasetID)
+	datasetMetadata := &bigquery.DatasetMetadata{
+		Location: primaryLocation,
+	}
+
+	err = datasetRef.Create(ctx, datasetMetadata)
+	if err != nil {
+		log.Printf("failed to create BigQuery dataset '%s'. Dataset already exists.", datasetID)
+	} else {
+		log.Printf("INFO: Successfully created BigQuery dataset '%s' at location '%s'.", datasetID, primaryLocation)
+	}
+
+	sqlQuery := fmt.Sprintf(
+		"ALTER SCHEMA `%s` ADD REPLICA `%s` OPTIONS(location=`%s`)",
+		datasetID,
+		replicaLocation,
+		replicaLocation,
+	)
+
+	log.Printf("INFO: Executing BigQuery DDL query: %s", sqlQuery)
+
+	query := client.Query(sqlQuery)
+
+	job, err := query.Run(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to submit BigQuery DDL job: %w", err)
+	}
+
+	status, err := job.Wait(ctx)
+	if err != nil {
+		log.Printf("failed to wait for BigQuery job completion: %v", err)
+	}
+
+	if status.Err() != nil {
+		log.Printf("BigQuery job completed with an error: %v", status.Err())
+	}
+
+	log.Println("Successfully added BigQuery dataset replica using the Go client library.")
+
+	fullDatasetLocation := fmt.Sprintf("projects/%s/datasets/%s", projectID, datasetID)
+	return fullDatasetLocation, nil
+}
+
+func CleanupBigQueryDatasetAndReplica(projectID, datasetID, replicaLocation string) {
+	log.Printf("[DEBUG] Cleanup: Starting cleanup for BigQuery dataset: projects/%s/datasets/%s", projectID, datasetID)
+	cleanupCtx := context.Background()
+
+	client, cerr := bigquery.NewClient(cleanupCtx, projectID)
+	if cerr != nil {
+		log.Printf("[ERROR] Cleanup: Failed to create BigQuery client for dataset %s: %v", datasetID, cerr)
+		return
+	}
+	defer client.Close()
+
+	// Attempt to remove the replica first
+	dropReplicaSQL := fmt.Sprintf(
+		"ALTER SCHEMA `%s` DROP REPLICA `%s`",
+		datasetID,
+		replicaLocation,
+	)
+	log.Printf("[DEBUG] Cleanup: Dropping replica with SQL: %s", dropReplicaSQL)
+	dropQuery := client.Query(dropReplicaSQL)
+	dropJob, dropErr := dropQuery.Run(cleanupCtx)
+	if dropErr != nil {
+		log.Printf("[ERROR] Cleanup: Failed to submit BigQuery DDL job for dropping replica %s of dataset %s: %v", replicaLocation, datasetID, dropErr)
+	} else {
+		dropStatus, dropWaitErr := dropJob.Wait(cleanupCtx)
+		if dropWaitErr != nil {
+			log.Printf("[ERROR] Cleanup: Failed to wait for BigQuery job completion for dropping replica %s of dataset %s: %v", replicaLocation, datasetID, dropWaitErr)
+		} else if dropStatus.Err() != nil {
+			log.Printf("[ERROR] Cleanup: BigQuery job for dropping replica %s of dataset %s completed with an error: %v", replicaLocation, datasetID, dropStatus.Err())
+		} else {
+			log.Printf("[INFO] Cleanup: Successfully dropped BigQuery dataset replica: %s for dataset %s", replicaLocation, datasetID)
+		}
+	}
+
+	// Delete the main dataset (including any remaining contents)
+	log.Printf("[DEBUG] Cleanup: Deleting main BigQuery dataset: %s", datasetID)
+	err := client.Dataset(datasetID).DeleteWithContents(cleanupCtx)
+	if err != nil {
+		log.Printf("[ERROR] Cleanup: Failed to delete BigQuery dataset %s: %v", datasetID, err)
+	} else {
+		log.Printf("[INFO] Cleanup: Successfully deleted BigQuery dataset: %s", datasetID)
 	}
 }
