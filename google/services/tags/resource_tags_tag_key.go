@@ -120,6 +120,12 @@ func ResourceTagsTagKey() *schema.Resource {
 
 The short name can have a maximum length of 256 characters. The permitted character set for the shortName includes all UTF-8 encoded Unicode characters except single quotes ('), double quotes ("), backslashes (\\), and forward slashes (/).`,
 			},
+			"allowed_values_regex": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateTagKeyAllowedValuesRegex,
+				Description:  `Regular expression constraint for dynamic tag values, follows RE2 syntax. If present, it implicitly allows dynamic values (constrained by the regex).`,
+			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -210,6 +216,12 @@ func resourceTagsTagKeyCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("purpose_data"); !tpgresource.IsEmptyValue(reflect.ValueOf(purposeDataProp)) && (ok || !reflect.DeepEqual(v, purposeDataProp)) {
 		obj["purposeData"] = purposeDataProp
+	}
+	allowedValuesRegexProp, err := expandTagsTagKeyAllowedValuesRegex(d.Get("allowed_values_regex"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allowed_values_regex"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowedValuesRegexProp)) && (ok || !reflect.DeepEqual(v, allowedValuesRegexProp)) {
+		obj["allowedValuesRegex"] = allowedValuesRegexProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "tagKeys/{{parent}}")
@@ -339,6 +351,9 @@ func resourceTagsTagKeyRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("purpose", flattenTagsTagKeyPurpose(res["purpose"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TagKey: %s", err)
 	}
+	if err := d.Set("allowed_values_regex", flattenTagsTagKeyAllowedValuesRegex(res["allowedValuesRegex"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TagKey: %s", err)
+	}
 
 	return nil
 }
@@ -359,6 +374,12 @@ func resourceTagsTagKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	allowedValuesRegexProp, err := expandTagsTagKeyAllowedValuesRegex(d.Get("allowed_values_regex"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allowed_values_regex"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, allowedValuesRegexProp)) {
+		obj["allowedValuesRegex"] = allowedValuesRegexProp
+	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "tagKeys/{{parent}}")
 	if err != nil {
@@ -378,6 +399,10 @@ func resourceTagsTagKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("allowed_values_regex") {
+		updateMask = append(updateMask, "allowedValuesRegex")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -533,6 +558,10 @@ func flattenTagsTagKeyPurpose(v interface{}, d *schema.ResourceData, config *tra
 	return v
 }
 
+func flattenTagsTagKeyAllowedValuesRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandTagsTagKeyParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -558,4 +587,8 @@ func expandTagsTagKeyPurposeData(v interface{}, d tpgresource.TerraformResourceD
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandTagsTagKeyAllowedValuesRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }

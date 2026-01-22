@@ -71,6 +71,10 @@ The following arguments are supported:
   Optional. Purpose data cannot be changed once set.
   Purpose data corresponds to the policy system that the tag is intended for. For example, the GCE_FIREWALL purpose expects data in the following format: `network = "<project-name>/<vpc-name>"`.
 
+* `allowed_values_regex` -
+  (Optional)
+  Regular expression constraint for dynamic tag values, follows RE2 syntax. If present, it implicitly allows dynamic values (constrained by the regex).
+
 
 
 ## Attributes Reference

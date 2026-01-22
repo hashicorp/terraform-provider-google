@@ -38,7 +38,9 @@ func TestAccTags(t *testing.T) {
 		"tagKeyBasic":                          testAccTagsTagKey_tagKeyBasic,
 		"tagKeyBasicWithPurposeGceFirewall":    testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall,
 		"tagKeyBasicWithPurposeDataGovernance": testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernance,
+		"tagKeyBasicWithAllowedValuesRegex":    testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegex,
 		"tagKeyUpdate":                         testAccTagsTagKey_tagKeyUpdate,
+		"tagKeyUpdateAllowedValuesRegex":       testAccTagsTagKey_tagKeyUpdateAllowedValuesRegex,
 		"tagKeyIamBinding":                     testAccTagsTagKeyIamBinding,
 		"tagKeyIamMember":                      testAccTagsTagKeyIamMember,
 		"tagKeyIamPolicy":                      testAccTagsTagKeyIamPolicy,
@@ -160,6 +162,36 @@ resource "google_tags_tag_key" "key" {
 `, context)
 }
 
+func testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegex(t *testing.T) {
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckTagsTagKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegexExample(context),
+			},
+		},
+	})
+}
+
+func testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegexExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+
+  parent = "organizations/%{org_id}"
+  short_name = "foo%{random_suffix}"
+  description = "For foo%{random_suffix} resources."
+  allowed_values_regex = "^[a-z]+$"
+}
+`, context)
+}
+
 func testAccTagsTagKey_tagKeyUpdate(t *testing.T) {
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
@@ -209,6 +241,61 @@ resource "google_tags_tag_key" "key" {
   parent = "organizations/%{org_id}"
   short_name = "foo%{random_suffix}"
   description = "Anything related to foo%{random_suffix}"
+}
+`, context)
+}
+
+func testAccTagsTagKey_tagKeyUpdateAllowedValuesRegex(t *testing.T) {
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckTagsTagKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsTagKey_basicWithAllowedValuesRegex(context),
+			},
+			{
+				ResourceName:      "google_tags_tag_key.key",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccTagsTagKey_basicWithAllowedValuesRegexUpdated(context),
+			},
+			{
+				ResourceName:      "google_tags_tag_key.key",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccTagsTagKey_basicWithAllowedValuesRegex(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+
+  parent = "organizations/%{org_id}"
+  short_name = "foo%{random_suffix}"
+  description = "For foo%{random_suffix} resources."
+  allowed_values_regex = "^[a-z]+$"
+}
+`, context)
+}
+
+func testAccTagsTagKey_basicWithAllowedValuesRegexUpdated(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+
+  parent = "organizations/%{org_id}"
+  short_name = "foo%{random_suffix}"
+  description = "For foo%{random_suffix} resources."
+  allowed_values_regex = ".*"
 }
 `, context)
 }

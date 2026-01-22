@@ -5,6 +5,7 @@ api_service_name: cloudresourcemanager.googleapis.com
 api_version: v3
 api_resource_type_kind: TagKey
 fields:
+    - api_field: allowedValuesRegex
     - api_field: createTime
     - api_field: description
     - api_field: name

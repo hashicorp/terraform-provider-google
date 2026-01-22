@@ -41,7 +41,7 @@ func TestAccDataSourceGoogleTagsTagKeys_default(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleTagsTagKeysConfig(parent, shortName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleTagsTagKeysCheck("data.google_tags_tag_keys.my_tag_keys", "google_tags_tag_key.foobar"),
+					testAccDataSourceGoogleTagsTagKeysCheck("data.google_tags_tag_keys.my_tag_keys", "google_tags_tag_key.foobar", false),
 				),
 			},
 		},
@@ -61,14 +61,35 @@ func TestAccDataSourceGoogleTagsTagKeys_dot(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleTagsTagKeysConfig(parent, shortName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleTagsTagKeysCheck("data.google_tags_tag_keys.my_tag_keys", "google_tags_tag_key.foobar"),
+					testAccDataSourceGoogleTagsTagKeysCheck("data.google_tags_tag_keys.my_tag_keys", "google_tags_tag_key.foobar", false),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceGoogleTagsTagKeysCheck(data_source_name string, resource_name string) resource.TestCheckFunc {
+func TestAccDataSourceGoogleTagsTagKeys_withRegex(t *testing.T) {
+	org := envvar.GetTestOrgFromEnv(t)
+
+	parent := fmt.Sprintf("organizations/%s", org)
+	shortName := "terraform.test." + acctest.RandString(t, 10)
+	allowedValuesRegex := "^[a-z]+$"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceGoogleTagsTagKeysConfigWithRegex(parent, shortName, allowedValuesRegex),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceGoogleTagsTagKeysCheck("data.google_tags_tag_keys.my_tag_keys_regex", "google_tags_tag_key.foobar_regex", true),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataSourceGoogleTagsTagKeysCheck(data_source_name string, resource_name string, check_regex bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[data_source_name]
 		if !ok {
@@ -85,6 +106,10 @@ func testAccDataSourceGoogleTagsTagKeysCheck(data_source_name string, resource_n
 		tag_key_attrs_to_test := []string{"parent", "short_name", "name", "namespaced_name", "create_time", "update_time", "description"}
 		re := regexp.MustCompile("[0-9]+")
 		index := ""
+
+		if check_regex {
+			tag_key_attrs_to_test = append(tag_key_attrs_to_test, "allowed_values_regex")
+		}
 
 		for k := range ds_attr {
 			ds_a := fmt.Sprintf("keys.%s.%s", re.FindString(k), tag_key_attrs_to_test[1])
@@ -123,7 +148,21 @@ resource "google_tags_tag_key" "foobar" {
 }
 
 data "google_tags_tag_keys" "my_tag_keys" {
-  parent     = google_tags_tag_key.foobar.parent
+  parent = google_tags_tag_key.foobar.parent
 }
 `, parent, shortName)
+}
+
+func testAccDataSourceGoogleTagsTagKeysConfigWithRegex(parent string, shortName string, allowedValuesRegex string) string {
+	return fmt.Sprintf(`
+resource "google_tags_tag_key" "foobar_regex" {
+  parent     			= "%s"
+  short_name 			= "%s"
+  allowed_values_regex 	= "%s"
+}
+
+data "google_tags_tag_keys" "my_tag_keys_regex" {
+  parent = google_tags_tag_key.foobar_regex.parent
+}
+`, parent, shortName, allowedValuesRegex)
 }
