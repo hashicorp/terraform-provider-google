@@ -26,9 +26,9 @@ An app-enabled folder is a folder within the Google Cloud resource hierarchy tha
 
 To get more information about Capability, see:
 
-* [API documentation](https://cloud.google.com/resource-manager/reference/rest)
+* [API documentation](https://docs.cloud.google.com/resource-manager/reference/rest)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/resource-manager/docs/manage-applications)
+    * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/manage-applications)
 
 ## Example Usage - Resource Manager Capability
 

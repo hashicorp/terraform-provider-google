@@ -113,12 +113,12 @@ func ResourceOrgPolicyCustomConstraint() *schema.Resource {
 			"condition": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `A CEL condition that refers to a supported service resource, for example 'resource.management.autoUpgrade == false'. For details about CEL usage, see [Common Expression Language](https://cloud.google.com/resource-manager/docs/organization-policy/creating-managing-custom-constraints#common_expression_language).`,
+				Description: `A CEL condition that refers to a supported service resource, for example 'resource.management.autoUpgrade == false'. For details about CEL usage, see [Common Expression Language](https://docs.cloud.google.com/resource-manager/docs/organization-policy/creating-managing-custom-constraints#common_expression_language).`,
 			},
 			"method_types": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: `A list of RESTful methods for which to enforce the constraint. Can be 'CREATE', 'UPDATE', or both. Not all Google Cloud services support both methods. To see supported methods for each service, find the service in [Supported services](https://cloud.google.com/resource-manager/docs/organization-policy/custom-constraint-supported-services).`,
+				Description: `A list of RESTful methods for which to enforce the constraint. Can be 'CREATE', 'UPDATE', or both. Not all Google Cloud services support both methods. To see supported methods for each service, find the service in [Supported services](https://docs.cloud.google.com/resource-manager/docs/organization-policy/custom-constraint-supported-services).`,
 				MinItems:    1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

@@ -69,7 +69,7 @@ func labelKeyValidator(val interface{}, key string) (warns []string, errs []erro
 	m := val.(map[string]interface{})
 	for k := range m {
 		if !labelKeyRegex.MatchString(k) {
-			errs = append(errs, fmt.Errorf("%q is an invalid label key. See https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements", k))
+			errs = append(errs, fmt.Errorf("%q is an invalid label key. See https://docs.cloud.google.com/resource-manager/docs/creating-managing-labels#requirements", k))
 		}
 	}
 	return
@@ -280,7 +280,7 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 				Type:         schema.TypeMap,
 				ValidateFunc: labelKeyValidator,
 				Optional:     true,
-				Description: `A set of key/value label pairs to assign to the function. Label keys must follow the requirements at https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements.
+				Description: `A set of key/value label pairs to assign to the function. Label keys must follow the requirements at https://docs.cloud.google.com/resource-manager/docs/creating-managing-labels#requirements.
 
 				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,

@@ -21,7 +21,7 @@ description: |-
 # google_folders
 
 Retrieve information about a set of folders based on a parent ID. See the
-[REST API](https://cloud.google.com/resource-manager/reference/rest/v3/folders/list)
+[REST API](https://docs.cloud.google.com/resource-manager/reference/rest/v3/folders/list)
 for more details.
 
 ## Example Usage - searching for folders at the root of an org
@@ -40,7 +40,7 @@ data "google_folder" "first-folder" {
 
 The following arguments are supported:
 
-* `parent_id` - (Required) A string parent as defined in the [REST API](https://cloud.google.com/resource-manager/reference/rest/v3/folders/list#query-parameters).
+* `parent_id` - (Required) A string parent as defined in the [REST API](https://docs.cloud.google.com/resource-manager/reference/rest/v3/folders/list#query-parameters).
 
 
 ## Attributes Reference

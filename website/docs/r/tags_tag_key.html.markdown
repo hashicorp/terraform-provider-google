@@ -26,9 +26,9 @@ A TagKey, used to group a set of TagValues.
 
 To get more information about TagKey, see:
 
-* [API documentation](https://cloud.google.com/resource-manager/reference/rest/v3/tagKeys)
+* [API documentation](https://docs.cloud.google.com/resource-manager/reference/rest/v3/tagKeys)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+    * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
 
 ## Example Usage - Tag Key Basic
 
