@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/url"
 	"reflect"
 	"regexp"
@@ -1000,4 +1001,21 @@ func NormalizeIamPrincipalCasing(principal string) string {
 		principal = strings.Join(pieces, ":")
 	}
 	return principal
+}
+
+// hash based normalized IP addresses in CIDR notation
+func IpAddrSetHashFunc(v interface{}) int {
+	if v == nil {
+		return 0
+	}
+
+	m := v.(string)
+	log.Printf("[DEBUG] hashing %v", m)
+	_, ipnet, err := net.ParseCIDR(m)
+	if err != nil {
+		//if invalid cidr, hash based on the direct value without standardizing.
+		return Hashcode(m)
+	}
+	log.Printf("[DEBUG] computed hash value of %v from %v", Hashcode(ipnet.String()), ipnet.String())
+	return Hashcode(ipnet.String())
 }
