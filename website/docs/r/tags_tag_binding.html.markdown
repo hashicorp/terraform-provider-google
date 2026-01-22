@@ -59,6 +59,30 @@ resource "google_tags_tag_binding" "binding" {
   tag_value = google_tags_tag_value.value.id
 }
 ```
+## Example Usage - Tag Binding Using Dynamic Tag Value
+
+
+```hcl
+resource "google_project" "project" {
+  project_id = "project_id"
+  name       = "project_id"
+  org_id     = "123456789"
+
+  deletion_policy = "DELETE"
+}
+
+resource "google_tags_tag_key" "key" {
+  parent               = "organizations/123456789"
+  short_name           = "keyname"
+  description          = "For keyname resources."
+  allowed_values_regex = "^[a-z]+$"
+}
+
+resource "google_tags_tag_binding" "binding" {
+  parent    = "//cloudresourcemanager.googleapis.com/projects/${google_project.project.number}"
+  tag_value = "${google_tags_tag_key.key.namespaced_name}/test-value"
+}
+```
 
 ## Argument Reference
 
@@ -71,7 +95,7 @@ The following arguments are supported:
 
 * `tag_value` -
   (Required)
-  The TagValue of the TagBinding. Must be of the form tagValues/456.
+  The TagValue of the TagBinding. Must be either in id format `tagValues/{tag-value-id}`, or namespaced format `{parent-id}/{tag-key-short-name}/{tag-value-short-name}`.
 
 
 
@@ -83,7 +107,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `tagBindings/{{name}}`
 
 * `name` -
-  The generated id for the TagBinding. This is a string of the form: `tagBindings/{full-resource-name}/{tag-value-name}`
+  The generated id for the TagBinding. This is a string of the form `tagBindings/{full-resource-name}/{tag-value-name}` or `tagBindings/{full-resource-name}/{tag-key-name}`
 
 
 ## Timeouts

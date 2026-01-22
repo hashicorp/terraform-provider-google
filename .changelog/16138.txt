@@ -1,0 +1,3 @@
+```release-note:enhancement
+tags: added support for dynamic tag keys in `google_tags_tag_binding` and `google_tags_location_tag_binding`  resources
+```
