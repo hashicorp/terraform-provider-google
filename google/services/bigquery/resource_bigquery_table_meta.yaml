@@ -63,6 +63,7 @@ fields:
   - api_field: 'externalDataConfiguration.csvOptions.fieldDelimiter'
   - api_field: 'externalDataConfiguration.csvOptions.quote'
   - api_field: 'externalDataConfiguration.csvOptions.skipLeadingRows'
+  - api_field: 'externalDataConfiguration.csvOptions.sourceColumnMatch'
   - api_field: 'externalDataConfiguration.decimalTargetTypes'
   - api_field: 'externalDataConfiguration.fileSetSpecType'
   - api_field: 'externalDataConfiguration.googleSheetsOptions.range'

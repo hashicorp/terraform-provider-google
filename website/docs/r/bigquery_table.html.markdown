@@ -338,6 +338,13 @@ The following arguments are supported:
 * `skip_leading_rows` - (Optional) The number of rows at the top of a CSV
     file that BigQuery will skip when reading the data.
 
+* `source_column_match` - (Optional) Specifies how source columns are matched
+    to the table schema. Valid values are `POSITION` (columns matched by position,
+    assuming same ordering as the schema) or `NAME` (columns matched by name,
+    reads the header row and reorders columns to align with schema field names).
+    If not set, a default is chosen based on how the schema is provided: when
+    autodetect is used, columns are matched by name; otherwise, by position.
+
 <a name="nested_bigtable_options"></a>The `bigtable_options` block supports:
 
 * `column_family` - (Optional) A list of column families to expose in the table schema along with their types. This list restricts the column families that can be referenced in queries and specifies their value types. You can use this list to do type conversions - see the 'type' field for more details. If you leave this list empty, all column families are present in the table schema and their values are read as BYTES. During a query only the column families referenced in that query are read from Bigtable.  Structure is [documented below](#nested_column_family).
