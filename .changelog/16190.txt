@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_firebase_ai_logic_prompt_template_lock`
+```
