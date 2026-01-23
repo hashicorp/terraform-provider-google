@@ -22,54 +22,6 @@ description: |-
 
 Contains information about a GKEHub Feature Memberships. Feature Memberships configure GKEHub Features that apply to specific memberships rather than the project as a whole. The google_gke_hub is the Fleet API.
 
-## Example Usage - Config Management with Config Sync auto-upgrades and without Git/OCI
-
-With [Config Sync auto-upgrades](https://cloud.devsite.corp.google.com/kubernetes-engine/enterprise/config-sync/docs/how-to/upgrade-config-sync#auto-upgrade-config), Google assumes responsibility for automatically upgrading Config Sync versions
-and overseeing the lifecycle of its components.
-
-```hcl
-resource "google_container_cluster" "cluster" {
-  name               = "my-cluster"
-  location           = "us-central1-a"
-  initial_node_count = 1
-}
-
-resource "google_gke_hub_membership" "membership" {
-  membership_id = "my-membership"
-  endpoint {
-    gke_cluster {
-      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
-    }
-  }
-}
-
-resource "google_gke_hub_feature" "feature" {
-  name = "configmanagement"
-  location = "global"
-
-  labels = {
-    foo = "bar"
-  }
-}
-
-resource "google_gke_hub_feature_membership" "feature_member" {
-  location = "global"
-  feature = google_gke_hub_feature.feature.name
-  membership = google_gke_hub_membership.membership.membership_id
-  configmanagement {
-    # Don't use the `version` field with Config Sync auto-upgrades.
-    # To disable Config Sync auto-upgrades, you need to set the field `management` to
-    # `MANAGEMENT_MANUAL` if it has been set previously. Removing the field does not work.
-    management= "MANAGEMENT_AUTOMATIC"
-    config_sync {
-      # The field `enabled` was introduced in Terraform version 5.41.0, and
-      # needs to be set to `true` explicitly to install Config Sync.
-      enabled = true
-    }
-  }
-}
-```
-
 ## Example Usage - Config Management with Git
 
 ```hcl
@@ -431,8 +383,7 @@ The following arguments are supported:
 
 * `management` -
   (Optional)
-  Set this field to MANAGEMENT_AUTOMATIC to enable
-  [Config Sync auto-upgrades](http://cloud/kubernetes-engine/enterprise/config-sync/docs/how-to/upgrade-config-sync#auto-upgrade-config),
+  Enables automatic Feature management. Set this field to MANAGEMENT_AUTOMATIC to enable Config Sync auto-upgrades,
   and set this field to MANAGEMENT_MANUAL or MANAGEMENT_UNSPECIFIED to disable Config Sync auto-upgrades.
   This field was introduced in Terraform version [5.41.0](https://github.com/hashicorp/terraform-provider-google/releases/tag/v5.41.0).
 
@@ -480,7 +431,7 @@ The following arguments are supported:
 
 * `stop_syncing` -
   (Optional)
-  Set to `true` to stop syncing configurations for a single cluster. This field is only available on clusters using Config Sync [auto-upgrades](http://cloud/kubernetes-engine/enterprise/config-sync/docs/how-to/upgrade-config-sync#auto-upgrade-config) or on Config Sync version 1.20.0 or later. Defaults: `false`.
+  Set to true to stop syncing configs for a single cluster. Default to false.
 
 * `deployment_overrides` -
   (Optional)
