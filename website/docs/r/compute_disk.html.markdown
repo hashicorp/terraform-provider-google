@@ -226,7 +226,7 @@ The following arguments are supported:
   the supported values for the caller's project.
 
 * `interface` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
+  (Optional, [Beta](../guides/provider_versions.html.markdown), Deprecated)
   Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
 
   ~> **Warning:** `interface` is deprecated and will be removed in a future major release. This field is no longer used and can be safely removed from your configurations; disk interfaces are automatically determined on attachment.
@@ -260,7 +260,7 @@ The following arguments are supported:
   These images can be referred by family name here.
 
 * `resource_policies` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Resource policies applied to this disk for automatic snapshot creations.
   ~>**NOTE** This value does not support updating the
   resource policy, as resource policies can not be updated more than
@@ -274,7 +274,7 @@ The following arguments are supported:
   Note: Only supported on hyperdisk skus, disk_encryption_key is required when setting to true
 
 * `multi_writer` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Indicates whether or not the disk can be read/write attached to more than one instance.
 
 * `provisioned_iops` -

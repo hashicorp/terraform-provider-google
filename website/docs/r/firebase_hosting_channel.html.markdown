@@ -26,7 +26,7 @@ A `Channel` represents a stream of releases for a site. All sites have a default
 connected custom domains.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Channel, see:
 

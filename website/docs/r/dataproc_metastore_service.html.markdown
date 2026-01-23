@@ -667,7 +667,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_network_config_consumers).
 
 * `custom_routes_enabled` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Enables custom routes to be imported and exported for the Dataproc Metastore service's peered VPC network.
 
 

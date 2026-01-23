@@ -479,7 +479,7 @@ The following arguments are supported:
   Possible values are: `COLLOCATED`.
 
 * `max_distance` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies the number of max logical switches.
 
 * `gpu_topology` -
@@ -487,7 +487,7 @@ The following arguments are supported:
   Specifies the shape of the GPU slice, in slice based GPU families eg. A4X.
 
 * `tpu_topology` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies the shape of the TPU slice.
 
 <a name="nested_instance_schedule_policy"></a>The `instance_schedule_policy` block supports:

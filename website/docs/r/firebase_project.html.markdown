@@ -27,7 +27,7 @@ identifiers (most importantly, the projectId) as its own for easy interop with G
 Once Firebase has been added to a Google Project it cannot be removed.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Project, see:
 

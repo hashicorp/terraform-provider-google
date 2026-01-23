@@ -100,7 +100,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_local_data).
 
 * `behavior` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Answer this query with a behavior rather than DNS data. Acceptable values are 'behaviorUnspecified', and 'bypassResponsePolicy'
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

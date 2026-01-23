@@ -535,7 +535,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_extract).
 
 * `reservation` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The reservation that job would use. User can specify a reservation to execute the job. If this field is not set, reservation is determined based on the rules defined by the reservation assignments.
   The expected format is `projects/{project}/locations/{location}/reservations/{reservation}`.
 
@@ -656,7 +656,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_query_script_options).
 
 * `continuous` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Whether to run the query as continuous or a regular query.
 
 * `connection_properties` -

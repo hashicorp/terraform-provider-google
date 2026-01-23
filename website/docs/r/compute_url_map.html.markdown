@@ -2077,7 +2077,7 @@ The following arguments are supported:
   The BackendService resource being mirrored to.
 
 * `mirror_percent` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 
@@ -2366,7 +2366,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_route_rules_custom_error_response_policy).
 
 * `http_filter_configs` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Outbound route specific configuration for networkservices.HttpFilter resources enabled by Traffic Director.
   httpFilterConfigs only applies for load balancers with loadBalancingScheme set to INTERNAL_SELF_MANAGED.
   See ForwardingRule for more details.
@@ -2374,7 +2374,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_route_rules_http_filter_configs).
 
 * `http_filter_metadata` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Outbound route specific metadata supplied to networkservices.HttpFilter resources enabled by Traffic Director.
   httpFilterMetadata only applies for load balancers with loadBalancingScheme set to INTERNAL_SELF_MANAGED.
   See ForwardingRule for more details.
@@ -2804,7 +2804,7 @@ The following arguments are supported:
   The BackendService resource being mirrored to.
 
 * `mirror_percent` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 
@@ -3388,7 +3388,7 @@ The following arguments are supported:
   The full or partial URL to the BackendService resource being mirrored to.
 
 * `mirror_percent` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 
@@ -3847,7 +3847,7 @@ The following arguments are supported:
   The full or partial URL to the BackendService resource being mirrored to.
 
 * `mirror_percent` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 

@@ -239,7 +239,7 @@ The following arguments are supported:
   create the disk. Provide this when creating the disk.
 
 * `interface` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
+  (Optional, [Beta](../guides/provider_versions.html.markdown), Deprecated)
   Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
 
   ~> **Warning:** `interface` is deprecated and will be removed in a future major release. This field is no longer used and can be safely removed from your configurations; disk interfaces are automatically determined on attachment.
@@ -347,7 +347,7 @@ The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
   RFC 4648 base64 to either encrypt or decrypt this resource.
 
 * `kms_key_name` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The name of the encryption key that is stored in Google Cloud KMS.
 
 * `sha256` -

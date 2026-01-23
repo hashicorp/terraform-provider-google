@@ -239,7 +239,7 @@ cluster.
 
 * `subnetwork` - (Optional) The subnetwork path for the node pool. Format: `projects/{project}/regions/{region}/subnetworks/{subnetwork}`. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
 
-* `accelerator_network_profile` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - Specifies the accelerator network profile for nodes in this node pool. Setting to `"auto"` enables GKE to automatically configure high-performance networking settings for nodes with accelerators (like GPUs). GKE manages the underlying resources (like VPCs and subnets) for this configuration.
+* `accelerator_network_profile` (Optional, [Beta](../guides/provider_versions.html.markdown)) - Specifies the accelerator network profile for nodes in this node pool. Setting to `"auto"` enables GKE to automatically configure high-performance networking settings for nodes with accelerators (like GPUs). GKE manages the underlying resources (like VPCs and subnets) for this configuration.
 
 <a name="nested_additional_node_network_configs"></a>The `additional_node_network_configs` block supports:
 
@@ -293,7 +293,7 @@ cluster.
     * `batch_node_count` - (Optional) Number of blue nodes to drain in a batch.
     * `batch_soak_duration` - (Optionial) Soak time after each batch gets drained.
 
-* `autoscaled_rollout_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Autoscaled rollout policy for blue-green upgrade.
+* `autoscaled_rollout_policy` - (Optional, [Beta](../guides/provider_versions.html.markdown)) Autoscaled rollout policy for blue-green upgrade.
     * `wait_for_drain_duration` - (Optional) Time in seconds to wait after cordoning the blue pool before draining the nodes.
 
 * `node_pool_soak_duration` - (Optional) Time needed after draining the entire blue pool.

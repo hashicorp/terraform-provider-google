@@ -123,7 +123,7 @@ The following arguments are supported:
   Indicates whether the wire group is administratively enabled.
 
 * `wire_group_properties` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Properties specific to the wire group.
   Structure is [documented below](#nested_wire_group_properties).
 

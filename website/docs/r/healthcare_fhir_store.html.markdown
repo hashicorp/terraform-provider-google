@@ -291,7 +291,7 @@ The following arguments are supported:
   Possible values are: `DSTU2`, `STU3`, `R4`.
 
 * `consent_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies whether this store has consent enforcement. Not available for DSTU2 FHIR version due to absence of Consent resources. Not supported for R5 FHIR version.
   Structure is [documented below](#nested_consent_config).
 
@@ -342,7 +342,7 @@ The following arguments are supported:
   ** This property can be changed manually in the Google Cloud Healthcare admin console without recreating the FHIR store **
 
 * `enable_history_modifications` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Whether to allow the ExecuteBundle API to accept history bundles, and directly insert and overwrite historical
   resource versions into the FHIR store. If set to false, using history bundles fails with an error.
 

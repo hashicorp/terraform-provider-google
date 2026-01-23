@@ -216,7 +216,7 @@ group. You can specify one or more values. For more information, see the [offici
 
 * `stateful_external_ip` - (Optional) External network IPs assigned to the instances that will be preserved on instance delete, update, etc. This map is keyed with the network interface name. Structure is [documented below](#nested_stateful_external_ip).
 
-* `params` - (Optional [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Input only additional params for instance group manager creation. Structure is [documented below](#nested_params). For more information, see [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/insert).
+* `params` - (Optional [Beta](../guides/provider_versions.html.markdown)) Input only additional params for instance group manager creation. Structure is [documented below](#nested_params). For more information, see [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/insert).
 
 * `instance_flexibility_policy` - (Optional) The flexibility policy for managed instance group. Instance flexibility allows managed instance group to create VMs from multiple types of machines. Instance flexibility configuration on managed instance group overrides instance template configuration. Structure is [documented below](#nested_instance_flexibility_policy).
 - - -
@@ -258,7 +258,7 @@ update_policy {
 
 * `max_unavailable_percent` - (Optional), Specifies a percentage of instances between 0 to 100%, inclusive. For example, specify 80 for 80%..
 
-* `min_ready_sec` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600]
+* `min_ready_sec` - (Optional, [Beta](../guides/provider_versions.html.markdown)), Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600]
 
 * `replacement_method` - (Optional), The instance replacement method for managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.
 - - -
@@ -279,7 +279,7 @@ instance_lifecycle_policy {
 * `force_update_on_repair` - (Optional), Specifies whether to apply the group's latest configuration when repairing a VM. Valid options are: `YES`, `NO`. If `YES` and you updated the group's instance template or per-instance configurations after the VM was created, then these changes are applied when VM is repaired. If `NO` (default), then updates are applied in accordance with the group's update policy type.
 * `default_action_on_failure` - (Optional), Specifies the action that a MIG performs on a failed VM. If the value of the `on_failed_health_check` field is `DEFAULT_ACTION`, then the same action also applies to the VMs on which your application fails a health check. Valid options are: `DO_NOTHING`, `REPAIR`. If `DO_NOTHING`, then MIG does not repair a failed VM. If `REPAIR` (default), then MIG automatically repairs a failed VM by recreating it. For more information, see about repairing VMs in a MIG.
 * `on_failed_health_check` - (Optional, Beta), Specifies the action that a MIG performs on an unhealthy VM. A VM is marked as unhealthy when the application running on that VM fails a health check. Valid options are: `DEFAULT_ACTION`, `DO_NOTHING`, `REPAIR`. If `DEFAULT_ACTION` (default), then MIG uses the same action configured for the  `default_action_on_failure` field. If `DO_NOTHING`, then MIG does not repair unhealthy VM. If `REPAIR`, then MIG automatically repairs an unhealthy VM by recreating it. For more information, see about repairing VMs in a MIG. 
-* `on_repair` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), Configuration for VM repairs in the MIG. Structure is [documented below](#nested_on_repair).
+* `on_repair` - (Optional, [Beta](../guides/provider_versions.html.markdown)), Configuration for VM repairs in the MIG. Structure is [documented below](#nested_on_repair).
 - - -
 
 <a name="nested_on_repair"></a>The `on_repair` block supports:
@@ -338,8 +338,8 @@ instance_selections {
 * `name` - (Required), Name of the instance selection, e.g. instance_selection_with_n1_machines_types. Instance selection names must be unique within the flexibility policy.
 * `rank` - (Optional), Preference of this instance selection. Lower number means higher preference. Managed instance group will first try to create a VM based on the machine-type with lowest rank and fallback to next rank based on availability. Machine types and instance selections with the same rank have the same preference.
 * `machine_types` - (Required), A list of full machine-type names, e.g. "n1-standard-16".
-* `min_cpu_platform` - (Optional [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), Name of the minimum CPU platform to be used by this instance selection. e.g. "Intel Ice Lake".
-* `disks` - (Optional [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), List of disks to be attached to the instances created from this selection. Structure is [documented below](#nested_disks).
+* `min_cpu_platform` - (Optional [Beta](../guides/provider_versions.html.markdown)), Name of the minimum CPU platform to be used by this instance selection. e.g. "Intel Ice Lake".
+* `disks` - (Optional [Beta](../guides/provider_versions.html.markdown)), List of disks to be attached to the instances created from this selection. Structure is [documented below](#nested_disks).
 
 - - -
 

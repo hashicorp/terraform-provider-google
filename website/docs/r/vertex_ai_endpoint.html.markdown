@@ -244,7 +244,7 @@ The following arguments are supported:
   A list of Projects from which the forwarding rule will target the service attachment.
 
 * `enable_secure_private_service_connect` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   If set to true, enable secure private service connect with IAM authorization. Otherwise, private service connect will be done without authorization. Note latency will be slightly increased if authorization is enabled.
 
 * `psc_automation_configs` -

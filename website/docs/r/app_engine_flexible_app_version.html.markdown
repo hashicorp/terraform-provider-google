@@ -368,7 +368,7 @@ The following arguments are supported:
   List of ports, or port pairs, to forward from the virtual machine to the application container.
 
 * `instance_ip_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Prevent instances from receiving an ephemeral external IP address.
   Possible values are: `EXTERNAL`, `INTERNAL`.
 

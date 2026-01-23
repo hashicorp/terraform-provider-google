@@ -24,7 +24,7 @@ description: |-
 Settings resource defines the properties, applied directly to the resource or inherited through the hierarchy, to enable consistent, federated use of PAM.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Settings, see:
 

@@ -250,7 +250,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_threat_prevention_profile).
 
 * `url_filtering_profile` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The url filtering configuration for the security profile.
   Structure is [documented below](#nested_url_filtering_profile).
 
@@ -375,14 +375,14 @@ The following arguments are supported:
   Format: projects/{project_id}/locations/global/mirroringEndpointGroups/{endpoint_group_id}
 
 * `mirroring_deployment_groups` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The target downstream Mirroring Deployment Groups.
   This field is used for Packet Broker mirroring endpoint groups to specify
   the deployment groups that the packet should be mirrored to by the broker.
   Format: projects/{project_id}/locations/global/mirroringDeploymentGroups/{deployment_group_id}
 
 * `mirroring_endpoint_group_type` -
-  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Output, [Beta](../guides/provider_versions.html.markdown))
   The type of the mirroring endpoint group this profile is attached to.
   Possible values:
   DIRECT

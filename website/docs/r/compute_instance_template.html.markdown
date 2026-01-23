@@ -433,14 +433,14 @@ The following arguments are supported:
 * `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is [documented below](#nested_shielded_instance_config).
 	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
 
-* `enable_display` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
+* `enable_display` - (Optional, [Beta](../guides/provider_versions.html.markdown)) Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
 **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
 * `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM. Structure is [documented below](#nested_confidential_instance_config)
 
 * `advanced_machine_features` (Optional) - Configure Nested Virtualisation and Simultaneous Hyper Threading on this VM. Structure is [documented below](#nested_advanced_machine_features)
 
-* `partner_metadata` - (optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) key/value pair represents partner metadata assigned to instance template where key represent a defined namespace and value is a json string represent the entries associted with the namespace.
+* `partner_metadata` - (optional) [Beta](../guides/provider_versions.html.markdown) key/value pair represents partner metadata assigned to instance template where key represent a defined namespace and value is a json string represent the entries associted with the namespace.
 
 * `key_revocation_action_type` - (optional) Action to be taken when a customer's encryption key is revoked. Supports `STOP` and `NONE`, with `NONE` being the default.
 
@@ -588,7 +588,7 @@ The following arguments are supported:
     to. The subnetwork must exist in the same `region` this instance will be
     created in. Either `network` or `subnetwork` must be provided.
 
-* `network_attachment` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.
+* `network_attachment` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.
 
 * `subnetwork_project` - (Optional) The ID of the project in which the subnetwork belongs.
     If it is not provided, the provider project is used.
@@ -695,15 +695,15 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `on_instance_stop_action` - (Optional) Specifies the action to be performed when the instance is terminated using `max_run_duration` and `STOP` `instance_termination_action`. Only support `true` `discard_local_ssd` at this point. Structure is [documented below](#nested_on_instance_stop_action).
 
-* `host_error_timeout_seconds` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the time in seconds for host error detection, the value must be within the range of [90, 330] with the increment of 30, if unset, the default behavior of host error recovery will be used.
+* `host_error_timeout_seconds` - (Optional) [Beta](../guides/provider_versions.html.markdown) Specifies the time in seconds for host error detection, the value must be within the range of [90, 330] with the increment of 30, if unset, the default behavior of host error recovery will be used.
 
-* `maintenance_interval` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the frequency of planned maintenance events. The accepted values are: `PERIODIC`.
+* `maintenance_interval` - (Optional) [Beta](../guides/provider_versions.html.markdown) Specifies the frequency of planned maintenance events. The accepted values are: `PERIODIC`.
 
-* `local_ssd_recovery_timeout` -  (Optional) (https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the maximum amount of time a Local Ssd Vm should wait while recovery of the Local Ssd state is attempted. Its value should be in between 0 and 168 hours with hour granularity and the default value being 1 hour. Structure is [documented below](#nested_local_ssd_recovery_timeout).
+* `local_ssd_recovery_timeout` -  (Optional) (../guides/provider_versions.html.markdown) Specifies the maximum amount of time a Local Ssd Vm should wait while recovery of the Local Ssd state is attempted. Its value should be in between 0 and 168 hours with hour granularity and the default value being 1 hour. Structure is [documented below](#nested_local_ssd_recovery_timeout).
 
-* `graceful_shutdown` -  (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Settings for the instance to perform a graceful shutdown. Structure is [documented below](#nested_graceful_shutdown).
+* `graceful_shutdown` -  (Optional) [Beta](../guides/provider_versions.html.markdown) Settings for the instance to perform a graceful shutdown. Structure is [documented below](#nested_graceful_shutdown).
 
-* `skip_guest_os_shutdown` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Boolean parameter. Default is false and there will be 120 seconds between GCE ACPI G2 Soft Off and ACPI G3 Mechanical Off for Standard VMs and 30 seconds for Spot VMs.
+* `skip_guest_os_shutdown` - (Optional) [Beta](../guides/provider_versions.html.markdown) Boolean parameter. Default is false and there will be 120 seconds between GCE ACPI G2 Soft Off and ACPI G3 Mechanical Off for Standard VMs and 30 seconds for Spot VMs.
 
 <a name="nested_graceful_shutdown"></a>The `graceful_shutdown` block supports:
 

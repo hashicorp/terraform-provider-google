@@ -38,7 +38,7 @@ A data source can be used to retrieve policy data in advent you do not need crea
 ~> **Note:**  This resource supports IAM Conditions but they have some known limitations which can be found [here](https://cloud.google.com/iam/docs/conditions-overview#limitations). Please review this article if you are having issues with IAM Conditions.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 ## google_compute_backend_service_iam_policy
 

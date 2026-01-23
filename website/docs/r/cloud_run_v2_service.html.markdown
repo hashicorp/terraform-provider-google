@@ -773,7 +773,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_multi_region_settings).
 
 * `iap_enabled` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Used to enable/disable IAP for the service.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -856,7 +856,7 @@ When the field is set to false, deleting the service is allowed.
   Enables session affinity. For more information, go to https://cloud.google.com/run/docs/configuring/session-affinity
 
 * `service_mesh` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Enables Cloud Service Mesh for this Revision.
   Structure is [documented below](#nested_template_service_mesh).
 
@@ -987,7 +987,7 @@ When the field is set to false, deleting the service is allowed.
   Structure is [documented below](#nested_template_containers_build_info).
 
 * `source_code` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Location of the source.
   Structure is [documented below](#nested_template_containers_source_code).
 

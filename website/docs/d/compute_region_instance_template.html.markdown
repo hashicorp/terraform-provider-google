@@ -277,7 +277,7 @@ The `disk_encryption_key` block supports:
    [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
    Structure [documented below](#nested_node_affinities).
 
-* `host_error_timeout_seconds` - [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Time in seconds for host error detection.
+* `host_error_timeout_seconds` - [Beta](../guides/provider_versions.html.markdown) Time in seconds for host error detection.
 
 * `provisioning_model` - Describe the type of preemptible VM. 
 

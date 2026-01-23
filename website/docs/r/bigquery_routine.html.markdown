@@ -431,12 +431,12 @@ The following arguments are supported:
   Structure is [documented below](#nested_remote_function_options).
 
 * `python_options` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Options for a user-defined Python function.
   Structure is [documented below](#nested_python_options).
 
 * `external_runtime_options` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Options for the runtime of the external system.
   This field is only applicable for Python UDFs.
   Structure is [documented below](#nested_external_runtime_options).

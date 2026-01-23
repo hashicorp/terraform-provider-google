@@ -187,7 +187,7 @@ The following arguments are supported:
   Defines operating mode for this policy.
 
 * `scale_down_control` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Defines scale down controls to reduce the risk of response latency
   and outages due to abrupt scale-in events
   Structure is [documented below](#nested_autoscaling_policy_scale_down_control).

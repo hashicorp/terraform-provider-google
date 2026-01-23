@@ -127,7 +127,7 @@ The following arguments are supported:
   List of items.
 
 * `purpose` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   List of supported purposes of the Address Group.
   Each value may be one of: `DEFAULT`, `CLOUD_ARMOR`.
 

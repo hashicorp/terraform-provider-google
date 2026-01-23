@@ -260,7 +260,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_reservation_sharing_policy).
 
 * `enable_emergent_maintenance` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Indicates if this group of VMs have emergent maintenance enabled.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -320,7 +320,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_specific_reservation_instance_properties_local_ssds).
 
 * `maintenance_interval` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies the frequency of planned maintenance events.
   Possible values are: `AS_NEEDED`, `PERIODIC`, `RECURRENT`.
 
@@ -368,7 +368,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_share_settings_project_map).
 
 * `projects` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   List of project IDs with which the reservation is shared.
 
 

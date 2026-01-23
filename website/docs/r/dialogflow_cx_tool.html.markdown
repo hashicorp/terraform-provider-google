@@ -364,7 +364,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_function_spec).
 
 * `connector_spec` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Integration connectors tool specification.
   This field is part of a union field `specification`: Only one of `openApiSpec`, `dataStoreSpec`, `functionSpec`, or `connectorSpec` may be set.
   Structure is [documented below](#nested_connector_spec).

@@ -234,7 +234,7 @@ The following arguments are supported:
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `guest_flush` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Whether to attempt an application consistent snapshot by informing the OS to prepare for the snapshot process.
 
 * `snapshot_type` -
