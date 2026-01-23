@@ -40,7 +40,7 @@ The ACME account registered by using an EAB secret has no expiration.
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `key_id`, `b64_mac_key`, `b64url_mac_key`.
-[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+[Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 ## Example Usage - Public Ca External Account Key
 

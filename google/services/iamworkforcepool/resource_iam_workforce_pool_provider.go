@@ -150,7 +150,7 @@ The prefix 'gcp-' is reserved for use by Google, and may not be specified.`,
 			"attribute_condition": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `A [Common Expression Language](https://opensource.google/projects/cel) expression, in
+				Description: `A [Common Expression Language](https://github.com/google/cel-spec) expression, in
 plain text, to restrict what otherwise valid authentication credentials issued by the
 provider should not be accepted.
 
@@ -205,7 +205,7 @@ to Google Cloud resources. For example:
   * 'attribute.{custom_attribute}':
     'principalSet://iam.googleapis.com/locations/{location}/workforcePools/{pool}/attribute.{custom_attribute}/{value}'
 
-Each value must be a [Common Expression Language](https://opensource.google/projects/cel)
+Each value must be a [Common Expression Language](https://github.com/google/cel-spec)
 function that maps an identity provider credential to the normalized attribute specified
 by the corresponding map key.
 

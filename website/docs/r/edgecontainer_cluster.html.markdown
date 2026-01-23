@@ -32,7 +32,7 @@ To get more information about Cluster, see:
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `cluster_ca_certificate`.
-[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+[Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 ## Example Usage - Edgecontainer Local Control Plane Cluster
 

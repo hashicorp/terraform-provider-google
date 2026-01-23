@@ -33,7 +33,7 @@ To get more information about VpnTunnel, see:
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `shared_secret`.
-[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+[Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 ~> **Note:**  All arguments marked as write-only values will not be stored in the state: `shared_secret_wo`.
 [Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).

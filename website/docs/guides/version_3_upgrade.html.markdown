@@ -1130,7 +1130,7 @@ GKE-managed ones) to be defined in config.
 Additionally, an empty taint can now be specified with `taint = []`. As a result
 of this change, the JSON/state representation of the field has changed,
 introducing an incompatibility for users who specify config in JSON instead of
-HCL or who use `dynamic` blocks. See more details in the [Attributes as Blocks](https://www.terraform.io/docs/configuration/attr-as-blocks.html)
+HCL or who use `dynamic` blocks. See more details in the [Attributes as Blocks](https://developer.hashicorp.com/terraform/language/attr-as-blocks)
 documentation.
 
 ### `addons_config.kubernetes_dashboard` is now removed

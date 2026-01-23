@@ -33,12 +33,12 @@ To get more information about HmacKey, see:
     * [Official Documentation](https://cloud.google.com/storage/docs/authentication/managing-hmackeys)
 
 ~> **Warning:** All arguments including the `secret` value will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+state as plain-text. [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 On import, the `secret` value will not be retrieved.
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `secret`.
-[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+[Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=storage_hmac_key&open_in_editor=main.tf" target="_blank">

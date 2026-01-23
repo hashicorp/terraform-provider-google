@@ -174,7 +174,7 @@ value must be 4-32 characters, and may contain the characters [a-z0-9-]. The pre
 			"attribute_condition": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `[A Common Expression Language](https://opensource.google/projects/cel) expression, in
+				Description: `[A Common Expression Language](https://github.com/google/cel-spec) expression, in
 plain text, to restrict what otherwise valid authentication credentials issued by the
 provider should not be accepted.
 
@@ -224,7 +224,7 @@ workload to Google Cloud resources. For example:
   * 'attribute.{custom_attribute}':
     'principalSet://iam.googleapis.com/projects/{project}/locations/{location}/workloadIdentityPools/{pool}/attribute.{custom_attribute}/{value}'
 
-Each value must be a [Common Expression Language](https://opensource.google/projects/cel)
+Each value must be a [Common Expression Language](https://github.com/google/cel-spec)
 function that maps an identity provider credential to the normalized attribute specified
 by the corresponding map key.
 

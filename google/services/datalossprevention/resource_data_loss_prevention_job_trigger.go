@@ -556,7 +556,7 @@ timestamp property does not exist or its value is empty or invalid.`,
 						"actions": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Configuration block for the actions to execute on the completion of a job. Can be specified multiple times, but only one for each type. Each action block supports fields documented below. This argument is processed in [attribute-as-blocks mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html).`,
+							Description: `Configuration block for the actions to execute on the completion of a job. Can be specified multiple times, but only one for each type. Each action block supports fields documented below. This argument is processed in [attribute-as-blocks mode](https://developer.hashicorp.com/terraform/language/attr-as-blocks).`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"deidentify": {
