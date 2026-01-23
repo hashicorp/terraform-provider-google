@@ -1,0 +1,1 @@
+unknown: [Follow-up] Fix PromptTemplateLock tests: replace custom test with generated test + CheckDestroy
