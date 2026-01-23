@@ -96,7 +96,7 @@ The following arguments are supported:
   a non-failover reservation to a failover reservation(or vice versa).
 
 * `scaling_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The scaling mode for the reservation. If the field is present but maxSlots is not present,
   requests will be rejected with error code google.rpc.Code.INVALID_ARGUMENT.
   Enum values:
@@ -132,7 +132,7 @@ The following arguments are supported:
   Possible values are: `SCALING_MODE_UNSPECIFIED`, `AUTOSCALE_ONLY`, `IDLE_SLOTS_ONLY`, `ALL_SLOTS`.
 
 * `max_slots` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The overall max slots for the reservation, covering slotCapacity (baseline), idle slots
   (if ignoreIdleSlots is false) and scaled slots. If present, the reservation won't use
   more than the specified number of slots, even if there is demand and supply (from idle

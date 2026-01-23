@@ -200,7 +200,7 @@ The following arguments are supported:
   Reference to a SecurityProfile with the threat prevention configuration for the SecurityProfileGroup.
 
 * `url_filtering_profile` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Reference to a SecurityProfile with the URL filtering configuration for the SecurityProfileGroup.
 
 * `custom_mirroring_profile` -

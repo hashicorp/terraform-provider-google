@@ -394,7 +394,7 @@ The following arguments are supported:
 
 * `purpose` -
   (Optional)
-  The purpose of the resource. This field can be either `PRIVATE`, `REGIONAL_MANAGED_PROXY`, `GLOBAL_MANAGED_PROXY`, `PRIVATE_SERVICE_CONNECT`, `PEER_MIGRATION` or `PRIVATE_NAT`([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
+  The purpose of the resource. This field can be either `PRIVATE`, `REGIONAL_MANAGED_PROXY`, `GLOBAL_MANAGED_PROXY`, `PRIVATE_SERVICE_CONNECT`, `PEER_MIGRATION` or `PRIVATE_NAT`([Beta](../guides/provider_versions.html.markdown)).
   A subnet with purpose set to `REGIONAL_MANAGED_PROXY` is a user-created subnetwork that is reserved for regional Envoy-based load balancers.
   A subnetwork in a given region with purpose set to `GLOBAL_MANAGED_PROXY` is a proxy-only subnet and is shared between all the cross-regional Envoy-based load balancers.
   A subnetwork with purpose set to `PRIVATE_SERVICE_CONNECT` reserves the subnet for hosting a Private Service Connect published service.
@@ -478,7 +478,7 @@ The following arguments are supported:
     * `regions/{{region}}/publicDelegatedPrefixes/{{sub-pdp-name}}`
 
 * `allow_subnet_cidr_routes_overlap` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Typically packets destined to IPs within the subnetwork range that do not match
   existing resources are dropped and prevented from leaving the VPC.
   Setting this field to true will allow these packets to match dynamic routes injected
@@ -490,7 +490,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_params).
 
 * `resolve_subnet_mask` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   'Configures subnet mask resolution for this subnetwork.'
   Possible values are: `ARP_ALL_RANGES`, `ARP_PRIMARY_RANGE`.
 

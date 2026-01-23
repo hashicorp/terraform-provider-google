@@ -407,13 +407,13 @@ The following arguments are supported:
   Structure is [documented below](#nested_peering_config).
 
 * `reverse_lookup` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Specifies if this is a managed reverse lookup zone. If true, Cloud DNS will resolve reverse
   lookup queries using automatically configured records for VPC resources. This only applies
   to networks listed under `private_visibility_config`.
 
 * `service_directory_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The presence of this field indicates that this zone is backed by Service Directory. The value of this field contains information related to the namespace associated with the zone.
   Structure is [documented below](#nested_service_directory_config).
 

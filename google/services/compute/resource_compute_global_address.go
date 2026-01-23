@@ -196,7 +196,7 @@ when purpose=PRIVATE_SERVICE_CONNECT`,
 
 * VPC_PEERING - for peer networks
 
-* PRIVATE_SERVICE_CONNECT - for ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Private Service Connect networks`,
+* PRIVATE_SERVICE_CONNECT - for ([Beta](../guides/provider_versions.html.markdown)) only) Private Service Connect networks`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,

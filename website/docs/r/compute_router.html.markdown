@@ -192,7 +192,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_md5_authentication_keys).
 
 * `ncc_gateway` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   A URI of an NCC Gateway spoke
 
 * `params` -

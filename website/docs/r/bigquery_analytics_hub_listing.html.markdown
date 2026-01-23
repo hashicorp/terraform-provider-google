@@ -535,11 +535,11 @@ The following arguments are supported:
   Structure is [documented below](#nested_bigquery_dataset_selected_resources).
 
 * `replica_locations` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   A list of regions where the publisher has created shared dataset replicas.
 
 * `effective_replicas` -
-  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Output, [Beta](../guides/provider_versions.html.markdown))
   Server owned effective state of replicas. Contains both primary and secondary replicas.
   Each replica includes a system-computed (output-only) state and primary designation.
   Structure is [documented below](#nested_bigquery_dataset_effective_replicas).
@@ -552,22 +552,22 @@ The following arguments are supported:
   Format: For table: projects/{projectId}/datasets/{datasetId}/tables/{tableId} Example:"projects/test_project/datasets/test_dataset/tables/test_table"
 
 * `routine` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Format: For routine: projects/{projectId}/datasets/{datasetId}/routines/{routineId} Example:"projects/test_project/datasets/test_dataset/routines/test_routine"
 
 <a name="nested_bigquery_dataset_effective_replicas"></a>The `effective_replicas` block contains:
 
 * `location` -
-  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Output, [Beta](../guides/provider_versions.html.markdown))
   The geographic location where the replica resides.
 
 * `replica_state` -
-  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Output, [Beta](../guides/provider_versions.html.markdown))
   Output-only. Assigned by Analytics Hub based on real BigQuery replication state.
   Possible values: REPLICA_STATE_UNSPECIFIED, READY_TO_USE, UNAVAILABLE
 
 * `primary_state` -
-  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Output, [Beta](../guides/provider_versions.html.markdown))
   Output-only. Indicates that this replica is the primary replica.
   Possible values: PRIMARY_STATE_UNSPECIFIED, PRIMARY_REPLICA
 

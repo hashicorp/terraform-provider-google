@@ -510,7 +510,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_feature_registry_source).
 
 * `vector_search_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Configuration for vector search. It contains the required configurations to create an index from source data, so that approximate nearest neighbor (a.k.a ANN) algorithms search can be performed during online serving.
   Structure is [documented below](#nested_vector_search_config).
 

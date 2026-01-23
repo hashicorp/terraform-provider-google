@@ -867,7 +867,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_custom_metrics).
 
 * `network_pass_through_lb_traffic_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Configures traffic steering properties of internal passthrough Network Load Balancers.
   Structure is [documented below](#nested_network_pass_through_lb_traffic_policy).
 
@@ -912,7 +912,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_strong_session_affinity_cookie).
 
 * `connection_tracking_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Connection Tracking configuration for this BackendService.
   This is available only for Layer 4 Internal Load Balancing and
   Network Load Balancing.
@@ -939,12 +939,12 @@ The following arguments are supported:
   Changes to this field force recreation of the resource.
 
 * `subsetting` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
   Structure is [documented below](#nested_subsetting).
 
 * `dynamic_forwarding` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
   feature which together with Service Extension allows customized and complex routing logic.
   Structure is [documented below](#nested_dynamic_forwarding).
@@ -1092,23 +1092,23 @@ The following arguments are supported:
   Cannot be set for INTERNAL backend services.
 
 * `max_in_flight_requests` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Defines a maximum number of in-flight requests for the whole NEG
   or instance group. Not available if backend's balancingMode is RATE
   or CONNECTION.
 
 * `max_in_flight_requests_per_instance` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Defines a maximum number of in-flight requests for a single VM.
   Not available if backend's balancingMode is RATE or CONNECTION.
 
 * `max_in_flight_requests_per_endpoint` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Defines a maximum number of in-flight requests for a single endpoint.
   Not available if backend's balancingMode is RATE or CONNECTION.
 
 * `traffic_duration` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   This field specifies how long a connection should be kept alive for:
   - LONG: Most of the requests are expected to take more than multiple
     seconds to finish.
@@ -1148,7 +1148,7 @@ The following arguments are supported:
 <a name="nested_circuit_breakers"></a>The `circuit_breakers` block supports:
 
 * `connect_timeout` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The timeout for new network connections to hosts.
   Structure is [documented below](#nested_circuit_breakers_connect_timeout).
 
@@ -1349,7 +1349,7 @@ The following arguments are supported:
   can be specified as values, and you cannot specify a status code more than once.
 
 * `ttl` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
   (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
 
@@ -1433,13 +1433,13 @@ The following arguments are supported:
 <a name="nested_network_pass_through_lb_traffic_policy_zonal_affinity"></a>The `zonal_affinity` block supports:
 
 * `spillover` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   This field indicates whether zonal affinity is enabled or not.
   Default value is `ZONAL_AFFINITY_DISABLED`.
   Possible values are: `ZONAL_AFFINITY_DISABLED`, `ZONAL_AFFINITY_SPILL_CROSS_ZONE`, `ZONAL_AFFINITY_STAY_WITHIN_ZONE`.
 
 * `spillover_ratio` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The value of the field must be in [0, 1]. When the ratio of the count of healthy backend endpoints in a zone
   to the count of backend endpoints in that same zone is equal to or above this threshold, the load balancer
   distributes new connections to all healthy endpoints in the local zone only. When the ratio of the count
@@ -1661,7 +1661,7 @@ The following arguments are supported:
 <a name="nested_dynamic_forwarding"></a>The `dynamic_forwarding` block supports:
 
 * `ip_port_selection` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   IP:PORT based dynamic forwarding configuration.
   Structure is [documented below](#nested_dynamic_forwarding_ip_port_selection).
 
@@ -1669,7 +1669,7 @@ The following arguments are supported:
 <a name="nested_dynamic_forwarding_ip_port_selection"></a>The `ip_port_selection` block supports:
 
 * `enabled` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   A boolean flag enabling IP:PORT based dynamic forwarding.
 
 <a name="nested_ha_policy"></a>The `ha_policy` block supports:

@@ -139,7 +139,7 @@ The following arguments are supported:
   The resource name is in the format "projects/*/locations/*/ekmConnections/*" and only applies to "EXTERNAL_VPC" keys.
 
 * `key_access_justifications_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The policy used for Key Access Justifications Policy Enforcement. If this
   field is present and this key is enrolled in Key Access Justifications
   Policy Enforcement, the policy will be evaluated in encrypt, decrypt, and

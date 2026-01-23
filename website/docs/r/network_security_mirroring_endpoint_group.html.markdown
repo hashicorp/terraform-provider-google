@@ -127,14 +127,14 @@ The following arguments are supported:
   See https://google.aip.dev/124.
 
 * `mirroring_deployment_groups` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   A list of the deployment groups that this BROKER endpoint group is
   connected to, for example:
   `projects/123456789/locations/global/mirroringDeploymentGroups/my-dg`.
   See https://google.aip.dev/124.
 
 * `type` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The type of the endpoint group.
   If left unspecified, defaults to DIRECT.
   Possible values:

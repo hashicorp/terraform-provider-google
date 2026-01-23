@@ -575,12 +575,12 @@ The following arguments are supported:
   Structure is [documented below](#nested_postgresql_profile).
 
 * `salesforce_profile` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Salesforce profile.
   Structure is [documented below](#nested_salesforce_profile).
 
 * `spanner_profile` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Spanner profile.
   Structure is [documented below](#nested_spanner_profile).
 

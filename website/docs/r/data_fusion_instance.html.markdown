@@ -468,7 +468,7 @@ In addition to the arguments listed above, the following computed attributes are
   Endpoint on which the Data Fusion UI and REST APIs are accessible.
 
 * `service_account` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
+  ([Beta](../guides/provider_versions.html.markdown), Deprecated)
   Service account which will be used to access resources in the customer project.
 
   ~> **Warning:** `service_account` is deprecated and will be removed in a future major release. Instead, use `tenant_project_id` to extract the tenant project ID.

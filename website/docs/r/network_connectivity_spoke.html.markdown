@@ -641,7 +641,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_linked_producer_vpc_network).
 
 * `gateway` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   This is a gateway that can apply specialized processing to traffic going through it.
   Structure is [documented below](#nested_gateway).
 
@@ -756,7 +756,7 @@ The following arguments are supported:
   Possible values are: `CAPACITY_1_GBPS`, `CAPACITY_10_GBPS`, `CAPACITY_100_GBPS`.
 
 * `routers` -
-  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Output, [Beta](../guides/provider_versions.html.markdown))
   Set of Cloud Routers that are attached to this NCC-GW
 
 

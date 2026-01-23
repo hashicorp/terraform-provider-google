@@ -219,7 +219,7 @@ The following arguments are supported:
   An optional list of case-insensitive request header names to use for resolving the callers client IP address.
 
 * `request_body_inspection_size` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The maximum request size chosen by the customer with Waf enabled. Values supported are "8KB", "16KB, "32KB", "48KB" and "64KB".
   Values are case insensitive.
   Possible values are: `8KB`, `16KB`, `32KB`, `48KB`, `64KB`.

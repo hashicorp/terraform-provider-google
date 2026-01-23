@@ -150,7 +150,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_monitoring_config).
 
 * `offline_storage_ttl_days` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Config for data retention policy in offline storage. TTL in days for feature values that will be stored in offline storage. The Feature Store offline storage periodically removes obsolete feature values older than offlineStorageTtlDays since the feature generation time. If unset (or explicitly set to 0), default to 4000 days TTL.
 
 
@@ -185,7 +185,7 @@ The following arguments are supported:
   The monitoring schedule for snapshot analysis. For EntityType-level config: unset / disabled = true indicates disabled by default for Features under it; otherwise by default enable snapshot analysis monitoring with monitoringInterval for Features under it.
 
 * `monitoring_interval` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
+  (Optional, [Beta](../guides/provider_versions.html.markdown), Deprecated)
   Configuration of the snapshot analysis based monitoring pipeline running interval. The value is rolled up to full day.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 

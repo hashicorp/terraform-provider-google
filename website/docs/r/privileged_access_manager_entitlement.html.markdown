@@ -181,7 +181,7 @@ The following arguments are supported:
   https://cloud.google.com/iam/docs/conditions-overview#attributes.
 
 * `id` -
-  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Output, [Beta](../guides/provider_versions.html.markdown))
   Output Only. The ID corresponding to this role binding in the policy binding. This will be unique within an entitlement across time. Gets re-generated each time the entitlement is updated.
 
 <a name="nested_requester_justification_config"></a>The `requester_justification_config` block supports:
@@ -239,7 +239,7 @@ The following arguments are supported:
   Optional. Additional email addresses to be notified when a grant is pending approval.
 
 * `id` -
-  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Output, [Beta](../guides/provider_versions.html.markdown))
   Output Only. The ID of the approval step.
 
 

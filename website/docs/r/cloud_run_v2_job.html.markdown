@@ -482,12 +482,12 @@ The following arguments are supported:
   Structure is [documented below](#nested_binary_authorization).
 
 * `start_execution_token` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   A unique string used as a suffix creating a new execution upon job create or update. The Job will become ready when the execution is successfully started.
   The sum of job name and token length must be fewer than 63 characters.
 
 * `run_execution_token` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   A unique string used as a suffix creating a new execution upon job create or update. The Job will become ready when the execution is successfully completed.
   The sum of job name and token length must be fewer than 63 characters.
 

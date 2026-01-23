@@ -177,7 +177,7 @@ The following arguments are supported:
   organize and group your datasets.
 
 * `replica_locations` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   List of regions where the subscriber wants dataset replicas.
 
 

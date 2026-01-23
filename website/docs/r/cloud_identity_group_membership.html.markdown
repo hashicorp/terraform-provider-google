@@ -132,7 +132,7 @@ The following arguments are supported:
 
 
 * `member_key` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   EntityKey of the member.
   Structure is [documented below](#nested_member_key).
 

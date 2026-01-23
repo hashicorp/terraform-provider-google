@@ -632,7 +632,7 @@ The following arguments are supported:
   supported is 1.
 
 * `tunneling_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Tunneling configuration for this service attachment.
   Structure is [documented below](#nested_tunneling_config).
 

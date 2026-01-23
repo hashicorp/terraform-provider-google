@@ -149,7 +149,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_dedicated_serving_endpoint).
 
 * `embedding_management` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
+  (Optional, [Beta](../guides/provider_versions.html.markdown), Deprecated)
   The settings for embedding management in FeatureOnlineStore. Embedding management can only be set for BigTable. It is enabled by default for optimized storagetype.
   Structure is [documented below](#nested_embedding_management).
 

@@ -87,7 +87,7 @@ The following arguments are supported:
     affinity). "CLIENT_IP" (hash of the source/dest addresses / ports), and
     "CLIENT_IP_PROTO" also includes the protocol (default "NONE").
 
-* `security_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The resource URL for the security policy associated with this target pool.
+* `security_policy` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The resource URL for the security policy associated with this target pool.
 
 ## Attributes Reference
 

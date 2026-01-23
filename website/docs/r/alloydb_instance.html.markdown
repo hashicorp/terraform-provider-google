@@ -250,7 +250,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_query_insights_config).
 
 * `observability_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Configuration for enhanced query insights.
   Structure is [documented below](#nested_observability_config).
 

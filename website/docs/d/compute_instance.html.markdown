@@ -206,7 +206,7 @@ The following arguments are supported:
 
 <a name="nested_scheduling"></a>The `scheduling` block supports:
 
-* `host_error_timeout_seconds` - [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Time in seconds for host error detection.
+* `host_error_timeout_seconds` - [Beta](../guides/provider_versions.html.markdown) Time in seconds for host error detection.
 
 * `preemptible` - Whether the instance is preemptible.
 

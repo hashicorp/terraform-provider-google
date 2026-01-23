@@ -385,7 +385,7 @@ The following arguments are supported:
   * `HTTP_HEADER` -- Name of the HTTP header whose value is taken as the key value.
   * `HTTP_COOKIE` -- Name of the HTTP cookie whose value is taken as the key value.
 
-* `enforce_on_key_configs` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) If specified, any combination of values of enforce_on_key_type/enforce_on_key_name is treated as the key on which rate limit threshold/action is enforced. You can specify up to 3 enforce_on_key_configs. If `enforce_on_key_configs` is specified, `enforce_on_key` must be set to an empty string. Structure is [documented below](#nested_enforce_on_key_configs).
+* `enforce_on_key_configs` - (Optional, [Beta](../guides/provider_versions.html.markdown)) If specified, any combination of values of enforce_on_key_type/enforce_on_key_name is treated as the key on which rate limit threshold/action is enforced. You can specify up to 3 enforce_on_key_configs. If `enforce_on_key_configs` is specified, `enforce_on_key` must be set to an empty string. Structure is [documented below](#nested_enforce_on_key_configs).
 
   **Note:** To avoid the conflict between `enforce_on_key` and `enforce_on_key_configs`, the field [`enforce_on_key`](#enforce_on_key) needs to be set to an empty string.
 
@@ -447,7 +447,7 @@ The following arguments are supported:
 
 * `layer_7_ddos_defense_config` - (Optional) Configuration for [Google Cloud Armor Adaptive Protection Layer 7 DDoS Defense](https://cloud.google.com/armor/docs/adaptive-protection-overview?hl=en). Structure is [documented below](#nested_layer_7_ddos_defense_config).
 
-* `auto_deploy_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for [Automatically deploy Adaptive Protection suggested rules](https://cloud.google.com/armor/docs/adaptive-protection-auto-deploy?hl=en). Structure is [documented below](#nested_auto_deploy_config).
+* `auto_deploy_config` - (Optional, [Beta](../guides/provider_versions.html.markdown)) Configuration for [Automatically deploy Adaptive Protection suggested rules](https://cloud.google.com/armor/docs/adaptive-protection-auto-deploy?hl=en). Structure is [documented below](#nested_auto_deploy_config).
 
 <a name="nested_layer_7_ddos_defense_config"></a>The `layer_7_ddos_defense_config` block supports:
 

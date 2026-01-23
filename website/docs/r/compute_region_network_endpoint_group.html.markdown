@@ -466,7 +466,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_cloud_function).
 
 * `serverless_deployment` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   This field is only used for SERVERLESS NEGs.
   Only one of cloudRun, appEngine, cloudFunction or serverlessDeployment may be set.
   Structure is [documented below](#nested_serverless_deployment).
