@@ -689,7 +689,7 @@ The following arguments are supported:
 
 * `actions` -
   (Optional)
-  Configuration block for the actions to execute on the completion of a job. Can be specified multiple times, but only one for each type. Each action block supports fields documented below. This argument is processed in [attribute-as-blocks mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html).
+  Configuration block for the actions to execute on the completion of a job. Can be specified multiple times, but only one for each type. Each action block supports fields documented below. This argument is processed in [attribute-as-blocks mode](https://developer.hashicorp.com/terraform/language/attr-as-blocks).
   Structure is [documented below](#nested_inspect_job_actions).
 
 

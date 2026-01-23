@@ -28,7 +28,7 @@ Allows creation and management of an App Engine application.
    Terraform is not able to delete App Engine applications.
 
 ~> **Warning:** All arguments including `iap.oauth2_client_secret` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+state as plain-text. [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 ## Example Usage
 

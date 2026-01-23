@@ -24,8 +24,8 @@ The Google Cloud provider is used to configure your [Google Cloud](https://cloud
 
 To learn the basics of Terraform using this provider, follow the hands-on
 [get started tutorials](https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/infrastructure-as-code).
-For more involved examples, try [provisioning a GKE cluster](https://learn.hashicorp.com/tutorials/terraform/gke)
-and deploying [Consul-backed Vault into it using Terraform Cloud](https://learn.hashicorp.com/tutorials/terraform/kubernetes-consul-vault-pipeline).
+For more involved examples, try [provisioning a GKE cluster](https://developer.hashicorp.com/terraform/tutorials/kubernetes/gke)
+and deploying [Consul-backed Vault into it using Terraform Cloud](https://developer.hashicorp.com/terraform/tutorials/kubernetes/kubernetes-consul-vault-pipeline).
 
 Already experienced with Terraform? Check out the [Getting Started](/docs/providers/google/guides/getting_started.html)
 page for a short introduction to using Terraform with Google Cloud.
@@ -44,7 +44,7 @@ provider "google" {
 See the [provider reference](/docs/providers/google/guides/provider_reference.html)
 page for details on authentication and configuring the provider.
 
-Take advantage of [Modules](https://www.terraform.io/docs/modules/index.html)
+Take advantage of [Modules](https://developer.hashicorp.com/terraform/language/modules/develop)
 to simplify your config by browsing the [Module Registry for Google Cloud modules](https://registry.terraform.io/browse?provider=google).
 
 The Google Cloud provider is jointly maintained by:
@@ -56,7 +56,7 @@ If you have configuration questions, or general questions about using the provid
 
 * [The Google category on discuss.hashicorp.com](https://discuss.hashicorp.com/c/terraform-providers/tf-google/32)
 * The [Google Cloud Community Slack](https://googlecloud-community.slack.com/) `#terraform` channel. If you are not registered with that Slack Workspace yet, the up-to-date **public sign-up link** can be found in the "Stay Connected" section of the [Google Developer Center](https://cloud.google.com/developers#stay-connected).
-* [Terraform's community resources](https://www.terraform.io/docs/extend/community/index.html)
+* [Terraform's community resources](https://developer.hashicorp.com/terraform)
 * [HashiCorp support](https://support.hashicorp.com) for Terraform Enterprise customers
 
 ## Releases
@@ -96,7 +96,7 @@ lifecycle to give users plenty of time to safely update their configs.
 ## Features and Bug Requests
 
 The Google Cloud provider's bugs and feature requests can be found in the [GitHub repo issues](https://github.com/hashicorp/terraform-provider-google/issues).
-Please avoid "me too" or "+1" comments. Instead, use a thumbs up [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
+Please avoid "me too" or "+1" comments. Instead, use a thumbs up [reaction](https://github.blog/news-insights/product-news/add-reactions-to-pull-requests-issues-and-comments/)
 on enhancement requests. Provider maintainers will often prioritize work based on the
 number of thumbs on an issue.
 

@@ -20,7 +20,7 @@ description: |-
 
 # Using GKE with Terraform
 
--> Visit the [Provision a GKE Cluster (Google Cloud)](https://learn.hashicorp.com/tutorials/terraform/gke?in=terraform/kubernetes&utm_source=WEBSITE&utm_medium=WEB_IO&utm_offer=ARTICLE_PAGE&utm_content=DOCS) tutorial to learn how to provision and interact
+-> Visit the [Provision a GKE Cluster (Google Cloud)](https://developer.hashicorp.com/terraform/tutorials/kubernetes/gke) tutorial to learn how to provision and interact
 with a GKE cluster.
 
 This page is a brief overview of GKE usage with Terraform, based on the content

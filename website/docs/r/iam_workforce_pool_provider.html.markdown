@@ -35,7 +35,7 @@ billing/quota project. The account team notifies you when the project is granted
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `oidc.client_secret.value.plain_text`.
-[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+[Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 ## Example Usage - Iam Workforce Pool Provider Saml Basic
 
@@ -420,7 +420,7 @@ The following arguments are supported:
       `principalSet://iam.googleapis.com/locations/{location}/workforcePools/{pool}/group/{value}`
     * `attribute.{custom_attribute}`:
       `principalSet://iam.googleapis.com/locations/{location}/workforcePools/{pool}/attribute.{custom_attribute}/{value}`
-  Each value must be a [Common Expression Language](https://opensource.google/projects/cel)
+  Each value must be a [Common Expression Language](https://github.com/google/cel-spec)
   function that maps an identity provider credential to the normalized attribute specified
   by the corresponding map key.
   You can use the `assertion` keyword in the expression to access a JSON representation of
@@ -438,7 +438,7 @@ The following arguments are supported:
 
 * `attribute_condition` -
   (Optional)
-  A [Common Expression Language](https://opensource.google/projects/cel) expression, in
+  A [Common Expression Language](https://github.com/google/cel-spec) expression, in
   plain text, to restrict what otherwise valid authentication credentials issued by the
   provider should not be accepted.
   The expression must output a boolean representing whether to allow the federation.

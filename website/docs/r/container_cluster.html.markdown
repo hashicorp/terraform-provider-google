@@ -29,13 +29,13 @@ To get more information about GKE clusters, see:
     * [About cluster configuration choices](https://cloud.google.com/kubernetes-engine/docs/concepts/types-of-clusters)
   * Terraform guidance
     * [Using GKE with Terraform](/docs/providers/google/guides/using_gke_with_terraform.html)
-    * [Provision a GKE Cluster (Google Cloud) Learn tutorial](https://learn.hashicorp.com/tutorials/terraform/gke?in=terraform/kubernetes&utm_source=WEBSITE&utm_medium=WEB_IO&utm_offer=ARTICLE_PAGE&utm_content=DOCS)
+    * [Provision a GKE Cluster (Google Cloud) Learn tutorial](https://developer.hashicorp.com/terraform/tutorials/kubernetes/gke)
 
 -> On version 5.0.0+ of the provider, you must explicitly set `deletion_protection = false`
 and run `terraform apply` to write the field to state in order to destroy a cluster.
 
 ~> All arguments and attributes (including certificate outputs) will be stored in the raw state as
-plaintext. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+plaintext. [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 ## Example Usage - with a separately managed node pool (recommended)
 

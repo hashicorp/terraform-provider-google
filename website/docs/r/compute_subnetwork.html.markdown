@@ -418,7 +418,7 @@ The following arguments are supported:
   contained in this subnetwork. The primary IP of such VM must belong
   to the primary ipCidrRange of the subnetwork. The alias IPs may belong
   to either primary or secondary ranges.
-  **Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
+  **Note**: This field uses [attr-as-block mode](https://developer.hashicorp.com/terraform/language/attr-as-blocks) to avoid
   breaking users during the 0.12 upgrade. To explicitly send a list of zero objects,
   set `send_secondary_ip_range_if_empty = true`
   Structure is [documented below](#nested_secondary_ip_range).
