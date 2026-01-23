@@ -24,6 +24,11 @@ description: |-
 Certificate represents a HTTP-reachable backend for a Certificate.
 
 
+To get more information about Certificate, see:
+
+* [API documentation](https://docs.cloud.google.com/certificate-manager/docs/reference/certificate-manager/rest/v1/projects.locations.certificates)
+* How-to Guides
+    * [Official Documentation](https://docs.cloud.google.com/certificate-manager/docs/certificates)
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `self_managed.certificate_pem`, `self_managed.private_key_pem`, `self_managed.pem_private_key`.

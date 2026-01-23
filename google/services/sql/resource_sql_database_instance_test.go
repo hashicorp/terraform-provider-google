@@ -1425,15 +1425,17 @@ func TestAccSqlDatabaseInstance_createFromBackupDR(t *testing.T) {
 
 	// Bootstrap the BackupDR vault
 	backupVaultID := "bv-test"
-	location := "us-central1"
+	vaultLocation := "us-central1"
 	project := envvar.GetTestProjectFromEnv()
-	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
 
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(t, 10),
-		"project":         project,
-		"backup_vault_id": backupVaultID,
-		"backup_vault":    backupvault,
+		"random_suffix":          acctest.RandString(t, 10),
+		"project":                project,
+		"backup_vault_id":        backupVaultID,
+		"backup_vault":           backupvault,
+		"target_instance_region": "us-central1",
+		"vault_location":         vaultLocation,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1533,6 +1535,123 @@ func TestAccSqlDatabaseInstance_BackupDRUpdate(t *testing.T) {
 			},
 			{
 				Config: testAccSqlDatabaseInstance_updateFromBackupDR(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "backupdr_backup"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_createFromCrossRegionBackupDrBackup(t *testing.T) {
+	t.Parallel()
+
+	// Bootstrap the BackupDR vault
+	backupVaultID := "bv-test"
+	vaultLocation := "us-central1"
+	project := envvar.GetTestProjectFromEnv()
+	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
+
+	context := map[string]interface{}{
+		"random_suffix":          acctest.RandString(t, 10),
+		"project":                project,
+		"backup_vault_id":        backupVaultID,
+		"backup_vault":           backupvault,
+		"target_instance_region": "us-east1",
+		"vault_location":         vaultLocation,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_createFromBackupDR(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "backupdr_backup"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_createFromMultiRegionBackupDrBackup(t *testing.T) {
+	t.Parallel()
+
+	// Bootstrap the BackupDR vault
+	backupVaultID := "bv-test-mr"
+	vaultLocation := "us"
+	project := envvar.GetTestProjectFromEnv()
+	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
+
+	context := map[string]interface{}{
+		"random_suffix":          acctest.RandString(t, 10),
+		"project":                project,
+		"backup_vault_id":        backupVaultID,
+		"backup_vault":           backupvault,
+		"target_instance_region": "us-central1",
+		"vault_location":         vaultLocation,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_createFromBackupDR(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "backupdr_backup"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_createFromMultiRegionBackupDrBackupCrossRegion(t *testing.T) {
+	t.Parallel()
+
+	// Bootstrap the BackupDR vault
+	backupVaultID := "bv-test-mr"
+	vaultLocation := "us"
+	project := envvar.GetTestProjectFromEnv()
+	backupvault := acctest.BootstrapBackupDRVault(t, backupVaultID, vaultLocation)
+
+	context := map[string]interface{}{
+		"random_suffix":          acctest.RandString(t, 10),
+		"project":                project,
+		"backup_vault_id":        backupVaultID,
+		"backup_vault":           backupvault,
+		"target_instance_region": "us-east1",
+		"vault_location":         vaultLocation,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_createFromBackupDR(context),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -7792,7 +7911,7 @@ resource "time_sleep" "wait_10_mins" {
 
 data "google_backup_dr_backup" "sql_backups" {
   project			= "%{project}"
-  location      	= "us-central1"
+  location      	= "%{vault_location}"
   backup_vault_id 	= "%{backup_vault_id}"
   data_source_id 	= element(split("/", google_backup_dr_backup_plan_association.association.data_source), length(split("/", google_backup_dr_backup_plan_association.association.data_source)) - 1)
 
@@ -7802,7 +7921,7 @@ data "google_backup_dr_backup" "sql_backups" {
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-%{random_suffix}"
   database_version = "MYSQL_8_0_41"
-  region           = "us-central1"
+  region           = "%{target_instance_region}"
 
   settings {
     tier = "db-g1-small"

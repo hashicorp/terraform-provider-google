@@ -1,0 +1,7 @@
+```release-note:enhancement
+datastream: added `spanner_profile` field to `google_datastream_connection_profile`
+```
+
+```release-note:enhancement
+datastream: added `backfill_all.spanner_excluded_objects` and  `source_config.spanner_source_config` fields to `google_datastream_stream`
+```

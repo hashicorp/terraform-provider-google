@@ -173,3 +173,7 @@ func Base64DiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	normalizedNew := r.Replace(new)
 	return normalizedOld == normalizedNew
 }
+
+func CaseInsensitiveHash(v interface{}) int {
+	return Hashcode(strings.ToLower(v.(string)))
+}

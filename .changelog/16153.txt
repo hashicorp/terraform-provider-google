@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a permadiff that could occur when using mixed short and long form IPv6 addresses in the `source_ranges` field of `google_compute_firewall`
+```

@@ -1,0 +1,42 @@
+resource: google_dialogflow_cx_tool_version
+generation_type: mmv1
+source_file: products/dialogflowcx/ToolVersion.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v3
+api_resource_type_kind: ToolVersion
+fields:
+    - api_field: createTime
+    - api_field: displayName
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: tool.dataStoreSpec.dataStoreConnections.dataStore
+    - api_field: tool.dataStoreSpec.dataStoreConnections.dataStoreType
+    - api_field: tool.dataStoreSpec.dataStoreConnections.documentProcessingMode
+    - api_field: tool.dataStoreSpec.fallbackPrompt
+    - api_field: tool.description
+    - api_field: tool.displayName
+    - api_field: tool.functionSpec.inputSchema
+      json: true
+    - api_field: tool.functionSpec.outputSchema
+      json: true
+    - api_field: tool.name
+    - api_field: tool.openApiSpec.authentication.apiKeyConfig.apiKey
+    - api_field: tool.openApiSpec.authentication.apiKeyConfig.keyName
+    - api_field: tool.openApiSpec.authentication.apiKeyConfig.requestLocation
+    - api_field: tool.openApiSpec.authentication.apiKeyConfig.secretVersionForApiKey
+    - api_field: tool.openApiSpec.authentication.bearerTokenConfig.secretVersionForToken
+    - api_field: tool.openApiSpec.authentication.bearerTokenConfig.token
+    - api_field: tool.openApiSpec.authentication.oauthConfig.clientId
+    - api_field: tool.openApiSpec.authentication.oauthConfig.clientSecret
+    - api_field: tool.openApiSpec.authentication.oauthConfig.oauthGrantType
+    - api_field: tool.openApiSpec.authentication.oauthConfig.scopes
+    - api_field: tool.openApiSpec.authentication.oauthConfig.secretVersionForClientSecret
+    - api_field: tool.openApiSpec.authentication.oauthConfig.tokenEndpoint
+    - api_field: tool.openApiSpec.authentication.serviceAgentAuthConfig.serviceAgentAuth
+    - api_field: tool.openApiSpec.serviceDirectoryConfig.service
+    - api_field: tool.openApiSpec.textSchema
+    - api_field: tool.openApiSpec.tlsConfig.caCerts.cert
+    - api_field: tool.openApiSpec.tlsConfig.caCerts.displayName
+    - api_field: tool.toolType
+    - api_field: updateTime

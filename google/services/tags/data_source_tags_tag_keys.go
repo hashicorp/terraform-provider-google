@@ -66,15 +66,16 @@ func dataSourceGoogleTagsTagKeysRead(d *schema.ResourceData, meta interface{}) e
 		for _, tagKey := range resp.TagKeys {
 
 			mappedData := map[string]interface{}{
-				"name":            tagKey.Name,
-				"namespaced_name": tagKey.NamespacedName,
-				"short_name":      tagKey.ShortName,
-				"parent":          tagKey.Parent,
-				"create_time":     tagKey.CreateTime,
-				"update_time":     tagKey.UpdateTime,
-				"description":     tagKey.Description,
-				"purpose":         tagKey.Purpose,
-				"purpose_data":    tagKey.PurposeData,
+				"name":                 tagKey.Name,
+				"namespaced_name":      tagKey.NamespacedName,
+				"short_name":           tagKey.ShortName,
+				"parent":               tagKey.Parent,
+				"create_time":          tagKey.CreateTime,
+				"update_time":          tagKey.UpdateTime,
+				"description":          tagKey.Description,
+				"purpose":              tagKey.Purpose,
+				"purpose_data":         tagKey.PurposeData,
+				"allowed_values_regex": tagKey.AllowedValuesRegex,
 			}
 			tagKeys = append(tagKeys, mappedData)
 		}

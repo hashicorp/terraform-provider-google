@@ -26,9 +26,9 @@ A TagKey, used to group a set of TagValues.
 
 To get more information about TagKey, see:
 
-* [API documentation](https://cloud.google.com/resource-manager/reference/rest/v3/tagKeys)
+* [API documentation](https://docs.cloud.google.com/resource-manager/reference/rest/v3/tagKeys)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+    * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
 
 ## Example Usage - Tag Key Basic
 
@@ -70,6 +70,10 @@ The following arguments are supported:
   (Optional)
   Optional. Purpose data cannot be changed once set.
   Purpose data corresponds to the policy system that the tag is intended for. For example, the GCE_FIREWALL purpose expects data in the following format: `network = "<project-name>/<vpc-name>"`.
+
+* `allowed_values_regex` -
+  (Optional)
+  Regular expression constraint for dynamic tag values, follows RE2 syntax. If present, it implicitly allows dynamic values (constrained by the regex).
 
 
 

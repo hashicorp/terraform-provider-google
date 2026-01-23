@@ -905,8 +905,6 @@ func flattenComputeNetworkRoutingConfigBgpInterRegionCost(v interface{}, d *sche
 	return v
 }
 
-// The API does not return this field, so we must read it from the
-// local state to prevent perpetual diffs.
 func flattenComputeNetworkRoutingConfigDeleteBgpAlwaysCompareMed(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("delete_bgp_always_compare_med")
 }

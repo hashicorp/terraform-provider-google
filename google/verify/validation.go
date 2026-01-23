@@ -375,6 +375,25 @@ func ValidateADDomainName() schema.SchemaValidateFunc {
 	}
 }
 
+// ValidateTagKeyAllowedValuesRegex ensures that TagKey's AllowedValuesRegex field has a valid regex.
+func ValidateTagKeyAllowedValuesRegex(v interface{}, k string) (ws []string, errors []error) {
+	val, ok := v.(string)
+	if !ok {
+		return nil, []error{fmt.Errorf("Expected type of %s to be string", k)}
+	}
+
+	if val == "" {
+		// Allow empty string for an optional field
+		return nil, nil
+	}
+
+	_, err := regexp.Compile(val)
+	if err != nil {
+		return nil, []error{fmt.Errorf("Invalid regular expression for %s: %s", k, err.Error())}
+	}
+	return nil, nil
+}
+
 func TestStringValidationCases(cases []StringValidationTestCase, validationFunc schema.SchemaValidateFunc) []error {
 	es := make([]error, 0)
 	for _, c := range cases {

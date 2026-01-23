@@ -14,7 +14,6 @@ fields:
     - api_field: encryptionConfig.kmsKey
     - api_field: endpointUri
     - api_field: hiveMetastoreConfig.auxiliaryVersions.key
-      field: hive_metastore_config.auxiliary_versions.key
     - api_field: hiveMetastoreConfig.auxiliaryVersions.value.configOverrides
       field: hive_metastore_config.auxiliary_versions.config_overrides
     - api_field: hiveMetastoreConfig.auxiliaryVersions.value.version

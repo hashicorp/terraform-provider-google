@@ -457,6 +457,23 @@ resource "google_datastream_connection_profile" "default" {
     }
 }
 ```
+## Example Usage - Datastream Connection Profile Spanner
+
+
+```hcl
+resource "google_datastream_connection_profile" "default" {
+    display_name          = "Spanner Source"
+    location              = "us-central1"
+    connection_profile_id = "source-profile"
+    create_without_validation = true
+    provider = google-beta
+
+    spanner_profile {
+        database = "projects/example-project/instances/example-instance/databases/example-database"
+        host = "https://spanner.example-region.rep.googleapis.com"
+    }
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_connection_profile_postgres_secret_manager&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -561,6 +578,11 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Salesforce profile.
   Structure is [documented below](#nested_salesforce_profile).
+
+* `spanner_profile` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Spanner profile.
+  Structure is [documented below](#nested_spanner_profile).
 
 * `sql_server_profile` -
   (Optional)
@@ -827,6 +849,18 @@ The following arguments are supported:
 * `secret_manager_stored_client_secret` -
   (Optional)
   A reference to a Secret Manager resource name storing the client secret.
+
+<a name="nested_spanner_profile"></a>The `spanner_profile` block supports:
+
+* `database` -
+  (Required)
+  The full project and resource path for Spanner database. Format:
+  projects/{project}/instances/{instance}/databases/{database}.
+
+* `host` -
+  (Optional)
+  The regional Spanner endpoint. Format:
+  https://spanner.{region}.rep.googleapis.com.
 
 <a name="nested_sql_server_profile"></a>The `sql_server_profile` block supports:
 

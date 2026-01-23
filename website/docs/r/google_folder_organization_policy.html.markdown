@@ -26,13 +26,13 @@ Allows management of Organization Policies for a Google Cloud Folder.
 
 To get more information about Organization Policies, see:
 
-* [API documentation](https://cloud.google.com/resource-manager/reference/rest/v1/folders/setOrgPolicy)
+* [API documentation](https://docs.cloud.google.com/resource-manager/reference/rest/v1/folders/setOrgPolicy)
 * How-to Guides
-    * [Introduction to the Organization Policy Service](https://cloud.google.com/resource-manager/docs/organization-policy/overview)
+    * [Introduction to the Organization Policy Service](https://docs.cloud.google.com/resource-manager/docs/organization-policy/overview)
 
 ## Example Usage
 
-To set policy with a [boolean constraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-boolean-constraints):
+To set policy with a [boolean constraint](https://docs.cloud.google.com/resource-manager/docs/organization-policy/quickstart-boolean-constraints):
 
 ```hcl
 resource "google_folder_organization_policy" "serial_port_policy" {
@@ -46,7 +46,7 @@ resource "google_folder_organization_policy" "serial_port_policy" {
 ```
 
 
-To set a policy with a [list constraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
+To set a policy with a [list constraint](https://docs.cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
 
 ```hcl
 resource "google_folder_organization_policy" "services_policy" {
@@ -98,7 +98,7 @@ The following arguments are supported:
 
 * `folder` - (Required) The resource name of the folder to set the policy for. Its format is folders/{folder_id}.
 
-* `constraint` - (Required) The name of the Constraint the Policy is configuring, for example, `serviceuser.services`. Check out the [complete list of available constraints](https://cloud.google.com/resource-manager/docs/organization-policy/understanding-constraints#available_constraints).
+* `constraint` - (Required) The name of the Constraint the Policy is configuring, for example, `serviceuser.services`. Check out the [complete list of available constraints](https://docs.cloud.google.com/resource-manager/docs/organization-policy/understanding-constraints#available_constraints).
 
 - - -
 

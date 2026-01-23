@@ -1476,6 +1476,73 @@ resource "google_datastream_stream" "default" {
     backfill_none {}
 }
 ```
+## Example Usage - Datastream Stream Spanner
+
+
+```hcl
+mmv1/templates/terraform/examples/datastream_stream_spanner.tf.tmplresource "google_datastream_stream" "default" {
+    display_name = "Spanner to BigQuery"
+    location     = "us-central1"
+    stream_id    = "spanner-stream"
+
+    source_config {
+        source_connection_profile = "source-profile"
+        spanner_source_config {
+            change_stream_name = "example-change-stream"
+            fgac_role = "example-role"
+            spanner_rpc_priority = "MEDIUM"
+            max_concurrent_cdc_tasks = 1000
+            max_concurrent_backfill_tasks = 10
+            include_objects {
+                schemas {
+                    schema = "schema-to-include"
+                    tables {
+                        table = "table-to-include"
+                        columns {
+                            column = "column-to-include"
+                        }
+                    }
+                }
+            }
+            exclude_objects {
+                schemas {
+                    schema = "schema-to-exclude"
+                    tables {
+                        table = "table-to-exclude"
+                        columns {
+                            column = "column-to-exclude"
+                        }
+                    }
+                }
+            }
+            backfill_data_boost_enabled = true
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = "destination-profile"
+        bigquery_destination_config {
+            data_freshness = "900s"
+            source_hierarchy_datasets {
+                dataset_template {
+                    location = "us-central1"
+                }
+            }
+        }
+    }
+
+    backfill_all {
+        spanner_excluded_objects {
+            schemas {
+                schema = "example-schema"
+                tables {
+                    table = "example-table"
+                }
+            }
+        }
+    }
+}
+```
 ## Example Usage - Datastream Stream Mongodb
 
 
@@ -1625,6 +1692,11 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   (Optional)
   Salesforce data source configuration.
   Structure is [documented below](#nested_source_config_salesforce_source_config).
+
+* `spanner_source_config` -
+  (Optional)
+  Spanner data source configuration.
+  Structure is [documented below](#nested_source_config_spanner_source_config).
 
 * `mongodb_source_config` -
   (Optional)
@@ -2356,6 +2428,146 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   (Optional)
   Field name.
 
+<a name="nested_source_config_spanner_source_config"></a>The `spanner_source_config` block supports:
+
+* `change_stream_name` -
+  (Optional)
+  The Spanner change stream name to use.
+
+* `spanner_rpc_priority` -
+  (Optional)
+  The RPC priority to use for Spanner queries.
+  Possible values are: `LOW`, `MEDIUM`, `HIGH`.
+
+* `fgac_role` -
+  (Optional)
+  The FGAC role to use for Spanner queries.
+
+* `max_concurrent_cdc_tasks` -
+  (Optional)
+  Max concurrent CDC tasks.
+
+* `max_concurrent_backfill_tasks` -
+  (Optional)
+  Max concurrent backfill tasks.
+
+* `include_objects` -
+  (Optional)
+  Spanner objects to retrieve from the source.
+  Structure is [documented below](#nested_source_config_spanner_source_config_include_objects).
+
+* `exclude_objects` -
+  (Optional)
+  Spanner objects to retrieve from the source.
+  Structure is [documented below](#nested_source_config_spanner_source_config_exclude_objects).
+
+* `backfill_data_boost_enabled` -
+  (Optional)
+  Whether to use DataBoost for backfill queries.
+
+
+<a name="nested_source_config_spanner_source_config_include_objects"></a>The `include_objects` block supports:
+
+* `schemas` -
+  (Required)
+  Spanner schemas in the database
+  Structure is [documented below](#nested_source_config_spanner_source_config_include_objects_schemas).
+
+
+<a name="nested_source_config_spanner_source_config_include_objects_schemas"></a>The `schemas` block supports:
+
+* `schema` -
+  (Required)
+  Schema name.
+
+* `tables` -
+  (Optional)
+  Tables in the schema.
+  Structure is [documented below](#nested_source_config_spanner_source_config_include_objects_schemas_tables).
+
+
+<a name="nested_source_config_spanner_source_config_include_objects_schemas_tables"></a>The `tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `columns` -
+  (Optional)
+  Spanner columns in the table. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_source_config_spanner_source_config_include_objects_schemas_tables_columns).
+
+
+<a name="nested_source_config_spanner_source_config_include_objects_schemas_tables_columns"></a>The `columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Output)
+  The Spanner data type. Full data types list can be found here:
+  https://docs.cloud.google.com/spanner/docs/reference/standard-sql/data-types
+
+* `is_primary_key` -
+  (Output)
+  Whether or not the column is a primary key.
+
+* `ordinal_position` -
+  (Output)
+  The ordinal position of the column in the table.
+
+<a name="nested_source_config_spanner_source_config_exclude_objects"></a>The `exclude_objects` block supports:
+
+* `schemas` -
+  (Required)
+  Spanner schemas in the database
+  Structure is [documented below](#nested_source_config_spanner_source_config_exclude_objects_schemas).
+
+
+<a name="nested_source_config_spanner_source_config_exclude_objects_schemas"></a>The `schemas` block supports:
+
+* `schema` -
+  (Required)
+  Schema name.
+
+* `tables` -
+  (Optional)
+  Tables in the schema.
+  Structure is [documented below](#nested_source_config_spanner_source_config_exclude_objects_schemas_tables).
+
+
+<a name="nested_source_config_spanner_source_config_exclude_objects_schemas_tables"></a>The `tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `columns` -
+  (Optional)
+  Spanner columns in the table. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_source_config_spanner_source_config_exclude_objects_schemas_tables_columns).
+
+
+<a name="nested_source_config_spanner_source_config_exclude_objects_schemas_tables_columns"></a>The `columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Output)
+  The Spanner data type. Full data types list can be found here:
+  https://docs.cloud.google.com/spanner/docs/reference/standard-sql/data-types
+
+* `is_primary_key` -
+  (Output)
+  Whether the column is a primary key.
+
+* `ordinal_position` -
+  (Output)
+  The ordinal position of the column in the table.
+
 <a name="nested_source_config_mongodb_source_config"></a>The `mongodb_source_config` block supports:
 
 * `include_objects` -
@@ -2628,6 +2840,11 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   (Optional)
   Salesforce objects to avoid backfilling.
   Structure is [documented below](#nested_backfill_all_salesforce_excluded_objects).
+
+* `spanner_excluded_objects` -
+  (Optional)
+  Spanner objects to avoid backfilling.
+  Structure is [documented below](#nested_backfill_all_spanner_excluded_objects).
 
 * `mongodb_excluded_objects` -
   (Optional)
@@ -2929,6 +3146,57 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   (Optional)
   Field name.
 
+<a name="nested_backfill_all_spanner_excluded_objects"></a>The `spanner_excluded_objects` block supports:
+
+* `schemas` -
+  (Required)
+  Spanner schemas in the database
+  Structure is [documented below](#nested_backfill_all_spanner_excluded_objects_schemas).
+
+
+<a name="nested_backfill_all_spanner_excluded_objects_schemas"></a>The `schemas` block supports:
+
+* `schema` -
+  (Required)
+  Schema name.
+
+* `tables` -
+  (Optional)
+  Tables in the schema.
+  Structure is [documented below](#nested_backfill_all_spanner_excluded_objects_schemas_tables).
+
+
+<a name="nested_backfill_all_spanner_excluded_objects_schemas_tables"></a>The `tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `columns` -
+  (Optional)
+  Spanner columns in the table. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_backfill_all_spanner_excluded_objects_schemas_tables_columns).
+
+
+<a name="nested_backfill_all_spanner_excluded_objects_schemas_tables_columns"></a>The `columns` block supports:
+
+* `column` -
+  (Required)
+  Column name.
+
+* `data_type` -
+  (Output)
+  The Spanner data type. Full data types list can be found here:
+  https://docs.cloud.google.com/spanner/docs/reference/standard-sql/data-types
+
+* `is_primary_key` -
+  (Output)
+  Whether the column is a primary key.
+
+* `ordinal_position` -
+  (Output)
+  The ordinal position of the column in the table.
+
 <a name="nested_backfill_all_mongodb_excluded_objects"></a>The `mongodb_excluded_objects` block supports:
 
 * `databases` -
@@ -3092,6 +3360,11 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
   A nested object resource.
   Structure is [documented below](#nested_rule_sets_object_filter_source_object_identifier_salesforce_identifier).
 
+* `spanner_identifier` -
+  (Optional)
+  A nested object resource.
+  Structure is [documented below](#nested_rule_sets_object_filter_source_object_identifier_spanner_identifier).
+
 * `mongodb_identifier` -
   (Optional)
   A nested object resource.
@@ -3143,6 +3416,16 @@ Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED
 * `object_name` -
   (Required)
   The Salesforce object name.
+
+<a name="nested_rule_sets_object_filter_source_object_identifier_spanner_identifier"></a>The `spanner_identifier` block supports:
+
+* `schema` -
+  (Optional)
+  The schema name.
+
+* `table` -
+  (Required)
+  The table name.
 
 <a name="nested_rule_sets_object_filter_source_object_identifier_mongodb_identifier"></a>The `mongodb_identifier` block supports:
 

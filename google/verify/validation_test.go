@@ -339,3 +339,61 @@ func TestValidateIAMCustomRoleIDRegex(t *testing.T) {
 		t.Errorf("Failed to validate IAMCustomRole IDs: %v", es)
 	}
 }
+
+func TestValidateTagKeyAllowedValuesRegex(t *testing.T) {
+	cases := []struct {
+		Name          string
+		Value         interface{}
+		ExpectWarning bool
+		ExpectError   bool
+	}{
+		{
+			Name:        "valid regex",
+			Value:       "^[a-z]+$",
+			ExpectError: false,
+		},
+		{
+			Name:        "another valid regex",
+			Value:       ".*",
+			ExpectError: false,
+		},
+		{
+			Name:        "empty string allowed",
+			Value:       "",
+			ExpectError: false,
+		},
+		{
+			Name:        "invalid regex syntax",
+			Value:       "[a-z", // Unclosed bracket
+			ExpectError: true,
+		},
+		{
+			Name:        "invalid regex syntax asterisk",
+			Value:       "*",
+			ExpectError: true,
+		},
+		{
+			Name:        "wrong type",
+			Value:       123,
+			ExpectError: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.Name, func(t *testing.T) {
+			warnings, errors := ValidateTagKeyAllowedValuesRegex(tc.Value, "allowed_values_regex")
+			if tc.ExpectWarning && len(warnings) == 0 {
+				t.Errorf("Expected warnings, got none")
+			}
+			if !tc.ExpectWarning && len(warnings) > 0 {
+				t.Errorf("Unexpected warnings: %v", warnings)
+			}
+			if tc.ExpectError && len(errors) == 0 {
+				t.Errorf("Expected errors, got none")
+			}
+			if !tc.ExpectError && len(errors) > 0 {
+				t.Errorf("Unexpected errors: %v", errors)
+			}
+		})
+	}
+}

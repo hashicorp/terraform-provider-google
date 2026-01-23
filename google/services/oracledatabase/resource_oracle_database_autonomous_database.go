@@ -118,23 +118,81 @@ to (^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$) and must be a maximum of 63
 characters in length. The value must start with a letter and end with
 a letter or a number.`,
 			},
-			"database": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The name of the Autonomous Database. The database name must be unique in
-the project. The name must begin with a letter and can
-contain a maximum of 30 alphanumeric characters.`,
-			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `Resource ID segment making up resource 'name'. See documentation for resource type 'oracledatabase.googleapis.com/AutonomousDatabaseBackup'.`,
 			},
+			"admin_password": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The password for the default ADMIN user.`,
+			},
+			"cidr": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The subnet CIDR range for the Autonmous Database.`,
+			},
+			"database": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the Autonomous Database. The database name must be unique in
+the project. The name must begin with a letter and can
+contain a maximum of 30 alphanumeric characters.`,
+			},
+			"display_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The display name for the Autonomous Database. The name does not have to
+be unique within your project.`,
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `The labels or tags associated with the Autonomous Database. 
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"network": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the VPC network used by the Autonomous Database.
+Format: projects/{project}/global/networks/{network}`,
+			},
+			"odb_network": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the OdbNetwork associated with the Autonomous Database.
+Format:
+projects/{project}/locations/{location}/odbNetworks/{odb_network}
+It is optional but if specified, this should match the parent ODBNetwork of
+the odb_subnet and backup_odb_subnet.`,
+			},
+			"odb_subnet": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The name of the OdbSubnet associated with the Autonomous Database for
+IP allocation. Format:
+projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}`,
+			},
 			"properties": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Computed:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `The properties of an Autonomous Database.`,
 				MaxItems:    1,
@@ -937,66 +995,41 @@ gigabytes.`,
 					},
 				},
 			},
-			"admin_password": {
-				Type:        schema.TypeString,
+			"source_config": {
+				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The password for the default ADMIN user.`,
-			},
-			"cidr": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The subnet CIDR range for the Autonmous Database.`,
-			},
-			"display_name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-				Description: `The display name for the Autonomous Database. The name does not have to
-be unique within your project.`,
-			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Description: `The labels or tags associated with the Autonomous Database. 
-
-**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
-				Elem: &schema.Schema{Type: schema.TypeString},
-			},
-			"network": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Description: `The name of the VPC network used by the Autonomous Database.
-Format: projects/{project}/global/networks/{network}`,
-			},
-			"odb_network": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-				Description: `The name of the OdbNetwork associated with the Autonomous Database.
-Format:
-projects/{project}/locations/{location}/odbNetworks/{odb_network}
-It is optional but if specified, this should match the parent ODBNetwork of
-the odb_subnet and backup_odb_subnet.`,
-			},
-			"odb_subnet": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-				Description: `The name of the OdbSubnet associated with the Autonomous Database for
-IP allocation. Format:
-projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}`,
+				Description: `The source Autonomous Database configuration for the standby Autonomous Database.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"automatic_backups_replication_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `This field specifies if the replication of automatic backups is enabled when creating a Data Guard.`,
+						},
+						"autonomous_database": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The name of the primary Autonomous Database that is used to create a Peer Autonomous Database from a source.`,
+						},
+					},
+				},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The date and time that the Autonomous Database was created.`,
+			},
+			"disaster_recovery_supported_locations": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `List of supported GCP region to clone the Autonomous Database for disaster recovery.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -1016,6 +1049,14 @@ Database.`,
 				Computed: true,
 				Description: `Identifier. The name of the Autonomous Database resource in the following format:
 projects/{project}/locations/{region}/autonomousDatabases/{autonomous_database}`,
+			},
+			"peer_autonomous_databases": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The peer Autonomous Database names of the given Autonomous Database.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -1096,6 +1137,12 @@ func resourceOracleDatabaseAutonomousDatabaseCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("odb_subnet"); !tpgresource.IsEmptyValue(reflect.ValueOf(odbSubnetProp)) && (ok || !reflect.DeepEqual(v, odbSubnetProp)) {
 		obj["odbSubnet"] = odbSubnetProp
+	}
+	sourceConfigProp, err := expandOracleDatabaseAutonomousDatabaseSourceConfig(d.Get("source_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceConfigProp)) && (ok || !reflect.DeepEqual(v, sourceConfigProp)) {
+		obj["sourceConfig"] = sourceConfigProp
 	}
 	effectiveLabelsProp, err := expandOracleDatabaseAutonomousDatabaseEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1239,6 +1286,12 @@ func resourceOracleDatabaseAutonomousDatabaseRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading AutonomousDatabase: %s", err)
 	}
 	if err := d.Set("create_time", flattenOracleDatabaseAutonomousDatabaseCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutonomousDatabase: %s", err)
+	}
+	if err := d.Set("peer_autonomous_databases", flattenOracleDatabaseAutonomousDatabasePeerAutonomousDatabases(res["peerAutonomousDatabases"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AutonomousDatabase: %s", err)
+	}
+	if err := d.Set("disaster_recovery_supported_locations", flattenOracleDatabaseAutonomousDatabaseDisasterRecoverySupportedLocations(res["disasterRecoverySupportedLocations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutonomousDatabase: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenOracleDatabaseAutonomousDatabaseTerraformLabels(res["labels"], d, config)); err != nil {
@@ -2294,6 +2347,14 @@ func flattenOracleDatabaseAutonomousDatabaseOdbSubnet(v interface{}, d *schema.R
 }
 
 func flattenOracleDatabaseAutonomousDatabaseCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseAutonomousDatabasePeerAutonomousDatabases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseAutonomousDatabaseDisasterRecoverySupportedLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3597,6 +3658,43 @@ func expandOracleDatabaseAutonomousDatabaseOdbNetwork(v interface{}, d tpgresour
 }
 
 func expandOracleDatabaseAutonomousDatabaseOdbSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseAutonomousDatabaseSourceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAutonomousDatabase, err := expandOracleDatabaseAutonomousDatabaseSourceConfigAutonomousDatabase(original["autonomous_database"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAutonomousDatabase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["autonomousDatabase"] = transformedAutonomousDatabase
+	}
+
+	transformedAutomaticBackupsReplicationEnabled, err := expandOracleDatabaseAutonomousDatabaseSourceConfigAutomaticBackupsReplicationEnabled(original["automatic_backups_replication_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAutomaticBackupsReplicationEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["automaticBackupsReplicationEnabled"] = transformedAutomaticBackupsReplicationEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandOracleDatabaseAutonomousDatabaseSourceConfigAutonomousDatabase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseAutonomousDatabaseSourceConfigAutomaticBackupsReplicationEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

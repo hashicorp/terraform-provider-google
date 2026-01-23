@@ -165,22 +165,31 @@ resource "google_oracle_database_autonomous_database" "myADB"{
   deletion_protection = "true"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=oracledatabase_autonomous_database_disaster_recovery&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Oracledatabase Autonomous Database Disaster Recovery
+
+
+```hcl
+resource "google_oracle_database_autonomous_database" "myADB"{
+  autonomous_database_id = "my-primary-adb-id"
+  location = "my-location"
+  project = "my-project"
+  source_config {
+    autonomous_database = ""projects/my-project/locations/us-east4/autonomousDatabases/adb-id""
+    automatic_backups_replication_enabled = "false"
+    }
+  deletion_protection = "true"
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-
-* `database` -
-  (Required)
-  The name of the Autonomous Database. The database name must be unique in
-  the project. The name must begin with a letter and can
-  contain a maximum of 30 alphanumeric characters.
-
-* `properties` -
-  (Required)
-  The properties of an Autonomous Database.
-  Structure is [documented below](#nested_properties).
 
 * `location` -
   (Required)
@@ -194,6 +203,12 @@ The following arguments are supported:
   a letter or a number.
 
 
+* `database` -
+  (Optional)
+  The name of the Autonomous Database. The database name must be unique in
+  the project. The name must begin with a letter and can
+  contain a maximum of 30 alphanumeric characters.
+
 * `display_name` -
   (Optional)
   The display name for the Autonomous Database. The name does not have to
@@ -202,6 +217,11 @@ The following arguments are supported:
 * `admin_password` -
   (Optional)
   The password for the default ADMIN user.
+
+* `properties` -
+  (Optional)
+  The properties of an Autonomous Database.
+  Structure is [documented below](#nested_properties).
 
 * `labels` -
   (Optional)
@@ -231,6 +251,11 @@ The following arguments are supported:
   The name of the OdbSubnet associated with the Autonomous Database for
   IP allocation. Format:
   projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}
+
+* `source_config` -
+  (Optional)
+  The source Autonomous Database configuration for the standby Autonomous Database.
+  Structure is [documented below](#nested_source_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -882,6 +907,16 @@ The following arguments are supported:
   (Output)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
+<a name="nested_source_config"></a>The `source_config` block supports:
+
+* `autonomous_database` -
+  (Optional)
+  The name of the primary Autonomous Database that is used to create a Peer Autonomous Database from a source.
+
+* `automatic_backups_replication_enabled` -
+  (Optional)
+  This field specifies if the replication of automatic backups is enabled when creating a Data Guard.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -898,6 +933,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   The date and time that the Autonomous Database was created.
+
+* `peer_autonomous_databases` -
+  The peer Autonomous Database names of the given Autonomous Database.
+
+* `disaster_recovery_supported_locations` -
+  List of supported GCP region to clone the Autonomous Database for disaster recovery.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

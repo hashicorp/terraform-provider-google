@@ -112,12 +112,12 @@ func ResourceTagsTagBinding() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The TagValue of the TagBinding. Must be of the form tagValues/456.`,
+				Description: `The TagValue of the TagBinding. Must be either in id format 'tagValues/{tag-value-id}', or namespaced format '{parent-id}/{tag-key-short-name}/{tag-value-short-name}'.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The generated id for the TagBinding. This is a string of the form: 'tagBindings/{full-resource-name}/{tag-value-name}'`,
+				Description: `The generated id for the TagBinding. This is a string of the form 'tagBindings/{full-resource-name}/{tag-value-name}' or 'tagBindings/{full-resource-name}/{tag-key-name}'`,
 			},
 		},
 		UseJSONNumber: true,
@@ -132,13 +132,13 @@ func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	obj := make(map[string]interface{})
-	parentProp, err := expandNestedTagsTagBindingParent(d.Get("parent"), d, config)
+	parentProp, err := expandTagsTagBindingParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("parent"); !tpgresource.IsEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
 		obj["parent"] = parentProp
 	}
-	tagValueProp, err := expandNestedTagsTagBindingTagValue(d.Get("tag_value"), d, config)
+	tagValueProp, err := expandTagsTagBindingTagValue(d.Get("tag_value"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("tag_value"); !tpgresource.IsEmptyValue(reflect.ValueOf(tagValueProp)) && (ok || !reflect.DeepEqual(v, tagValueProp)) {
@@ -166,6 +166,16 @@ func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	headers := make(http.Header)
+	tagValueInput := d.Get("tag_value").(string)
+
+	// Conditionally set the API field based on the input format
+	if strings.HasPrefix(tagValueInput, "tagValues/") {
+		obj["tagValue"] = tagValueInput
+		delete(obj, "tagValueNamespacedName") // Ensure the other key is not present
+	} else {
+		obj["tagValueNamespacedName"] = tagValueInput
+		delete(obj, "tagValue") // Ensure the other key is not present
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -200,17 +210,7 @@ func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error waiting to create TagBinding: %s", err)
 	}
 
-	if _, ok := opRes["tagBindings"]; ok {
-		opRes, err = flattenNestedTagsTagBinding(d, meta, opRes)
-		if err != nil {
-			return fmt.Errorf("Error getting nested object from operation response: %s", err)
-		}
-		if opRes == nil {
-			// Object isn't there any more - remove it from the state.
-			return fmt.Errorf("Error decoding response from operation, could not find nested object")
-		}
-	}
-	if err := d.Set("name", flattenNestedTagsTagBindingName(opRes["name"], d, config)); err != nil {
+	if err := d.Set("name", flattenTagsTagBindingName(opRes["name"], d, config)); err != nil {
 		return err
 	}
 
@@ -258,25 +258,73 @@ func resourceTagsTagBindingRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TagsTagBinding %q", d.Id()))
 	}
 
-	res, err = flattenNestedTagsTagBinding(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Object isn't there any more - remove it from the state.
-		log.Printf("[DEBUG] Removing TagsTagBinding because it couldn't be matched.")
+	v, ok := res["tagBindings"]
+	if !ok || v == nil {
+		log.Printf("[DEBUG] Removing TagsTagBinding because it no longer exists, API response missing tagBindings key.")
 		d.SetId("")
 		return nil
 	}
 
-	if err := d.Set("name", flattenNestedTagsTagBindingName(res["name"], d, config)); err != nil {
+	items, ok := v.([]interface{})
+	if !ok {
+		log.Printf("[DEBUG] Removing TagsTagBinding because it no longer exists, API response has invalid format.")
+		d.SetId("")
+		return nil
+	}
+
+	expectedName := d.Get("name")
+	expectedFlattenedName := flattenTagsTagBindingName(expectedName, d, meta.(*transport_tpg.Config))
+
+	var foundItem map[string]interface{}
+	for _, itemRaw := range items {
+		if itemRaw == nil {
+			continue
+		}
+
+		item := itemRaw.(map[string]interface{})
+		itemName := flattenTagsTagBindingName(item["name"], d, meta.(*transport_tpg.Config))
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemName)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
+			continue
+		}
+		foundItem = item
+		break
+	}
+
+	if foundItem == nil {
+		log.Printf("[DEBUG] Removing TagsTagBinding because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
+	log.Printf("[DEBUG] Found matching item for %s", expectedFlattenedName)
+	res = foundItem
+
+	// Initialize tag_value in state ONLY if it's not set (e.g., after import)
+	if _, ok := d.GetOk("tag_value"); !ok {
+		var initialTagValue string
+		if tv, ok := res["tagValue"].(string); ok {
+			initialTagValue = tv
+		} else if tv, ok := res["tagValueNamespacedName"].(string); ok {
+			initialTagValue = tv
+		} else {
+			return fmt.Errorf("API response for %s is missing 'tagValueNamespacedName'", res["name"])
+		}
+
+		if err := d.Set("tag_value", initialTagValue); err != nil {
+			return fmt.Errorf("Error initializing tag_value: %s", err)
+		}
+		log.Printf("[DEBUG] Read: Initialized tag_value in state to: %s", initialTagValue)
+	} else {
+		// Do not change the existing d.Get("tag_value") format to maintain backward compatibility.
+		log.Printf("[DEBUG] Read: Existing tag_value in state: %s.", d.Get("tag_value").(string))
+	}
+
+	if err := d.Set("name", flattenTagsTagBindingName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TagBinding: %s", err)
 	}
-	if err := d.Set("parent", flattenNestedTagsTagBindingParent(res["parent"], d, config)); err != nil {
-		return fmt.Errorf("Error reading TagBinding: %s", err)
-	}
-	if err := d.Set("tag_value", flattenNestedTagsTagBindingTagValue(res["tagValue"], d, config)); err != nil {
+	if err := d.Set("parent", flattenTagsTagBindingParent(res["parent"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TagBinding: %s", err)
 	}
 
@@ -351,21 +399,36 @@ func resourceTagsTagBindingImport(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, err
 	}
 
-	stringParts := strings.Split(d.Get("name").(string), "/")
-	if len(stringParts) < 3 {
-		return nil, fmt.Errorf("Error parsing parent name. Should be in form {{parent}}/tagValues/{{tag_value}}")
+	name := d.Get("name").(string)
+	d.SetId(name)
+
+	parts := strings.Split(name, "/")
+	if len(parts) < 3 {
+		return nil, fmt.Errorf("Error parsing binding name. Should be in form {{parent}}/{{tag_type}}/{{tag_value}}")
 	}
-	if err := d.Set("parent", stringParts[0]); err != nil {
+	if err := d.Set("parent", parts[0]); err != nil {
 		return nil, fmt.Errorf("Error setting parent, %s", err)
 	}
 
-	name := d.Get("name").(string)
-	d.SetId(name)
+	typePart := parts[1]
+	idPart := parts[2]
+	if typePart == "tagValues" {
+		// Curated Tag Binding: Set tag_value to the id format to maintain backward compatibility for imports.
+		tagValueId := fmt.Sprintf("tagValues/%s", idPart)
+		if err := d.Set("tag_value", tagValueId); err != nil {
+			return nil, fmt.Errorf("Error setting tag_value for curated tag import: %s", err)
+		}
+	} else if typePart == "tagKeys" {
+		// Dynamic Tag Binding: We don't set tag_value here. The subsequent Read call will fetch the binding
+		// using the 'name' and populate 'tag_value' with the dynamic tag value namespaced name.
+	} else {
+		return nil, fmt.Errorf("Invalid binding name format, expected .../tagValues/{id} or .../tagKeys/{id}: %s", name)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedTagsTagBindingName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenTagsTagBindingName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -373,67 +436,14 @@ func flattenNestedTagsTagBindingName(v interface{}, d *schema.ResourceData, conf
 	return strings.Join(parts[len(parts)-3:], "/")
 }
 
-func flattenNestedTagsTagBindingParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenTagsTagBindingParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedTagsTagBindingTagValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func expandNestedTagsTagBindingParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandTagsTagBindingParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedTagsTagBindingTagValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandTagsTagBindingTagValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func flattenNestedTagsTagBinding(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	var v interface{}
-	var ok bool
-
-	v, ok = res["tagBindings"]
-	if !ok || v == nil {
-		return nil, nil
-	}
-
-	switch v.(type) {
-	case []interface{}:
-		break
-	case map[string]interface{}:
-		// Construct list out of single nested resource
-		v = []interface{}{v}
-	default:
-		return nil, fmt.Errorf("expected list or map for value tagBindings. Actual value: %v", v)
-	}
-
-	_, item, err := resourceTagsTagBindingFindNestedObjectInList(d, meta, v.([]interface{}))
-	if err != nil {
-		return nil, err
-	}
-	return item, nil
-}
-
-func resourceTagsTagBindingFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedName := d.Get("name")
-	expectedFlattenedName := flattenNestedTagsTagBindingName(expectedName, d, meta.(*transport_tpg.Config))
-
-	// Search list for this resource.
-	for idx, itemRaw := range items {
-		if itemRaw == nil {
-			continue
-		}
-		item := itemRaw.(map[string]interface{})
-
-		itemName := flattenNestedTagsTagBindingName(item["name"], d, meta.(*transport_tpg.Config))
-		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
-		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemName)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
-			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
-			continue
-		}
-		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
-		return idx, item, nil
-	}
-	return -1, nil, nil
 }

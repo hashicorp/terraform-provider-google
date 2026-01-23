@@ -22,7 +22,7 @@ description: |-
 
 Allows management of Organization policies for a Google Project. For more information see
 [the official
-documentation](https://cloud.google.com/resource-manager/docs/organization-policy/overview)
+documentation](https://docs.cloud.google.com/resource-manager/docs/organization-policy/overview)
 
 ## Example Usage
 
@@ -43,7 +43,7 @@ The following arguments are supported:
 
 * `project` - (Required) The project ID.
 
-* `constraint` - (Required) (Required) The name of the Constraint the Policy is configuring, for example, `serviceuser.services`. Check out the [complete list of available constraints](https://cloud.google.com/resource-manager/docs/organization-policy/understanding-constraints#available_constraints).
+* `constraint` - (Required) (Required) The name of the Constraint the Policy is configuring, for example, `serviceuser.services`. Check out the [complete list of available constraints](https://docs.cloud.google.com/resource-manager/docs/organization-policy/understanding-constraints#available_constraints).
 
 
 ## Attributes Reference

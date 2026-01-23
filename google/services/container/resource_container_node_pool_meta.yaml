@@ -22,6 +22,7 @@ fields:
   - api_field: 'name'
   - field: 'name_prefix'
     provider_only: true
+  
   - api_field: 'networkConfig.additionalNodeNetworkConfigs.network'
   - api_field: 'networkConfig.additionalNodeNetworkConfigs.subnetwork'
   - field: 'network_config.additional_pod_network_configs.max_pods_per_node'
@@ -278,8 +279,7 @@ fields:
     api_field: 'config.windowsNodeConfig.osVersion'
   - field: 'node_config.workload_metadata_config.mode'
     api_field: 'config.workloadMetadataConfig.mode'
-  - field: 'node_drain_config.respect_pdb_during_node_pool_deletion'
-    api_field: 'nodeDrainConfig.respectPdbDuringNodePoolDeletion'
+  - api_field: 'nodeDrainConfig.respectPdbDuringNodePoolDeletion'
   - field: 'node_count'
     provider_only: true
   - field: 'node_locations'

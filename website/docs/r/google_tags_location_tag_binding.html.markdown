@@ -24,9 +24,9 @@ A LocationTagBinding represents a connection between a TagValue and a non-global
 
 To get more information about LocationTagBinding, see:
 
-* [API documentation](https://cloud.google.com/resource-manager/reference/rest/v3/tagBindings)
+* [API documentation](https://docs.cloud.google.com/resource-manager/reference/rest/v3/tagBindings)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+    * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
 
 ## Example Usage - Cloud Run Service
 
@@ -86,6 +86,29 @@ resource "google_tags_location_tag_binding" "binding" {
 }
 ```
 
+## Example Usage - Compute Instance With Dynamic Tag Value
+
+```hcl
+resource "google_project" "project" {
+  project_id = "project_id"
+  name       = "project_id"
+  org_id     = "123456789"
+}
+
+resource "google_tags_tag_key" "key" {
+  parent               = "organizations/123456789"
+  short_name           = "keyname"
+  description          = "For keyname resources."
+  allowed_values_regex = "^[a-z]+$"
+}
+
+resource "google_tags_location_tag_binding" "binding" {
+  parent    = "//compute.googleapis.com/projects/${google_project.project.number}/zones/us-central1-a/instances/${google_compute_instance.instance.instance_id}"
+  tag_value = "${google_tags_tag_key.key.namespaced_name}/test-value"
+  location  = "us-central1-a"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -97,7 +120,7 @@ The following arguments are supported:
 
 * `tag_value` -
   (Required)
-  The TagValue of the TagBinding. Must be of the form tagValues/456.
+  The TagValue of the TagBinding. Must be either in id format `tagValues/{tag-value-id}`, or namespaced format `{parent-id}/{tag-key-short-name}/{tag-value-short-name}`.
 
 * `location` -
   (Required)
@@ -114,7 +137,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{location}}/{{name}}`
 
 * `name` -
-  The generated id for the TagBinding. This is a string of the form: `tagBindings/{parent}/{tag-value-name}`
+  The generated id for the TagBinding. This is a string of the form `tagBindings/{full-resource-name}/{tag-value-name}` or `tagBindings/{full-resource-name}/{tag-key-name}`
 
 
 ## Timeouts

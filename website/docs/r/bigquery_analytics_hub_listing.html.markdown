@@ -390,6 +390,28 @@ resource "google_bigquery_dataset" "listing" {
   location                    = "US"
 }
 ```
+## Example Usage - Bigquery Analyticshub Listing Multiregion
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "listing" {
+  location         = "us"
+  data_exchange_id = "my_data_exchange"
+  display_name     = "my_data_exchange"
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "us"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
+  listing_id       = "my_listing"
+  display_name     = "my_listing"
+
+  bigquery_dataset {
+    dataset = "projects/project_id/datasets/my_listing_example2"
+    replica_locations = ["eu"]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -512,6 +534,16 @@ The following arguments are supported:
   Resource in this dataset that is selectively shared. This field is required for data clean room exchanges.
   Structure is [documented below](#nested_bigquery_dataset_selected_resources).
 
+* `replica_locations` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of regions where the publisher has created shared dataset replicas.
+
+* `effective_replicas` -
+  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Server owned effective state of replicas. Contains both primary and secondary replicas.
+  Each replica includes a system-computed (output-only) state and primary designation.
+  Structure is [documented below](#nested_bigquery_dataset_effective_replicas).
+
 
 <a name="nested_bigquery_dataset_selected_resources"></a>The `selected_resources` block supports:
 
@@ -522,6 +554,22 @@ The following arguments are supported:
 * `routine` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Format: For routine: projects/{projectId}/datasets/{datasetId}/routines/{routineId} Example:"projects/test_project/datasets/test_dataset/routines/test_routine"
+
+<a name="nested_bigquery_dataset_effective_replicas"></a>The `effective_replicas` block contains:
+
+* `location` -
+  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The geographic location where the replica resides.
+
+* `replica_state` -
+  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Output-only. Assigned by Analytics Hub based on real BigQuery replication state.
+  Possible values: REPLICA_STATE_UNSPECIFIED, READY_TO_USE, UNAVAILABLE
+
+* `primary_state` -
+  (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Output-only. Indicates that this replica is the primary replica.
+  Possible values: PRIMARY_STATE_UNSPECIFIED, PRIMARY_REPLICA
 
 <a name="nested_pubsub_topic"></a>The `pubsub_topic` block supports:
 

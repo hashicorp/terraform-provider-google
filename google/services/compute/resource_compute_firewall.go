@@ -151,6 +151,7 @@ func diffSuppressSourceRanges(k, old, new string, d *schema.ResourceData) bool {
 			return true
 		}
 	}
+
 	// For any other source_ranges value diff, don't suppress
 	return false
 }
@@ -355,7 +356,7 @@ apply. IPv4 or IPv6 ranges are supported. For INGRESS traffic, one of
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set: schema.HashString,
+				Set: tpgresource.IpAddrSetHashFunc,
 			},
 			"source_service_accounts": {
 				Type:     schema.TypeSet,
@@ -1112,7 +1113,7 @@ func flattenComputeFirewallSourceRanges(v interface{}, d *schema.ResourceData, c
 	if v == nil {
 		return v
 	}
-	return schema.NewSet(schema.HashString, v.([]interface{}))
+	return schema.NewSet(tpgresource.IpAddrSetHashFunc, v.([]interface{}))
 }
 
 func flattenComputeFirewallSourceServiceAccounts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

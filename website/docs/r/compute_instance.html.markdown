@@ -469,6 +469,8 @@ is desired, you will need to modify your state file manually using
 * `network_ip` - (Optional) The private IP address to assign to the instance. If
     empty, the address will be automatically assigned.
 
+* `mac_address` - (Optional) [Beta] MAC address assigned to this network interface
+
 * `access_config` - (Optional) Access configurations, i.e. IPs via which this
     instance can be accessed via the Internet. Omit to ensure that the instance
     is not accessible from the Internet. If omitted, ssh provisioners will not

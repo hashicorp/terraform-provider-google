@@ -35,21 +35,28 @@ import (
 
 func TestAccTags(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"tagKeyBasic":                          testAccTagsTagKey_tagKeyBasic,
-		"tagKeyBasicWithPurposeGceFirewall":    testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall,
-		"tagKeyBasicWithPurposeDataGovernance": testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernance,
-		"tagKeyUpdate":                         testAccTagsTagKey_tagKeyUpdate,
-		"tagKeyIamBinding":                     testAccTagsTagKeyIamBinding,
-		"tagKeyIamMember":                      testAccTagsTagKeyIamMember,
-		"tagKeyIamPolicy":                      testAccTagsTagKeyIamPolicy,
-		"tagValueBasic":                        testAccTagsTagValue_tagValueBasic,
-		"tagValueUpdate":                       testAccTagsTagValue_tagValueUpdate,
-		"tagBindingBasic":                      testAccTagsTagBinding_tagBindingBasic,
-		"tagValueIamBinding":                   testAccTagsTagValueIamBinding,
-		"tagValueIamMember":                    testAccTagsTagValueIamMember,
-		"tagValueIamPolicy":                    testAccTagsTagValueIamPolicy,
-		"tagsLocationTagBindingBasic":          testAccTagsLocationTagBinding_locationTagBindingbasic,
-		"tagsLocationTagBindingZonal":          TestAccTagsLocationTagBinding_locationTagBindingzonal,
+		"tagKeyBasic":                           testAccTagsTagKey_tagKeyBasic,
+		"tagKeyBasicWithPurposeGceFirewall":     testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall,
+		"tagKeyBasicWithPurposeDataGovernance":  testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernance,
+		"tagKeyBasicWithAllowedValuesRegex":     testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegex,
+		"tagKeyUpdate":                          testAccTagsTagKey_tagKeyUpdate,
+		"tagKeyUpdateAllowedValuesRegex":        testAccTagsTagKey_tagKeyUpdateAllowedValuesRegex,
+		"tagKeyIamBinding":                      testAccTagsTagKeyIamBinding,
+		"tagKeyIamMember":                       testAccTagsTagKeyIamMember,
+		"tagKeyIamPolicy":                       testAccTagsTagKeyIamPolicy,
+		"tagValueBasic":                         testAccTagsTagValue_tagValueBasic,
+		"tagValueUpdate":                        testAccTagsTagValue_tagValueUpdate,
+		"tagBindingBasic":                       testAccTagsTagBinding_tagBindingBasic,
+		"tagBindingBasicDynamic":                testAccTagsTagBinding_tagBindingBasicDynamic,
+		"tagBindingNamespaced":                  testAccTagsTagBinding_tagBindingNamespaced,
+		"tagValueIamBinding":                    testAccTagsTagValueIamBinding,
+		"tagValueIamMember":                     testAccTagsTagValueIamMember,
+		"tagValueIamPolicy":                     testAccTagsTagValueIamPolicy,
+		"tagsLocationTagBindingBasic":           testAccTagsLocationTagBinding_locationTagBindingbasic,
+		"tagsLocationTagBindingBasicDynamic":    testAccTagsLocationTagBinding_locationTagBindingBasicDynamic,
+		"tagsLocationTagBindingZonal":           TestAccTagsLocationTagBinding_locationTagBindingzonal,
+		"tagsLocationTagBindingZonalDynamic":    testAccTagsLocationTagBinding_locationTagBindingZonalDynamic,
+		"tagsLocationTagBindingZonalNamespaced": testAccTagsLocationTagBinding_locationTagBindingZonalNamespaced,
 	}
 
 	for name, tc := range testCases {
@@ -160,6 +167,36 @@ resource "google_tags_tag_key" "key" {
 `, context)
 }
 
+func testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegex(t *testing.T) {
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckTagsTagKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegexExample(context),
+			},
+		},
+	})
+}
+
+func testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegexExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+
+  parent = "organizations/%{org_id}"
+  short_name = "foo%{random_suffix}"
+  description = "For foo%{random_suffix} resources."
+  allowed_values_regex = "^[a-z]+$"
+}
+`, context)
+}
+
 func testAccTagsTagKey_tagKeyUpdate(t *testing.T) {
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
@@ -209,6 +246,61 @@ resource "google_tags_tag_key" "key" {
   parent = "organizations/%{org_id}"
   short_name = "foo%{random_suffix}"
   description = "Anything related to foo%{random_suffix}"
+}
+`, context)
+}
+
+func testAccTagsTagKey_tagKeyUpdateAllowedValuesRegex(t *testing.T) {
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckTagsTagKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsTagKey_basicWithAllowedValuesRegex(context),
+			},
+			{
+				ResourceName:      "google_tags_tag_key.key",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccTagsTagKey_basicWithAllowedValuesRegexUpdated(context),
+			},
+			{
+				ResourceName:      "google_tags_tag_key.key",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccTagsTagKey_basicWithAllowedValuesRegex(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+
+  parent = "organizations/%{org_id}"
+  short_name = "foo%{random_suffix}"
+  description = "For foo%{random_suffix} resources."
+  allowed_values_regex = "^[a-z]+$"
+}
+`, context)
+}
+
+func testAccTagsTagKey_basicWithAllowedValuesRegexUpdated(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+
+  parent = "organizations/%{org_id}"
+  short_name = "foo%{random_suffix}"
+  description = "For foo%{random_suffix} resources."
+  allowed_values_regex = ".*"
 }
 `, context)
 }
@@ -442,6 +534,114 @@ resource "google_tags_tag_value" "value" {
 resource "google_tags_tag_binding" "binding" {
 	parent    = "//cloudresourcemanager.googleapis.com/projects/${google_project.project.number}"
 	tag_value = google_tags_tag_value.value.id
+}
+`, context)
+}
+
+func testAccTagsTagBinding_tagBindingBasicDynamic(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_id":    "tf-test-" + acctest.RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckTagsTagBindingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsTagBinding_tagBindingBasicDynamicExample(context),
+			},
+			{
+				ResourceName: "google_tags_tag_binding.binding",
+				ImportState:  true,
+			},
+		},
+	})
+}
+
+func testAccTagsTagBinding_tagBindingBasicDynamicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+	project_id = "%{project_id}"
+	name       = "%{project_id}"
+	org_id     = "%{org_id}"
+	deletion_policy = "DELETE"
+}
+
+resource "google_tags_tag_key" "key" {
+	parent = "organizations/%{org_id}"
+	short_name = "keyname%{random_suffix}"
+	description = "For a certain set of resources."
+	allowed_values_regex = "test-.*"
+}
+
+resource "google_tags_tag_binding" "binding" {
+	parent    = "//cloudresourcemanager.googleapis.com/projects/${google_project.project.number}"
+	tag_value = "${google_tags_tag_key.key.namespaced_name}/test-value"
+}
+`, context)
+}
+
+func testAccTagsTagBinding_tagBindingNamespaced(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_id":    "tf-test-" + acctest.RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckTagsTagBindingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsTagBinding_tagBindingNamespacedExample(context),
+			},
+			{
+				ResourceName: "google_tags_tag_binding.binding",
+				ImportState:  true,
+			},
+		},
+	})
+}
+
+// Generates Terraform configuration for testing tag binding with namespaced value.
+func testAccTagsTagBinding_tagBindingNamespacedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+	project_id = "%{project_id}"
+	name       = "%{project_id}"
+	org_id     = "%{org_id}"
+	deletion_policy = "DELETE"
+}
+
+resource "google_tags_tag_key" "key" {
+	parent = "organizations/%{org_id}"
+	short_name = "key-%{random_suffix}"
+	description = "Key for namespaced test."
+}
+
+resource "google_tags_tag_value" "value" {
+	parent      = google_tags_tag_key.key.id
+	short_name  = "val-%{random_suffix}"
+	description = "Value for namespaced test."
+}
+
+resource "google_tags_tag_binding" "binding" {
+	parent    = "//cloudresourcemanager.googleapis.com/projects/${google_project.project.number}"
+	tag_value = google_tags_tag_value.value.namespaced_name
 }
 `, context)
 }
@@ -919,6 +1119,71 @@ resource "google_tags_location_tag_binding" "binding" {
 `, context)
 }
 
+func testAccTagsLocationTagBinding_locationTagBindingBasicDynamic(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckTagsLocationTagBindingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsLocationTagBinding_locationTagBindingBasicDynamicExample(context),
+			},
+			{
+				ResourceName:      "google_tags_location_tag_binding.binding",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccTagsLocationTagBinding_locationTagBindingBasicDynamicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+resource "google_tags_tag_key" "key" {
+	parent = "organizations/${data.google_project.project.org_id}"
+	short_name = "keyname%{random_suffix}"
+	description = "For a certain set of resources."
+	allowed_values_regex = "test-.*"
+}
+
+resource "google_cloud_run_service" "default" {
+	name     = "tf-test-cloudrun-srv%{random_suffix}"
+	location = "us-central1"
+  
+	template {
+	  spec {
+		containers {
+		  image = "us-docker.pkg.dev/cloudrun/container/hello"
+		}
+	  }
+	}
+  
+	traffic {
+	  percent         = 100
+	  latest_revision = true
+	}
+}
+  
+resource "google_tags_location_tag_binding" "binding" {
+	parent    = "//run.googleapis.com/projects/${data.google_project.project.number}/locations/${google_cloud_run_service.default.location}/services/${google_cloud_run_service.default.name}"
+	tag_value = "${google_tags_tag_key.key.namespaced_name}/test-value"
+	location  = "us-central1"
+}
+`, context)
+}
+
 func TestAccTagsLocationTagBinding_locationTagBindingBasicWithProjectId(t *testing.T) {
 	t.Parallel()
 
@@ -989,44 +1254,6 @@ resource "google_tags_location_tag_binding" "binding" {
 `, context)
 }
 
-func testAccCheckTagsLocationTagBindingDestroyProducer(t *testing.T) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_tags_location_tag_binding" {
-				continue
-			}
-			if strings.HasPrefix(name, "data.") {
-				continue
-			}
-
-			config := acctest.GoogleProviderConfig(t)
-
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{TagsLocationBasePath}}{{name}}")
-			if err != nil {
-				return err
-			}
-
-			billingProject := ""
-
-			if config.BillingProject != "" {
-				billingProject = config.BillingProject
-			}
-
-			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
-			})
-			if err == nil {
-				return fmt.Errorf("TagsTagBinding still exists at %s", url)
-			}
-		}
-		return nil
-	}
-}
-
 func TestAccTagsLocationTagBinding_locationTagBindingzonal(t *testing.T) {
 	t.Parallel()
 
@@ -1088,4 +1315,176 @@ resource "google_tags_location_tag_binding" "binding" {
 	location  = "us-central1-a"
 }
 `, context)
+}
+
+func testAccTagsLocationTagBinding_locationTagBindingZonalDynamic(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckTagsLocationTagBindingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsLocationTagBinding_locationTagBindingZonalDynamicExample(context),
+			},
+			{
+				ResourceName:      "google_tags_location_tag_binding.binding",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccTagsLocationTagBinding_locationTagBindingZonalDynamicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+data "google_tags_tag_key" "test_key" {
+	parent = "projects/tags-blr-test-ap"
+	short_name = "dynamic-tags-tf-test-key"
+}
+
+resource "google_tags_tag_key" "key" {
+	parent = "organizations/%{org_id}"
+	short_name = "keyname%{random_suffix}"
+	description = "For a certain set of resources."
+	allowed_values_regex = "test-.*"
+}
+
+resource "google_compute_instance" "default" {
+	name         = "test-%{random_suffix}"
+	machine_type = "e2-medium"
+	zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_tags_location_tag_binding" "binding" {
+	parent    = "//compute.googleapis.com/projects/${data.google_project.project.number}/zones/us-central1-a/instances/${google_compute_instance.default.instance_id}"
+	tag_value = "${google_tags_tag_key.key.namespaced_name}/test-value"
+	location  = "us-central1-a"
+}
+`, context)
+}
+
+func testAccTagsLocationTagBinding_locationTagBindingZonalNamespaced(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckTagsTagBindingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTagsLocationTagBinding_locationTagBindingZonalNamespacedExample(context),
+			},
+			{
+				ResourceName: "google_tags_location_tag_binding.binding",
+				ImportState:  true,
+			},
+		},
+	})
+}
+
+// Generates Terraform configuration for testing location tag binding with namespaced value.
+func testAccTagsLocationTagBinding_locationTagBindingZonalNamespacedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+resource "google_tags_tag_key" "key" {
+	parent = "organizations/%{org_id}"
+	short_name = "keyname%{random_suffix}"
+	description = "For a certain set of resources."
+}
+
+resource "google_tags_tag_value" "value" {
+	parent      = google_tags_tag_key.key.id
+	short_name  = "foo%{random_suffix}"
+	description = "For foo%{random_suffix} resources."
+}
+
+resource "google_compute_instance" "default" {
+	name         = "test-%{random_suffix}"
+	machine_type = "e2-medium"
+	zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_tags_location_tag_binding" "binding" {
+	parent    = "//compute.googleapis.com/projects/${data.google_project.project.number}/zones/us-central1-a/instances/${google_compute_instance.default.instance_id}"
+	tag_value = google_tags_tag_value.value.namespaced_name
+	location  = "us-central1-a"
+}
+`, context)
+}
+
+func testAccCheckTagsLocationTagBindingDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_tags_location_tag_binding" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := acctest.GoogleProviderConfig(t)
+
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{TagsLocationBasePath}}{{name}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
+			if err == nil {
+				return fmt.Errorf("TagsTagBinding still exists at %s", url)
+			}
+		}
+		return nil
+	}
 }

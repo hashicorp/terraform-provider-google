@@ -73,7 +73,7 @@ The following arguments are supported:
 * `audit_config` (Optional) - A nested configuration block that defines logging additional configuration for your project. This field is only supported on `google_project_iam_policy`, `google_folder_iam_policy` and `google_organization_iam_policy`.
   * `service` (Required) Defines a service that will be enabled for audit logging. For example, `storage.googleapis.com`, `cloudsql.googleapis.com`. `allServices` is a special value that covers all services.
   * `audit_log_configs` (Required) A nested block that defines the operations you'd like to log.
-    * `log_type` (Required) Defines the logging level. `DATA_READ`, `DATA_WRITE` and `ADMIN_READ` capture different types of events. See [the audit configuration documentation](https://cloud.google.com/resource-manager/reference/rest/Shared.Types/AuditConfig) for more details.
+    * `log_type` (Required) Defines the logging level. `DATA_READ`, `DATA_WRITE` and `ADMIN_READ` capture different types of events. See [the audit configuration documentation](https://docs.cloud.google.com/resource-manager/reference/rest/Shared.Types/AuditConfig) for more details.
     * `exempted_members` (Optional) Specifies the identities that are exempt from these types of logging operations. Follows the same format of the `members` array for `binding`.
 
 * `binding` (Required) - A nested configuration block (described below)

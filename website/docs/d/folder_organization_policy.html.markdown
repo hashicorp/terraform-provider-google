@@ -22,7 +22,7 @@ description: |-
 
 Allows management of Organization policies for a Google Folder. For more information see
 [the official
-documentation](https://cloud.google.com/resource-manager/docs/organization-policy/overview)
+documentation](https://docs.cloud.google.com/resource-manager/docs/organization-policy/overview)
 
 ## Example Usage
 
@@ -43,7 +43,7 @@ The following arguments are supported:
 
 * `folder` - (Required) The resource name of the folder to set the policy for. Its format is folders/{folder_id}.
 
-* `constraint` - (Required) (Required) The name of the Constraint the Policy is configuring, for example, `serviceuser.services`. Check out the [complete list of available constraints](https://cloud.google.com/resource-manager/docs/organization-policy/understanding-constraints#available_constraints).
+* `constraint` - (Required) (Required) The name of the Constraint the Policy is configuring, for example, `serviceuser.services`. Check out the [complete list of available constraints](https://docs.cloud.google.com/resource-manager/docs/organization-policy/understanding-constraints#available_constraints).
 
 
 ## Attributes Reference

@@ -58,7 +58,7 @@ func ResourceTagsLocationTagBinding() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The TagValue of the TagBinding. Must be of the form tagValues/456.`,
+				Description: `The TagValue of the TagBinding. Must be either in id format 'tagValues/{tag-value-id}', or namespaced format '{parent-id}/{tag-key-short-name}/{tag-value-short-name}'.`,
 			},
 			"location": {
 				Type:     schema.TypeString,
@@ -70,7 +70,7 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The generated id for the TagBinding. This is a string of the form: 'tagBindings/{full-resource-name}/{tag-value-name}'`,
+				Description: `The generated id for the TagBinding. This is a string of the form 'tagBindings/{full-resource-name}/{tag-value-name}' or 'tagBindings/{full-resource-name}/{tag-key-name}'`,
 			},
 		},
 		UseJSONNumber: true,
@@ -95,7 +95,17 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("tag_value"); !tpgresource.IsEmptyValue(reflect.ValueOf(tagValueProp)) && (ok || !reflect.DeepEqual(v, tagValueProp)) {
-		obj["tagValue"] = tagValueProp
+		tagValueStr, ok := tagValueProp.(string)
+		if !ok {
+			return fmt.Errorf("Internal error: expanded tag_value %#v is not a string", tagValueProp)
+		}
+
+		// Check if the tag value is in id format "tagValues/{id}" or namespaced format "{parent}/{key}/{val}"
+		if strings.HasPrefix(tagValueStr, "tagValues/") {
+			obj["tagValue"] = tagValueStr
+		} else {
+			obj["tagValueNamespacedName"] = tagValueStr
+		}
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "tagBindings/{{parent}}")
@@ -257,8 +267,25 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("parent", flattenNestedTagsLocationTagBindingParent(res["parent"], d, config)); err != nil {
 		return fmt.Errorf("Error reading LocationTagBinding: %s", err)
 	}
-	if err := d.Set("tag_value", flattenNestedTagsLocationTagBindingTagValue(res["tagValue"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LocationTagBinding: %s", err)
+
+	// Initialize tag_value in state ONLY if it's not set (e.g., after import)
+	if _, ok := d.GetOk("tag_value"); !ok {
+		var initialTagValue string
+		if tv, ok := res["tagValue"].(string); ok {
+			initialTagValue = tv
+		} else if tv, ok := res["tagValueNamespacedName"].(string); ok {
+			initialTagValue = tv
+		} else {
+			return fmt.Errorf("API response for %s is missing 'tagValueNamespacedName'", res["name"])
+		}
+
+		if err := d.Set("tag_value", initialTagValue); err != nil {
+			return fmt.Errorf("Error initializing tag_value: %s", err)
+		}
+		log.Printf("[DEBUG] Read: Initialized tag_value in state to: %s", initialTagValue)
+	} else {
+		// Do not change the existing d.Get("tag_value") format to maintain backward compatibility.
+		log.Printf("[DEBUG] Read: Existing tag_value in state: %s.", d.Get("tag_value").(string))
 	}
 
 	return nil
@@ -320,14 +347,37 @@ func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface
 
 func resourceTagsLocationTagBindingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := tpgresource.ParseImportId([]string{"(?P<location>[^/]+)/tagBindings/(?P<parent>[^/]+)/tagValues/(?P<tag_value>[^/]+)"}, d, config); err != nil {
+	importRegex := `^(?P<location>[^/]+)/(?P<name>tagBindings/.+)$`
+	if err := tpgresource.ParseImportId([]string{importRegex}, d, config); err != nil {
 		return nil, err
 	}
 
-	parent := d.Get("parent").(string)
+	name := d.Get("name").(string)
+
+	parts := strings.SplitN(name, "/", 4)
+	if len(parts) < 4 || parts[0] != "tagBindings" {
+		return nil, fmt.Errorf("Invalid tag binding name format in import Id: %s", name)
+	}
+
+	parent := parts[1]
 	parentProper := strings.ReplaceAll(parent, "%2F", "/")
 	d.Set("parent", parentProper)
-	d.Set("name", fmt.Sprintf("tagBindings/%s/tagValues/%s", parent, d.Get("tag_value").(string)))
+
+	typePart := parts[2]
+	idPart := parts[3]
+	if typePart == "tagValues" {
+		// Curated Tag Binding: Set tag_value to the id format to maintain backward compatibility for imports.
+		tagValueId := fmt.Sprintf("tagValues/%s", idPart)
+		if err := d.Set("tag_value", tagValueId); err != nil {
+			return nil, fmt.Errorf("Error setting tag_value for curated tag import: %s", err)
+		}
+	} else if typePart == "tagKeys" {
+		// Dynamic Tag Binding: We don't set tag_value here. The subsequent Read call will fetch the binding
+		// using the 'name' and populate 'tag_value' with the dynamic tag value namespaced name.
+	} else {
+		return nil, fmt.Errorf("Invalid binding name format, expected .../tagValues/{id} or .../tagKeys/{id}: %s", name)
+	}
+
 	id, err := tpgresource.ReplaceVars(d, config, "{{location}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)

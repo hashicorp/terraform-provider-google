@@ -126,10 +126,11 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 				Description: `The ID of the listing. Must contain only Unicode letters, numbers (0-9), underscores (_). Should not use characters that require URL-escaping, or characters outside of ASCII, spaces.`,
 			},
 			"location": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The name of the location this data exchange listing.`,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
+				Description:      `The name of the location this data exchange listing.`,
 			},
 			"allow_only_metadata_sharing": {
 				Type:        schema.TypeBool,
@@ -140,7 +141,6 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 			"bigquery_dataset": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Shared dataset i.e. BigQuery dataset source.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -683,6 +683,12 @@ func resourceBigqueryAnalyticsHubListingUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("categories"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, categoriesProp)) {
 		obj["categories"] = categoriesProp
 	}
+	bigqueryDatasetProp, err := expandBigqueryAnalyticsHubListingBigqueryDataset(d.Get("bigquery_dataset"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bigquery_dataset"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bigqueryDatasetProp)) {
+		obj["bigqueryDataset"] = bigqueryDatasetProp
+	}
 	pubsubTopicProp, err := expandBigqueryAnalyticsHubListingPubsubTopic(d.Get("pubsub_topic"), d, config)
 	if err != nil {
 		return err
@@ -751,6 +757,10 @@ func resourceBigqueryAnalyticsHubListingUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("categories") {
 		updateMask = append(updateMask, "categories")
+	}
+
+	if d.HasChange("bigquery_dataset") {
+		updateMask = append(updateMask, "bigqueryDataset")
 	}
 
 	if d.HasChange("pubsub_topic") {
