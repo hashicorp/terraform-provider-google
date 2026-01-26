@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Resolved issues where `show_nat_ips` and `nat_ips` in `google_compute_service_attachment` were causing test failures due to an underlying API problem. These fields are now temporarily non-functional and will be ignored.
+```
