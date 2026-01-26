@@ -249,9 +249,11 @@ If true, update will affect both PENDING and ACCEPTED/REJECTED PSC endpoints. Fo
 				Description:      `URL of the region where the resource resides.`,
 			},
 			"show_nat_ips": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `If true, show NAT IPs of all connected endpoints.`,
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `NOTE: This field is temporarily non-functional due to an underlying API issue.
+Any value provided here will be ignored until the API issue is resolved, expected around 2026-03.
+[If true, show NAT IPs of all connected endpoints.]`,
 			},
 			"connected_endpoints": {
 				Type:     schema.TypeList,
@@ -271,9 +273,11 @@ attachment.`,
 							Description: `The URL of the consumer forwarding rule.`,
 						},
 						"nat_ips": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: `The nat IPs of the connected endpoint.`,
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: `NOTE: This field is temporarily non-functional due to an underlying API issue.
+Any value provided here will be ignored until the API issue is resolved, expected around 2026-03.
+'The nat IPs of the connected endpoint.'`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -546,10 +550,6 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 	}
 
 	headers := make(http.Header)
-	if d.Get("show_nat_ips").(bool) {
-		url += "?showNatIps=true"
-	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
