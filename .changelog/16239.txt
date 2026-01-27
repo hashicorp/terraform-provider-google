@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a bug in `google_container_node_pool` that prevented creation when `blue_green_settings` was specified
+```
