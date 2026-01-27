@@ -1350,11 +1350,6 @@ func testAccTagsLocationTagBinding_locationTagBindingZonalDynamicExample(context
 data "google_project" "project" {
 }
 
-data "google_tags_tag_key" "test_key" {
-	parent = "projects/tags-blr-test-ap"
-	short_name = "dynamic-tags-tf-test-key"
-}
-
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/%{org_id}"
 	short_name = "keyname%{random_suffix}"
