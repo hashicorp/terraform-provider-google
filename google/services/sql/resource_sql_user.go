@@ -223,6 +223,18 @@ func ResourceSqlUser() *schema.Resource {
 				have been granted SQL roles. Possible values are: "ABANDON".`,
 				ValidateFunc: validation.StringInSlice([]string{"ABANDON", ""}, false),
 			},
+			"database_roles": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `A list of database roles to be assigned to the user. This option is only available for MySQL and PostgreSQL instances.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"iam_email": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The email address for MySQL IAM database users.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -284,13 +296,20 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if pwWo, _ := d.GetRawConfigAt(cty.GetAttrPath("password_wo")); !pwWo.IsNull() {
 		password = pwWo.AsString()
 	}
+	var databaseRoles []string
+	if roles, ok := d.GetOk("database_roles"); ok {
+		for _, r := range roles.([]interface{}) {
+			databaseRoles = append(databaseRoles, r.(string))
+		}
+	}
 
 	user := &sqladmin.User{
-		Name:     name,
-		Instance: instance,
-		Password: password,
-		Host:     host,
-		Type:     typ,
+		Name:          name,
+		Instance:      instance,
+		Password:      password,
+		Host:          host,
+		Type:          typ,
+		DatabaseRoles: databaseRoles,
 	}
 
 	if v, ok := d.GetOk("password_policy"); ok {
@@ -425,6 +444,9 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("type", user.Type); err != nil {
 		return fmt.Errorf("Error setting type: %s", err)
 	}
+	if err := d.Set("iam_email", user.IamEmail); err != nil {
+		return fmt.Errorf("Error setting iam_email: %s", err)
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
@@ -489,33 +511,56 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	if d.HasChange("password") || d.HasChange("password_policy") || d.HasChange("password_wo_version") {
+	hasPasswordChange := d.HasChange("password") || d.HasChange("password_policy") || d.HasChange("password_wo_version")
+	if hasPasswordChange || d.HasChange("database_roles") {
 		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return err
 		}
 
 		name := d.Get("name").(string)
+		iamEmail := d.Get("iam_email").(string)
 		instance := d.Get("instance").(string)
 		host := d.Get("host").(string)
+		typ := d.Get("type").(string)
+		if typ == "CLOUD_IAM_USER" || typ == "CLOUD_IAM_SERVICE_ACCOUNT" || typ == "CLOUD_IAM_GROUP" {
+			host = ""
+			if iamEmail != "" {
+				name = iamEmail
+			}
+		}
 		var password string
 		if pw, ok := d.GetOk("password"); ok {
 			password = pw.(string)
 		} else if pwWo, _ := d.GetRawConfigAt(cty.GetAttrPath("password_wo")); !pwWo.IsNull() {
 			password = pwWo.AsString()
 		}
+		var databaseRoles []string
+		if roles, ok := d.GetOk("database_roles"); ok {
+			for _, r := range roles.([]interface{}) {
+				databaseRoles = append(databaseRoles, r.(string))
+			}
+		}
+		var revokeExistingRoles bool
+		if d.HasChange("database_roles") {
+			revokeExistingRoles = true
+		}
 
 		user := &sqladmin.User{
 			Name:     name,
 			Instance: instance,
-			Password: password,
+			Type:     typ,
+		}
+
+		if hasPasswordChange {
+			user.Password = password
 		}
 
 		transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
 		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 		var op *sqladmin.Operation
 		updateFunc := func() error {
-			op, err = config.NewSqlAdminClient(userAgent).Users.Update(project, instance, user).Host(host).Name(name).Do()
+			op, err = config.NewSqlAdminClient(userAgent).Users.Update(project, instance, user).Host(host).Name(name).DatabaseRoles(databaseRoles...).RevokeExistingRoles(revokeExistingRoles).Do()
 			return err
 		}
 		err = transport_tpg.Retry(transport_tpg.RetryOptions{
