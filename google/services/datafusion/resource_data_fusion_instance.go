@@ -339,6 +339,12 @@ The size of this block is /25. The format of this field is governed by RFC 4632.
 				Description:      `Map of additional options used to configure the behavior of Data Fusion instance.`,
 				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
+			"patch_revision": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `Current patch revision of the Data Fusion.`,
+			},
 			"private_instance": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -507,6 +513,12 @@ func resourceDataFusionInstanceCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("version"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionProp)) && (ok || !reflect.DeepEqual(v, versionProp)) {
 		obj["version"] = versionProp
+	}
+	patchRevisionProp, err := expandDataFusionInstancePatchRevision(d.Get("patch_revision"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("patch_revision"); !tpgresource.IsEmptyValue(reflect.ValueOf(patchRevisionProp)) && (ok || !reflect.DeepEqual(v, patchRevisionProp)) {
+		obj["patchRevision"] = patchRevisionProp
 	}
 	privateInstanceProp, err := expandDataFusionInstancePrivateInstance(d.Get("private_instance"), d, config)
 	if err != nil {
@@ -717,6 +729,9 @@ func resourceDataFusionInstanceRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("version", flattenDataFusionInstanceVersion(res["version"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("patch_revision", flattenDataFusionInstancePatchRevision(res["patchRevision"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("private_instance", flattenDataFusionInstancePrivateInstance(res["privateInstance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -802,6 +817,12 @@ func resourceDataFusionInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionProp)) {
 		obj["version"] = versionProp
+	}
+	patchRevisionProp, err := expandDataFusionInstancePatchRevision(d.Get("patch_revision"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("patch_revision"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, patchRevisionProp)) {
+		obj["patchRevision"] = patchRevisionProp
 	}
 	eventPublishConfigProp, err := expandDataFusionInstanceEventPublishConfig(d.Get("event_publish_config"), d, config)
 	if err != nil {
@@ -1031,6 +1052,10 @@ func flattenDataFusionInstanceVersion(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
+func flattenDataFusionInstancePatchRevision(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataFusionInstancePrivateInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1245,6 +1270,10 @@ func expandDataFusionInstanceOptions(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandDataFusionInstanceVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataFusionInstancePatchRevision(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
