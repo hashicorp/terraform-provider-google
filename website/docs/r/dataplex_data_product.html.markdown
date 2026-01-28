@@ -43,8 +43,8 @@ resource "google_dataplex_data_product" "example" {
   location        = "us-central1"
   data_product_id = "data-product-basic"
   display_name    = "terraform data product"
-  
-  owner_emails = ["terraform-test@google.com"]
+
+  owner_emails = ["gterraformtestuser@gmail.com"]
 
   access_groups {
     id           = "analyst"
@@ -67,11 +67,11 @@ resource "google_dataplex_data_product" "example" {
   location        = "us-central1"
   data_product_id = "data-product-full"
   display_name    = "DP Full Test: Special Chars !@#$"
-  
+
   # UTF-8 verification
   description     = "Updated with emojis 🚀 and brackets {test}"
-  
-  owner_emails = ["terraform-test@google.com"]
+
+  owner_emails = ["gterraformtestuser@gmail.com"]
 
   labels = {
     env = "manual-test"
@@ -216,7 +216,6 @@ DataProduct can be imported using any of these accepted formats:
 * `projects/{{project}}/locations/{{location}}/dataProducts/{{data_product_id}}`
 * `{{project}}/{{location}}/{{data_product_id}}`
 * `{{location}}/{{data_product_id}}`
-* `{{data_product_id}}`
 
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DataProduct using one of the formats above. For example:
@@ -234,7 +233,6 @@ When using the [`terraform import` command](https://developer.hashicorp.com/terr
 $ terraform import google_dataplex_data_product.default projects/{{project}}/locations/{{location}}/dataProducts/{{data_product_id}}
 $ terraform import google_dataplex_data_product.default {{project}}/{{location}}/{{data_product_id}}
 $ terraform import google_dataplex_data_product.default {{location}}/{{data_product_id}}
-$ terraform import google_dataplex_data_product.default {{data_product_id}}
 ```
 
 ## User Project Overrides
