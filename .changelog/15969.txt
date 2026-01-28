@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrunv2: fix permadiff on `scaling.0.scaling_mode` in `google_cloud_run_v2_worker_pool`
+```
