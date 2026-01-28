@@ -261,7 +261,6 @@ The syntax of the regular expressions accepted is the syntax accepted by RE2 and
 						},
 					},
 				},
-				AtLeastOneOf: []string{"bitbucket_server_trigger_config", "developer_connect_event_config", "github", "pubsub_config", "repository_event_config", "source_to_build", "trigger_template", "webhook_config"},
 			},
 			"build": {
 				Type:        schema.TypeList,
@@ -1110,12 +1109,10 @@ invocation originated is assumed to be the repo from which to read the specified
 				ExactlyOneOf: []string{"build", "filename", "git_file_source"},
 			},
 			"github": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
-
-One of 'trigger_template', 'github', 'pubsub_config' or 'webhook_config' must be provided.`,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Describes the configuration of a trigger that creates a build whenever a GitHub event is received.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enterprise_config_resource_name": {
@@ -1193,7 +1190,6 @@ https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`
 						},
 					},
 				},
-				AtLeastOneOf: []string{"bitbucket_server_trigger_config", "developer_connect_event_config", "github", "pubsub_config", "repository_event_config", "source_to_build", "trigger_template", "webhook_config"},
 			},
 			"ignored_files": {
 				Type:     schema.TypeList,
@@ -1255,9 +1251,7 @@ If not specified, "global" is used.`,
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `PubsubConfig describes the configuration of a trigger that creates
-a build whenever a Pub/Sub message is published.
-
-One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
+a build whenever a Pub/Sub message is published.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1284,7 +1278,6 @@ Only populated on get requests.`,
 						},
 					},
 				},
-				AtLeastOneOf: []string{"bitbucket_server_trigger_config", "developer_connect_event_config", "github", "pubsub_config", "repository_event_config", "source_to_build", "trigger_template", "webhook_config"},
 			},
 			"repository_event_config": {
 				Type:        schema.TypeList,
@@ -1365,7 +1358,6 @@ RE2 and described at https://github.com/google/re2/wiki/Syntax`,
 						},
 					},
 				},
-				AtLeastOneOf: []string{"bitbucket_server_trigger_config", "developer_connect_event_config", "github", "pubsub_config", "repository_event_config", "source_to_build", "trigger_template", "webhook_config"},
 			},
 			"service_account": {
 				Type:     schema.TypeString,
@@ -1384,9 +1376,7 @@ Format: projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT_ID_OR_EMAIL}`,
 				Description: `The repo and ref of the repository from which to build.
 This field is used only for those triggers that do not respond to SCM events.
 Triggers that respond to such events build source at whatever commit caused the event.
-This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.
-
-One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
+This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1427,7 +1417,6 @@ Either uri or repository can be specified and is required.`,
 						},
 					},
 				},
-				AtLeastOneOf: []string{"bitbucket_server_trigger_config", "developer_connect_event_config", "github", "pubsub_config", "repository_event_config", "source_to_build", "trigger_template", "webhook_config"},
 			},
 			"substitutions": {
 				Type:        schema.TypeMap,
@@ -1450,9 +1439,7 @@ Either uri or repository can be specified and is required.`,
 
 Branch and tag names in trigger templates are interpreted as regular
 expressions. Any branch or tag change that matches that regular
-expression will trigger a build.
-
-One of 'trigger_template', 'github', 'pubsub_config', 'webhook_config' or 'source_to_build' must be provided.`,
+expression will trigger a build.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1505,15 +1492,12 @@ This field is a regular expression.`,
 						},
 					},
 				},
-				AtLeastOneOf: []string{"bitbucket_server_trigger_config", "developer_connect_event_config", "github", "pubsub_config", "repository_event_config", "source_to_build", "trigger_template", "webhook_config"},
 			},
 			"webhook_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `WebhookConfig describes the configuration of a trigger that creates
-a build whenever a webhook is sent to a trigger's webhook URL.
-
-One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
+a build whenever a webhook is sent to a trigger's webhook URL.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1530,7 +1514,6 @@ Only populated on get requests.`,
 						},
 					},
 				},
-				AtLeastOneOf: []string{"bitbucket_server_trigger_config", "developer_connect_event_config", "github", "pubsub_config", "repository_event_config", "source_to_build", "trigger_template", "webhook_config"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -6188,11 +6171,10 @@ invocation originated is assumed to be the repo from which to read the specified
 				ExactlyOneOf: []string{"filename", "git_file_source", "build"},
 			},
 			"github": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Description: `Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
-One of 'trigger_template', 'github', 'pubsub_config' or 'webhook_config' must be provided.`,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Describes the configuration of a trigger that creates a build whenever a GitHub event is received.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -6264,7 +6246,6 @@ https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`
 						},
 					},
 				},
-				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
 			},
 			"ignored_files": {
 				Type:     schema.TypeList,
@@ -6313,9 +6294,8 @@ a build.`,
 			"pubsub_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `PubsubConfig describes the configuration of a trigger that creates 
-a build whenever a Pub/Sub message is published.
-One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
+				Description: `PubsubConfig describes the configuration of a trigger that creates
+a build whenever a Pub/Sub message is published.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -6342,7 +6322,6 @@ Only populated on get requests.`,
 						},
 					},
 				},
-				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
 			},
 			"service_account": {
 				Type:     schema.TypeString,
@@ -6356,11 +6335,10 @@ Format: projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT_ID_OR_EMAIL}`,
 			"source_to_build": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `The repo and ref of the repository from which to build. 
-This field is used only for those triggers that do not respond to SCM events. 
-Triggers that respond to such events build source at whatever commit caused the event. 
-This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.
-One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
+				Description: `The repo and ref of the repository from which to build.
+This field is used only for those triggers that do not respond to SCM events.
+Triggers that respond to such events build source at whatever commit caused the event.
+This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -6383,7 +6361,6 @@ Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET Possible val
 						},
 					},
 				},
-				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
 			},
 			"substitutions": {
 				Type:        schema.TypeMap,
@@ -6405,8 +6382,7 @@ Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET Possible val
 				Description: `Template describing the types of source changes to trigger a build.
 Branch and tag names in trigger templates are interpreted as regular
 expressions. Any branch or tag change that matches that regular
-expression will trigger a build.
-One of 'trigger_template', 'github', 'pubsub_config', 'webhook_config' or 'source_to_build' must be provided.`,
+expression will trigger a build.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -6458,14 +6434,12 @@ This field is a regular expression.`,
 						},
 					},
 				},
-				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
 			},
 			"webhook_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `WebhookConfig describes the configuration of a trigger that creates 
-a build whenever a webhook is sent to a trigger's webhook URL.
-One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
+				Description: `WebhookConfig describes the configuration of a trigger that creates
+a build whenever a webhook is sent to a trigger's webhook URL.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -6482,7 +6456,6 @@ Only populated on get requests.`,
 						},
 					},
 				},
-				AtLeastOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config", "source_to_build"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
