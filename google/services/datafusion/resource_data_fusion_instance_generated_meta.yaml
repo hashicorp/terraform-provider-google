@@ -31,6 +31,7 @@ fields:
     - api_field: networkConfig.privateServiceConnectConfig.unreachableCidrBlock
     - api_field: options
     - api_field: p4ServiceAccount
+    - api_field: patchRevision
     - api_field: privateInstance
     - field: region
       provider_only: true

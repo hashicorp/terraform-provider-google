@@ -416,6 +416,43 @@ resource "google_data_fusion_instance" "zone" {
 `, context)
 }
 
+func TestAccDataFusionInstance_dataFusionInstancePatchRevisionExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataFusionInstance_dataFusionInstancePatchRevisionExample(context),
+			},
+			{
+				ResourceName:            "google_data_fusion_instance.data_fusion_instance_patch_revision",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "network_config.0.private_service_connect_config.0.unreachable_cidr_block", "region", "tags", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataFusionInstance_dataFusionInstancePatchRevisionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_fusion_instance" "data_fusion_instance_patch_revision" {
+  name = "tf-test-my-instance%{random_suffix}"
+  region = "us-central1"
+  type = "BASIC"
+  version = "6.10.1"
+  patch_revision = "6.10.1.5"
+}
+`, context)
+}
+
 func testAccCheckDataFusionInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

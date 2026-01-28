@@ -252,6 +252,23 @@ resource "google_data_fusion_instance" "zone" {
   type   = "DEVELOPER"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=data_fusion_instance_patch_revision&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Data Fusion Instance Patch Revision
+
+
+```hcl
+resource "google_data_fusion_instance" "data_fusion_instance_patch_revision" {
+  name = "my-instance"
+  region = "us-central1"
+  type = "BASIC"
+  version = "6.10.1"
+  patch_revision = "6.10.1.5"
+}
+```
 
 ## Argument Reference
 
@@ -308,6 +325,10 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Current version of the Data Fusion.
+
+* `patch_revision` -
+  (Optional)
+  Current patch revision of the Data Fusion.
 
 * `private_instance` -
   (Optional)
