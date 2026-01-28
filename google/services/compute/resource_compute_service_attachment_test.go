@@ -122,6 +122,155 @@ func TestAccComputeServiceAttachment_serviceAttachmentConnectedEndpointsOutput(t
 	})
 }
 
+func TestAccComputeServiceAttachment_targetServiceInPlaceUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Initial Creation of service attachment with target as L4 ILB
+				Config: testAccComputeServiceAttachment_targetServiceUpdate(context, "l4ilb"),
+				Check: resource.ComposeTestCheckFunc(
+					// Verify the service attachment was created
+					resource.TestCheckResourceAttrSet("google_compute_service_attachment.psc_attachment", "self_link"),
+				),
+			},
+			{
+				// Update to target to L7 ILB
+				Config: testAccComputeServiceAttachment_targetServiceUpdate(context, "l7ilb"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectNonEmptyPlan(),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					// Verify the service attachment still exists (in-place update, not recreated)
+					resource.TestCheckResourceAttrSet("google_compute_service_attachment.psc_attachment", "self_link"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_service_attachment.psc_attachment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"target_service", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeServiceAttachment_targetServiceUpdate(context map[string]interface{}, targetKey string) string {
+	var targetService string
+	if targetKey == "l4ilb" {
+		targetService = "google_compute_forwarding_rule.producer_l4_ilb_fr.id"
+	} else {
+		targetService = "google_compute_forwarding_rule.producer_l7_ilb_forwarding_rule.id"
+	}
+	context["target_service"] = targetService
+	return acctest.Nprintf(`
+resource "google_compute_network" "psc_ilb_network" {
+  name                    = "tf-test-producer-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc_ilb_subnet" {
+  name          = "tf-test-subnet-%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  network       = google_compute_network.psc_ilb_network.id
+  region        = "us-west2"
+}
+
+resource "google_compute_subnetwork" "psc_ilb_nat_subnet" {
+  name          = "tf-test-nat-%{random_suffix}"
+  region        = "us-west2"
+  network       = google_compute_network.psc_ilb_network.id
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/24"
+}
+
+resource "google_compute_subnetwork" "proxy_only_subnet" {
+  name          = "tf-test-proxy-only-subnet-%{random_suffix}"
+  ip_cidr_range = "10.5.0.0/24"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.psc_ilb_network.id
+  region        = "us-west2"
+}
+
+resource "google_compute_health_check" "hc" {
+  name = "tf-test-hc-%{random_suffix}"
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+# Forwarding Rule A
+resource "google_compute_region_backend_service" "producer_l4_ilb_backend_service" {
+  name          = "tf-test-l4-ilb-backend-service-%{random_suffix}"
+  region        = "us-west2"
+  health_checks = [google_compute_health_check.hc.id]
+}
+
+resource "google_compute_forwarding_rule" "producer_l4_ilb_fr" {
+  name                  = "tf-test-l4ilb-fr-%{random_suffix}"
+  region                = "us-west2"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_l4_ilb_backend_service.id
+  all_ports             = true
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_subnet.name
+}
+
+# Producer L7 ILB
+resource "google_compute_region_backend_service" "producer_l7_ilb_backend_service" {
+  name          = "tf-test-l7-ilb-backend-service%{random_suffix}"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  region        = "us-west2"
+  health_checks = [google_compute_health_check.hc.id]
+}
+
+resource "google_compute_region_url_map" "producer_url_map" {
+  name            = "producer-l7-ilb-url-map-%{random_suffix}"
+  default_service = google_compute_region_backend_service.producer_l7_ilb_backend_service.id
+  region          = "us-west2"
+}
+
+resource "google_compute_region_target_http_proxy" "producer_proxy" {
+  name    = "producer-l7-ilb-proxy-%{random_suffix}"
+  url_map = google_compute_region_url_map.producer_url_map.id
+  region  = "us-west2"
+}
+
+resource "google_compute_forwarding_rule" "producer_l7_ilb_forwarding_rule" {
+  name                  = "tf-test-fr-l7-ilb-fr-%{random_suffix}"
+  region                = "us-west2"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_range            = "8080"
+  target                = google_compute_region_target_http_proxy.producer_proxy.id
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_subnet.name
+  depends_on            = [google_compute_subnetwork.proxy_only_subnet]
+}
+
+resource "google_compute_service_attachment" "psc_attachment" {
+  name                  = "tf-test-sa-%{random_suffix}"
+  region                = "us-west2"
+  enable_proxy_protocol = false
+  connection_preference = "ACCEPT_AUTOMATIC"
+  nat_subnets           = [google_compute_subnetwork.psc_ilb_nat_subnet.id]
+
+  # Dynamically switch the target based on the test step
+  target_service = %{target_service}
+}
+`, context)
+}
+
 func testAccComputeServiceAttachment_serviceAttachmentBasicExampleFork(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {

@@ -181,7 +181,6 @@ except the last character, which cannot be a dash.`,
 			"target_service": {
 				Type:             schema.TypeString,
 				Required:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The URL of a service serving the endpoint identified by this service attachment.`,
 			},
@@ -662,6 +661,12 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("connection_preference"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, connectionPreferenceProp)) {
 		obj["connectionPreference"] = connectionPreferenceProp
+	}
+	targetServiceProp, err := expandComputeServiceAttachmentTargetService(d.Get("target_service"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_service"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetServiceProp)) {
+		obj["targetService"] = targetServiceProp
 	}
 	natSubnetsProp, err := expandComputeServiceAttachmentNatSubnets(d.Get("nat_subnets"), d, config)
 	if err != nil {
