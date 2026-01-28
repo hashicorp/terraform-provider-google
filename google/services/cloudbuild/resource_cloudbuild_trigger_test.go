@@ -248,6 +248,35 @@ func TestAccCloudBuildTrigger_basic_bitbucket(t *testing.T) {
 	})
 }
 
+func TestAccCloudBuildTrigger_manualTriggerNoSource(t *testing.T) {
+	t.Parallel()
+	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_manualTriggerNoSource(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.manual_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudBuildTrigger_manualTriggerNoSourceUpdate(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.manual_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCloudBuildTrigger_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
@@ -714,6 +743,43 @@ resource "google_cloudbuild_trigger" "build_trigger" {
       name = "gcr.io/cloud-builders/gcloud"
       args = ["storage", "cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
       timeout = "500s"
+    }
+  }
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_manualTriggerNoSource(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "manual_trigger" {
+  name        = "%s"
+  description = "Manual trigger without source configuration"
+
+  build {
+    step {
+      name = "gcr.io/cloud-builders/gcloud"
+      args = ["version"]
+    }
+  }
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_manualTriggerNoSourceUpdate(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "manual_trigger" {
+  name        = "%s"
+  description = "Manual trigger without source configuration - updated"
+
+  build {
+    step {
+      name = "gcr.io/cloud-builders/gcloud"
+      args = ["version"]
+    }
+    step {
+      name = "ubuntu"
+      args = ["-c", "echo hello"]
+      entrypoint = "bash"
     }
   }
 }

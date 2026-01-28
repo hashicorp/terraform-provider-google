@@ -339,31 +339,22 @@ resource "google_cloudbuild_trigger" "webhook-config-trigger" {
 
 
 ```hcl
-
 resource "google_cloudbuild_trigger" "manual-trigger" {
-  name        = "manual-trigger"
+  name = "manual-trigger"
 
-  source_to_build {
-    uri       = "https://hashicorp/terraform-provider-google-beta"
-    ref       = "refs/heads/main"
-    repo_type = "GITHUB"
+  build {
+    step {
+      name = "gcr.io/cloud-builders/gcloud"
+      args = ["version"]
+    }
   }
 
-  git_file_source {
-    path      = "cloudbuild.yaml"
-    uri       = "https://hashicorp/terraform-provider-google-beta"
-    revision  = "refs/heads/main"
-    repo_type = "GITHUB"
-  }
-
-  
-  // If this is set on a build, it will become pending when it is run, 
+  // approval_config can be used with any trigger type, not just manual triggers.
+  // If this is set on a build, it will become pending when it is run,
   // and will need to be explicitly approved to start.
   approval_config {
      approval_required = true 
   }
-   
-  
 }
 ```
 ## Example Usage - Cloudbuild Trigger Manual Github Enterprise
@@ -869,7 +860,6 @@ The following arguments are supported:
   This field is used only for those triggers that do not respond to SCM events.
   Triggers that respond to such events build source at whatever commit caused the event.
   This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.
-  One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_source_to_build).
 
 * `ignored_files` -
@@ -900,13 +890,11 @@ The following arguments are supported:
   Branch and tag names in trigger templates are interpreted as regular
   expressions. Any branch or tag change that matches that regular
   expression will trigger a build.
-  One of `trigger_template`, `github`, `pubsub_config`, `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_trigger_template).
 
 * `github` -
   (Optional)
   Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
-  One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
   Structure is [documented below](#nested_github).
 
 * `bitbucket_server_trigger_config` -
@@ -918,14 +906,12 @@ The following arguments are supported:
   (Optional)
   PubsubConfig describes the configuration of a trigger that creates
   a build whenever a Pub/Sub message is published.
-  One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_pubsub_config).
 
 * `webhook_config` -
   (Optional)
   WebhookConfig describes the configuration of a trigger that creates
   a build whenever a webhook is sent to a trigger's webhook URL.
-  One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_webhook_config).
 
 * `approval_config` -
