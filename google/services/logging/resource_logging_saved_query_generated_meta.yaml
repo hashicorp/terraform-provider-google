@@ -1,0 +1,28 @@
+resource: google_logging_saved_query
+generation_type: mmv1
+source_file: products/logging/SavedQuery.yaml
+api_service_name: logging.googleapis.com
+api_version: v2
+api_resource_type_kind: SavedQuery
+api_variant_patterns:
+    - billingAccounts/{billingAccount}/locations/{location}/savedQueries/{savedQuery}
+    - folders/{folder}/locations/{location}/savedQueries/{savedQuery}
+    - organizations/{organization}/locations/{location}/savedQueries/{savedQuery}
+    - projects/{project}/locations/{location}/savedQueries/{savedQuery}
+fields:
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: loggingQuery.filter
+    - api_field: loggingQuery.summaryFieldEnd
+    - api_field: loggingQuery.summaryFieldStart
+    - api_field: loggingQuery.summaryFields.field
+    - field: name
+      provider_only: true
+    - api_field: opsAnalyticsQuery.sqlQueryText
+    - field: parent
+      provider_only: true
+    - api_field: updateTime
+    - api_field: visibility
