@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `database_role` field and `iam_email` field to `google_sql_user` resource to support managing Cloud SQL users with database roles.
+```
