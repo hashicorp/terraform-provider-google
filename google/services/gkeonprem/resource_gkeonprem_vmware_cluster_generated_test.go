@@ -69,7 +69,7 @@ func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterBasicExample(t *testing
 				ResourceName:            "google_gkeonprem_vmware_cluster.cluster-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
+				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "skip_validations"},
 			},
 		},
 	})
@@ -139,7 +139,7 @@ func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterF5lbExample(t *testing.
 				ResourceName:            "google_gkeonprem_vmware_cluster.cluster-f5lb",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
+				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "skip_validations"},
 			},
 		},
 	})
@@ -236,7 +236,7 @@ func TestAccGkeonpremVmwareCluster_gkeonpremVmwareClusterManuallbExample(t *test
 				ResourceName:            "google_gkeonprem_vmware_cluster.cluster-manuallb",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
+				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "skip_validations"},
 			},
 		},
 	})
@@ -246,6 +246,7 @@ func testAccGkeonpremVmwareCluster_gkeonpremVmwareClusterManuallbExample(context
 	return acctest.Nprintf(`
 resource "google_gkeonprem_vmware_cluster" "cluster-manuallb" {
   name = "tf-test-cluster-manuallb%{random_suffix}"
+  skip_validations = ["WORKSTATION", "CONFIG", "DOCKER"]
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"

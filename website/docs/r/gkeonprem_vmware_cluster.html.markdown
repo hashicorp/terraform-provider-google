@@ -151,6 +151,7 @@ resource "google_gkeonprem_vmware_cluster" "cluster-f5lb" {
 ```hcl
 resource "google_gkeonprem_vmware_cluster" "cluster-manuallb" {
   name = "cluster-manuallb"
+  skip_validations = ["WORKSTATION", "CONFIG", "DOCKER"]
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"
@@ -346,6 +347,11 @@ The following arguments are supported:
   (Optional)
   Specifies upgrade policy for the cluster.
   Structure is [documented below](#nested_upgrade_policy).
+
+* `skip_validations` -
+  (Optional)
+  A list of validations to skip during preflight checks.
+  Each value may be one of: `VALIDATION_SKIP_UNSPECIFIED`, `ALL`, `WORKSTATION`, `CONFIG`, `DOCKER`, `INFRA`, `LOAD_BALANCER`, `VIPS`, `NODE_IPS`, `DNS`, `TOD`, `NET_CONFIG`, `STORAGE_DRIVER`, `PROXY`, `INTERNET`, `GCP`, `GKEHUB`, `RESERVED_IPS`, `STACKDRIVER`, `NODEPOOL_AUTOSCALING`, `OS_IMAGES`, `CLUSTER_VERSION`, `CLUSTER_HEALTH`, `WINDOWS`, `HSM_SECRET_ENCRYPTION`, `BACKUP_ADMIN`, `CONNECTIVITY`, `CLUSTER_SECRETS_CONFIG`, `CSI_WORKLOAD`, `VSPHERE_VERSION`, `MIGRATION`.
 
 * `vcenter` -
   (Optional)
