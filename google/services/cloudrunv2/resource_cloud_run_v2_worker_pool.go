@@ -1770,7 +1770,7 @@ func flattenCloudRunV2WorkerPoolScaling(v interface{}, d *schema.ResourceData, c
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2WorkerPoolScalingScalingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("scaling.0.scaling_mode")
 }
 
 func flattenCloudRunV2WorkerPoolScalingMinInstanceCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

@@ -69,7 +69,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicExample(t *testing.T) 
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -111,7 +111,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolBasicDependsOnExample(t *te
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -168,7 +168,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolLimitsExample(t *testing.T)
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -217,7 +217,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSqlExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -324,7 +324,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolDirectvpcExample(t *testing
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -373,7 +373,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolGpuExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -426,7 +426,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolSecretExample(t *testing.T)
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -507,7 +507,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMulticontainerExample(t *te
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -566,7 +566,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountGcsExample(t *testing.
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -628,7 +628,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolMountNfsExample(t *testing.
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
@@ -706,7 +706,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "scaling.0.scaling_mode", "terraform_labels"},
 			},
 		},
 	})
