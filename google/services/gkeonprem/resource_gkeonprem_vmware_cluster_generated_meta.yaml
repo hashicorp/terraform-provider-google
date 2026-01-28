@@ -65,6 +65,8 @@ fields:
     - api_field: networkConfig.vcenterNetwork
     - api_field: onPremVersion
     - api_field: reconciling
+    - field: skip_validations
+      provider_only: true
     - api_field: state
     - api_field: status.conditions.lastTransitionTime
     - api_field: status.conditions.message
