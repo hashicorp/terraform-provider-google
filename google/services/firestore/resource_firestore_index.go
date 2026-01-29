@@ -127,6 +127,7 @@ func ResourceFirestoreIndex() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFirestoreIndexCreate,
 		Read:   resourceFirestoreIndexRead,
+		Update: resourceFirestoreIndexUpdate,
 		Delete: resourceFirestoreIndexDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -135,6 +136,7 @@ func ResourceFirestoreIndex() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -268,6 +270,12 @@ with the same dimension.`,
 				Description: `A server defined name for this index. Format:
 'projects/{{project}}/databases/{{database}}/collectionGroups/{{collection}}/indexes/{{server_generated_id}}'`,
 			},
+			"skip_wait": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to skip waiting for the index to be created.`,
+				Default:     false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -383,21 +391,37 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = FirestoreOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Index", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
+	if d.Get("skip_wait").(bool) {
+		// If skip_wait, the LRO will not be complete so the response will not be populated.
+		// Extract the index name from the metadata field.
+		metadata, ok := res["metadata"].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("Error constructing id from result.")
+		}
+		index, ok := metadata["index"].(string)
+		if !ok {
+			return fmt.Errorf("Error constructing id from result.")
+		}
+		if err := d.Set("name", flattenFirestoreIndexName(index, d, config)); err != nil {
+			return err
+		}
+	} else {
+		// Use the resource in the operation response to populate
+		// identity fields and d.Id() before read
+		var opRes map[string]interface{}
+		err = FirestoreOperationWaitTimeWithResponse(
+			config, res, &opRes, project, "Creating Index", userAgent,
+			d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			// The resource didn't actually create
+			d.SetId("")
 
-		return fmt.Errorf("Error waiting to create Index: %s", err)
-	}
+			return fmt.Errorf("Error waiting to create Index: %s", err)
+		}
 
-	if err := d.Set("name", flattenFirestoreIndexName(opRes["name"], d, config)); err != nil {
-		return err
+		if err := d.Set("name", flattenFirestoreIndexName(opRes["name"], d, config)); err != nil {
+			return err
+		}
 	}
 
 	// This may have caused the ID to update - update it if so.
@@ -451,6 +475,12 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FirestoreIndex %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("skip_wait"); !ok {
+		if err := d.Set("skip_wait", false); err != nil {
+			return fmt.Errorf("Error setting skip_wait: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
@@ -478,6 +508,11 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
+}
+
+func resourceFirestoreIndexUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels", "terraform_labels", and virtual fields are mutable
+	return resourceFirestoreIndexRead(d, meta)
 }
 
 func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) error {

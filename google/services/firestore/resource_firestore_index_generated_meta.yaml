@@ -17,4 +17,6 @@ fields:
     - api_field: multikey
     - api_field: name
     - api_field: queryScope
+    - field: skip_wait
+      provider_only: true
     - api_field: unique

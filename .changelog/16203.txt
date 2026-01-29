@@ -1,0 +1,3 @@
+```release-note:enhancement
+firestore: added `skip_wait` field to `google_firestore_index` resource, skipping the wait for index creation
+```
