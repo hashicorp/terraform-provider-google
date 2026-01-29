@@ -104,6 +104,64 @@ resource "google_backup_dr_backup_plan_association" "my-backup-plan-association"
   backup_plan  = google_backup_dr_backup_plan.bp1.name
 }
 ```
+## Example Usage - Backup Dr Bpa Filestore
+
+
+```hcl
+resource "google_filestore_instance" "my_filestore_instance" {
+  name = "test-instance-bpa"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share1"
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+}
+
+resource "google_backup_dr_backup_vault" "my_backup_vault" {
+  location = "us-central1"
+  backup_vault_id = "bv-bpa-filestore"
+  backup_minimum_enforced_retention_duration = "100000s"
+  force_delete = true
+}
+
+resource "google_backup_dr_backup_plan" "my_backup_plan" {
+  location = "us-central1"
+  backup_plan_id = "bp-bpa-filestore"
+  resource_type = "file.googleapis.com/Instance"
+  backup_vault = google_backup_dr_backup_vault.my_backup_vault.id
+
+  backup_rules {
+    rule_id = "rule-1"
+    backup_retention_days = 5
+
+    standard_schedule {
+      recurrence_type = "HOURLY"
+      hourly_frequency = 6
+      time_zone = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day = 6
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "my-backup-plan-association-filestore" {
+  location = "us-central1"
+  resource_type = "file.googleapis.com/Instance"
+  backup_plan_association_id = "my-bpa-filestore"
+  resource = google_filestore_instance.my_filestore_instance.id
+  backup_plan = google_backup_dr_backup_plan.my_backup_plan.name
+}
+```
 
 ## Argument Reference
 
@@ -120,11 +178,12 @@ The following arguments are supported:
   Note:
   - A Backup Plan configured for 'compute.googleapis.com/Instance', can only protect instance type resources.
   - A Backup Plan configured for 'compute.googleapis.com/Disk' can be used to protect both standard Disks and Regional Disks resources.
+  - A Backup Plan configured for 'file.googleapis.com/Instance' can only protect Filestore instances.
 
 * `resource_type` -
   (Required)
   The resource type of workload on which backupplan is applied.
-  Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "compute.googleapis.com/RegionDisk"
+  Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "compute.googleapis.com/RegionDisk", and "file.googleapis.com/Instance"
 
 * `location` -
   (Required)

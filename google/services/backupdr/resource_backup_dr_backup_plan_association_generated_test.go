@@ -150,6 +150,90 @@ resource "google_backup_dr_backup_plan_association" "my-backup-plan-association"
 `, context)
 }
 
+func TestAccBackupDRBackupPlanAssociation_backupDrBpaFilestoreExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBackupDRBackupPlanAssociationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBackupDRBackupPlanAssociation_backupDrBpaFilestoreExample(context),
+			},
+			{
+				ResourceName:            "google_backup_dr_backup_plan_association.my-backup-plan-association-filestore",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backup_plan_association_id", "location", "resource"},
+			},
+		},
+	})
+}
+
+func testAccBackupDRBackupPlanAssociation_backupDrBpaFilestoreExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_filestore_instance" "my_filestore_instance" {
+  name = "tf-test-test-instance-bpa%{random_suffix}"
+  location = "us-central1"
+  tier = "ENTERPRISE"
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share1"
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+}
+
+resource "google_backup_dr_backup_vault" "my_backup_vault" {
+  location = "us-central1"
+  backup_vault_id = "tf-test-bv-bpa-filestore%{random_suffix}"
+  backup_minimum_enforced_retention_duration = "100000s"
+  force_delete = true
+}
+
+resource "google_backup_dr_backup_plan" "my_backup_plan" {
+  location = "us-central1"
+  backup_plan_id = "tf-test-bp-bpa-filestore%{random_suffix}"
+  resource_type = "file.googleapis.com/Instance"
+  backup_vault = google_backup_dr_backup_vault.my_backup_vault.id
+
+  backup_rules {
+    rule_id = "rule-1"
+    backup_retention_days = 5
+
+    standard_schedule {
+      recurrence_type = "HOURLY"
+      hourly_frequency = 6
+      time_zone = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day = 6
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "my-backup-plan-association-filestore" {
+  location = "us-central1"
+  resource_type = "file.googleapis.com/Instance"
+  backup_plan_association_id = "tf-test-my-bpa-filestore%{random_suffix}"
+  resource = google_filestore_instance.my_filestore_instance.id
+  backup_plan = google_backup_dr_backup_plan.my_backup_plan.name
+}
+`, context)
+}
+
 func testAccCheckBackupDRBackupPlanAssociationDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

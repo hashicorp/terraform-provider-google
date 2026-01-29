@@ -115,7 +115,8 @@ func ResourceBackupDRBackupPlanAssociation() *schema.Resource {
 				Description: `The BP with which resource needs to be created
 Note:
 - A Backup Plan configured for 'compute.googleapis.com/Instance', can only protect instance type resources.
-- A Backup Plan configured for 'compute.googleapis.com/Disk' can be used to protect both standard Disks and Regional Disks resources.`,
+- A Backup Plan configured for 'compute.googleapis.com/Disk' can be used to protect both standard Disks and Regional Disks resources.
+- A Backup Plan configured for 'file.googleapis.com/Instance' can only protect Filestore instances.`,
 			},
 			"backup_plan_association_id": {
 				Type:        schema.TypeString,
@@ -136,7 +137,7 @@ Note:
 				Type:     schema.TypeString,
 				Required: true,
 				Description: `The resource type of workload on which backupplan is applied.
-Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", and "compute.googleapis.com/RegionDisk"`,
+Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "compute.googleapis.com/RegionDisk", and "file.googleapis.com/Instance"`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
