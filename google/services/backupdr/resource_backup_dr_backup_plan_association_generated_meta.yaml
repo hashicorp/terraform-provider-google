@@ -10,7 +10,6 @@ fields:
       provider_only: true
     - api_field: createTime
     - api_field: dataSource
-    - api_field: lastSuccessfulBackupConsistencyTime
     - field: location
       provider_only: true
     - api_field: name
@@ -19,5 +18,6 @@ fields:
     - api_field: rulesConfigInfo.lastBackupError.code
     - api_field: rulesConfigInfo.lastBackupError.message
     - api_field: rulesConfigInfo.lastBackupState
+    - api_field: rulesConfigInfo.lastSuccessfulBackupConsistencyTime
     - api_field: rulesConfigInfo.ruleId
     - api_field: updateTime

@@ -19,6 +19,7 @@ fields:
     - api_field: automatedBackupPolicy.weeklySchedule.startTimes.nanos
     - api_field: automatedBackupPolicy.weeklySchedule.startTimes.seconds
     - api_field: backupSource.backupName
+    - api_field: backupdrBackupSource.backup
     - field: cluster_id
       provider_only: true
     - api_field: clusterType
@@ -64,6 +65,9 @@ fields:
     - api_field: pscConfig.serviceOwnedProjectNumber
     - api_field: reconciling
     - api_field: restoreBackupSource.backupName
+    - api_field: restoreBackupdrBackupSource.backup
+    - api_field: restoreBackupdrPitrSource.dataSource
+    - api_field: restoreBackupdrPitrSource.pointInTime
     - api_field: restoreContinuousBackupSource.cluster
     - api_field: restoreContinuousBackupSource.pointInTime
     - api_field: secondaryConfig.primaryClusterName
