@@ -610,7 +610,7 @@ for autopilot clusters. Resource limits for `cpu` and `memory` must be defined t
 * `resource_limits` - (Optional) Global constraints for machine resources in the
 cluster. Configuring the `cpu` and `memory` types is required if node
 auto-provisioning is enabled. These limits will apply to node pool autoscaling
-in addition to node auto-provisioning. Structure is [documented below](#nested_resource_limits).
+in addition to node auto-provisioning. Limits can't be unset entirely, they can only be replaced. Structure is [documented below](#nested_resource_limits).
 
 * `auto_provisioning_defaults` - (Optional) Contains defaults for a node pool created by NAP. A subset of fields also apply to
 GKE Autopilot clusters.

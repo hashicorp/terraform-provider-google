@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed perma-diff in `google_container_cluster` when setting `resource_limits` with disabled node autoprovisioning
+```
