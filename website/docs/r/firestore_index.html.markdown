@@ -276,6 +276,38 @@ resource "google_firestore_index" "my-index" {
 	}
 }
 ```
+## Example Usage - Firestore Index Skip Wait
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id-skip-wait"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+  project    = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "atestcollection"
+
+  fields {
+    field_path = "name"
+    order      = "ASCENDING"
+  }
+
+  fields {
+    field_path = "description"
+    order      = "DESCENDING"
+  }
+
+  skip_wait = true
+}
+```
 
 ## Argument Reference
 
@@ -329,6 +361,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `skip_wait` - (Optional) Whether to skip waiting for the index to be created.
 
 
 <a name="nested_fields"></a>The `fields` block supports:

@@ -999,7 +999,7 @@ func resourceTranscoderJobRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTranscoderJobUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "labels" and "terraform_labels" are mutable
+	// Only the root field "labels", "terraform_labels", and virtual fields are mutable
 	return resourceTranscoderJobRead(d, meta)
 }
 

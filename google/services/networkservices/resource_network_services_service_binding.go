@@ -334,7 +334,7 @@ func resourceNetworkServicesServiceBindingRead(d *schema.ResourceData, meta inte
 }
 
 func resourceNetworkServicesServiceBindingUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "labels" and "terraform_labels" are mutable
+	// Only the root field "labels", "terraform_labels", and virtual fields are mutable
 	return resourceNetworkServicesServiceBindingRead(d, meta)
 }
 
