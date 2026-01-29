@@ -426,13 +426,23 @@ The following arguments are supported:
 
 * `restore_backup_source` -
   (Optional)
-  The source when restoring from a backup. Conflicts with 'restore_continuous_backup_source', both can't be set together.
+  The source when restoring from a backup. Conflicts with 'restore_continuous_backup_source', 'restore_backupdr_backup_source' and 'restore_backupdr_pitr_source', they can't be set together.
   Structure is [documented below](#nested_restore_backup_source).
 
 * `restore_continuous_backup_source` -
   (Optional)
-  The source when restoring via point in time recovery (PITR). Conflicts with 'restore_backup_source', both can't be set together.
+  The source when restoring via point in time recovery (PITR). Conflicts with 'restore_backup_source', 'restore_backupdr_backup_source' and 'restore_backupdr_pitr_source', they can't be set together.
   Structure is [documented below](#nested_restore_continuous_backup_source).
+
+* `restore_backupdr_backup_source` -
+  (Optional)
+  The source when restoring from a backup. Conflicts with 'restore_continuous_backup_source',  'restore_backup_source' and 'restore_backupdr_pitr_source', they can't be set together.
+  Structure is [documented below](#nested_restore_backupdr_backup_source).
+
+* `restore_backupdr_pitr_source` -
+  (Optional)
+  The BackupDR source used for point in time recovery. Conflicts with 'restore_backupdr_backup_source', 'restore_continuous_backup_source' and 'restore_backupdr_backup_source', they can't be set togeter.
+  Structure is [documented below](#nested_restore_backupdr_pitr_source).
 
 * `continuous_backup_config` -
   (Optional)
@@ -536,6 +546,22 @@ Default value: "true"
 * `cluster` -
   (Required)
   The name of the source cluster that this cluster is restored from.
+
+* `point_in_time` -
+  (Required)
+  The point in time that this cluster is restored to, in RFC 3339 format.
+
+<a name="nested_restore_backupdr_backup_source"></a>The `restore_backupdr_backup_source` block supports:
+
+* `backup` -
+  (Required)
+  The name of the BackupDR backup that this cluster is restored from. It must be of the format "projects/[PROJECT]/locations/[LOCATION]/backupVaults/[VAULT_ID]/dataSources/[DATASOURCE_ID]/backups/[BACKUP_ID]"
+
+<a name="nested_restore_backupdr_pitr_source"></a>The `restore_backupdr_pitr_source` block supports:
+
+* `data_source` -
+  (Required)
+  The name of the BackupDR data source that this cluster is restore from. It must be of the format "projects/[PROJECT]/locations/[LOCATION]/backupVaults/[VAULT_ID]/dataSources/[DATASOURCE_ID]"
 
 * `point_in_time` -
   (Required)
@@ -737,6 +763,10 @@ In addition to the arguments listed above, the following computed attributes are
   Cluster created via DMS migration.
   Structure is [documented below](#nested_migration_source).
 
+* `backupdr_backup_source` -
+  Cluster created from a BackupDR backup.
+  Structure is [documented below](#nested_backupdr_backup_source).
+
 * `trial_metadata` -
   Contains information and all metadata related to TRIAL clusters.
   Structure is [documented below](#nested_trial_metadata).
@@ -811,6 +841,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `source_type` -
   (Optional)
   Type of migration source.
+
+<a name="nested_backupdr_backup_source"></a>The `backupdr_backup_source` block contains:
+
+* `backup` -
+  (Optional)
+  The name of the BackupDR backup resource.
 
 <a name="nested_trial_metadata"></a>The `trial_metadata` block contains:
 

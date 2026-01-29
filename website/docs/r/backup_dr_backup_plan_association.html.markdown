@@ -162,9 +162,6 @@ In addition to the arguments listed above, the following computed attributes are
   Message for rules config info
   Structure is [documented below](#nested_rules_config_info).
 
-* `last_successful_backup_consistency_time` -
-  The point in time when the last successful backup was captured from the source
-
 
 <a name="nested_rules_config_info"></a>The `rules_config_info` block contains:
 
@@ -180,6 +177,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   google.rpc.Status object to store the last backup error
   Structure is [documented below](#nested_rules_config_info_last_backup_error).
+
+* `last_successful_backup_consistency_time` -
+  (Output)
+  The point in time when the last successful backup was captured from the source
 
 
 <a name="nested_rules_config_info_last_backup_error"></a>The `last_backup_error` block contains:

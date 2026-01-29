@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 /*
@@ -659,4 +660,363 @@ data "google_compute_network" "default" {
   name = "%{network_name}"
 }
 `, context)
+}
+
+func TestAccAlloydbCluster_restoreFromBackupDrBackup(t *testing.T) {
+	t.Parallel()
+
+	// Bootstrap the BackupDR vault
+	backupVaultID := "bv-test"
+	location := "us-central1"
+	project := envvar.GetTestProjectFromEnv()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"project":         project,
+		"location":        location,
+		"backup_vault_id": backupVaultID,
+		"backup_vault":    acctest.BootstrapBackupDRVault(t, backupVaultID, location),
+		"network_name":    acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_restoreFromBackupDrBackup(context),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "backupdr_backup_source.#", "1"),
+					resource.TestCheckResourceAttrSet("google_alloydb_cluster.default", "backupdr_backup_source.0.backup"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "restore_backupdr_backup_source"},
+			},
+			{
+				Config: testAccAlloydbCluster_restoreFromBackupDrBackup_AllowedUpdate(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.recovery_window_days", "20"),
+				),
+			},
+			{
+				Config: testAccAlloydbCluster_pointInTimeRestoreFromBackupDrDataSource(context),
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_restoreFromBackupDrBackup(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+
+resource "google_alloydb_cluster" "source" {
+  project      = "%{project}"
+  cluster_id   = "tf-test-alloydb-cluster-%{random_suffix}"
+  location     = "%{location}"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+  
+  database_version = "POSTGRES_15"
+
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
+  deletion_protection = false
+}
+
+resource "google_alloydb_instance" "source" {
+  cluster       = google_alloydb_cluster.source.name
+  instance_id   = "tf-test-alloydb-instance-%{random_suffix}"
+  instance_type = "PRIMARY"
+}
+
+// Create a backup plan
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "%{location}"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "alloydb.googleapis.com/Cluster"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 24
+      }
+    }
+  }
+  log_retention_days = 6
+}
+
+// Associate backup plan with AlloyDB cluster
+resource "google_backup_dr_backup_plan_association" "association" { 
+  location 						= "%{location}" 
+  backup_plan_association_id 	= "tf-test-bpa-test-%{random_suffix}"
+  resource 						= "${google_alloydb_cluster.source.name}"
+  resource_type					= "alloydb.googleapis.com/Cluster"
+  backup_plan 					= google_backup_dr_backup_plan.plan.name
+
+  depends_on = [ google_alloydb_instance.source ]
+}
+
+// Wait for the first backup to be created
+resource "time_sleep" "wait_10_mins" {
+  depends_on = [google_backup_dr_backup_plan_association.association]
+
+  create_duration = "600s"
+}
+
+data "google_backup_dr_backup" "alloydb_backups" {
+  project			= "%{project}"
+  location      	= "us-central1"
+  backup_vault_id 	= "%{backup_vault_id}"
+  data_source_id 	= element(split("/", google_backup_dr_backup_plan_association.association.data_source), length(split("/", google_backup_dr_backup_plan_association.association.data_source)) - 1)
+
+  depends_on = [time_sleep.wait_10_mins]
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "restore-from-backupdr-backup-%{random_suffix}"
+  location   = "%{location}"
+
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+
+  database_version = "POSTGRES_15"
+
+  restore_backupdr_backup_source {
+    backup = data.google_backup_dr_backup.alloydb_backups.backups[0].name
+  }
+
+  # Essential for testing; prevents Terraform from hanging if delete fails
+  deletion_protection = false 
+}
+  `, context)
+}
+
+func testAccAlloydbCluster_restoreFromBackupDrBackup_AllowedUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+
+resource "google_alloydb_cluster" "source" {
+  project      = "%{project}"
+  cluster_id   = "tf-test-alloydb-cluster-%{random_suffix}"
+  location     = "%{location}"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+  
+  database_version = "POSTGRES_15"
+
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
+  deletion_protection = false
+}
+
+resource "google_alloydb_instance" "source" {
+  cluster       = google_alloydb_cluster.source.name
+  instance_id   = "tf-test-alloydb-instance-%{random_suffix}"
+  instance_type = "PRIMARY"
+}
+
+// Create a backup plan
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "%{location}"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "alloydb.googleapis.com/Cluster"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 24
+      }
+    }
+  }
+  log_retention_days = 6
+}
+
+// Associate backup plan with AlloyDB cluster
+resource "google_backup_dr_backup_plan_association" "association" { 
+  location 						= "%{location}" 
+  backup_plan_association_id 	= "tf-test-bpa-test-%{random_suffix}"
+  resource 						= "${google_alloydb_cluster.source.name}"
+  resource_type					= "alloydb.googleapis.com/Cluster"
+  backup_plan 					= google_backup_dr_backup_plan.plan.name
+
+  depends_on = [ google_alloydb_instance.source ]
+}
+
+// Wait for the first backup to be created
+resource "time_sleep" "wait_10_mins" {
+  depends_on = [google_backup_dr_backup_plan_association.association]
+
+  create_duration = "600s"
+}
+
+data "google_backup_dr_backup" "alloydb_backups" {
+  project			= "%{project}"
+  location      	= "us-central1"
+  backup_vault_id 	= "%{backup_vault_id}"
+  data_source_id 	= element(split("/", google_backup_dr_backup_plan_association.association.data_source), length(split("/", google_backup_dr_backup_plan_association.association.data_source)) - 1)
+
+  depends_on = [time_sleep.wait_10_mins]
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "restore-from-backupdr-backup-%{random_suffix}"
+  location   = "%{location}"
+
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+
+  database_version = "POSTGRES_15"
+
+  restore_backupdr_backup_source {
+    backup = data.google_backup_dr_backup.alloydb_backups.backups[0].name
+  }
+  
+  continuous_backup_config {
+    enabled              = true
+    recovery_window_days = 20
+  }
+
+  # Essential for testing; prevents Terraform from hanging if delete fails
+  deletion_protection = false 
+}
+  `, context)
+}
+
+func testAccAlloydbCluster_pointInTimeRestoreFromBackupDrDataSource(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+
+resource "google_alloydb_cluster" "source" {
+  project      = "%{project}"
+  cluster_id   = "tf-test-alloydb-cluster-%{random_suffix}"
+  location     = "%{location}"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+  
+  database_version = "POSTGRES_15"
+
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
+  deletion_protection = false
+}
+
+resource "google_alloydb_instance" "source" {
+  cluster       = google_alloydb_cluster.source.name
+  instance_id   = "tf-test-alloydb-instance-%{random_suffix}"
+  instance_type = "PRIMARY"
+}
+
+// Create a backup plan
+resource "google_backup_dr_backup_plan" "plan" {
+  location       = "%{location}"
+  backup_plan_id = "tf-test-bp-test-%{random_suffix}"
+  resource_type  = "alloydb.googleapis.com/Cluster"
+  backup_vault   = "%{backup_vault}"
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 7
+
+    standard_schedule {
+      recurrence_type     = "DAILY"
+      hourly_frequency    = 6
+      time_zone           = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day   = 24
+      }
+    }
+  }
+  log_retention_days = 6
+}
+
+// Associate backup plan with AlloyDB cluster
+resource "google_backup_dr_backup_plan_association" "association" { 
+  location 						= "%{location}" 
+  backup_plan_association_id 	= "tf-test-bpa-test-%{random_suffix}"
+  resource 						= "${google_alloydb_cluster.source.name}"
+  resource_type					= "alloydb.googleapis.com/Cluster"
+  backup_plan 					= google_backup_dr_backup_plan.plan.name
+
+  depends_on = [ google_alloydb_instance.source ]
+}
+
+// Wait for the first backup to be created
+resource "time_sleep" "wait_10_mins" {
+  depends_on = [ google_backup_dr_backup_plan_association.association ]
+
+  create_duration = "600s"
+}
+
+data "google_backup_dr_backup_plan_association" "association" {
+  location =  "us-central1"
+  backup_plan_association_id = "tf-test-bpa-test-%{random_suffix}"
+
+  depends_on = [ time_sleep.wait_10_mins ]
+}
+
+resource "google_alloydb_cluster" "default_pitr" {
+  cluster_id = "pitr-restore-from-backupdr-backup-%{random_suffix}"
+  location   = "%{location}"
+
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+
+  database_version = "POSTGRES_15"
+
+  restore_backupdr_pitr_source {
+    data_source = google_backup_dr_backup_plan_association.association.data_source
+    point_in_time = data.google_backup_dr_backup_plan_association.association.rules_config_info[0].last_successful_backup_consistency_time
+  }
+
+  # Essential for testing; prevents Terraform from hanging if delete fails
+  deletion_protection = false 
+}
+  `, context)
 }

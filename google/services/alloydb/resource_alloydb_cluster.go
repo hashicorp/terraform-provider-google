@@ -489,7 +489,7 @@ In case the network attachment is configured to ACCEPT_AUTOMATIC, this project n
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The source when restoring from a backup. Conflicts with 'restore_continuous_backup_source', both can't be set together.`,
+				Description: `The source when restoring from a backup. Conflicts with 'restore_continuous_backup_source', 'restore_backupdr_backup_source' and 'restore_backupdr_pitr_source', they can't be set together.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -501,13 +501,55 @@ In case the network attachment is configured to ACCEPT_AUTOMATIC, this project n
 						},
 					},
 				},
-				ConflictsWith: []string{"restore_continuous_backup_source"},
+				ConflictsWith: []string{"restore_backupdr_backup_source", "restore_backupdr_pitr_source", "restore_continuous_backup_source"},
+			},
+			"restore_backupdr_backup_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The source when restoring from a backup. Conflicts with 'restore_continuous_backup_source',  'restore_backup_source' and 'restore_backupdr_pitr_source', they can't be set together.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The name of the BackupDR backup that this cluster is restored from. It must be of the format "projects/[PROJECT]/locations/[LOCATION]/backupVaults/[VAULT_ID]/dataSources/[DATASOURCE_ID]/backups/[BACKUP_ID]"`,
+						},
+					},
+				},
+				ConflictsWith: []string{"restore_backup_source", "restore_backupdr_pitr_source", "restore_continuous_backup_source"},
+			},
+			"restore_backupdr_pitr_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The BackupDR source used for point in time recovery. Conflicts with 'restore_backupdr_backup_source', 'restore_continuous_backup_source' and 'restore_backupdr_backup_source', they can't be set togeter.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data_source": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The name of the BackupDR data source that this cluster is restore from. It must be of the format "projects/[PROJECT]/locations/[LOCATION]/backupVaults/[VAULT_ID]/dataSources/[DATASOURCE_ID]"`,
+						},
+						"point_in_time": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The point in time that this cluster is restored to, in RFC 3339 format.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"restore_backup_source", "restore_backupdr_backup_source", "restore_continuous_backup_source"},
 			},
 			"restore_continuous_backup_source": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The source when restoring via point in time recovery (PITR). Conflicts with 'restore_backup_source', both can't be set together.`,
+				Description: `The source when restoring via point in time recovery (PITR). Conflicts with 'restore_backup_source', 'restore_backupdr_backup_source' and 'restore_backupdr_pitr_source', they can't be set together.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -525,7 +567,7 @@ In case the network attachment is configured to ACCEPT_AUTOMATIC, this project n
 						},
 					},
 				},
-				ConflictsWith: []string{"restore_backup_source"},
+				ConflictsWith: []string{"restore_backup_source", "restore_backupdr_backup_source", "restore_backupdr_pitr_source"},
 			},
 			"secondary_config": {
 				Type:        schema.TypeList,
@@ -560,6 +602,20 @@ In case the network attachment is configured to ACCEPT_AUTOMATIC, this project n
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `The name of the backup resource.`,
+						},
+					},
+				},
+			},
+			"backupdr_backup_source": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Cluster created from a BackupDR backup.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The name of the BackupDR backup resource.`,
 						},
 					},
 				},
@@ -828,6 +884,18 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("restore_continuous_backup_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(restoreContinuousBackupSourceProp)) && (ok || !reflect.DeepEqual(v, restoreContinuousBackupSourceProp)) {
 		obj["restoreContinuousBackupSource"] = restoreContinuousBackupSourceProp
 	}
+	restoreBackupdrBackupSourceProp, err := expandAlloydbClusterRestoreBackupdrBackupSource(d.Get("restore_backupdr_backup_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("restore_backupdr_backup_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(restoreBackupdrBackupSourceProp)) && (ok || !reflect.DeepEqual(v, restoreBackupdrBackupSourceProp)) {
+		obj["restoreBackupdrBackupSource"] = restoreBackupdrBackupSourceProp
+	}
+	restoreBackupdrPitrSourceProp, err := expandAlloydbClusterRestoreBackupdrPitrSource(d.Get("restore_backupdr_pitr_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("restore_backupdr_pitr_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(restoreBackupdrPitrSourceProp)) && (ok || !reflect.DeepEqual(v, restoreBackupdrPitrSourceProp)) {
+		obj["restoreBackupdrPitrSource"] = restoreBackupdrPitrSourceProp
+	}
 	continuousBackupConfigProp, err := expandAlloydbClusterContinuousBackupConfig(d.Get("continuous_backup_config"), d, config)
 	if err != nil {
 		return err
@@ -907,6 +975,8 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	// Read the restore variables from obj and remove them, since they do not map to anything in the cluster
 	var backupSource interface{}
 	var continuousBackupSource interface{}
+	var backupDrBackupSource interface{}
+	var backupDrPitrSource interface{}
 	if val, ok := obj["restoreBackupSource"]; ok {
 		backupSource = val
 		delete(obj, "restoreBackupSource")
@@ -914,6 +984,14 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	if val, ok := obj["restoreContinuousBackupSource"]; ok {
 		continuousBackupSource = val
 		delete(obj, "restoreContinuousBackupSource")
+	}
+	if val, ok := obj["restoreBackupdrBackupSource"]; ok {
+		backupDrBackupSource = val
+		delete(obj, "restoreBackupdrBackupSource")
+	}
+	if val, ok := obj["restoreBackupdrPitrSource"]; ok {
+		backupDrPitrSource = val
+		delete(obj, "restoreBackupdrPitrSource")
 	}
 
 	restoreClusterRequestBody := make(map[string]interface{})
@@ -923,9 +1001,15 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if continuousBackupSource != nil {
 		// Otherwise if restoring via PITR, set the continuousBackupSource
 		restoreClusterRequestBody["continuous_backup_source"] = continuousBackupSource
+	} else if backupDrBackupSource != nil {
+		// If restore from a BackupDR backup, set the backupDrBackupSource
+		restoreClusterRequestBody["backupdr_backup_source"] = backupDrBackupSource
+	} else if backupDrPitrSource != nil {
+		// if point in time restore from a BackupDR data source, set the backupDrPitrSource
+		restoreClusterRequestBody["backupdr_pitr_source"] = backupDrPitrSource
 	}
 
-	if backupSource != nil || continuousBackupSource != nil {
+	if backupSource != nil || continuousBackupSource != nil || backupDrBackupSource != nil || backupDrPitrSource != nil {
 		// Use restore API if this is a restore instead of a create cluster call
 		url = strings.Replace(url, "clusters?clusterId", "clusters:restore?clusterId", 1)
 
@@ -1114,6 +1198,9 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("migration_source", flattenAlloydbClusterMigrationSource(res["migrationSource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("backupdr_backup_source", flattenAlloydbClusterBackupdrBackupSource(res["backupdrBackupSource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("cluster_type", flattenAlloydbClusterClusterType(res["clusterType"], d, config)); err != nil {
@@ -2122,6 +2209,23 @@ func flattenAlloydbClusterMigrationSourceSourceType(v interface{}, d *schema.Res
 	return v
 }
 
+func flattenAlloydbClusterBackupdrBackupSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["backup"] =
+		flattenAlloydbClusterBackupdrBackupSourceBackup(original["backup"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbClusterBackupdrBackupSourceBackup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAlloydbClusterClusterType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2537,6 +2641,69 @@ func expandAlloydbClusterRestoreContinuousBackupSourceCluster(v interface{}, d t
 }
 
 func expandAlloydbClusterRestoreContinuousBackupSourcePointInTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterRestoreBackupdrBackupSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBackup, err := expandAlloydbClusterRestoreBackupdrBackupSourceBackup(original["backup"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBackup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["backup"] = transformedBackup
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbClusterRestoreBackupdrBackupSourceBackup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterRestoreBackupdrPitrSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDataSource, err := expandAlloydbClusterRestoreBackupdrPitrSourceDataSource(original["data_source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dataSource"] = transformedDataSource
+	}
+
+	transformedPointInTime, err := expandAlloydbClusterRestoreBackupdrPitrSourcePointInTime(original["point_in_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPointInTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pointInTime"] = transformedPointInTime
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbClusterRestoreBackupdrPitrSourceDataSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterRestoreBackupdrPitrSourcePointInTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

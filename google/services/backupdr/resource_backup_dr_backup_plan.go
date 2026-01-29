@@ -247,7 +247,7 @@ This is required for 'recurrence_type', 'HOURLY' and is not applicable otherwise
 				Type:     schema.TypeString,
 				Required: true,
 				Description: `The resource type to which the 'BackupPlan' will be applied.
-Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "sqladmin.googleapis.com/Instance" and "storage.googleapis.com/Bucket".`,
+Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "sqladmin.googleapis.com/Instance", "alloydb.googleapis.com/Cluster" and "storage.googleapis.com/Bucket".`,
 			},
 			"description": {
 				Type:        schema.TypeString,

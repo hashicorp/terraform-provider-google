@@ -147,7 +147,7 @@ The following arguments are supported:
 * `resource_type` -
   (Required)
   The resource type to which the `BackupPlan` will be applied.
-  Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "sqladmin.googleapis.com/Instance" and "storage.googleapis.com/Bucket".
+  Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "sqladmin.googleapis.com/Instance", "alloydb.googleapis.com/Cluster" and "storage.googleapis.com/Bucket".
 
 * `backup_rules` -
   (Required)

@@ -148,11 +148,6 @@ Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Dis
 				Computed:    true,
 				Description: `Resource name of data source which will be used as storage location for backups taken`,
 			},
-			"last_successful_backup_consistency_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The point in time when the last successful backup was captured from the source`,
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -187,6 +182,11 @@ Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Dis
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `State of last backup taken.`,
+						},
+						"last_successful_backup_consistency_time": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The point in time when the last successful backup was captured from the source`,
 						},
 						"rule_id": {
 							Type:        schema.TypeString,
@@ -356,9 +356,6 @@ func resourceBackupDRBackupPlanAssociationRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading BackupPlanAssociation: %s", err)
 	}
 	if err := d.Set("rules_config_info", flattenBackupDRBackupPlanAssociationRulesConfigInfo(res["rulesConfigInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading BackupPlanAssociation: %s", err)
-	}
-	if err := d.Set("last_successful_backup_consistency_time", flattenBackupDRBackupPlanAssociationLastSuccessfulBackupConsistencyTime(res["lastSuccessfulBackupConsistencyTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupPlanAssociation: %s", err)
 	}
 
@@ -579,6 +576,7 @@ func flattenBackupDRBackupPlanAssociationRulesConfigInfo(v interface{}, d *schem
 			"rule_id":           flattenBackupDRBackupPlanAssociationRulesConfigInfoRuleId(original["ruleId"], d, config),
 			"last_backup_state": flattenBackupDRBackupPlanAssociationRulesConfigInfoLastBackupState(original["lastBackupState"], d, config),
 			"last_backup_error": flattenBackupDRBackupPlanAssociationRulesConfigInfoLastBackupError(original["lastBackupError"], d, config),
+			"last_successful_backup_consistency_time": flattenBackupDRBackupPlanAssociationRulesConfigInfoLastSuccessfulBackupConsistencyTime(original["lastSuccessfulBackupConsistencyTime"], d, config),
 		})
 	}
 	return transformed
@@ -614,7 +612,7 @@ func flattenBackupDRBackupPlanAssociationRulesConfigInfoLastBackupErrorMessage(v
 	return v
 }
 
-func flattenBackupDRBackupPlanAssociationLastSuccessfulBackupConsistencyTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenBackupDRBackupPlanAssociationRulesConfigInfoLastSuccessfulBackupConsistencyTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
