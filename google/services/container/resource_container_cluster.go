@@ -626,6 +626,7 @@ func ResourceContainerCluster() *schema.Resource {
 						"resource_limits": {
 							Type:             schema.TypeList,
 							Optional:         true,
+							Computed:         true,
 							ConflictsWith:    []string{"enable_autopilot"},
 							DiffSuppressFunc: suppressDiffForAutopilot,
 							Description:      `Global constraints for machine resources in the cluster. Configuring the cpu and memory types is required if node auto-provisioning is enabled. These limits will apply to node pool autoscaling in addition to node auto-provisioning.`,
@@ -5457,12 +5458,6 @@ func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *c
 
 	config := l[0].(map[string]interface{})
 
-	// Conditionally provide an empty list to preserve a legacy 2.X behaviour
-	// when `enabled` is false and resource_limits is unset, allowing users to
-	// explicitly disable the feature. resource_limits don't work when node
-	// auto-provisioning is disabled at time of writing. This may change API-side
-	// in the future though, as the feature is intended to apply to both node
-	// auto-provisioning and node autoscaling.
 	var resourceLimits []*container.ResourceLimit
 	if limits, ok := config["resource_limits"]; ok {
 		resourceLimits = make([]*container.ResourceLimit, 0)
@@ -7033,23 +7028,25 @@ func flattenClusterAutoscaling(a *container.ClusterAutoscaling) []map[string]int
 		return []map[string]interface{}{r}
 	}
 
-	if a.EnableNodeAutoprovisioning {
-		resourceLimits := make([]interface{}, 0, len(a.ResourceLimits))
-		for _, rl := range a.ResourceLimits {
-			resourceLimits = append(resourceLimits, map[string]interface{}{
-				"resource_type": rl.ResourceType,
-				"minimum":       rl.Minimum,
-				"maximum":       rl.Maximum,
-			})
+	r["enabled"] = a.EnableNodeAutoprovisioning
+	resourceLimits := make([]interface{}, 0, len(a.ResourceLimits))
+	for _, rl := range a.ResourceLimits {
+		if rl == nil {
+			continue
 		}
-		r["resource_limits"] = resourceLimits
-		r["enabled"] = true
-		r["auto_provisioning_defaults"] = flattenAutoProvisioningDefaults(a.AutoprovisioningNodePoolDefaults)
-		r["auto_provisioning_locations"] = a.AutoprovisioningLocations
-	} else {
-		r["enabled"] = false
+		resourceLimits = append(resourceLimits, map[string]interface{}{
+			"resource_type": rl.ResourceType,
+			"minimum":       rl.Minimum,
+			"maximum":       rl.Maximum,
+		})
 	}
+	r["resource_limits"] = resourceLimits
 	r["autoscaling_profile"] = a.AutoscalingProfile
+	if a.AutoprovisioningNodePoolDefaults != nil {
+		r["auto_provisioning_defaults"] = flattenAutoProvisioningDefaults(a.AutoprovisioningNodePoolDefaults)
+	}
+	r["auto_provisioning_locations"] = a.AutoprovisioningLocations
+
 	if a.DefaultComputeClassConfig != nil {
 		r["default_compute_class_enabled"] = a.DefaultComputeClassConfig.Enabled
 	}
