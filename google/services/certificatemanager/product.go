@@ -18,4 +18,15 @@
 // Package certificatemanager contains resources, datasources, etc. for the certificate manager service.
 package certificatemanager
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "certificatemanager"
+
+func init() {
+	registry.Product{
+		Name:    "certificatemanager",
+		BaseUrl: "https://certificatemanager.googleapis.com/v1/",
+	}.Register()
+}

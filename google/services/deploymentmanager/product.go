@@ -18,4 +18,15 @@
 // Package deploymentmanager contains resources, datasources, etc. for the cloud deployment manager service.
 package deploymentmanager
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "deploymentmanager"
+
+func init() {
+	registry.Product{
+		Name:    "deploymentmanager",
+		BaseUrl: "https://www.googleapis.com/deploymentmanager/v2/",
+	}.Register()
+}

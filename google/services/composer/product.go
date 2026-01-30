@@ -18,4 +18,15 @@
 // Package composer contains resources, datasources, etc. for the cloud composer service.
 package composer
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "composer"
+
+func init() {
+	registry.Product{
+		Name:    "composer",
+		BaseUrl: "https://composer.googleapis.com/v1/",
+	}.Register()
+}

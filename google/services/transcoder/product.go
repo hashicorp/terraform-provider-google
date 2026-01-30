@@ -18,4 +18,15 @@
 // Package transcoder contains resources, datasources, etc. for the transcoder service.
 package transcoder
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "transcoder"
+
+func init() {
+	registry.Product{
+		Name:    "transcoder",
+		BaseUrl: "https://transcoder.googleapis.com/v1/",
+	}.Register()
+}

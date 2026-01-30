@@ -18,4 +18,15 @@
 // Package cloudfunctions contains resources, datasources, etc. for the cloud functions service.
 package cloudfunctions
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudfunctions"
+
+func init() {
+	registry.Product{
+		Name:    "cloudfunctions",
+		BaseUrl: "https://cloudfunctions.googleapis.com/v1/",
+	}.Register()
+}

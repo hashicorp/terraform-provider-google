@@ -18,4 +18,15 @@
 // Package documentaiwarehouse contains resources, datasources, etc. for the document ai warehouse service.
 package documentaiwarehouse
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "documentaiwarehouse"
+
+func init() {
+	registry.Product{
+		Name:    "documentaiwarehouse",
+		BaseUrl: "https://contentwarehouse.googleapis.com/v1/",
+	}.Register()
+}

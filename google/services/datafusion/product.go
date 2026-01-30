@@ -18,4 +18,15 @@
 // Package datafusion contains resources, datasources, etc. for the cloud data fusion service.
 package datafusion
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "datafusion"
+
+func init() {
+	registry.Product{
+		Name:    "datafusion",
+		BaseUrl: "https://datafusion.googleapis.com/v1/",
+	}.Register()
+}

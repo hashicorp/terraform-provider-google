@@ -47,6 +47,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -85,6 +86,15 @@ var (
 	_ = verify.ValidateEnum
 	_ = googleapi.Error{}
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_sql_database",
+		ProductName: "sql",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceSQLDatabase(),
+	}.Register()
+}
 
 func ResourceSQLDatabase() *schema.Resource {
 	return &schema.Resource{

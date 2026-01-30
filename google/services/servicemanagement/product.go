@@ -18,4 +18,15 @@
 // Package servicemanagement contains resources, datasources, etc. for the cloud endpoints service.
 package servicemanagement
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "servicemanagement"
+
+func init() {
+	registry.Product{
+		Name:    "servicemanagement",
+		BaseUrl: "https://servicemanagement.googleapis.com/v1/",
+	}.Register()
+}

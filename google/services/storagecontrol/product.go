@@ -18,4 +18,15 @@
 // Package storagecontrol contains resources, datasources, etc. for the cloud storage control service.
 package storagecontrol
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "storagecontrol"
+
+func init() {
+	registry.Product{
+		Name:    "storagecontrol",
+		BaseUrl: "https://storage.googleapis.com/v2/",
+	}.Register()
+}

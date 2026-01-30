@@ -18,4 +18,15 @@
 // Package bigqueryreservation contains resources, datasources, etc. for the bigquery reservation service.
 package bigqueryreservation
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "bigqueryreservation"
+
+func init() {
+	registry.Product{
+		Name:    "bigqueryreservation",
+		BaseUrl: "https://bigqueryreservation.googleapis.com/v1/",
+	}.Register()
+}

@@ -18,4 +18,15 @@
 // Package discoveryengine contains resources, datasources, etc. for the discovery engine service.
 package discoveryengine
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "discoveryengine"
+
+func init() {
+	registry.Product{
+		Name:    "discoveryengine",
+		BaseUrl: "https://{{location}}-discoveryengine.googleapis.com/v1/",
+	}.Register()
+}

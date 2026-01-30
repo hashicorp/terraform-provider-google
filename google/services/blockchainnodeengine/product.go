@@ -18,4 +18,15 @@
 // Package blockchainnodeengine contains resources, datasources, etc. for the blockchain node engine service.
 package blockchainnodeengine
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "blockchainnodeengine"
+
+func init() {
+	registry.Product{
+		Name:    "blockchainnodeengine",
+		BaseUrl: "https://blockchainnodeengine.googleapis.com/v1/",
+	}.Register()
+}

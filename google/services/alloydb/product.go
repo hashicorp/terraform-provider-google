@@ -18,4 +18,15 @@
 // Package alloydb contains resources, datasources, etc. for the alloydb service.
 package alloydb
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "alloydb"
+
+func init() {
+	registry.Product{
+		Name:    "alloydb",
+		BaseUrl: "https://alloydb.googleapis.com/v1/",
+	}.Register()
+}

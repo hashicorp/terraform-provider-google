@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_secure_source_manager_repository_iam_binding",
+		ProductName: "SecureSourceManager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(SecureSourceManagerRepositoryIamSchema, SecureSourceManagerRepositoryIamUpdaterProducer, SecureSourceManagerRepositoryIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secure_source_manager_repository_iam_member",
+		ProductName: "SecureSourceManager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(SecureSourceManagerRepositoryIamSchema, SecureSourceManagerRepositoryIamUpdaterProducer, SecureSourceManagerRepositoryIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secure_source_manager_repository_iam_policy",
+		ProductName: "SecureSourceManager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(SecureSourceManagerRepositoryIamSchema, SecureSourceManagerRepositoryIamUpdaterProducer, SecureSourceManagerRepositoryIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secure_source_manager_repository_iam_policy",
+		ProductName: "SecureSourceManager",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(SecureSourceManagerRepositoryIamSchema, SecureSourceManagerRepositoryIamUpdaterProducer),
+	}.Register()
+}
 
 var SecureSourceManagerRepositoryIamSchema = map[string]*schema.Schema{
 	"project": {

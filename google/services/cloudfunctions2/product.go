@@ -18,4 +18,15 @@
 // Package cloudfunctions2 contains resources, datasources, etc. for the cloud functions (2nd gen) service.
 package cloudfunctions2
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudfunctions2"
+
+func init() {
+	registry.Product{
+		Name:    "cloudfunctions2",
+		BaseUrl: "https://cloudfunctions.googleapis.com/v2/",
+	}.Register()
+}

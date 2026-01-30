@@ -18,4 +18,15 @@
 // Package clouddeploy contains resources, datasources, etc. for the cloud deploy service.
 package clouddeploy
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "clouddeploy"
+
+func init() {
+	registry.Product{
+		Name:    "clouddeploy",
+		BaseUrl: "https://clouddeploy.googleapis.com/v1/",
+	}.Register()
+}

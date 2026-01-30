@@ -18,4 +18,15 @@
 // Package biglake contains resources, datasources, etc. for the biglake service.
 package biglake
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "biglake"
+
+func init() {
+	registry.Product{
+		Name:    "biglake",
+		BaseUrl: "https://biglake.googleapis.com/v1/",
+	}.Register()
+}

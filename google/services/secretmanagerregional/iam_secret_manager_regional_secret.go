@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_secret_manager_regional_secret_iam_binding",
+		ProductName: "SecretManagerRegional",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(SecretManagerRegionalRegionalSecretIamSchema, SecretManagerRegionalRegionalSecretIamUpdaterProducer, SecretManagerRegionalRegionalSecretIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secret_manager_regional_secret_iam_member",
+		ProductName: "SecretManagerRegional",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(SecretManagerRegionalRegionalSecretIamSchema, SecretManagerRegionalRegionalSecretIamUpdaterProducer, SecretManagerRegionalRegionalSecretIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secret_manager_regional_secret_iam_policy",
+		ProductName: "SecretManagerRegional",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(SecretManagerRegionalRegionalSecretIamSchema, SecretManagerRegionalRegionalSecretIamUpdaterProducer, SecretManagerRegionalRegionalSecretIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secret_manager_regional_secret_iam_policy",
+		ProductName: "SecretManagerRegional",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(SecretManagerRegionalRegionalSecretIamSchema, SecretManagerRegionalRegionalSecretIamUpdaterProducer),
+	}.Register()
+}
 
 var SecretManagerRegionalRegionalSecretIamSchema = map[string]*schema.Schema{
 	"project": {

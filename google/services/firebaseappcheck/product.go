@@ -18,4 +18,15 @@
 // Package firebaseappcheck contains resources, datasources, etc. for the firebase app check service.
 package firebaseappcheck
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "firebaseappcheck"
+
+func init() {
+	registry.Product{
+		Name:    "firebaseappcheck",
+		BaseUrl: "https://firebaseappcheck.googleapis.com/v1/",
+	}.Register()
+}

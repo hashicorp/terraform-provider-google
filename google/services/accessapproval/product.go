@@ -18,4 +18,15 @@
 // Package accessapproval contains resources, datasources, etc. for the access approval service.
 package accessapproval
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "accessapproval"
+
+func init() {
+	registry.Product{
+		Name:    "accessapproval",
+		BaseUrl: "https://accessapproval.googleapis.com/v1/",
+	}.Register()
+}

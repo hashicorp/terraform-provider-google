@@ -47,6 +47,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -197,6 +198,15 @@ var (
 	_ = verify.ValidateEnum
 	_ = googleapi.Error{}
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_access_context_manager_service_perimeter_dry_run_egress_policy",
+		ProductName: "accesscontextmanager",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceAccessContextManagerServicePerimeterDryRunEgressPolicy(),
+	}.Register()
+}
 
 func ResourceAccessContextManagerServicePerimeterDryRunEgressPolicy() *schema.Resource {
 	return &schema.Resource{

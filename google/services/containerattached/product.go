@@ -18,4 +18,15 @@
 // Package containerattached contains resources, datasources, etc. for the containerattached service.
 package containerattached
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "containerattached"
+
+func init() {
+	registry.Product{
+		Name:    "containerattached",
+		BaseUrl: "https://{{location}}-gkemulticloud.googleapis.com/v1/",
+	}.Register()
+}

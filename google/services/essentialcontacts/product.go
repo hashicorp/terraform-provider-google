@@ -18,4 +18,15 @@
 // Package essentialcontacts contains resources, datasources, etc. for the essential contacts service.
 package essentialcontacts
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "essentialcontacts"
+
+func init() {
+	registry.Product{
+		Name:    "essentialcontacts",
+		BaseUrl: "https://essentialcontacts.googleapis.com/v1/",
+	}.Register()
+}

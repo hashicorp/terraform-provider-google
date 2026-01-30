@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_biglake_iceberg_catalog_iam_binding",
+		ProductName: "BiglakeIceberg",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(BiglakeIcebergIcebergCatalogIamSchema, BiglakeIcebergIcebergCatalogIamUpdaterProducer, BiglakeIcebergIcebergCatalogIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_biglake_iceberg_catalog_iam_member",
+		ProductName: "BiglakeIceberg",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(BiglakeIcebergIcebergCatalogIamSchema, BiglakeIcebergIcebergCatalogIamUpdaterProducer, BiglakeIcebergIcebergCatalogIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_biglake_iceberg_catalog_iam_policy",
+		ProductName: "BiglakeIceberg",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(BiglakeIcebergIcebergCatalogIamSchema, BiglakeIcebergIcebergCatalogIamUpdaterProducer, BiglakeIcebergIcebergCatalogIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_biglake_iceberg_catalog_iam_policy",
+		ProductName: "BiglakeIceberg",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(BiglakeIcebergIcebergCatalogIamSchema, BiglakeIcebergIcebergCatalogIamUpdaterProducer),
+	}.Register()
+}
 
 var BiglakeIcebergIcebergCatalogIamSchema = map[string]*schema.Schema{
 	"project": {

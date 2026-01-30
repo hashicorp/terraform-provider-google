@@ -18,4 +18,15 @@
 // Package gkebackup contains resources, datasources, etc. for the backup for gke service.
 package gkebackup
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "gkebackup"
+
+func init() {
+	registry.Product{
+		Name:    "gkebackup",
+		BaseUrl: "https://gkebackup.googleapis.com/v1/",
+	}.Register()
+}

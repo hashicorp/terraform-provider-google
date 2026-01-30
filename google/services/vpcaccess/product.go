@@ -18,4 +18,15 @@
 // Package vpcaccess contains resources, datasources, etc. for the serverless vpc access service.
 package vpcaccess
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "vpcaccess"
+
+func init() {
+	registry.Product{
+		Name:    "vpcaccess",
+		BaseUrl: "https://vpcaccess.googleapis.com/v1/",
+	}.Register()
+}

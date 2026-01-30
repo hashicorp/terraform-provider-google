@@ -18,4 +18,15 @@
 // Package beyondcorp contains resources, datasources, etc. for the beyondcorp service.
 package beyondcorp
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "beyondcorp"
+
+func init() {
+	registry.Product{
+		Name:    "beyondcorp",
+		BaseUrl: "https://beyondcorp.googleapis.com/v1/",
+	}.Register()
+}

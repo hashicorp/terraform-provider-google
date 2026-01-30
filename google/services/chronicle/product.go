@@ -18,4 +18,15 @@
 // Package chronicle contains resources, datasources, etc. for the chronicle service.
 package chronicle
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "chronicle"
+
+func init() {
+	registry.Product{
+		Name:    "chronicle",
+		BaseUrl: "https://{{location}}-chronicle.googleapis.com/v1/",
+	}.Register()
+}

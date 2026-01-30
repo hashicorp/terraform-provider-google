@@ -18,4 +18,15 @@
 // Package dns contains resources, datasources, etc. for the cloud dns service.
 package dns
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "dns"
+
+func init() {
+	registry.Product{
+		Name:    "dns",
+		BaseUrl: "https://dns.googleapis.com/dns/v1/",
+	}.Register()
+}

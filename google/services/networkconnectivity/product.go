@@ -18,4 +18,15 @@
 // Package networkconnectivity contains resources, datasources, etc. for the network connectivity service.
 package networkconnectivity
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "networkconnectivity"
+
+func init() {
+	registry.Product{
+		Name:    "networkconnectivity",
+		BaseUrl: "https://networkconnectivity.googleapis.com/v1/",
+	}.Register()
+}

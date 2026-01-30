@@ -18,4 +18,15 @@
 // Package modelarmor contains resources, datasources, etc. for the model armor service.
 package modelarmor
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "modelarmor"
+
+func init() {
+	registry.Product{
+		Name:    "modelarmor",
+		BaseUrl: "https://modelarmor.{{location}}.rep.googleapis.com/v1/",
+	}.Register()
+}

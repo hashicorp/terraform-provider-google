@@ -18,4 +18,15 @@
 // Package cloudbuildv2 contains resources, datasources, etc. for the cloud build v2 service.
 package cloudbuildv2
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudbuildv2"
+
+func init() {
+	registry.Product{
+		Name:    "cloudbuildv2",
+		BaseUrl: "https://cloudbuild.googleapis.com/v2/",
+	}.Register()
+}

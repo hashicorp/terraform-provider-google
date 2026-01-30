@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_cloud_tasks_queue_iam_binding",
+		ProductName: "CloudTasks",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_cloud_tasks_queue_iam_member",
+		ProductName: "CloudTasks",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_cloud_tasks_queue_iam_policy",
+		ProductName: "CloudTasks",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_cloud_tasks_queue_iam_policy",
+		ProductName: "CloudTasks",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer),
+	}.Register()
+}
 
 var CloudTasksQueueIamSchema = map[string]*schema.Schema{
 	"project": {

@@ -18,4 +18,15 @@
 // Package storagebatchoperations contains resources, datasources, etc. for the cloud storage batch operations service.
 package storagebatchoperations
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "storagebatchoperations"
+
+func init() {
+	registry.Product{
+		Name:    "storagebatchoperations",
+		BaseUrl: "https://storagebatchoperations.googleapis.com/v1/",
+	}.Register()
+}

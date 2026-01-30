@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_dataplex_glossary_iam_binding",
+		ProductName: "Dataplex",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(DataplexGlossaryIamSchema, DataplexGlossaryIamUpdaterProducer, DataplexGlossaryIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_dataplex_glossary_iam_member",
+		ProductName: "Dataplex",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(DataplexGlossaryIamSchema, DataplexGlossaryIamUpdaterProducer, DataplexGlossaryIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_dataplex_glossary_iam_policy",
+		ProductName: "Dataplex",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(DataplexGlossaryIamSchema, DataplexGlossaryIamUpdaterProducer, DataplexGlossaryIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_dataplex_glossary_iam_policy",
+		ProductName: "Dataplex",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(DataplexGlossaryIamSchema, DataplexGlossaryIamUpdaterProducer),
+	}.Register()
+}
 
 var DataplexGlossaryIamSchema = map[string]*schema.Schema{
 	"project": {

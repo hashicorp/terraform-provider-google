@@ -18,4 +18,15 @@
 // Package apigee contains resources, datasources, etc. for the apigee service.
 package apigee
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "apigee"
+
+func init() {
+	registry.Product{
+		Name:    "apigee",
+		BaseUrl: "https://apigee.googleapis.com/v1/",
+	}.Register()
+}

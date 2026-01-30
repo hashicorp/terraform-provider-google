@@ -18,4 +18,15 @@
 // Package securitycenter contains resources, datasources, etc. for the security command center (scc) service.
 package securitycenter
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "securitycenter"
+
+func init() {
+	registry.Product{
+		Name:    "securitycenter",
+		BaseUrl: "https://securitycenter.googleapis.com/v1/",
+	}.Register()
+}

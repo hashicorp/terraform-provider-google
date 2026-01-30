@@ -18,4 +18,15 @@
 // Package activedirectory contains resources, datasources, etc. for the managed microsoft active directory service.
 package activedirectory
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "activedirectory"
+
+func init() {
+	registry.Product{
+		Name:    "activedirectory",
+		BaseUrl: "https://managedidentities.googleapis.com/v1/",
+	}.Register()
+}

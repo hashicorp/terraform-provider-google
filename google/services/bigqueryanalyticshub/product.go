@@ -18,4 +18,15 @@
 // Package bigqueryanalyticshub contains resources, datasources, etc. for the bigquery analytics hub service.
 package bigqueryanalyticshub
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "bigqueryanalyticshub"
+
+func init() {
+	registry.Product{
+		Name:    "bigqueryanalyticshub",
+		BaseUrl: "https://analyticshub.googleapis.com/v1/",
+	}.Register()
+}

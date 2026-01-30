@@ -18,4 +18,15 @@
 // Package workflows contains resources, datasources, etc. for the workflows service.
 package workflows
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "workflows"
+
+func init() {
+	registry.Product{
+		Name:    "workflows",
+		BaseUrl: "https://workflows.googleapis.com/v1/",
+	}.Register()
+}

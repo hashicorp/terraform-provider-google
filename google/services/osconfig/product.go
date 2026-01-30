@@ -18,4 +18,15 @@
 // Package osconfig contains resources, datasources, etc. for the os config service.
 package osconfig
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "osconfig"
+
+func init() {
+	registry.Product{
+		Name:    "osconfig",
+		BaseUrl: "https://osconfig.googleapis.com/v1/",
+	}.Register()
+}

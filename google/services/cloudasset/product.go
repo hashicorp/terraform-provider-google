@@ -18,4 +18,15 @@
 // Package cloudasset contains resources, datasources, etc. for the cloud asset inventory service.
 package cloudasset
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudasset"
+
+func init() {
+	registry.Product{
+		Name:    "cloudasset",
+		BaseUrl: "https://cloudasset.googleapis.com/v1/",
+	}.Register()
+}

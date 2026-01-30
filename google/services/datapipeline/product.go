@@ -18,4 +18,15 @@
 // Package datapipeline contains resources, datasources, etc. for the datapipeline service.
 package datapipeline
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "datapipeline"
+
+func init() {
+	registry.Product{
+		Name:    "datapipeline",
+		BaseUrl: "https://datapipelines.googleapis.com/v1/",
+	}.Register()
+}

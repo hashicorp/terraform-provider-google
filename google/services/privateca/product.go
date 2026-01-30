@@ -18,4 +18,15 @@
 // Package privateca contains resources, datasources, etc. for the certificate authority service service.
 package privateca
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "privateca"
+
+func init() {
+	registry.Product{
+		Name:    "privateca",
+		BaseUrl: "https://privateca.googleapis.com/v1/",
+	}.Register()
+}

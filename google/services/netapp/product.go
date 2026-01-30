@@ -18,4 +18,15 @@
 // Package netapp contains resources, datasources, etc. for the google cloud netapp volumes service.
 package netapp
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "netapp"
+
+func init() {
+	registry.Product{
+		Name:    "netapp",
+		BaseUrl: "https://netapp.googleapis.com/v1/",
+	}.Register()
+}

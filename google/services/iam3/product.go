@@ -18,4 +18,15 @@
 // Package iam3 contains resources, datasources, etc. for the cloud iam service.
 package iam3
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "iam3"
+
+func init() {
+	registry.Product{
+		Name:    "iam3",
+		BaseUrl: "https://iam.googleapis.com/v3/",
+	}.Register()
+}

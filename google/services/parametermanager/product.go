@@ -18,4 +18,15 @@
 // Package parametermanager contains resources, datasources, etc. for the parameter manager service.
 package parametermanager
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "parametermanager"
+
+func init() {
+	registry.Product{
+		Name:    "parametermanager",
+		BaseUrl: "https://parametermanager.googleapis.com/v1/",
+	}.Register()
+}

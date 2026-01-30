@@ -18,4 +18,15 @@
 // Package oracledatabase contains resources, datasources, etc. for the oracle database service.
 package oracledatabase
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "oracledatabase"
+
+func init() {
+	registry.Product{
+		Name:    "oracledatabase",
+		BaseUrl: "https://oracledatabase.googleapis.com/v1/",
+	}.Register()
+}

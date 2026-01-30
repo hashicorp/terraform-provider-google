@@ -18,4 +18,15 @@
 // Package spanner contains resources, datasources, etc. for the cloud spanner service.
 package spanner
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "spanner"
+
+func init() {
+	registry.Product{
+		Name:    "spanner",
+		BaseUrl: "https://spanner.googleapis.com/v1/",
+	}.Register()
+}

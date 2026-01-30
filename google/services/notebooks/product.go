@@ -18,4 +18,15 @@
 // Package notebooks contains resources, datasources, etc. for the cloud ai notebooks service.
 package notebooks
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "notebooks"
+
+func init() {
+	registry.Product{
+		Name:    "notebooks",
+		BaseUrl: "https://notebooks.googleapis.com/v1/",
+	}.Register()
+}

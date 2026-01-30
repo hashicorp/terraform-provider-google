@@ -18,4 +18,15 @@
 // Package mlengine contains resources, datasources, etc. for the ml engine service.
 package mlengine
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "mlengine"
+
+func init() {
+	registry.Product{
+		Name:    "mlengine",
+		BaseUrl: "https://ml.googleapis.com/v1/",
+	}.Register()
+}

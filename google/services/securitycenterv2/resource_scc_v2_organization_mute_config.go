@@ -47,6 +47,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -85,6 +86,15 @@ var (
 	_ = verify.ValidateEnum
 	_ = googleapi.Error{}
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_scc_v2_organization_mute_config",
+		ProductName: "securitycenterv2",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceSecurityCenterV2OrganizationMuteConfig(),
+	}.Register()
+}
 
 func ResourceSecurityCenterV2OrganizationMuteConfig() *schema.Resource {
 	return &schema.Resource{

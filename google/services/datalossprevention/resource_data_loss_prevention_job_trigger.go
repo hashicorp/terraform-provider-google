@@ -47,6 +47,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -85,6 +86,15 @@ var (
 	_ = verify.ValidateEnum
 	_ = googleapi.Error{}
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_data_loss_prevention_job_trigger",
+		ProductName: "datalossprevention",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceDataLossPreventionJobTrigger(),
+	}.Register()
+}
 
 func ResourceDataLossPreventionJobTrigger() *schema.Resource {
 	return &schema.Resource{

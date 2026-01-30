@@ -18,4 +18,15 @@
 // Package storageinsights contains resources, datasources, etc. for the cloud storage insights service.
 package storageinsights
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "storageinsights"
+
+func init() {
+	registry.Product{
+		Name:    "storageinsights",
+		BaseUrl: "https://storageinsights.googleapis.com/v1/",
+	}.Register()
+}

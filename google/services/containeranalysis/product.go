@@ -18,4 +18,15 @@
 // Package containeranalysis contains resources, datasources, etc. for the container registry service.
 package containeranalysis
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "containeranalysis"
+
+func init() {
+	registry.Product{
+		Name:    "containeranalysis",
+		BaseUrl: "https://containeranalysis.googleapis.com/v1/",
+	}.Register()
+}

@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_cloud_run_v2_job_iam_binding",
+		ProductName: "CloudRunV2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(CloudRunV2JobIamSchema, CloudRunV2JobIamUpdaterProducer, CloudRunV2JobIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_cloud_run_v2_job_iam_member",
+		ProductName: "CloudRunV2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(CloudRunV2JobIamSchema, CloudRunV2JobIamUpdaterProducer, CloudRunV2JobIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_cloud_run_v2_job_iam_policy",
+		ProductName: "CloudRunV2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(CloudRunV2JobIamSchema, CloudRunV2JobIamUpdaterProducer, CloudRunV2JobIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_cloud_run_v2_job_iam_policy",
+		ProductName: "CloudRunV2",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(CloudRunV2JobIamSchema, CloudRunV2JobIamUpdaterProducer),
+	}.Register()
+}
 
 var CloudRunV2JobIamSchema = map[string]*schema.Schema{
 	"project": {

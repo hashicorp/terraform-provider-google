@@ -18,4 +18,15 @@
 // Package backupdr contains resources, datasources, etc. for the backup and dr service service.
 package backupdr
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "backupdr"
+
+func init() {
+	registry.Product{
+		Name:    "backupdr",
+		BaseUrl: "https://backupdr.googleapis.com/v1/",
+	}.Register()
+}

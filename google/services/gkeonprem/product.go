@@ -18,4 +18,15 @@
 // Package gkeonprem contains resources, datasources, etc. for the anthos on-prem service.
 package gkeonprem
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "gkeonprem"
+
+func init() {
+	registry.Product{
+		Name:    "gkeonprem",
+		BaseUrl: "https://gkeonprem.googleapis.com/v1/",
+	}.Register()
+}

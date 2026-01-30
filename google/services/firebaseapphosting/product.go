@@ -18,4 +18,15 @@
 // Package firebaseapphosting contains resources, datasources, etc. for the firebase app hosting service.
 package firebaseapphosting
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "firebaseapphosting"
+
+func init() {
+	registry.Product{
+		Name:    "firebaseapphosting",
+		BaseUrl: "https://firebaseapphosting.googleapis.com/v1/",
+	}.Register()
+}

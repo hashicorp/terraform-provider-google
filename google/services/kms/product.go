@@ -18,4 +18,15 @@
 // Package kms contains resources, datasources, etc. for the cloud key management service service.
 package kms
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "kms"
+
+func init() {
+	registry.Product{
+		Name:    "kms",
+		BaseUrl: "https://cloudkms.googleapis.com/v1/",
+	}.Register()
+}

@@ -18,4 +18,15 @@
 // Package memorystore contains resources, datasources, etc. for the memorystore service.
 package memorystore
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "memorystore"
+
+func init() {
+	registry.Product{
+		Name:    "memorystore",
+		BaseUrl: "https://memorystore.googleapis.com/v1/",
+	}.Register()
+}

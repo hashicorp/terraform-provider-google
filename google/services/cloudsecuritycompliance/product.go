@@ -18,4 +18,15 @@
 // Package cloudsecuritycompliance contains resources, datasources, etc. for the cloud security compliance service.
 package cloudsecuritycompliance
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudsecuritycompliance"
+
+func init() {
+	registry.Product{
+		Name:    "cloudsecuritycompliance",
+		BaseUrl: "https://cloudsecuritycompliance.googleapis.com/v1/",
+	}.Register()
+}

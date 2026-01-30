@@ -18,4 +18,15 @@
 // Package apihub contains resources, datasources, etc. for the api hub service.
 package apihub
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "apihub"
+
+func init() {
+	registry.Product{
+		Name:    "apihub",
+		BaseUrl: "https://apihub.googleapis.com/v1/",
+	}.Register()
+}

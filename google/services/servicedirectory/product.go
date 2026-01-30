@@ -18,4 +18,15 @@
 // Package servicedirectory contains resources, datasources, etc. for the service directory service.
 package servicedirectory
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "servicedirectory"
+
+func init() {
+	registry.Product{
+		Name:    "servicedirectory",
+		BaseUrl: "https://servicedirectory.googleapis.com/v1/",
+	}.Register()
+}

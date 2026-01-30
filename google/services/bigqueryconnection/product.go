@@ -18,4 +18,15 @@
 // Package bigqueryconnection contains resources, datasources, etc. for the bigquery connection service.
 package bigqueryconnection
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "bigqueryconnection"
+
+func init() {
+	registry.Product{
+		Name:    "bigqueryconnection",
+		BaseUrl: "https://bigqueryconnection.googleapis.com/v1/",
+	}.Register()
+}

@@ -18,4 +18,15 @@
 // Package accesscontextmanager contains resources, datasources, etc. for the access context manager (vpc service controls) service.
 package accesscontextmanager
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "accesscontextmanager"
+
+func init() {
+	registry.Product{
+		Name:    "accesscontextmanager",
+		BaseUrl: "https://accesscontextmanager.googleapis.com/v1/",
+	}.Register()
+}

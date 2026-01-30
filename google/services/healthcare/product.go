@@ -18,4 +18,15 @@
 // Package healthcare contains resources, datasources, etc. for the cloud healthcare service.
 package healthcare
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "healthcare"
+
+func init() {
+	registry.Product{
+		Name:    "healthcare",
+		BaseUrl: "https://healthcare.googleapis.com/v1/",
+	}.Register()
+}

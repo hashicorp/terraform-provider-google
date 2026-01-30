@@ -18,4 +18,15 @@
 // Package secretmanagerregional contains resources, datasources, etc. for the secret manager service.
 package secretmanagerregional
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "secretmanagerregional"
+
+func init() {
+	registry.Product{
+		Name:    "secretmanagerregional",
+		BaseUrl: "https://secretmanager.{{location}}.rep.googleapis.com/v1/",
+	}.Register()
+}

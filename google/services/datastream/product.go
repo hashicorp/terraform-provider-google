@@ -18,4 +18,15 @@
 // Package datastream contains resources, datasources, etc. for the datastream service.
 package datastream
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "datastream"
+
+func init() {
+	registry.Product{
+		Name:    "datastream",
+		BaseUrl: "https://datastream.googleapis.com/v1/",
+	}.Register()
+}

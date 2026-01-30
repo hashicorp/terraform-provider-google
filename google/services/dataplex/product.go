@@ -18,4 +18,15 @@
 // Package dataplex contains resources, datasources, etc. for the dataplex service.
 package dataplex
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "dataplex"
+
+func init() {
+	registry.Product{
+		Name:    "dataplex",
+		BaseUrl: "https://dataplex.googleapis.com/v1/",
+	}.Register()
+}

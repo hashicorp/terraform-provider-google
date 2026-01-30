@@ -18,4 +18,15 @@
 // Package securesourcemanager contains resources, datasources, etc. for the secure source manager service.
 package securesourcemanager
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "securesourcemanager"
+
+func init() {
+	registry.Product{
+		Name:    "securesourcemanager",
+		BaseUrl: "https://securesourcemanager.googleapis.com/v1/",
+	}.Register()
+}

@@ -18,4 +18,15 @@
 // Package privilegedaccessmanager contains resources, datasources, etc. for the privileged access manager service.
 package privilegedaccessmanager
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "privilegedaccessmanager"
+
+func init() {
+	registry.Product{
+		Name:    "privilegedaccessmanager",
+		BaseUrl: "https://privilegedaccessmanager.googleapis.com/v1/",
+	}.Register()
+}

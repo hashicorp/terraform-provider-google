@@ -18,4 +18,15 @@
 // Package billing contains resources, datasources, etc. for the cloud billing service.
 package billing
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "billing"
+
+func init() {
+	registry.Product{
+		Name:    "billing",
+		BaseUrl: "https://billingbudgets.googleapis.com/v1/",
+	}.Register()
+}

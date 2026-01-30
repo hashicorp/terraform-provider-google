@@ -18,4 +18,15 @@
 // Package securityposture contains resources, datasources, etc. for the security posture service.
 package securityposture
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "securityposture"
+
+func init() {
+	registry.Product{
+		Name:    "securityposture",
+		BaseUrl: "https://securityposture.googleapis.com/v1/",
+	}.Register()
+}

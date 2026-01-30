@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_gemini_repository_group_iam_binding",
+		ProductName: "Gemini",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(GeminiRepositoryGroupIamSchema, GeminiRepositoryGroupIamUpdaterProducer, GeminiRepositoryGroupIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_gemini_repository_group_iam_member",
+		ProductName: "Gemini",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(GeminiRepositoryGroupIamSchema, GeminiRepositoryGroupIamUpdaterProducer, GeminiRepositoryGroupIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_gemini_repository_group_iam_policy",
+		ProductName: "Gemini",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(GeminiRepositoryGroupIamSchema, GeminiRepositoryGroupIamUpdaterProducer, GeminiRepositoryGroupIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_gemini_repository_group_iam_policy",
+		ProductName: "Gemini",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(GeminiRepositoryGroupIamSchema, GeminiRepositoryGroupIamUpdaterProducer),
+	}.Register()
+}
 
 var GeminiRepositoryGroupIamSchema = map[string]*schema.Schema{
 	"project": {

@@ -18,4 +18,15 @@
 // Package logging contains resources, datasources, etc. for the cloud (stackdriver) logging service.
 package logging
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "logging"
+
+func init() {
+	registry.Product{
+		Name:    "logging",
+		BaseUrl: "https://logging.googleapis.com/v2/",
+	}.Register()
+}
