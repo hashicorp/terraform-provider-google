@@ -18,4 +18,15 @@
 // Package networkservices contains resources, datasources, etc. for the network services service.
 package networkservices
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "networkservices"
+
+func init() {
+	registry.Product{
+		Name:    "networkservices",
+		BaseUrl: "https://networkservices.googleapis.com/v1/",
+	}.Register()
+}

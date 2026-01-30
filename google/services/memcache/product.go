@@ -18,4 +18,15 @@
 // Package memcache contains resources, datasources, etc. for the memcache service.
 package memcache
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "memcache"
+
+func init() {
+	registry.Product{
+		Name:    "memcache",
+		BaseUrl: "https://memcache.googleapis.com/v1/",
+	}.Register()
+}

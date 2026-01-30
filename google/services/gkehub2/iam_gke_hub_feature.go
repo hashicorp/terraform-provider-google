@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_gke_hub_feature_iam_binding",
+		ProductName: "GKEHub2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(GKEHub2FeatureIamSchema, GKEHub2FeatureIamUpdaterProducer, GKEHub2FeatureIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_gke_hub_feature_iam_member",
+		ProductName: "GKEHub2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(GKEHub2FeatureIamSchema, GKEHub2FeatureIamUpdaterProducer, GKEHub2FeatureIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_gke_hub_feature_iam_policy",
+		ProductName: "GKEHub2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(GKEHub2FeatureIamSchema, GKEHub2FeatureIamUpdaterProducer, GKEHub2FeatureIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_gke_hub_feature_iam_policy",
+		ProductName: "GKEHub2",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(GKEHub2FeatureIamSchema, GKEHub2FeatureIamUpdaterProducer),
+	}.Register()
+}
 
 var GKEHub2FeatureIamSchema = map[string]*schema.Schema{
 	"project": {

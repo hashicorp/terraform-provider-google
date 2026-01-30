@@ -18,4 +18,15 @@
 // Package parametermanagerregional contains resources, datasources, etc. for the parameter manager service.
 package parametermanagerregional
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "parametermanagerregional"
+
+func init() {
+	registry.Product{
+		Name:    "parametermanagerregional",
+		BaseUrl: "https://parametermanager.{{location}}.rep.googleapis.com/v1/",
+	}.Register()
+}

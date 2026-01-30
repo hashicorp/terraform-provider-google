@@ -18,4 +18,15 @@
 // Package monitoring contains resources, datasources, etc. for the cloud (stackdriver) monitoring service.
 package monitoring
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "monitoring"
+
+func init() {
+	registry.Product{
+		Name:    "monitoring",
+		BaseUrl: "https://monitoring.googleapis.com/",
+	}.Register()
+}

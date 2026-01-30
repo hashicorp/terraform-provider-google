@@ -18,4 +18,15 @@
 // Package sql contains resources, datasources, etc. for the cloud sql service.
 package sql
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "sql"
+
+func init() {
+	registry.Product{
+		Name:    "sql",
+		BaseUrl: "https://sqladmin.googleapis.com/sql/v1beta4/",
+	}.Register()
+}

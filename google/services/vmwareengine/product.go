@@ -18,4 +18,15 @@
 // Package vmwareengine contains resources, datasources, etc. for the cloud vmware engine service.
 package vmwareengine
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "vmwareengine"
+
+func init() {
+	registry.Product{
+		Name:    "vmwareengine",
+		BaseUrl: "https://vmwareengine.googleapis.com/v1/",
+	}.Register()
+}

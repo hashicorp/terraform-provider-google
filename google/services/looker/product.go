@@ -18,4 +18,15 @@
 // Package looker contains resources, datasources, etc. for the looker (google cloud core) service.
 package looker
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "looker"
+
+func init() {
+	registry.Product{
+		Name:    "looker",
+		BaseUrl: "https://looker.googleapis.com/v1/",
+	}.Register()
+}

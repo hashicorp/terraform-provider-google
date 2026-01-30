@@ -18,4 +18,15 @@
 // Package cloudids contains resources, datasources, etc. for the cloud intrusion detection service service.
 package cloudids
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudids"
+
+func init() {
+	registry.Product{
+		Name:    "cloudids",
+		BaseUrl: "https://ids.googleapis.com/v1/",
+	}.Register()
+}

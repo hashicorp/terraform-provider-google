@@ -18,4 +18,15 @@
 // Package resourcemanager contains resources, datasources, etc. for the resource manager service.
 package resourcemanager
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "resourcemanager"
+
+func init() {
+	registry.Product{
+		Name:    "resourcemanager",
+		BaseUrl: "https://cloudresourcemanager.googleapis.com/v1/",
+	}.Register()
+}

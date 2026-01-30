@@ -18,4 +18,15 @@
 // Package iambeta contains resources, datasources, etc. for the cloud iam service.
 package iambeta
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "iambeta"
+
+func init() {
+	registry.Product{
+		Name:    "iambeta",
+		BaseUrl: "https://iam.googleapis.com/v1/",
+	}.Register()
+}

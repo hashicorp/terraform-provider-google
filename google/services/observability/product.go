@@ -18,4 +18,15 @@
 // Package observability contains resources, datasources, etc. for the observability service.
 package observability
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "observability"
+
+func init() {
+	registry.Product{
+		Name:    "observability",
+		BaseUrl: "https://observability.googleapis.com/v1/",
+	}.Register()
+}

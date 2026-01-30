@@ -18,4 +18,15 @@
 // Package workbench contains resources, datasources, etc. for the vertex ai workbench service.
 package workbench
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "workbench"
+
+func init() {
+	registry.Product{
+		Name:    "workbench",
+		BaseUrl: "https://notebooks.googleapis.com/v2/",
+	}.Register()
+}

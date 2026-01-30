@@ -18,4 +18,15 @@
 // Package gemini contains resources, datasources, etc. for the gemini for google cloud service.
 package gemini
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "gemini"
+
+func init() {
+	registry.Product{
+		Name:    "gemini",
+		BaseUrl: "https://cloudaicompanion.googleapis.com/v1/",
+	}.Register()
+}

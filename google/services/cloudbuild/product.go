@@ -18,4 +18,15 @@
 // Package cloudbuild contains resources, datasources, etc. for the cloud build service.
 package cloudbuild
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudbuild"
+
+func init() {
+	registry.Product{
+		Name:    "cloudbuild",
+		BaseUrl: "https://cloudbuild.googleapis.com/v1/",
+	}.Register()
+}

@@ -18,4 +18,15 @@
 // Package artifactregistry contains resources, datasources, etc. for the artifact registry service.
 package artifactregistry
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "artifactregistry"
+
+func init() {
+	registry.Product{
+		Name:    "artifactregistry",
+		BaseUrl: "https://artifactregistry.googleapis.com/v1/",
+	}.Register()
+}

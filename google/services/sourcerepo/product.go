@@ -18,4 +18,15 @@
 // Package sourcerepo contains resources, datasources, etc. for the cloud source repositories service.
 package sourcerepo
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "sourcerepo"
+
+func init() {
+	registry.Product{
+		Name:    "sourcerepo",
+		BaseUrl: "https://sourcerepo.googleapis.com/v1/",
+	}.Register()
+}

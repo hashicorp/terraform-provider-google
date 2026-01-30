@@ -18,4 +18,15 @@
 // Package identityplatform contains resources, datasources, etc. for the identity platform service.
 package identityplatform
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "identityplatform"
+
+func init() {
+	registry.Product{
+		Name:    "identityplatform",
+		BaseUrl: "https://identitytoolkit.googleapis.com/v2/",
+	}.Register()
+}

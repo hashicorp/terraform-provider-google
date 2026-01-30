@@ -18,4 +18,15 @@
 // Package biglakeiceberg contains resources, datasources, etc. for the biglake service.
 package biglakeiceberg
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "biglakeiceberg"
+
+func init() {
+	registry.Product{
+		Name:    "biglakeiceberg",
+		BaseUrl: "https://biglake.googleapis.com/",
+	}.Register()
+}

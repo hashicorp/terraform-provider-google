@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_clouddeploy_target_iam_binding",
+		ProductName: "Clouddeploy",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(ClouddeployTargetIamSchema, ClouddeployTargetIamUpdaterProducer, ClouddeployTargetIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_clouddeploy_target_iam_member",
+		ProductName: "Clouddeploy",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(ClouddeployTargetIamSchema, ClouddeployTargetIamUpdaterProducer, ClouddeployTargetIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_clouddeploy_target_iam_policy",
+		ProductName: "Clouddeploy",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(ClouddeployTargetIamSchema, ClouddeployTargetIamUpdaterProducer, ClouddeployTargetIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_clouddeploy_target_iam_policy",
+		ProductName: "Clouddeploy",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(ClouddeployTargetIamSchema, ClouddeployTargetIamUpdaterProducer),
+	}.Register()
+}
 
 var ClouddeployTargetIamSchema = map[string]*schema.Schema{
 	"project": {

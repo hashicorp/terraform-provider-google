@@ -18,4 +18,15 @@
 // Package edgenetwork contains resources, datasources, etc. for the distributed cloud edge network service.
 package edgenetwork
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "edgenetwork"
+
+func init() {
+	registry.Product{
+		Name:    "edgenetwork",
+		BaseUrl: "https://edgenetwork.googleapis.com/v1/",
+	}.Register()
+}

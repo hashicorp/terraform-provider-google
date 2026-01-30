@@ -18,4 +18,15 @@
 // Package firebasedataconnect contains resources, datasources, etc. for the firebase data connect service.
 package firebasedataconnect
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "firebasedataconnect"
+
+func init() {
+	registry.Product{
+		Name:    "firebasedataconnect",
+		BaseUrl: "https://firebasedataconnect.googleapis.com/v1/",
+	}.Register()
+}

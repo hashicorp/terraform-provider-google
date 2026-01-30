@@ -18,4 +18,15 @@
 // Package datacatalog contains resources, datasources, etc. for the data catalog service.
 package datacatalog
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "datacatalog"
+
+func init() {
+	registry.Product{
+		Name:    "datacatalog",
+		BaseUrl: "https://datacatalog.googleapis.com/v1/",
+	}.Register()
+}

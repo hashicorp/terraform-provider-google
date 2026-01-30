@@ -18,4 +18,15 @@
 // Package datalossprevention contains resources, datasources, etc. for the data loss prevention service.
 package datalossprevention
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "datalossprevention"
+
+func init() {
+	registry.Product{
+		Name:    "datalossprevention",
+		BaseUrl: "https://dlp.googleapis.com/v2/",
+	}.Register()
+}

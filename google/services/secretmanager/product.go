@@ -18,4 +18,15 @@
 // Package secretmanager contains resources, datasources, etc. for the secret manager service.
 package secretmanager
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "secretmanager"
+
+func init() {
+	registry.Product{
+		Name:    "secretmanager",
+		BaseUrl: "https://secretmanager.googleapis.com/v1/",
+	}.Register()
+}

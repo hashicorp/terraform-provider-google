@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_network_security_address_group_iam_binding",
+		ProductName: "NetworkSecurity",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(NetworkSecurityProjectAddressGroupIamSchema, NetworkSecurityProjectAddressGroupIamUpdaterProducer, NetworkSecurityProjectAddressGroupIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_network_security_address_group_iam_member",
+		ProductName: "NetworkSecurity",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(NetworkSecurityProjectAddressGroupIamSchema, NetworkSecurityProjectAddressGroupIamUpdaterProducer, NetworkSecurityProjectAddressGroupIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_network_security_address_group_iam_policy",
+		ProductName: "NetworkSecurity",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(NetworkSecurityProjectAddressGroupIamSchema, NetworkSecurityProjectAddressGroupIamUpdaterProducer, NetworkSecurityProjectAddressGroupIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_network_security_address_group_iam_policy",
+		ProductName: "NetworkSecurity",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(NetworkSecurityProjectAddressGroupIamSchema, NetworkSecurityProjectAddressGroupIamUpdaterProducer),
+	}.Register()
+}
 
 var NetworkSecurityProjectAddressGroupIamSchema = map[string]*schema.Schema{
 	"project": {

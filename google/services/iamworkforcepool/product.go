@@ -18,4 +18,15 @@
 // Package iamworkforcepool contains resources, datasources, etc. for the cloud iam service.
 package iamworkforcepool
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "iamworkforcepool"
+
+func init() {
+	registry.Product{
+		Name:    "iamworkforcepool",
+		BaseUrl: "https://iam.googleapis.com/v1/",
+	}.Register()
+}

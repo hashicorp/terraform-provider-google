@@ -18,4 +18,15 @@
 // Package cloudtasks contains resources, datasources, etc. for the cloud tasks service.
 package cloudtasks
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudtasks"
+
+func init() {
+	registry.Product{
+		Name:    "cloudtasks",
+		BaseUrl: "https://cloudtasks.googleapis.com/v2/",
+	}.Register()
+}

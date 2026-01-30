@@ -18,4 +18,15 @@
 // Package bigquerydatatransfer contains resources, datasources, etc. for the bigquery data transfer service.
 package bigquerydatatransfer
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "bigquerydatatransfer"
+
+func init() {
+	registry.Product{
+		Name:    "bigquerydatatransfer",
+		BaseUrl: "https://bigquerydatatransfer.googleapis.com/v1/",
+	}.Register()
+}

@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_gke_backup_restore_plan_iam_binding",
+		ProductName: "GKEBackup",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(GKEBackupRestorePlanIamSchema, GKEBackupRestorePlanIamUpdaterProducer, GKEBackupRestorePlanIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_gke_backup_restore_plan_iam_member",
+		ProductName: "GKEBackup",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(GKEBackupRestorePlanIamSchema, GKEBackupRestorePlanIamUpdaterProducer, GKEBackupRestorePlanIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_gke_backup_restore_plan_iam_policy",
+		ProductName: "GKEBackup",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(GKEBackupRestorePlanIamSchema, GKEBackupRestorePlanIamUpdaterProducer, GKEBackupRestorePlanIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_gke_backup_restore_plan_iam_policy",
+		ProductName: "GKEBackup",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(GKEBackupRestorePlanIamSchema, GKEBackupRestorePlanIamUpdaterProducer),
+	}.Register()
+}
 
 var GKEBackupRestorePlanIamSchema = map[string]*schema.Schema{
 	"project": {

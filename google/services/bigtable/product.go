@@ -18,4 +18,15 @@
 // Package bigtable contains resources, datasources, etc. for the cloud bigtable service.
 package bigtable
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "bigtable"
+
+func init() {
+	registry.Product{
+		Name:    "bigtable",
+		BaseUrl: "https://bigtableadmin.googleapis.com/v2/",
+	}.Register()
+}

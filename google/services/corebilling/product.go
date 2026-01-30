@@ -18,4 +18,15 @@
 // Package corebilling contains resources, datasources, etc. for the cloud billing service.
 package corebilling
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "corebilling"
+
+func init() {
+	registry.Product{
+		Name:    "corebilling",
+		BaseUrl: "https://cloudbilling.googleapis.com/v1/",
+	}.Register()
+}

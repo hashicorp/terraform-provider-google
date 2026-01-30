@@ -18,4 +18,15 @@
 // Package bigquerydatapolicyv2 contains resources, datasources, etc. for the bigquery data policy v2 service.
 package bigquerydatapolicyv2
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "bigquerydatapolicyv2"
+
+func init() {
+	registry.Product{
+		Name:    "bigquerydatapolicyv2",
+		BaseUrl: "https://bigquerydatapolicy.googleapis.com/v2/",
+	}.Register()
+}

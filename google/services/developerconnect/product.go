@@ -18,4 +18,15 @@
 // Package developerconnect contains resources, datasources, etc. for the developer connect service.
 package developerconnect
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "developerconnect"
+
+func init() {
+	registry.Product{
+		Name:    "developerconnect",
+		BaseUrl: "https://developerconnect.googleapis.com/v1/",
+	}.Register()
+}

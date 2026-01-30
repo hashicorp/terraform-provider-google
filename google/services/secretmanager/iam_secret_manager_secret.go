@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_secret_manager_secret_iam_binding",
+		ProductName: "SecretManager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secret_manager_secret_iam_member",
+		ProductName: "SecretManager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secret_manager_secret_iam_policy",
+		ProductName: "SecretManager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secret_manager_secret_iam_policy",
+		ProductName: "SecretManager",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer),
+	}.Register()
+}
 
 var SecretManagerSecretIamSchema = map[string]*schema.Schema{
 	"project": {

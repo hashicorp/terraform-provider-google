@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_bigquery_datapolicyv2_data_policy_iam_binding",
+		ProductName: "BigqueryDatapolicyv2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(BigqueryDatapolicyv2DataPolicyIamSchema, BigqueryDatapolicyv2DataPolicyIamUpdaterProducer, BigqueryDatapolicyv2DataPolicyIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_bigquery_datapolicyv2_data_policy_iam_member",
+		ProductName: "BigqueryDatapolicyv2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(BigqueryDatapolicyv2DataPolicyIamSchema, BigqueryDatapolicyv2DataPolicyIamUpdaterProducer, BigqueryDatapolicyv2DataPolicyIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_bigquery_datapolicyv2_data_policy_iam_policy",
+		ProductName: "BigqueryDatapolicyv2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(BigqueryDatapolicyv2DataPolicyIamSchema, BigqueryDatapolicyv2DataPolicyIamUpdaterProducer, BigqueryDatapolicyv2DataPolicyIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_bigquery_datapolicyv2_data_policy_iam_policy",
+		ProductName: "BigqueryDatapolicyv2",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(BigqueryDatapolicyv2DataPolicyIamSchema, BigqueryDatapolicyv2DataPolicyIamUpdaterProducer),
+	}.Register()
+}
 
 var BigqueryDatapolicyv2DataPolicyIamSchema = map[string]*schema.Schema{
 	"project": {

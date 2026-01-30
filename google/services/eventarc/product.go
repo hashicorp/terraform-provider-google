@@ -18,4 +18,15 @@
 // Package eventarc contains resources, datasources, etc. for the eventarc service.
 package eventarc
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "eventarc"
+
+func init() {
+	registry.Product{
+		Name:    "eventarc",
+		BaseUrl: "https://eventarc.googleapis.com/v1/",
+	}.Register()
+}

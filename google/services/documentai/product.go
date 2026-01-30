@@ -18,4 +18,15 @@
 // Package documentai contains resources, datasources, etc. for the document ai service.
 package documentai
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "documentai"
+
+func init() {
+	registry.Product{
+		Name:    "documentai",
+		BaseUrl: "https://{{location}}-documentai.googleapis.com/v1/",
+	}.Register()
+}

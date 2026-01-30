@@ -18,4 +18,15 @@
 // Package managedkafka contains resources, datasources, etc. for the managed kafka service.
 package managedkafka
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "managedkafka"
+
+func init() {
+	registry.Product{
+		Name:    "managedkafka",
+		BaseUrl: "https://managedkafka.googleapis.com/v1/",
+	}.Register()
+}

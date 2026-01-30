@@ -18,4 +18,15 @@
 // Package servicenetworking contains resources, datasources, etc. for the service networking service.
 package servicenetworking
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "servicenetworking"
+
+func init() {
+	registry.Product{
+		Name:    "servicenetworking",
+		BaseUrl: "https://servicenetworking.googleapis.com/v1/",
+	}.Register()
+}

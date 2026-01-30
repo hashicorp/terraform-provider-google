@@ -18,4 +18,15 @@
 // Package pubsublite contains resources, datasources, etc. for the cloud pub/sub service.
 package pubsublite
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "pubsublite"
+
+func init() {
+	registry.Product{
+		Name:    "pubsublite",
+		BaseUrl: "https://{{region}}-pubsublite.googleapis.com/v1/admin/",
+	}.Register()
+}

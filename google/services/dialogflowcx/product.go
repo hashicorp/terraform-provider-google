@@ -18,4 +18,15 @@
 // Package dialogflowcx contains resources, datasources, etc. for the dialogflow cx service.
 package dialogflowcx
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "dialogflowcx"
+
+func init() {
+	registry.Product{
+		Name:    "dialogflowcx",
+		BaseUrl: "https://{{location}}-dialogflow.googleapis.com/v3/",
+	}.Register()
+}

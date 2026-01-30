@@ -47,6 +47,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -85,6 +86,15 @@ var (
 	_ = verify.ValidateEnum
 	_ = googleapi.Error{}
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_healthcare_hl7_v2_store",
+		ProductName: "healthcare",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceHealthcareHl7V2Store(),
+	}.Register()
+}
 
 func ResourceHealthcareHl7V2Store() *schema.Resource {
 	return &schema.Resource{

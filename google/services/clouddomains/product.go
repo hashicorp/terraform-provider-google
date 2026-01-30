@@ -18,4 +18,15 @@
 // Package clouddomains contains resources, datasources, etc. for the cloud domains service.
 package clouddomains
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "clouddomains"
+
+func init() {
+	registry.Product{
+		Name:    "clouddomains",
+		BaseUrl: "https://domains.googleapis.com/v1/",
+	}.Register()
+}

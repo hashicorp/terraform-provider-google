@@ -18,4 +18,15 @@
 // Package tags contains resources, datasources, etc. for the tags service.
 package tags
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "tags"
+
+func init() {
+	registry.Product{
+		Name:    "tags",
+		BaseUrl: "https://cloudresourcemanager.googleapis.com/v3/",
+	}.Register()
+}

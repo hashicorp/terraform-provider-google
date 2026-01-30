@@ -18,4 +18,15 @@
 // Package orgpolicy contains resources, datasources, etc. for the organization policy service.
 package orgpolicy
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "orgpolicy"
+
+func init() {
+	registry.Product{
+		Name:    "orgpolicy",
+		BaseUrl: "https://orgpolicy.googleapis.com/v2/",
+	}.Register()
+}

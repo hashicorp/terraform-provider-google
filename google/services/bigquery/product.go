@@ -18,4 +18,15 @@
 // Package bigquery contains resources, datasources, etc. for the bigquery service.
 package bigquery
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "bigquery"
+
+func init() {
+	registry.Product{
+		Name:    "bigquery",
+		BaseUrl: "https://bigquery.googleapis.com/bigquery/v2/",
+	}.Register()
+}

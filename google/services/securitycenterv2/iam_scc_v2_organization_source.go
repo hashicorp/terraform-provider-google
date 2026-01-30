@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_scc_v2_organization_source_iam_binding",
+		ProductName: "SecurityCenterV2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(SecurityCenterV2OrganizationSourceIamSchema, SecurityCenterV2OrganizationSourceIamUpdaterProducer, SecurityCenterV2OrganizationSourceIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_scc_v2_organization_source_iam_member",
+		ProductName: "SecurityCenterV2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(SecurityCenterV2OrganizationSourceIamSchema, SecurityCenterV2OrganizationSourceIamUpdaterProducer, SecurityCenterV2OrganizationSourceIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_scc_v2_organization_source_iam_policy",
+		ProductName: "SecurityCenterV2",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(SecurityCenterV2OrganizationSourceIamSchema, SecurityCenterV2OrganizationSourceIamUpdaterProducer, SecurityCenterV2OrganizationSourceIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_scc_v2_organization_source_iam_policy",
+		ProductName: "SecurityCenterV2",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(SecurityCenterV2OrganizationSourceIamSchema, SecurityCenterV2OrganizationSourceIamUpdaterProducer),
+	}.Register()
+}
 
 var SecurityCenterV2OrganizationSourceIamSchema = map[string]*schema.Schema{
 	"organization": {

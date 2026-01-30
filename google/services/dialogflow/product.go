@@ -18,4 +18,15 @@
 // Package dialogflow contains resources, datasources, etc. for the dialogflow service.
 package dialogflow
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "dialogflow"
+
+func init() {
+	registry.Product{
+		Name:    "dialogflow",
+		BaseUrl: "https://dialogflow.googleapis.com/v2/",
+	}.Register()
+}

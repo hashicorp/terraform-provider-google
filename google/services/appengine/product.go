@@ -18,4 +18,15 @@
 // Package appengine contains resources, datasources, etc. for the app engine service.
 package appengine
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "appengine"
+
+func init() {
+	registry.Product{
+		Name:    "appengine",
+		BaseUrl: "https://appengine.googleapis.com/v1/",
+	}.Register()
+}

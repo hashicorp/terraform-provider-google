@@ -18,4 +18,15 @@
 // Package storage contains resources, datasources, etc. for the cloud storage service.
 package storage
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "storage"
+
+func init() {
+	registry.Product{
+		Name:    "storage",
+		BaseUrl: "https://storage.googleapis.com/storage/v1/",
+	}.Register()
+}

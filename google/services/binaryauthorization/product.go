@@ -18,4 +18,15 @@
 // Package binaryauthorization contains resources, datasources, etc. for the binary authorization service.
 package binaryauthorization
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "binaryauthorization"
+
+func init() {
+	registry.Product{
+		Name:    "binaryauthorization",
+		BaseUrl: "https://binaryauthorization.googleapis.com/v1/",
+	}.Register()
+}

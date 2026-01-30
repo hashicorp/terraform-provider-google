@@ -18,4 +18,15 @@
 // Package databasemigrationservice contains resources, datasources, etc. for the databasemigrationservice service.
 package databasemigrationservice
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "databasemigrationservice"
+
+func init() {
+	registry.Product{
+		Name:    "databasemigrationservice",
+		BaseUrl: "https://datamigration.googleapis.com/v1/",
+	}.Register()
+}

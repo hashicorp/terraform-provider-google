@@ -18,4 +18,15 @@
 // Package oslogin contains resources, datasources, etc. for the os login service.
 package oslogin
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "oslogin"
+
+func init() {
+	registry.Product{
+		Name:    "oslogin",
+		BaseUrl: "https://oslogin.googleapis.com/v1/",
+	}.Register()
+}

@@ -18,4 +18,15 @@
 // Package redis contains resources, datasources, etc. for the memorystore (redis) service.
 package redis
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "redis"
+
+func init() {
+	registry.Product{
+		Name:    "redis",
+		BaseUrl: "https://redis.googleapis.com/v1/",
+	}.Register()
+}

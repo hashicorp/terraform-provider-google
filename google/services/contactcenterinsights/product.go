@@ -18,4 +18,15 @@
 // Package contactcenterinsights contains resources, datasources, etc. for the contact center ai insights service.
 package contactcenterinsights
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "contactcenterinsights"
+
+func init() {
+	registry.Product{
+		Name:    "contactcenterinsights",
+		BaseUrl: "https://contactcenterinsights.googleapis.com/v1/",
+	}.Register()
+}

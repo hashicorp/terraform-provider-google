@@ -18,4 +18,15 @@
 // Package cloudrun contains resources, datasources, etc. for the cloud run service.
 package cloudrun
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudrun"
+
+func init() {
+	registry.Product{
+		Name:    "cloudrun",
+		BaseUrl: "https://{{location}}-run.googleapis.com/",
+	}.Register()
+}

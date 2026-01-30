@@ -18,4 +18,15 @@
 // Package securitycenterv2 contains resources, datasources, etc. for the security command center (scc) v2 api service.
 package securitycenterv2
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "securitycenterv2"
+
+func init() {
+	registry.Product{
+		Name:    "securitycenterv2",
+		BaseUrl: "https://securitycenter.googleapis.com/v2/",
+	}.Register()
+}

@@ -18,4 +18,15 @@
 // Package ces contains resources, datasources, etc. for the customer engagement suite service.
 package ces
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "ces"
+
+func init() {
+	registry.Product{
+		Name:    "ces",
+		BaseUrl: "https://ces.googleapis.com/v1/",
+	}.Register()
+}

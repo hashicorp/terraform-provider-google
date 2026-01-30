@@ -18,4 +18,15 @@
 // Package lustre contains resources, datasources, etc. for the google cloud managed lustre service.
 package lustre
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "lustre"
+
+func init() {
+	registry.Product{
+		Name:    "lustre",
+		BaseUrl: "https://lustre.googleapis.com/v1/",
+	}.Register()
+}

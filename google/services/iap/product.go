@@ -18,4 +18,15 @@
 // Package iap contains resources, datasources, etc. for the identity-aware proxy service.
 package iap
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "iap"
+
+func init() {
+	registry.Product{
+		Name:    "iap",
+		BaseUrl: "https://iap.googleapis.com/v1/",
+	}.Register()
+}

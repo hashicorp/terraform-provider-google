@@ -18,4 +18,15 @@
 // Package integrationconnectors contains resources, datasources, etc. for the integration connectors service.
 package integrationconnectors
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "integrationconnectors"
+
+func init() {
+	registry.Product{
+		Name:    "integrationconnectors",
+		BaseUrl: "https://connectors.googleapis.com/v1/",
+	}.Register()
+}

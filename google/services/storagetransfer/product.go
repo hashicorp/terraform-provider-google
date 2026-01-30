@@ -18,4 +18,15 @@
 // Package storagetransfer contains resources, datasources, etc. for the storage transfer service service.
 package storagetransfer
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "storagetransfer"
+
+func init() {
+	registry.Product{
+		Name:    "storagetransfer",
+		BaseUrl: "https://storagetransfer.googleapis.com/v1/",
+	}.Register()
+}

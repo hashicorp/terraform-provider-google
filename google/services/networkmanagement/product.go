@@ -18,4 +18,15 @@
 // Package networkmanagement contains resources, datasources, etc. for the network management service.
 package networkmanagement
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "networkmanagement"
+
+func init() {
+	registry.Product{
+		Name:    "networkmanagement",
+		BaseUrl: "https://networkmanagement.googleapis.com/v1/",
+	}.Register()
+}

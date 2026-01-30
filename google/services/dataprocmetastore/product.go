@@ -18,4 +18,15 @@
 // Package dataprocmetastore contains resources, datasources, etc. for the dataproc metastore service.
 package dataprocmetastore
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "dataprocmetastore"
+
+func init() {
+	registry.Product{
+		Name:    "dataprocmetastore",
+		BaseUrl: "https://metastore.googleapis.com/v1/",
+	}.Register()
+}

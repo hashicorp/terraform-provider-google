@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_container_analysis_note_iam_binding",
+		ProductName: "ContainerAnalysis",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer, ContainerAnalysisNoteIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_container_analysis_note_iam_member",
+		ProductName: "ContainerAnalysis",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer, ContainerAnalysisNoteIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_container_analysis_note_iam_policy",
+		ProductName: "ContainerAnalysis",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer, ContainerAnalysisNoteIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_container_analysis_note_iam_policy",
+		ProductName: "ContainerAnalysis",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer),
+	}.Register()
+}
 
 var ContainerAnalysisNoteIamSchema = map[string]*schema.Schema{
 	"project": {

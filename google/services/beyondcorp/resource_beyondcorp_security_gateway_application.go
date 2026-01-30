@@ -47,6 +47,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -85,6 +86,15 @@ var (
 	_ = verify.ValidateEnum
 	_ = googleapi.Error{}
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_beyondcorp_security_gateway_application",
+		ProductName: "beyondcorp",
+		Type:        registry.SchemaTypeResource,
+		Schema:      ResourceBeyondcorpSecurityGatewayApplication(),
+	}.Register()
+}
 
 func ResourceBeyondcorpSecurityGatewayApplication() *schema.Resource {
 	return &schema.Resource{

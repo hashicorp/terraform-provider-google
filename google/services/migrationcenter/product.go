@@ -18,4 +18,15 @@
 // Package migrationcenter contains resources, datasources, etc. for the migration center service.
 package migrationcenter
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "migrationcenter"
+
+func init() {
+	registry.Product{
+		Name:    "migrationcenter",
+		BaseUrl: "https://migrationcenter.googleapis.com/v1/",
+	}.Register()
+}

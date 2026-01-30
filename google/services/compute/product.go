@@ -18,4 +18,15 @@
 // Package compute contains resources, datasources, etc. for the compute engine service.
 package compute
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "compute"
+
+func init() {
+	registry.Product{
+		Name:    "compute",
+		BaseUrl: "https://compute.googleapis.com/compute/v1/",
+	}.Register()
+}

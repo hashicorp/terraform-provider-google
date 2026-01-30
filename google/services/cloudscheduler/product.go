@@ -18,4 +18,15 @@
 // Package cloudscheduler contains resources, datasources, etc. for the cloud scheduler service.
 package cloudscheduler
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "cloudscheduler"
+
+func init() {
+	registry.Product{
+		Name:    "cloudscheduler",
+		BaseUrl: "https://cloudscheduler.googleapis.com/v1/",
+	}.Register()
+}

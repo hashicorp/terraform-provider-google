@@ -18,4 +18,15 @@
 // Package firestore contains resources, datasources, etc. for the firestore service.
 package firestore
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "firestore"
+
+func init() {
+	registry.Product{
+		Name:    "firestore",
+		BaseUrl: "https://firestore.googleapis.com/v1/",
+	}.Register()
+}

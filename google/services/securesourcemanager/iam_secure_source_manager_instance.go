@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -39,6 +40,33 @@ var (
 	_ = errwrap.Wrap
 	_ = schema.Noop
 )
+
+func init() {
+	registry.Schema{
+		Name:        "google_secure_source_manager_instance_iam_binding",
+		ProductName: "SecureSourceManager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamBinding(SecureSourceManagerInstanceIamSchema, SecureSourceManagerInstanceIamUpdaterProducer, SecureSourceManagerInstanceIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secure_source_manager_instance_iam_member",
+		ProductName: "SecureSourceManager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamMember(SecureSourceManagerInstanceIamSchema, SecureSourceManagerInstanceIamUpdaterProducer, SecureSourceManagerInstanceIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secure_source_manager_instance_iam_policy",
+		ProductName: "SecureSourceManager",
+		Type:        registry.SchemaTypeIAMResource,
+		Schema:      tpgiamresource.ResourceIamPolicy(SecureSourceManagerInstanceIamSchema, SecureSourceManagerInstanceIamUpdaterProducer, SecureSourceManagerInstanceIdParseFunc),
+	}.Register()
+	registry.Schema{
+		Name:        "google_secure_source_manager_instance_iam_policy",
+		ProductName: "SecureSourceManager",
+		Type:        registry.SchemaTypeIAMDataSource,
+		Schema:      tpgiamresource.DataSourceIamPolicy(SecureSourceManagerInstanceIamSchema, SecureSourceManagerInstanceIamUpdaterProducer),
+	}.Register()
+}
 
 var SecureSourceManagerInstanceIamSchema = map[string]*schema.Schema{
 	"project": {

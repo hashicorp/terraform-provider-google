@@ -18,4 +18,15 @@
 // Package dataproc contains resources, datasources, etc. for the dataproc service.
 package dataproc
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "dataproc"
+
+func init() {
+	registry.Product{
+		Name:    "dataproc",
+		BaseUrl: "https://dataproc.googleapis.com/v1/",
+	}.Register()
+}

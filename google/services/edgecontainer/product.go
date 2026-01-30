@@ -18,4 +18,15 @@
 // Package edgecontainer contains resources, datasources, etc. for the google distributed cloud edge service.
 package edgecontainer
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "edgecontainer"
+
+func init() {
+	registry.Product{
+		Name:    "edgecontainer",
+		BaseUrl: "https://edgecontainer.googleapis.com/v1/",
+	}.Register()
+}

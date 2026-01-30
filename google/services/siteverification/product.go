@@ -18,4 +18,15 @@
 // Package siteverification contains resources, datasources, etc. for the site verification service.
 package siteverification
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "siteverification"
+
+func init() {
+	registry.Product{
+		Name:    "siteverification",
+		BaseUrl: "https://www.googleapis.com/siteVerification/v1/",
+	}.Register()
+}

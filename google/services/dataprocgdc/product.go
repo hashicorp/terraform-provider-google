@@ -18,4 +18,15 @@
 // Package dataprocgdc contains resources, datasources, etc. for the dataproc on gdc service.
 package dataprocgdc
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "dataprocgdc"
+
+func init() {
+	registry.Product{
+		Name:    "dataprocgdc",
+		BaseUrl: "https://dataprocgdc.googleapis.com/v1/",
+	}.Register()
+}

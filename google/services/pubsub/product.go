@@ -18,4 +18,15 @@
 // Package pubsub contains resources, datasources, etc. for the cloud pub/sub service.
 package pubsub
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "pubsub"
+
+func init() {
+	registry.Product{
+		Name:    "pubsub",
+		BaseUrl: "https://pubsub.googleapis.com/v1/",
+	}.Register()
+}

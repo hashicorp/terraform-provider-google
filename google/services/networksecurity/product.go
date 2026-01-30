@@ -18,4 +18,15 @@
 // Package networksecurity contains resources, datasources, etc. for the network security service.
 package networksecurity
 
+import (
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+)
+
 const ProductName = "networksecurity"
+
+func init() {
+	registry.Product{
+		Name:    "networksecurity",
+		BaseUrl: "https://networksecurity.googleapis.com/v1/",
+	}.Register()
+}
