@@ -10,4 +10,5 @@ fields:
     - api_field: keyId
     - field: location
       provider_only: true
+    - api_field: MacKey
     - api_field: name
