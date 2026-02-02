@@ -1,0 +1,11 @@
+```release-note:enhancement
+publicca: added `mac_key` to `google_public_ca_external_account_key`
+```
+
+```release-note:bug
+publicca: fixed `b64url_mac_key` sometimes being empty in `google_public_ca_external_account_key`
+```
+
+```release-note:deprecation
+publicca: deprecated `b64url_mac_key` on `google_public_ca_external_account_key`, use `mac_key` instead
+```
