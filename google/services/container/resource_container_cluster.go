@@ -5480,12 +5480,16 @@ func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *c
 			Enabled: defaultCCEnabled.(bool),
 		}
 	}
+	var defaults *container.AutoprovisioningNodePoolDefaults
+	if shouldInclude(d, "cluster_autoscaling.0.auto_provisioning_defaults") {
+		defaults = expandAutoProvisioningDefaults(config["auto_provisioning_defaults"], d)
+	}
 	return &container.ClusterAutoscaling{
 		EnableNodeAutoprovisioning:       config["enabled"].(bool),
 		ResourceLimits:                   resourceLimits,
 		DefaultComputeClassConfig:        defaultCCConfig,
 		AutoscalingProfile:               config["autoscaling_profile"].(string),
-		AutoprovisioningNodePoolDefaults: expandAutoProvisioningDefaults(config["auto_provisioning_defaults"], d),
+		AutoprovisioningNodePoolDefaults: defaults,
 		AutoprovisioningLocations:        tpgresource.ConvertStringArr(config["auto_provisioning_locations"].([]interface{})),
 	}
 }
@@ -5497,6 +5501,14 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	}
 	config := l[0].(map[string]interface{})
 
+	var management *container.NodeManagement
+	if shouldInclude(d, "cluster_autoscaling.0.auto_provisioning_defaults.0.management") {
+		management = expandManagement(config["management"])
+	}
+	var upgradeSettings *container.UpgradeSettings
+	if shouldInclude(d, "cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings") {
+		upgradeSettings = expandUpgradeSettings(config["upgrade_settings"], d)
+	}
 	npd := &container.AutoprovisioningNodePoolDefaults{
 		OauthScopes:     tpgresource.ConvertStringArr(config["oauth_scopes"].([]interface{})),
 		ServiceAccount:  config["service_account"].(string),
@@ -5504,8 +5516,8 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 		DiskType:        config["disk_type"].(string),
 		ImageType:       config["image_type"].(string),
 		BootDiskKmsKey:  config["boot_disk_kms_key"].(string),
-		Management:      expandManagement(config["management"]),
-		UpgradeSettings: expandUpgradeSettings(config["upgrade_settings"]),
+		Management:      management,
+		UpgradeSettings: upgradeSettings,
 	}
 
 	if v, ok := config["shielded_instance_config"]; ok && len(v.([]interface{})) > 0 {
@@ -5526,18 +5538,22 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	return npd
 }
 
-func expandUpgradeSettings(configured interface{}) *container.UpgradeSettings {
+func expandUpgradeSettings(configured interface{}, d *schema.ResourceData) *container.UpgradeSettings {
 	l, ok := configured.([]interface{})
 	if !ok || l == nil || len(l) == 0 || l[0] == nil {
 		return &container.UpgradeSettings{}
 	}
 	config := l[0].(map[string]interface{})
 
+	var blueGreenSettings *container.BlueGreenSettings
+	if shouldInclude(d, "cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.blue_green_settings") {
+		blueGreenSettings = expandBlueGreenSettings(config["blue_green_settings"])
+	}
 	upgradeSettings := &container.UpgradeSettings{
 		MaxSurge:          int64(config["max_surge"].(int)),
 		MaxUnavailable:    int64(config["max_unavailable"].(int)),
 		Strategy:          config["strategy"].(string),
-		BlueGreenSettings: expandBlueGreenSettings(config["blue_green_settings"]),
+		BlueGreenSettings: blueGreenSettings,
 	}
 
 	return upgradeSettings
@@ -5603,6 +5619,10 @@ func expandUpgradeOptions(configured interface{}) *container.AutoUpgradeOptions 
 	}
 
 	return upgradeOptions
+}
+
+func shouldInclude(d *schema.ResourceData, key string) bool {
+	return d.IsNewResource() || d.HasChange(key)
 }
 
 func expandAuthenticatorGroupsConfig(configured interface{}) *container.AuthenticatorGroupsConfig {

@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed an issue when toggling `default_compute_class_enabled` in `google_container_cluster` with Autopilot enabled
+```
