@@ -1,0 +1,3 @@
+```release-note:enhancement
+firestore: added `deletion_policy` virtual field to `google_firestore_index` resource
+```

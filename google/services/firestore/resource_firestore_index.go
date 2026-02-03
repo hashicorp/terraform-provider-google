@@ -286,6 +286,16 @@ with the same dimension.`,
 				Description: `Whether to skip waiting for the index to be created.`,
 				Default:     false,
 			},
+			"deletion_policy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DELETE", "PREVENT", ""}),
+				Description: `Deletion behavior for this index.
+If the deletion policy is 'PREVENT', the index cannot be deleted and a terraform destroy will fail.
+If the deletion policy is 'DELETE', the index will both be removed from Terraform state and deleted from Google Cloud upon destruction.
+The default value is 'DELETE'. Default value: "DELETE" Possible values: ["DELETE", "PREVENT"]`,
+				Default: "DELETE",
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -491,6 +501,11 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 			return fmt.Errorf("Error setting skip_wait: %s", err)
 		}
 	}
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
@@ -553,6 +568,9 @@ func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy google_firestore_index resource with id : %q  without setting deletion_policy=DELETE and running `terraform apply`", d.Id())
+	}
 
 	log.Printf("[DEBUG] Deleting Index %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

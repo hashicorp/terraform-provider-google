@@ -8,6 +8,8 @@ fields:
     - api_field: apiScope
     - api_field: collection
     - api_field: database
+    - field: deletion_policy
+      provider_only: true
     - api_field: density
     - api_field: fields.arrayConfig
     - api_field: fields.fieldPath
