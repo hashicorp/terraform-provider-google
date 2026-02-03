@@ -19,7 +19,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * cloudbuild: fixed `google_cloudbuild_trigger` to allow creation without source configuration for manual triggers ([#25925](https://github.com/hashicorp/terraform-provider-google/pull/25925))
-* cloudrunv2: fix permadiff on `scaling.0.scaling_mode` in `google_cloud_run_v2_worker_pool` ([#25927](https://github.com/hashicorp/terraform-provider-google/pull/25927))
+* cloudrunv2: fix permadiff on `scaling.scaling_mode` in `google_cloud_run_v2_worker_pool` ([#25927](https://github.com/hashicorp/terraform-provider-google/pull/25927))
 * compute: resolved issues where `show_nat_ips` and `nat_ips` in `google_compute_service_attachment` were causing test failures due to an underlying API problem. These fields are now temporarily non-functional and will be ignored. ([#25908](https://github.com/hashicorp/terraform-provider-google/pull/25908))
 * container: fixed a bug in `google_container_node_pool` that prevented creation when `blue_green_settings` was specified ([#25916](https://github.com/hashicorp/terraform-provider-google/pull/25916))
 * container: fixed perma-diff in `google_container_cluster` when setting `resource_limits` with disabled node autoprovisioning ([#25929](https://github.com/hashicorp/terraform-provider-google/pull/25929))
