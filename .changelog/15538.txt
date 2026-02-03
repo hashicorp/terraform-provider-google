@@ -1,0 +1,7 @@
+```release-note:enhancement
+monitoring: add write-only variants (`auth_token_wo` + `auth_token_wo_version`, `password_wo` + `password_wo_version`, `service_key_wo` + `service_key_wo_version`) for `google_monitoring_notification_channel.sensitive_labels`
+```
+
+```release-note:bug
+firebaseailogic: fixed bug in `google_firebase_ai_logic_config.generative_language_config.api_key_wo` where the value set wouldn't be sent to the API. 
+```
