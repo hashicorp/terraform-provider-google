@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added new values to `policyType` field in `google_compute_network_firewall_policy`, `google_compute_network_firewall_policy_with_rules`, `google_compute_region_network_firewall_policy`, `google_compute_region_network_firewall_policy_with_rules`.
+```
