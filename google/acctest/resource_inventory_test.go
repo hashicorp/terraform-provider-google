@@ -261,6 +261,10 @@ func TestValidateResourceMetadata(t *testing.T) {
 		"google_os_config_v2_policy_orchestrator_for_folder.orchestration_state.previous_iteration_state.error.details.type_url":       true,
 		"google_os_config_v2_policy_orchestrator_for_organization.orchestration_state.current_iteration_state.error.details.type_url":  true,
 		"google_os_config_v2_policy_orchestrator_for_organization.orchestration_state.previous_iteration_state.error.details.type_url": true,
+		"google_monitoring_notification_channel.sensitive_labels.auth_token":                                                           true,
+		"google_monitoring_notification_channel.sensitive_labels.auth_token_wo":                                                        true,
+		"google_monitoring_notification_channel.sensitive_labels.service_key":                                                          true,
+		"google_monitoring_notification_channel.sensitive_labels.service_key_wo":                                                       true,
 	}
 
 	// Validate yaml files

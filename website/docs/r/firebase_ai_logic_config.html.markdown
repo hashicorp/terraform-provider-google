@@ -199,6 +199,32 @@ The following arguments are supported:
 
 
 
+<a name="nested_generative_language_config"></a>The `generative_language_config` block supports:
+
+* `api_key` -
+  (Optional)
+  The value of the API key. The API key must have
+  `generativelanguage.googleapis.com` in its "API restrictions" allowlist.
+  Note that this API is sometimes called the *Generative Language API* in
+  the Google Cloud console.
+  Do **not** add this Gemini API key into your app's codebase
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `api_key_wo` -
+  (Optional, Write-Only)
+  The value of the API key. The API key must have
+  `generativelanguage.googleapis.com` in its "API restrictions" allowlist.
+  Note that this API is sometimes called the *Generative Language API* in
+  the Google Cloud console.
+  Do **not** add this Gemini API key into your app's codebase
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `api_key` or `api_key_wo` can only be set.
+
+* `api_key_wo_version` -
+  (Optional)
+  Triggers update of `api_key_wo` write-only. Increment this value when an update to `api_key_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
 <a name="nested_telemetry_config"></a>The `telemetry_config` block supports:
 
 * `mode` -

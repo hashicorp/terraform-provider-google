@@ -994,13 +994,6 @@ func expandComputeNetworkRoutingConfig(v interface{}, d tpgresource.TerraformRes
 		transformed["bgpInterRegionCost"] = transformedBgpInterRegionCost
 	}
 
-	transformedDeleteBgpAlwaysCompareMed, err := expandComputeNetworkRoutingConfigDeleteBgpAlwaysCompareMed(d.Get("delete_bgp_always_compare_med"), d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDeleteBgpAlwaysCompareMed); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["delete_bgp_always_compare_med"] = transformedDeleteBgpAlwaysCompareMed
-	}
-
 	return transformed, nil
 }
 

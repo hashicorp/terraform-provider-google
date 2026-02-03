@@ -155,6 +155,104 @@ func TestAccMonitoringNotificationChannel_updateSensitiveLabels(t *testing.T) {
 	})
 }
 
+func TestAccMonitoringNotificationChannel_updateSensitiveLabelsWo(t *testing.T) {
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringNotificationChannelDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringNotificationChannel_createSensitiveWoLabels(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_monitoring_notification_channel.pagerduty", "sensitive_labels.0.service_key_wo"),
+					resource.TestCheckResourceAttr("google_monitoring_notification_channel.pagerduty", "sensitive_labels.0.service_key_wo_version", "1"),
+					resource.TestCheckNoResourceAttr("google_monitoring_notification_channel.basicauth", "sensitive_labels.0.password_wo"),
+					resource.TestCheckResourceAttr("google_monitoring_notification_channel.basicauth", "sensitive_labels.0.password_wo_version", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_monitoring_notification_channel.pagerduty",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels.%", "labels.service_key", "labels.password", "sensitive_labels"},
+			},
+			{
+				ResourceName:            "google_monitoring_notification_channel.basicauth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels.%", "labels.service_key", "labels.password", "sensitive_labels"},
+			},
+			{
+				Config: testAccMonitoringNotificationChannel_updateSensitiveWoLabels(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_monitoring_notification_channel.pagerduty", "sensitive_labels.0.service_key_wo"),
+					resource.TestCheckResourceAttr("google_monitoring_notification_channel.pagerduty", "sensitive_labels.0.service_key_wo_version", "2"),
+					resource.TestCheckNoResourceAttr("google_monitoring_notification_channel.basicauth", "sensitive_labels.0.password_wo"),
+					resource.TestCheckResourceAttr("google_monitoring_notification_channel.basicauth", "sensitive_labels.0.password_wo_version", "2"),
+				),
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels.%", "labels.service_key", "labels.password", "sensitive_labels"},
+			},
+			{
+				ResourceName:            "google_monitoring_notification_channel.pagerduty",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels.%", "labels.service_key", "labels.password", "sensitive_labels"},
+			},
+			{
+				ResourceName:            "google_monitoring_notification_channel.basicauth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels.%", "labels.service_key", "labels.password", "sensitive_labels"},
+			},
+		},
+	})
+}
+
+func TestAccMonitoringNotificationChannel_updateSensitiveLabelsWo_slack(t *testing.T) {
+	// ran into same issue with slack as TestAccMonitoringNotificationChannel_updateSensitiveLabels_slack therefore skip
+	t.Skip()
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringNotificationChannelDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringNotificationChannel_createSensitiveWoLabels_slack(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_monitoring_notification_channel.slack", "sensitive_labels.0.auth_token_wo"),
+					resource.TestCheckResourceAttr("google_monitoring_notification_channel.slack", "sensitive_labels.0.auth_token_wo_version", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_monitoring_notification_channel.slack",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels.oauth_token"},
+			},
+			{
+				Config: testAccMonitoringNotificationChannel_updateSensitiveWoLabels_slack(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_monitoring_notification_channel.slack", "sensitive_labels.0.auth_token_wo"),
+					resource.TestCheckResourceAttr("google_monitoring_notification_channel.slack", "sensitive_labels.0.auth_token_wo_version", "2"),
+				),
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels.oauth_token"},
+			},
+			{
+				ResourceName:            "google_monitoring_notification_channel.slack",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels.oauth_token"},
+			},
+		},
+	})
+}
+
 func testAccMonitoringNotificationChannel_update(channel, labels, enabled string) string {
 	return fmt.Sprintf(`
 resource "google_monitoring_notification_channel" "update" {
@@ -245,6 +343,88 @@ resource "google_monitoring_notification_channel" "pagerduty" {
 
 	sensitive_labels {
 		service_key = "some_service_key"
+	}
+}
+`)
+}
+
+func testAccMonitoringNotificationChannel_createSensitiveWoLabels() string {
+	return fmt.Sprintf(`
+resource "google_monitoring_notification_channel" "basicauth" {
+	display_name = "TFTest Basicauth Channel"
+	type         = "webhook_basicauth"
+	labels = {
+		"username" = "username"
+		"url"      = "http://fakeurl.com"
+	}
+	sensitive_labels {
+		password_wo         = "somepassword"
+		password_wo_version = 1
+	}
+}
+resource "google_monitoring_notification_channel" "pagerduty" {
+	display_name = "TFTest Pagerduty Channel"
+	type         = "pagerduty"
+	sensitive_labels {
+		service_key_wo         = "some_service_key"
+		service_key_wo_version = 1
+	}
+}
+`)
+}
+
+func testAccMonitoringNotificationChannel_updateSensitiveWoLabels() string {
+	return fmt.Sprintf(`
+resource "google_monitoring_notification_channel" "basicauth" {
+	display_name = "TFTest Basicauth Channel"
+	type         = "webhook_basicauth"
+	labels = {
+		"username" = "username"
+		"url"      = "http://fakeurl.com"
+	}
+	sensitive_labels {
+		password_wo         = "another_password"
+		password_wo_version = 2
+	}
+}
+resource "google_monitoring_notification_channel" "pagerduty" {
+	display_name = "TFTest Pagerduty Channel"
+	type         = "pagerduty"
+	sensitive_labels {
+		service_key_wo         = "another_service_key"
+		service_key_wo_version = 2
+	}
+}
+`)
+}
+
+func testAccMonitoringNotificationChannel_createSensitiveWoLabels_slack() string {
+	return fmt.Sprintf(`
+resource "google_monitoring_notification_channel" "slack" {
+	display_name = "TFTest Slack Channel"
+	type         = "slack"
+	labels = {
+		"channel_name" = "#foobar"
+	}
+	sensitive_labels {
+		auth_token_wo         = "one"
+		auth_token_wo_version = 1
+	}
+}
+`)
+}
+
+func testAccMonitoringNotificationChannel_updateSensitiveWoLabels_slack() string {
+	return fmt.Sprintf(`
+resource "google_monitoring_notification_channel" "slack" {
+	display_name = "TFTest Slack Channel"
+	type         = "slack"
+	labels = {
+		"channel_name" = "#foobar"
+	}
+	sensitive_labels {
+		auth_token_wo         = "two"
+		auth_token_wo_version = 2
 	}
 }
 `)

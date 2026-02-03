@@ -56,13 +56,16 @@ import (
 )
 
 var sensitiveLabels = []string{"auth_token", "service_key", "password"}
+var writeOnlySensitiveLabels = []string{"auth_token_wo_version", "service_key_wo_version", "password_wo_version"}
 
 func sensitiveLabelCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
-	for _, sl := range sensitiveLabels {
-		mapLabel := diff.Get("labels." + sl).(string)
-		authLabel := diff.Get("sensitive_labels.0." + sl).(string)
-		if mapLabel != "" && authLabel != "" {
-			return fmt.Errorf("Sensitive label [%s] cannot be set in both `labels` and the `sensitive_labels` block.", sl)
+	for _, sl := range append(sensitiveLabels, writeOnlySensitiveLabels...) {
+		l := strings.TrimSuffix(sl, "_wo")
+		l = strings.TrimSuffix(l, "_wo_version")
+		val := diff.Get("labels." + l).(string)
+		sensitiveVal := diff.Get("sensitive_labels.0." + sl).(string)
+		if val != "" && sensitiveVal != "" {
+			return fmt.Errorf("Sensitive label %q cannot be set at the same time as label %q.", sl, l)
 		}
 	}
 	return nil
@@ -183,21 +186,63 @@ to a different credential configuration in the config will require an apply to u
 							Optional:     true,
 							Description:  `An authorization token for a notification channel. Channel types that support this field include: slack`,
 							Sensitive:    true,
-							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key"},
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key", "sensitive_labels.0.auth_token_wo", "sensitive_labels.0.password_wo", "sensitive_labels.0.service_key_wo"},
+						},
+						"auth_token_wo": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `An authorization token for a notification channel. Channel types that support this field include: slack`,
+							WriteOnly:    true,
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key", "sensitive_labels.0.auth_token_wo", "sensitive_labels.0.password_wo", "sensitive_labels.0.service_key_wo"},
+							RequiredWith: []string{"sensitive_labels.0.auth_token_wo_version"},
+						},
+						"auth_token_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Triggers update of 'auth_token_wo' write-only. Increment this value when an update to 'auth_token_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"sensitive_labels.0.auth_token_wo"},
 						},
 						"password": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Description:  `An password for a notification channel. Channel types that support this field include: webhook_basicauth`,
 							Sensitive:    true,
-							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key"},
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key", "sensitive_labels.0.auth_token_wo", "sensitive_labels.0.password_wo", "sensitive_labels.0.service_key_wo"},
+						},
+						"password_wo": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `An password for a notification channel. Channel types that support this field include: webhook_basicauth`,
+							WriteOnly:    true,
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key", "sensitive_labels.0.auth_token_wo", "sensitive_labels.0.password_wo", "sensitive_labels.0.service_key_wo"},
+							RequiredWith: []string{"sensitive_labels.0.password_wo_version"},
+						},
+						"password_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Triggers update of 'password_wo' write-only. Increment this value when an update to 'password_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"sensitive_labels.0.password_wo"},
 						},
 						"service_key": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Description:  `An servicekey token for a notification channel. Channel types that support this field include: pagerduty`,
 							Sensitive:    true,
-							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key"},
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key", "sensitive_labels.0.auth_token_wo", "sensitive_labels.0.password_wo", "sensitive_labels.0.service_key_wo"},
+						},
+						"service_key_wo": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `An servicekey token for a notification channel. Channel types that support this field include: pagerduty`,
+							WriteOnly:    true,
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key", "sensitive_labels.0.auth_token_wo", "sensitive_labels.0.password_wo", "sensitive_labels.0.service_key_wo"},
+							RequiredWith: []string{"sensitive_labels.0.service_key_wo_version"},
+						},
+						"service_key_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Triggers update of 'service_key_wo' write-only. Increment this value when an update to 'service_key_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"sensitive_labels.0.service_key_wo"},
 						},
 					},
 				},
@@ -254,6 +299,12 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	sensitiveLabelsProp, err := expandMonitoringNotificationChannelSensitiveLabels(d.Get("sensitive_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("sensitive_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(sensitiveLabelsProp)) && (ok || !reflect.DeepEqual(v, sensitiveLabelsProp)) {
+		obj["sensitiveLabels"] = sensitiveLabelsProp
 	}
 	typeProp, err := expandMonitoringNotificationChannelType(d.Get("type"), d, config)
 	if err != nil {
@@ -462,6 +513,12 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	sensitiveLabelsProp, err := expandMonitoringNotificationChannelSensitiveLabels(d.Get("sensitive_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("sensitive_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sensitiveLabelsProp)) {
+		obj["sensitiveLabels"] = sensitiveLabelsProp
+	}
 	typeProp, err := expandMonitoringNotificationChannelType(d.Get("type"), d, config)
 	if err != nil {
 		return err
@@ -661,6 +718,99 @@ func expandMonitoringNotificationChannelLabels(v interface{}, d tpgresource.Terr
 	return m, nil
 }
 
+func expandMonitoringNotificationChannelSensitiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAuthToken, err := expandMonitoringNotificationChannelSensitiveLabelsAuthToken(original["auth_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuthToken); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["auth_token"] = transformedAuthToken
+	}
+
+	transformedPassword, err := expandMonitoringNotificationChannelSensitiveLabelsPassword(original["password"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["password"] = transformedPassword
+	}
+
+	transformedServiceKey, err := expandMonitoringNotificationChannelSensitiveLabelsServiceKey(original["service_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["service_key"] = transformedServiceKey
+	}
+
+	transformedAuthTokenWo, err := expandMonitoringNotificationChannelSensitiveLabelsAuthTokenWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "sensitive_labels.0.auth_token_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuthTokenWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["auth_token"] = transformedAuthTokenWo
+	}
+
+	transformedPasswordWo, err := expandMonitoringNotificationChannelSensitiveLabelsPasswordWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "sensitive_labels.0.password_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPasswordWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["password"] = transformedPasswordWo
+	}
+
+	transformedServiceKeyWo, err := expandMonitoringNotificationChannelSensitiveLabelsServiceKeyWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "sensitive_labels.0.service_key_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceKeyWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["service_key"] = transformedServiceKeyWo
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringNotificationChannelSensitiveLabelsAuthToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringNotificationChannelSensitiveLabelsPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringNotificationChannelSensitiveLabelsServiceKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringNotificationChannelSensitiveLabelsAuthTokenWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringNotificationChannelSensitiveLabelsAuthTokenWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringNotificationChannelSensitiveLabelsPasswordWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringNotificationChannelSensitiveLabelsPasswordWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringNotificationChannelSensitiveLabelsServiceKeyWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringNotificationChannelSensitiveLabelsServiceKeyWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandMonitoringNotificationChannelType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -699,25 +849,55 @@ func resourceMonitoringNotificationChannelEncoder(d *schema.ResourceData, meta i
 
 	for _, sl := range sensitiveLabels {
 		if auth, _ := d.GetOkExists("sensitive_labels.0." + sl); auth != "" {
+
 			labels[sl] = auth.(string)
+		}
+	}
+	for _, slwov := range writeOnlySensitiveLabels {
+		if v, _ := d.GetOkExists("sensitive_labels.0." + slwov); v != "" {
+			target := strings.TrimSuffix(slwov, "_version")
+			woProp := tpgresource.GetRawConfigAttributeAsString(d, "sensitive_labels.0."+target)
+			if woProp != "" {
+				labels[strings.TrimSuffix(slwov, "_wo_version")] = woProp
+			}
 		}
 	}
 
 	obj["labels"] = labels
+	delete(obj, "sensitiveLabels")
 
 	return obj, nil
 }
 
 func resourceMonitoringNotificationChannelDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	if labelmap, ok := res["labels"]; ok {
-		labels := labelmap.(map[string]interface{})
-		for _, sl := range sensitiveLabels {
-			if _, apiOk := labels[sl]; apiOk {
-				if _, exists := d.GetOkExists("sensitive_labels.0." + sl); exists {
-					delete(labels, sl)
-				} else {
-					labels[sl] = d.Get("labels." + sl)
+	labels, ok := res["labels"].(map[string]interface{})
+	if !ok {
+		return res, nil
+	}
+
+	sensitiveLabelsRaw := d.Get("sensitive_labels")
+	if sensitiveLabelsRaw != nil {
+		if sensitiveLabelsArr, ok := sensitiveLabelsRaw.([]interface{}); ok && len(sensitiveLabelsArr) > 0 {
+			if configuredSensitiveLabels, ok := sensitiveLabelsArr[0].(map[string]interface{}); ok && len(configuredSensitiveLabels) > 0 {
+				sensitiveLabels := make(map[string]interface{})
+
+				for configKey, configVal := range configuredSensitiveLabels {
+					apiField := strings.TrimSuffix(configKey, "_wo")
+					delete(labels, apiField)
+					sensitiveLabels[configKey] = configVal
 				}
+
+				return res, nil
+			}
+		}
+	}
+
+	// Replace obfuscated API values with configured values to prevent a diff
+	// Scenario where end-user uses "sensitive" labels directly in "labels" block
+	if configuredLabels, ok := d.Get("labels").(map[string]interface{}); ok {
+		for _, field := range []string{"auth_token", "password", "service_key"} {
+			if configVal, exists := configuredLabels[field]; exists && configVal != nil && configVal != "" {
+				labels[field] = configVal
 			}
 		}
 	}

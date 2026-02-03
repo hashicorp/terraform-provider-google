@@ -12,11 +12,20 @@ fields:
       provider_only: true
     - api_field: labels
     - api_field: name
-    - field: sensitive_labels.auth_token
+    - api_field: sensitiveLabels.auth_token
+    - api_field: sensitiveLabels.auth_token
+      field: sensitive_labels.auth_token_wo
+    - field: sensitive_labels.auth_token_wo_version
       provider_only: true
-    - field: sensitive_labels.password
+    - api_field: sensitiveLabels.password
+    - api_field: sensitiveLabels.password
+      field: sensitive_labels.password_wo
+    - field: sensitive_labels.password_wo_version
       provider_only: true
-    - field: sensitive_labels.service_key
+    - api_field: sensitiveLabels.service_key
+    - api_field: sensitiveLabels.service_key
+      field: sensitive_labels.service_key_wo
+    - field: sensitive_labels.service_key_wo_version
       provider_only: true
     - api_field: type
     - api_field: userLabels

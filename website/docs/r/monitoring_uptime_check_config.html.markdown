@@ -465,6 +465,28 @@ The following arguments are supported:
   Structure is [documented below](#nested_http_check_ping_config).
 
 
+<a name="nested_http_check_auth_info"></a>The `auth_info` block supports:
+
+* `password` -
+  (Optional)
+  The password to authenticate.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `password_wo` -
+  (Optional, Write-Only)
+  The password to authenticate.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `password` or `password_wo` can only be set.
+
+* `password_wo_version` -
+  (Optional)
+  The password write-only version.
+
+* `username` -
+  (Required)
+  The username to authenticate.
+
 <a name="nested_http_check_service_agent_authentication"></a>The `service_agent_authentication` block supports:
 
 * `type` -

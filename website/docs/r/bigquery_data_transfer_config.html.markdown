@@ -286,6 +286,24 @@ The following arguments are supported:
   (Required)
   The name of the KMS key used for encrypting BigQuery data.
 
+<a name="nested_sensitive_params"></a>The `sensitive_params` block supports:
+
+* `secret_access_key_wo_version` -
+  (Optional)
+  The version of the sensitive params - used to trigger updates of the write-only params. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
+* `secret_access_key` -
+  (Optional)
+  The Secret Access Key of the AWS account transferring data from.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `secret_access_key_wo` -
+  (Optional, Write-Only)
+  The Secret Access Key of the AWS account transferring data from.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `secret_access_key` or `secret_access_key_wo` can only be set.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

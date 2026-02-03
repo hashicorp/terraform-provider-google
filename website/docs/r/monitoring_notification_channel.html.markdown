@@ -51,6 +51,9 @@ To get more information about NotificationChannel, see:
 values will be stored in the raw state as plain text: `sensitive_labels.auth_token`, `sensitive_labels.password`, `sensitive_labels.service_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `sensitive_labels.auth_token_wo`, `sensitive_labels.password_wo`, `sensitive_labels.service_key_wo`.
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=notification_channel_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -157,6 +160,39 @@ deleted in a delete operation.
   (Optional)
   An servicekey token for a notification channel. Channel types that support this field include: pagerduty
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `auth_token_wo` -
+  (Optional, Write-Only)
+  An authorization token for a notification channel. Channel types that support this field include: slack
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `auth_token` or `auth_token_wo` can only be set.
+
+* `auth_token_wo_version` -
+  (Optional)
+  Triggers update of `auth_token_wo` write-only. Increment this value when an update to `auth_token_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
+* `password_wo` -
+  (Optional, Write-Only)
+  An password for a notification channel. Channel types that support this field include: webhook_basicauth
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `password` or `password_wo` can only be set.
+
+* `password_wo_version` -
+  (Optional)
+  Triggers update of `password_wo` write-only. Increment this value when an update to `password_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
+* `service_key_wo` -
+  (Optional, Write-Only)
+  An servicekey token for a notification channel. Channel types that support this field include: pagerduty
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `service_key` or `service_key_wo` can only be set.
+
+* `service_key_wo_version` -
+  (Optional)
+  Triggers update of `service_key_wo` write-only. Increment this value when an update to `service_key_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 ## Attributes Reference
 
