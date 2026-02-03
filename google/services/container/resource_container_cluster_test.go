@@ -3929,10 +3929,14 @@ func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            "google_container_cluster.with_autoprovisioning",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+				ResourceName:      "google_container_cluster.with_autoprovisioning",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"min_master_version",
+					"deletion_protection",
+					"node_pool", // cluster_autoscaling (node auto-provisioning) creates new node pools automatically
+				},
 			},
 			{
 				Config: testAccContainerCluster_autoprovisioning(clusterName, networkName, subnetworkName, true, false, true),
@@ -3946,10 +3950,14 @@ func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            "google_container_cluster.with_autoprovisioning",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+				ResourceName:      "google_container_cluster.with_autoprovisioning",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"min_master_version",
+					"deletion_protection",
+					"node_pool",
+				},
 			},
 			{
 				Config: testAccContainerCluster_autoprovisioning(clusterName, networkName, subnetworkName, false, false, false),
@@ -3964,10 +3972,14 @@ func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            "google_container_cluster.with_autoprovisioning",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+				ResourceName:      "google_container_cluster.with_autoprovisioning",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"min_master_version",
+					"deletion_protection",
+					"node_pool",
+				},
 			},
 		},
 	})
@@ -3997,7 +4009,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection", "node_pool"},
 			},
 			{
 				Config:             testAccContainerCluster_autoprovisioningDefaults(clusterName, networkName, subnetworkName, true),
@@ -4011,7 +4023,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection", "node_pool"},
 			},
 			{
 				Config: testAccContainerCluster_autoprovisioningDefaultsMinCpuPlatform(clusterName, networkName, subnetworkName, !includeMinCpuPlatform),
@@ -4020,7 +4032,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection", "node_pool"},
 			},
 		},
 	})
@@ -4045,7 +4057,7 @@ func TestAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(t *testing.
 				ResourceName:            "google_container_cluster.with_autoprovisioning_upgrade_settings",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "node_pool"},
 			},
 			{
 				Config:      testAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(clusterName, networkName, subnetworkName, 2, 1, "BLUE_GREEN"),
@@ -4058,7 +4070,7 @@ func TestAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(t *testing.
 				ResourceName:            "google_container_cluster.with_autoprovisioning_upgrade_settings",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "node_pool"},
 			},
 		},
 	})
@@ -4087,7 +4099,7 @@ func TestAccContainerCluster_nodeAutoprovisioningNetworkTags(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection", "node_pool"},
 			},
 		},
 	})
@@ -4106,7 +4118,7 @@ func TestAccContainerCluster_withDefaultComputeClassEnabled(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, true),
+				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, true, false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "cluster_autoscaling.0.default_compute_class_enabled", "true"),
 				),
@@ -4115,10 +4127,10 @@ func TestAccContainerCluster_withDefaultComputeClassEnabled(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "node_pool"},
 			},
 			{
-				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, false),
+				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, false, false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "cluster_autoscaling.0.default_compute_class_enabled", "false"),
 				),
@@ -4127,25 +4139,82 @@ func TestAccContainerCluster_withDefaultComputeClassEnabled(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "node_pool"},
 			},
 		},
 	})
 }
 
-func testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName string, enabled bool) string {
-	return fmt.Sprintf(`
+func TestAccContainerCluster_withAutopilotDefaultComputeClassEnabled(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "cluster_autoscaling.0.default_compute_class_enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "node_pool"},
+			},
+			{
+				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, false, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "cluster_autoscaling.0.default_compute_class_enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "node_pool"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName string, enabled, autopilot bool) string {
+	var location string
+	if autopilot {
+		location = "us-central1"
+	} else {
+		location = "us-central1-a"
+	}
+	res := fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%s"
-  location           = "us-central1-a"
+  location           = "%s"
   initial_node_count = 1
   network            = "%s"
   subnetwork         = "%s"
   deletion_protection = false
+`, clusterName, location, networkName, subnetworkName)
 
+	if autopilot {
+		res += `
+  enable_autopilot = true
+`
+	}
+
+	res += fmt.Sprintf(`
   cluster_autoscaling {
-    enabled                         = true
     default_compute_class_enabled = %t
+`, enabled)
+	if !autopilot {
+		res += `
+    enabled                         = true
     resource_limits {
       resource_type = "cpu"
       minimum       = 1
@@ -4156,9 +4225,12 @@ resource "google_container_cluster" "primary" {
       minimum       = 10
       maximum       = 100
     }
+`
+	}
+	res += `
   }
-}
-`, clusterName, networkName, subnetworkName, enabled)
+}`
+	return res
 }
 
 func TestAccContainerCluster_withShieldedNodes(t *testing.T) {
