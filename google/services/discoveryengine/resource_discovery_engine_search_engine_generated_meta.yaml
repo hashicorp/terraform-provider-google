@@ -17,6 +17,13 @@ fields:
     - api_field: features
     - api_field: industryVertical
     - api_field: kmsKeyName
+    - api_field: knowledgeGraphConfig.cloudKnowledgeGraphTypes
+    - api_field: knowledgeGraphConfig.enableCloudKnowledgeGraph
+    - api_field: knowledgeGraphConfig.enablePrivateKnowledgeGraph
+    - api_field: knowledgeGraphConfig.featureConfig.disablePrivateKgAutoComplete
+    - api_field: knowledgeGraphConfig.featureConfig.disablePrivateKgEnrichment
+    - api_field: knowledgeGraphConfig.featureConfig.disablePrivateKgQueryUiChips
+    - api_field: knowledgeGraphConfig.featureConfig.disablePrivateKgQueryUnderstanding
     - field: location
       provider_only: true
     - api_field: name
