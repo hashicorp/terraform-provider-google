@@ -1,0 +1,3 @@
+```release-note:deprecation
+backupdr: deprecated redundant `name` field in `google_backupdr_restore_workload`, fixed documentation examples and added more properties to VM test with properties.
+```
