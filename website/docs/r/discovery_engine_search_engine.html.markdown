@@ -86,6 +86,8 @@ resource "google_discovery_engine_search_engine" "agentspace_basic" {
   app_type                    = "APP_TYPE_INTRANET"
   search_engine_config {
   }
+  knowledge_graph_config {
+  }
 }
 ```
 
@@ -148,6 +150,11 @@ The following arguments are supported:
   If this field is set and processed successfully, the Engine will be
   protected by the KMS key, as indicated in the cmek_config field.
 
+* `knowledge_graph_config` -
+  (Optional)
+  Configurations for the Knowledge Graph.
+  Structure is [documented below](#nested_knowledge_graph_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -171,6 +178,44 @@ The following arguments are supported:
 * `company_name` -
   (Optional)
   The name of the company, business or entity that is associated with the engine. Setting this may help improve LLM related features.cd
+
+<a name="nested_knowledge_graph_config"></a>The `knowledge_graph_config` block supports:
+
+* `enable_cloud_knowledge_graph` -
+  (Optional)
+  Whether to enable the Cloud Knowledge Graph for the engine.
+
+* `cloud_knowledge_graph_types` -
+  (Optional)
+  Specify entity types to support.
+
+* `enable_private_knowledge_graph` -
+  (Optional)
+  Whether to enable the Private Knowledge Graph for the engine.
+
+* `feature_config` -
+  (Optional)
+  Feature config for the Knowledge Graph.
+  Structure is [documented below](#nested_knowledge_graph_config_feature_config).
+
+
+<a name="nested_knowledge_graph_config_feature_config"></a>The `feature_config` block supports:
+
+* `disable_private_kg_query_understanding` -
+  (Optional)
+  Whether to disable the private KG query understanding for the engine.
+
+* `disable_private_kg_enrichment` -
+  (Optional)
+  Whether to disable the private KG enrichment for the engine.
+
+* `disable_private_kg_auto_complete` -
+  (Optional)
+  Whether to disable the private KG auto complete for the engine.
+
+* `disable_private_kg_query_ui_chips` -
+  (Optional)
+  Whether to disable the private KG for query UI chips.
 
 ## Attributes Reference
 
