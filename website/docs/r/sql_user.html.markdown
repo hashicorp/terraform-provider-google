@@ -52,6 +52,32 @@ resource "google_sql_user" "users" {
 }
 ```
 
+Example creating a SQL User with database roles(applicable for Postgres/MySQL
+only).
+
+```hcl
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance-${random_id.db_name_suffix.hex}"
+  database_version = "POSTGRES_15"
+
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+
+resource "google_sql_user" "users" {
+  name     = "me"
+  instance = google_sql_database_instance.main.name
+  host     = "me.com"
+  password = "changeme"
+  database_roles = ["cloudsqlsuperuser"]
+}
+```
+
 Example using [Cloud SQL IAM database authentication](https://cloud.google.com/sql/docs/mysql/authentication).
 
 ```hcl
@@ -154,6 +180,16 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
+
+* `iam_email` - (read only) IAM email address for MySQL IAM database users.
+
+* `database_roles` - (Optional) A list of database roles to be assigned to the user.
+    This option is only available for MySQL 8+ and PostgreSQL instances. You
+    can include predefined Cloud SQL roles, like cloudsqlsuperuser, or your
+    own custom roles. Custom roles must be created in the database before
+    you can assign them. You can create roles using the CREATE ROLE
+    statement for both MySQL and PostgreSQL.
+  **Note**: This property is write-only and will not be read from the API.
 
 The optional `password_policy` block is only supported for creating MySQL and Postgres users. The `password_policy` block supports:
 
