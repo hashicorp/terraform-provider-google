@@ -154,7 +154,31 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `The deployment group that this DIRECT endpoint group is connected to, for example:
 'projects/123456789/locations/global/mirroringDeploymentGroups/my-dg'.
 See https://google.aip.dev/124.`,
-				ExactlyOneOf: []string{"mirroring_deployment_group"},
+				ExactlyOneOf: []string{"mirroring_deployment_group", "mirroring_deployment_groups"},
+			},
+			"mirroring_deployment_groups": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `A list of the deployment groups that this BROKER endpoint group is
+connected to, for example:
+'projects/123456789/locations/global/mirroringDeploymentGroups/my-dg'.
+See https://google.aip.dev/124.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				ExactlyOneOf: []string{"mirroring_deployment_group", "mirroring_deployment_groups"},
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The type of the endpoint group.
+If left unspecified, defaults to DIRECT.
+Possible values:
+DIRECT
+BROKER`,
+				Default: "DIRECT",
 			},
 			"associations": {
 				Type:        schema.TypeSet,
@@ -326,6 +350,18 @@ func resourceNetworkSecurityMirroringEndpointGroupCreate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("mirroring_deployment_group"); !tpgresource.IsEmptyValue(reflect.ValueOf(mirroringDeploymentGroupProp)) && (ok || !reflect.DeepEqual(v, mirroringDeploymentGroupProp)) {
 		obj["mirroringDeploymentGroup"] = mirroringDeploymentGroupProp
 	}
+	mirroringDeploymentGroupsProp, err := expandNetworkSecurityMirroringEndpointGroupMirroringDeploymentGroups(d.Get("mirroring_deployment_groups"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mirroring_deployment_groups"); !tpgresource.IsEmptyValue(reflect.ValueOf(mirroringDeploymentGroupsProp)) && (ok || !reflect.DeepEqual(v, mirroringDeploymentGroupsProp)) {
+		obj["mirroringDeploymentGroups"] = mirroringDeploymentGroupsProp
+	}
+	typeProp, err := expandNetworkSecurityMirroringEndpointGroupType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
+	}
 	descriptionProp, err := expandNetworkSecurityMirroringEndpointGroupDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -452,10 +488,16 @@ func resourceNetworkSecurityMirroringEndpointGroupRead(d *schema.ResourceData, m
 	if err := d.Set("mirroring_deployment_group", flattenNetworkSecurityMirroringEndpointGroupMirroringDeploymentGroup(res["mirroringDeploymentGroup"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MirroringEndpointGroup: %s", err)
 	}
+	if err := d.Set("mirroring_deployment_groups", flattenNetworkSecurityMirroringEndpointGroupMirroringDeploymentGroups(res["mirroringDeploymentGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroup: %s", err)
+	}
 	if err := d.Set("state", flattenNetworkSecurityMirroringEndpointGroupState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MirroringEndpointGroup: %s", err)
 	}
 	if err := d.Set("reconciling", flattenNetworkSecurityMirroringEndpointGroupReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MirroringEndpointGroup: %s", err)
+	}
+	if err := d.Set("type", flattenNetworkSecurityMirroringEndpointGroupType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MirroringEndpointGroup: %s", err)
 	}
 	if err := d.Set("description", flattenNetworkSecurityMirroringEndpointGroupDescription(res["description"], d, config)); err != nil {
@@ -672,11 +714,19 @@ func flattenNetworkSecurityMirroringEndpointGroupMirroringDeploymentGroup(v inte
 	return v
 }
 
+func flattenNetworkSecurityMirroringEndpointGroupMirroringDeploymentGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecurityMirroringEndpointGroupState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 func flattenNetworkSecurityMirroringEndpointGroupReconciling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityMirroringEndpointGroupType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -786,6 +836,14 @@ func flattenNetworkSecurityMirroringEndpointGroupEffectiveLabels(v interface{}, 
 }
 
 func expandNetworkSecurityMirroringEndpointGroupMirroringDeploymentGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityMirroringEndpointGroupMirroringDeploymentGroups(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityMirroringEndpointGroupType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

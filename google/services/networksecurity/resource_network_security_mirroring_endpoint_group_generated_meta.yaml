@@ -19,6 +19,7 @@ fields:
     - field: location
       provider_only: true
     - api_field: mirroringDeploymentGroup
+    - api_field: mirroringDeploymentGroups
     - field: mirroring_endpoint_group_id
       provider_only: true
     - api_field: name
@@ -26,4 +27,5 @@ fields:
     - api_field: state
     - field: terraform_labels
       provider_only: true
+    - api_field: type
     - api_field: updateTime
