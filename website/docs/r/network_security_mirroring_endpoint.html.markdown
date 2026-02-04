@@ -27,8 +27,6 @@ enrichment capabilities and support for multiple replica destinations.
 Endpoints are always part of a global endpoint group which represents a
 global "mirroring broker" service.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -41,20 +39,17 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 resource "google_compute_network" "network" {
-  provider                = google-beta
   name                    = "example-network"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "deployment_group" {
-  provider                      = google-beta
   mirroring_deployment_group_id = "example-dg"
   location                      = "global"
   network                       = google_compute_network.network.id
 }
 
 resource "google_network_security_mirroring_endpoint_group" "endpoint_group" {
-  provider                    = google-beta
   mirroring_endpoint_group_id = "example-eg"
   location                    = "global"
   type                        = "BROKER"
@@ -62,7 +57,6 @@ resource "google_network_security_mirroring_endpoint_group" "endpoint_group" {
 }
 
 resource "google_network_security_mirroring_endpoint" "default" {
-  provider                 = google-beta
   mirroring_endpoint_id    = "example-endpoint"
   location                 = "us-west2-a"
   mirroring_endpoint_group = google_network_security_mirroring_endpoint_group.endpoint_group.id
