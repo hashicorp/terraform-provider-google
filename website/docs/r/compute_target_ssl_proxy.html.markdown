@@ -47,6 +47,7 @@ resource "google_compute_target_ssl_proxy" "default" {
   name             = "test-proxy"
   backend_service  = google_compute_backend_service.default.id
   ssl_certificates = [google_compute_ssl_certificate.default.id]
+  certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.default.id}"
 }
 
 resource "google_compute_ssl_certificate" "default" {
@@ -68,6 +69,11 @@ resource "google_compute_health_check" "default" {
   tcp_health_check {
     port = "443"
   }
+}
+
+resource "google_certificate_manager_certificate_map" "default" {
+  name        = "certificate-map-test"
+  description = "My acceptance test certificate map"
 }
 ```
 

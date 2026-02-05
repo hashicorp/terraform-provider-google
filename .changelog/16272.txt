@@ -1,0 +1,3 @@
+```release-note:bug
+compute: allows to set both ssl_certificates and certificate_map in target_ssl_proxy
+```
