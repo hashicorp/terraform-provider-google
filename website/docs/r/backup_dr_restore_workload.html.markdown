@@ -25,8 +25,6 @@ An imperative resource that triggers a GCBDR restoration event.
 Creating this resource will initiate a restore operation from a specified backup.
 The resource represents the restore operation and its result.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage - Backup Dr Restore Workload Compute Instance Basic

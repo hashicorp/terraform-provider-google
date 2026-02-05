@@ -1,0 +1,155 @@
+resource: google_backup_dr_restore_workload
+generation_type: mmv1
+source_file: products/backupdr/RestoreWorkload.yaml
+api_service_name: backupdr.googleapis.com
+api_version: v1
+api_resource_type_kind: RestoreWorkload
+fields:
+    - field: backup_id
+      provider_only: true
+    - field: backup_vault_id
+      provider_only: true
+    - api_field: clearOverridesFieldMask
+    - api_field: computeInstanceRestoreProperties.advancedMachineFeatures.enableNestedVirtualization
+    - api_field: computeInstanceRestoreProperties.advancedMachineFeatures.enableUefiNetworking
+    - api_field: computeInstanceRestoreProperties.advancedMachineFeatures.threadsPerCore
+    - api_field: computeInstanceRestoreProperties.advancedMachineFeatures.visibleCoreCount
+    - api_field: computeInstanceRestoreProperties.allocationAffinity.consumeAllocationType
+    - api_field: computeInstanceRestoreProperties.allocationAffinity.key
+    - api_field: computeInstanceRestoreProperties.allocationAffinity.values
+    - api_field: computeInstanceRestoreProperties.canIpForward
+    - api_field: computeInstanceRestoreProperties.confidentialInstanceConfig.enableConfidentialCompute
+    - api_field: computeInstanceRestoreProperties.deletionProtection
+    - api_field: computeInstanceRestoreProperties.description
+    - api_field: computeInstanceRestoreProperties.disks.autoDelete
+    - api_field: computeInstanceRestoreProperties.disks.boot
+    - api_field: computeInstanceRestoreProperties.disks.deviceName
+    - api_field: computeInstanceRestoreProperties.disks.diskEncryptionKey.kmsKeyName
+    - api_field: computeInstanceRestoreProperties.disks.diskEncryptionKey.kmsKeyServiceAccount
+    - api_field: computeInstanceRestoreProperties.disks.diskEncryptionKey.rawKey
+    - api_field: computeInstanceRestoreProperties.disks.diskEncryptionKey.rsaEncryptedKey
+    - api_field: computeInstanceRestoreProperties.disks.diskInterface
+    - api_field: computeInstanceRestoreProperties.disks.diskSizeGb
+    - api_field: computeInstanceRestoreProperties.disks.diskType
+    - api_field: computeInstanceRestoreProperties.disks.guestOsFeature.type
+    - api_field: computeInstanceRestoreProperties.disks.index
+    - api_field: computeInstanceRestoreProperties.disks.initializeParams.diskName
+    - api_field: computeInstanceRestoreProperties.disks.initializeParams.replicaZones
+    - api_field: computeInstanceRestoreProperties.disks.kind
+    - api_field: computeInstanceRestoreProperties.disks.license
+    - api_field: computeInstanceRestoreProperties.disks.mode
+    - api_field: computeInstanceRestoreProperties.disks.savedState
+    - api_field: computeInstanceRestoreProperties.disks.source
+    - api_field: computeInstanceRestoreProperties.disks.type
+    - api_field: computeInstanceRestoreProperties.displayDevice.enableDisplay
+    - api_field: computeInstanceRestoreProperties.guestAccelerators.acceleratorCount
+    - api_field: computeInstanceRestoreProperties.guestAccelerators.acceleratorType
+    - api_field: computeInstanceRestoreProperties.hostname
+    - api_field: computeInstanceRestoreProperties.instanceEncryptionKey.kmsKeyName
+    - api_field: computeInstanceRestoreProperties.instanceEncryptionKey.kmsKeyServiceAccount
+    - api_field: computeInstanceRestoreProperties.instanceEncryptionKey.rawKey
+    - api_field: computeInstanceRestoreProperties.instanceEncryptionKey.rsaEncryptedKey
+    - api_field: computeInstanceRestoreProperties.keyRevocationActionType
+    - api_field: computeInstanceRestoreProperties.labels.key
+    - api_field: computeInstanceRestoreProperties.labels.value.value
+      field: compute_instance_restore_properties.labels.value
+    - api_field: computeInstanceRestoreProperties.machineType
+    - api_field: computeInstanceRestoreProperties.metadata.items.key
+    - api_field: computeInstanceRestoreProperties.metadata.items.value
+    - api_field: computeInstanceRestoreProperties.minCpuPlatform
+    - api_field: computeInstanceRestoreProperties.name
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.externalIp
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.externalIpv6
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.externalIpv6PrefixLength
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.name
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.networkTier
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.publicPtrDomainName
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.setPublicPtr
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.accessConfigs.type
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.aliasIpRanges.ipCidrRange
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.aliasIpRanges.subnetworkRangeName
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.internalIpv6PrefixLength
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipAddress
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.externalIp
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.externalIpv6
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.externalIpv6PrefixLength
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.name
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.networkTier
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.publicPtrDomainName
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.setPublicPtr
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessConfigs.type
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6AccessType
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.ipv6Address
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.network
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.networkAttachment
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.nicType
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.queueCount
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.stackType
+    - api_field: computeInstanceRestoreProperties.networkInterfaces.subnetwork
+    - api_field: computeInstanceRestoreProperties.networkPerformanceConfig.totalEgressBandwidthTier
+    - api_field: computeInstanceRestoreProperties.params.resourceManagerTags.key
+    - api_field: computeInstanceRestoreProperties.params.resourceManagerTags.value.value
+      field: compute_instance_restore_properties.params.resource_manager_tags.value
+    - api_field: computeInstanceRestoreProperties.privateIpv6GoogleAccess
+    - api_field: computeInstanceRestoreProperties.resourcePolicies
+    - api_field: computeInstanceRestoreProperties.scheduling.automaticRestart
+    - api_field: computeInstanceRestoreProperties.scheduling.instanceTerminationAction
+    - api_field: computeInstanceRestoreProperties.scheduling.localSsdRecoveryTimeout.nanos
+    - api_field: computeInstanceRestoreProperties.scheduling.localSsdRecoveryTimeout.seconds
+    - api_field: computeInstanceRestoreProperties.scheduling.maxRunDuration.nanos
+    - api_field: computeInstanceRestoreProperties.scheduling.maxRunDuration.seconds
+    - api_field: computeInstanceRestoreProperties.scheduling.minNodeCpus
+    - api_field: computeInstanceRestoreProperties.scheduling.nodeAffinities.key
+    - api_field: computeInstanceRestoreProperties.scheduling.nodeAffinities.operator
+    - api_field: computeInstanceRestoreProperties.scheduling.nodeAffinities.values
+    - api_field: computeInstanceRestoreProperties.scheduling.onHostMaintenance
+    - api_field: computeInstanceRestoreProperties.scheduling.preemptible
+    - api_field: computeInstanceRestoreProperties.scheduling.provisioningModel
+    - api_field: computeInstanceRestoreProperties.scheduling.terminationTime
+    - api_field: computeInstanceRestoreProperties.serviceAccounts.email
+    - api_field: computeInstanceRestoreProperties.serviceAccounts.scopes
+    - api_field: computeInstanceRestoreProperties.shieldedInstanceConfig.enableIntegrityMonitoring
+    - api_field: computeInstanceRestoreProperties.shieldedInstanceConfig.enableSecureBoot
+    - api_field: computeInstanceRestoreProperties.shieldedInstanceConfig.enableVtpm
+    - api_field: computeInstanceRestoreProperties.tags.items
+    - api_field: computeInstanceTargetEnvironment.project
+    - api_field: computeInstanceTargetEnvironment.zone
+    - field: data_source_id
+      provider_only: true
+    - api_field: deleteRestoredInstance
+    - api_field: diskRestoreProperties.accessMode
+    - api_field: diskRestoreProperties.architecture
+    - api_field: diskRestoreProperties.description
+    - api_field: diskRestoreProperties.diskEncryptionKey.kmsKeyName
+    - api_field: diskRestoreProperties.diskEncryptionKey.kmsKeyServiceAccount
+    - api_field: diskRestoreProperties.diskEncryptionKey.rawKey
+    - api_field: diskRestoreProperties.diskEncryptionKey.rsaEncryptedKey
+    - api_field: diskRestoreProperties.enableConfidentialCompute
+    - api_field: diskRestoreProperties.guestOsFeature.type
+    - api_field: diskRestoreProperties.labels.key
+    - api_field: diskRestoreProperties.labels.value.value
+      field: disk_restore_properties.labels.value
+    - api_field: diskRestoreProperties.licenses
+    - api_field: diskRestoreProperties.name
+    - api_field: diskRestoreProperties.physicalBlockSizeBytes
+    - api_field: diskRestoreProperties.provisionedIops
+    - api_field: diskRestoreProperties.provisionedThroughput
+    - api_field: diskRestoreProperties.resourceManagerTags.key
+    - api_field: diskRestoreProperties.resourceManagerTags.value.value
+      field: disk_restore_properties.resource_manager_tags.value
+    - api_field: diskRestoreProperties.resourcePolicy
+    - api_field: diskRestoreProperties.sizeGb
+    - api_field: diskRestoreProperties.storagePool
+    - api_field: diskRestoreProperties.type
+    - api_field: diskTargetEnvironment.project
+    - api_field: diskTargetEnvironment.zone
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: regionDiskTargetEnvironment.project
+    - api_field: regionDiskTargetEnvironment.region
+    - api_field: regionDiskTargetEnvironment.replicaZones
+    - api_field: requestId
+    - api_field: targetResource.gcpResource.gcpResourcename
+    - api_field: targetResource.gcpResource.location
+    - api_field: targetResource.gcpResource.type
