@@ -256,7 +256,7 @@ variable_declarations {
   client_certificate_settings {
     tls_certificate = file("test-fixtures/cert.pem")
     private_key = google_secret_manager_secret_version.fake_secret_version.name
-    passphrase = "fakepassphrase"
+    passphrase = google_secret_manager_secret_version.fake_secret_version.name
   }
 
   # Root agent should not be specified when creating an app
