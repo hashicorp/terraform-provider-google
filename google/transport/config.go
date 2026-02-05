@@ -1781,7 +1781,10 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	c.Region = GetRegionFromRegionSelfLink(c.Region)
 	c.RequestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
 	c.RequestBatcherIam = NewRequestBatcher("IAM", ctx, c.BatchingConfig)
-	c.PollInterval = 10 * time.Second
+	// Set default of 10s if unset by user in provider.go or LoadAndValidate was invoked directly
+	if c.PollInterval == 0 {
+		c.PollInterval = 10 * time.Second
+	}
 
 	// gRPC Logging setup
 	logger := logrus.StandardLogger()
