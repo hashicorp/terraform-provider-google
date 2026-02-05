@@ -395,6 +395,8 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Conf
 		flattened[i] = map[string]interface{}{
 			"network_ip":                  iface.NetworkIP,
 			"network":                     tpgresource.ConvertSelfLinkToV1(iface.Network),
+			"parent_nic_name":             iface.ParentNicName,
+			"vlan":                        iface.Vlan,
 			"subnetwork":                  tpgresource.ConvertSelfLinkToV1(iface.Subnetwork),
 			"subnetwork_project":          subnet.Project,
 			"access_config":               ac,
@@ -509,6 +511,7 @@ func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transp
 			NetworkIP:                data["network_ip"].(string),
 			Network:                  nf.RelativeLink(),
 			NetworkAttachment:        networkAttachment,
+			Vlan:                     int64(data["vlan"].(int)),
 			Subnetwork:               sf.RelativeLink(),
 			AccessConfigs:            expandAccessConfigs(data["access_config"].([]interface{})),
 			AliasIpRanges:            expandAliasIpRanges(data["alias_ip_range"].([]interface{})),

@@ -588,7 +588,9 @@ The following arguments are supported:
     to. The subnetwork must exist in the same `region` this instance will be
     created in. Either `network` or `subnetwork` must be provided.
 
-* `network_attachment` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.
+* `network_attachment` - (Optional) The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.
+
+* `vlan` - (Optional) VLAN tag of a dynamic network interface, must be an integer in the range from 2 to 255 inclusively.
 
 * `subnetwork_project` - (Optional) The ID of the project in which the subnetwork belongs.
     If it is not provided, the provider project is used.
@@ -826,6 +828,8 @@ exported:
 Referencing an instance template via this attribute prevents Time of Check to Time of Use attacks when the instance template resides in a shared/untrusted environment.
 
 * `tags_fingerprint` - The unique fingerprint of the tags.
+
+* `network_interface.0.parent_nic_name` - Name of the parent network interface of a dynamic network interface.
 
 [1]: /docs/providers/google/r/compute_instance_group_manager.html
 [2]: /docs/language/meta-arguments/lifecycle.html

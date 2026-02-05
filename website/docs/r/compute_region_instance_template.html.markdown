@@ -572,6 +572,10 @@ The following arguments are supported:
 
 * `nic_type` - (Optional) The type of vNIC to be used on this interface. Possible values: GVNIC, VIRTIO_NET, MRDMA, IRDMA.
 
+* `network_attachment` - (Optional) The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.
+
+* `vlan` - (Optional) VLAN tag of a dynamic network interface, must be an integer in the range from 2 to 255 inclusively.
+
 * `igmp_query` - (Optional) Indicates whether igmp query is enabled on the network interface or not. If enabled, also indicates the version of IGMP supported.
 
 * `stack_type` - (Optional) The stack type for this network interface to identify whether the IPv6 feature is enabled or not. Values are IPV4_IPV6, IPV6_ONLY or IPV4_ONLY. If not specified, IPV4_ONLY will be used.
@@ -779,6 +783,8 @@ exported:
 * `self_link` - The URI of the created resource.
 
 * `tags_fingerprint` - The unique fingerprint of the tags.
+
+* `network_interface.0.parent_nic_name` - Name of the parent network interface of a dynamic network interface.
 
 [1]: /docs/providers/google/r/compute_instance_group_manager.html
 [2]: /docs/language/meta-arguments/lifecycle.html

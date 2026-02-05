@@ -495,6 +495,29 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 							Description:      `The name of the subnetwork to attach this interface to. The subnetwork must exist in the same region this instance will be created in. Either network or subnetwork must be provided.`,
 						},
 
+						"network_attachment": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							Computed:         true,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+							Description:      `The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.`,
+						},
+
+						"parent_nic_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Name of the parent network interface of a dynamic network interface.`,
+						},
+
+						"vlan": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.IntBetween(2, 255),
+							Description:  `VLAN tag of a dynamic network interface, must be an integer in the range from 2 to 255 inclusively.`,
+						},
+
 						"subnetwork_project": {
 							Type:        schema.TypeString,
 							Optional:    true,
