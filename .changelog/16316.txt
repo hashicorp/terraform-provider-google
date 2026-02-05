@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added support for `developer_connect_source` to `spec.source_code_spec` in `google_vertex_ai_reasoning_engine`
+```

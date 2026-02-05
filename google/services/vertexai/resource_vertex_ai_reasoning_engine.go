@@ -349,6 +349,41 @@ Agent in the project will be used.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"developer_connect_source": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Specification for source code to be fetched from a Git repository managed through the Developer Connect service.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"config": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `The Developer Connect configuration that defines the specific repository, revision, and directory to use as the source code root.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"dir": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Directory, relative to the source root, in which to run the build.`,
+															},
+															"git_repository_link": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The Developer Connect Git repository link, formatted as projects/*/locations/*/connections/*/gitRepositoryLink/*.`,
+															},
+															"revision": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"inline_source": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -1178,6 +1213,8 @@ func flattenVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d *schema.R
 		flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(original["inlineSource"], d, config)
 	transformed["python_spec"] =
 		flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(original["pythonSpec"], d, config)
+	transformed["developer_connect_source"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSource(original["developerConnectSource"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1219,6 +1256,48 @@ func flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecRequirementsFile(
 }
 
 func flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["config"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfig(original["config"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["git_repository_link"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigGitRepositoryLink(original["gitRepositoryLink"], d, config)
+	transformed["dir"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigDir(original["dir"], d, config)
+	transformed["revision"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigRevision(original["revision"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigGitRepositoryLink(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigDir(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigRevision(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1704,6 +1783,13 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d tpgresourc
 		transformed["pythonSpec"] = transformedPythonSpec
 	}
 
+	transformedDeveloperConnectSource, err := expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSource(original["developer_connect_source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDeveloperConnectSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["developerConnectSource"] = transformedDeveloperConnectSource
+	}
+
 	return transformed, nil
 }
 
@@ -1789,6 +1875,76 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecRequirementsFile(v
 }
 
 func expandVertexAIReasoningEngineSpecSourceCodeSpecPythonSpecVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedConfig, err := expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfig(original["config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["config"] = transformedConfig
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGitRepositoryLink, err := expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigGitRepositoryLink(original["git_repository_link"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGitRepositoryLink); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gitRepositoryLink"] = transformedGitRepositoryLink
+	}
+
+	transformedDir, err := expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigDir(original["dir"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDir); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dir"] = transformedDir
+	}
+
+	transformedRevision, err := expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigRevision(original["revision"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRevision); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["revision"] = transformedRevision
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigGitRepositoryLink(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigRevision(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
