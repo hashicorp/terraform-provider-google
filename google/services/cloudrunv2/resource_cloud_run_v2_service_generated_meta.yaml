@@ -88,6 +88,14 @@ fields:
     - api_field: template.containers.name
     - api_field: template.containers.ports.containerPort
     - api_field: template.containers.ports.name
+    - api_field: template.containers.readinessProbe.failureThreshold
+    - api_field: template.containers.readinessProbe.grpc.port
+    - api_field: template.containers.readinessProbe.grpc.service
+    - api_field: template.containers.readinessProbe.httpGet.path
+    - api_field: template.containers.readinessProbe.httpGet.port
+    - api_field: template.containers.readinessProbe.periodSeconds
+    - api_field: template.containers.readinessProbe.successThreshold
+    - api_field: template.containers.readinessProbe.timeoutSeconds
     - api_field: template.containers.resources.cpuIdle
     - api_field: template.containers.resources.limits
     - api_field: template.containers.resources.startupCpuBoost

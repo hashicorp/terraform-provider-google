@@ -1684,3 +1684,120 @@ resource "google_cloud_run_v2_service" "default" {
 }
 `, context)
 }
+
+func TestAccCloudRunV2Service_cloudrunv2ServiceWithReadinessProbe(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWithHTTPReadinessProbe(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "launch_stage", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceUpdateWithHTTPReadinessProbe(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "launch_stage", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceUpdateWithGRPCReadinessProbe(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "launch_stage", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWithHTTPReadinessProbe(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  location = "us-central1"
+  launch_stage = "BETA"
+  deletion_protection = false
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      ports {
+        container_port = 8080
+      }
+      readiness_probe {
+        http_get {}
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceUpdateWithHTTPReadinessProbe(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  location = "us-central1"
+  launch_stage = "BETA"
+  deletion_protection = false
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      ports {
+        container_port = 8080
+      }
+      readiness_probe {
+        period_seconds = 30
+        timeout_seconds = 20
+        failure_threshold = 1
+        success_threshold = 1
+        http_get {
+          path = "/some-path"
+          port = 8080
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceUpdateWithGRPCReadinessProbe(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  location = "us-central1"
+  launch_stage = "BETA"
+  deletion_protection = false
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      readiness_probe {
+        grpc {
+          port = 8080
+          service = "health"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
