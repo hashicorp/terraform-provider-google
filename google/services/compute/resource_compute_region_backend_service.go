@@ -893,6 +893,42 @@ This field must be set for Internal Passthrough Network Load Balancers when the 
 This field can only be specified when the load balancing scheme is set to INTERNAL, or when the load balancing scheme is set to EXTERNAL and haPolicy fastIpMove is enabled.
 Changes to this field force recreation of the resource.`,
 			},
+			"network_pass_through_lb_traffic_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configures traffic steering properties of internal passthrough Network Load Balancers.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"zonal_affinity": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `When configured, new connections are load balanced across healthy backend endpoints in the local zone.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"spillover": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"ZONAL_AFFINITY_DISABLED", "ZONAL_AFFINITY_SPILL_CROSS_ZONE", "ZONAL_AFFINITY_STAY_WITHIN_ZONE", ""}),
+										Description:  `This field indicates whether zonal affinity is enabled or not. Default value: "ZONAL_AFFINITY_DISABLED" Possible values: ["ZONAL_AFFINITY_DISABLED", "ZONAL_AFFINITY_SPILL_CROSS_ZONE", "ZONAL_AFFINITY_STAY_WITHIN_ZONE"]`,
+										Default:      "ZONAL_AFFINITY_DISABLED",
+									},
+									"spillover_ratio": {
+										Type:     schema.TypeFloat,
+										Optional: true,
+										Description: `The value of the field must be in [0, 1]. When the ratio of the count of healthy backend endpoints in a zone
+to the count of backend endpoints in that same zone is equal to or above this threshold, the load balancer
+distributes new connections to all healthy endpoints in the local zone only. When the ratio of the count
+of healthy backend endpoints in a zone to the count of backend endpoints in that same zone is below this
+threshold, the load balancer distributes all new connections to all healthy endpoints across all zones.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"outlier_detection": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -1519,6 +1555,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("custom_metrics"); !tpgresource.IsEmptyValue(reflect.ValueOf(customMetricsProp)) && (ok || !reflect.DeepEqual(v, customMetricsProp)) {
 		obj["customMetrics"] = customMetricsProp
 	}
+	networkPassThroughLbTrafficPolicyProp, err := expandComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicy(d.Get("network_pass_through_lb_traffic_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network_pass_through_lb_traffic_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkPassThroughLbTrafficPolicyProp)) && (ok || !reflect.DeepEqual(v, networkPassThroughLbTrafficPolicyProp)) {
+		obj["networkPassThroughLbTrafficPolicy"] = networkPassThroughLbTrafficPolicyProp
+	}
 	outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get("outlier_detection"), d, config)
 	if err != nil {
 		return err
@@ -1782,6 +1824,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("custom_metrics", flattenComputeRegionBackendServiceCustomMetrics(res["customMetrics"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("network_pass_through_lb_traffic_policy", flattenComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicy(res["networkPassThroughLbTrafficPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("outlier_detection", flattenComputeRegionBackendServiceOutlierDetection(res["outlierDetection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
@@ -1942,6 +1987,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("custom_metrics"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customMetricsProp)) {
 		obj["customMetrics"] = customMetricsProp
+	}
+	networkPassThroughLbTrafficPolicyProp, err := expandComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicy(d.Get("network_pass_through_lb_traffic_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network_pass_through_lb_traffic_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkPassThroughLbTrafficPolicyProp)) {
+		obj["networkPassThroughLbTrafficPolicy"] = networkPassThroughLbTrafficPolicyProp
 	}
 	outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get("outlier_detection"), d, config)
 	if err != nil {
@@ -2972,6 +3023,42 @@ func flattenComputeRegionBackendServiceCustomMetricsName(v interface{}, d *schem
 }
 
 func flattenComputeRegionBackendServiceCustomMetricsDryRun(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["zonal_affinity"] =
+		flattenComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinity(original["zonalAffinity"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["spillover"] =
+		flattenComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinitySpillover(original["spillover"], d, config)
+	transformed["spillover_ratio"] =
+		flattenComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinitySpilloverRatio(original["spilloverRatio"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinitySpillover(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinitySpilloverRatio(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4344,6 +4431,65 @@ func expandComputeRegionBackendServiceCustomMetricsName(v interface{}, d tpgreso
 }
 
 func expandComputeRegionBackendServiceCustomMetricsDryRun(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedZonalAffinity, err := expandComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinity(original["zonal_affinity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedZonalAffinity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["zonalAffinity"] = transformedZonalAffinity
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSpillover, err := expandComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinitySpillover(original["spillover"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSpillover); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["spillover"] = transformedSpillover
+	}
+
+	transformedSpilloverRatio, err := expandComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinitySpilloverRatio(original["spillover_ratio"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSpilloverRatio); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["spilloverRatio"] = transformedSpilloverRatio
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinitySpillover(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceNetworkPassThroughLbTrafficPolicyZonalAffinitySpilloverRatio(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

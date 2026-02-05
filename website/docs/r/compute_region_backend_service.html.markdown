@@ -867,7 +867,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_custom_metrics).
 
 * `network_pass_through_lb_traffic_policy` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Configures traffic steering properties of internal passthrough Network Load Balancers.
   Structure is [documented below](#nested_network_pass_through_lb_traffic_policy).
 
@@ -1433,13 +1433,13 @@ The following arguments are supported:
 <a name="nested_network_pass_through_lb_traffic_policy_zonal_affinity"></a>The `zonal_affinity` block supports:
 
 * `spillover` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   This field indicates whether zonal affinity is enabled or not.
   Default value is `ZONAL_AFFINITY_DISABLED`.
   Possible values are: `ZONAL_AFFINITY_DISABLED`, `ZONAL_AFFINITY_SPILL_CROSS_ZONE`, `ZONAL_AFFINITY_STAY_WITHIN_ZONE`.
 
 * `spillover_ratio` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The value of the field must be in [0, 1]. When the ratio of the count of healthy backend endpoints in a zone
   to the count of backend endpoints in that same zone is equal to or above this threshold, the load balancer
   distributes new connections to all healthy endpoints in the local zone only. When the ratio of the count
