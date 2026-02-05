@@ -321,6 +321,48 @@ resource "google_firestore_database" "enterprise-db" {
 `, context)
 }
 
+func TestAccFirestoreDatabase_firestoreDatabaseDataAccessTestExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirestoreDatabase_firestoreDatabaseDataAccessTestExample(context),
+			},
+			{
+				ResourceName:            "google_firestore_database.firestore_access_database_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "etag", "project", "tags"},
+			},
+		},
+	})
+}
+
+func testAccFirestoreDatabase_firestoreDatabaseDataAccessTestExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_firestore_database" "firestore_access_database_test" {
+  project                             = "%{project_id}"
+  name                                = "tf-test-data-access-database-id%{random_suffix}"
+  location_id                         = "nam5"
+  type                                = "FIRESTORE_NATIVE"
+  database_edition                    = "ENTERPRISE"
+  firestore_data_access_mode          = "DATA_ACCESS_MODE_ENABLED"
+  mongodb_compatible_data_access_mode = "DATA_ACCESS_MODE_DISABLED"
+  realtime_updates_mode               = "REALTIME_UPDATES_MODE_DISABLED"
+  deletion_policy                     = "DELETE"
+}
+`, context)
+}
+
 func testAccCheckFirestoreDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -208,7 +208,8 @@ The expected format is
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"STANDARD", "ENTERPRISE", ""}),
-				Description:  `The database edition. Possible values: ["STANDARD", "ENTERPRISE"]`,
+				Description: `The database edition. When set to 'ENTERPRISE', then type must be set to
+'FIRESTORE_NATIVE'. Possible values: ["STANDARD", "ENTERPRISE"]`,
 			},
 			"delete_protection_state": {
 				Type:         schema.TypeString,
@@ -220,6 +221,24 @@ When delete protection is enabled, this database cannot be deleted.
 The default value is 'DELETE_PROTECTION_STATE_UNSPECIFIED', which is currently equivalent to 'DELETE_PROTECTION_DISABLED'.
 **Note:** Additionally, to delete this database using 'terraform destroy', 'deletion_policy' must be set to 'DELETE'. Possible values: ["DELETE_PROTECTION_STATE_UNSPECIFIED", "DELETE_PROTECTION_ENABLED", "DELETE_PROTECTION_DISABLED"]`,
 			},
+			"firestore_data_access_mode": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DATA_ACCESS_MODE_ENABLED", "DATA_ACCESS_MODE_DISABLED", ""}),
+				Description: `The Firestore API data access mode to use for this database. Can only be
+specified for 'ENTERPRISE' edition databases. Possible values: ["DATA_ACCESS_MODE_ENABLED", "DATA_ACCESS_MODE_DISABLED"]`,
+			},
+			"mongodb_compatible_data_access_mode": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DATA_ACCESS_MODE_ENABLED", "DATA_ACCESS_MODE_DISABLED", ""}),
+				Description: `The MongoDB compatible API data access mode to use for this database. Can
+only be specified for 'ENTERPRISE' edition databases. Possible values: ["DATA_ACCESS_MODE_ENABLED", "DATA_ACCESS_MODE_DISABLED"]`,
+			},
 			"point_in_time_recovery_enablement": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -230,6 +249,15 @@ versionRetentionPeriod and earliestVersionTime can be used to determine the supp
 and reads against 1-minute snapshots beyond 1 hour and within 7 days.
 If 'POINT_IN_TIME_RECOVERY_DISABLED' is selected, reads are supported on any version of the data from within the past 1 hour. Default value: "POINT_IN_TIME_RECOVERY_DISABLED" Possible values: ["POINT_IN_TIME_RECOVERY_ENABLED", "POINT_IN_TIME_RECOVERY_DISABLED"]`,
 				Default: "POINT_IN_TIME_RECOVERY_DISABLED",
+			},
+			"realtime_updates_mode": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"REALTIME_UPDATES_MODE_ENABLED", "REALTIME_UPDATES_MODE_DISABLED", ""}),
+				Description: `The Realtime Updates mode to use for this database. Can only be specified
+for 'ENTERPRISE' edition databases. Possible values: ["REALTIME_UPDATES_MODE_ENABLED", "REALTIME_UPDATES_MODE_DISABLED"]`,
 			},
 			"tags": {
 				Type:     schema.TypeMap,
@@ -340,6 +368,24 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("database_edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(databaseEditionProp)) && (ok || !reflect.DeepEqual(v, databaseEditionProp)) {
 		obj["databaseEdition"] = databaseEditionProp
+	}
+	firestoreDataAccessModeProp, err := expandFirestoreDatabaseFirestoreDataAccessMode(d.Get("firestore_data_access_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("firestore_data_access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(firestoreDataAccessModeProp)) && (ok || !reflect.DeepEqual(v, firestoreDataAccessModeProp)) {
+		obj["firestoreDataAccessMode"] = firestoreDataAccessModeProp
+	}
+	mongodbCompatibleDataAccessModeProp, err := expandFirestoreDatabaseMongodbCompatibleDataAccessMode(d.Get("mongodb_compatible_data_access_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mongodb_compatible_data_access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(mongodbCompatibleDataAccessModeProp)) && (ok || !reflect.DeepEqual(v, mongodbCompatibleDataAccessModeProp)) {
+		obj["mongodbCompatibleDataAccessMode"] = mongodbCompatibleDataAccessModeProp
+	}
+	realtimeUpdatesModeProp, err := expandFirestoreDatabaseRealtimeUpdatesMode(d.Get("realtime_updates_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("realtime_updates_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(realtimeUpdatesModeProp)) && (ok || !reflect.DeepEqual(v, realtimeUpdatesModeProp)) {
+		obj["realtimeUpdatesMode"] = realtimeUpdatesModeProp
 	}
 	concurrencyModeProp, err := expandFirestoreDatabaseConcurrencyMode(d.Get("concurrency_mode"), d, config)
 	if err != nil {
@@ -498,6 +544,15 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("database_edition", flattenFirestoreDatabaseDatabaseEdition(res["databaseEdition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("firestore_data_access_mode", flattenFirestoreDatabaseFirestoreDataAccessMode(res["firestoreDataAccessMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("mongodb_compatible_data_access_mode", flattenFirestoreDatabaseMongodbCompatibleDataAccessMode(res["mongodbCompatibleDataAccessMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("realtime_updates_mode", flattenFirestoreDatabaseRealtimeUpdatesMode(res["realtimeUpdatesMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("concurrency_mode", flattenFirestoreDatabaseConcurrencyMode(res["concurrencyMode"], d, config)); err != nil {
@@ -767,6 +822,18 @@ func flattenFirestoreDatabaseDatabaseEdition(v interface{}, d *schema.ResourceDa
 	return v
 }
 
+func flattenFirestoreDatabaseFirestoreDataAccessMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirestoreDatabaseMongodbCompatibleDataAccessMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirestoreDatabaseRealtimeUpdatesMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFirestoreDatabaseConcurrencyMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -847,6 +914,18 @@ func expandFirestoreDatabaseType(v interface{}, d tpgresource.TerraformResourceD
 }
 
 func expandFirestoreDatabaseDatabaseEdition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreDatabaseFirestoreDataAccessMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreDatabaseMongodbCompatibleDataAccessMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreDatabaseRealtimeUpdatesMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
