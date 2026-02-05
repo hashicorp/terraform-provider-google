@@ -1475,3 +1475,115 @@ resource "google_compute_health_check" "zero" {
 }
 `, serviceName, tagKey, tagValue, checkName)
 }
+
+func TestAccComputeRegionBackendService_withNetworkPassThroughLbTrafficPolicy(t *testing.T) {
+	t.Parallel()
+
+	randString := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_withNetworkPassThroughLbTrafficPolicy(randString, "ZONAL_AFFINITY_DISABLED", 0.5),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.nptlbtp",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_withNetworkPassThroughLbTrafficPolicy(randString, "ZONAL_AFFINITY_SPILL_CROSS_ZONE", 0.6),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.nptlbtp",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_withNetworkPassThroughLbTrafficPolicy(randString, "ZONAL_AFFINITY_STAY_WITHIN_ZONE", 0.2),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.nptlbtp",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config:      testAccComputeRegionBackendService_withNetworkPassThroughLbTrafficPolicy(randString, "ZONAL_AFFINITY_STAY_WITHIN_ZONE", 1.001),
+				ExpectError: regexp.MustCompile("Must be less than or equal to 1.0"),
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_withNetworkPassThroughLbTrafficPolicy(randString, spillover string, ratio float64) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name                    = "tf-test-network-%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "tf-test-subnet-%s"
+  ip_cidr_range = "10.10.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_region_health_check" "default" {
+  name     = "tf-test-health-check-%s"
+  region   = "us-central1"
+  tcp_health_check {
+    port         = 80
+  }
+}
+
+resource "google_compute_instance_template" "default" {
+  name  = "tf-test-instance-template-%s"
+  machine_type = "e2-micro"
+
+  disk {
+    source_image = "debian-cloud/debian-11"
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_instance_group_manager" "default" {
+  name     = "tf-test-igm-%s"
+  zone     = "us-central1-a"
+  version {
+    instance_template  = google_compute_instance_template.default.id
+    name               = "primary"
+  }
+  base_instance_name = "tf-test-instance-%s"
+  target_size        = 1
+}
+
+resource "google_compute_region_backend_service" "nptlbtp" {
+  name                  = "tf-test-region-backend-service-%s"
+  region                = "us-central1"
+  load_balancing_scheme = "INTERNAL"
+  health_checks         = [google_compute_region_health_check.default.id]
+  protocol              = "TCP"
+
+  backend {
+    group          = google_compute_instance_group_manager.default.instance_group
+    balancing_mode = "CONNECTION"
+  }
+
+  network_pass_through_lb_traffic_policy {
+    zonal_affinity {
+      spillover       = "%s"
+      spillover_ratio = %f
+    }
+  }
+}
+`, randString, randString, randString, randString, randString, randString, randString, spillover, ratio)
+}
