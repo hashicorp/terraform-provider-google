@@ -122,7 +122,7 @@ func ResourceApphubWorkload() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Part of 'parent'.  Full resource name of a parent Application. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`,
+				Description: `Part of 'parent'. ApplicationId of parent AppHub Application. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`,
 			},
 			"discovered_workload": {
 				Type:             schema.TypeString,
@@ -135,7 +135,14 @@ func ResourceApphubWorkload() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Part of 'parent'.  Full resource name of a parent Application. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`,
+				Description: `Part of 'parent'. Location of parent AppHub Application. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Description: `Part of 'parent'. ProjectId of parent AppHub Application.. Example: projects/{HOST_PROJECT_ID}/locations/{LOCATION}/applications/{APPLICATION_ID}`,
 			},
 			"workload_id": {
 				Type:        schema.TypeString,
@@ -375,12 +382,6 @@ func ResourceApphubWorkload() *schema.Resource {
 						},
 					},
 				},
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
 			},
 		},
 		UseJSONNumber: true,
