@@ -1537,6 +1537,96 @@ func TestProvider_ProviderConfigure_requestReason(t *testing.T) {
 	}
 }
 
+func TestProvider_ProviderConfigure_pollInterval(t *testing.T) {
+	cases := map[string]struct {
+		ConfigValues        map[string]interface{}
+		ExpectedValue       string
+		ExpectedSchemaValue string
+		ExpectError         bool
+		ExpectFieldUnset    bool
+	}{
+		"if a valid poll_interval is configured in the provider, no error will occur": {
+			ConfigValues: map[string]interface{}{
+				"poll_interval": "1s",
+				"credentials":   transport_tpg.TestFakeCredentialsPath,
+			},
+			ExpectedValue:       "1s",
+			ExpectedSchemaValue: "1s",
+		},
+		"if an invalid poll_interval is configured in the provider, an error will occur": {
+			ConfigValues: map[string]interface{}{
+				"poll_interval": "timeout",
+				"credentials":   transport_tpg.TestFakeCredentialsPath,
+			},
+			ExpectedValue:       "timeout",
+			ExpectedSchemaValue: "timeout",
+			ExpectError:         true,
+			ExpectFieldUnset:    false,
+		},
+		"when poll_interval is unset in the config, the default value is 10s": {
+			ConfigValues: map[string]interface{}{
+				"credentials": transport_tpg.TestFakeCredentialsPath,
+			},
+			ExpectedValue:    "10s",
+			ExpectFieldUnset: true,
+		},
+		"when poll_interval is set as an empty string, the default value is 10s": {
+			ConfigValues: map[string]interface{}{
+				"poll_interval": "",
+				"credentials":   transport_tpg.TestFakeCredentialsPath,
+			},
+			ExpectedValue: "10s",
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			ctx := context.Background()
+			acctest.UnsetTestProviderConfigEnvs(t)
+			p := provider.Provider()
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
+
+			// Act
+			c, diags := provider.ProviderConfigure(ctx, d, p)
+
+			// Assert
+			if diags.HasError() && !tc.ExpectError {
+				t.Fatalf("unexpected error(s): %#v", diags)
+			}
+			if !diags.HasError() && tc.ExpectError {
+				t.Fatal("expected error(s) but got none")
+			}
+			if diags.HasError() && tc.ExpectError {
+				v, ok := d.GetOk("poll_interval")
+				if ok {
+					val := v.(string)
+					if val != tc.ExpectedSchemaValue {
+						t.Fatalf("expected poll_interval value set in provider data to be %s, got %s", tc.ExpectedSchemaValue, val)
+					}
+					if tc.ExpectFieldUnset {
+						t.Fatalf("expected poll_interval value to not be set in provider data, got %s", val)
+					}
+				}
+				// Return early in tests where errors expected
+				return
+			}
+
+			v := d.Get("poll_interval") // checks for an empty or "0" string in order to set the default value
+			val := v.(string)
+			config := c.(*transport_tpg.Config) // Should be non-nil value, as test cases reaching this point experienced no errors
+
+			if val != tc.ExpectedSchemaValue {
+				t.Fatalf("expected poll_interval value set in provider data to be %s, got %s", tc.ExpectedSchemaValue, val)
+			}
+			if config.PollInterval.String() != tc.ExpectedValue {
+				t.Fatalf("expected poll_interval value in provider struct to be %s, got %v", tc.ExpectedValue, config.PollInterval.String())
+			}
+		})
+	}
+}
+
 func TestProvider_ProviderConfigure_batching(t *testing.T) {
 	//var batch []interface{}
 	cases := map[string]struct {

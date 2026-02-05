@@ -343,12 +343,11 @@ provider "google" {
 the provider should wait for individual HTTP requests. This will not adjust the
 amount of time the provider will wait for a logical operation - use the resource
 timeout blocks for that. This will adjust only the amount of time that a single
-synchronous request will wait for a response. The default is 120 seconds, and
-that should be a suitable value in most cases. Many GCP APIs will cancel a
+synchronous request will wait for a response. The default is 120 seconds (`"120s"`),
+and that should be a suitable value in most cases. Many GCP APIs will cancel a
 request if no response is forthcoming within 30 seconds in any event. In
 limited cases, such as DNS record set creation, there is a synchronous request
 to create the resource. This may help in those cases.
-
 
 ---
 
@@ -359,6 +358,17 @@ Alternatively, this can be specified using the `CLOUDSDK_CORE_REQUEST_REASON`
 environment variable.
 
 ---
+
+* `poll_interval` - (Optional) A duration string controlling the amount of time
+the provider should wait between calls polling long-running operations. Defaults
+to 10 seconds (`"10s"`). Setting this is not recommended outside highly
+latency-sensitive use cases, as quota usage will go up quickly, particularly if
+the [`-parallelism` option](https://developer.hashicorp.com/terraform/cli/commands/apply#parallelism-n)
+is set. Most slow plan/apply cycles are addressed with [`-parallelism`](https://developer.hashicorp.com/terraform/cli/commands/apply#parallelism-n)
+instead.
+
+---
+
 
 * `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
 such as `compute_custom_endpoint`. Defaults to the production GCP endpoint for

@@ -165,6 +165,11 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 
+			"poll_interval": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"request_reason": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1044,7 +1049,15 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		var err error
 		config.RequestTimeout, err = time.ParseDuration(v.(string))
 		if err != nil {
-			return nil, diag.FromErr(err)
+			return nil, diag.FromErr(fmt.Errorf("could not parse request_timeout value: %w", err))
+		}
+	}
+
+	if v, ok := d.GetOk("poll_interval"); ok {
+		var err error
+		config.PollInterval, err = time.ParseDuration(v.(string))
+		if err != nil {
+			return nil, diag.FromErr(fmt.Errorf("could not parse poll_interval value: %w", err))
 		}
 	}
 

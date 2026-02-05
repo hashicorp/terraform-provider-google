@@ -160,6 +160,13 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					fwvalidators.NonNegativeDurationValidator(),
 				},
 			},
+			"poll_interval": schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					fwvalidators.NonEmptyStringValidator(),
+					fwvalidators.NonNegativeDurationValidator(),
+				},
+			},
 			"request_reason": schema.StringAttribute{
 				Optional: true,
 			},

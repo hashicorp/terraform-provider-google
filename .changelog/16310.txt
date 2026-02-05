@@ -1,0 +1,3 @@
+```release-note:enhancement
+provider: added a configurable `poll_interval` field to the provider for rare cases where it is being used in latency-sensitive situations. This can be set to a custom duration to change operation polling intervals. The default is unchanged, at `10s`.
+```
