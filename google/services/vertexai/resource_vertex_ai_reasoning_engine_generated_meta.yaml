@@ -33,6 +33,9 @@ fields:
     - api_field: spec.packageSpec.pythonVersion
     - api_field: spec.packageSpec.requirementsGcsUri
     - api_field: spec.serviceAccount
+    - api_field: spec.sourceCodeSpec.developerConnectSource.config.dir
+    - api_field: spec.sourceCodeSpec.developerConnectSource.config.gitRepositoryLink
+    - api_field: spec.sourceCodeSpec.developerConnectSource.config.revision
     - api_field: spec.sourceCodeSpec.inlineSource.sourceArchive
     - api_field: spec.sourceCodeSpec.pythonSpec.entrypointModule
     - api_field: spec.sourceCodeSpec.pythonSpec.entrypointObject

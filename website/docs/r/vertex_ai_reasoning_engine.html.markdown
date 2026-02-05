@@ -598,6 +598,11 @@ The following arguments are supported:
   Specification for running a Python application from source.
   Structure is [documented below](#nested_spec_source_code_spec_python_spec).
 
+* `developer_connect_source` -
+  (Optional)
+  Specification for source code to be fetched from a Git repository managed through the Developer Connect service.
+  Structure is [documented below](#nested_spec_source_code_spec_developer_connect_source).
+
 
 <a name="nested_spec_source_code_spec_inline_source"></a>The `inline_source` block supports:
 
@@ -633,6 +638,28 @@ The following arguments are supported:
   Optional. The version of Python to use. Support version
   includes 3.9, 3.10, 3.11, 3.12, 3.13. If not specified,
   default value is 3.10.
+
+<a name="nested_spec_source_code_spec_developer_connect_source"></a>The `developer_connect_source` block supports:
+
+* `config` -
+  (Required)
+  The Developer Connect configuration that defines the specific repository, revision, and directory to use as the source code root.
+  Structure is [documented below](#nested_spec_source_code_spec_developer_connect_source_config).
+
+
+<a name="nested_spec_source_code_spec_developer_connect_source_config"></a>The `config` block supports:
+
+* `git_repository_link` -
+  (Required)
+  The Developer Connect Git repository link, formatted as projects/*/locations/*/connections/*/gitRepositoryLink/*.
+
+* `dir` -
+  (Required)
+  Directory, relative to the source root, in which to run the build.
+
+* `revision` -
+  (Required)
+  The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.
 
 ## Attributes Reference
 
