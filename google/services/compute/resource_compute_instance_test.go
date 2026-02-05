@@ -4424,6 +4424,79 @@ func TestAccComputeInstance_guestOsFeatures(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_dynamicNic(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"region":        "us-central1",
+		"zone":          "us-central1-a",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_dynamicNic1(context),
+			},
+			computeInstanceImportStep(context["zone"].(string), context["instance_name"].(string), []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
+func testAccComputeInstance_dynamicNic1(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "network1" {
+  name                    = "%{instance_name}-network1"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork1" {
+  name    = "%{instance_name}-subnetwork1"
+  network = google_compute_network.network1.id
+  region  = "%{region}"
+
+  ip_cidr_range = "10.1.0.0/16"
+}
+
+resource "google_compute_network" "network2" {
+  name                    = "%{instance_name}-network2"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork2" {
+  name    = "%{instance_name}-subnetwork2"
+  network = google_compute_network.network2.id
+  region  = "%{region}"
+
+  ip_cidr_range = "10.2.0.0/16"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%{instance_name}"
+	machine_type = "e2-medium"
+	zone         = "%{zone}"
+
+	boot_disk {
+		initialize_params {
+			image = "debian-cloud/debian-11"
+		}
+	}
+
+	network_interface { # nic0
+		subnetwork = google_compute_subnetwork.subnetwork1.id
+	}
+
+	network_interface { # nic0.2
+		subnetwork      = google_compute_subnetwork.subnetwork2.id
+        vlan            = 2
+	}
+}
+`, context)
+}
+
 func testAccCheckComputeInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)

@@ -1,0 +1,19 @@
+```release-note:enhancement
+compute: added support for `network_interface.0.vlan` to `google_compute_instance`, enabling dynamic NIC. Creating and deleting from an existing instance is not yet supported.
+```
+
+```release-note:enhancement
+compute: added support for `network_interface.0.vlan` to `google_compute_instance_template`, enabling dynamic NIC
+```
+
+```release-note:enhancement
+compute: added support for `network_interface.0.vlan` to `google_compute_region_instance_template`, enabling dynamic NIC
+```
+
+```release-note:enhancement
+compute: added support for `network_interface.0.network_attachment` to `google_compute_region_instance_template`
+```
+
+```release-note:enhancement
+compute: added support for `network_interface.0.network_attachment` to `google_compute_instance_template` (GA)
+```

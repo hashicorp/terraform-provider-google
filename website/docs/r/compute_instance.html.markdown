@@ -486,6 +486,8 @@ is desired, you will need to modify your state file manually using
 
 * `network_attachment` - (Optional) The URL of the network attachment that this interface should connect to in the following format: `projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}`.
 
+* `vlan` - (Optional) VLAN tag of a dynamic network interface, must be an integer in the range from 2 to 255 inclusively.
+
 * `igmp_query` - (Optional) Indicates whether igmp query is enabled on the network interface or not. If enabled, also indicates the version of IGMP supported.
 
 * `stack_type` - (Optional) The stack type for this network interface to identify whether the IPv6 feature is enabled or not. Values are IPV4_IPV6, IPV6_ONLY or IPV4_ONLY. If not specified, IPV4_ONLY will be used.
@@ -738,6 +740,8 @@ This field is always inherited from its subnetwork.
 * `current_status` - The current status of the instance. This could be one of the following values: PROVISIONING, STAGING, RUNNING, STOPPING, SUSPENDING, SUSPENDED, REPAIRING, and TERMINATED. For more information about the status of the instance, see [Instance life cycle](https://cloud.google.com/compute/docs/instances/instance-life-cycle).
 
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
+
+* `network_interface.0.parent_nic_name` - Name of the parent network interface of a dynamic network interface.
 
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
 

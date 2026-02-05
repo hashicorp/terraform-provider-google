@@ -1573,6 +1573,39 @@ func TestAccComputeInstanceTemplate_sourceImageEncryptionKey(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_NetworkAttachment(t *testing.T) {
+	t.Parallel()
+
+	testNetworkName := acctest.BootstrapSharedTestNetwork(t, "attachment-network")
+	subnetName := acctest.BootstrapSubnet(t, "tf-test-subnet", testNetworkName)
+	networkAttachmentName := acctest.BootstrapNetworkAttachment(t, "tf-test-attachment", subnetName)
+
+	// Need to have the full network attachment name in the format project/{project_id}/regions/{region_id}/networkAttachments/{networkAttachmentName}
+	fullFormNetworkAttachmentName := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), networkAttachmentName)
+
+	context := map[string]interface{}{
+		"subnet":             subnetName,
+		"suffix":             (acctest.RandString(t, 10)),
+		"network_attachment": fullFormNetworkAttachmentName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_network_attachment(context),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_migration(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
@@ -1780,6 +1813,88 @@ func TestAccComputeInstanceTemplate_keyRevocationActionType(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccComputeInstanceTemplate_dynamicNic(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"region":        "us-central1",
+		"zone":          "us-central1-a",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_dynamicNic(context),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccComputeInstanceTemplate_dynamicNic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "network1" {
+  name                    = "%{instance_name}-network1"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork1" {
+  name    = "%{instance_name}-subnetwork1"
+  network = google_compute_network.network1.id
+  region  = "%{region}"
+
+  ip_cidr_range = "10.1.0.0/16"
+}
+
+resource "google_compute_network" "network2" {
+  name                    = "%{instance_name}-network2"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork2" {
+  name    = "%{instance_name}-subnetwork2"
+  network = google_compute_network.network2.id
+  region  = "%{region}"
+
+  ip_cidr_range = "10.2.0.0/16"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "%{instance_name}"
+  machine_type   = "e2-micro"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface { # nic0
+    subnetwork = google_compute_subnetwork.subnetwork1.id
+  }
+
+  network_interface { # nic0.2
+    subnetwork      = google_compute_subnetwork.subnetwork2.id
+    vlan            = 2
+  }
+}
+`, context)
 }
 
 func TestUnitComputeInstanceTemplate_IpCidrRangeDiffSuppress(t *testing.T) {
@@ -2156,6 +2271,17 @@ func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *comp
 		}
 
 		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateHasNetworkAttachment(instanceTemplate *compute.InstanceTemplate, networkAttachmentName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, networkInterface := range instanceTemplate.Properties.NetworkInterfaces {
+			if networkInterface.NetworkAttachment != "" && networkInterface.NetworkAttachment == networkAttachmentName {
+				return nil
+			}
+		}
+		return fmt.Errorf("Network Attachment %s, was not found in the instance template", networkAttachmentName)
 	}
 }
 
@@ -4747,6 +4873,40 @@ resource "google_compute_instance_template" "foobar" {
 
   network_interface {
     network = "default"
+  }
+}
+`, context)
+}
+
+func testAccComputeInstanceTemplate_network_attachment(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%{suffix}"
+  machine_type = "e2-medium"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
+
+  network_interface {
+	network = "default"
+  }
+
+  network_interface {
+	network_attachment = "%{network_attachment}"
+  }
+
+  metadata = {
+    foo = "bar"
   }
 }
 `, context)
