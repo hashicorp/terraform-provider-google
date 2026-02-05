@@ -16,10 +16,13 @@ fields:
       provider_only: true
     - api_field: earliestVersionTime
     - api_field: etag
+    - api_field: firestoreDataAccessMode
     - api_field: keyPrefix
     - api_field: locationId
+    - api_field: mongodbCompatibleDataAccessMode
     - api_field: name
     - api_field: pointInTimeRecoveryEnablement
+    - api_field: realtimeUpdatesMode
     - api_field: tags
     - api_field: type
     - api_field: uid

@@ -211,6 +211,21 @@ resource "google_firestore_database" "enterprise-db" {
 	deletion_policy          = "DELETE"
 }
 ```
+## Example Usage - Firestore Database Data Access
+
+
+```hcl
+resource "google_firestore_database" "firestore_access_database" {
+  project                             = "my-project-name"
+  name                                = "data-access-database-id"
+  location_id                         = "nam5"
+  type                                = "FIRESTORE_NATIVE"
+  database_edition                    = "ENTERPRISE"
+  firestore_data_access_mode          = "DATA_ACCESS_MODE_ENABLED"
+  mongodb_compatible_data_access_mode = "DATA_ACCESS_MODE_DISABLED"
+  realtime_updates_mode               = "REALTIME_UPDATES_MODE_DISABLED"
+}
+```
 
 ## Argument Reference
 
@@ -241,8 +256,27 @@ The following arguments are supported:
 
 * `database_edition` -
   (Optional)
-  The database edition.
+  The database edition. When set to 'ENTERPRISE', then type must be set to
+  'FIRESTORE_NATIVE'.
   Possible values are: `STANDARD`, `ENTERPRISE`.
+
+* `firestore_data_access_mode` -
+  (Optional)
+  The Firestore API data access mode to use for this database. Can only be
+  specified for 'ENTERPRISE' edition databases.
+  Possible values are: `DATA_ACCESS_MODE_ENABLED`, `DATA_ACCESS_MODE_DISABLED`.
+
+* `mongodb_compatible_data_access_mode` -
+  (Optional)
+  The MongoDB compatible API data access mode to use for this database. Can
+  only be specified for 'ENTERPRISE' edition databases.
+  Possible values are: `DATA_ACCESS_MODE_ENABLED`, `DATA_ACCESS_MODE_DISABLED`.
+
+* `realtime_updates_mode` -
+  (Optional)
+  The Realtime Updates mode to use for this database. Can only be specified
+  for 'ENTERPRISE' edition databases.
+  Possible values are: `REALTIME_UPDATES_MODE_ENABLED`, `REALTIME_UPDATES_MODE_DISABLED`.
 
 * `concurrency_mode` -
   (Optional)
