@@ -529,6 +529,10 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
    GKE](https://cloud.google.com/kubernetes-engine/docs/add-on/ray-on-gke/how-to/collect-view-logs-metrics)
    for more information.
 
+*  `slice_controller` - (Optional). 
+   The status of the slice controller addon.
+   It is disabled by default. Set `enabled = true` to enable.
+
 *  `parallelstore_csi_driver_config` - (Optional) The status of the Parallelstore CSI driver addon,
    which allows the usage of a Parallelstore instances as volumes.
    It is disabled by default for Standard clusters; set `enabled = true` to enable.
