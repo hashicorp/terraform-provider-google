@@ -1,20 +1,22 @@
 ## 7.19.0 (Unreleased)
 
-NOTES:
-* networksecurity: promoted `google_network_security_mirroring_endpoint`, `google_network_security_mirroring_endpoint_group` resources to GA (ga) ([#25988](https://github.com/hashicorp/terraform-provider-google/pull/25988))
 DEPRECATIONS:
-* backupdr: deprecated redundant `name` field in `google_backupdr_restore_workload`, fixed documentation examples and added more properties to VM test with properties. ([#25986](https://github.com/hashicorp/terraform-provider-google/pull/25986))
-* publicca: deprecated `b64url_mac_key` on `google_public_ca_external_account_key`, use `mac_key` instead ([#25964](https://github.com/hashicorp/terraform-provider-google/pull/25964))
+* backupdr: `google_backupdr_restore_workload.name` is deprecated and will be removed in a future major release. The backup is identified by the parameters (location, backup_vault_id, data_source_id, backup_id). ([#25986](https://github.com/hashicorp/terraform-provider-google/pull/25986))
+* publicca: `google_public_ca_external_account_key.b64url_mac_key` is deprecated and will be removed in a future major release. Use `mac_key` instead. ([#25964](https://github.com/hashicorp/terraform-provider-google/pull/25964))
+
+FEATURES:
+* **New Resource:** `google_network_security_mirroring_endpoint` ([#25988](https://github.com/hashicorp/terraform-provider-google/pull/25988))
+* **New Resource:** `google_network_security_mirroring_endpoint_group` ([#25988](https://github.com/hashicorp/terraform-provider-google/pull/25988))
+* **New Resource:** `google_backup_dr_restore_workload` ([#26013](https://github.com/hashicorp/terraform-provider-google/pull/26013))
 
 IMPROVEMENTS:
-* backupdr: promote restore support to GA ([#26013](https://github.com/hashicorp/terraform-provider-google/pull/26013))
-* compute: added `network_pass_through_lb_traffic_policy` field to `google_compute_region_backend_service` resource (ga) ([#25994](https://github.com/hashicorp/terraform-provider-google/pull/25994))
-* compute: added new values to `policyType` field in `google_compute_network_firewall_policy`, `google_compute_network_firewall_policy_with_rules`, `google_compute_region_network_firewall_policy`, `google_compute_region_network_firewall_policy_with_rules`. ([#25985](https://github.com/hashicorp/terraform-provider-google/pull/25985))
-* compute: added support for `network_interface.0.network_attachment` to `google_compute_instance_template` (GA) ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
-* compute: added support for `network_interface.0.network_attachment` to `google_compute_region_instance_template` ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
-* compute: added support for `network_interface.0.vlan` to `google_compute_instance_template`, enabling dynamic NIC ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
-* compute: added support for `network_interface.0.vlan` to `google_compute_instance`, enabling dynamic NIC. Creating and deleting from an existing instance is not yet supported. ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
-* compute: added support for `network_interface.0.vlan` to `google_compute_region_instance_template`, enabling dynamic NIC ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
+* compute: added `network_pass_through_lb_traffic_policy` field to `google_compute_region_backend_service` resource ([#25994](https://github.com/hashicorp/terraform-provider-google/pull/25994))
+* compute: added `RDMA_FALCON_POLICY` and `ULL_POLICY` values to `policy_type` field in `google_compute_region_network_firewall_policy`, `google_compute_region_network_firewall_policy_with_rules` ([#25985](https://github.com/hashicorp/terraform-provider-google/pull/25985))
+* compute: added support for `network_interface.network_attachment` to `google_compute_instance_template` (GA) ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
+* compute: added support for `network_interface.network_attachment` to `google_compute_region_instance_template` ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
+* compute: added support for `network_interface.vlan` to `google_compute_instance_template`, enabling dynamic NIC ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
+* compute: added support for `network_interface.vlan` to `google_compute_instance`, enabling dynamic NIC. Creating and deleting from an existing instance is not yet supported. ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
+* compute: added support for `network_interface.vlan` to `google_compute_region_instance_template`, enabling dynamic NIC ([#25995](https://github.com/hashicorp/terraform-provider-google/pull/25995))
 * discoveryengine: added `knowledge_graph_config ` field to `google_discovery_engine_search_engine` resource ([#25980](https://github.com/hashicorp/terraform-provider-google/pull/25980))
 * firestore: add `firestore_data_access_mode`, `mongodb_compatible_data_acess_mode`, and `realtime_updates_mode` fields to the `google_firestore_database` resource ([#26000](https://github.com/hashicorp/terraform-provider-google/pull/26000))
 * firestore: added `deletion_policy` virtual field to `google_firestore_index` resource ([#25984](https://github.com/hashicorp/terraform-provider-google/pull/25984))
@@ -22,12 +24,11 @@ IMPROVEMENTS:
 * networkconnectivity: added support for update operation on `google_network_connectivity_gateway_advertised_route` resource ([#25945](https://github.com/hashicorp/terraform-provider-google/pull/25945))
 * provider: added a configurable `poll_interval` field to the provider for rare cases where it is being used in latency-sensitive situations. This can be set to a custom duration to change operation polling intervals. The default is unchanged, at `10s`. ([#26008](https://github.com/hashicorp/terraform-provider-google/pull/26008))
 * publicca: added `mac_key` to `google_public_ca_external_account_key` ([#25964](https://github.com/hashicorp/terraform-provider-google/pull/25964))
-* run: added `readiness_probe` field to `cloud_run_v2_service` resource ([#26003](https://github.com/hashicorp/terraform-provider-google/pull/26003))
-* sql: add missing doc update for database_roles and iam_email ([#25993](https://github.com/hashicorp/terraform-provider-google/pull/25993))
+* run: added `readiness_probe` field to `google_cloud_run_v2_service` resource ([#26003](https://github.com/hashicorp/terraform-provider-google/pull/26003))
 * vertexai: added support for `developer_connect_source` to `spec.source_code_spec` in `google_vertex_ai_reasoning_engine` ([#26011](https://github.com/hashicorp/terraform-provider-google/pull/26011))
 
 BUG FIXES:
-* compute: allows to set both ssl_certificates and certificate_map in target_ssl_proxy ([#26012](https://github.com/hashicorp/terraform-provider-google/pull/26012))
+* compute: fixed issue where it wasn't possible to set both `ssl_certificates` and `certificate_map` in `google_compute_target_ssl_proxy` ([#26012](https://github.com/hashicorp/terraform-provider-google/pull/26012))
 * container: fixed an issue when toggling `default_compute_class_enabled` in `google_container_cluster` with Autopilot enabled ([#25966](https://github.com/hashicorp/terraform-provider-google/pull/25966))
 * firebaseailogic: fixed bug in `google_firebase_ai_logic_config.generative_language_config.api_key_wo` where the value set wouldn't be sent to the API. ([#25983](https://github.com/hashicorp/terraform-provider-google/pull/25983))
 * publicca: fixed `b64url_mac_key` sometimes being empty in `google_public_ca_external_account_key` ([#25964](https://github.com/hashicorp/terraform-provider-google/pull/25964))
