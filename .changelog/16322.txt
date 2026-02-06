@@ -1,0 +1,19 @@
+```release-note:enhancement
+alloydb: added write-only support for `initial_user.password_wo` to `google_alloydb_cluster`
+```
+
+**Test run locally:**
+
+```console
+─❯ make testacc TEST=./google/services/alloydb TESTARGS='-run=TestAccAlloydbCluster_withPasswordWo'                                                                                       ─╯
+sh -c "'/Users/ramon/go/src/github.com/hashicorp/terraform-provider-google/scripts/gofmtcheck.sh'"
+==> Checking that code complies with gofmt requirements...
+go vet
+TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test ./google/services/alloydb -v -run=TestAccAlloydbCluster_withPasswordWo -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
+=== RUN   TestAccAlloydbCluster_withPasswordWo
+=== PAUSE TestAccAlloydbCluster_withPasswordWo
+=== CONT  TestAccAlloydbCluster_withPasswordWo
+--- PASS: TestAccAlloydbCluster_withPasswordWo (182.04s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/alloydb  182.841s
+```
