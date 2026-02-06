@@ -129,8 +129,10 @@ func ResourceBiglakeIcebergIcebergCatalog() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `The name of the IcebergCatalog. Format:
-projects/{project_id_or_number}/catalogs/{iceberg_catalog_id}`,
+				Description: `The name of the IcebergCatalog.
+For CATALOG_TYPE_GCS_BUCKET typed catalogs, the name needs to be the
+exact same value of the GCS bucket's name. For example, for a bucket:
+gs://bucket-name, the catalog name will be exactly "bucket-name".`,
 			},
 			"credential_mode": {
 				Type:         schema.TypeString,
