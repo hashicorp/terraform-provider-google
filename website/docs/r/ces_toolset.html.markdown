@@ -25,11 +25,6 @@ Description
 
 
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_toolset_openapi_service_account_auth_config&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Ces Toolset Openapi Service Account Auth Config
 
 
@@ -337,6 +332,262 @@ resource "google_ces_toolset" "ces_toolset_bearer_token_config" {
   }
 }
 ```
+## Example Usage - Ces Toolset Mcp Service Account Auth Config
+
+
+```hcl
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "app-id"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "my-app"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_toolset" "ces_toolset_mcp_service_account_auth_config" {
+  toolset_id = "toolset1"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        service_account_auth_config {
+            service_account = "my@service-account.com"
+        }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_toolset_mcp_oauth_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Toolset Mcp Oauth Config
+
+
+```hcl
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "app-id"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "my-app"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_toolset" "ces_toolset_mcp_oauth_config" {
+  toolset_id = "toolset1"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        oauth_config {
+            oauth_grant_type = "CLIENT_CREDENTIAL"
+            client_id = "example_client_id"
+            client_secret_version = "projects/fake-project/secrets/fake-secret/versions/version1"
+            token_endpoint = "123"
+            scopes = ["scope1"]
+        }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_toolset_mcp_service_agent_id_token_auth_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Toolset Mcp Service Agent Id Token Auth Config
+
+
+```hcl
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "app-id"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "my-app"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_toolset" "ces_toolset_mcp_service_agent_id_token_auth_config" {
+  toolset_id = "toolset1"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        service_agent_id_token_auth_config {}
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_toolset_mcp_api_key_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Toolset Mcp Api Key Config
+
+
+```hcl
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "app-id"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "my-app"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_toolset" "ces_toolset_mcp_api_key_config" {
+  toolset_id = "toolset1"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  description = "Test description"
+  execution_type = "SYNCHRONOUS"
+
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        api_key_config {
+            key_name = "ExampleKey"
+            api_key_secret_version = "projects/fake-project/secrets/fake-secret/versions/version-1"
+            request_location = "HEADER"
+        }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_toolset_mcp_bearer_token_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Toolset Mcp Bearer Token Config
+
+
+```hcl
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "app-id"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "my-app"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_toolset" "ces_toolset_mcp_bearer_token_config" {
+  toolset_id = "toolset1"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        bearer_token_config {
+            token = "$context.variables.my_ces_toolset_auth_token"
+        }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -377,6 +628,12 @@ The following arguments are supported:
   A toolset that contains a list of tools that are defined by an OpenAPI
   schema.
   Structure is [documented below](#nested_open_api_toolset).
+
+* `mcp_toolset` -
+  (Optional)
+  A toolset that contains a list of tools that are offered by the MCP
+  server.
+  Structure is [documented below](#nested_mcp_toolset).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -537,6 +794,173 @@ The following arguments are supported:
 
 
 <a name="nested_open_api_toolset_tls_config_ca_certs"></a>The `ca_certs` block supports:
+
+* `cert` -
+  (Required)
+  The allowed custom CA certificates (in DER format) for
+  HTTPS verification. This overrides the default SSL trust store. If this
+  is empty or unspecified, CES will use Google's default trust
+  store to verify certificates. N.B. Make sure the HTTPS server
+  certificates are signed with "subject alt name". For instance a
+  certificate can be self-signed using the following command,
+  openssl x509 -req -days 200 -in example.com.csr \
+  -signkey example.com.key \
+  -out example.com.crt \
+  -extfile <(printf "\nsubjectAltName='DNS:www.example.com'")
+
+* `display_name` -
+  (Required)
+  The name of the allowed custom CA certificates. This
+  can be used to disambiguate the custom CA certificates.
+
+<a name="nested_mcp_toolset"></a>The `mcp_toolset` block supports:
+
+* `server_address` -
+  (Required)
+  The address of the MCP server, for example, "https://example.com/mcp/". If
+  the server is built with the MCP SDK, the url should be suffixed with
+  "/mcp/". Only Streamable HTTP transport based servers are supported. See
+  https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http
+  for more details.
+
+* `api_authentication` -
+  (Optional)
+  Authentication information required to access tools and execute a tool
+  against the MCP server. For API key auth, the API key can only be sent in
+  the request header; sending it via query parameters is not supported.
+  Structure is [documented below](#nested_mcp_toolset_api_authentication).
+
+* `service_directory_config` -
+  (Optional)
+  Service Directory configuration for VPC-SC, used to resolve service names
+  within a perimeter.
+  Structure is [documented below](#nested_mcp_toolset_service_directory_config).
+
+* `tls_config` -
+  (Optional)
+  The TLS configuration. Includes the custom server certificates that the
+  client should trust.
+  Structure is [documented below](#nested_mcp_toolset_tls_config).
+
+
+<a name="nested_mcp_toolset_api_authentication"></a>The `api_authentication` block supports:
+
+* `api_key_config` -
+  (Optional)
+  Configurations for authentication with API key.
+  Structure is [documented below](#nested_mcp_toolset_api_authentication_api_key_config).
+
+* `oauth_config` -
+  (Optional)
+  Configurations for authentication with OAuth.
+  Structure is [documented below](#nested_mcp_toolset_api_authentication_oauth_config).
+
+* `service_account_auth_config` -
+  (Optional)
+  Configurations for authentication using a custom service account.
+  Structure is [documented below](#nested_mcp_toolset_api_authentication_service_account_auth_config).
+
+* `service_agent_id_token_auth_config` -
+  (Optional)
+  Configurations for authentication with [ID
+  token](https://cloud.google.com/docs/authentication/token-types#id) generated
+  from service agent.
+
+* `bearer_token_config` -
+  (Optional)
+  Configurations for authentication with a bearer token.
+  Structure is [documented below](#nested_mcp_toolset_api_authentication_bearer_token_config).
+
+
+<a name="nested_mcp_toolset_api_authentication_api_key_config"></a>The `api_key_config` block supports:
+
+* `api_key_secret_version` -
+  (Required)
+  The name of the SecretManager secret version resource storing the API key.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+  Note: You should grant `roles/secretmanager.secretAccessor` role to the CES
+  service agent
+  `service-@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `key_name` -
+  (Required)
+  The parameter name or the header name of the API key.
+  E.g., If the API request is "https://example.com/act?X-Api-Key=", "X-Api-Key" would be the parameter name.
+
+* `request_location` -
+  (Required)
+  Key location in the request. For API key auth on MCP toolsets,
+  the API key can only be sent in the request header.
+  Possible values:
+  HEADER
+
+<a name="nested_mcp_toolset_api_authentication_oauth_config"></a>The `oauth_config` block supports:
+
+* `client_id` -
+  (Required)
+  The client ID from the OAuth provider.
+
+* `client_secret_version` -
+  (Required)
+  The name of the SecretManager secret version resource storing the
+  client secret.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+  Note: You should grant `roles/secretmanager.secretAccessor` role to the CES
+  service agent
+  `service-@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `oauth_grant_type` -
+  (Required)
+  OAuth grant types.
+  Possible values:
+  CLIENT_CREDENTIAL
+
+* `scopes` -
+  (Optional)
+  The OAuth scopes to grant.
+
+* `token_endpoint` -
+  (Required)
+  The token endpoint in the OAuth provider to exchange for an access token.
+
+<a name="nested_mcp_toolset_api_authentication_service_account_auth_config"></a>The `service_account_auth_config` block supports:
+
+* `service_account` -
+  (Required)
+  The email address of the service account used for authenticatation. CES
+  uses this service account to exchange an access token and the access token
+  is then sent in the `Authorization` header of the request.
+  The service account must have the
+  `roles/iam.serviceAccountTokenCreator` role granted to the
+  CES service agent
+  `service-@gcp-sa-ces.iam.gserviceaccount.com`.
+
+<a name="nested_mcp_toolset_api_authentication_bearer_token_config"></a>The `bearer_token_config` block supports:
+
+* `token` -
+  (Optional)
+
+<a name="nested_mcp_toolset_service_directory_config"></a>The `service_directory_config` block supports:
+
+* `service` -
+  (Required)
+  The name of [Service
+  Directory](https://cloud.google.com/service-directory) service.
+  Format:
+  `projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}`.
+  Location of the service directory must be the same as the location of the
+  app.
+
+<a name="nested_mcp_toolset_tls_config"></a>The `tls_config` block supports:
+
+* `ca_certs` -
+  (Required)
+  Specifies a list of allowed custom CA certificates for HTTPS
+  verification.
+  Structure is [documented below](#nested_mcp_toolset_tls_config_ca_certs).
+
+
+<a name="nested_mcp_toolset_tls_config_ca_certs"></a>The `ca_certs` block supports:
 
 * `cert` -
   (Required)
