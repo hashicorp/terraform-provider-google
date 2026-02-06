@@ -248,7 +248,6 @@ resource "google_compute_network" "custom-test" {
 
 ```hcl
 resource "google_compute_subnetwork" "subnetwork-cidr-overlap" {
-  provider = google-beta
 
   name                             = "subnet-cidr-overlap"
   region                           = "us-west2"
@@ -258,7 +257,6 @@ resource "google_compute_subnetwork" "subnetwork-cidr-overlap" {
 }
 
 resource "google_compute_network" "net-cidr-overlap" {
-  provider                = google-beta
 
   name                    = "net-cidr-overlap"
   auto_create_subnetworks = false
@@ -478,7 +476,7 @@ The following arguments are supported:
     * `regions/{{region}}/publicDelegatedPrefixes/{{sub-pdp-name}}`
 
 * `allow_subnet_cidr_routes_overlap` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Typically packets destined to IPs within the subnetwork range that do not match
   existing resources are dropped and prevented from leaving the VPC.
   Setting this field to true will allow these packets to match dynamic routes injected
