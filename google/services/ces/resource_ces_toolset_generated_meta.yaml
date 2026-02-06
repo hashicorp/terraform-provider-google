@@ -15,6 +15,21 @@ fields:
     - api_field: executionType
     - field: location
       provider_only: true
+    - api_field: mcpToolset.apiAuthentication.apiKeyConfig.apiKeySecretVersion
+    - api_field: mcpToolset.apiAuthentication.apiKeyConfig.keyName
+    - api_field: mcpToolset.apiAuthentication.apiKeyConfig.requestLocation
+    - api_field: mcpToolset.apiAuthentication.bearerTokenConfig.token
+    - api_field: mcpToolset.apiAuthentication.oauthConfig.clientId
+    - api_field: mcpToolset.apiAuthentication.oauthConfig.clientSecretVersion
+    - api_field: mcpToolset.apiAuthentication.oauthConfig.oauthGrantType
+    - api_field: mcpToolset.apiAuthentication.oauthConfig.scopes
+    - api_field: mcpToolset.apiAuthentication.oauthConfig.tokenEndpoint
+    - api_field: mcpToolset.apiAuthentication.serviceAccountAuthConfig.serviceAccount
+    - api_field: mcpToolset.apiAuthentication.serviceAgentIdTokenAuthConfig
+    - api_field: mcpToolset.serverAddress
+    - api_field: mcpToolset.serviceDirectoryConfig.service
+    - api_field: mcpToolset.tlsConfig.caCerts.cert
+    - api_field: mcpToolset.tlsConfig.caCerts.displayName
     - api_field: name
     - api_field: openApiToolset.apiAuthentication.apiKeyConfig.apiKeySecretVersion
     - api_field: openApiToolset.apiAuthentication.apiKeyConfig.keyName
