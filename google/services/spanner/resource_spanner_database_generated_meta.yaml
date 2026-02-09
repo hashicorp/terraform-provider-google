@@ -4,7 +4,8 @@ source_file: products/spanner/Database.yaml
 api_service_name: spanner.googleapis.com
 api_version: v1
 api_resource_type_kind: Database
-cai_asset_name_format: //spanner.googleapis.com/projects/{{project}}/instances/{{instance}}/databases/{{name}}
+cai_asset_name_formats:
+    - //spanner.googleapis.com/projects/{{project}}/instances/{{instance}}/databases/{{name}}
 fields:
     - api_field: databaseDialect
     - api_field: extraStatements

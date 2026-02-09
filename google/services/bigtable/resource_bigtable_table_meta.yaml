@@ -3,7 +3,8 @@ generation_type: 'handwritten'
 api_service_name: 'bigtableadmin.googleapis.com'
 api_version: 'v2'
 api_resource_type_kind: 'Table'
-cai_asset_name_format: '//bigtable.googleapis.com/projects/{{project}}/instances/{{instance_name}}/tables/{{name}}'
+cai_asset_name_formats:
+- '//bigtable.googleapis.com/projects/{{project}}/instances/{{instance_name}}/tables/{{name}}'
 fields:
   - api_field: 'automatedBackupPolicy.frequency'
   - api_field: 'automatedBackupPolicy.retentionPeriod'

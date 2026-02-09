@@ -4,7 +4,8 @@ source_file: products/binaryauthorization/Policy.yaml
 api_service_name: binaryauthorization.googleapis.com
 api_version: v1
 api_resource_type_kind: Policy
-cai_asset_name_format: //binaryauthorization.googleapis.com/projects/{{project}}/policy
+cai_asset_name_formats:
+    - //binaryauthorization.googleapis.com/projects/{{project}}/policy
 fields:
     - api_field: admissionWhitelistPatterns.namePattern
     - api_field: clusterAdmissionRules.key

@@ -3,6 +3,9 @@ generation_type: 'handwritten'
 api_service_name: 'container.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NodePool'
+cai_asset_name_formats:
+  - //container.googleapis.com/projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/nodePools/{{name}}
+  - //container.googleapis.com/projects/{{project}}/zones/{{location}}/clusters/{{cluster}}/nodePools/{{name}}
 fields:
   - api_field: 'autoscaling.locationPolicy'
   - api_field: 'autoscaling.maxNodeCount'

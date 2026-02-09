@@ -4,7 +4,8 @@ source_file: products/spanner/Instance.yaml
 api_service_name: spanner.googleapis.com
 api_version: v1
 api_resource_type_kind: Instance
-cai_asset_name_format: //spanner.googleapis.com/projects/{{project}}/instances/{{name}}
+cai_asset_name_formats:
+    - //spanner.googleapis.com/projects/{{project}}/instances/{{name}}
 fields:
     - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.maxNodes
     - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.minNodes
