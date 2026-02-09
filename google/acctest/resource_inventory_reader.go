@@ -43,7 +43,7 @@ type Metadata struct {
 	ApiServiceName      string          `yaml:"api_service_name"`
 	ApiVersion          string          `yaml:"api_version"`
 	ApiResourceTypeKind string          `yaml:"api_resource_type_kind"`
-	CaiAssetNameFormat  string          `yaml:"cai_asset_name_format"`
+	CaiAssetNameFormats []string        `yaml:"cai_asset_name_formats"`
 	ApiVariantPatterns  []string        `yaml:"api_variant_patterns"`
 	AutogenStatus       bool            `yaml:"autogen_status,omitempty"`
 	Fields              []MetadataField `yaml:"fields"`
