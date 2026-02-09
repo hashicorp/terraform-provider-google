@@ -1,0 +1,3 @@
+```release-note:bug
+bigqueryanalyticshub: fixed update failure for `replica_locations` in `google_bigquery_analytics_hub_listing` (beta)
+```
