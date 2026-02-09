@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeInterconnectAttachment_l2DedicatedExample(t *testing.T) {
@@ -104,6 +105,69 @@ resource "google_compute_interconnect_attachment" "attachment" {
     ignore_changes = [
       vlan_tag8021q
     ]
+  }
+}
+`, context)
+}
+
+func TestAccComputeInterconnectAttachment_resourceManagerTags(t *testing.T) {
+	t.Parallel()
+	org := envvar.GetTestOrgFromEnv(t)
+
+	tagKeyResult := acctest.BootstrapSharedTestTagKeyDetails(t, "crm-interconnects-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey, _ := tagKeyResult["shared_tag_key"]
+	tagValueResult := acctest.BootstrapSharedTestTagValueDetails(t, "crm-interconnects-tagvalue", sharedTagkey, org)
+
+	context := map[string]interface{}{
+		"tag_key_id":    tagKeyResult["name"],
+		"tag_value_id":  tagValueResult["name"],
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInterconnectDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInterconnectAttachment_computeInterconnectParams(context),
+			},
+			{
+				ResourceName:            "google_compute_interconnect_attachment.attachment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels", "params"},
+			},
+		},
+	})
+}
+
+func testAccComputeInterconnectAttachment_computeInterconnectParams(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_compute_router" "foobar" {
+  name    = "tf-test-router-%{random_suffix}"
+  network = google_compute_network.foobar.name
+  bgp {
+    asn = 16550
+  }
+}
+resource "google_compute_network" "foobar" {
+  name                    = "tf-test-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+resource "google_compute_interconnect_attachment" "attachment" {
+  name           = "tf-test-attachment-%{random_suffix}"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
+  type                     = "PARTNER"
+  router                   = google_compute_router.foobar.id
+  mtu                      = 1500
+  labels                   = { mykey = "myvalue" }
+  params {
+    resource_manager_tags = {
+      "%{tag_key_id}" = "%{tag_value_id}"
+    }
   }
 }
 `, context)
