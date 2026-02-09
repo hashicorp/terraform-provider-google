@@ -814,6 +814,26 @@ func resourceBigqueryAnalyticsHubListingUpdate(d *schema.ResourceData, meta inte
 		}
 	}
 
+	if d.HasChange("bigquery_dataset.0.replica_locations") {
+		// Split URL into base and query parts
+		parts := strings.SplitN(url, "?", 2)
+		if len(parts) == 2 {
+			base := parts[0]
+			query := parts[1]
+
+			query = strings.ReplaceAll(query, "%2C", ",")
+			query = strings.ReplaceAll(query, "%2c", ",")
+
+			// Replace "bigqueryDataset" with "bigqueryDataset.replicaLocations"
+			query = strings.ReplaceAll(query, "bigqueryDataset", "bigqueryDataset.replicaLocations")
+
+			// Re-encode commas back
+			query = strings.ReplaceAll(query, ",", "%2C")
+
+			url = base + "?" + query
+		}
+	}
+
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
