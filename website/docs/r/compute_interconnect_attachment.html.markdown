@@ -177,6 +177,11 @@ The following arguments are supported:
   Maximum Transmission Unit (MTU), in bytes, of packets passing through this interconnect attachment.
   Valid values are 1440, 1460, 1500, and 8896. If not specified, the value will default to 1440.
 
+* `params` -
+  (Optional)
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `bandwidth` -
   (Optional)
   Provisioned bandwidth capacity for the interconnect attachment.
@@ -315,6 +320,14 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the interconnect attachment. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
 
 <a name="nested_l2_forwarding"></a>The `l2_forwarding` block supports:
 
