@@ -162,6 +162,7 @@ fields:
   - api_field: 'ipAllocationPolicy.additionalPodRangesConfig.podRangeNames'
   - field: 'ip_allocation_policy.additional_ip_ranges_config.subnetwork'
   - field: 'ip_allocation_policy.additional_ip_ranges_config.pod_ipv4_range_names'
+  - field: 'ip_allocation_policy.additional_ip_ranges_config.status'
   - api_field: 'ipAllocationPolicy.autoIpamConfig.enabled'
   - api_field: 'ipAllocationPolicy.clusterIpv4CidrBlock'
   - api_field: 'ipAllocationPolicy.clusterSecondaryRangeName'

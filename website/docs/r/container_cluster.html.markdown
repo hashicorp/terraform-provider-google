@@ -880,6 +880,11 @@ Structure is [documented below](#nested_additional_ip_ranges_config).
 
 * `pod_ipv4_range_names`- (Required) List of secondary ranges names within this subnetwork that can be used for pod IPs.
 
+* `status`- (Optional) Status of the subnetwork. Additional subnet with DRAINING status will not be selected during new node pool creation
+    Accepted values are:
+    * `ACTIVE`: ACTIVE status indicates that the subnet is available for new node pool creation.
+    * `DRAINING`: DRAINING status indicates that the subnet is not used for new node pool creation.
+
 <a name="nested_network_tier_config"></a>The `network_tier_config` block supports:
 
 * `network_tier` - (Required) Network tier configuration.
