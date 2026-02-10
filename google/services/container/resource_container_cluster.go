@@ -1733,6 +1733,11 @@ func ResourceContainerCluster() *schema.Resource {
 										Description: `List of secondary ranges names within this subnetwork that can be used for pod IPs.`,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 									},
+									"status": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Status of the subnetwork, If in draining status, subnet will not be selected for new node pools.`,
+									},
 								},
 							},
 						},
@@ -5290,6 +5295,7 @@ func expandAdditionalIpRangesConfigs(configured interface{}, d *schema.ResourceD
 		additionalIpRangesConfig = append(additionalIpRangesConfig, &container.AdditionalIPRangesConfig{
 			Subnetwork:        subnetwork.RelativeLink(),
 			PodIpv4RangeNames: expandPodIpv4RangeNames(config["pod_ipv4_range_names"]),
+			Status:            config["status"].(string),
 		})
 	}
 
@@ -6903,6 +6909,7 @@ func flattenAdditionalIpRangesConfigs(c []*container.AdditionalIPRangesConfig) [
 		outRangeConfig := map[string]interface{}{
 			"subnetwork":           rangeConfig.Subnetwork,
 			"pod_ipv4_range_names": rangeConfig.PodIpv4RangeNames,
+			"status":               rangeConfig.Status,
 		}
 		outRanges = append(outRanges, outRangeConfig)
 	}
