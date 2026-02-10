@@ -32,8 +32,6 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerServicePerimeterResource_basicTest(t *testing.T) {
-	// Multiple fine-grained resources
-	acctest.SkipIfVcr(t)
 	org := envvar.GetTestOrgFromEnv(t)
 	projects := acctest.BootstrapServicePerimeterProjects(t, 2)
 	policyTitle := "my policy"
@@ -124,6 +122,8 @@ resource "google_access_context_manager_service_perimeter_resource" "test-access
 resource "google_access_context_manager_service_perimeter_resource" "test-access2" {
   perimeter_name = google_access_context_manager_service_perimeter.test-access.name
   resource = "projects/%d"
+
+  depends_on = [google_access_context_manager_service_perimeter_resource.test-access1]
 }
 `, testAccAccessContextManagerServicePerimeterResource_destroy(org, policyTitle, perimeterTitleName), projectNumber1, projectNumber2)
 }
