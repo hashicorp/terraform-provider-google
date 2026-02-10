@@ -34,8 +34,6 @@ import (
 )
 
 func TestAccGKEHubFeatureMembership_gkehubFeatureAcmUpdate(t *testing.T) {
-	// Multiple fine-grained resources cause VCR to fail
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -125,7 +123,7 @@ resource "google_gke_hub_feature_membership" "feature_member_1" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -154,7 +152,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_second.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -234,7 +232,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_second.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -267,7 +265,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_second.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
     config_sync {
       enabled = true
       source_format = "unstructured"
@@ -285,7 +283,7 @@ resource "google_gke_hub_feature_membership" "feature_member_3" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_third.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -303,7 +301,7 @@ resource "google_gke_hub_feature_membership" "feature_member_4" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_fourth.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
   }
 }
 `, context)
@@ -328,15 +326,13 @@ resource "google_gke_hub_feature_membership" "feature_member_3" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_third.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
   }
 }
 `, context)
 }
 
 func TestAccGKEHubFeatureMembership_gkehubFeatureAcmAllFields(t *testing.T) {
-	// VCR fails to handle batched project services
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -439,7 +435,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.20.1"
+    version = "1.23.1"
     config_sync {
       enabled = true
       git {
@@ -496,7 +492,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
     config_sync {
       enabled = true
       git {
@@ -558,7 +554,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
     config_sync {
       enabled = true
       git {
@@ -572,8 +568,6 @@ resource "google_gke_hub_feature_membership" "feature_member" {
 }
 
 func TestAccGKEHubFeatureMembership_gkehubFeatureAcmOci(t *testing.T) {
-	// Multiple fine-grained resources cause VCR to fail
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -651,7 +645,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_acmoci.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
     config_sync {
       enabled = true
       source_format = "unstructured"
@@ -693,7 +687,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_acmoci.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
     config_sync {
       enabled = true
       source_format = "hierarchy"
@@ -735,15 +729,13 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership_acmoci.membership_id
   configmanagement {
-    version = "1.21.0"
+    version = "1.23.1"
   }
 }
 `, context)
 }
 
 func TestAccGKEHubFeatureMembership_gkehubFeatureMesh(t *testing.T) {
-	// VCR fails to handle batched project services
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -946,8 +938,6 @@ resource "google_gke_hub_feature_membership" "feature_member" {
 }
 
 func TestAccGKEHubFeatureMembership_gkehubFeaturePolicyController(t *testing.T) {
-	// VCR fails to handle batched project services
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -1092,7 +1082,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
         }
       }
     }
-    version = "1.20.0"
+    version = "1.22.1"
   }
 }
 `, context)
@@ -1142,7 +1132,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
         }
       }
     }
-    version = "1.20.0"
+    version = "1.22.1"
   }
 }
 `, context)
@@ -1319,57 +1309,55 @@ resource "google_project_service" "anthos" {
 resource "google_project_service" "mesh" {
   project = google_project.project.project_id
   service = "meshconfig.googleapis.com"
+  depends_on = [google_project_service.anthos]
 }
 
 resource "google_project_service" "mci" {
   project = google_project.project.project_id
   service = "multiclusteringress.googleapis.com"
+  depends_on = [google_project_service.mesh]
 }
 
 resource "google_project_service" "acm" {
   project = google_project.project.project_id
   service = "anthosconfigmanagement.googleapis.com"
+  depends_on = [google_project_service.mci]
 }
 
 resource "google_project_service" "poco" {
   project = google_project.project.project_id
   service = "anthospolicycontroller.googleapis.com"
+  depends_on = [google_project_service.acm]
 }
 
 resource "google_project_service" "mcsd" {
   project = google_project.project.project_id
   service = "multiclusterservicediscovery.googleapis.com"
+  depends_on = [google_project_service.poco]
 }
 
 resource "google_project_service" "compute" {
   project = google_project.project.project_id
   service = "compute.googleapis.com"
+  depends_on = [google_project_service.mcsd]
 }
 
 resource "google_project_service" "container" {
   project = google_project.project.project_id
   service = "container.googleapis.com"
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_project_service" "gkehub" {
   project = google_project.project.project_id
   service = "gkehub.googleapis.com"
+  depends_on = [google_project_service.container]
 }
 
 // It needs waiting until the API services are really activated.
 resource "time_sleep" "wait_120s" {
   create_duration = "120s"
-  depends_on = [
-    google_project_service.anthos,
-    google_project_service.mesh,
-    google_project_service.mci,
-    google_project_service.acm,
-    google_project_service.poco,
-    google_project_service.mcsd,
-    google_project_service.compute,
-    google_project_service.container,
-    google_project_service.gkehub,
-  ]
+  depends_on = [google_project_service.gkehub]
 }
 `, context)
 }
