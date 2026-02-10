@@ -1,0 +1,3 @@
+```release-note:enhancement
+spanner: support user_project_override in `spanner_database_iam` and `spanner_instance_iam` resources
+```
