@@ -428,6 +428,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_storage_bucket_object":                               storage.DataSourceGoogleStorageBucketObject(),
 	"google_storage_bucket_objects":                              storage.DataSourceGoogleStorageBucketObjects(),
 	"google_storage_bucket_object_content":                       storage.DataSourceGoogleStorageBucketObjectContent(),
+	"google_storage_bucket_object_contents":                      storage.DataSourceGoogleStorageBucketObjectContents(),
 	"google_storage_control_folder_intelligence_config":          storagecontrol.DataSourceStorageControlFolderIntelligenceConfig(),
 	"google_storage_control_organization_intelligence_config":    storagecontrol.DataSourceStorageControlOrganizationIntelligenceConfig(),
 	"google_storage_control_project_intelligence_config":         storagecontrol.DataSourceStorageControlProjectIntelligenceConfig(),
