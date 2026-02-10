@@ -30,7 +30,9 @@ To get more information about PromptTemplate, see:
 
 * [API documentation](https://firebase.google.com/docs/reference/ai-logic/rest/v1beta/projects.locations.templates)
 * How-to Guides
-    * [Official Documentation](https://firebase.google.com/docs/ai-logic)
+    * [Get started with server prompt templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/get-started)
+    * [Product documentation for Firebase AI Logic](https://firebase.google.com/docs/ai-logic)
+    * [Specification for Dotprompt format](https://google.github.io/dotprompt/getting-started)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=firebaseailogic_prompt_template_file&open_in_editor=main.tf" target="_blank">
@@ -82,7 +84,7 @@ The following arguments are supported:
 
 * `template_string` -
   (Required)
-  The DotPrompt raw template string.
+  The [Dotprompt](https://google.github.io/dotprompt/getting-started) raw template string.
 
 * `location` -
   (Required)
