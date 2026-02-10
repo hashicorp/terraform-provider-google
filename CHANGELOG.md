@@ -7,7 +7,6 @@ BREAKING CHANGES:
 
 FEATURES:
 * **New Resource:** `google_dataplex_data_asset` ([#25922](https://github.com/hashicorp/terraform-provider-google/pull/25922))
-* **New Resource:** `google_firebase_ai_logic_prompt_template_lock` ([#25877](https://github.com/hashicorp/terraform-provider-google/pull/25877))
 * **New Resource:** `google_logging_saved_query` ([#25921](https://github.com/hashicorp/terraform-provider-google/pull/25921))
 
 IMPROVEMENTS:
