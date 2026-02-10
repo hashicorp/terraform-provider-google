@@ -4,8 +4,7 @@ source_file: products/iam2/DenyPolicy.yaml
 api_service_name: iam.googleapis.com
 api_version: v2
 api_resource_type_kind: Policy
-cai_asset_name_formats:
-    - //iam.googleapis.com/{{parent}}/denypolicies/{{name}}
+cai_asset_name_format: //iam.googleapis.com/{{parent}}/denypolicies/{{name}}
 fields:
     - api_field: displayName
     - api_field: etag

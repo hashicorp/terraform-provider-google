@@ -30,7 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 type ResourceMetadata struct {
@@ -133,8 +132,8 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 				if !ok {
 					log.Printf("[DEBUG]TGC Terraform error: unknown resource type %s", metadata.ResourceType)
 					metadata.CaiAssetNames = []string{"unknown"}
-				} else if len(yamlMetadata.CaiAssetNameFormats) == 0 {
-					log.Printf("[DEBUG]TGC Terraform error: unknown CAI asset name format for resource type %s", yamlMetadata.Resource)
+				} else if yamlMetadata.CaiAssetNameFormat == "" {
+					log.Printf("[DEBUG]TGC Terraform error: unknown CAI asset name format for resource type %s", yamlMetadata.CaiAssetNameFormat)
 
 					var rName string
 					switch metadata.ResourceType {
@@ -154,19 +153,19 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 
 					metadata.CaiAssetNames = []string{fmt.Sprintf("//%s/%s", yamlMetadata.ApiServiceName, rName)}
 				} else {
-					caiAssetNameFormat := ""
-					if len(yamlMetadata.CaiAssetNameFormats) == 1 {
-						caiAssetNameFormat = yamlMetadata.CaiAssetNameFormats[0]
-					} else {
-						if strings.HasPrefix(yamlMetadata.Resource, "google_container_") {
-							caiAssetNameFormat = resolveContainerCaiAssetNameFormat(yamlMetadata.CaiAssetNameFormats, rState.Primary.Attributes["location"])
-						}
+					paramsMap := make(map[string]any, 0)
+					params := extractIdentifiers(yamlMetadata.CaiAssetNameFormat)
+					for _, param := range params {
+						v := rState.Primary.Attributes[param]
+						paramsMap[param] = v
 					}
 
-					caiAssetName := formatCaiAssetName(caiAssetNameFormat, rState.Primary.Attributes)
+					caiAssetName := replacePlaceholders(yamlMetadata.CaiAssetNameFormat, paramsMap)
+
 					if _, ok := serviceWithProjectNumber[metadata.Service]; ok {
 						caiAssetName = strings.Replace(caiAssetName, projectId, projectNumber, 1)
 					}
+
 					metadata.CaiAssetNames = []string{caiAssetName}
 				}
 			}
@@ -194,42 +193,6 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 
 		return nil
 	}
-}
-
-// resolveContainerCaiAssetNameFormat determines the correct CAI asset name format
-// for GKE resources based on whether the resource location is a zone or a region.
-func resolveContainerCaiAssetNameFormat(caiAssetNameFormats []string, location string) string {
-	if tpgresource.IsZone(location) {
-		for _, nameFormat := range caiAssetNameFormats {
-			if strings.Contains(nameFormat, "/zones/") {
-				return nameFormat
-			}
-		}
-	} else {
-		for _, nameFormat := range caiAssetNameFormats {
-			if strings.Contains(nameFormat, "/locations/") {
-				return nameFormat
-			}
-		}
-	}
-
-	return ""
-}
-
-// FormatCaiAssetName constructs a fully qualified Cloud Asset Inventory (CAI) asset name
-// by interpolating values from the provided attributes map into a format template.
-// It extracts required placeholders (e.g., "{{project}}", "{{name}}") from the
-// caiAssetNameFormat string and replaces them with their corresponding values from the map.
-func formatCaiAssetName(caiAssetNameFormat string, attributes map[string]string) string {
-	paramsMap := make(map[string]any, 0)
-	params := extractIdentifiers(caiAssetNameFormat)
-	for _, param := range params {
-		v := attributes[param]
-		paramsMap[param] = v
-	}
-
-	caiAssetName := replacePlaceholders(caiAssetNameFormat, paramsMap)
-	return caiAssetName
 }
 
 // For example, for the url "projects/{{project}}/schemas/{{schema}}",
