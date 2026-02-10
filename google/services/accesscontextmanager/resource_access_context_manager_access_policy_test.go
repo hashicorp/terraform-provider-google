@@ -53,6 +53,8 @@ func TestAccAccessContextManager(t *testing.T) {
 		"service_perimeters":                       testAccAccessContextManagerServicePerimeters_basicTest,
 		"gcp_user_access_binding":                  testAccAccessContextManagerGcpUserAccessBinding_basicTest,
 		"authorized_orgs_desc":                     testAccAccessContextManagerAuthorizedOrgsDesc_basicTest,
+		"data_source_access_policy_basic":          testAccDataSourceAccessContextManagerServicePerimeter_basicTest,
+		"data_source_access_policy_scoped":         testAccDataSourceAccessContextManagerServicePerimeter_scopedPolicyTest,
 	}
 
 	for name, tc := range testCases {
