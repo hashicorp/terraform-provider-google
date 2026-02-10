@@ -60,6 +60,41 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_developer_connect_source&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Reasoning Engine Developer Connect Source
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "reasoning-engine"
+  description  = "A basic reasoning engine"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      developer_connect_source {
+        config {
+          git_repository_link = "projects/${data.google_project.project.project_id}/locations/us-central1/connections/tpg-test-bot-github/gitRepositoryLinks/tpg-test-vertex-reasoning"
+          dir                 = "source"
+          revision            = "main"
+        }
+      }
+
+      python_spec {
+        version           = "3.14"
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+      }
+    }
+  }
+}
+```
 ## Example Usage - Vertex Ai Reasoning Engine Psc Interface
 
 
