@@ -13,4 +13,8 @@ fields:
     - api_field: expireTime
     - api_field: name
     - api_field: privateKey
+    - api_field: privateKey
+      field: private_key_wo
+    - field: private_key_wo_version
+      provider_only: true
     - api_field: selfLink

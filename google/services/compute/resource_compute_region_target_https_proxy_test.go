@@ -252,10 +252,11 @@ resource "google_compute_region_ssl_certificate" "foobar1" {
 }
 
 resource "google_compute_region_ssl_certificate" "foobar2" {
-  name        = "httpsproxy-test-cert2-%s"
-  description = "very descriptive"
-  private_key = file("test-fixtures/test.key")
-  certificate = file("test-fixtures/test.crt")
+  name                   = "httpsproxy-test-cert2-%s"
+  description            = "very descriptive"
+  private_key_wo         = file("test-fixtures/test.key")
+  private_key_wo_version = parseint(filesha256("test-fixtures/test.key"),16) %% pow(2,32)
+  certificate            = file("test-fixtures/test.crt")
 }
 `, id, id, id, id, id, id, id, id, id)
 }

@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: Enable write-only support for `private_key` to `google_compute_ssl_certificate` resource
+```
+```release-note:enhancement
+compute: Enable write-only support for `private_key` to `google_compute_region_ssl_certificate` resource
+```
