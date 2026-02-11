@@ -135,6 +135,7 @@ resource "google_compute_forwarding_rule" "default" {
 resource "google_compute_packet_mirroring" "foobar" {
   name = "tf-test-my-mirroring%{random_suffix}"
   description = "bar"
+  enable = "TRUE"
   network {
     url = google_compute_network.default.id
   }
