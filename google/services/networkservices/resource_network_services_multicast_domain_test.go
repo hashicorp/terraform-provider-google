@@ -17,10 +17,13 @@
 package networkservices_test
 
 import (
+	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"testing"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccNetworkServicesMulticastDomain_networkServicesMulticastDomainUpdateExample(t *testing.T) {
@@ -96,6 +99,96 @@ resource "google_network_services_multicast_domain" md_test {
   admin_network = google_compute_network.network.id
   connection_config  {
     connection_type="SAME_VPC"
+  }
+  depends_on = [google_compute_network.network]
+}
+`, context)
+}
+
+func TestAccNetworkServicesMulticastDomain_networkServicesUllMulticastDomainUpdateExample(t *testing.T) {
+	t.Parallel()
+
+	projectId := envvar.GetTestProjectFromEnv()
+	profileURL := fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/networkProfiles/us-south1-d-vpc-ull-operator", projectId)
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"profile_url":   profileURL,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesMulticastDomainDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesMulticastDomain_networkServicesUllMulticastDomainUpdateExample_full(context),
+			},
+			{
+				ResourceName:            "google_network_services_multicast_domain.md_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "multicast_domain_id", "terraform_labels"},
+			},
+			{
+				Config: testAccNetworkServicesMulticastDomain_networkServicesUllMulticastDomainUpdateExample_diff(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_services_multicast_domain.md_test", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_services_multicast_domain.md_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "multicast_domain_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesMulticastDomain_networkServicesUllMulticastDomainUpdateExample_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "network" {
+  name                    = "tf-test-test-md-network%{random_suffix}"
+  auto_create_subnetworks = false
+  network_profile = "%{profile_url}"
+}
+resource "google_network_services_multicast_domain" md_test {
+  multicast_domain_id = "tf-test-test-md-domain%{random_suffix}"
+  location = "global"
+  admin_network = google_compute_network.network.id
+  connection_config  {
+    connection_type="SAME_VPC"
+  }
+  ull_multicast_domain {
+    preconfigured_ull_domain = "e2e-test-internal-feed"
+  }
+  depends_on = [google_compute_network.network]
+}
+`, context)
+}
+
+func testAccNetworkServicesMulticastDomain_networkServicesUllMulticastDomainUpdateExample_diff(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "network" {
+  name                    = "tf-test-test-md-network%{random_suffix}"
+  auto_create_subnetworks = false
+  network_profile = "%{profile_url}"
+}
+resource "google_network_services_multicast_domain" md_test {
+  multicast_domain_id = "tf-test-test-md-domain%{random_suffix}"
+  location = "global"
+  description = "A sample domain"
+  labels = {
+    label-one = "value-one"
+  }
+  admin_network = google_compute_network.network.id
+  connection_config  {
+    connection_type="SAME_VPC"
+  }
+  ull_multicast_domain {
+    preconfigured_ull_domain = "e2e-test-internal-feed"
   }
   depends_on = [google_compute_network.network]
 }

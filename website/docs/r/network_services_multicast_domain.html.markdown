@@ -105,6 +105,11 @@ The following arguments are supported:
   Use the following format:
   `projects/{project}/locations/global/multicastDomainGroups/{multicast_domain_group}`.
 
+* `ull_multicast_domain` -
+  (Optional)
+  Information for an Ultra-Low-Latency multicast domain.
+  Structure is [documented below](#nested_ull_multicast_domain).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -125,6 +130,12 @@ The following arguments are supported:
   [NCC](https://cloud.google.com/network-connectivity-center) hub.
   Use the following format:
   `projects/{project}/locations/global/hubs/{hub}`.
+
+<a name="nested_ull_multicast_domain"></a>The `ull_multicast_domain` block supports:
+
+* `preconfigured_ull_domain` -
+  (Optional)
+  The preconfigured Ultra-Low-Latency domain name.
 
 ## Attributes Reference
 
