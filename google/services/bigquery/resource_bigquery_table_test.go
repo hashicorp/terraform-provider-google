@@ -1898,6 +1898,32 @@ func TestAccBigQueryTable_SchemaWithEmptyCollation(t *testing.T) {
 	})
 }
 
+func testAccBigQueryTableWithNoCollation(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%{dataset_id}"
+  location   = "US"
+
+  default_table_expiration_ms = null
+  default_collation           = "und:ci"
+}
+
+resource "google_bigquery_table" "test" {
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%{table_id}"
+  deletion_protection = false
+
+  schema = jsonencode([
+    {
+      name      = "source"
+      type      = "STRING"
+      // collation is explicitly omitted (nil) to test inheritance
+    }
+  ])
+}
+`, context)
+}
+
 func TestAccBigQueryTable_invalidSchemas(t *testing.T) {
 	t.Parallel()
 	// Pending VCR support in https://github.com/hashicorp/terraform-provider-google/issues/15427.
@@ -5092,6 +5118,59 @@ resource "google_bigquery_table" "test" {
   ])
 }
 `, context)
+}
+
+func TestAccBigQueryTable_SchemaWithNoCollation(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"dataset_id": fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10)),
+		"table_id":   fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithNoCollation(context),
+				Check: resource.ComposeTestCheckFunc(
+					// Verify that the "source" column inherited "und:ci" from the dataset
+					testAccCheckBigQueryTableCollation(t, context["dataset_id"].(string), context["table_id"].(string), "source", "und:ci"),
+				),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+			},
+		},
+	})
+}
+
+func testAccCheckBigQueryTableCollation(t *testing.T, datasetID, tableID, colName, expectedCollation string) resource.TestCheckFunc {
+	t.Helper()
+
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+		res, err := config.NewBigQueryClient(config.UserAgent).Tables.Get(config.Project, datasetID, tableID).Do()
+		if err != nil {
+			return err
+		}
+
+		for _, field := range res.Schema.Fields {
+			if field.Name == colName {
+				if field.Collation != expectedCollation {
+					return fmt.Errorf("Expected collation for column '%s' to be '%s', but got '%s'", colName, expectedCollation, field.Collation)
+				}
+				return nil
+			}
+		}
+
+		return fmt.Errorf("Column '%s' not found in table schema", colName)
+	}
 }
 
 func testAccBigQueryTableWithSchemaAndRowAccessPolicy(context map[string]interface{}) string {
