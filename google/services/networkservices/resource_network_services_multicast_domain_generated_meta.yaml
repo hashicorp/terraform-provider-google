@@ -25,5 +25,6 @@ fields:
     - api_field: state.state
     - field: terraform_labels
       provider_only: true
+    - api_field: ullMulticastDomain.preconfiguredUllDomain
     - api_field: uniqueId
     - api_field: updateTime
