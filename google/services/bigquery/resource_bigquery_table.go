@@ -267,6 +267,12 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 		}
 		return bigQueryTableTypeEq(valA.(string), valB.(string))
 	case "collation":
+		// If the configuration (valB) is nil or missing, it implies "inherit from dataset".
+		// We suppress the diff by returning true, accepting whatever actual value (valA)
+		// the server returned (e.g., "und:ci").
+		if valB == nil {
+			return true
+		}
 		equivalentSet := []interface{}{nil, ""}
 		eq := valueIsInArray(valA, equivalentSet) && valueIsInArray(valB, equivalentSet)
 		return eq
@@ -3185,7 +3191,8 @@ func setSchemaForceSendFields(fields []*bigquery.TableFieldSchema, rawFields []i
 
 		for _, key := range schemaForceSendFieldKeys {
 			// If the key is present in the raw JSON (even if empty), force send it.
-			if _, ok := rawField[key]; ok {
+			// Only force send if the value is not nil.
+			if val, ok := rawField[key]; ok && val != nil {
 				// Convert JSON key to Struct Field Name (e.g., "collation" -> "Collation")
 				fieldName := strings.Title(key)
 				field.ForceSendFields = append(field.ForceSendFields, fieldName)
