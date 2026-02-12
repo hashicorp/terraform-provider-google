@@ -217,6 +217,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_backup_dr_backup_plan":                               backupdr.DataSourceGoogleCloudBackupDRBackupPlan(),
 	"google_backup_dr_backup":                                    backupdr.DataSourceGoogleCloudBackupDRBackup(),
 	"google_backup_dr_data_source":                               backupdr.DataSourceGoogleCloudBackupDRDataSource(),
+	"google_backup_dr_data_sources":                              backupdr.DataSourceGoogleCloudBackupDRDataSources(),
 	"google_backup_dr_backup_vault":                              backupdr.DataSourceGoogleCloudBackupDRBackupVault(),
 	"google_backup_dr_data_source_references":                    backupdr.DataSourceGoogleCloudBackupDRDataSourceReferences(),
 	"google_backup_dr_data_source_reference":                     backupdr.DataSourceGoogleCloudBackupDRDataSourceReference(),
