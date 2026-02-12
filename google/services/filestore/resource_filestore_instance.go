@@ -55,6 +55,33 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func ModifyFilestoreInstanceReplica(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, method string) error {
+	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:"+method)
+	if err != nil {
+		return err
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to %q google_filestore_instance %q: %s", method, d.Id(), err)
+	}
+
+	err = FilestoreOperationWaitTime(
+		config, res, project, "Modifying Filestore Instance Replica", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -587,6 +614,13 @@ simultaneous updates from overwriting each other.`,
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"desired_replica_state": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PAUSED", "READY", ""}),
+				Description:  `The desired_replica_state field controls the state of a replica. Terraform will attempt to make the actual state of the replica match the desired state. Default value: "READY" Possible values: ["PAUSED", "READY"]`,
+				Default:      "READY",
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -754,6 +788,16 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error waiting to create Instance: %s", err)
 	}
 
+	if p, ok := d.GetOk("desired_replica_state"); ok && p.(string) == "PAUSED" {
+		billingProject := ""
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+		if err := ModifyFilestoreInstanceReplica(config, d, project, billingProject, userAgent, "pauseReplica"); err != nil {
+			return err
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
 
 	return resourceFilestoreInstanceRead(d, meta)
@@ -798,6 +842,12 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FilestoreInstance %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("desired_replica_state"); !ok {
+		if err := d.Set("desired_replica_state", "READY"); err != nil {
+			return fmt.Errorf("Error setting desired_replica_state: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -990,6 +1040,47 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
+	if d.HasChange("desired_replica_state") {
+		log.Printf("[DEBUG] desired_replica_state has changed")
+		billingProject := ""
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		desired_replica_state := d.Get("desired_replica_state").(string)
+		log.Printf("[DEBUG] desired_replica_state: %s", desired_replica_state)
+
+		effective_replication := d.Get("effective_replication").([]interface{})
+		if len(effective_replication) > 0 {
+			effective_replication_map := effective_replication[0].(map[string]interface{})
+			replicas := effective_replication_map["replicas"].([]interface{})
+			if len(replicas) > 0 {
+				replica := replicas[0].(map[string]interface{})
+				state := replica["state"].(string)
+				log.Printf("[DEBUG] current replica state: %s", state)
+
+				if desired_replica_state == "PAUSED" && state == "READY" {
+					log.Printf("[DEBUG] Pausing replica")
+					if err := ModifyFilestoreInstanceReplica(config, d, project, billingProject, userAgent, "pauseReplica"); err != nil {
+						return err
+					}
+				} else if desired_replica_state == "READY" && state == "PAUSED" {
+					log.Printf("[DEBUG] Resuming replica")
+					if err := ModifyFilestoreInstanceReplica(config, d, project, billingProject, userAgent, "resumeReplica"); err != nil {
+						return err
+					}
+				} else {
+					log.Printf("[DEBUG] No state transition needed")
+				}
+			} else {
+				log.Printf("[DEBUG] No replicas found in effective_replication")
+			}
+		} else {
+			log.Printf("[DEBUG] effective_replication is empty")
+		}
+	} else {
+		log.Printf("[DEBUG] desired_replica_state has NOT changed")
+	}
 	return resourceFilestoreInstanceRead(d, meta)
 }
 
@@ -1066,6 +1157,11 @@ func resourceFilestoreInstanceImport(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("desired_replica_state", "READY"); err != nil {
+		return nil, fmt.Errorf("Error setting desired_replica_state: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
