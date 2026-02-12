@@ -15,3 +15,5 @@ fields:
     - api_field: networks.peeringMode
     - api_field: oauth2ClientId
     - api_field: type
+    - field: deletion_policy
+      provider_only: true

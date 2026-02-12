@@ -20,3 +20,5 @@ fields:
     - api_field: defaultAdmissionRule.requireAttestationsBy
     - api_field: description
     - api_field: globalPolicyEvaluationMode
+    - field: deletion_policy
+      provider_only: true

@@ -38,3 +38,5 @@ fields:
     - api_field: spark.metastoreServiceConfig.metastoreService
     - api_field: spark.serviceAccountId
     - api_field: spark.sparkHistoryServerConfig.dataprocCluster
+    - field: deletion_policy
+      provider_only: true

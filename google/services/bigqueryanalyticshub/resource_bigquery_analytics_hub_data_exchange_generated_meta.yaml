@@ -20,3 +20,5 @@ fields:
     - api_field: primaryContact
     - api_field: sharingEnvironmentConfig.dcrExchangeConfig
     - api_field: sharingEnvironmentConfig.defaultExchangeConfig
+    - field: deletion_policy
+      provider_only: true

@@ -40,3 +40,5 @@ fields:
     - api_field: ownershipScope
     - api_field: thresholdRules.spendBasis
     - api_field: thresholdRules.thresholdPercent
+    - field: deletion_policy
+      provider_only: true

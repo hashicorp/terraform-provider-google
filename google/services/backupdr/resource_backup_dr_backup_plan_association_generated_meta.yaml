@@ -21,3 +21,5 @@ fields:
     - api_field: rulesConfigInfo.lastSuccessfulBackupConsistencyTime
     - api_field: rulesConfigInfo.ruleId
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

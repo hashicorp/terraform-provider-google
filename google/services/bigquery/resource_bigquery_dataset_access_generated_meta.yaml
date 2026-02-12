@@ -25,3 +25,5 @@ fields:
     - api_field: view.datasetId
     - api_field: view.projectId
     - api_field: view.tableId
+    - field: deletion_policy
+      provider_only: true
