@@ -1,0 +1,12 @@
+resource: google_biglake_iceberg_namespace
+generation_type: mmv1
+source_file: products/biglakeiceberg/IcebergNamespace.yaml
+api_service_name: biglake.googleapis.com
+api_version: ""
+api_resource_type_kind: IcebergNamespace
+fields:
+    - field: catalog
+      provider_only: true
+    - api_field: namespace
+      field: namespace_id
+    - api_field: properties
