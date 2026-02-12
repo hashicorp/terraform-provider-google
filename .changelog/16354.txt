@@ -1,0 +1,3 @@
+```release-note:bug
+ces: fixed callback function definitions and invalid models in agent tests
+```

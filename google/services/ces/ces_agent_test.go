@@ -138,7 +138,7 @@ resource "google_ces_agent" "ces_child_agent" {
   instruction = "You are a helpful assistant for this example."
 
   model_settings {
-    model       = "gemini-2.5-flash"
+    model       = "gemini-2.5-flash-001"
     temperature = 0.5
   }
 
@@ -183,40 +183,40 @@ resource "google_ces_agent" "ces_agent_basic" {
 
   instruction = "You are a helpful assistant for this example."
 
+  before_agent_callbacks {
+    description = "Example callback"
+    disabled    = true
+    python_code = "def before_agent_callback(callback_context): return None"
+  }
+
   after_agent_callbacks {
     description = "Example callback"
     disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
-  }
-
-  before_agent_callbacks {
-    description = "Example callback"
-    disabled    = false
-    python_code = "def callback(context):\n    return {'override': False}"
-  }
-
-  after_model_callbacks {
-    description = "Example callback"
-    disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def after_agent_callback(callback_context): return None"
   }
 
   before_model_callbacks {
     description = "Example callback"
     disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def before_model_callback(callback_context, llm_request): return None"
   }
 
-  after_tool_callbacks {
+  after_model_callbacks {
     description = "Example callback"
     disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def after_model_callback(callback_context, llm_response): return None"
   }
 
   before_tool_callbacks {
     description = "Example callback"
     disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def before_tool_callback(tool, input, callback_context): return None"
+  }
+
+  after_tool_callbacks {
+    description = "Example callback"
+    disabled    = true
+    python_code = "def after_tool_callback(tool, input, callback_context, tool_response): return None"
   }
 
   tools = [
@@ -342,8 +342,6 @@ resource "google_ces_guardrail" "ces_guardrail_for_agent" {
 }
 
 
-
-
 resource "google_ces_agent" "ces_agent_basic" {
   agent_id = "tf-test-agent-id%{random_suffix}"
   location = "us"
@@ -354,40 +352,40 @@ resource "google_ces_agent" "ces_agent_basic" {
 
   instruction = "You are a helpful assistant for this example updated."
 
-  after_agent_callbacks {
-    description = "Example callback updated"
-    disabled    = false
-    python_code = "def callback(context):\n    return {'override': False}"
-  }
-
   before_agent_callbacks {
-    description = "Example callback updated"
-    disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
+    description = "Example callback"
+    disabled    = false
+    python_code = "def before_agent_callback(callback_context): return None"
   }
 
-  after_model_callbacks {
-    description = "Example callback updated"
+  after_agent_callbacks {
+    description = "Example callback"
     disabled    = false
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def after_agent_callback(callback_context): return None"
   }
 
   before_model_callbacks {
-    description = "Example callback updated"
+    description = "Example callback"
     disabled    = false
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def before_model_callback(callback_context, llm_request): return None"
   }
 
-  after_tool_callbacks {
-    description = "Example callback updated"
+  after_model_callbacks {
+    description = "Example callback"
     disabled    = false
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def after_model_callback(callback_context, llm_response): return None"
   }
 
   before_tool_callbacks {
-    description = "Example callback updated"
+    description = "Example callback"
     disabled    = false
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def before_tool_callback(tool, input, callback_context): return None"
+  }
+
+  after_tool_callbacks {
+    description = "Example callback"
+    disabled    = false
+    python_code = "def after_tool_callback(tool, input, callback_context, tool_response): return None"
   }
 
   // tools = [
@@ -475,11 +473,6 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent" {
   app      = google_ces_app.ces_app_for_agent.app_id
   display_name = "tf-test-my-agent%{random_suffix}"
 
-  model_settings {
-    model       = "gemini-1.5-flash"
-    temperature = 0.5
-  }
-
   remote_dialogflow_agent {
     agent = "projects/example/locations/us/agents/fake-agent"
     flow_id = "fake-flow"
@@ -503,11 +496,6 @@ resource "google_ces_app" "ces_app_for_agent" {
   description = "App used as parent for CES Agent example"
   display_name = "tf-test-my-app%{random_suffix}"
 
-  model_settings {
-    model       = "gemini-2.5-flash"
-    temperature = 0.7
-  }
-
   language_settings {
     default_language_code    = "en-US"
     supported_language_codes = ["es-ES", "fr-FR"]
@@ -525,12 +513,6 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent" {
   location = "us"
   app      = google_ces_app.ces_app_for_agent.app_id
   display_name = "tf-test-my-agent%{random_suffix}"
-
-  model_settings {
-    model       = "gemini-2.5-flash-lite"
-    temperature = 0.9
-  }
-
 
   remote_dialogflow_agent {
     agent = "projects/example/locations/us/agents/fake-agent-updated"
