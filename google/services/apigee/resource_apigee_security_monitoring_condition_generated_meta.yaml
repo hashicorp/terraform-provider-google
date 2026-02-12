@@ -17,3 +17,5 @@ fields:
     - api_field: totalDeployedResources
     - api_field: totalMonitoredResources
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

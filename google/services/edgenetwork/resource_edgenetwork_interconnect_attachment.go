@@ -406,7 +406,7 @@ func resourceEdgenetworkInterconnectAttachmentRead(d *schema.ResourceData, meta 
 }
 
 func resourceEdgenetworkInterconnectAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "labels", "terraform_labels", and virtual fields are mutable
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
 	return resourceEdgenetworkInterconnectAttachmentRead(d, meta)
 }
 

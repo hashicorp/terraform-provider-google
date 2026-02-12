@@ -26,3 +26,5 @@ fields:
     - api_field: runtimeDatabaseEncryptionKeyName
     - api_field: runtimeType
     - api_field: subscriptionType
+    - field: deletion_policy
+      provider_only: true

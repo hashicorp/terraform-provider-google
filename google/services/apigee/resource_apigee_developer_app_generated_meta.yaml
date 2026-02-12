@@ -32,3 +32,5 @@ fields:
       provider_only: true
     - api_field: scopes
     - api_field: status
+    - field: deletion_policy
+      provider_only: true

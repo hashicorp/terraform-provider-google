@@ -11,3 +11,5 @@ fields:
     - api_field: ipAddress
     - api_field: name
     - api_field: state
+    - field: deletion_policy
+      provider_only: true

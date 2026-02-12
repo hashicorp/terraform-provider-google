@@ -21,3 +21,5 @@ fields:
     - api_field: properties.property.name
     - api_field: properties.property.value
     - api_field: type
+    - field: deletion_policy
+      provider_only: true

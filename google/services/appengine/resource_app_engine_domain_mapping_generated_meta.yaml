@@ -16,3 +16,5 @@ fields:
     - api_field: sslSettings.certificateId
     - api_field: sslSettings.pendingManagedCertificateId
     - api_field: sslSettings.sslManagementType
+    - field: deletion_policy
+      provider_only: true

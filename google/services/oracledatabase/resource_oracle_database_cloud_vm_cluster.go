@@ -747,7 +747,7 @@ func resourceOracleDatabaseCloudVmClusterRead(d *schema.ResourceData, meta inter
 }
 
 func resourceOracleDatabaseCloudVmClusterUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "labels", "terraform_labels", and virtual fields are mutable
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
 	return resourceOracleDatabaseCloudVmClusterRead(d, meta)
 }
 

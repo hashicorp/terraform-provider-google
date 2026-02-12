@@ -14,3 +14,5 @@ fields:
     - field: org_id
       provider_only: true
     - api_field: serviceAttachment
+    - field: deletion_policy
+      provider_only: true

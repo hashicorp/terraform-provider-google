@@ -17,3 +17,5 @@ fields:
     - field: user_id
       provider_only: true
     - api_field: userType
+    - field: deletion_policy
+      provider_only: true

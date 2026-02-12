@@ -67,3 +67,5 @@ fields:
     - api_field: servicePerimeters.title
     - api_field: servicePerimeters.updateTime
     - api_field: servicePerimeters.useExplicitDryRunSpec
+    - field: deletion_policy
+      provider_only: true

@@ -23,3 +23,5 @@ fields:
     - api_field: requiredAccessLevels
     - api_field: vpcNetworkSources.vpcSubnetwork.network
     - api_field: vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks
+    - field: deletion_policy
+      provider_only: true

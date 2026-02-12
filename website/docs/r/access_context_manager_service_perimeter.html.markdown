@@ -350,6 +350,12 @@ The following arguments are supported:
   between currently enforced and suggested restrictions. useExplicitDryRunSpec must
   bet set to True if any of the fields in the spec are set to non-default values.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 
 
 <a name="nested_status"></a>The `status` block supports:

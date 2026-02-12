@@ -24,3 +24,5 @@ fields:
     - api_field: sessionSettings.sessionLengthEnabled
     - api_field: sessionSettings.sessionReauthMethod
     - api_field: sessionSettings.useOidcMaxAge
+    - field: deletion_policy
+      provider_only: true

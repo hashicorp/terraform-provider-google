@@ -18,3 +18,5 @@ fields:
     - api_field: project
     - field: project_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

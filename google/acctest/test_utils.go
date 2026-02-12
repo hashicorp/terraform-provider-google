@@ -74,7 +74,7 @@ func CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 				continue
 			}
 
-			if strings.HasPrefix(k, "labels.") || strings.HasPrefix(k, "terraform_labels.") || strings.HasPrefix(k, "effective_labels.") {
+			if strings.HasPrefix(k, "labels.") || strings.HasPrefix(k, "terraform_labels.") || strings.HasPrefix(k, "effective_labels.") || strings.HasPrefix(k, "deletion_policy") {
 				continue
 			}
 			if k == "%" {

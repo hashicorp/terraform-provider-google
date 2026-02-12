@@ -50,3 +50,5 @@ fields:
     - api_field: quotaTimeUnit
     - api_field: scopes
     - api_field: space
+    - field: deletion_policy
+      provider_only: true
