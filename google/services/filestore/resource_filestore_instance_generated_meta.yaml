@@ -9,6 +9,8 @@ fields:
     - api_field: deletionProtectionEnabled
     - api_field: deletionProtectionReason
     - api_field: description
+    - field: desired_replica_state
+      provider_only: true
     - api_field: directoryServices.ldap.domain
     - api_field: directoryServices.ldap.groupsOu
     - api_field: directoryServices.ldap.servers

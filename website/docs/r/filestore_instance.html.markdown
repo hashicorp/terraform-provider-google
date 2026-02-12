@@ -259,6 +259,8 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `desired_replica_state` - (Optional) The desired_replica_state field controls the state of a replica. Terraform will attempt to make the actual state of the replica match the desired state.
+
 
 
 <a name="nested_file_shares"></a>The `file_shares` block supports:
