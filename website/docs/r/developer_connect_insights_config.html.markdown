@@ -144,7 +144,7 @@ resource "google_apphub_application" "my_apphub_application" {
 
 resource "google_developer_connect_insights_config" "insights_config" {
   location = "us-central1"
-  insights_config_id = "tf-test-ic%{random_suffix}"
+  insights_config_id = "tf-test-ic-apphub-%{random_suffix}"
   project = google_project.project.project_id
   annotations = {}
   labels = {}
@@ -165,17 +165,140 @@ resource "google_developer_connect_insights_config" "insights_config" {
   depends_on = [time_sleep.wait_for_propagation]
 }
 ```
+## Example Usage - Developer Connect Insights Config Projects
+
+
+```hcl
+resource "google_project" "project" {
+  project_id = "dci-tf-%{random_suffix}"
+  name = "Service Project"
+  org_id = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
+}
+
+# Grant Permissions
+resource "google_project_iam_member" "apphub_permissions" {
+  project = google_project.project.project_id
+  role = "roles/apphub.admin"
+  member = "serviceAccount:hashicorp-test-runner@ci-test-project-188019.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "insights_agent" {
+  project = google_project.project.project_id
+  role = "roles/developerconnect.insightsAgent"
+  member = "serviceAccount:66214305248-compute@developer.gserviceaccount.com"
+}
+
+# Enable APIs
+resource "google_project_service" "apphub_api_service" {
+  project = google_project.project.project_id
+  service = "apphub.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "containeranalysis_api" {
+  project = google_project.project.project_id
+  service = "containeranalysis.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "containerscanning_api" {
+  project = google_project.project.project_id
+  service = "containerscanning.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "container_api" {
+  project = google_project.project.project_id
+  service = "container.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "artifactregistry_api" {
+  project = google_project.project.project_id
+  service = "artifactregistry.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "cloudbuild_api" {
+  project = google_project.project.project_id
+  service = "cloudbuild.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "cloudasset_api" {
+  project = google_project.project.project_id
+  service = "cloudasset.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "compute_api" {
+  project = google_project.project.project_id
+  service = "compute.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "devconnect_api" {
+  project = google_project.project.project_id
+  service = "developerconnect.googleapis.com"
+  depends_on = [google_project.project]
+}
+
+# Wait delay after enabling APIs and granting permissions
+resource "time_sleep" "wait_for_propagation" {
+  depends_on = [
+    google_project_iam_member.apphub_permissions,
+    google_project_iam_member.insights_agent,
+    google_project_service.apphub_api_service,
+    google_project_service.containeranalysis_api,
+    google_project_service.containerscanning_api,
+    google_project_service.container_api,
+    google_project_service.artifactregistry_api,
+    google_project_service.artifactregistry_api,
+    google_project_service.cloudbuild_api,
+    google_project_service.cloudasset_api,
+    google_project_service.compute_api,
+    google_project_service.devconnect_api,
+  ]
+  create_duration  = "120s"
+}
+
+resource "google_developer_connect_insights_config" "insights_config_projects" {
+    location           = "us-central1"
+    insights_config_id = "tf-test-ic-projects-%{random_suffix}"
+    project            = google_project.project.project_id
+    annotations        = {}
+    labels             = {}
+    target_projects {
+        project_ids = ["projects/${google_project.project.project_id}"]
+    }
+    artifact_configs {
+        google_artifact_analysis {
+            project_id = google_project.project.project_id
+        }
+        google_artifact_registry {
+            artifact_registry_package = "my-package"
+            project_id                = google_project.project.project_id
+        }
+        uri = "us-docker.pkg.dev/my-project/my-repo/my-image"
+    }
+    depends_on = [time_sleep.wait_for_propagation]
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-
-* `app_hub_application` -
-  (Required)
-  The name of the App Hub Application.
-  Format:
-  projects/{project}/locations/{location}/applications/{application}
 
 * `location` -
   (Required)
@@ -185,6 +308,17 @@ The following arguments are supported:
   (Required)
   ID of the requesting InsightsConfig.
 
+
+* `app_hub_application` -
+  (Optional)
+  The name of the App Hub Application.
+  Format:
+  projects/{project}/locations/{location}/applications/{application}
+
+* `target_projects` -
+  (Optional)
+  The projects to track with the InsightsConfig.
+  Structure is [documented below](#nested_target_projects).
 
 * `artifact_configs` -
   (Optional)
@@ -208,6 +342,12 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+
+<a name="nested_target_projects"></a>The `target_projects` block supports:
+
+* `project_ids` -
+  (Optional)
+  The project IDs. Format {project}.
 
 <a name="nested_artifact_configs"></a>The `artifact_configs` block supports:
 

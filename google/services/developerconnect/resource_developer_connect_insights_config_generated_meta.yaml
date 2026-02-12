@@ -35,6 +35,8 @@ fields:
     - api_field: runtimeConfigs.state
     - api_field: runtimeConfigs.uri
     - api_field: state
+    - api_field: projects.projectIds
+      field: target_projects.project_ids
     - field: terraform_labels
       provider_only: true
     - api_field: updateTime
