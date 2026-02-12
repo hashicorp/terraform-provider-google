@@ -12,3 +12,5 @@ fields:
     - api_field: scopes
     - api_field: title
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

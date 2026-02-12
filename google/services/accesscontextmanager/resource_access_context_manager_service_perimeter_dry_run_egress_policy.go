@@ -212,6 +212,7 @@ func ResourceAccessContextManagerServicePerimeterDryRunEgressPolicy() *schema.Re
 	return &schema.Resource{
 		Create: resourceAccessContextManagerServicePerimeterDryRunEgressPolicyCreate,
 		Read:   resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead,
+		Update: resourceAccessContextManagerServicePerimeterDryRunEgressPolicyUpdate,
 		Delete: resourceAccessContextManagerServicePerimeterDryRunEgressPolicyDelete,
 
 		Timeouts: &schema.ResourceTimeout{
@@ -407,6 +408,19 @@ are allowed to perform.`,
 				Computed:    true,
 				Description: `The perimeter etag is internally used to prevent overwriting the list of policies on PATCH calls. It is retrieved from the same GET perimeter API call that's used to get the current list of policies. The policy defined in this resource is added or removed from that list, and then this etag is sent with the PATCH call along with the updated policies.`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -574,6 +588,13 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead(d *schem
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
+
 	if err := d.Set("egress_from", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(res["egressFrom"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
 	}
@@ -588,6 +609,11 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead(d *schem
 	}
 
 	return nil
+}
+
+func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead(d, meta)
 }
 
 func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyDelete(d *schema.ResourceData, meta interface{}) error {
@@ -644,6 +670,13 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyDelete(d *sch
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
+	}
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy AccessContextManagerServicePerimeterDryRunEgressPolicy without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing ServicePerimeterDryRunEgressPolicy %q from Terraform state without deletion", d.Id())
+		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting ServicePerimeterDryRunEgressPolicy %q", d.Id())

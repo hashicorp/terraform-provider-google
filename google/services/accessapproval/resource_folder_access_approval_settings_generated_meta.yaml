@@ -17,3 +17,5 @@ fields:
     - api_field: invalidKeyVersion
     - api_field: name
     - api_field: notificationEmails
+    - field: deletion_policy
+      provider_only: true

@@ -30,3 +30,5 @@ fields:
     - api_field: accessLevels.title
     - field: parent
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

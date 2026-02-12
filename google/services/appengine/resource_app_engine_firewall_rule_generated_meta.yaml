@@ -9,3 +9,5 @@ fields:
     - api_field: description
     - api_field: priority
     - api_field: sourceRange
+    - field: deletion_policy
+      provider_only: true

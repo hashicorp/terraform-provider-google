@@ -521,7 +521,7 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceFirestoreIndexUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "labels", "terraform_labels", and virtual fields are mutable
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
 	return resourceFirestoreIndexRead(d, meta)
 }
 

@@ -24,3 +24,5 @@ fields:
     - api_field: sSLInfo.keyStore
     - api_field: sSLInfo.protocols
     - api_field: sSLInfo.trustStore
+    - field: deletion_policy
+      provider_only: true

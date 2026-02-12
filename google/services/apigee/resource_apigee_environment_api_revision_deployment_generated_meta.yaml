@@ -23,3 +23,5 @@ fields:
     - field: service_account
       provider_only: true
     - api_field: state
+    - field: deletion_policy
+      provider_only: true

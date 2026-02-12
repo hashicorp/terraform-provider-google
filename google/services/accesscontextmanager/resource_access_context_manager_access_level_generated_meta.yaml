@@ -30,3 +30,5 @@ fields:
     - api_field: name
     - api_field: parent
     - api_field: title
+    - field: deletion_policy
+      provider_only: true

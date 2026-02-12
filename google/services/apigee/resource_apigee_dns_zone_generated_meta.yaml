@@ -14,3 +14,5 @@ fields:
       provider_only: true
     - api_field: peeringConfig.targetNetworkId
     - api_field: peeringConfig.targetProjectId
+    - field: deletion_policy
+      provider_only: true

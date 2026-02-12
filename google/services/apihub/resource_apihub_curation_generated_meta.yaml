@@ -22,3 +22,5 @@ fields:
     - api_field: pluginInstanceActions.actionId
     - api_field: pluginInstanceActions.pluginInstance
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

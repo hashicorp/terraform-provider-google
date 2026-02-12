@@ -17,3 +17,5 @@ fields:
     - api_field: organizatioName
     - api_field: status
     - api_field: userName
+    - field: deletion_policy
+      provider_only: true

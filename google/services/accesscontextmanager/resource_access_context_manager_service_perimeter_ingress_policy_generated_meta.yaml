@@ -19,3 +19,5 @@ fields:
     - field: perimeter
       provider_only: true
     - api_field: title
+    - field: deletion_policy
+      provider_only: true

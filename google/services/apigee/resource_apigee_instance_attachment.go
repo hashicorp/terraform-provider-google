@@ -100,6 +100,7 @@ func ResourceApigeeInstanceAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeInstanceAttachmentCreate,
 		Read:   resourceApigeeInstanceAttachmentRead,
+		Update: resourceApigeeInstanceAttachmentUpdate,
 		Delete: resourceApigeeInstanceAttachmentDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -129,6 +130,19 @@ in the format 'organizations/{{org_name}}/instances/{{instance_name}}'.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The name of the newly created  attachment (output parameter).`,
+			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
 			},
 		},
 		UseJSONNumber: true,
@@ -253,6 +267,13 @@ func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeInstanceAttachment %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
+
 	if err := d.Set("environment", flattenApigeeInstanceAttachmentEnvironment(res["environment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InstanceAttachment: %s", err)
 	}
@@ -261,6 +282,11 @@ func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface
 	}
 
 	return nil
+}
+
+func resourceApigeeInstanceAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceApigeeInstanceAttachmentRead(d, meta)
 }
 
 func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
@@ -292,6 +318,13 @@ func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interfa
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ApigeeInstanceAttachment without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing InstanceAttachment %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 
 	log.Printf("[DEBUG] Deleting InstanceAttachment %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

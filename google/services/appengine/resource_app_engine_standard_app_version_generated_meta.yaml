@@ -60,3 +60,5 @@ fields:
       field: version_id
     - api_field: vpcAccessConnector.egressSetting
     - api_field: vpcAccessConnector.name
+    - field: deletion_policy
+      provider_only: true

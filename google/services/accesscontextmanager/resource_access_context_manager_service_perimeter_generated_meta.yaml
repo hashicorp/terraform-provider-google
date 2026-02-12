@@ -67,3 +67,5 @@ fields:
     - api_field: title
     - api_field: updateTime
     - api_field: useExplicitDryRunSpec
+    - field: deletion_policy
+      provider_only: true

@@ -8,3 +8,5 @@ fields:
     - api_field: dispatchRules.domain
     - api_field: dispatchRules.path
     - api_field: dispatchRules.service
+    - field: deletion_policy
+      provider_only: true

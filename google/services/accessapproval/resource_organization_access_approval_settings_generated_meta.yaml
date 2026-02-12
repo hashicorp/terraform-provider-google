@@ -17,3 +17,5 @@ fields:
     - api_field: notificationEmails
     - field: organization_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

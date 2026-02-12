@@ -10,3 +10,5 @@ fields:
     - field: perimeter_name
       provider_only: true
     - api_field: resource
+    - field: deletion_policy
+      provider_only: true

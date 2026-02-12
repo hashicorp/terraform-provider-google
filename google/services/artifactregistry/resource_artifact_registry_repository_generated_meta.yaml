@@ -69,3 +69,5 @@ fields:
     - api_field: vulnerabilityScanningConfig.enablementConfig
     - api_field: vulnerabilityScanningConfig.enablementState
     - api_field: vulnerabilityScanningConfig.enablementStateReason
+    - field: deletion_policy
+      provider_only: true
