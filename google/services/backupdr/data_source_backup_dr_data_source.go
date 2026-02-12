@@ -18,283 +18,292 @@ package backupdr
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+// Schema for a single DataSource resource
+var singleDataSourceSchema = map[string]*schema.Schema{
+	"name": {
+		Type:     schema.TypeString,
+		Computed: true,
+		Description: `Name of the datasource to create.
+		It must have the format "projects/{project}/locations/{location}/backupVaults/{backupvault}/dataSources/{datasource}".
+		'{datasource}' cannot be changed after creation. It must be between 3-63 characters long and must be unique within the backup vault.`,
+	},
+	"state": {
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The DataSource resource instance state.`,
+	},
+	"labels": {
+		Type:        schema.TypeMap,
+		Computed:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		Description: `Resource labels to represent user provided metadata.`,
+	},
+	"create_time": {
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The time when the instance was created.`,
+	},
+	"update_time": {
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The time when the instance was updated.`,
+	},
+	"backup_count": {
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `Number of backups in the data source.`,
+	},
+	"etag": {
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `Server specified ETag for the ManagementServer resource to prevent simultaneous updates from overwiting each other.`,
+	},
+	"total_stored_bytes": {
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The number of bytes (metadata and data) stored in this datasource.`,
+	},
+	"config_state": {
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The backup configuration state.`,
+	},
+	"backup_config_info": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"last_backup_state": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `LastBackupstate tracks whether the last backup was not yet started, successful, failed, or could not be run because of the lack of permissions.`,
+				},
+				"last_successful_backup_consistency_time": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `If the last backup were successful, this field has the consistency date.`,
+				},
+				"last_backup_error": {
+					Type:        schema.TypeMap,
+					Computed:    true,
+					Elem:        &schema.Schema{Type: schema.TypeString},
+					Description: `If the last backup failed, this field has the error message.`,
+				},
+				"gcp_backup_config": {
+					Type:     schema.TypeList,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"backup_plan": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The name of the backup plan.`,
+							},
+							"backup_plan_description": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The description of the backup plan.`,
+							},
+							"backup_plan_association": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The name of the backup plan association.`,
+							},
+							"backup_plan_rules": {
+								Type:        schema.TypeList,
+								Computed:    true,
+								Elem:        &schema.Schema{Type: schema.TypeString},
+								Description: `The names of the backup plan rules which point to this backupvault`,
+							},
+						},
+					},
+					Description: `Configuration for a Google Cloud resource.`,
+				},
+				"backup_appliance_backup_config": {
+					Type:     schema.TypeList,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"backup_appliance_name": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The name of the backup appliance.`,
+							},
+							"backup_appliance_id": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The ID of the backup appliance.`,
+							},
+							"sla_id": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The ID of the SLA of this application.`,
+							},
+							"application_name": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The name of the application.`,
+							},
+							"host_name": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The name of the host where the application is running.`,
+							},
+							"slt_name": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The name of the SLT associated with the application.`,
+							},
+							"slp_name": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The name of the SLP associated with the application.`,
+							},
+						},
+					},
+					Description: `Configuration for an application backed up by a Backup Appliance.`,
+				},
+			},
+		},
+		Description: `Details of how the resource is configured for backup.`,
+	},
+	"data_source_gcp_resource": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"gcp_resourcename": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `Full resource pathname URL of the source Google Cloud resource.`,
+				},
+				"location": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `Location of the resource: <region>/<zone>/"global"/"unspecified".`,
+				},
+				"type": {
+					Type:     schema.TypeString,
+					Computed: true,
+					Description: `The type of the Google Cloud resource. Use the Unified Resource Type,
+					eg. compute.googleapis.com/Instance.`,
+				},
+				"compute_instance_data_source_properties": {
+					Type:     schema.TypeList,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `Name of the compute instance backed up by the datasource.`,
+							},
+							"description": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The description of the Compute Engine instance.`,
+							},
+							"machine_type": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The machine type of the instance.`,
+							},
+							"total_disk_count": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The total number of disks attached to the Instance.`,
+							},
+							"total_disk_size_gb": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The sum of all the disk sizes.`,
+							},
+						},
+					},
+					Description: `ComputeInstanceDataSourceProperties has a subset of Compute Instance properties that are useful at the Datasource level.`,
+				},
+			},
+		},
+		Description: `The backed up resource is a Google Cloud resource.
+		The word 'DataSource' was included in the names to indicate that this is
+		the representation of the Google Cloud resource used within the
+		DataSource object.`,
+	},
+	"data_source_backup_appliance_application": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"application_name": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The name of the Application as known to the Backup Appliance.`,
+				},
+				"backup_appliance": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `Appliance name.`,
+				},
+				"appliance_id": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `Appliance Id of the Backup Appliance.`,
+				},
+				"type": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The type of the application. e.g. VMBackup`,
+				},
+				"application_id": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The appid field of the application within the Backup Appliance.`,
+				},
+				"hostname": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `Hostname of the host where the application is running.`,
+				},
+				"host_id": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `Hostid of the application host.`,
+				},
+			},
+		},
+		Description: `The backed up resource is a backup appliance application.`,
+	},
+	// Note: Input fields like project, location, backup_vault_id, data_source_id
+	// are not part of the *output* schema of a single item in the list.
+}
+
+// Data source for getting a single BackupDR DataSource
 func DataSourceGoogleCloudBackupDRDataSource() *schema.Resource {
-	dsSchema := map[string]*schema.Schema{
-		"name": {
-			Type:     schema.TypeString,
-			Computed: true,
-			Description: `Name of the datasource to create.
-			It must have the format "projects/{project}/locations/{location}/backupVaults/{backupvault}/dataSources/{datasource}".
-			'{datasource}' cannot be changed after creation. It must be between 3-63 characters long and must be unique within the backup vault.`,
-		},
-		"state": {
-			Type:        schema.TypeString,
-			Computed:    true,
-			Description: `The DataSource resource instance state.`,
-		},
-		"labels": {
-			Type:        schema.TypeMap,
-			Computed:    true,
-			Elem:        &schema.Schema{Type: schema.TypeString},
-			Description: `Resource labels to represent user provided metadata.`,
-		},
-		"create_time": {
-			Type:        schema.TypeString,
-			Computed:    true,
-			Description: `The time when the instance was created.`,
-		},
-		"update_time": {
-			Type:        schema.TypeString,
-			Computed:    true,
-			Description: `The time when the instance was updated.`,
-		},
-		"backup_count": {
-			Type:        schema.TypeString,
-			Computed:    true,
-			Description: `Number of backups in the data source.`,
-		},
-		"etag": {
-			Type:        schema.TypeString,
-			Computed:    true,
-			Description: `Server specified ETag for the ManagementServer resource to prevent simultaneous updates from overwiting each other.`,
-		},
-		"total_stored_bytes": {
-			Type:        schema.TypeString,
-			Computed:    true,
-			Description: `The number of bytes (metadata and data) stored in this datasource.`,
-		},
-		"config_state": {
-			Type:        schema.TypeString,
-			Computed:    true,
-			Description: `The backup configuration state.`,
-		},
-		"backup_config_info": {
-			Type:     schema.TypeList,
-			Computed: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"last_backup_state": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `LastBackupstate tracks whether the last backup was not yet started, successful, failed, or could not be run because of the lack of permissions.`,
-					},
-					"last_successful_backup_consistency_time": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `If the last backup were successful, this field has the consistency date.`,
-					},
-					"last_backup_error": {
-						Type:        schema.TypeMap,
-						Computed:    true,
-						Elem:        &schema.Schema{Type: schema.TypeString},
-						Description: `If the last backup failed, this field has the error message.`,
-					},
-					"gcp_backup_config": {
-						Type:     schema.TypeList,
-						Computed: true,
-						Elem: &schema.Resource{
-							Schema: map[string]*schema.Schema{
-								"backup_plan": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The name of the backup plan.`,
-								},
-								"backup_plan_description": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The description of the backup plan.`,
-								},
-								"backup_plan_association": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The name of the backup plan association.`,
-								},
-								"backup_plan_rules": {
-									Type:        schema.TypeList,
-									Computed:    true,
-									Elem:        &schema.Schema{Type: schema.TypeString},
-									Description: `The names of the backup plan rules which point to this backupvault`,
-								},
-							},
-						},
-						Description: `Configuration for a Google Cloud resource.`,
-					},
-					"backup_appliance_backup_config": {
-						Type:     schema.TypeList,
-						Computed: true,
-						Elem: &schema.Resource{
-							Schema: map[string]*schema.Schema{
-								"backup_appliance_name": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The name of the backup appliance.`,
-								},
-								"backup_appliance_id": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The ID of the backup appliance.`,
-								},
-								"sla_id": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The ID of the SLA of this application.`,
-								},
-								"application_name": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The name of the application.`,
-								},
-								"host_name": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The name of the host where the application is running.`,
-								},
-								"slt_name": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The name of the SLT associated with the application.`,
-								},
-								"slp_name": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The name of the SLP associated with the application.`,
-								},
-							},
-						},
-						Description: `Configuration for an application backed up by a Backup Appliance.`,
-					},
-				},
-			},
-			Description: `Details of how the resource is configured for backup.`,
-		},
-		"data_source_gcp_resource": {
-			Type:     schema.TypeList,
-			Computed: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"gcp_resourcename": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `Full resource pathname URL of the source Google Cloud resource.`,
-					},
-					"location": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `Location of the resource: <region>/<zone>/"global"/"unspecified".`,
-					},
-					"type": {
-						Type:     schema.TypeString,
-						Computed: true,
-						Description: `The type of the Google Cloud resource. Use the Unified Resource Type,
-						eg. compute.googleapis.com/Instance.`,
-					},
-					"compute_instance_data_source_properties": {
-						Type:     schema.TypeList,
-						Computed: true,
-						Elem: &schema.Resource{
-							Schema: map[string]*schema.Schema{
-								"name": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `Name of the compute instance backed up by the datasource.`,
-								},
-								"description": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The description of the Compute Engine instance.`,
-								},
-								"machine_type": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The machine type of the instance.`,
-								},
-								"total_disk_count": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The total number of disks attached to the Instance.`,
-								},
-								"total_disk_size_gb": {
-									Type:        schema.TypeString,
-									Computed:    true,
-									Description: `The sum of all the disk sizes.`,
-								},
-							},
-						},
-						Description: `ComputeInstanceDataSourceProperties has a subset of Compute Instance properties that are useful at the Datasource level.`,
-					},
-				},
-			},
-			Description: `The backed up resource is a Google Cloud resource.
-			The word 'DataSource' was included in the names to indicate that this is
-			the representation of the Google Cloud resource used within the
-			DataSource object.`,
-		},
-		"data_source_backup_appliance_application": {
-			Type:     schema.TypeList,
-			Computed: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"application_name": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `The name of the Application as known to the Backup Appliance.`,
-					},
-					"backup_appliance": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `Appliance name.`,
-					},
-					"appliance_id": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `Appliance Id of the Backup Appliance.`,
-					},
-					"type": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `The type of the application. e.g. VMBackup`,
-					},
-					"application_id": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `The appid field of the application within the Backup Appliance.`,
-					},
-					"hostname": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `Hostname of the host where the application is running.`,
-					},
-					"host_id": {
-						Type:        schema.TypeString,
-						Computed:    true,
-						Description: `Hostid of the application host.`,
-					},
-				},
-			},
-			Description: `The backed up resource is a backup appliance application.`,
-		},
-		"location": {
-			Type:     schema.TypeString,
-			Required: true,
-		},
-		"project": {
-			Type:     schema.TypeString,
-			Required: true,
-		},
-		"data_source_id": {
-			Type:     schema.TypeString,
-			Required: true,
-		},
-		"backup_vault_id": {
-			Type:     schema.TypeString,
-			Required: true,
-		},
+	// Add the input fields required to look up the single DataSource
+	dsSchema := copySchemaMap(singleDataSourceSchema)
+	dsSchema["location"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Required: true,
+	}
+	dsSchema["project"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	}
+	dsSchema["data_source_id"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Required: true,
+	}
+	dsSchema["backup_vault_id"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Required: true,
 	}
 
 	return &schema.Resource{
@@ -314,6 +323,7 @@ func DataSourceGoogleCloudBackupDRDataSourceRead(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
+	d.Set("project", project)
 
 	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
@@ -323,13 +333,12 @@ func DataSourceGoogleCloudBackupDRDataSourceRead(d *schema.ResourceData, meta in
 		return fmt.Errorf("Cannot determine location: set location in this data source or at provider-level")
 	}
 
-	billingProject := project
 	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}/dataSources/{{data_source_id}}")
-
 	if err != nil {
 		return err
 	}
 
+	billingProject := project
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
@@ -343,53 +352,195 @@ func DataSourceGoogleCloudBackupDRDataSourceRead(d *schema.ResourceData, meta in
 	})
 
 	if err != nil {
-		return fmt.Errorf("Error reading BackupVault: %s", err)
-	}
-
-	if err := d.Set("name", flattenDataSourceBackupDRDataSourceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataSource: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenDataSourceBackupDRDataSourceCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSource: %s", err)
-	}
-
-	if err := d.Set("update_time", flattenDataSourceBackupDRDataSourceUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSource: %s", err)
-	}
-
-	if err := d.Set("backup_count", flattenDataSourceBackupDRDataSourceBackupCount(res["backupCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSource: %s", err)
-	}
-
-	if err := d.Set("etag", flattenDataSourceBackupDRDataSourceEtag(res["etag"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSource: %s", err)
-	}
-
-	if err := d.Set("state", flattenDataSourceBackupDRDataSourceState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSource: %s", err)
-	}
-
-	if err := d.Set("total_stored_bytes", flattenDataSourceBackupDRDataSourceTotalStoredBytes(res["totalStoredBytes"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSource: %s", err)
-	}
-
-	if err := d.Set("backup_config_info", flattenDataSourceBackupDRDataSourceBackupConfigInfo(res["backupConfigInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSource: %s", err)
-	}
-
-	if err := d.Set("data_source_gcp_resource", flattenBackupDRDataSourceDataSourceGCPResource(res["dataSourceGcpResource"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSource: %s", err)
-	}
-
-	if err := d.Set("data_source_backup_appliance_application", flattenBackupDRDataSourceDataSourceBackupApplianceApplication(res["dataSourceBackupApplianceApplication"], d, config)); err != nil {
-		return fmt.Errorf("Error reading DataSource: %s", err)
+	if err := flattenDataSourceIntoResourceData(d, res, config); err != nil {
+		return err
 	}
 
 	d.SetId(res["name"].(string))
 
 	return nil
 }
+
+// flattenDataSourceIntoResourceData populates the ResourceData 'd' with values from the API response 'res'.
+func flattenDataSourceIntoResourceData(d *schema.ResourceData, res map[string]interface{}, config *transport_tpg.Config) error {
+	if err := d.Set("name", flattenDataSourceBackupDRDataSourceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("create_time", flattenDataSourceBackupDRDataSourceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error setting create_time: %s", err)
+	}
+	if err := d.Set("update_time", flattenDataSourceBackupDRDataSourceUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error setting update_time: %s", err)
+	}
+	if err := d.Set("backup_count", flattenDataSourceBackupDRDataSourceBackupCount(res["backupCount"], d, config)); err != nil {
+		return fmt.Errorf("Error setting backup_count: %s", err)
+	}
+	if err := d.Set("etag", flattenDataSourceBackupDRDataSourceEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error setting etag: %s", err)
+	}
+	if err := d.Set("state", flattenDataSourceBackupDRDataSourceState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error setting state: %s", err)
+	}
+	if err := d.Set("total_stored_bytes", flattenDataSourceBackupDRDataSourceTotalStoredBytes(res["totalStoredBytes"], d, config)); err != nil {
+		return fmt.Errorf("Error setting total_stored_bytes: %s", err)
+	}
+	if err := d.Set("backup_config_info", flattenDataSourceBackupDRDataSourceBackupConfigInfo(res["backupConfigInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error setting backup_config_info: %s", err)
+	}
+	if err := d.Set("data_source_gcp_resource", flattenBackupDRDataSourceDataSourceGCPResource(res["dataSourceGcpResource"], d, config)); err != nil {
+		return fmt.Errorf("Error setting data_source_gcp_resource: %s", err)
+	}
+	if err := d.Set("data_source_backup_appliance_application", flattenBackupDRDataSourceDataSourceBackupApplianceApplication(res["dataSourceBackupApplianceApplication"], d, config)); err != nil {
+		return fmt.Errorf("Error setting data_source_backup_appliance_application: %s", err)
+	}
+	return nil
+}
+
+// Data source for listing BackupDR DataSources
+func DataSourceGoogleCloudBackupDRDataSources() *schema.Resource {
+	return &schema.Resource{
+		Read: DataSourceGoogleCloudBackupDRDataSourcesRead,
+		Schema: map[string]*schema.Schema{
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"location": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"backup_vault_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"filter": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The filter to apply to list results.",
+			},
+			"order_by": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The order to sort results by.",
+			},
+			"data_sources": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The list of DataSources found.",
+				Elem: &schema.Resource{
+					Schema: singleDataSourceSchema,
+				},
+			},
+		},
+	}
+}
+
+func DataSourceGoogleCloudBackupDRDataSourcesRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return err
+	}
+	d.Set("project", project)
+
+	location, err := tpgresource.GetLocation(d, config)
+	if err != nil {
+		return err
+	}
+	if len(location) == 0 {
+		return fmt.Errorf("Cannot determine location: set location in this data source or at provider-level")
+	}
+
+	baseURL, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}/dataSources")
+	if err != nil {
+		return err
+	}
+
+	params := url.Values{}
+	if v, ok := d.GetOk("filter"); ok {
+		params.Add("filter", v.(string))
+	}
+	if v, ok := d.GetOk("order_by"); ok {
+		// Ensure the query parameter key matches the API specification (e.g., "orderBy")
+		params.Add("orderBy", v.(string))
+	}
+
+	finalURL := baseURL
+	if len(params) > 0 {
+		finalURL += "?" + params.Encode()
+	}
+
+	billingProject := project
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    finalURL,
+		UserAgent: userAgent,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error reading DataSources list: %s", err)
+	}
+
+	if vals, ok := res["dataSources"].([]interface{}); ok && len(vals) > 0 {
+		dataSources := make([]map[string]interface{}, 0, len(vals))
+		for _, v := range vals {
+			if item, ok := v.(map[string]interface{}); ok {
+				flattened := flattenDataSourceMap(item, d, config)
+				dataSources = append(dataSources, flattened)
+			} else {
+				return fmt.Errorf("Invalid item format in dataSources list")
+			}
+		}
+		if err := d.Set("data_sources", dataSources); err != nil {
+			return fmt.Errorf("Error setting data_sources list: %s", err)
+		}
+	} else {
+		// Set to empty list if no datasources are found or the key is missing
+		if err := d.Set("data_sources", []interface{}{}); err != nil {
+			return fmt.Errorf("Error setting empty data_sources list: %s", err)
+		}
+	}
+
+	// Set ID for the data source itself, can be the parent resource path
+	id := fmt.Sprintf("projects/%s/locations/%s/backupVaults/%s", project, location, d.Get("backup_vault_id").(string))
+	d.SetId(id)
+
+	return nil
+}
+
+// flattenDataSourceMap converts a single DataSource API response map into a Terraform schema map.
+func flattenDataSourceMap(item map[string]interface{}, d *schema.ResourceData, config *transport_tpg.Config) map[string]interface{} {
+	m := make(map[string]interface{})
+	m["name"] = flattenDataSourceBackupDRDataSourceName(item["name"], d, config)
+	m["create_time"] = flattenDataSourceBackupDRDataSourceCreateTime(item["createTime"], d, config)
+	m["update_time"] = flattenDataSourceBackupDRDataSourceUpdateTime(item["updateTime"], d, config)
+	m["backup_count"] = flattenDataSourceBackupDRDataSourceBackupCount(item["backupCount"], d, config)
+	m["etag"] = flattenDataSourceBackupDRDataSourceEtag(item["etag"], d, config)
+	m["state"] = flattenDataSourceBackupDRDataSourceState(item["state"], d, config)
+	m["total_stored_bytes"] = flattenDataSourceBackupDRDataSourceTotalStoredBytes(item["totalStoredBytes"], d, config)
+	m["backup_config_info"] = flattenDataSourceBackupDRDataSourceBackupConfigInfo(item["backupConfigInfo"], d, config)
+	m["data_source_gcp_resource"] = flattenBackupDRDataSourceDataSourceGCPResource(item["dataSourceGcpResource"], d, config)
+	m["data_source_backup_appliance_application"] = flattenBackupDRDataSourceDataSourceBackupApplianceApplication(item["dataSourceBackupApplianceApplication"], d, config)
+	return m
+}
+
+// --- Flatten Functions for single DataSource fields ---
+// (These are the same as you had before)
 
 func flattenDataSourceBackupDRDataSourceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
@@ -421,11 +572,11 @@ func flattenDataSourceBackupDRDataSourceTotalStoredBytes(v interface{}, d *schem
 
 func flattenDataSourceBackupDRDataSourceBackupConfigInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return v
+		return []interface{}{}
 	}
 	original := v.(map[string]interface{})
 	if len(original) == 0 {
-		return nil
+		return []interface{}{}
 	}
 	transformed := make(map[string]interface{})
 	transformed["last_backup_state"] = flattenDataSourceBackupDRDataSourceConfigInfoLastBackupState(original["lastBackupState"], d, config)
@@ -451,17 +602,18 @@ func flattenDataSourceBackupDRDataSourceConfigInfoLastBackupError(v interface{},
 
 func flattenBackupDRDataSourceConfigInfoBackupApplianceBackupConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return v
+		return []interface{}{}
 	}
 	original := v.(map[string]interface{})
 	if len(original) == 0 {
-		return nil
+		return []interface{}{}
 	}
 	transformed := make(map[string]interface{})
 	transformed["backup_appliance_name"] = flattenBackupDRDataSourceConfigInfoGCPBackupConfigBackupApplianceBackupConfigBackupApplianceName(original["backupApplianceName"], d, config)
 	transformed["backup_appliance_id"] = flattenBackupDRDataSourceConfigInfoGCPBackupConfigBackupApplianceBackupConfigBackupApplianceId(original["backupApplianceId"], d, config)
 	transformed["sla_id"] = flattenBackupDRDataSourceConfigInfoGCPBackupConfigBackupApplianceBackupConfigSlaId(original["slaId"], d, config)
 	transformed["application_name"] = flattenBackupDRDataSourceConfigInfoGCPBackupConfigBackupApplianceBackupConfigApplicationName(original["applicationName"], d, config)
+	transformed["host_name"] = original["hostName"]
 	transformed["slt_name"] = flattenBackupDRDataSourceConfigInfoGCPBackupConfigBackupApplianceBackupConfigSltName(original["sltName"], d, config)
 	transformed["slp_name"] = flattenBackupDRDataSourceConfigInfoGCPBackupConfigBackupApplianceBackupConfigSlpName(original["slpName"], d, config)
 
@@ -470,11 +622,11 @@ func flattenBackupDRDataSourceConfigInfoBackupApplianceBackupConfig(v interface{
 
 func flattenBackupDRDataSourceConfigInfoGCPBackupConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return v
+		return []interface{}{}
 	}
 	original := v.(map[string]interface{})
 	if len(original) == 0 {
-		return nil
+		return []interface{}{}
 	}
 	transformed := make(map[string]interface{})
 	transformed["backup_plan"] = flattenBackupDRDataSourceConfigInfoGCPBackupConfigBackupPlan(original["backupPlan"], d, config)
@@ -527,15 +679,16 @@ func flattenBackupDRDataSourceConfigInfoGCPBackupConfigBackupApplianceBackupConf
 
 func flattenBackupDRDataSourceDataSourceGCPResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return v
+		return []interface{}{}
 	}
 	original := v.(map[string]interface{})
 	if len(original) == 0 {
-		return nil
+		return []interface{}{}
 	}
 	transformed := make(map[string]interface{})
 	transformed["gcp_resourcename"] = flattenBackupDRDataSourceDataSourceGCPResourceGCPResourceName(original["gcpResourcename"], d, config)
 	transformed["location"] = flattenBackupDRDataSourceDataSourceGCPResourceLocation(original["location"], d, config)
+	transformed["type"] = original["type"]
 	transformed["compute_instance_data_source_properties"] = flattenBackupDRDataSourceDataSourceGCPResourceComputeInstanceDataSourceProperties(original["computeInstanceDatasourceProperties"], d, config)
 
 	return []interface{}{transformed}
@@ -551,11 +704,11 @@ func flattenBackupDRDataSourceDataSourceGCPResourceLocation(v interface{}, d *sc
 
 func flattenBackupDRDataSourceDataSourceGCPResourceComputeInstanceDataSourceProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return nil
+		return []interface{}{}
 	}
 	original := v.(map[string]interface{})
 	if len(original) == 0 {
-		return nil
+		return []interface{}{}
 	}
 	transformed := make(map[string]interface{})
 	transformed["name"] = flattenBackupDRDataSourceDataSourceGCPResourceComputeInstanceDataSourcePropertiesName(original["name"], d, config)
@@ -589,11 +742,11 @@ func flattenBackupDRDataSourceDataSourceGCPResourceComputeInstanceDataSourceProp
 
 func flattenBackupDRDataSourceDataSourceBackupApplianceApplication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return v
+		return []interface{}{}
 	}
 	original := v.(map[string]interface{})
 	if len(original) == 0 {
-		return nil
+		return []interface{}{}
 	}
 	transformed := make(map[string]interface{})
 	transformed["application_name"] = flattenBackupDRDataSourceDataSourceBackupApplianceApplicationApplicationName(original["applicationName"], d, config)
@@ -633,4 +786,13 @@ func flattenBackupDRDataSourceDataSourceBackupApplianceApplicationApplicationHos
 
 func flattenBackupDRDataSourceDataSourceBackupApplianceApplicationApplicationHostId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+// copySchemaMap creates a shallow copy of a map[string]*schema.Schema.
+func copySchemaMap(m map[string]*schema.Schema) map[string]*schema.Schema {
+	newMap := make(map[string]*schema.Schema)
+	for k, v := range m {
+		newMap[k] = v
+	}
+	return newMap
 }
