@@ -45,6 +45,9 @@ After the switchover operation is completed successfully:
 values will be stored in the raw state as plain text: `initial_user.password`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `initial_user.password_wo`.
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=alloydb_cluster_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -534,6 +537,17 @@ Default value: "true"
   (Optional)
   The initial password for the user.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `password_wo` -
+  (Optional, Write-Only)
+  The initial password for the user.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `password` or `password_wo` can only be set.
+
+* `password_wo_version` -
+  (Optional)
+  Triggers update of `password_wo` write-only. Increment this value when an update to `password_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 <a name="nested_restore_backup_source"></a>The `restore_backup_source` block supports:
 

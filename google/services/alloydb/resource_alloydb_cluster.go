@@ -370,17 +370,33 @@ Note: Changing this field to a higer version results in upgrading the AlloyDB cl
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"password": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `The initial password for the user.`,
+							Sensitive:     true,
+							ConflictsWith: []string{"initial_user.0.password_wo"},
+							AtLeastOneOf:  []string{"initial_user.0.password", "initial_user.0.user", "initial_user.0.password_wo"},
+						},
+						"password_wo": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `The initial password for the user.`,
+							WriteOnly:     true,
+							ConflictsWith: []string{"initial_user.0.password"},
+							AtLeastOneOf:  []string{"initial_user.0.password", "initial_user.0.user", "initial_user.0.password_wo"},
+							RequiredWith:  []string{"initial_user.0.password_wo_version"},
+						},
+						"password_wo_version": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Description:  `The initial password for the user.`,
-							Sensitive:    true,
-							AtLeastOneOf: []string{"initial_user.0.password", "initial_user.0.user"},
+							Description:  `Triggers update of 'password_wo' write-only. Increment this value when an update to 'password_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"initial_user.0.password_wo"},
 						},
 						"user": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Description:  `The database username.`,
-							AtLeastOneOf: []string{"initial_user.0.password", "initial_user.0.user"},
+							AtLeastOneOf: []string{"initial_user.0.password", "initial_user.0.user", "initial_user.0.password_wo"},
 						},
 					},
 				},
@@ -2580,6 +2596,13 @@ func expandAlloydbClusterInitialUser(v interface{}, d tpgresource.TerraformResou
 		transformed["password"] = transformedPassword
 	}
 
+	transformedPasswordWo, err := expandAlloydbClusterInitialUserPasswordWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "initial_user.0.password_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPasswordWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["password"] = transformedPasswordWo
+	}
+
 	return transformed, nil
 }
 
@@ -2588,6 +2611,14 @@ func expandAlloydbClusterInitialUserUser(v interface{}, d tpgresource.TerraformR
 }
 
 func expandAlloydbClusterInitialUserPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterInitialUserPasswordWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterInitialUserPasswordWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
