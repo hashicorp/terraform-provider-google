@@ -19,3 +19,5 @@ fields:
     - api_field: renewalPlan
     - api_field: slotCount
     - api_field: state
+    - field: deletion_policy
+      provider_only: true

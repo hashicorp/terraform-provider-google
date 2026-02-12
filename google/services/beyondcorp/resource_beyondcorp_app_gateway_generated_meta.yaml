@@ -21,3 +21,5 @@ fields:
       provider_only: true
     - api_field: type
     - api_field: uri
+    - field: deletion_policy
+      provider_only: true

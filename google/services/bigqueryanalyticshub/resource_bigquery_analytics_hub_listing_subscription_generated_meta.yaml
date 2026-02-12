@@ -36,3 +36,5 @@ fields:
     - api_field: state
     - api_field: subscriberContact
     - api_field: subscriptionId
+    - field: deletion_policy
+      provider_only: true

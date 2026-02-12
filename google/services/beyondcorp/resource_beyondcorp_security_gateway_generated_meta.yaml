@@ -30,3 +30,5 @@ fields:
     - api_field: serviceDiscovery.apiGateway.resourceOverride.path
     - api_field: state
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

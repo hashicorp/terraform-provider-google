@@ -22,3 +22,5 @@ fields:
     - api_field: replicationStatus.lastReplicationTime
     - api_field: secondaryLocation
     - api_field: slotCapacity
+    - field: deletion_policy
+      provider_only: true

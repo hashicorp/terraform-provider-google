@@ -7,3 +7,5 @@ api_resource_type_kind: ProjectBillingInfo
 cai_asset_name_format: //cloudbilling.googleapis.com/projects/{{project}}/billingInfo
 fields:
     - api_field: billing_account
+    - field: deletion_policy
+      provider_only: true

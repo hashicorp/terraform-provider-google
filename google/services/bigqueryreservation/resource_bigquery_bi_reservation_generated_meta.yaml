@@ -13,3 +13,5 @@ fields:
     - api_field: preferredTables.tableId
     - api_field: size
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

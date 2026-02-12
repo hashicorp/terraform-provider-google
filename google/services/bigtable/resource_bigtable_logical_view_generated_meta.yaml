@@ -13,3 +13,5 @@ fields:
       provider_only: true
     - api_field: name
     - api_field: query
+    - field: deletion_policy
+      provider_only: true

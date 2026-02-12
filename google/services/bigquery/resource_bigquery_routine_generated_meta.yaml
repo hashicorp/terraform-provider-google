@@ -42,3 +42,5 @@ fields:
     - api_field: sparkOptions.properties
     - api_field: sparkOptions.pyFileUris
     - api_field: sparkOptions.runtimeVersion
+    - field: deletion_policy
+      provider_only: true

@@ -38,3 +38,5 @@ fields:
     - api_field: restrictedExportConfig.restrictDirectTableAccess
     - api_field: restrictedExportConfig.restrictQueryResult
     - api_field: state
+    - field: deletion_policy
+      provider_only: true

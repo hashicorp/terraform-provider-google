@@ -29,3 +29,5 @@ fields:
     - api_field: upstreams.proxyProtocol.contextualHeaders.userInfo.outputType
     - api_field: upstreams.proxyProtocol.gatewayIdentity
     - api_field: upstreams.proxyProtocol.metadataHeaders
+    - field: deletion_policy
+      provider_only: true

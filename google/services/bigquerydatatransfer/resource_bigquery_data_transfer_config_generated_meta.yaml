@@ -29,3 +29,5 @@ fields:
       provider_only: true
     - field: service_account_name
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

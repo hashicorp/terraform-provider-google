@@ -15,3 +15,5 @@ fields:
       field: policy_id
     - api_field: rowAccessPolicyReference.tableId
       field: table_id
+    - field: deletion_policy
+      provider_only: true

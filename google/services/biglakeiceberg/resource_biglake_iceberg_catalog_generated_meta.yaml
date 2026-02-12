@@ -17,3 +17,5 @@ fields:
     - api_field: replicas.state
     - api_field: storage-regions
     - api_field: update-time
+    - field: deletion_policy
+      provider_only: true
