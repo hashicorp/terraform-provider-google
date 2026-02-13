@@ -206,17 +206,11 @@ func resourcePublicCAExternalAccountKeyCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return fmt.Errorf("Error creating ExternalAccountKey: %s", err)
 	}
-	if err := d.Set("name", flattenPublicCAExternalAccountKeyName(res["name"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
-	}
-	if err := d.Set("key_id", flattenPublicCAExternalAccountKeyKeyId(res["keyId"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "key_id": %s`, err)
-	}
-	if err := d.Set("b64_mac_key", flattenPublicCAExternalAccountKeyB64MacKey(res["b64MacKey"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "b64_mac_key": %s`, err)
-	}
-	if err := d.Set("b64url_mac_key", flattenPublicCAExternalAccountKeyB64urlMacKey(res["b64MacKey"], d, config)); err != nil {
-		return fmt.Errorf(`Error setting computed identity field "b64url_mac_key": %s`, err)
+	// Set computed resource properties from create API response so that they're available on the subsequent Read
+	// call.
+	err = resourcePublicCAExternalAccountKeyPostCreateSetComputedFields(d, meta, res)
+	if err != nil {
+		return fmt.Errorf("setting computed ID format fields: %w", err)
 	}
 
 	// Store the ID now
@@ -225,6 +219,18 @@ func resourcePublicCAExternalAccountKeyCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	if err := d.Set("b64_mac_key", flattenPublicCAExternalAccountKeyB64MacKey(res["b64MacKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
+	}
+
+	if err := d.Set("b64url_mac_key", flattenPublicCAExternalAccountKeyB64urlMacKey(res["b64MacKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
+	}
+
+	if err := d.Set("mac_key", flattenPublicCAExternalAccountKeyMacKey(res["b64MacKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalAccountKey: %s", err)
+	}
 
 	log.Printf("[DEBUG] Finished creating ExternalAccountKey %q: %#v", d.Id(), res)
 

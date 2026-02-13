@@ -305,14 +305,6 @@ func ValidateBase64String(i interface{}, val string) ([]string, []error) {
 	return nil, nil
 }
 
-func ValidateBase64URLString(i interface{}, val string) ([]string, []error) {
-	_, err := base64.RawURLEncoding.DecodeString(i.(string))
-	if err != nil {
-		return nil, []error{fmt.Errorf("could not decode %q as a valid base64URL value.", val)}
-	}
-	return nil, nil
-}
-
 // StringNotInSlice returns a SchemaValidateFunc which tests if the provided value
 // is of type string and that it matches none of the element in the invalid slice.
 // if ignorecase is true, case is ignored.
