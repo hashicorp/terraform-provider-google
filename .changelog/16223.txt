@@ -1,0 +1,3 @@
+```release-note:enhancement
+vmwareengine: added `datastore_mount_config` field to `google_vmwareengine_cluster` resource
+```

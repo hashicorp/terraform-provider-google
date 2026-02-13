@@ -127,6 +127,254 @@ resource "google_vmwareengine_network" "cluster-nw" {
   description = "PC network description."
 }
 ```
+## Example Usage - Vmware Engine Cluster Nfs Datastore Filestore
+
+
+```hcl
+# Use this network for filestore instance
+data "google_compute_network" "fs_network" {
+  name = "filestore_nw"
+}
+
+# Create a filestore instance with delete protection enabled
+#### Use ip range of private cloud service subnet in the 'nfs_export_options'
+resource "google_filestore_instance" "test_instance" {
+  name                        =  "test-fs-filestore"
+  location                    = ""
+  tier                        = "ZONAL"
+  deletion_protection_enabled = "yes"
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share101"
+    nfs_export_options {
+      ip_ranges = ["10.0.0.0/24"]
+    }
+  }
+  networks {
+    network       = data.google_compute_network.fs_network.id
+    modes         = ["MODE_IPV4"]
+    connect_mode  = "PRIVATE_SERVICE_ACCESS"
+  }
+}
+
+resource "google_vmwareengine_network" "cluster-nw" {
+  name        = "pc-nw"
+  type        = "STANDARD"
+  location    = "global"
+  description = "PC network description."
+}
+
+
+resource "google_vmwareengine_private_cloud" "cluster-pc" {
+  location    = ""
+  name        = "sample-pc"
+  description = "Sample test PC."
+  network_config {
+    management_cidr       = "192.168.30.0/24"
+    vmware_engine_network = google_vmwareengine_network.cluster-nw.id
+  }
+  management_cluster {
+    cluster_id = "sample-mgmt-cluster"
+    node_type_configs {
+      node_type_id = "standard-72"
+      node_count   = 3
+      custom_core_count = 32
+    }
+  }
+}
+
+# Update service subnet
+####  Service subnet is used by nfs datastore mounts
+#### ip_cidr_range configured on subnet must also be allowed in filestore instance's 'nfs_export_options'
+resource "google_vmwareengine_subnet" "cluster-pc-subnet" {
+  name = "service-1"
+  parent =  google_vmwareengine_private_cloud.cluster-pc.id
+  ip_cidr_range = "10.0.0.0/24"
+}
+
+# Read network peering
+#### This peering is created by filestore instance
+data "google_compute_network_peering" "sn_peering" {
+  name       = "servicenetworking-googleapis-com"
+  network    = data.google_compute_network.fs_network.id
+}
+
+# Create vmware engine network peering
+#### vmware network peering is required for filestore mount on cluster
+resource "google_vmwareengine_network_peering" "psa_network_peering" {
+  name = "tf-test-psa-network-peering"
+  description = "test description"
+  vmware_engine_network = google_vmwareengine_network.cluster-nw.id
+  peer_network = trimprefix(data.google_compute_network_peering.sn_peering.peer_network, "https://www.googleapis.com/compute/v1")
+  peer_network_type = "PRIVATE_SERVICES_ACCESS"
+}
+
+
+resource "google_vmwareengine_datastore" "test_fs_datastore" {
+  name        = "ext-fs-datastore"
+  location    = ""
+  description = "test description"
+
+  nfs_datastore {
+    google_file_service {
+      filestore_instance = google_filestore_instance.test_instance.id
+    }
+  }
+}
+
+resource "google_vmwareengine_cluster" "vmw-ext-cluster" {
+  name     = "ext-cluster"
+  parent   = google_vmwareengine_private_cloud.cluster-pc.id
+  node_type_configs {
+    node_type_id = "standard-72"
+    node_count   = 3
+  }
+  datastore_mount_config {
+    datastore = google_vmwareengine_datastore.test_fs_datastore.id
+    datastore_network {
+      subnet = google_vmwareengine_subnet.cluster-pc-subnet.id
+      connection_count = 4
+      mtu = 1500
+    }
+    nfs_version = "NFS_V3"
+    access_mode = "READ_WRITE"
+    ignore_colocation = false
+  }
+  depends_on = [google_vmwareengine_network_peering.psa_network_peering]
+}
+
+
+```
+## Example Usage - Vmware Engine Cluster Nfs Datastore Netapp
+
+
+```hcl
+# Use this network for netapp volume
+data "google_compute_network" "np_network" {
+  name = "netapp_nw"
+}
+
+
+resource "google_vmwareengine_network" "cluster-nw" {
+  name        = "pc-nw"
+  type        = "STANDARD"
+  location    = "global"
+  description = "PC network description."
+}
+
+# Read network peering
+#### This peering is created by netapp volume
+data "google_compute_network_peering" "sn_peering" {
+  name       = "sn-netapp-prod"
+  network    = data.google_compute_network.np_network.id
+}
+
+# Create vmware engine network peering
+#### vmware network peering is required for netapp mount on cluster
+resource "google_vmwareengine_network_peering" "gcnv_network_peering" {
+  name = "tf-test-gcnv-network-peering"
+  description = "test description"
+  vmware_engine_network = google_vmwareengine_network.cluster-nw.id
+  peer_network = trimprefix(data.google_compute_network_peering.sn_peering.peer_network, "https://www.googleapis.com/compute/v1")
+  peer_network_type = "GOOGLE_CLOUD_NETAPP_VOLUMES"
+}
+
+resource "google_vmwareengine_private_cloud" "cluster-pc" {
+  location    = ""
+  name        = "sample-pc"
+  description = "Sample test PC."
+  network_config {
+    management_cidr       = "192.168.30.0/24"
+    vmware_engine_network = google_vmwareengine_network.cluster-nw.id
+  }
+  management_cluster {
+    cluster_id = "sample-mgmt-cluster"
+    node_type_configs {
+      node_type_id = "standard-72"
+      node_count   = 3
+      custom_core_count = 32
+    }
+  }
+}
+
+# Update service subnet
+####  Service subnet is used by nfs datastore mounts
+#### ip_cidr_range configured on subnet must also be allowed in in netapp volumes's 'export_policy'
+resource "google_vmwareengine_subnet" "cluster-pc-subnet" {
+  name = "service-1"
+  parent =  google_vmwareengine_private_cloud.cluster-pc.id
+  ip_cidr_range = "10.0.0.0/24"
+}
+
+resource "google_netapp_storage_pool" "default" {
+    name = "tf-test-test-pool"
+    location = "us-west1"
+    service_level = "PREMIUM"
+    capacity_gib = "2048"
+    network = data.google_compute_network.np_network.id
+}
+
+# Create a netapp volume with delete protection enabled
+#### Use ip range of private cloud service subnet in the 'export_policy'
+resource "google_netapp_volume" "test_volume" {
+    location = "us-west1"
+    name = "tf-test-test-volume"
+    capacity_gib = "100"
+    share_name = "tf-test-test-volume"
+    storage_pool = google_netapp_storage_pool.default.name
+    protocols = ["NFSV3"]
+    export_policy {
+        rules {
+            access_type           = "READ_WRITE"
+            allowed_clients       = "10.0.0.0/24"
+            has_root_access       = "true"
+            kerberos5_read_only   = false
+            kerberos5_read_write  = false
+            kerberos5i_read_only  = false
+            kerberos5i_read_write = false
+            kerberos5p_read_only  = false
+            kerberos5p_read_write = false
+            nfsv3                 = true
+            nfsv4                 = false
+        }
+    }
+    restricted_actions = ["DELETE"]
+}
+
+resource "google_vmwareengine_datastore" "test_fs_datastore" {
+  name        = "ext-fs-datastore"
+  location    = "us-west1"
+  description = "example google_file_service.netapp datastore."
+
+  nfs_datastore {
+    google_file_service {
+      netapp_volume = google_netapp_volume.test_volume.id
+    }
+  }
+}
+
+resource "google_vmwareengine_cluster" "vmw-ext-cluster" {
+  name     = "ext-cluster"
+  parent   = google_vmwareengine_private_cloud.cluster-pc.id
+  node_type_configs {
+    node_type_id = "standard-72"
+    node_count   = 3
+  }
+  datastore_mount_config {
+    datastore = google_vmwareengine_datastore.test_fs_datastore.id
+    datastore_network {
+      subnet = google_vmwareengine_subnet.cluster-pc-subnet.id
+      connection_count = 4
+      mtu = 1500
+    }
+    nfs_version = "NFS_V3"
+    access_mode = "READ_WRITE"
+    ignore_colocation = true
+  }
+  depends_on = [google_vmwareengine_network_peering.gcnv_network_peering]
+}
+```
 
 ## Argument Reference
 
@@ -154,6 +402,14 @@ The following arguments are supported:
   (Optional)
   Configuration of the autoscaling applied to this cluster
   Structure is [documented below](#nested_autoscaling_settings).
+
+* `datastore_mount_config` -
+  (Optional)
+  Optional. Configuration to mount a datastore.
+  Mount can be done along with cluster create or during cluster update
+  Since service subnet is not configured with ip range on mgmt cluster creation, mount on management cluster is done as update only
+  for unmount remove 'datastore_mount_config' config from the update of cluster resource
+  Structure is [documented below](#nested_datastore_mount_config).
 
 
 
@@ -265,6 +521,86 @@ The following arguments are supported:
 * `scale_in` -
   (Required)
   The utilization triggering the scale-in operation in percent.
+
+<a name="nested_datastore_mount_config"></a>The `datastore_mount_config` block supports:
+
+* `datastore` -
+  (Required)
+  The resource name of the datastore to unmount.
+  The datastore requested to be mounted should be in same region/zone as the
+  cluster.
+  Resource names are schemeless URIs that follow the conventions in
+  https://cloud.google.com/apis/design/resource_names.
+  For example:
+  `projects/my-project/locations/us-central1/datastores/my-datastore`
+
+* `datastore_network` -
+  (Required)
+  The network configuration for the datastore.
+  Structure is [documented below](#nested_datastore_mount_config_datastore_network).
+
+* `file_share` -
+  (Output)
+  File share name.
+
+* `nfs_version` -
+  (Optional)
+  Optional. The NFS protocol supported by the NFS volume.
+  Default value used will be NFS_V3
+  Possible values:
+  NFS_V3
+
+* `access_mode` -
+  (Optional)
+  Optional. NFS is accessed by hosts in either read or read_write mode
+  Default value used will be READ_WRITE
+  Possible values:
+  READ_ONLY
+  READ_WRITE
+
+* `servers` -
+  (Output)
+  Server IP addresses of the NFS volume.
+  For NFS 3, you can only provide a single
+  server IP address or DNS names.
+
+* `ignore_colocation` -
+  (Optional)
+  Optional. If set to true, the colocation requirement will be ignored.
+  If set to false, the colocation requirement will be enforced.
+  Colocation requirement is the requirement that the cluster must be in the
+  same region/zone of datastore.
+
+
+<a name="nested_datastore_mount_config_datastore_network"></a>The `datastore_network` block supports:
+
+* `connection_count` -
+  (Optional)
+  Optional. The number of connections of the NFS volume.
+  Supported from vsphere 8.0u1. Possible values are 1-4.
+  Default value is 4.
+
+* `mtu` -
+  (Optional)
+  Optional. The Maximal Transmission Unit (MTU) of the datastore.
+  MTU value can range from 1330-9000. If not set, system sets
+  default MTU size to 1500.
+
+* `network_peering` -
+  (Output)
+  The resource name of the network peering, used to access the
+  file share by clients on private cloud. Resource names are schemeless
+  URIs that follow the conventions in
+  https://cloud.google.com/apis/design/resource_names.
+  e.g.
+  projects/my-project/locations/us-central1/networkPeerings/my-network-peering
+
+* `subnet` -
+  (Required)
+  The resource name of the subnet
+  Resource names are schemeless URIs that follow the conventions in
+  https://cloud.google.com/apis/design/resource_names.
+  e.g. projects/my-project/locations/us-central1/subnets/my-subnet
 
 ## Attributes Reference
 

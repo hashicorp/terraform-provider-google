@@ -19,6 +19,7 @@ package vmwareengine_test
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -27,6 +28,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -35,12 +37,28 @@ func TestAccVmwareengineCluster_vmwareEngineClusterUpdate(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-vmwareengine.iam.gserviceaccount.com",
+			Role:   "roles/file.viewer",
+		},
+	})
+	random_suffix := acctest.RandString(t, 10)
+	region_id := "me-west1" // region with allocated quota
 	context := map[string]interface{}{
-		"region":               "me-west1", // region with allocated quota
-		"random_suffix":        acctest.RandString(t, 10),
+		"region":               region_id,
+		"random_suffix":        random_suffix,
 		"org_id":               envvar.GetTestOrgFromEnv(t),
 		"billing_account":      envvar.GetTestBillingAccountFromEnv(t),
 		"vmwareengine_project": os.Getenv("GOOGLE_VMWAREENGINE_PROJECT"),
+		"fs_network_name":      acctest.BootstrapSharedServiceNetworkingConnection(t, "tf-test-cluster"),
+		"svc_ip_cidr":          "10.0.0.0/24",
+		"zone":                 region_id + "-b",
+		"pc_name":              "tf-test-cluster-pc" + random_suffix,
+		"service_subnet_name":  "service-1",
+		"pc_type":              "STANDARD",
+		"mgmt_cluster_node":    3,
+		"node_type":            "standard-72",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -52,42 +70,91 @@ func TestAccVmwareengineCluster_vmwareEngineClusterUpdate(t *testing.T) {
 		CheckDestroy: testAccCheckVmwareengineClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testVmwareEngineClusterConfig(context, 3),
+				// Verifies Cluster is created and Datastore is mounted with create cluster operation.
+				Config: testVmwareEngineClusterConfig_DatastoreMount(t, context, 3, true),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceState("data.google_vmwareengine_cluster.ds", "google_vmwareengine_cluster.vmw-engine-ext-cluster"),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_vmwareengine_cluster.ds_vmw_engine_ext_cluster", "google_vmwareengine_cluster.vmw-engine-ext-cluster"),
 				),
 			},
 			{
-				ResourceName:            "google_vmwareengine_cluster.vmw-engine-ext-cluster",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "name"},
+				ResourceName:      "google_vmwareengine_cluster.vmw-engine-ext-cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// ignore_colocation field can only be sent in request hence not received in response.
+				ImportStateVerifyIgnore: []string{"parent", "name", "ignore_colocation"},
 			},
 			{
-				Config: testVmwareEngineClusterUpdateConfig(context, 4), // expand the cluster
+				// Update cluster to do two operations a) expand cluster and b) unmount datastore
+				Config: testVmwareEngineClusterConfig_DatastoreUnmount(t, context, 4, true),
 			},
 			{
-				ResourceName:            "google_vmwareengine_cluster.vmw-engine-ext-cluster",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "name"},
+				ResourceName:      "google_vmwareengine_cluster.vmw-engine-ext-cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// ignore_colocation field can only be sent in request hence not received in response.
+				ImportStateVerifyIgnore: []string{"parent", "name", "ignore_colocation"},
 			},
 			{
-				Config: testVmwareEngineClusterConfig(context, 3), // shrink the cluster.
+				// Update cluster to do two operations a) shrink clusster and b) mount datastore
+				Config: testVmwareEngineClusterConfig_DatastoreMount(t, context, 3, true),
 			},
 			{
-				ResourceName:            "google_vmwareengine_cluster.vmw-engine-ext-cluster",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "name"},
+				ResourceName:      "google_vmwareengine_cluster.vmw-engine-ext-cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// ignore_colocation field can only be sent in request hence not received in response.
+				ImportStateVerifyIgnore: []string{"parent", "name", "ignore_colocation"},
+			},
+			{
+				// Update cluster to unmount datastore and remove delete protection from the filestore
+				// Removal of delete protection is required for filstore instance deletion in next step
+				// This test case verifies datastore operation is performed independent of cluster shrink and expand operation
+				Config: testVmwareEngineClusterConfig_DatastoreUnmount(t, context, 3, false),
+			},
+			{
+				ResourceName:      "google_vmwareengine_cluster.vmw-engine-ext-cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// ignore_colocation field can only be sent in request hence not received in response.
+				ImportStateVerifyIgnore: []string{"parent", "name", "ignore_colocation"},
 			},
 		},
 	})
 }
 
-func testVmwareEngineClusterConfig(context map[string]interface{}, nodeCount int) string {
+// Verifies in create operation Cluster is created and also Datastore is mounted along with it.
+// In mount and unmount tests, GCNV volume can't be used because its deletion requires 52 hours cooling period after unmount
+func testVmwareEngineClusterConfig_DatastoreMount(t *testing.T, context map[string]interface{}, nodeCount int, delete_protection bool) string {
 	context["node_count"] = nodeCount
+	context["delete_protection"] = delete_protection
+
 	return acctest.Nprintf(`
+
+data "google_compute_network" "fs_network" {
+  name = "%{fs_network_name}"
+}
+
+# Create a filestore instance with delete protection enabled
+resource "google_filestore_instance" "test_instance" {
+  name                        = "tf-test-cluster-fs-instance%{random_suffix}"
+  location                    = "%{zone}"
+  tier                        = "ZONAL"
+  deletion_protection_enabled = "%{delete_protection}"
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share101"
+	nfs_export_options {
+      ip_ranges = ["%{svc_ip_cidr}"]
+    }
+  }
+  networks {
+    network       = data.google_compute_network.fs_network.id
+    modes         = ["MODE_IPV4"]
+    connect_mode  = "PRIVATE_SERVICE_ACCESS"
+  }
+}
+
 resource "google_vmwareengine_network" "cluster-nw" {
   project     = "%{vmwareengine_project}"
   name        = "tf-test-cluster-nw%{random_suffix}"
@@ -98,8 +165,9 @@ resource "google_vmwareengine_network" "cluster-nw" {
 
 resource "google_vmwareengine_private_cloud" "cluster-pc" {
   project     = "%{vmwareengine_project}"
-  location    = "%{region}-b"
-  name        = "tf-test-cluster-pc%{random_suffix}"
+  location    = "%{zone}"
+  name        = "%{pc_name}"
+  type        = "%{pc_type}"
   description = "Sample test PC."
   deletion_delay_hours = 0
   send_deletion_delay_hours_if_zero = true
@@ -110,8 +178,42 @@ resource "google_vmwareengine_private_cloud" "cluster-pc" {
   management_cluster {
     cluster_id = "tf-test-mgmt-cluster%{random_suffix}"
     node_type_configs {
-      node_type_id = "standard-72"
-      node_count   = 3
+      node_type_id = "%{node_type}"
+      node_count   = "%{mgmt_cluster_node}"
+    }
+  }
+}
+
+resource "google_vmwareengine_subnet" "cluster-pc-subnet" {
+  name = "service-1"
+  parent =  google_vmwareengine_private_cloud.cluster-pc.id
+  ip_cidr_range = "%{svc_ip_cidr}"
+}
+
+
+data "google_compute_network_peering" "sn_peering" {
+  name       = "servicenetworking-googleapis-com"
+  network    = data.google_compute_network.fs_network.id
+}
+
+resource "google_vmwareengine_network_peering" "psa_network_peering" {
+  project = "%{vmwareengine_project}"
+  name = "tf-test-psa-network-peering%{random_suffix}"
+  description = "test description"
+  vmware_engine_network = google_vmwareengine_network.cluster-nw.id
+  peer_network = trimprefix(trimprefix(trimprefix(data.google_compute_network_peering.sn_peering.peer_network, "https://www.googleapis.com/compute/"), "v1/"), "beta/")
+  peer_network_type = "PRIVATE_SERVICES_ACCESS"
+}
+
+# Create a VmwareEngine Datastore, referencing the filestore instance
+resource "google_vmwareengine_datastore" "test_fs_datastore" {
+  name        = "tf-test-cluster-fs-datastore%{random_suffix}"
+  location    = "%{zone}"
+  description = "test description"
+
+  nfs_datastore {
+    google_file_service {
+      filestore_instance = google_filestore_instance.test_instance.id
     }
   }
 }
@@ -120,14 +222,14 @@ resource "google_vmwareengine_cluster" "vmw-engine-ext-cluster" {
   name = "tf-test-ext-cluster%{random_suffix}"
   parent =  google_vmwareengine_private_cloud.cluster-pc.id
   node_type_configs {
-    node_type_id = "standard-72"
+    node_type_id = "%{node_type}"
     node_count   = %{node_count}
     custom_core_count = 32
   }
   autoscaling_settings {
     autoscaling_policies {
       autoscale_policy_id = "autoscaling-policy"
-      node_type_id = "standard-72"
+      node_type_id = "%{node_type}"
       scale_out_size = 1
       consumed_memory_thresholds {
         scale_out = 75
@@ -142,18 +244,59 @@ resource "google_vmwareengine_cluster" "vmw-engine-ext-cluster" {
     max_cluster_node_count = 8
     cool_down_period = "1800s"
   }
+  datastore_mount_config {
+    datastore = google_vmwareengine_datastore.test_fs_datastore.id
+    datastore_network {
+      subnet = google_vmwareengine_subnet.cluster-pc-subnet.id
+      connection_count = 1
+      mtu = 1460
+    }
+    nfs_version = "NFS_V3"
+    access_mode = "READ_WRITE"
+    ignore_colocation = false
+  }
+
+  depends_on = [google_vmwareengine_network_peering.psa_network_peering]
 }
 
-data "google_vmwareengine_cluster" "ds" {
+data "google_vmwareengine_cluster" "ds_vmw_engine_ext_cluster" {
   name = google_vmwareengine_cluster.vmw-engine-ext-cluster.name
   parent = google_vmwareengine_private_cloud.cluster-pc.id
 }
 `, context)
 }
 
-func testVmwareEngineClusterUpdateConfig(context map[string]interface{}, nodeCount int) string {
+func testVmwareEngineClusterConfig_DatastoreUnmount(t *testing.T, context map[string]interface{}, nodeCount int, delete_protection bool) string {
 	context["node_count"] = nodeCount
+	context["delete_protection"] = delete_protection
+
 	return acctest.Nprintf(`
+
+data "google_compute_network" "fs_network" {
+  name = "%{fs_network_name}"
+}
+
+# Create a filestore instance with delete protection enabled
+resource "google_filestore_instance" "test_instance" {
+  name                        = "tf-test-cluster-fs-instance%{random_suffix}"
+  location                    = "%{zone}"
+  tier                        = "ZONAL"
+  deletion_protection_enabled = "%{delete_protection}"
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share101"
+	nfs_export_options {
+      ip_ranges = ["%{svc_ip_cidr}"]
+    }
+  }
+  networks {
+    network       = data.google_compute_network.fs_network.id
+    modes         = ["MODE_IPV4"]
+    connect_mode  = "PRIVATE_SERVICE_ACCESS"
+  }
+}
+
 resource "google_vmwareengine_network" "cluster-nw" {
   project     = "%{vmwareengine_project}"
   name        = "tf-test-cluster-nw%{random_suffix}"
@@ -162,10 +305,12 @@ resource "google_vmwareengine_network" "cluster-nw" {
   description = "PC network description."
 }
 
+
 resource "google_vmwareengine_private_cloud" "cluster-pc" {
   project     = "%{vmwareengine_project}"
-  location    = "%{region}-b"
-  name        = "tf-test-cluster-pc%{random_suffix}"
+  location    = "%{zone}"
+  name        = "%{pc_name}"
+  type        = "%{pc_type}"
   description = "Sample test PC."
   deletion_delay_hours = 0
   send_deletion_delay_hours_if_zero = true
@@ -176,8 +321,42 @@ resource "google_vmwareengine_private_cloud" "cluster-pc" {
   management_cluster {
     cluster_id = "tf-test-mgmt-cluster%{random_suffix}"
     node_type_configs {
-      node_type_id = "standard-72"
-      node_count   = 3
+      node_type_id = "%{node_type}"
+      node_count   = "%{mgmt_cluster_node}"
+    }
+  }
+}
+
+resource "google_vmwareengine_subnet" "cluster-pc-subnet" {
+  name = "service-1"
+  parent =  google_vmwareengine_private_cloud.cluster-pc.id
+  ip_cidr_range = "%{svc_ip_cidr}"
+}
+
+
+data "google_compute_network_peering" "sn_peering" {
+  name       = "servicenetworking-googleapis-com"
+  network    = data.google_compute_network.fs_network.id
+}
+
+resource "google_vmwareengine_network_peering" "psa_network_peering" {
+  project = "%{vmwareengine_project}"
+  name = "tf-test-psa-network-peering%{random_suffix}"
+  description = "test description"
+  vmware_engine_network = google_vmwareengine_network.cluster-nw.id
+  peer_network = trimprefix(data.google_compute_network_peering.sn_peering.peer_network, "https://www.googleapis.com/compute/")
+  peer_network_type = "PRIVATE_SERVICES_ACCESS"
+}
+
+# Create a VmwareEngine Datastore, referencing the filestore instance
+resource "google_vmwareengine_datastore" "test_fs_datastore" {
+  name        = "tf-test-cluster-fs-datastore%{random_suffix}"
+  location    = "%{zone}"
+  description = "test description"
+
+  nfs_datastore {
+    google_file_service {
+      filestore_instance = google_filestore_instance.test_instance.id
     }
   }
 }
@@ -186,14 +365,14 @@ resource "google_vmwareengine_cluster" "vmw-engine-ext-cluster" {
   name = "tf-test-ext-cluster%{random_suffix}"
   parent =  google_vmwareengine_private_cloud.cluster-pc.id
   node_type_configs {
-    node_type_id = "standard-72"
+    node_type_id = "%{node_type}"
     node_count   = %{node_count}
     custom_core_count = 32
   }
   autoscaling_settings {
     autoscaling_policies {
       autoscale_policy_id = "autoscaling-policy"
-      node_type_id = "standard-72"
+      node_type_id = "%{node_type}"
       scale_out_size = 2
       cpu_thresholds {
         scale_out = 80
@@ -208,9 +387,10 @@ resource "google_vmwareengine_cluster" "vmw-engine-ext-cluster" {
     max_cluster_node_count = 10
     cool_down_period = "3600s"
   }
+  depends_on = [google_vmwareengine_network_peering.psa_network_peering]
 }
 
-data "google_vmwareengine_cluster" "ds" {
+data "google_vmwareengine_cluster" "ds_vmw_engine_ext_cluster" {
   name = google_vmwareengine_cluster.vmw-engine-ext-cluster.name
   parent = google_vmwareengine_private_cloud.cluster-pc.id
 }
@@ -253,5 +433,155 @@ func testAccCheckVmwareengineClusterDestroyProducer(t *testing.T) func(s *terraf
 		}
 
 		return nil
+	}
+}
+
+// Unit test for fucntion CalculateDatastoreMountsDiff() defined in constants
+func TestCalculateDatastoreMountsDiff(t *testing.T) {
+	tests := []struct {
+		name      string
+		existing  []interface{}
+		requested []interface{}
+		want      []interface{}
+	}{
+		{
+			name: "No changes - both identical",
+			existing: []interface{}{
+				map[string]interface{}{"datastore": "ds1", "mode": "readWrite"},
+			},
+			requested: []interface{}{
+				map[string]interface{}{"datastore": "ds1", "mode": "readWrite"},
+			},
+			want: nil, // diff starts as nil slice
+		},
+		{
+			name:     "Add new datastore",
+			existing: []interface{}{},
+			requested: []interface{}{
+				map[string]interface{}{"datastore": "ds1", "mode": "readWrite"},
+			},
+			want: []interface{}{
+				map[string]interface{}{"datastore": "ds1", "mode": "readWrite"},
+			},
+		},
+		{
+			name: "Existing has one, requested has two",
+			existing: []interface{}{
+				map[string]interface{}{"datastore": "ds1"},
+			},
+			requested: []interface{}{
+				map[string]interface{}{"datastore": "ds1"},
+				map[string]interface{}{"datastore": "ds2"},
+			},
+			want: []interface{}{
+				map[string]interface{}{"datastore": "ds2"},
+			},
+		},
+		{
+			name:      "Both empty",
+			existing:  []interface{}{},
+			requested: []interface{}{},
+			want:      nil,
+		},
+		{
+			name: "Requested contains existing plus multiple new ones",
+			existing: []interface{}{
+				map[string]interface{}{"datastore": "shared-1"},
+			},
+			requested: []interface{}{
+				map[string]interface{}{"datastore": "shared-1"},
+				map[string]interface{}{"datastore": "new-1"},
+				map[string]interface{}{"datastore": "new-2"},
+			},
+			want: []interface{}{
+				map[string]interface{}{"datastore": "new-1"},
+				map[string]interface{}{"datastore": "new-2"},
+			},
+		},
+		{
+			name: "Deletion scenario (function only returns additions)",
+			existing: []interface{}{
+				map[string]interface{}{"datastore": "ds1"},
+				map[string]interface{}{"datastore": "ds2"},
+			},
+			requested: []interface{}{
+				map[string]interface{}{"datastore": "ds1"},
+			},
+			want: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := vmwareengine.CalculateDatastoreMountsDiff(tt.existing, tt.requested)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CalculateDatastoreMountsDiff() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// Unit test for function RemoveDatastoreMountConfigFieldFromUpdateMask()
+
+func TestRemoveDatastoreMountConfigFieldFromUpdateMask(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "Field at the end (preceded by comma)",
+			input: "update_mask=foo%2CdatastoreMountConfig",
+			want:  "update_mask=foo",
+		},
+		{
+			name:  "Field at the start (followed by comma)",
+			input: "update_mask=datastoreMountConfig%2Cbar",
+			want:  "update_mask=bar",
+		},
+		{
+			name:  "Field in the middle",
+			input: "update_mask=foo%2CdatastoreMountConfig%2Cbar",
+			want:  "update_mask=foo%2Cbar",
+		},
+		{
+			name:  "Field is the only content",
+			input: "update_mask=datastoreMountConfig",
+			want:  "update_mask=",
+		},
+		{
+			name:  "Field with encoded space (%20)",
+			input: "update_mask=datastoreMountConfig%20",
+			want:  "update_mask=",
+		},
+		{
+			name:  "Field with encoded plus (+)",
+			input: "update_mask=datastoreMountConfig+",
+			want:  "update_mask=",
+		},
+		{
+			name:  "Field not present",
+			input: "update_mask=foo%2Cbar",
+			want:  "update_mask=foo%2Cbar",
+		},
+		{
+			name:  "Empty string",
+			input: "",
+			want:  "",
+		},
+		{
+			name:  "Multiple instances",
+			input: "foo%2CdatastoreMountConfig%2Cbar%2CdatastoreMountConfig",
+			want:  "foo%2Cbar",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := vmwareengine.RemoveDatastoreMountConfigFieldFromUpdateMask(tt.input)
+			if got != tt.want {
+				t.Errorf("RemoveDatastoreMountConfigFieldFromUpdateMask(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
 	}
 }
