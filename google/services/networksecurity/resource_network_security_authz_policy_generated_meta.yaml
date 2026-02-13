@@ -78,6 +78,13 @@ fields:
     - api_field: httpRules.to.operations.hosts.ignoreCase
     - api_field: httpRules.to.operations.hosts.prefix
     - api_field: httpRules.to.operations.hosts.suffix
+    - api_field: httpRules.to.operations.mcp.baseProtocolMethodsOption
+    - api_field: httpRules.to.operations.mcp.methods.name
+    - api_field: httpRules.to.operations.mcp.methods.params.contains
+    - api_field: httpRules.to.operations.mcp.methods.params.exact
+    - api_field: httpRules.to.operations.mcp.methods.params.ignoreCase
+    - api_field: httpRules.to.operations.mcp.methods.params.prefix
+    - api_field: httpRules.to.operations.mcp.methods.params.suffix
     - api_field: httpRules.to.operations.methods
     - api_field: httpRules.to.operations.paths.contains
     - api_field: httpRules.to.operations.paths.exact
@@ -89,6 +96,7 @@ fields:
     - field: location
       provider_only: true
     - api_field: name
+    - api_field: policyProfile
     - api_field: target.loadBalancingScheme
     - api_field: target.resources
     - field: terraform_labels

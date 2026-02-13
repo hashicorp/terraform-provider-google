@@ -104,6 +104,45 @@ resource "google_network_services_authz_extension" "default" {
 `, context)
 }
 
+func TestAccNetworkServicesAuthzExtension_networkServicesAuthzExtensionIapExample(t *testing.T) {
+	t.Skip("true")
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesAuthzExtensionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesAuthzExtension_networkServicesAuthzExtensionIapExample(context),
+			},
+			{
+				ResourceName:            "google_network_services_authz_extension.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "service", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesAuthzExtension_networkServicesAuthzExtensionIapExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_services_authz_extension" "default" {
+  name     = "tf-test-my-authz-ext%{random_suffix}"
+  location = "us-west1"
+
+  authority             = "ext11.com"
+  service               = "iap.googleapis.com"
+  timeout               = "0.1s"
+}
+`, context)
+}
+
 func testAccCheckNetworkServicesAuthzExtensionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
