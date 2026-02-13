@@ -1,0 +1,3 @@
+```release-note:bug
+publicca: fixed `mac_key` not set in `google_public_ca_external_account_key`
+```
