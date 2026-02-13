@@ -1,0 +1,12 @@
+```release-note:enhancement
+compute: added `params` field to `google_compute_vpn_tunnel` resource
+```
+```release-note:enhancement
+compute: added `params` field to `google_compute_vpn_gateway` resource 
+```
+```release-note:enhancement
+compute: added `params` field to `google_compute_external_vpn_gateway` resource
+```
+```release-note:enhancement
+compute: added `params` field to `google_compute_ha_vpn_gateway` resource
+```

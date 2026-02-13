@@ -199,6 +199,11 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `params` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `region` -
   (Optional)
   The region this gateway should sit in.
@@ -226,6 +231,14 @@ The following arguments are supported:
   traffic for this VPN Gateway interface will go through the
   specified interconnect attachment resource.
   Not currently available publicly.
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the HaVpnGateway. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
 
 ## Attributes Reference
 
