@@ -28,7 +28,7 @@ To get more information about AuthzPolicy, see:
 
 * [API documentation](https://cloud.google.com/load-balancing/docs/reference/network-security/rest/v1beta1/projects.locations.authzPolicies)
 
-## Example Usage - Network Services Authz Policy Advanced
+## Example Usage - Network Security Authz Policy Advanced
 
 
 ```hcl
@@ -266,6 +266,49 @@ resource "google_network_security_authz_policy" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_security_authz_policy_mcp&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Security Authz Policy Mcp
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_network_security_authz_policy" "default" {
+  name        = "my-mcp-policy"
+  location    = "us-west1"
+
+  target {
+    resources = [ "projects/${data.google_project.project.project_id}/locations/us-west1/agentGateways/gateway1" ]
+  }
+
+  policy_profile = "REQUEST_AUTHZ"
+  action = "ALLOW"
+
+  http_rules {
+    to {
+      operations {
+        mcp {
+          base_protocol_methods_option = "MATCH_BASE_PROTOCOL_METHODS"
+          methods {
+            name = "tools"
+          }
+
+          methods {
+            name = "tools/call"
+            params {
+              exact = "foo"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -302,6 +345,16 @@ The following arguments are supported:
   (Optional)
   A human-readable description of the resource.
 
+* `policy_profile` -
+  (Optional)
+  Defines the type of authorization being performed. `REQUEST_AUTHZ` applies to request authorization. CUSTOM
+  authorization policies with Authz extensions will be allowed with ext_authz or ext_proc protocols. Extensions are
+  invoked only once when the request headers arrive. `CONTENT_AUTHZ` applies to content security, sanitization, etc.
+  Only CUSTOM action is allowed in this policy profile. AuthzExtensions in the custom provider must support ext_proc
+  protocol and be capable of receiving all ext_proc events (REQUEST_HEADERS, REQUEST_BODY, REQUEST_TRAILERS,
+  RESPONSE_HEADERS, RESPONSE_BODY, RESPONSE_TRAILERS) with FULL_DUPLEX_STREAMED body send mode.
+  Possible values are: `REQUEST_AUTHZ`, `CONTENT_AUTHZ`.
+
 * `labels` -
   (Optional)
   Set of labels associated with the AuthzExtension resource.
@@ -328,14 +381,16 @@ The following arguments are supported:
 <a name="nested_target"></a>The `target` block supports:
 
 * `load_balancing_scheme` -
-  (Required)
-  All gateways and forwarding rules referenced by this policy and extensions must share the same load balancing scheme.
+  (Optional)
+  Required when targeting forwarding rules and secure web proxy. Must not be specified when targeting Agent
+  Gateway. All resources referenced by this policy and extensions must share the same load balancing scheme.
   For more information, refer to [Backend services overview](https://cloud.google.com/load-balancing/docs/backend-service).
   Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`, `INTERNAL_SELF_MANAGED`.
 
 * `resources` -
   (Optional)
-  A list of references to the Forwarding Rules on which this policy will be applied.
+  A list of references to the Forwarding Rules or Secure Web Proxy Gateways or Agent Gateways on which this
+  policy will be applied.
 
 <a name="nested_http_rules"></a>The `http_rules` block supports:
 
@@ -730,6 +785,11 @@ The following arguments are supported:
   (Optional)
   A list of HTTP methods to match against. Each entry must be a valid HTTP method name (GET, PUT, POST, HEAD, PATCH, DELETE, OPTIONS). It only allows exact match and is always case sensitive.
 
+* `mcp` -
+  (Optional)
+  Defines the MCP protocol attributes to match on. MCP based match is allowed only when the AuthzPolicy points to an AgentGateway.
+  Structure is [documented below](#nested_http_rules_to_operations_mcp).
+
 
 <a name="nested_http_rules_to_operations_header_set"></a>The `header_set` block supports:
 
@@ -840,6 +900,58 @@ The following arguments are supported:
   The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
   Examples:
   * abc matches the value xyz.abc.def
+
+<a name="nested_http_rules_to_operations_mcp"></a>The `mcp` block supports:
+
+* `base_protocol_methods_option` -
+  (Optional)
+  If specified, matches on the MCP protocol’s non-access specific methods namely: * initialize/ * completion/ * logging/ * notifications/ * ping
+  Default value is `SKIP_BASE_PROTOCOL_METHODS`.
+  Possible values are: `SKIP_BASE_PROTOCOL_METHODS`, `MATCH_BASE_PROTOCOL_METHODS`.
+
+* `methods` -
+  (Optional)
+  Defines a set of MCP methods and associated parameters to match on. It is recommended to use this field to match on tools, prompts and resource accesses while setting the includeBaseProtocolMethods to true to match on all the other MCP protocol methods.
+  Structure is [documented below](#nested_http_rules_to_operations_mcp_methods).
+
+
+<a name="nested_http_rules_to_operations_mcp_methods"></a>The `methods` block supports:
+
+* `name` -
+  (Required)
+  The MCP method to match against. Allowed values are as follows:
+  1) “tools”, “prompts”, “resources” - these will match against all sub methods under the respective methods.
+  2) “prompts/list”, “tools/list”, “resources/list”, “resources/templates/list”
+  3) “prompts/get”, “tools/call”, “resources/subscribe”, “resources/unsubscribe”, “resources/read”
+  Params cannot be specified for categories 1) and 2).
+
+* `params` -
+  (Optional)
+  MCP method parameters to match against.
+  Structure is [documented below](#nested_http_rules_to_operations_mcp_methods_params).
+
+
+<a name="nested_http_rules_to_operations_mcp_methods_params"></a>The `params` block supports:
+
+* `exact` -
+  (Optional)
+  An exact match on the MCP method parameter name.
+
+* `prefix` -
+  (Optional)
+  A prefix match on the MCP method parameter name.
+
+* `suffix` -
+  (Optional)
+  A suffix match on the MCP method parameter name.
+
+* `contains` -
+  (Optional)
+  A substring match on the MCP method parameter name.
+
+* `ignore_case` -
+  (Optional)
+  Specifies that the string match should be case insensitive.
 
 <a name="nested_http_rules_to_not_operations"></a>The `not_operations` block supports:
 

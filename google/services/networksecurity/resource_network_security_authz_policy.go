@@ -152,16 +152,18 @@ When a request arrives, the policies are evaluated in the following order:
 					Schema: map[string]*schema.Schema{
 						"load_balancing_scheme": {
 							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED", "INTERNAL_SELF_MANAGED"}),
-							Description: `All gateways and forwarding rules referenced by this policy and extensions must share the same load balancing scheme.
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED", "INTERNAL_SELF_MANAGED", ""}),
+							Description: `Required when targeting forwarding rules and secure web proxy. Must not be specified when targeting Agent
+Gateway. All resources referenced by this policy and extensions must share the same load balancing scheme.
 For more information, refer to [Backend services overview](https://cloud.google.com/load-balancing/docs/backend-service). Possible values: ["INTERNAL_MANAGED", "EXTERNAL_MANAGED", "INTERNAL_SELF_MANAGED"]`,
 						},
 						"resources": {
 							Type:             schema.TypeList,
 							Optional:         true,
 							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-							Description:      `A list of references to the Forwarding Rules on which this policy will be applied.`,
+							Description: `A list of references to the Forwarding Rules or Secure Web Proxy Gateways or Agent Gateways on which this
+policy will be applied.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -927,6 +929,75 @@ Examples:
 														},
 													},
 												},
+												"mcp": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Defines the MCP protocol attributes to match on. MCP based match is allowed only when the AuthzPolicy points to an AgentGateway.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"base_protocol_methods_option": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"SKIP_BASE_PROTOCOL_METHODS", "MATCH_BASE_PROTOCOL_METHODS", ""}),
+																Description:  `If specified, matches on the MCP protocol’s non-access specific methods namely: * initialize/ * completion/ * logging/ * notifications/ * ping Default value: "SKIP_BASE_PROTOCOL_METHODS" Possible values: ["SKIP_BASE_PROTOCOL_METHODS", "MATCH_BASE_PROTOCOL_METHODS"]`,
+																Default:      "SKIP_BASE_PROTOCOL_METHODS",
+															},
+															"methods": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Defines a set of MCP methods and associated parameters to match on. It is recommended to use this field to match on tools, prompts and resource accesses while setting the includeBaseProtocolMethods to true to match on all the other MCP protocol methods.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"name": {
+																			Type:     schema.TypeString,
+																			Required: true,
+																			Description: `The MCP method to match against. Allowed values are as follows:
+1) “tools”, “prompts”, “resources” - these will match against all sub methods under the respective methods.
+2) “prompts/list”, “tools/list”, “resources/list”, “resources/templates/list”
+3) “prompts/get”, “tools/call”, “resources/subscribe”, “resources/unsubscribe”, “resources/read”
+Params cannot be specified for categories 1) and 2).`,
+																		},
+																		"params": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `MCP method parameters to match against.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"contains": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `A substring match on the MCP method parameter name.`,
+																					},
+																					"exact": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `An exact match on the MCP method parameter name.`,
+																					},
+																					"ignore_case": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Description: `Specifies that the string match should be case insensitive.`,
+																					},
+																					"prefix": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `A prefix match on the MCP method parameter name.`,
+																					},
+																					"suffix": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `A suffix match on the MCP method parameter name.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
 												"methods": {
 													Type:        schema.TypeList,
 													Optional:    true,
@@ -1003,6 +1074,18 @@ Examples:
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"policy_profile": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"REQUEST_AUTHZ", "CONTENT_AUTHZ", ""}),
+				Description: `Defines the type of authorization being performed. 'REQUEST_AUTHZ' applies to request authorization. CUSTOM
+authorization policies with Authz extensions will be allowed with ext_authz or ext_proc protocols. Extensions are
+invoked only once when the request headers arrive. 'CONTENT_AUTHZ' applies to content security, sanitization, etc.
+Only CUSTOM action is allowed in this policy profile. AuthzExtensions in the custom provider must support ext_proc
+protocol and be capable of receiving all ext_proc events (REQUEST_HEADERS, REQUEST_BODY, REQUEST_TRAILERS,
+RESPONSE_HEADERS, RESPONSE_BODY, RESPONSE_TRAILERS) with FULL_DUPLEX_STREAMED body send mode. Possible values: ["REQUEST_AUTHZ", "CONTENT_AUTHZ"]`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1050,6 +1133,12 @@ func resourceNetworkSecurityAuthzPolicyCreate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	policyProfileProp, err := expandNetworkSecurityAuthzPolicyPolicyProfile(d.Get("policy_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("policy_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(policyProfileProp)) && (ok || !reflect.DeepEqual(v, policyProfileProp)) {
+		obj["policyProfile"] = policyProfileProp
 	}
 	targetProp, err := expandNetworkSecurityAuthzPolicyTarget(d.Get("target"), d, config)
 	if err != nil {
@@ -1193,6 +1282,9 @@ func resourceNetworkSecurityAuthzPolicyRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading AuthzPolicy: %s", err)
 	}
 	if err := d.Set("description", flattenNetworkSecurityAuthzPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzPolicy: %s", err)
+	}
+	if err := d.Set("policy_profile", flattenNetworkSecurityAuthzPolicyPolicyProfile(res["policyProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AuthzPolicy: %s", err)
 	}
 	if err := d.Set("labels", flattenNetworkSecurityAuthzPolicyLabels(res["labels"], d, config)); err != nil {
@@ -1450,6 +1542,10 @@ func flattenNetworkSecurityAuthzPolicyDescription(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenNetworkSecurityAuthzPolicyPolicyProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecurityAuthzPolicyLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1485,7 +1581,20 @@ func flattenNetworkSecurityAuthzPolicyTargetLoadBalancingScheme(v interface{}, d
 }
 
 func flattenNetworkSecurityAuthzPolicyTargetResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	new := []string{}
+	vArr := v.([]interface{})
+
+	// For GCE resources we send and get back self links, although with project ids -> #s
+	// For new targets the API expects a relative resource name like projects/my-project/locations/us-west1/agentGateways/gateway
+	// but returns an FRN like //networkservices.googleapis.com/projects/0123456789/locations/us-west1/agentGateways/gateway
+	// Project # conversion is handled by a diffsuppressfunc, but to keep input/output consistent strip known FRN prefixes
+	for _, v := range vArr {
+		origRef := v.(string)
+		rel := strings.TrimPrefix(origRef, "//networkservices.googleapis.com/")
+		new = append(new, rel)
+	}
+
+	return new
 }
 
 func flattenNetworkSecurityAuthzPolicyHttpRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2007,6 +2116,7 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToOperations(v interface{}, d *sc
 			"hosts":      flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsHosts(original["hosts"], d, config),
 			"paths":      flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsPaths(original["paths"], d, config),
 			"methods":    flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMethods(original["methods"], d, config),
+			"mcp":        flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcp(original["mcp"], d, config),
 		})
 	}
 	return transformed
@@ -2173,6 +2283,90 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsPathsContains(v inter
 }
 
 func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMethods(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["base_protocol_methods_option"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpBaseProtocolMethodsOption(original["baseProtocolMethodsOption"], d, config)
+	transformed["methods"] =
+		flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethods(original["methods"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpBaseProtocolMethodsOption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethods(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":   flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsName(original["name"], d, config),
+			"params": flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParams(original["params"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"exact":       flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsExact(original["exact"], d, config),
+			"prefix":      flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsPrefix(original["prefix"], d, config),
+			"suffix":      flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsSuffix(original["suffix"], d, config),
+			"contains":    flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsContains(original["contains"], d, config),
+			"ignore_case": flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsIgnoreCase(original["ignoreCase"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsSuffix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsContains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2438,6 +2632,10 @@ func flattenNetworkSecurityAuthzPolicyName(v interface{}, d *schema.ResourceData
 }
 
 func expandNetworkSecurityAuthzPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyPolicyProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3352,6 +3550,13 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToOperations(v interface{}, d tpgr
 			transformed["methods"] = transformedMethods
 		}
 
+		transformedMcp, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcp(original["mcp"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMcp); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["mcp"] = transformedMcp
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -3632,6 +3837,148 @@ func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsPathsContains(v interf
 }
 
 func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMethods(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBaseProtocolMethodsOption, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpBaseProtocolMethodsOption(original["base_protocol_methods_option"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBaseProtocolMethodsOption); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["baseProtocolMethodsOption"] = transformedBaseProtocolMethodsOption
+	}
+
+	transformedMethods, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethods(original["methods"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMethods); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["methods"] = transformedMethods
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpBaseProtocolMethodsOption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethods(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedParams, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParams(original["params"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedParams); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["params"] = transformedParams
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedExact, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsExact(original["exact"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["exact"] = transformedExact
+		}
+
+		transformedPrefix, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsPrefix(original["prefix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["prefix"] = transformedPrefix
+		}
+
+		transformedSuffix, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsSuffix(original["suffix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSuffix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["suffix"] = transformedSuffix
+		}
+
+		transformedContains, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsContains(original["contains"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["contains"] = transformedContains
+		}
+
+		transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsIgnoreCase(original["ignore_case"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ignoreCase"] = transformedIgnoreCase
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsSuffix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsContains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParamsIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

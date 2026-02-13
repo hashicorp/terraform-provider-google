@@ -50,7 +50,7 @@ var (
 	_ = googleapi.Error{}
 )
 
-func TestAccNetworkSecurityAuthzPolicy_networkServicesAuthzPolicyAdvancedExample(t *testing.T) {
+func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyAdvancedExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -64,7 +64,7 @@ func TestAccNetworkSecurityAuthzPolicy_networkServicesAuthzPolicyAdvancedExample
 		CheckDestroy:             testAccCheckNetworkSecurityAuthzPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkSecurityAuthzPolicy_networkServicesAuthzPolicyAdvancedExample(context),
+				Config: testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyAdvancedExample(context),
 			},
 			{
 				ResourceName:            "google_network_security_authz_policy.default",
@@ -76,7 +76,7 @@ func TestAccNetworkSecurityAuthzPolicy_networkServicesAuthzPolicyAdvancedExample
 	})
 }
 
-func testAccNetworkSecurityAuthzPolicy_networkServicesAuthzPolicyAdvancedExample(context map[string]interface{}) string {
+func testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyAdvancedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
   name                    = "tf-test-lb-network%{random_suffix}"
@@ -304,6 +304,70 @@ resource "google_network_security_authz_policy" "default" {
             value {
               exact = "test-value"
               ignore_case = true
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyMcpExample(t *testing.T) {
+	t.Skip("true")
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecurityAuthzPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyMcpExample(context),
+			},
+			{
+				ResourceName:            "google_network_security_authz_policy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyMcpExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_network_security_authz_policy" "default" {
+  name        = "tf-test-my-mcp-policy%{random_suffix}"
+  location    = "us-west1"
+
+  target {
+    resources = [ "projects/${data.google_project.project.project_id}/locations/us-west1/agentGateways/gateway1" ]
+  }
+
+  policy_profile = "REQUEST_AUTHZ"
+  action = "ALLOW"
+
+  http_rules {
+    to {
+      operations {
+        mcp {
+          base_protocol_methods_option = "MATCH_BASE_PROTOCOL_METHODS"
+          methods {
+            name = "tools"
+          }
+
+          methods {
+            name = "tools/call"
+            params {
+              exact = "foo"
             }
           }
         }
