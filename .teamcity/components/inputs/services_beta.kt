@@ -861,6 +861,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Transcoder",
         "path" to "./google-beta/services/transcoder"
     ),
+    "vectorsearch" to mapOf(
+        "name" to "vectorsearch",
+        "displayName" to "VectorSearch",
+        "path" to "./google-beta/services/vectorsearch",
+      ),
     "vertexai" to mapOf(
         "name" to "vertexai",
         "displayName" to "Vertexai",
