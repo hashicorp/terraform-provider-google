@@ -1,0 +1,7 @@
+```release-note:enhancement
+networkservices: relaxed `load_balancing_scheme` validation to support non-Backend Service targets in `google_network_services_authz_extension`
+```
+
+```release-note:enhancement
+networksecurity: added `policy_profile`, `http_rules.0.to.0.operations.0.mcp` to `google_network_security_authz_policy`. Relaxed `load_balancing_scheme` validation to support non-Backend Service targets.
+```

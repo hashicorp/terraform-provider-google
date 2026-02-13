@@ -124,13 +124,6 @@ func ResourceNetworkServicesAuthzExtension() *schema.Resource {
 				Required:    true,
 				Description: `The :authority header in the gRPC request sent from Envoy to the extension service.`,
 			},
-			"load_balancing_scheme": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED"}),
-				Description: `All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
-For more information, refer to [Backend services overview](https://cloud.google.com/load-balancing/docs/backend-service). Possible values: ["INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
-			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -145,9 +138,12 @@ For more information, refer to [Backend services overview](https://cloud.google.
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-				Description: `The reference to the service that runs the extension.
-To configure a callout extension, service must be a fully-qualified reference to a [backend service](https://cloud.google.com/compute/docs/reference/rest/v1/backendServices) in the format:
-https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/backendServices/{backendService} or https://www.googleapis.com/compute/v1/projects/{project}/global/backendServices/{backendService}.`,
+				Description: `The service that runs the extension.
+The following values and formats are accepted:
+* 'iap.googleapis.com' when the policyProfile is set to REQUEST_AUTHZ
+* 'modelarmor.{{region}}.rep.googleapis.com' when the policyProfile is set to CONTENT_AUTHZ
+* A fully qualified domain name that can be resolved by the dataplane
+* Backend service resource URI of the form 'https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/backendServices/{{name}}' or 'https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendServices/{{name}}}}'`,
 			},
 			"timeout": {
 				Type:             schema.TypeString,
@@ -187,6 +183,14 @@ When set to TRUE, request or response processing continues without error. Any su
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"load_balancing_scheme": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED", ""}),
+				Description: `Required when the service points to a backend service. All backend services and forwarding rules referenced by
+this extension must share the same load balancing scheme. For more information, refer to
+[Backend services overview](https://cloud.google.com/load-balancing/docs/backend-service). Possible values: ["INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
+			},
 			"metadata": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -200,8 +204,10 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"WIRE_FORMAT_UNSPECIFIED", "EXT_PROC_GRPC", "EXT_AUTHZ_GRPC", ""}),
-				Description: `Specifies the communication protocol used by the callout extension
-to communicate with its backend service.
+				Description: `The format of communication supported by the callout extension. Applicable only when the policyProfile is REQUEST_AUTHZ.
+This field is supported only for regional AuthzExtension resources. If not specified, the default value
+EXT_PROC_GRPC is used. Global AuthzExtension resources use the EXT_PROC_GRPC wire format.
+
 Supported values:
 - WIRE_FORMAT_UNSPECIFIED:
     No wire format is explicitly specified. The backend automatically
