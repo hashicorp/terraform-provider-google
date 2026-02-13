@@ -1,5 +1,37 @@
 ## 7.20.0 (Unreleased)
 
+NOTES:
+* REMOVE alloydb: added write-only support for `initial_user.password_wo` to `google_alloydb_cluster` ([#26024](https://github.com/hashicorp/terraform-provider-google/pull/26024))
+* compute: promoted `allow_subnet_cidr_routes_overlap` field to GA in `google_compute_subnetwork` resource ([#26019](https://github.com/hashicorp/terraform-provider-google/pull/26019))
+
+FEATURES:
+* **New Data Source:** `google_storage_bucket_object_contents` ([#26054](https://github.com/hashicorp/terraform-provider-google/pull/26054))
+* **New Resource:** `google_cloud_identity_policy` (beta) ([#26063](https://github.com/hashicorp/terraform-provider-google/pull/26063))
+* **New Resource:** `google_dataform_folder` (beta) ([#26070](https://github.com/hashicorp/terraform-provider-google/pull/26070))
+* **New Resource:** `google_oracle_database_exadb_vm_cluster` ([#26021](https://github.com/hashicorp/terraform-provider-google/pull/26021))
+
+IMPROVEMENTS:
+* alloydb: added write-only support for `initial_user.password_wo` to `google_alloydb_cluster` ([#26020](https://github.com/hashicorp/terraform-provider-google/pull/26020))
+* alloydb: added write-only support for `initial_user.password_wo` to `google_alloydb_cluster` ([#26074](https://github.com/hashicorp/terraform-provider-google/pull/26074))
+* biglakeiceberg: clarified the usage of the `name` field in `google_biglake_iceberg_catalog` resource. ([#26022](https://github.com/hashicorp/terraform-provider-google/pull/26022))
+* ces: added MCP Toolset to `toolset` resource ([#26025](https://github.com/hashicorp/terraform-provider-google/pull/26025))
+* compute: Enable write-only support for `private_key` to `google_compute_region_ssl_certificate` resource ([#26072](https://github.com/hashicorp/terraform-provider-google/pull/26072))
+* compute: Enable write-only support for `private_key` to `google_compute_ssl_certificate` resource ([#26072](https://github.com/hashicorp/terraform-provider-google/pull/26072))
+* compute: added `enable` field to `google_compute_packet_mirroring` ([#26064](https://github.com/hashicorp/terraform-provider-google/pull/26064))
+* compute: added `params` field to `google_compute_interconnect_attachment` resource ([#26042](https://github.com/hashicorp/terraform-provider-google/pull/26042))
+* compute: added `slice-controller` field to `resource_container_cluster` resource ([#26023](https://github.com/hashicorp/terraform-provider-google/pull/26023))
+* container: added `additional_ip_ranges_config.status` to `google_container_cluster` resource ([#26061](https://github.com/hashicorp/terraform-provider-google/pull/26061))
+* dataproc: added `instance_flexibility_policy` to `master_config` and `worker_config` in `google_dataproc_cluster` resource. ([#26058](https://github.com/hashicorp/terraform-provider-google/pull/26058))
+* developerconnect: added `target_projects` field to `google_developer_connect_insights_config` resource ([#26073](https://github.com/hashicorp/terraform-provider-google/pull/26073))
+* networkservices: added `ull_multicast_domain` field to `google_network_services_multicast_domain` resource ([#26071](https://github.com/hashicorp/terraform-provider-google/pull/26071))
+* spanner: Remove restriction on CMEK for incremental backup schedules ([#26068](https://github.com/hashicorp/terraform-provider-google/pull/26068))
+* spanner: support user_project_override in `spanner_database_iam` and `spanner_instance_iam` resources ([#26052](https://github.com/hashicorp/terraform-provider-google/pull/26052))
+* sql: added `server_certificate_rotation_mode` field to `google_sql_database_instance` resource ([#26066](https://github.com/hashicorp/terraform-provider-google/pull/26066))
+
+BUG FIXES:
+* bigquery: fixed permadiff with the `collation` field in `google_bigquery_table.schema` when it inherits the value from `google_bigquery_dataset.default_collation` ([#26065](https://github.com/hashicorp/terraform-provider-google/pull/26065))
+* bigqueryanalyticshub: fixed update failure for `replica_locations` in `google_bigquery_analytics_hub_listing` (beta) ([#26046](https://github.com/hashicorp/terraform-provider-google/pull/26046))
+
 ## 7.19.0 (Feb 10, 2026)
 
 DEPRECATIONS:
