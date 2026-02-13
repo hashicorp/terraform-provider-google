@@ -55,6 +55,173 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// Mount and unmount on the clusters are performed
+// on the basis of a new datastore is being added or removed
+// This function doesn't account any change in the datastore mount config fields
+// Diff is calculated based on different Datastore full reosurce name
+func CalculateDatastoreMountsDiff(exsitingDatastoreMountCfg, requestedDatastoreMountCfg []interface{}) []interface{} {
+	existingCfgMap := make(map[string]map[string]interface{})
+	for _, item := range exsitingDatastoreMountCfg {
+		m := item.(map[string]interface{})
+		if datastore, ok := m["datastore"].(string); ok && datastore != "" {
+			existingCfgMap[datastore] = m
+		}
+	}
+
+	var diff []interface{}
+	for _, item := range requestedDatastoreMountCfg {
+		m := item.(map[string]interface{})
+		if datastore, ok := m["datastore"].(string); ok && datastore != "" {
+			if _, exists := existingCfgMap[datastore]; !exists {
+				diff = append(diff, item)
+			}
+		}
+	}
+	return diff
+}
+
+// For mount and unmount operation, update_mask is not used.
+func RemoveDatastoreMountConfigFieldFromUpdateMask(url string) string {
+
+	fieldToRemove := "datastoreMountConfig"
+	encodedComma := "%2C"
+
+	// Matches ",field" to remove the field and the preceding comma.
+	// e.g., foo%2CdatastoreMountConfig -> foo
+	reCommaField := regexp.MustCompile(encodedComma + fieldToRemove)
+
+	// Matches "field," to remove the field and the succeeding comma.
+	// e.g., datastoreMountConfig%2Cbar -> bar
+	reFieldComma := regexp.MustCompile(fieldToRemove + encodedComma)
+
+	// Matches the field only if it's the entire string.
+	// e.g., datastoreMountConfig -> ""
+	reFieldOnly := regexp.MustCompile(fieldToRemove + `(?:%20|\+)*$`)
+
+	// Remove instances like "...%2CdatastoreMountConfig"
+	url = reCommaField.ReplaceAllString(url, "")
+
+	// Remove instances like "datastoreMountConfig%2C..."
+	url = reFieldComma.ReplaceAllString(url, "")
+
+	// Remove instance where the mask only contains "datastoreMountConfig"
+	url = reFieldOnly.ReplaceAllString(url, "")
+
+	return url
+}
+func mountDatastores(mountsToAdd []interface{}, d *schema.ResourceData, config *transport_tpg.Config) error {
+	var project string
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	// Mount operations
+	for _, mount := range mountsToAdd {
+		mountMap := mount.(map[string]interface{})
+		datastore, ok := mountMap["datastore"].(string)
+		if !ok || datastore == "" {
+			return fmt.Errorf("no datastore found in the mount request : %#v", mountMap)
+		}
+
+		datastoreMountConfigPayload := map[string]interface{}{
+			"datastore": datastore,
+		}
+
+		if networkData, ok := mountMap["datastore_network"]; ok {
+			datastoreMountConfigPayload["datastoreNetwork"] = networkData.([]interface{})[0]
+		}
+		if v, ok := mountMap["nfs_version"]; ok && v.(string) != "" {
+			datastoreMountConfigPayload["nfsVersion"] = v.(string)
+		}
+		if v, ok := mountMap["access_mode"]; ok && v.(string) != "" {
+			datastoreMountConfigPayload["accessMode"] = v.(string)
+		}
+
+		req := map[string]interface{}{
+			"datastoreMountConfig": datastoreMountConfigPayload,
+		}
+		if v, ok := mountMap["ignore_colocation"]; ok {
+			req["ignoreColocation"] = v.(bool)
+		}
+
+		// Construct the URL directly using d.Id() for the resource name
+		//mountUrl := fmt.Sprintf("%s%s:mountDatastore", config.VmwareengineBasePath, d.Id())
+		mountUrl, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/clusters/{{name}}:mountDatastore")
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] MountDatastore request on a Cluster %q: url: %q reqBody: %#v", d.Id(), mountUrl, req)
+		op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			RawURL:    mountUrl,
+			UserAgent: userAgent,
+			Body:      req,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("error calling MountDatastore for %q: %s", datastore, err)
+		}
+
+		err = VmwareengineOperationWaitTime(
+			config, op, project, "Mount Datastore", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func unmountDatastores(mountsToRemove []interface{}, d *schema.ResourceData, config *transport_tpg.Config) error {
+	var project string
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	// Unmount operations
+	for _, mount := range mountsToRemove {
+		mountMap := mount.(map[string]interface{})
+		datastore, ok := mountMap["datastore"].(string)
+		if !ok || datastore == "" {
+			return fmt.Errorf("no datastore found in the unmount request : %#v", mountMap)
+		}
+
+		//unmountUrl := fmt.Sprintf("%s%s:unmountDatastore", config.VmwareengineBasePath, d.Id())
+		unmountUrl, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/clusters/{{name}}:unmountDatastore")
+		if err != nil {
+			return err
+		}
+		req := map[string]interface{}{
+			"datastore": datastore,
+		}
+
+		log.Printf("[DEBUG] UnmountDatastore request on a Cluster %q: url: %q reqBody: %#v", d.Id(), unmountUrl, req)
+		op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			RawURL:    unmountUrl,
+			UserAgent: userAgent,
+			Body:      req,
+			Timeout:   d.Timeout(schema.TimeoutUpdate), // Adjust timeout if necessary
+		})
+		if err != nil {
+			return fmt.Errorf("error calling UnmountDatastore for %q: %s", datastore, err)
+		}
+
+		// Assuming VmwareengineOperationWaitTime is a function to poll the LRO
+		err = VmwareengineOperationWaitTime(
+			config, op, project, "Unmount Datastore", userAgent,
+			d.Timeout(schema.TimeoutUpdate)) // Adjust timeout if necessary
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Successfully unmounted Datastore %q from Cluster %q", datastore, d.Id())
+	}
+	return nil
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -253,6 +420,114 @@ Mandatory for successful addition of autoscaling settings in cluster.`,
 					},
 				},
 			},
+			"datastore_mount_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Optional. Configuration to mount a datastore.
+Mount can be done along with cluster create or during cluster update
+Since service subnet is not configured with ip range on mgmt cluster creation, mount on management cluster is done as update only
+for unmount remove 'datastore_mount_config' config from the update of cluster resource`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"datastore": {
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+							Description: `The resource name of the datastore to unmount.
+The datastore requested to be mounted should be in same region/zone as the
+cluster.
+Resource names are schemeless URIs that follow the conventions in
+https://cloud.google.com/apis/design/resource_names.
+For example:
+'projects/my-project/locations/us-central1/datastores/my-datastore'`,
+						},
+						"datastore_network": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `The network configuration for the datastore.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"subnet": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The resource name of the subnet
+Resource names are schemeless URIs that follow the conventions in
+https://cloud.google.com/apis/design/resource_names.
+e.g. projects/my-project/locations/us-central1/subnets/my-subnet`,
+									},
+									"connection_count": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Optional. The number of connections of the NFS volume.
+Supported from vsphere 8.0u1. Possible values are 1-4.
+Default value is 4.`,
+										Default: 4,
+									},
+									"mtu": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Optional. The Maximal Transmission Unit (MTU) of the datastore.
+MTU value can range from 1330-9000. If not set, system sets
+default MTU size to 1500.`,
+									},
+									"network_peering": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `The resource name of the network peering, used to access the
+file share by clients on private cloud. Resource names are schemeless
+URIs that follow the conventions in
+https://cloud.google.com/apis/design/resource_names.
+e.g.
+projects/my-project/locations/us-central1/networkPeerings/my-network-peering`,
+									},
+								},
+							},
+						},
+						"access_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Optional. NFS is accessed by hosts in either read or read_write mode
+Default value used will be READ_WRITE
+Possible values:
+READ_ONLY
+READ_WRITE`,
+						},
+						"ignore_colocation": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Optional. If set to true, the colocation requirement will be ignored.
+If set to false, the colocation requirement will be enforced.
+Colocation requirement is the requirement that the cluster must be in the
+same region/zone of datastore.`,
+						},
+						"nfs_version": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Optional. The NFS protocol supported by the NFS volume.
+Default value used will be NFS_V3
+Possible values:
+NFS_V3`,
+							Default: "NFS_V3",
+						},
+						"file_share": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `File share name.`,
+						},
+						"servers": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: `Server IP addresses of the NFS volume.
+For NFS 3, you can only provide a single
+server IP address or DNS names.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"node_type_configs": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -337,6 +612,17 @@ func resourceVmwareengineClusterCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("autoscaling_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(autoscalingSettingsProp)) && (ok || !reflect.DeepEqual(v, autoscalingSettingsProp)) {
 		obj["autoscalingSettings"] = autoscalingSettingsProp
 	}
+	datastoreMountConfigProp, err := expandVmwareengineClusterDatastoreMountConfig(d.Get("datastore_mount_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("datastore_mount_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(datastoreMountConfigProp)) && (ok || !reflect.DeepEqual(v, datastoreMountConfigProp)) {
+		obj["datastoreMountConfig"] = datastoreMountConfigProp
+	}
+
+	obj, err = resourceVmwareengineClusterEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/clusters?clusterId={{name}}")
 	if err != nil {
@@ -382,6 +668,15 @@ func resourceVmwareengineClusterCreate(d *schema.ResourceData, meta interface{})
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Cluster: %s", err)
+	}
+
+	m := d.Get("datastore_mount_config")
+	mountsToAdd := m.([]interface{})
+	if mountsToAdd != nil {
+		// mount operations
+		if err := mountDatastores(mountsToAdd, d, config); err != nil {
+			return err
+		}
 	}
 
 	log.Printf("[DEBUG] Finished creating Cluster %q: %#v", d.Id(), res)
@@ -443,6 +738,9 @@ func resourceVmwareengineClusterRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("autoscaling_settings", flattenVmwareengineClusterAutoscalingSettings(res["autoscalingSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("datastore_mount_config", flattenVmwareengineClusterDatastoreMountConfig(res["datastoreMountConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 
 	return nil
 }
@@ -470,6 +768,17 @@ func resourceVmwareengineClusterUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("autoscaling_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoscalingSettingsProp)) {
 		obj["autoscalingSettings"] = autoscalingSettingsProp
 	}
+	datastoreMountConfigProp, err := expandVmwareengineClusterDatastoreMountConfig(d.Get("datastore_mount_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("datastore_mount_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, datastoreMountConfigProp)) {
+		obj["datastoreMountConfig"] = datastoreMountConfigProp
+	}
+
+	obj, err = resourceVmwareengineClusterEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}{{parent}}/clusters/{{name}}")
 	if err != nil {
@@ -487,12 +796,19 @@ func resourceVmwareengineClusterUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("autoscaling_settings") {
 		updateMask = append(updateMask, "autoscalingSettings")
 	}
+
+	if d.HasChange("datastore_mount_config") {
+		updateMask = append(updateMask, "datastoreMountConfig")
+	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
+	// RemoveDatastoreMountConfigFieldFromUpdateMask removes 'datastoreMountConfig' from the updateMask in a URL.
+	url = RemoveDatastoreMountConfigFieldFromUpdateMask(url)
+	log.Printf("[DEBUG] After removal of datastoreMountConfig from updateMask %q cluster patch url: %#v", d.Id(), url)
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -528,6 +844,24 @@ func resourceVmwareengineClusterUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
+	if d.HasChange("datastore_mount_config") {
+		o, n := d.GetChange("datastore_mount_config")
+		oldMounts := o.([]interface{})
+		newMounts := n.([]interface{})
+
+		mountsToAdd := CalculateDatastoreMountsDiff(oldMounts, newMounts)
+		mountsToRemove := CalculateDatastoreMountsDiff(newMounts, oldMounts) // For unmount
+
+		// mount operations
+		if err := mountDatastores(mountsToAdd, d, config); err != nil {
+			return err
+		}
+
+		// unmount operations
+		if err := unmountDatastores(mountsToRemove, d, config); err != nil {
+			return err
+		}
+	}
 	return resourceVmwareengineClusterRead(d, meta)
 }
 
@@ -915,6 +1249,114 @@ func flattenVmwareengineClusterAutoscalingSettingsCoolDownPeriod(v interface{}, 
 	return v
 }
 
+func flattenVmwareengineClusterDatastoreMountConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"datastore":         flattenVmwareengineClusterDatastoreMountConfigDatastore(original["datastore"], d, config),
+			"datastore_network": flattenVmwareengineClusterDatastoreMountConfigDatastoreNetwork(original["datastoreNetwork"], d, config),
+			"file_share":        flattenVmwareengineClusterDatastoreMountConfigFileShare(original["fileShare"], d, config),
+			"nfs_version":       flattenVmwareengineClusterDatastoreMountConfigNfsVersion(original["nfsVersion"], d, config),
+			"access_mode":       flattenVmwareengineClusterDatastoreMountConfigAccessMode(original["accessMode"], d, config),
+			"servers":           flattenVmwareengineClusterDatastoreMountConfigServers(original["servers"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVmwareengineClusterDatastoreMountConfigDatastore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineClusterDatastoreMountConfigDatastoreNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["connection_count"] =
+		flattenVmwareengineClusterDatastoreMountConfigDatastoreNetworkConnectionCount(original["connectionCount"], d, config)
+	transformed["mtu"] =
+		flattenVmwareengineClusterDatastoreMountConfigDatastoreNetworkMtu(original["mtu"], d, config)
+	transformed["network_peering"] =
+		flattenVmwareengineClusterDatastoreMountConfigDatastoreNetworkNetworkPeering(original["networkPeering"], d, config)
+	transformed["subnet"] =
+		flattenVmwareengineClusterDatastoreMountConfigDatastoreNetworkSubnet(original["subnet"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVmwareengineClusterDatastoreMountConfigDatastoreNetworkConnectionCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVmwareengineClusterDatastoreMountConfigDatastoreNetworkMtu(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVmwareengineClusterDatastoreMountConfigDatastoreNetworkNetworkPeering(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineClusterDatastoreMountConfigDatastoreNetworkSubnet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineClusterDatastoreMountConfigFileShare(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineClusterDatastoreMountConfigNfsVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineClusterDatastoreMountConfigAccessMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineClusterDatastoreMountConfigServers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareengineClusterDatastoreMountConfigIgnoreColocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("datastore_mount_config.0.ignore_colocation")
+}
+
 func expandVmwareengineClusterNodeTypeConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
@@ -1180,4 +1622,161 @@ func expandVmwareengineClusterAutoscalingSettingsMaxClusterNodeCount(v interface
 
 func expandVmwareengineClusterAutoscalingSettingsCoolDownPeriod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDatastore, err := expandVmwareengineClusterDatastoreMountConfigDatastore(original["datastore"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDatastore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["datastore"] = transformedDatastore
+		}
+
+		transformedDatastoreNetwork, err := expandVmwareengineClusterDatastoreMountConfigDatastoreNetwork(original["datastore_network"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDatastoreNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["datastoreNetwork"] = transformedDatastoreNetwork
+		}
+
+		transformedFileShare, err := expandVmwareengineClusterDatastoreMountConfigFileShare(original["file_share"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFileShare); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["fileShare"] = transformedFileShare
+		}
+
+		transformedNfsVersion, err := expandVmwareengineClusterDatastoreMountConfigNfsVersion(original["nfs_version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNfsVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["nfsVersion"] = transformedNfsVersion
+		}
+
+		transformedAccessMode, err := expandVmwareengineClusterDatastoreMountConfigAccessMode(original["access_mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAccessMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["accessMode"] = transformedAccessMode
+		}
+
+		transformedServers, err := expandVmwareengineClusterDatastoreMountConfigServers(original["servers"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedServers); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["servers"] = transformedServers
+		}
+
+		transformedIgnoreColocation, err := expandVmwareengineClusterDatastoreMountConfigIgnoreColocation(original["ignore_colocation"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIgnoreColocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ignoreColocation"] = transformedIgnoreColocation
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigDatastore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigDatastoreNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedConnectionCount, err := expandVmwareengineClusterDatastoreMountConfigDatastoreNetworkConnectionCount(original["connection_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConnectionCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["connectionCount"] = transformedConnectionCount
+	}
+
+	transformedMtu, err := expandVmwareengineClusterDatastoreMountConfigDatastoreNetworkMtu(original["mtu"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMtu); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mtu"] = transformedMtu
+	}
+
+	transformedNetworkPeering, err := expandVmwareengineClusterDatastoreMountConfigDatastoreNetworkNetworkPeering(original["network_peering"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkPeering); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkPeering"] = transformedNetworkPeering
+	}
+
+	transformedSubnet, err := expandVmwareengineClusterDatastoreMountConfigDatastoreNetworkSubnet(original["subnet"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSubnet); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["subnet"] = transformedSubnet
+	}
+
+	return transformed, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigDatastoreNetworkConnectionCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigDatastoreNetworkMtu(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigDatastoreNetworkNetworkPeering(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigDatastoreNetworkSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigFileShare(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigNfsVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigAccessMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigServers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareengineClusterDatastoreMountConfigIgnoreColocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func resourceVmwareengineClusterEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// datastoreMountConfig is sent as post_create and post_update but not sent during create and update methods.
+	delete(obj, "datastoreMountConfig")
+	log.Printf("[DEBUG] After removal of datastoreMountConfig Cluster request %q: %#v", d.Id(), obj)
+	return obj, nil
 }
