@@ -1286,7 +1286,7 @@ resource "google_composer_environment" "test" {
       image_version  = "composer-2-airflow-2"
     }
     private_environment_config {
-      connection_type = "VPC_PEERING"
+      connection_type = "PRIVATE_SERVICE_CONNECT"
       enable_private_endpoint = true
       enable_privately_used_public_ips = true
     }
