@@ -157,7 +157,6 @@ fields:
   - api_field: 'settings.ipConfiguration.pscConfig.pscEnabled'
   - api_field: 'settings.ipConfiguration.serverCaMode'
   - api_field: 'settings.ipConfiguration.serverCaPool'
-  - api_field: 'settings.ipConfiguration.serverCertificateRotationMode'
   - api_field: 'settings.ipConfiguration.sslMode'
   - api_field: 'settings.locationPreference.followGaeApplication'
   - api_field: 'settings.locationPreference.secondaryZone'

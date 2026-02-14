@@ -104,7 +104,6 @@ var (
 		"settings.0.ip_configuration.0.ssl_mode",
 		"settings.0.ip_configuration.0.server_ca_mode",
 		"settings.0.ip_configuration.0.server_ca_pool",
-		"settings.0.ip_configuration.0.server_certificate_rotation_mode",
 		"settings.0.ip_configuration.0.custom_subject_alternative_names",
 	}
 
@@ -696,14 +695,6 @@ API (for read pools, effective_availability_type may differ from availability_ty
 										Optional:     true,
 										Description:  `The resource name of the server CA pool for an instance with "CUSTOMER_MANAGED_CAS_CA" as the "server_ca_mode".`,
 										AtLeastOneOf: ipConfigurationKeys,
-									},
-									"server_certificate_rotation_mode": {
-										Type:             schema.TypeString,
-										Optional:         true,
-										ValidateFunc:     validation.StringInSlice([]string{"NO_AUTOMATIC_ROTATION", "AUTOMATIC_ROTATION_DURING_MAINTENANCE"}, false),
-										Description:      `Settings for how the server certificate gets rotated.`,
-										AtLeastOneOf:     ipConfigurationKeys,
-										DiffSuppressFunc: serverCertificateRotationModeDiffSuppress,
 									},
 									"custom_subject_alternative_names": {
 										Type:     schema.TypeSet,
@@ -1880,7 +1871,6 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
 		ServerCaMode:                            _ipConfiguration["server_ca_mode"].(string),
 		ServerCaPool:                            _ipConfiguration["server_ca_pool"].(string),
-		ServerCertificateRotationMode:           _ipConfiguration["server_certificate_rotation_mode"].(string),
 		CustomSubjectAlternativeNames:           tpgresource.ConvertStringArr(_ipConfiguration["custom_subject_alternative_names"].(*schema.Set).List()),
 	}
 }
@@ -2723,15 +2713,6 @@ func databaseVersionDiffSuppress(_, oldVersion, newVersion string, _ *schema.Res
 	return false
 }
 
-func serverCertificateRotationModeDiffSuppress(_, oldMode, newMode string, _ *schema.ResourceData) bool {
-	// If the value is not set in the configuration (new is empty)
-	// and the API returns the default UNSPECIFIED value, suppress the diff.
-	if newMode == "" && oldMode == "SERVER_CERTIFICATE_ROTATION_MODE_UNSPECIFIED" {
-		return true
-	}
-	return false
-}
-
 func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -3106,7 +3087,6 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 		"ssl_mode":                         ipConfiguration.SslMode,
 		"server_ca_mode":                   ipConfiguration.ServerCaMode,
 		"server_ca_pool":                   ipConfiguration.ServerCaPool,
-		"server_certificate_rotation_mode": ipConfiguration.ServerCertificateRotationMode,
 		"custom_subject_alternative_names": ipConfiguration.CustomSubjectAlternativeNames,
 	}
 
