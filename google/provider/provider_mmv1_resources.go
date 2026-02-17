@@ -461,6 +461,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_vmwareengine_subnet":                                 vmwareengine.DataSourceVmwareengineSubnet(),
 	"google_vmwareengine_vcenter_credentials":                    vmwareengine.DataSourceVmwareengineVcenterCredentials(),
 	"google_vmwareengine_datastore":                              vmwareengine.DataSourceVmwareengineDatastore(),
+	"google_vmwareengine_announcements":                          vmwareengine.DataSourceVmwareengineAnnouncements(),
 	"google_compute_region_backend_service":                      compute.DataSourceGoogleComputeRegionBackendService(),
 	"google_network_management_connectivity_test_run":            networkmanagement.DataSourceGoogleNetworkManagementTestRun(),
 	"google_network_management_connectivity_tests":               networkmanagement.DataSourceGoogleNetworkManagementConnectivityTests(),
