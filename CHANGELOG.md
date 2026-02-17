@@ -13,7 +13,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * alloydb: added write-only support for `initial_user.password_wo` to `google_alloydb_cluster` ([#26074](https://github.com/hashicorp/terraform-provider-google/pull/26074))
-* biglakeiceberg: clarified the usage of the `name` field in `google_biglake_iceberg_catalog` resource. ([#26022](https://github.com/hashicorp/terraform-provider-google/pull/26022))
 * ces: added `mcp_toolset` field to `google_ces_toolset` resource ([#26025](https://github.com/hashicorp/terraform-provider-google/pull/26025))
 * compute: added `allow_subnet_cidr_routes_overlap` field to `google_compute_subnetwork` resource ([#26019](https://github.com/hashicorp/terraform-provider-google/pull/26019))
 * compute: added write-only support for `private_key` to `google_compute_region_ssl_certificate` resource ([#26072](https://github.com/hashicorp/terraform-provider-google/pull/26072))
