@@ -37,9 +37,9 @@ func DataSourceGoogleCloudBackupDRService() *schema.Resource {
 
 func flattenBackupDRManagementServerResourceResp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) map[string]interface{} {
 	if v == nil {
-		fmt.Printf("Interface is nil: %s", v)
+		fmt.Printf("Interface is nil: %s\n", v)
 	}
-	fmt.Printf("Interface is : %s", v)
+	fmt.Printf("Interface is : %s\n", v)
 	l := v.([]interface{})
 	for _, raw := range l {
 		// Management server is a singleton resource. It is only present in one location per project. Hence returning only resource present.
