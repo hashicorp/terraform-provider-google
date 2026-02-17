@@ -83,27 +83,23 @@ resource "google_network_security_security_profile" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "default" {
-  provider                      = google-beta
   mirroring_deployment_group_id = "my-dg"
   location                      = "global"
   network                       = google_compute_network.default.id
 }
 
 resource "google_network_security_mirroring_endpoint_group" "default" {
-  provider                      = google-beta
-  mirroring_endpoint_group_id   = "my-eg"
-  location                      = "global"
-  mirroring_deployment_group    = google_network_security_mirroring_deployment_group.default.id
+  mirroring_endpoint_group_id = "my-eg"
+  location                    = "global"
+  mirroring_deployment_group  = google_network_security_mirroring_deployment_group.default.id
 }
 
 resource "google_network_security_security_profile" "default" {
-  provider    = google-beta
   name        = "my-security-profile"
   parent      = "organizations/123456789"
   description = "my description"
@@ -184,20 +180,17 @@ resource "google_network_security_security_profile" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "default" {
-  provider                      = google-beta
   mirroring_deployment_group_id = "my-dg"
   location                      = "global"
   network                       = google_compute_network.default.id
 }
 
 resource "google_network_security_mirroring_endpoint_group" "default" {
-  provider                    = google-beta
   mirroring_endpoint_group_id = "my-eg"
   location                    = "global"
   type                        = "BROKER"
@@ -205,7 +198,6 @@ resource "google_network_security_mirroring_endpoint_group" "default" {
 }
 
 resource "google_network_security_security_profile" "default" {
-  provider    = google-beta
   name        = "my-security-profile"
   parent      = "organizations/123456789"
   description = "my description"
@@ -375,14 +367,14 @@ The following arguments are supported:
   Format: projects/{project_id}/locations/global/mirroringEndpointGroups/{endpoint_group_id}
 
 * `mirroring_deployment_groups` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The target downstream Mirroring Deployment Groups.
   This field is used for Packet Broker mirroring endpoint groups to specify
   the deployment groups that the packet should be mirrored to by the broker.
   Format: projects/{project_id}/locations/global/mirroringDeploymentGroups/{deployment_group_id}
 
 * `mirroring_endpoint_group_type` -
-  (Output, [Beta](../guides/provider_versions.html.markdown))
+  (Output)
   The type of the mirroring endpoint group this profile is attached to.
   Possible values:
   DIRECT

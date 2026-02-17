@@ -1,0 +1,3 @@
+```release-note:note
+networksecurity: promoted broker fields of the `google_network_security_security_profile` resources to GA (ga)
+```

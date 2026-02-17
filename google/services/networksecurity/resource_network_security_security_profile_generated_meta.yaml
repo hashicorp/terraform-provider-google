@@ -7,7 +7,9 @@ api_resource_type_kind: SecurityProfile
 fields:
     - api_field: createTime
     - api_field: customInterceptProfile.interceptEndpointGroup
+    - api_field: customMirroringProfile.mirroringDeploymentGroups
     - api_field: customMirroringProfile.mirroringEndpointGroup
+    - api_field: customMirroringProfile.mirroringEndpointGroupType
     - api_field: description
     - field: effective_labels
       provider_only: true
