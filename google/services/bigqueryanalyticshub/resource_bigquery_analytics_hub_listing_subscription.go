@@ -428,7 +428,7 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 			billingProject = bp
 		}
-		destinationLocation := d.Get("destination_dataset.0.location")
+		destinationLocation := d.Get("location")
 		partToReplace := regexp.MustCompile(`projects\/.*\/locations\/.*\/subscriptions`)
 		url = partToReplace.ReplaceAllString(url, fmt.Sprintf("projects/%s/locations/%s/subscriptions", destinationProject, destinationLocation))
 	}
@@ -557,7 +557,7 @@ func resourceBigqueryAnalyticsHubListingSubscriptionDelete(d *schema.ResourceDat
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 			billingProject = bp
 		}
-		destinationLocation := d.Get("destination_dataset.0.location")
+		destinationLocation := d.Get("location")
 		partToReplace := regexp.MustCompile(`projects\/.*\/locations\/.*\/subscriptions`)
 		url = partToReplace.ReplaceAllString(url, fmt.Sprintf("projects/%s/locations/%s/subscriptions", destinationProject, destinationLocation))
 	}
