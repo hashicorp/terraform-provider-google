@@ -1,0 +1,15 @@
+resource: google_compute_region_backend_bucket
+generation_type: mmv1
+source_file: products/compute/RegionBackendBucket.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: RegionBackendBucket
+fields:
+    - api_field: bucketName
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: loadBalancingScheme
+    - api_field: name
+    - field: region
+      provider_only: true
+    - api_field: selfLink
