@@ -62,6 +62,7 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 						}),
 					testAccCheckGoogleVmwareengineNsxCredentialsMeta("data.google_vmwareengine_nsx_credentials.nsx-ds"),
 					testAccCheckGoogleVmwareengineVcenterCredentialsMeta("data.google_vmwareengine_vcenter_credentials.vcenter-ds"),
+					testAccCheckGoogleVmwareengineAnnouncementsMeta("data.google_vmwareengine_vcenter_credentials.announcements-ds"),
 				),
 			},
 			{
@@ -165,7 +166,9 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 }
 
 func testVmwareenginePrivateCloudCreateConfig(context map[string]interface{}) string {
-	return testVmwareenginePrivateCloudConfig(context, "sample description", "TIME_LIMITED", 1, 0) + testVmwareengineVcenterNSXCredentailsConfig(context)
+	return testVmwareenginePrivateCloudConfig(context, "sample description", "TIME_LIMITED", 1, 0) +
+		testVmwareengineVcenterNSXCredentailsConfig(context) +
+		testVmwareengineAnnouncementsConfig(context)
 }
 
 func testVmwareenginePrivateCloudUpdateNodeConfig(context map[string]interface{}) string {
@@ -332,6 +335,14 @@ data "google_vmwareengine_vcenter_credentials" "vcenter-ds" {
 `, context)
 }
 
+func testVmwareengineAnnouncementsConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_vmwareengine_announcements" "announcements-ds" {
+	parent =  "projects/%{vmwareengine_project}/locations/%{region}-b"
+}
+`, context)
+}
+
 func testVmwareengineSubnetConfig(context map[string]interface{}, ipCidrRange string) string {
 	context["ip_cidr_range"] = ipCidrRange
 	return acctest.Nprintf(`
@@ -382,6 +393,22 @@ func testAccCheckGoogleVmwareengineVcenterCredentialsMeta(n string) resource.Tes
 		_, ok = rs.Primary.Attributes["password"]
 		if !ok {
 			return fmt.Errorf("can't find 'password' attribute in data source: %s", n)
+		}
+		return nil
+	}
+}
+
+func testAccCheckGoogleVmwareengineAnnouncementsMeta(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Can't find announcements data source: %s", n)
+		}
+		if _, ok := rs.Primary.Attributes["parent"]; !ok {
+			return fmt.Errorf("can't find 'parent' attribute in data source: %s", n)
+		}
+		if _, ok := rs.Primary.Attributes["upgrades.#"]; !ok {
+			return fmt.Errorf("can't find 'announcements' attribute in data source: %s", n)
 		}
 		return nil
 	}
