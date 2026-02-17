@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudfunctions2: promoted `direct_vpc_network_interface` and `direct_vpc_egress` fields to GA in the `google_cloudfunctions2_function` resource. Users who directly enabled DirectVPC on the underlying Cloud Run service will see a diff as a result of this update.
+```
