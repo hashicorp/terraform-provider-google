@@ -638,12 +638,10 @@ resource "google_cloud_run_v2_service" "default" {
 
 ```hcl
 resource "google_cloud_run_v2_service" "default" {
-  provider = google-beta
   name     = "cloudrun-iap-service"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
-  launch_stage = "BETA"
   iap_enabled = true
 
   template {
@@ -804,8 +802,8 @@ The following arguments are supported:
   Structure is [documented below](#nested_multi_region_settings).
 
 * `iap_enabled` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
-  Used to enable/disable IAP for the service.
+  (Optional)
+  Used to enable/disable IAP for the cloud-run service.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

@@ -1066,6 +1066,11 @@ For more information, see https://cloud.google.com/run/docs/configuring/custom-a
 				Optional:    true,
 				Description: `User-provided description of the Service. This field currently has a 512-character limit.`,
 			},
+			"iap_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Used to enable/disable IAP for the cloud-run service.`,
+			},
 			"ingress": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -1591,6 +1596,12 @@ func resourceCloudRunV2ServiceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("multi_region_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(multiRegionSettingsProp)) && (ok || !reflect.DeepEqual(v, multiRegionSettingsProp)) {
 		obj["multiRegionSettings"] = multiRegionSettingsProp
 	}
+	iapEnabledProp, err := expandCloudRunV2ServiceIapEnabled(d.Get("iap_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("iap_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(iapEnabledProp)) && (ok || !reflect.DeepEqual(v, iapEnabledProp)) {
+		obj["iapEnabled"] = iapEnabledProp
+	}
 	effectiveLabelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1809,6 +1820,9 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("etag", flattenCloudRunV2ServiceEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("iap_enabled", flattenCloudRunV2ServiceIapEnabled(res["iapEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenCloudRunV2ServiceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -1921,6 +1935,12 @@ func resourceCloudRunV2ServiceUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("multi_region_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, multiRegionSettingsProp)) {
 		obj["multiRegionSettings"] = multiRegionSettingsProp
+	}
+	iapEnabledProp, err := expandCloudRunV2ServiceIapEnabled(d.Get("iap_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("iap_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, iapEnabledProp)) {
+		obj["iapEnabled"] = iapEnabledProp
 	}
 	effectiveLabelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -3863,6 +3883,10 @@ func flattenCloudRunV2ServiceReconciling(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenCloudRunV2ServiceEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceIapEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5984,6 +6008,10 @@ func expandCloudRunV2ServiceMultiRegionSettingsRegions(v interface{}, d tpgresou
 }
 
 func expandCloudRunV2ServiceMultiRegionSettingsMultiRegionId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceIapEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
