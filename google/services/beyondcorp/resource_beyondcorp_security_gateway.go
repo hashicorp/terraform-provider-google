@@ -189,6 +189,15 @@ as a key.`,
 				Description:  `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122. Must be omitted or set to 'global'.`,
 				Default:      "global",
 			},
+			"logging": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings related to Cloud Logging.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{},
+				},
+			},
 			"proxy_protocol_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -412,6 +421,12 @@ func resourceBeyondcorpSecurityGatewayCreate(d *schema.ResourceData, meta interf
 	} else if v, ok := d.GetOkExists("service_discovery"); ok || !reflect.DeepEqual(v, serviceDiscoveryProp) {
 		obj["serviceDiscovery"] = serviceDiscoveryProp
 	}
+	loggingProp, err := expandBeyondcorpSecurityGatewayLogging(d.Get("logging"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("logging"); ok || !reflect.DeepEqual(v, loggingProp) {
+		obj["logging"] = loggingProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{location}}/securityGateways?securityGatewayId={{security_gateway_id}}")
 	if err != nil {
@@ -541,6 +556,9 @@ func resourceBeyondcorpSecurityGatewayRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("service_discovery", flattenBeyondcorpSecurityGatewayServiceDiscovery(res["serviceDiscovery"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityGateway: %s", err)
 	}
+	if err := d.Set("logging", flattenBeyondcorpSecurityGatewayLogging(res["logging"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityGateway: %s", err)
+	}
 
 	return nil
 }
@@ -585,6 +603,12 @@ func resourceBeyondcorpSecurityGatewayUpdate(d *schema.ResourceData, meta interf
 	} else if v, ok := d.GetOkExists("service_discovery"); ok || !reflect.DeepEqual(v, serviceDiscoveryProp) {
 		obj["serviceDiscovery"] = serviceDiscoveryProp
 	}
+	loggingProp, err := expandBeyondcorpSecurityGatewayLogging(d.Get("logging"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("logging"); ok || !reflect.DeepEqual(v, loggingProp) {
+		obj["logging"] = loggingProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{location}}/securityGateways/{{security_gateway_id}}")
 	if err != nil {
@@ -609,6 +633,10 @@ func resourceBeyondcorpSecurityGatewayUpdate(d *schema.ResourceData, meta interf
 
 	if d.HasChange("service_discovery") {
 		updateMask = append(updateMask, "serviceDiscovery")
+	}
+
+	if d.HasChange("logging") {
+		updateMask = append(updateMask, "logging")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -940,6 +968,14 @@ func flattenBeyondcorpSecurityGatewayServiceDiscoveryApiGatewayResourceOverrideP
 	return v
 }
 
+func flattenBeyondcorpSecurityGatewayLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
 func expandBeyondcorpSecurityGatewayHubs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
@@ -1266,4 +1302,22 @@ func expandBeyondcorpSecurityGatewayServiceDiscoveryApiGatewayResourceOverride(v
 
 func expandBeyondcorpSecurityGatewayServiceDiscoveryApiGatewayResourceOverridePath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandBeyondcorpSecurityGatewayLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
