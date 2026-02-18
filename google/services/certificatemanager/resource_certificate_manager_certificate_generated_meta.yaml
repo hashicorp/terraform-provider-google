@@ -31,3 +31,5 @@ fields:
     - api_field: selfManaged.privateKeyPem
     - field: terraform_labels
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

@@ -21,3 +21,5 @@ fields:
     - api_field: sslCa
     - api_field: username
     - api_field: webhookKey
+    - field: deletion_policy
+      provider_only: true

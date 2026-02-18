@@ -72,3 +72,5 @@ fields:
     - api_field: userDefinedFields.name
     - api_field: userDefinedFields.offset
     - api_field: userDefinedFields.size
+    - field: deletion_policy
+      provider_only: true

@@ -133,3 +133,5 @@ fields:
     - field: tool_id
       provider_only: true
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

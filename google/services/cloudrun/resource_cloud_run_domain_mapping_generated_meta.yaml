@@ -35,3 +35,5 @@ fields:
     - api_field: status.resourceRecords.name
     - api_field: status.resourceRecords.rrdata
     - api_field: status.resourceRecords.type
+    - field: deletion_policy
+      provider_only: true

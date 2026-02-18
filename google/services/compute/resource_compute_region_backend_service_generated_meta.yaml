@@ -120,3 +120,5 @@ fields:
     - api_field: tlsSettings.subjectAltNames.dnsName
     - api_field: tlsSettings.subjectAltNames.uniformResourceIdentifier
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

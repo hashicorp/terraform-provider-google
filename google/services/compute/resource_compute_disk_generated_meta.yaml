@@ -66,3 +66,5 @@ fields:
     - api_field: users
     - api_field: zone
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

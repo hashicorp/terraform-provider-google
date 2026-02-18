@@ -30,3 +30,5 @@ fields:
     - api_field: wires.label
     - api_field: wires.wireProperties.bandwidthUnmetered
     - api_field: wires.wireProperties.faultResponse
+    - field: deletion_policy
+      provider_only: true

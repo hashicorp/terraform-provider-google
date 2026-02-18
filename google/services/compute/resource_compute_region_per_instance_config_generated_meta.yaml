@@ -41,3 +41,5 @@ fields:
       provider_only: true
     - field: remove_instance_state_on_destroy
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

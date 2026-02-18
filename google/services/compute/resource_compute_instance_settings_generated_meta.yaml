@@ -9,3 +9,5 @@ fields:
     - api_field: fingerprint
     - api_field: metadata.items
     - api_field: zone
+    - field: deletion_policy
+      provider_only: true

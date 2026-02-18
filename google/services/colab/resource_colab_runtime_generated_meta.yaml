@@ -21,3 +21,5 @@ fields:
     - api_field: notebookRuntimeType
     - api_field: runtimeUser
     - api_field: state
+    - field: deletion_policy
+      provider_only: true

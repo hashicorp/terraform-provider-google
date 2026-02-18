@@ -85,3 +85,5 @@ fields:
     - api_field: supportedCloudProviders
     - api_field: supportedEnforcementModes
     - api_field: supportedTargetResourceTypes
+    - field: deletion_policy
+      provider_only: true

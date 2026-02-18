@@ -50,3 +50,5 @@ fields:
     - api_field: toolsets.toolIds
     - api_field: toolsets.toolset
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

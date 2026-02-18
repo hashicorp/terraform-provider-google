@@ -33,3 +33,5 @@ fields:
     - api_field: supportedEnforcementModes
     - api_field: supportedTargetResourceTypes
     - api_field: type
+    - field: deletion_policy
+      provider_only: true

@@ -13,3 +13,5 @@ fields:
       field: policy_id
     - api_field: shortName
     - api_field: type
+    - field: deletion_policy
+      provider_only: true

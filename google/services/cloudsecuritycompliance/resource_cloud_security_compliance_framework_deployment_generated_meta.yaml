@@ -42,3 +42,5 @@ fields:
     - api_field: targetResourceConfig.targetResourceCreationConfig.projectCreationConfig.projectDisplayName
     - api_field: targetResourceDisplayName
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

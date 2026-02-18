@@ -23,3 +23,5 @@ fields:
     - api_field: name
     - field: org_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

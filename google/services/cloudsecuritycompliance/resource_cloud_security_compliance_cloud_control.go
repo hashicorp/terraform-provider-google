@@ -957,6 +957,19 @@ organizations/{organization}/locations/{location}/cloudControls/{cloud_control_i
 					Type: schema.TypeString,
 				},
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1100,6 +1113,13 @@ func resourceCloudSecurityComplianceCloudControlRead(d *schema.ResourceData, met
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudSecurityComplianceCloudControl %q", d.Id()))
+	}
+
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
 	}
 
 	if err := d.Set("categories", flattenCloudSecurityComplianceCloudControlCategories(res["categories"], d, config)); err != nil {
@@ -1293,6 +1313,13 @@ func resourceCloudSecurityComplianceCloudControlDelete(d *schema.ResourceData, m
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy CloudSecurityComplianceCloudControl without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing CloudControl %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 
 	log.Printf("[DEBUG] Deleting CloudControl %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

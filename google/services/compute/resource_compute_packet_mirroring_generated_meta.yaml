@@ -17,3 +17,5 @@ fields:
     - api_field: network.url
     - api_field: priority
     - api_field: region
+    - field: deletion_policy
+      provider_only: true

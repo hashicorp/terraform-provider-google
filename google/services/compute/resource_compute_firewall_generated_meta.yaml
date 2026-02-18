@@ -29,3 +29,5 @@ fields:
     - api_field: targetServiceAccounts
     - api_field: targetTags
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true
