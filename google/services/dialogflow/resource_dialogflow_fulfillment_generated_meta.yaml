@@ -13,3 +13,5 @@ fields:
     - api_field: genericWebService.uri
     - api_field: genericWebService.username
     - api_field: name
+    - field: deletion_policy
+      provider_only: true

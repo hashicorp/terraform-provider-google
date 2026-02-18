@@ -113,3 +113,5 @@ fields:
     - api_field: triggers.manual
     - api_field: triggers.schedule.recurrencePeriodDuration
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

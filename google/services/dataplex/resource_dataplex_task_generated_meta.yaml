@@ -71,3 +71,5 @@ fields:
     - api_field: triggerSpec.type
     - api_field: uid
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

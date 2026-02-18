@@ -22,3 +22,5 @@ fields:
     - api_field: regex.pattern
     - field: stored_info_type_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

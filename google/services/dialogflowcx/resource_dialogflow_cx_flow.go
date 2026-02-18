@@ -1286,6 +1286,19 @@ The Default Start Flow cannot be deleted; deleting the 'google_dialogflow_cx_flo
 
 ~> Avoid having multiple 'google_dialogflow_cx_flow' resources linked to the same agent with 'is_default_start_flow = true' because they will compete to control a single Default Start Flow resource in GCP.`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1498,6 +1511,11 @@ func resourceDialogflowCXFlowRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 
 	if err := d.Set("name", flattenDialogflowCXFlowName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Flow: %s", err)
@@ -1733,6 +1751,13 @@ func resourceDialogflowCXFlowDelete(d *schema.ResourceData, meta interface{}) er
 	if isDefaultStartFlow || isDefaultWelcomeIntent || isDefaultNegativeIntent {
 		// we can't delete these resources so do nothing
 		log.Printf("[DEBUG] Not deleting default DialogflowCXFlow")
+		return nil
+	}
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DialogflowCXFlow without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Flow %q from Terraform state without deletion", d.Id())
 		return nil
 	}
 

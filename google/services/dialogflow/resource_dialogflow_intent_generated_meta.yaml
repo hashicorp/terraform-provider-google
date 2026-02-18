@@ -20,3 +20,5 @@ fields:
     - api_field: resetContexts
     - api_field: rootFollowupIntentName
     - api_field: webhookState
+    - field: deletion_policy
+      provider_only: true

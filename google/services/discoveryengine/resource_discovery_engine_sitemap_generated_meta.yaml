@@ -14,3 +14,5 @@ fields:
     - field: sitemap_id
       provider_only: true
     - api_field: uri
+    - field: deletion_policy
+      provider_only: true

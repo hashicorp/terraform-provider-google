@@ -29,3 +29,5 @@ fields:
       provider_only: true
     - field: tag_template_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

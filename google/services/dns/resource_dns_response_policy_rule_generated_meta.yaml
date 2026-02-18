@@ -13,3 +13,5 @@ fields:
     - field: response_policy
       provider_only: true
     - api_field: ruleName
+    - field: deletion_policy
+      provider_only: true

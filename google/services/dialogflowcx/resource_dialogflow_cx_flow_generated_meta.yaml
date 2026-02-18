@@ -131,3 +131,5 @@ fields:
       json: true
     - api_field: transitionRoutes.triggerFulfillment.tag
     - api_field: transitionRoutes.triggerFulfillment.webhook
+    - field: deletion_policy
+      provider_only: true

@@ -52,3 +52,5 @@ fields:
     - api_field: serviceDirectory.service
     - api_field: startFlow
     - api_field: timeout
+    - field: deletion_policy
+      provider_only: true

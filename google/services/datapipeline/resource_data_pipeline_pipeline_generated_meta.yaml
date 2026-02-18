@@ -68,3 +68,5 @@ fields:
     - api_field: workload.dataflowLaunchTemplateRequest.location
     - api_field: workload.dataflowLaunchTemplateRequest.projectId
     - api_field: workload.dataflowLaunchTemplateRequest.validateOnly
+    - field: deletion_policy
+      provider_only: true

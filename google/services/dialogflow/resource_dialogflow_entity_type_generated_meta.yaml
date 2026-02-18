@@ -11,3 +11,5 @@ fields:
     - api_field: entities.value
     - api_field: kind
     - api_field: name
+    - field: deletion_policy
+      provider_only: true

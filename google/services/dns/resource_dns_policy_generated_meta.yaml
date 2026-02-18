@@ -13,3 +13,5 @@ fields:
     - api_field: enableLogging
     - api_field: name
     - api_field: networks.networkUrl
+    - field: deletion_policy
+      provider_only: true

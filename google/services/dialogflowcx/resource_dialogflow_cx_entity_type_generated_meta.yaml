@@ -18,3 +18,5 @@ fields:
     - field: parent
       provider_only: true
     - api_field: redact
+    - field: deletion_policy
+      provider_only: true

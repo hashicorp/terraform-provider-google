@@ -41,3 +41,5 @@ fields:
     - api_field: solutionType
     - api_field: synonymsAction.synonyms
     - api_field: useCases
+    - field: deletion_policy
+      provider_only: true

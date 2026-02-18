@@ -50,3 +50,5 @@ fields:
     - api_field: propertyDefinitions.schemaSources.processorType
     - api_field: propertyDefinitions.textTypeOptions
     - api_field: propertyDefinitions.timestampTypeOptions
+    - field: deletion_policy
+      provider_only: true

@@ -186,6 +186,19 @@ The score values range from 0.0 (completely uncertain) to 1.0 (completely certai
 * SUCCEEDED: Training has succeeded and this version is ready to serve.
 * FAILED: Version training failed.`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -348,6 +361,13 @@ func resourceDialogflowCXVersionRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXVersion %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
+
 	if err := d.Set("name", flattenDialogflowCXVersionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Version: %s", err)
 	}
@@ -506,6 +526,13 @@ func resourceDialogflowCXVersionDelete(d *schema.ResourceData, meta interface{})
 		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
 		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
 		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+	}
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DialogflowCXVersion without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Version %q from Terraform state without deletion", d.Id())
+		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting Version %q", d.Id())

@@ -612,6 +612,12 @@ The following arguments are supported:
   Flow.transition_routes.trigger_fulfillment.conditional_cases
   If not specified, the agent's default language is used. Many languages are supported. Note: languages must be enabled in the agent before they can be used.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 * `is_default_start_flow` - (Optional) Marks this as the [Default Start Flow](https://cloud.google.com/dialogflow/cx/docs/concept/flow#start) for an agent. When you create an agent, the Default Start Flow is created automatically.
 The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flow` resource does nothing to the underlying GCP resources.
 

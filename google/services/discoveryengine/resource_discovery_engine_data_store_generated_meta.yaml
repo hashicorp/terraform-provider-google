@@ -54,3 +54,5 @@ fields:
     - field: skip_default_schema_creation
       provider_only: true
     - api_field: solutionTypes
+    - field: deletion_policy
+      provider_only: true

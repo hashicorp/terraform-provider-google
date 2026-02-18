@@ -23,3 +23,5 @@ fields:
     - api_field: mediaRecommendationEngineConfig.type
     - api_field: name
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

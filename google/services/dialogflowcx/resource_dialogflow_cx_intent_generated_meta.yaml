@@ -30,3 +30,5 @@ fields:
     - api_field: trainingPhrases.parts.parameterId
     - api_field: trainingPhrases.parts.text
     - api_field: trainingPhrases.repeatCount
+    - field: deletion_policy
+      provider_only: true

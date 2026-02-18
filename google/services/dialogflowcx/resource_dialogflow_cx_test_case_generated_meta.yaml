@@ -57,3 +57,5 @@ fields:
     - api_field: testConfig.flow
     - api_field: testConfig.page
     - api_field: testConfig.trackingParameters
+    - field: deletion_policy
+      provider_only: true
