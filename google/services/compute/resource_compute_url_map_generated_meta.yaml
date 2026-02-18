@@ -444,3 +444,5 @@ fields:
     - api_field: tests.service
       field: test.service
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

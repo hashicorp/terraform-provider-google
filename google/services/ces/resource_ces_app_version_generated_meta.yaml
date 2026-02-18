@@ -339,3 +339,5 @@ fields:
     - api_field: snapshot.toolsets.openApiToolset.tlsConfig.caCerts.displayName
     - api_field: snapshot.toolsets.openApiToolset.url
     - api_field: snapshot.toolsets.updateTime
+    - field: deletion_policy
+      provider_only: true

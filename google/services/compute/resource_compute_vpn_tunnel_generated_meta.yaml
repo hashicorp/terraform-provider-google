@@ -43,3 +43,5 @@ fields:
     - api_field: vpnGateway
     - api_field: vpnGatewayInterface
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

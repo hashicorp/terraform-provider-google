@@ -204,3 +204,5 @@ fields:
       field: traffic.tag
     - api_field: spec.traffic.url
       field: traffic.url
+    - field: deletion_policy
+      provider_only: true

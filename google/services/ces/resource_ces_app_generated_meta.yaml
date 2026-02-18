@@ -89,3 +89,5 @@ fields:
     - api_field: variableDeclarations.schema.title
     - api_field: variableDeclarations.schema.type
     - api_field: variableDeclarations.schema.uniqueItems
+    - field: deletion_policy
+      provider_only: true

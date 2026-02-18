@@ -15,3 +15,5 @@ fields:
     - api_field: subjectAlternativeNames
     - api_field: type
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

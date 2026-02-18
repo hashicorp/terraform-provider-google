@@ -13,3 +13,5 @@ fields:
     - api_field: urlMap
     - api_field: validateForProxyless
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

@@ -17,3 +17,5 @@ fields:
     - api_field: ruleTupleCount
     - api_field: selfLink
     - api_field: selfLinkWithId
+    - field: deletion_policy
+      provider_only: true

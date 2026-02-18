@@ -37,3 +37,5 @@ fields:
     - api_field: schedule
     - api_field: state
     - api_field: timeZone
+    - field: deletion_policy
+      provider_only: true

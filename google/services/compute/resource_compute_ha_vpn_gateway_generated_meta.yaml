@@ -21,3 +21,5 @@ fields:
     - api_field: vpnInterfaces.interconnectAttachment
     - api_field: vpnInterfaces.ipAddress
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

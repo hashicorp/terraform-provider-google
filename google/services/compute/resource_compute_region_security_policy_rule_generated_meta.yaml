@@ -83,3 +83,5 @@ fields:
       provider_only: true
     - field: security_policy
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

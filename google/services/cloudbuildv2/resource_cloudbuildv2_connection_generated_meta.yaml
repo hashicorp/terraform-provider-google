@@ -55,3 +55,5 @@ fields:
       provider_only: true
     - api_field: reconciling
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

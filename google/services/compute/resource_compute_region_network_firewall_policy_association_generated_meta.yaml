@@ -15,3 +15,5 @@ fields:
       provider_only: true
     - api_field: associations.shortName
       field: short_name
+    - field: deletion_policy
+      provider_only: true

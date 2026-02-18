@@ -73,3 +73,5 @@ fields:
       field: type
     - api_field: nats.udpIdleTimeoutSec
       field: udp_idle_timeout_sec
+    - field: deletion_policy
+      provider_only: true

@@ -21,3 +21,5 @@ fields:
       provider_only: true
     - api_field: feedOutputConfig.pubsubDestination.topic
     - api_field: name
+    - field: deletion_policy
+      provider_only: true

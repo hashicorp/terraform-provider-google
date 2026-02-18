@@ -10,3 +10,5 @@ fields:
     - api_field: name
     - api_field: networkEndpointType
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

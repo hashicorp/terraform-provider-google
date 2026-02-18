@@ -163,3 +163,5 @@ fields:
     - api_field: triggerTemplate.tagName
     - api_field: webhookConfig.secret
     - api_field: webhookConfig.state
+    - field: deletion_policy
+      provider_only: true

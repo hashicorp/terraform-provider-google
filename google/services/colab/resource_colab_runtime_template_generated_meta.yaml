@@ -33,3 +33,5 @@ fields:
     - api_field: softwareConfig.postStartupScriptConfig.postStartupScriptUrl
     - field: terraform_labels
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

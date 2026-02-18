@@ -17,3 +17,5 @@ fields:
     - api_field: sslCertificates
     - api_field: sslPolicy
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

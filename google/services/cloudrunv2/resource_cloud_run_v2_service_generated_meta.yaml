@@ -162,3 +162,5 @@ fields:
     - api_field: updateTime
     - api_field: uri
     - api_field: urls
+    - field: deletion_policy
+      provider_only: true

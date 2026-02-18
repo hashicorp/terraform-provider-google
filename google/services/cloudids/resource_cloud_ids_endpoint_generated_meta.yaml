@@ -16,3 +16,5 @@ fields:
     - api_field: severity
     - api_field: threatExceptions
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

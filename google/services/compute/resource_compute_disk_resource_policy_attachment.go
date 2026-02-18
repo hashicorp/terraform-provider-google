@@ -100,6 +100,7 @@ func ResourceComputeDiskResourcePolicyAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeDiskResourcePolicyAttachmentCreate,
 		Read:   resourceComputeDiskResourcePolicyAttachmentRead,
+		Update: resourceComputeDiskResourcePolicyAttachmentUpdate,
 		Delete: resourceComputeDiskResourcePolicyAttachmentDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -144,6 +145,18 @@ creation. Do not specify the self link.`,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
 			},
 		},
 		UseJSONNumber: true,
@@ -288,6 +301,12 @@ func resourceComputeDiskResourcePolicyAttachmentRead(d *schema.ResourceData, met
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading DiskResourcePolicyAttachment: %s", err)
 	}
@@ -305,6 +324,11 @@ func resourceComputeDiskResourcePolicyAttachmentRead(d *schema.ResourceData, met
 	}
 
 	return nil
+}
+
+func resourceComputeDiskResourcePolicyAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceComputeDiskResourcePolicyAttachmentRead(d, meta)
 }
 
 func resourceComputeDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
@@ -359,6 +383,13 @@ func resourceComputeDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, m
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(name)) && (ok || !reflect.DeepEqual(v, name)) {
 		obj["resourcePolicies"] = []interface{}{fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", project, region, name)}
+	}
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy ComputeDiskResourcePolicyAttachment without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing DiskResourcePolicyAttachment %q from Terraform state without deletion", d.Id())
+		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting DiskResourcePolicyAttachment %q", d.Id())

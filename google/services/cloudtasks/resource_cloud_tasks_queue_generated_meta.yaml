@@ -37,3 +37,5 @@ fields:
     - api_field: retryConfig.minBackoff
     - api_field: stackdriverLoggingConfig.samplingRatio
     - api_field: state
+    - field: deletion_policy
+      provider_only: true

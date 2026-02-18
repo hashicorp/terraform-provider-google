@@ -20,3 +20,5 @@ fields:
     - api_field: trustStores.intermediateCas.pemCertificate
     - api_field: trustStores.trustAnchors.pemCertificate
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

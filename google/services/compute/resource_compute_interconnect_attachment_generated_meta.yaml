@@ -52,3 +52,5 @@ fields:
     - api_field: type
     - api_field: vlanTag8021q
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

@@ -25,3 +25,5 @@ fields:
     - api_field: physicalStructure.metros.facilities.zones.interconnects
     - api_field: physicalStructure.metros.facilities.zones.zone
     - api_field: physicalStructure.metros.metro
+    - field: deletion_policy
+      provider_only: true

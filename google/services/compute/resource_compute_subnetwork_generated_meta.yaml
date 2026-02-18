@@ -42,3 +42,5 @@ fields:
     - api_field: id
       field: subnetwork_id
     - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

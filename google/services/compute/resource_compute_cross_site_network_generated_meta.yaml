@@ -7,3 +7,5 @@ api_resource_type_kind: CrossSiteNetwork
 fields:
     - api_field: description
     - api_field: name
+    - field: deletion_policy
+      provider_only: true

@@ -195,6 +195,19 @@ and must be in the form of 'identitysources/{identity_source_id}'.`,
 				Description: `If set to true, skip group member creation if a membership with the same name already exists. Defaults to false.`,
 				Default:     false,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -426,6 +439,11 @@ func resourceCloudIdentityGroupMembershipRead(d *schema.ResourceData, meta inter
 			return fmt.Errorf("Error setting create_ignore_already_exists: %s", err)
 		}
 	}
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 
 	if err := d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GroupMembership: %s", err)
@@ -600,6 +618,13 @@ func resourceCloudIdentityGroupMembershipDelete(d *schema.ResourceData, meta int
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy CloudIdentityGroupMembership without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing GroupMembership %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 
 	log.Printf("[DEBUG] Deleting GroupMembership %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
