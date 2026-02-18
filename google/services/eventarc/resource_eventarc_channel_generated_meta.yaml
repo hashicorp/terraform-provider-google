@@ -22,3 +22,5 @@ fields:
       field: third_party_provider
     - api_field: uid
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

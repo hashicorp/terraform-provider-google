@@ -25,3 +25,5 @@ fields:
     - api_field: tags
     - field: terraform_labels
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

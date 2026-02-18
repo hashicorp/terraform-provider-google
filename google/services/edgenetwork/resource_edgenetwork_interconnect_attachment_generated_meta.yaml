@@ -24,3 +24,5 @@ fields:
     - api_field: vlanId
     - field: zone
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

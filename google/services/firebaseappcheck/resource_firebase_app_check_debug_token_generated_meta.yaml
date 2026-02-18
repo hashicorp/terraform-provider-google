@@ -11,3 +11,5 @@ fields:
       field: debug_token_id
     - api_field: displayName
     - api_field: token
+    - field: deletion_policy
+      provider_only: true

@@ -50,3 +50,5 @@ fields:
     - api_field: serve.redirect.uri
     - api_field: uid
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

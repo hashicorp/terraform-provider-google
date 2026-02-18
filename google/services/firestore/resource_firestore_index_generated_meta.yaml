@@ -20,3 +20,5 @@ fields:
     - field: skip_wait
       provider_only: true
     - api_field: unique
+    - field: deletion_policy
+      provider_only: true
