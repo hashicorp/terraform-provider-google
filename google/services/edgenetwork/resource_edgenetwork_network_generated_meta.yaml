@@ -21,3 +21,5 @@ fields:
     - api_field: updateTime
     - field: zone
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

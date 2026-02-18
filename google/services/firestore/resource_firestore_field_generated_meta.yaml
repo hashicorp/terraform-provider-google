@@ -16,3 +16,5 @@ fields:
     - api_field: indexConfig.indexes.queryScope
     - api_field: name
     - api_field: ttlConfig.state
+    - field: deletion_policy
+      provider_only: true

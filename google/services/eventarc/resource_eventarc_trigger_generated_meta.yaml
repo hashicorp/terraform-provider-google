@@ -45,3 +45,5 @@ fields:
     - api_field: transport.pubsub.topic
     - api_field: uid
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

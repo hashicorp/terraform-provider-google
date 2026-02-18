@@ -26,3 +26,5 @@ fields:
     - api_field: updateTime
     - api_field: vpc
     - api_field: vpcProject.projectId
+    - field: deletion_policy
+      provider_only: true
