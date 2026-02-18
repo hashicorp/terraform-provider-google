@@ -85,6 +85,42 @@ resource "google_beyondcorp_security_gateway" "example" {
 `, context)
 }
 
+func TestAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayLoggingExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBeyondcorpSecurityGatewayDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayLoggingExample(context),
+			},
+			{
+				ResourceName:            "google_beyondcorp_security_gateway.example-logging",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "security_gateway_id"},
+			},
+		},
+	})
+}
+
+func testAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayLoggingExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_beyondcorp_security_gateway" "example-logging" {
+  security_gateway_id = "tf-test-default-logging%{random_suffix}"
+  display_name = "My Security Gateway resource with logging enabled"
+  hubs { region = "us-central1" }
+  logging {}
+}
+`, context)
+}
+
 func TestAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewaySpaExample(t *testing.T) {
 	t.Parallel()
 
