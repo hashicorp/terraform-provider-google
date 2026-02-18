@@ -36,3 +36,5 @@ fields:
       provider_only: true
     - api_field: type
     - api_field: vpcPeeringConnectivity.vpc
+    - field: deletion_policy
+      provider_only: true

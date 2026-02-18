@@ -25,3 +25,5 @@ fields:
     - api_field: workerConfig.maxInstances
     - api_field: workerConfig.minInstances
     - api_field: workerConfig.weight
+    - field: deletion_policy
+      provider_only: true

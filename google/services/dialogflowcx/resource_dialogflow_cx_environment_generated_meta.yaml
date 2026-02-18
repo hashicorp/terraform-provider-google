@@ -12,3 +12,5 @@ fields:
       provider_only: true
     - api_field: updateTime
     - api_field: versionConfigs.version
+    - field: deletion_policy
+      provider_only: true

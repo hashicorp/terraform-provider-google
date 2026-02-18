@@ -11,3 +11,5 @@ fields:
       provider_only: true
     - api_field: status
     - api_field: versionNumber
+    - field: deletion_policy
+      provider_only: true

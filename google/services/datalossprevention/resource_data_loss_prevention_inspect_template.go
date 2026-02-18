@@ -804,6 +804,19 @@ that is, it must match the regular expression: [a-zA-Z\d-_]+. The maximum length
 				Computed:    true,
 				Description: `The resource name of the inspect template. Set by the server.`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -929,6 +942,13 @@ func resourceDataLossPreventionInspectTemplateRead(d *schema.ResourceData, meta 
 		log.Printf("[DEBUG] Removing DataLossPreventionInspectTemplate because it no longer exists.")
 		d.SetId("")
 		return nil
+	}
+
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
 	}
 
 	if err := d.Set("name", flattenDataLossPreventionInspectTemplateName(res["name"], d, config)); err != nil {
@@ -1059,6 +1079,13 @@ func resourceDataLossPreventionInspectTemplateDelete(d *schema.ResourceData, met
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DataLossPreventionInspectTemplate without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing InspectTemplate %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 
 	log.Printf("[DEBUG] Deleting InspectTemplate %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

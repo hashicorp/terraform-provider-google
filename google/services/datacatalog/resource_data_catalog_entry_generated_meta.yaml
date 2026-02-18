@@ -28,3 +28,5 @@ fields:
     - api_field: type
     - api_field: userSpecifiedSystem
     - api_field: userSpecifiedType
+    - field: deletion_policy
+      provider_only: true

@@ -23,3 +23,5 @@ fields:
     - api_field: referencedTools
     - api_field: tokenCount
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

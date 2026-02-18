@@ -51,3 +51,5 @@ fields:
     - api_field: textToSpeechSettings.synthesizeSpeechConfigs
       json: true
     - api_field: timeZone
+    - field: deletion_policy
+      provider_only: true

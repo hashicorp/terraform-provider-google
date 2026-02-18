@@ -228,6 +228,19 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.`,
 				Description: `The unique identifier of the Generator.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/generators/<Generator ID>.`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -392,6 +405,13 @@ func resourceDialogflowCXGeneratorRead(d *schema.ResourceData, meta interface{})
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXGenerator %q", d.Id()))
+	}
+
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
 	}
 
 	if err := d.Set("name", flattenDialogflowCXGeneratorName(res["name"], d, config)); err != nil {
@@ -583,6 +603,13 @@ func resourceDialogflowCXGeneratorDelete(d *schema.ResourceData, meta interface{
 	if isDefaultStartFlow || isDefaultWelcomeIntent || isDefaultNegativeIntent {
 		// we can't delete these resources so do nothing
 		log.Printf("[DEBUG] Not deleting default DialogflowCXGenerator")
+		return nil
+	}
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DialogflowCXGenerator without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Generator %q from Terraform state without deletion", d.Id())
 		return nil
 	}
 

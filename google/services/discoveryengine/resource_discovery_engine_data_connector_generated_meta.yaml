@@ -43,3 +43,5 @@ fields:
     - api_field: staticIpEnabled
     - api_field: syncMode
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

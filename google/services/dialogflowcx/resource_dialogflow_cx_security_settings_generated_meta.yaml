@@ -21,3 +21,5 @@ fields:
     - api_field: redactionStrategy
     - api_field: retentionStrategy
     - api_field: retentionWindowDays
+    - field: deletion_policy
+      provider_only: true

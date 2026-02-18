@@ -361,6 +361,18 @@ func ResourceDialogflowGenerator() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -543,6 +555,12 @@ func resourceDialogflowGeneratorRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowGenerator %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Generator: %s", err)
 	}
@@ -744,6 +762,13 @@ func resourceDialogflowGeneratorDelete(d *schema.ResourceData, meta interface{})
 		if location != "" && location != "global" {
 			url = strings.Replace(url, "https://dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
 		}
+	}
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DialogflowGenerator without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Generator %q from Terraform state without deletion", d.Id())
+		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting Generator %q", d.Id())

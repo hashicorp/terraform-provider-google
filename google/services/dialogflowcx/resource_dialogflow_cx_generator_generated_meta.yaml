@@ -20,3 +20,5 @@ fields:
     - api_field: placeholders.id
     - api_field: placeholders.name
     - api_field: promptText.text
+    - field: deletion_policy
+      provider_only: true

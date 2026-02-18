@@ -31,3 +31,5 @@ fields:
     - api_field: summarizationContext.summarizationSections.type
     - api_field: summarizationContext.version
     - api_field: triggerEvent
+    - field: deletion_policy
+      provider_only: true

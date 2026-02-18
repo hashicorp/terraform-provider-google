@@ -97,3 +97,5 @@ fields:
     - api_field: targets.otherCloudTarget.generationCadence.refreshFrequency
     - api_field: targets.secretsTarget
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

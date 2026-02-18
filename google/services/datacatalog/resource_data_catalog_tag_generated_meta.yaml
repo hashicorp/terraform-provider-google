@@ -26,3 +26,5 @@ fields:
     - api_field: template
     - api_field: templateDisplayName
       field: template_displayname
+    - field: deletion_policy
+      provider_only: true

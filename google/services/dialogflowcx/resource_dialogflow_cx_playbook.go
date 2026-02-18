@@ -244,6 +244,19 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/playbook
 
 Uses RFC 3339, where generated output will always be Z-normalized and uses 0, 3, 6 or 9 fractional digits. Offsets other than "Z" are also accepted. Examples: "2014-10-02T15:01:23Z", "2014-10-02T15:01:23.045123456Z" or "2014-10-02T15:01:23+05:30".`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -410,6 +423,13 @@ func resourceDialogflowCXPlaybookRead(d *schema.ResourceData, meta interface{}) 
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXPlaybook %q", d.Id()))
+	}
+
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
 	}
 
 	if err := d.Set("name", flattenDialogflowCXPlaybookName(res["name"], d, config)); err != nil {
@@ -646,6 +666,13 @@ func resourceDialogflowCXPlaybookDelete(d *schema.ResourceData, meta interface{}
 		strings.HasPrefix(url, "https://-dialogflow.googleapis.com/v3beta1/") ||
 		strings.HasPrefix(url, "https://-dialogflow."+config.UniverseDomain+"/v3beta1/") {
 		url = strings.Replace(url, "https://-dialogflow", fmt.Sprintf("https://%s-dialogflow", location), 1)
+	}
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy DialogflowCXPlaybook without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Playbook %q from Terraform state without deletion", d.Id())
+		return nil
 	}
 
 	log.Printf("[DEBUG] Deleting Playbook %q", d.Id())

@@ -12,3 +12,5 @@ fields:
     - api_field: name
     - field: region
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

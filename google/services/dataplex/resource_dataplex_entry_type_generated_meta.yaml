@@ -24,3 +24,5 @@ fields:
     - api_field: typeAliases
     - api_field: uid
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

@@ -22,3 +22,5 @@ fields:
     - api_field: target.config.content
     - api_field: target.imports.content
     - api_field: target.imports.name
+    - field: deletion_policy
+      provider_only: true

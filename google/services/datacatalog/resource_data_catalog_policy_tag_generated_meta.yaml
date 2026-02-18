@@ -12,3 +12,5 @@ fields:
     - api_field: parentPolicyTag
     - field: taxonomy
       provider_only: true
+    - field: deletion_policy
+      provider_only: true
