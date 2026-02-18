@@ -687,6 +687,55 @@ resource "google_cloud_run_service" "default" {
 `, context)
 }
 
+func TestAccCloudRunService_cloudRunServiceIapExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_cloudRunServiceIapExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_cloudRunServiceIapExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  location = "us-central1"
+
+  metadata {
+    annotations = {
+      "run.googleapis.com/iap-enabled": true
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckCloudRunServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

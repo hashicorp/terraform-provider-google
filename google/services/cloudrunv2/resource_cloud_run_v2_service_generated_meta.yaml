@@ -43,6 +43,7 @@ fields:
     - api_field: etag
     - api_field: expireTime
     - api_field: generation
+    - api_field: iapEnabled
     - api_field: ingress
     - api_field: invokerIamDisabled
     - api_field: labels
