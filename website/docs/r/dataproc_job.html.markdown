@@ -129,6 +129,8 @@ output "pyspark_status" {
 
 * `scheduling.max_failures_total` - (Required) Maximum number of times in total a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed.
 
+* `wait_for_completion` - (Optional) If set to true, Terraform will wait for the job to reach a terminal state (`DONE`, `ERROR`, `CANCELLED`, `ATTEMPT_FAILURE`). Otherwise, Terraform will consider the job 'created' once it is in the `RUNNING` state.
+
 <a name="nested_pyspark_config"></a>The `pyspark_config` block supports:
 
 Submitting a pyspark job to the cluster. Below is an example configuration:

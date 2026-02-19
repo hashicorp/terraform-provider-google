@@ -50,9 +50,6 @@ func TestAccDataprocMetastoreDatabaseIamBindingGenerated(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"time": {},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreDatabaseIamBinding_basicGenerated(context),
@@ -88,9 +85,6 @@ func TestAccDataprocMetastoreDatabaseIamMemberGenerated(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"time": {},
-		},
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -117,9 +111,6 @@ func TestAccDataprocMetastoreDatabaseIamPolicyGenerated(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"time": {},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreDatabaseIamPolicy_basicGenerated(context),
@@ -189,6 +180,7 @@ resource "google_dataproc_cluster" "dp_cluster" {
 
 resource "google_dataproc_job" "hive" {
   region = google_dataproc_cluster.dp_cluster.region
+  wait_for_completion = true
 
   force_delete = true
   placement {
@@ -204,13 +196,6 @@ resource "google_dataproc_job" "hive" {
       "CREATE DATABASE testdb",
     ]
   }
-}
-
-# There is no simple way to wait on the Dataproc job to be SUCCESS
-# rather than RUNNING.
-resource "time_sleep" "wait_hive_job" {
-  create_duration = "90s"
-  depends_on      = [google_dataproc_job.hive]
 }
 
 resource "google_dataproc_metastore_database_iam_member" "foo" {
@@ -269,6 +254,7 @@ resource "google_dataproc_cluster" "dp_cluster" {
 
 resource "google_dataproc_job" "hive" {
   region = google_dataproc_cluster.dp_cluster.region
+  wait_for_completion = true
 
   force_delete = true
   placement {
@@ -284,13 +270,6 @@ resource "google_dataproc_job" "hive" {
       "CREATE DATABASE testdb",
     ]
   }
-}
-
-# There is no simple way to wait on the Dataproc job to be SUCCESS
-# rather than RUNNING.
-resource "time_sleep" "wait_hive_job" {
-  create_duration = "90s"
-  depends_on      = [google_dataproc_job.hive]
 }
 
 data "google_iam_policy" "foo" {
@@ -365,6 +344,7 @@ resource "google_dataproc_cluster" "dp_cluster" {
 
 resource "google_dataproc_job" "hive" {
   region = google_dataproc_cluster.dp_cluster.region
+  wait_for_completion = true
 
   force_delete = true
   placement {
@@ -380,13 +360,6 @@ resource "google_dataproc_job" "hive" {
       "CREATE DATABASE testdb",
     ]
   }
-}
-
-# There is no simple way to wait on the Dataproc job to be SUCCESS
-# rather than RUNNING.
-resource "time_sleep" "wait_hive_job" {
-  create_duration = "90s"
-  depends_on      = [google_dataproc_job.hive]
 }
 
 data "google_iam_policy" "foo" {
@@ -447,6 +420,7 @@ resource "google_dataproc_cluster" "dp_cluster" {
 
 resource "google_dataproc_job" "hive" {
   region = google_dataproc_cluster.dp_cluster.region
+  wait_for_completion = true
 
   force_delete = true
   placement {
@@ -462,13 +436,6 @@ resource "google_dataproc_job" "hive" {
       "CREATE DATABASE testdb",
     ]
   }
-}
-
-# There is no simple way to wait on the Dataproc job to be SUCCESS
-# rather than RUNNING.
-resource "time_sleep" "wait_hive_job" {
-  create_duration = "90s"
-  depends_on      = [google_dataproc_job.hive]
 }
 
 resource "google_dataproc_metastore_database_iam_binding" "foo" {
@@ -527,6 +494,7 @@ resource "google_dataproc_cluster" "dp_cluster" {
 
 resource "google_dataproc_job" "hive" {
   region = google_dataproc_cluster.dp_cluster.region
+  wait_for_completion = true
 
   force_delete = true
   placement {
@@ -542,13 +510,6 @@ resource "google_dataproc_job" "hive" {
       "CREATE DATABASE testdb",
     ]
   }
-}
-
-# There is no simple way to wait on the Dataproc job to be SUCCESS
-# rather than RUNNING.
-resource "time_sleep" "wait_hive_job" {
-  create_duration = "90s"
-  depends_on      = [google_dataproc_job.hive]
 }
 
 resource "google_dataproc_metastore_database_iam_binding" "foo" {
