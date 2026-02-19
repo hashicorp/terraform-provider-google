@@ -1285,6 +1285,23 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
         }
     }
 }
+resource "google_project_iam_member" "tag_role" {
+    project = "%{project}"
+    role    = "roles/resourcemanager.tagViewer"
+    member = "serviceAccount:service-${data.google_project.project.number}@dlp-api.iam.gserviceaccount.com"
+}
+data "google_project" "project" {
+    project_id = "%{project}"
+}
+resource "google_tags_tag_key" "tag_key" {
+    parent = "projects/${data.google_project.project.number}"
+    short_name = "tf_test_environment%{random_suffix}"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+    parent = "tagKeys/${google_tags_tag_key.tag_key.name}"
+    short_name = "tf_test_prod%{random_suffix}"
+}
 resource "google_data_loss_prevention_discovery_config" "basic" {
     parent = "projects/%{project}/locations/%{location}"
     location = "%{location}"
@@ -1299,6 +1316,11 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
                                 project_id_regex = "foo-project"
                                 bucket_name_regex = "bucket"
                             }
+                        }
+                    }
+                    include_tags {
+                        tag_filters {
+                            namespaced_tag_key = "%{project}/tf_test_environment%{random_suffix}"
                         }
                     }
                 }
@@ -1331,6 +1353,11 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
                             }
                         }
                     }
+                    include_tags {
+                        tag_filters {
+                            namespaced_tag_value = "%{project}/tf_test_environment%{random_suffix}/tf_test_prod%{random_suffix}"
+                        }
+                    }
                 }
             }
             disabled {}
@@ -1350,6 +1377,11 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
         }
     }
     inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
+    depends_on = [
+        google_project_iam_member.tag_role,
+        google_tags_tag_key.tag_key,
+        google_tags_tag_value.tag_value,
+	]
 }
 `, context)
 }

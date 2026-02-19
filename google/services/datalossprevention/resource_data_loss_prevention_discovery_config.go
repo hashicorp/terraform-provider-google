@@ -932,6 +932,44 @@ func ResourceDataLossPreventionDiscoveryConfig() *schema.Resource {
 																	},
 																},
 															},
+															"include_tags": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `For a resource to match the tag filters, the resource must have all of the
+provided tags attached. Tags refer to Resource Manager tags bound to the
+resource or its ancestors.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"tag_filters": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `A resource must match ALL of the specified tag filters to be included in the collection.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"namespaced_tag_key": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The namespaced name for the tag key. Must be in the format
+'{parent_id}/{tag_key_short_name}', for example, "123456/sensitive" for
+an organization parent, or "my-project/sensitive" for a project parent.`,
+																						ConflictsWith: []string{},
+																					},
+																					"namespaced_tag_value": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Description: `The namespaced name for the tag value. Must be in the format
+'{parent_id}/{tag_key_short_name}/{short_name}', for example,
+"123456/environment/prod" for an organization parent, or
+"my-project/environment/prod" for a project parent.`,
+																						ConflictsWith: []string{},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
 														},
 													},
 												},
@@ -2674,6 +2712,8 @@ func flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterColl
 	transformed := make(map[string]interface{})
 	transformed["include_regexes"] =
 		flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeRegexes(original["includeRegexes"], d, config)
+	transformed["include_tags"] =
+		flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTags(original["includeTags"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeRegexes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2727,6 +2767,46 @@ func flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterColl
 }
 
 func flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeRegexesPatternsCloudStorageRegexBucketNameRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["tag_filters"] =
+		flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFilters(original["tagFilters"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"namespaced_tag_value": flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFiltersNamespacedTagValue(original["namespacedTagValue"], d, config),
+			"namespaced_tag_key":   flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFiltersNamespacedTagKey(original["namespacedTagKey"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFiltersNamespacedTagValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFiltersNamespacedTagKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4847,6 +4927,13 @@ func expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterColle
 		transformed["includeRegexes"] = transformedIncludeRegexes
 	}
 
+	transformedIncludeTags, err := expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTags(original["include_tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIncludeTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["includeTags"] = transformedIncludeTags
+	}
+
 	return transformed, nil
 }
 
@@ -4931,6 +5018,68 @@ func expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterColle
 }
 
 func expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeRegexesPatternsCloudStorageRegexBucketNameRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTagFilters, err := expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFilters(original["tag_filters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTagFilters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tagFilters"] = transformedTagFilters
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedNamespacedTagValue, err := expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFiltersNamespacedTagValue(original["namespaced_tag_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNamespacedTagValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["namespacedTagValue"] = transformedNamespacedTagValue
+		}
+
+		transformedNamespacedTagKey, err := expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFiltersNamespacedTagKey(original["namespaced_tag_key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNamespacedTagKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["namespacedTagKey"] = transformedNamespacedTagKey
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFiltersNamespacedTagValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigTargetsCloudStorageTargetFilterCollectionIncludeTagsTagFiltersNamespacedTagKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
