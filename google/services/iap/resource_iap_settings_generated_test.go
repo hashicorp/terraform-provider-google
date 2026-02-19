@@ -69,7 +69,7 @@ func TestAccIapSettings_iapSettingsBasicExample(t *testing.T) {
 				ResourceName:            "google_iap_settings.iap_settings",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"access_settings.0.workforce_identity_settings.0.oauth2.0.client_secret", "name"},
+				ImportStateVerifyIgnore: []string{"access_settings.0.oauth_settings.0.client_secret", "access_settings.0.workforce_identity_settings.0.oauth2.0.client_secret", "name"},
 			},
 		},
 	})
@@ -142,6 +142,66 @@ resource "google_iap_settings" "iap_settings" {
       output_credentials = ["HEADER"]
       expression = "attributes.saml_attributes.filter(attribute, attribute.name in [\"test1\", \"test2\"])"
       enable = false
+    }
+  }
+}
+`, context)
+}
+
+func TestAccIapSettings_iapSettingsOauthStorageExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIapSettingsDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIapSettings_iapSettingsOauthStorageExample(context),
+			},
+			{
+				ResourceName:            "google_iap_settings.iap_settings_oauth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"access_settings.0.oauth_settings.0.client_secret", "access_settings.0.workforce_identity_settings.0.oauth2.0.client_secret", "name"},
+			},
+		},
+	})
+}
+
+func testAccIapSettings_iapSettingsOauthStorageExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name                            = "tf-test-iap-settings-oauth%{random_suffix}"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_health_check.default.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "tf-test-iap-bs-health-check-oauth%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_iap_settings" "iap_settings_oauth" {
+  name = "projects/${data.google_project.project.number}/iap_web/compute-us-central1/services/${google_compute_region_backend_service.default.name}"
+  access_settings {
+    oauth_settings {
+      client_id     = "test-client-id"
+      client_secret = "test-client-secret"
     }
   }
 }

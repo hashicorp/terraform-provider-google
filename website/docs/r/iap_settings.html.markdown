@@ -31,7 +31,7 @@ To get more information about Settings, see:
     * [Customizing IAP](https://cloud.google.com/iap/docs/customizing)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `access_settings.workforce_identity_settings.oauth2.client_secret`.
+values will be stored in the raw state as plain text: `access_settings.oauth_settings.client_secret`, `access_settings.workforce_identity_settings.oauth2.client_secret`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -108,6 +108,46 @@ resource "google_iap_settings" "iap_settings" {
       output_credentials = ["HEADER"]
       expression = "attributes.saml_attributes.filter(attribute, attribute.name in [\"test1\", \"test2\"])"
       enable = false
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iap_settings_oauth_storage&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Iap Settings Oauth Storage
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name                            = "iap-settings-oauth"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_health_check.default.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "iap-bs-health-check-oauth"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_iap_settings" "iap_settings_oauth" {
+  name = "projects/${data.google_project.project.number}/iap_web/compute-us-central1/services/${google_compute_region_backend_service.default.name}"
+  access_settings {
+    oauth_settings {
+      client_id     = "test-client-id"
+      client_secret = "test-client-secret"
     }
   }
 }
@@ -222,6 +262,19 @@ The following arguments are supported:
   Note: IAP does not verify that the id token's hd claim matches this value
   since access behavior is managed by IAM policies.
   * loginHint setting is not a replacement for access control. Always enforce an appropriate access policy if you want to restrict access to users outside your domain.
+
+* `client_id` -
+  (Optional)
+  OAuth 2.0 client ID used in the OAuth flow to generate an access token. If this field is set, you can skip obtaining the OAuth credentials in this.
+
+* `client_secret` -
+  (Optional)
+  OAuth secret paired with client ID.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `client_secret_sha256` -
+  (Output)
+  OAuth secret sha256 paired with client ID.
 
 * `programmatic_clients` -
   (Optional)

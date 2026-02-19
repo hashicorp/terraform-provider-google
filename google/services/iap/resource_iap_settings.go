@@ -227,6 +227,17 @@ can be configured. The possible values are:
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"client_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `OAuth 2.0 client ID used in the OAuth flow to generate an access token. If this field is set, you can skip obtaining the OAuth credentials in this.`,
+									},
+									"client_secret": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `OAuth secret paired with client ID.`,
+										Sensitive:   true,
+									},
 									"login_hint": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -244,6 +255,11 @@ since access behavior is managed by IAM policies.
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+									},
+									"client_secret_sha256": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `OAuth secret sha256 paired with client ID.`,
 									},
 								},
 							},
@@ -748,11 +764,29 @@ func flattenIapSettingsAccessSettingsOauthSettings(v interface{}, d *schema.Reso
 	transformed := make(map[string]interface{})
 	transformed["login_hint"] =
 		flattenIapSettingsAccessSettingsOauthSettingsLoginHint(original["loginHint"], d, config)
+	transformed["client_id"] =
+		flattenIapSettingsAccessSettingsOauthSettingsClientId(original["clientId"], d, config)
+	transformed["client_secret"] =
+		flattenIapSettingsAccessSettingsOauthSettingsClientSecret(original["clientSecret"], d, config)
+	transformed["client_secret_sha256"] =
+		flattenIapSettingsAccessSettingsOauthSettingsClientSecretSha256(original["clientSecretSha256"], d, config)
 	transformed["programmatic_clients"] =
 		flattenIapSettingsAccessSettingsOauthSettingsProgrammaticClients(original["programmaticClients"], d, config)
 	return []interface{}{transformed}
 }
 func flattenIapSettingsAccessSettingsOauthSettingsLoginHint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIapSettingsAccessSettingsOauthSettingsClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIapSettingsAccessSettingsOauthSettingsClientSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("access_settings.0.oauth_settings.0.client_secret")
+}
+
+func flattenIapSettingsAccessSettingsOauthSettingsClientSecretSha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1112,6 +1146,27 @@ func expandIapSettingsAccessSettingsOauthSettings(v interface{}, d tpgresource.T
 		transformed["loginHint"] = transformedLoginHint
 	}
 
+	transformedClientId, err := expandIapSettingsAccessSettingsOauthSettingsClientId(original["client_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientId"] = transformedClientId
+	}
+
+	transformedClientSecret, err := expandIapSettingsAccessSettingsOauthSettingsClientSecret(original["client_secret"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientSecret); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientSecret"] = transformedClientSecret
+	}
+
+	transformedClientSecretSha256, err := expandIapSettingsAccessSettingsOauthSettingsClientSecretSha256(original["client_secret_sha256"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientSecretSha256); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientSecretSha256"] = transformedClientSecretSha256
+	}
+
 	transformedProgrammaticClients, err := expandIapSettingsAccessSettingsOauthSettingsProgrammaticClients(original["programmatic_clients"], d, config)
 	if err != nil {
 		return nil, err
@@ -1123,6 +1178,18 @@ func expandIapSettingsAccessSettingsOauthSettings(v interface{}, d tpgresource.T
 }
 
 func expandIapSettingsAccessSettingsOauthSettingsLoginHint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIapSettingsAccessSettingsOauthSettingsClientId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIapSettingsAccessSettingsOauthSettingsClientSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIapSettingsAccessSettingsOauthSettingsClientSecretSha256(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

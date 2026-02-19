@@ -11,6 +11,9 @@ fields:
     - api_field: accessSettings.gcipSettings.loginPageUri
     - api_field: accessSettings.gcipSettings.tenantIds
     - api_field: accessSettings.identitySources
+    - api_field: accessSettings.oauthSettings.clientId
+    - api_field: accessSettings.oauthSettings.clientSecret
+    - api_field: accessSettings.oauthSettings.clientSecretSha256
     - api_field: accessSettings.oauthSettings.loginHint
     - api_field: accessSettings.oauthSettings.programmaticClients
     - api_field: accessSettings.reauthSettings.maxAge
