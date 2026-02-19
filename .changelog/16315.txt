@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: fixed perma-diff on `http_target.uri_override.query_override` in `google_cloud_tasks_queue`
+```
