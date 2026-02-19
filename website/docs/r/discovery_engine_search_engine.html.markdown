@@ -138,6 +138,10 @@ The following arguments are supported:
   This is the application type this engine resource represents.
   The supported values: 'APP_TYPE_UNSPECIFIED', 'APP_TYPE_INTRANET'.
 
+* `disable_analytics` -
+  (Optional)
+  Whether to disable analytics for searches performed on this engine.
+
 * `features` -
   (Optional)
   A map of the feature config for the engine to opt in or opt out of features.
