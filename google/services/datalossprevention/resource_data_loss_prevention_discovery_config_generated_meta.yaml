@@ -80,6 +80,8 @@ fields:
     - api_field: targets.cloudStorageTarget.filter.cloudStorageResourceReference.projectId
     - api_field: targets.cloudStorageTarget.filter.collection.includeRegexes.patterns.cloudStorageRegex.bucketNameRegex
     - api_field: targets.cloudStorageTarget.filter.collection.includeRegexes.patterns.cloudStorageRegex.projectIdRegex
+    - api_field: targets.cloudStorageTarget.filter.collection.includeTags.tagFilters.namespacedTagKey
+    - api_field: targets.cloudStorageTarget.filter.collection.includeTags.tagFilters.namespacedTagValue
     - api_field: targets.cloudStorageTarget.filter.others
     - api_field: targets.cloudStorageTarget.generationCadence.inspectTemplateModifiedCadence.frequency
     - api_field: targets.cloudStorageTarget.generationCadence.refreshFrequency
