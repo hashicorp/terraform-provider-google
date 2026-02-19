@@ -98,7 +98,6 @@ resource "google_ces_toolset" "ces_toolset_for_agent" {
   }
 }
 
-
 resource "google_ces_agent" "ces_child_agent" {
   agent_id = "child-agent-id"
   location = "us"
@@ -108,7 +107,7 @@ resource "google_ces_agent" "ces_child_agent" {
   instruction = "You are a helpful assistant for this example."
 
   model_settings {
-    model       = "gemini-1.5-flash"
+    model       = "gemini-2.5-flash-001"
     temperature = 0.5
   }
 
@@ -153,44 +152,44 @@ resource "google_ces_agent" "ces_agent_basic" {
   instruction = "You are a helpful assistant for this example."
 
   model_settings {
-    model       = "gemini-1.5-flash"
+    model       = "gemini-2.5-flash-001"
     temperature = 0.5
+  }
+
+  before_agent_callbacks {
+    description = "Example callback"
+    disabled    = true
+    python_code = "def before_agent_callback(callback_context): return None"
   }
 
   after_agent_callbacks {
     description = "Example callback"
     disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
-  }
-
-  before_agent_callbacks {
-    description = "Example callback"
-    disabled    = false
-    python_code = "def callback(context):\n    return {'override': False}"
-  }
-
-  after_model_callbacks {
-    description = "Example callback"
-    disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def after_agent_callback(callback_context): return None"
   }
 
   before_model_callbacks {
     description = "Example callback"
     disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def before_model_callback(callback_context, llm_request): return None"
   }
 
-  after_tool_callbacks {
+  after_model_callbacks {
     description = "Example callback"
     disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def after_model_callback(callback_context, llm_response): return None"
   }
 
   before_tool_callbacks {
     description = "Example callback"
     disabled    = true
-    python_code = "def callback(context):\n    return {'override': False}"
+    python_code = "def before_tool_callback(tool, input, callback_context): return None"
+  }
+
+  after_tool_callbacks {
+    description = "Example callback"
+    disabled    = true
+    python_code = "def after_tool_callback(tool, input, callback_context, tool_response): return None"
   }
 
   tools = [
