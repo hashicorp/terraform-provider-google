@@ -11,6 +11,7 @@ fields:
     - api_field: commonConfig.companyName
     - api_field: createTime
     - api_field: dataStoreIds
+    - api_field: disableAnalytics
     - api_field: displayName
     - field: engine_id
       provider_only: true

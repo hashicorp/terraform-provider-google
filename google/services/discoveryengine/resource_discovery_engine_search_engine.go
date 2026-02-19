@@ -199,6 +199,11 @@ The supported values: 'APP_TYPE_UNSPECIFIED', 'APP_TYPE_INTRANET'.`,
 					},
 				},
 			},
+			"disable_analytics": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to disable analytics for searches performed on this engine.`,
+			},
 			"features": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -357,6 +362,12 @@ func resourceDiscoveryEngineSearchEngineCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("app_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(appTypeProp)) && (ok || !reflect.DeepEqual(v, appTypeProp)) {
 		obj["appType"] = appTypeProp
 	}
+	disableAnalyticsProp, err := expandDiscoveryEngineSearchEngineDisableAnalytics(d.Get("disable_analytics"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_analytics"); !tpgresource.IsEmptyValue(reflect.ValueOf(disableAnalyticsProp)) && (ok || !reflect.DeepEqual(v, disableAnalyticsProp)) {
+		obj["disableAnalytics"] = disableAnalyticsProp
+	}
 	featuresProp, err := expandDiscoveryEngineSearchEngineFeatures(d.Get("features"), d, config)
 	if err != nil {
 		return err
@@ -506,6 +517,9 @@ func resourceDiscoveryEngineSearchEngineRead(d *schema.ResourceData, meta interf
 	if err := d.Set("app_type", flattenDiscoveryEngineSearchEngineAppType(res["appType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SearchEngine: %s", err)
 	}
+	if err := d.Set("disable_analytics", flattenDiscoveryEngineSearchEngineDisableAnalytics(res["disableAnalytics"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SearchEngine: %s", err)
+	}
 	if err := d.Set("features", flattenDiscoveryEngineSearchEngineFeatures(res["features"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SearchEngine: %s", err)
 	}
@@ -550,6 +564,12 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("search_engine_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, searchEngineConfigProp)) {
 		obj["searchEngineConfig"] = searchEngineConfigProp
 	}
+	disableAnalyticsProp, err := expandDiscoveryEngineSearchEngineDisableAnalytics(d.Get("disable_analytics"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_analytics"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableAnalyticsProp)) {
+		obj["disableAnalytics"] = disableAnalyticsProp
+	}
 	featuresProp, err := expandDiscoveryEngineSearchEngineFeatures(d.Get("features"), d, config)
 	if err != nil {
 		return err
@@ -593,6 +613,10 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("search_engine_config") {
 		updateMask = append(updateMask, "searchEngineConfig")
+	}
+
+	if d.HasChange("disable_analytics") {
+		updateMask = append(updateMask, "disableAnalytics")
 	}
 
 	if d.HasChange("features") {
@@ -786,6 +810,10 @@ func flattenDiscoveryEngineSearchEngineAppType(v interface{}, d *schema.Resource
 	return v
 }
 
+func flattenDiscoveryEngineSearchEngineDisableAnalytics(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDiscoveryEngineSearchEngineFeatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -932,6 +960,10 @@ func expandDiscoveryEngineSearchEngineCommonConfigCompanyName(v interface{}, d t
 }
 
 func expandDiscoveryEngineSearchEngineAppType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineSearchEngineDisableAnalytics(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

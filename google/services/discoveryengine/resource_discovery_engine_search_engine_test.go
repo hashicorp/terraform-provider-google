@@ -128,6 +128,7 @@ resource "google_discovery_engine_search_engine" "basic" {
   display_name = "Updated Example Display Name"
   data_store_ids = [google_discovery_engine_data_store.basic.data_store_id]
   industry_vertical = google_discovery_engine_data_store.basic.industry_vertical
+  disable_analytics = true
   common_config {
     company_name = "Updated Example Company Name"
   }
