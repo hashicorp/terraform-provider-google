@@ -369,6 +369,12 @@ func resourceStorageControlProjectIntelligenceConfigCreate(d *schema.ResourceDat
 	}
 
 	obj := make(map[string]interface{})
+	nameProp, err := expandStorageControlProjectIntelligenceConfigName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	editionConfigProp, err := expandStorageControlProjectIntelligenceConfigEditionConfig(d.Get("edition_config"), d, config)
 	if err != nil {
 		return err
@@ -720,6 +726,10 @@ func flattenStorageControlProjectIntelligenceConfigTrialConfig(v interface{}, d 
 }
 func flattenStorageControlProjectIntelligenceConfigTrialConfigExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func expandStorageControlProjectIntelligenceConfigName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandStorageControlProjectIntelligenceConfigEditionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

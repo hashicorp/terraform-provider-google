@@ -14,7 +14,6 @@ fields:
     - api_field: filter.excludedCloudStorageLocations.locations
     - api_field: filter.includedCloudStorageBuckets.bucketIdRegexes
     - api_field: filter.includedCloudStorageLocations.locations
-    - field: name
-      provider_only: true
+    - api_field: name
     - api_field: trialConfig.expireTime
     - api_field: updateTime
