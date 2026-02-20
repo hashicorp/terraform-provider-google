@@ -2057,6 +2057,56 @@ func TestAccSqlDatabaseInstance_EnableGoogleMlIntegration(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_AutoUpgradeEnabled(t *testing.T) {
+	t.Parallel()
+
+	masterID := acctest.RandInt(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_AutoUpgradeEnabled(masterID, false, "MYSQL_8_0_31", "db-custom-2-13312"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_AutoUpgradeEnabled(masterID, false, "MYSQL_8_0_36", "db-custom-2-13312"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_AutoUpgradeEnabled(masterID, true, "MYSQL_8_0", "db-custom-2-13312"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_AutoUpgradeEnabled(masterID, true, "MYSQL_8_0", "db-custom-2-10240"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_EnableGoogleDataplexIntegration(t *testing.T) {
 	t.Parallel()
 
@@ -7682,6 +7732,22 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, masterID, dbVersion, masterID, tier, enableGoogleMlIntegration)
+}
+
+func testGoogleSqlDatabaseInstance_AutoUpgradeEnabled(masterID int, autoUpgradeEnabled bool, dbVersion string, tier string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "tf-test-%d"
+  region              = "us-central1"
+  database_version    = "%s"
+  deletion_protection = false
+  root_password       = "rand-pwd-%d"
+  settings {
+    tier                 = "%s"
+    auto_upgrade_enabled = %t
+  }
+}
+`, masterID, dbVersion, masterID, tier, autoUpgradeEnabled)
 }
 
 func testGoogleSqlDatabaseInstance_EnableDataplexIntegration(masterID int, enableDataplexIntegration bool) string {

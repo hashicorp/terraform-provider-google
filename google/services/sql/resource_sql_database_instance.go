@@ -245,6 +245,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 			privateNetworkCustomizeDiff,
 			pitrSupportDbCustomizeDiff,
 			nodeCountCustomDiff,
+			autoUpgradeEnabledCustomizeDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -529,6 +530,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Description: `Enables Vertex AI Integration.`,
+						},
+						"auto_upgrade_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Enables Automatic Version Upgrade feature. Can be used with MySQL only.`,
 						},
 						"enable_dataplex_integration": {
 							Type:        schema.TypeBool,
@@ -1450,6 +1456,24 @@ func privateNetworkCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta
 	return nil
 }
 
+// Ensures auto_upgrade_enabled is never unset (in-place) if already set to true.
+func autoUpgradeEnabledCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+	if !d.HasChange("settings.0.auto_upgrade_enabled") {
+		return nil
+	}
+	oldValueI, newValueI := d.GetChange("settings.0.auto_upgrade_enabled")
+	if oldValueI == nil && !(newValueI.(bool)) {
+		if err := d.SetNew("settings.0.auto_upgrade_enabled", nil); err != nil {
+			return err
+		}
+	} else if oldValueI != nil && oldValueI.(bool) && (newValueI == nil || !(newValueI.(bool))) {
+		if err := d.ForceNew("settings.0.auto_upgrade_enabled"); err != nil {
+			return fmt.Errorf("The setting auto_upgrade_enabled cannot be set to false after being set true: %s", err)
+		}
+	}
+	return nil
+}
+
 // helper function to see if string within list contains a particular substring
 func stringContainsSlice(arr []string, str string) bool {
 	for _, i := range arr {
@@ -1524,6 +1548,12 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
 	pointInTimeRestoreContext := expandPointInTimeRestoreContext(d.Get("point_in_time_restore_context").([]interface{}))
+
+	if valueI, ok := d.GetOk("settings.0.auto_upgrade_enabled"); ok && !(valueI.(bool)) {
+		if err := d.Set("settings.0.auto_upgrade_enabled", nil); err != nil {
+			return err
+		}
+	}
 
 	s, ok := d.GetOk("settings")
 	desiredSettings := expandSqlDatabaseInstanceSettings(s.([]interface{}), databaseVersion)
@@ -1765,6 +1795,10 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 	resize := _settings["disk_autoresize"].(bool)
 	settings.StorageAutoResize = &resize
 	settings.StorageAutoResizeLimit = int64(_settings["disk_autoresize_limit"].(int))
+
+	if _settings["auto_upgrade_enabled"] != nil {
+		settings.AutoUpgradeEnabled = _settings["auto_upgrade_enabled"].(bool)
+	}
 
 	return settings
 }
@@ -2586,8 +2620,11 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		instance.PscServiceAttachmentLink = d.Get("psc_service_attachment_link").(string)
 	}
 
-	// Database Version is required for all calls with Google ML integration enabled or it will be rejected by the API.
-	if d.Get("settings.0.enable_google_ml_integration").(bool) || len(_settings["connection_pool_config"].(*schema.Set).List()) > 0 {
+	// Database Version is required for all calls with Google ML Integration, Auto Upgrade,
+	// and Connection Pool enabled, or it will be rejected by the API.
+	if d.Get("settings.0.enable_google_ml_integration").(bool) ||
+		d.Get("settings.0.auto_upgrade_enabled").(bool) ||
+		len(_settings["connection_pool_config"].(*schema.Set).List()) > 0 {
 		instance.DatabaseVersion = databaseVersion
 	}
 
@@ -2883,6 +2920,10 @@ func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.Resour
 
 	data["enable_google_ml_integration"] = settings.EnableGoogleMlIntegration
 	data["enable_dataplex_integration"] = settings.EnableDataplexIntegration
+
+	if settings.AutoUpgradeEnabled {
+		data["auto_upgrade_enabled"] = settings.AutoUpgradeEnabled
+	}
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels
