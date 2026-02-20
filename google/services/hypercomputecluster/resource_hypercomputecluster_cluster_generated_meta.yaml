@@ -1,0 +1,125 @@
+resource: google_hypercomputecluster_cluster
+generation_type: mmv1
+source_file: products/hypercomputecluster/Cluster.yaml
+api_service_name: hypercomputecluster.googleapis.com
+api_version: v1
+api_resource_type_kind: Cluster
+autogen_status: true
+fields:
+    - field: cluster_id
+      provider_only: true
+    - api_field: computeResources.key
+      field: compute_resources.id
+    - api_field: computeResources.value.config.newFlexStartInstances.machineType
+      field: compute_resources.config.new_flex_start_instances.machine_type
+    - api_field: computeResources.value.config.newFlexStartInstances.maxDuration
+      field: compute_resources.config.new_flex_start_instances.max_duration
+    - api_field: computeResources.value.config.newFlexStartInstances.zone
+      field: compute_resources.config.new_flex_start_instances.zone
+    - api_field: computeResources.value.config.newOnDemandInstances.machineType
+      field: compute_resources.config.new_on_demand_instances.machine_type
+    - api_field: computeResources.value.config.newOnDemandInstances.zone
+      field: compute_resources.config.new_on_demand_instances.zone
+    - api_field: computeResources.value.config.newReservedInstances.reservation
+      field: compute_resources.config.new_reserved_instances.reservation
+    - api_field: computeResources.value.config.newSpotInstances.machineType
+      field: compute_resources.config.new_spot_instances.machine_type
+    - api_field: computeResources.value.config.newSpotInstances.terminationAction
+      field: compute_resources.config.new_spot_instances.termination_action
+    - api_field: computeResources.value.config.newSpotInstances.zone
+      field: compute_resources.config.new_spot_instances.zone
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: networkResources.key
+      field: network_resources.id
+    - api_field: networkResources.value.config.existingNetwork.network
+      field: network_resources.config.existing_network.network
+    - api_field: networkResources.value.config.existingNetwork.subnetwork
+      field: network_resources.config.existing_network.subnetwork
+    - api_field: networkResources.value.config.newNetwork.description
+      field: network_resources.config.new_network.description
+    - api_field: networkResources.value.config.newNetwork.network
+      field: network_resources.config.new_network.network
+    - api_field: networkResources.value.network.network
+      field: network_resources.network.network
+    - api_field: networkResources.value.network.subnetwork
+      field: network_resources.network.subnetwork
+    - api_field: orchestrator.slurm.defaultPartition
+    - api_field: orchestrator.slurm.epilogBashScripts
+    - api_field: orchestrator.slurm.loginNodes.bootDisk.sizeGb
+    - api_field: orchestrator.slurm.loginNodes.bootDisk.type
+    - api_field: orchestrator.slurm.loginNodes.count
+    - api_field: orchestrator.slurm.loginNodes.enableOsLogin
+    - api_field: orchestrator.slurm.loginNodes.enablePublicIps
+    - api_field: orchestrator.slurm.loginNodes.instances.instance
+    - api_field: orchestrator.slurm.loginNodes.labels
+    - api_field: orchestrator.slurm.loginNodes.machineType
+    - api_field: orchestrator.slurm.loginNodes.startupScript
+    - api_field: orchestrator.slurm.loginNodes.storageConfigs.id
+    - api_field: orchestrator.slurm.loginNodes.storageConfigs.localMount
+    - api_field: orchestrator.slurm.loginNodes.zone
+    - api_field: orchestrator.slurm.nodeSets.computeId
+    - api_field: orchestrator.slurm.nodeSets.computeInstance.bootDisk.sizeGb
+    - api_field: orchestrator.slurm.nodeSets.computeInstance.bootDisk.type
+    - api_field: orchestrator.slurm.nodeSets.computeInstance.labels
+    - api_field: orchestrator.slurm.nodeSets.computeInstance.startupScript
+    - api_field: orchestrator.slurm.nodeSets.id
+    - api_field: orchestrator.slurm.nodeSets.maxDynamicNodeCount
+    - api_field: orchestrator.slurm.nodeSets.staticNodeCount
+    - api_field: orchestrator.slurm.nodeSets.storageConfigs.id
+    - api_field: orchestrator.slurm.nodeSets.storageConfigs.localMount
+    - api_field: orchestrator.slurm.partitions.id
+    - api_field: orchestrator.slurm.partitions.nodeSetIds
+    - api_field: orchestrator.slurm.prologBashScripts
+    - api_field: reconciling
+    - api_field: storageResources.key
+      field: storage_resources.id
+    - api_field: storageResources.value.bucket.bucket
+      field: storage_resources.bucket.bucket
+    - api_field: storageResources.value.config.existingBucket.bucket
+      field: storage_resources.config.existing_bucket.bucket
+    - api_field: storageResources.value.config.existingFilestore.filestore
+      field: storage_resources.config.existing_filestore.filestore
+    - api_field: storageResources.value.config.existingLustre.lustre
+      field: storage_resources.config.existing_lustre.lustre
+    - api_field: storageResources.value.config.newBucket.autoclass.enabled
+      field: storage_resources.config.new_bucket.autoclass.enabled
+    - api_field: storageResources.value.config.newBucket.bucket
+      field: storage_resources.config.new_bucket.bucket
+    - api_field: storageResources.value.config.newBucket.hierarchicalNamespace.enabled
+      field: storage_resources.config.new_bucket.hierarchical_namespace.enabled
+    - api_field: storageResources.value.config.newBucket.storageClass
+      field: storage_resources.config.new_bucket.storage_class
+    - api_field: storageResources.value.config.newFilestore.description
+      field: storage_resources.config.new_filestore.description
+    - api_field: storageResources.value.config.newFilestore.fileShares.capacityGb
+      field: storage_resources.config.new_filestore.file_shares.capacity_gb
+    - api_field: storageResources.value.config.newFilestore.fileShares.fileShare
+      field: storage_resources.config.new_filestore.file_shares.file_share
+    - api_field: storageResources.value.config.newFilestore.filestore
+      field: storage_resources.config.new_filestore.filestore
+    - api_field: storageResources.value.config.newFilestore.protocol
+      field: storage_resources.config.new_filestore.protocol
+    - api_field: storageResources.value.config.newFilestore.tier
+      field: storage_resources.config.new_filestore.tier
+    - api_field: storageResources.value.config.newLustre.capacityGb
+      field: storage_resources.config.new_lustre.capacity_gb
+    - api_field: storageResources.value.config.newLustre.description
+      field: storage_resources.config.new_lustre.description
+    - api_field: storageResources.value.config.newLustre.filesystem
+      field: storage_resources.config.new_lustre.filesystem
+    - api_field: storageResources.value.config.newLustre.lustre
+      field: storage_resources.config.new_lustre.lustre
+    - api_field: storageResources.value.filestore.filestore
+      field: storage_resources.filestore.filestore
+    - api_field: storageResources.value.lustre.lustre
+      field: storage_resources.lustre.lustre
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
