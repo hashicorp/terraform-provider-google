@@ -1,0 +1,3 @@
+```release-note:bug
+datastream: fixed permadiff where `google_datastream_connection_profile.salesforce_profile.oauth2_client_credentials.client_id` is not read properly from the API
+```
