@@ -15,3 +15,103 @@
 //
 // ----------------------------------------------------------------------------
 package compute_test
+
+import (
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+)
+
+func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRulePreUpdateExample(context),
+			},
+			{
+				ResourceName:      "google_compute_organization_security_policy_rule.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRulePostUpdateExample(context),
+			},
+			{
+				ResourceName:      "google_compute_organization_security_policy_rule.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRulePreUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent       = google_folder.security_policy_target.name
+  type         = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action = "allow"
+
+  match {
+    config {
+      src_ip_ranges = ["192.168.0.0/16"]
+    }
+    versioned_expr = "SRC_IPS_V1"
+  }
+  priority = 100
+}
+`, context)
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRulePostUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "security_policy_target" {
+  display_name = "tf-test-secpol-%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent       = google_folder.security_policy_target.name
+  type         = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action = "allow"
+
+  description = "Updated description"
+  match {
+    config {
+      src_ip_ranges = ["172.16.0.0/12"]
+    }
+    versioned_expr = "SRC_IPS_V1"
+  }
+  priority = 100
+}
+`, context)
+}

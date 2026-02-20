@@ -23,16 +23,37 @@ description: |-
 
 A rule for the OrganizationSecurityPolicy.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about OrganizationSecurityPolicyRule, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/organizationSecurityPolicies/addRule)
 * How-to Guides
-    * [Creating firewall rules](https://cloud.google.com/vpc/docs/using-firewall-policies#create-rules)
+    * [Configure hierarchical security policies](https://docs.cloud.google.com/armor/docs/hierarchical-policies-using)
 
 ## Example Usage - Organization Security Policy Rule Basic
+
+
+```hcl
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = "organizations/123456789"
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action = "allow"
+
+  match {
+    config {
+      src_ip_ranges = ["192.168.0.0/16"]
+    }
+    versioned_expr = "SRC_IPS_V1"
+  }
+  priority = 100
+}
+```
+## Example Usage - Organization Security Policy Rule Firewall
 
 
 ```hcl
@@ -102,25 +123,27 @@ The following arguments are supported:
   If set to true, the specified action is not enforced.
 
 * `direction` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The direction in which this rule applies. If unspecified an INGRESS rule is created.
+  This field may only be specified when the versionedExpr is set to FIREWALL.
   Possible values are: `INGRESS`, `EGRESS`.
 
 * `target_resources` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   A list of network resource URLs to which this rule applies.
   This field allows you to control which network's VMs get
   this rule. If this field is left blank, all VMs
   within the organization will receive the rule.
 
 * `enable_logging` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Denotes whether to enable logging for a particular rule.
   If logging is enabled, logs will be exported to the
   configured export destination in Stackdriver.
+  This field may only be specified when the versionedExpr is set to FIREWALL.
 
 * `target_service_accounts` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   A list of service accounts indicating the sets of
   instances that are applied with this rule.
 
@@ -135,9 +158,8 @@ The following arguments are supported:
 * `versioned_expr` -
   (Optional)
   Preconfigured versioned expression. For organization security policy rules,
-  the only supported type is "FIREWALL".
-  Default value is `FIREWALL`.
-  Possible values are: `FIREWALL`.
+  the only supported type is "SRC_IPS_V1".
+  **NOTE** : 'FIREWALL' type is deprecated. Please use 'google_compute_firewall_policy_rule' resource instead.
 
 * `config` -
   (Required)
@@ -153,13 +175,14 @@ The following arguments are supported:
   INGRESS rules.
 
 * `dest_ip_ranges` -
-  (Optional)
-  Destination IP address range in CIDR format. Required for
-  EGRESS rules.
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Destination IP address range in CIDR format. Required for EGRESS rules.
+  This field may only be specified when versionedExpr is set to FIREWALL.
 
 * `layer4_config` -
-  (Required)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Pairs of IP protocols and ports that the rule should match.
+  This field may only be specified when versionedExpr is set to FIREWALL.
   Structure is [documented below](#nested_match_config_layer4_config).
 
 
