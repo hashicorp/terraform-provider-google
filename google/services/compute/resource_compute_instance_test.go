@@ -1315,7 +1315,7 @@ func TestAccComputeInstance_bootDiskUpdate(t *testing.T) {
 
 	context2 := map[string]interface{}{
 		"instance_name": context1["instance_name"].(string),
-		"disk_size":     10,
+		"disk_size":     20,
 		"labels":        "baz",
 	}
 

@@ -352,7 +352,6 @@ func ResourceComputeInstance() *schema.Resource {
 										Optional:     true,
 										AtLeastOneOf: initializeParamsKeys,
 										Computed:     true,
-										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 										Description:  `The size of the image in gigabytes.`,
 									},
@@ -2605,13 +2604,23 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		obj := make(map[string]interface{})
 
-		if d.HasChange("boot_disk.0.initialize_params.0.labels") {
-			obj["labels"] = tpgresource.ConvertStringMap(d.Get("boot_disk.0.initialize_params.0.labels").(map[string]interface{}))
-			obj["labelFingerprint"] = disk.LabelFingerprint
-			url := "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels"
-			err := updateDisk(d, config, userAgent, project, url, obj)
-			if err != nil {
-				return err
+		if d.HasChange("boot_disk.0.initialize_params") {
+			if d.HasChange("boot_disk.0.initialize_params.0.size") {
+				obj["sizeGb"] = d.Get("boot_disk.0.initialize_params.0.size").(int)
+				url := "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/resize"
+				err := updateDisk(d, config, userAgent, project, url, obj)
+				if err != nil {
+					return err
+				}
+			}
+			if d.HasChange("boot_disk.0.initialize_params.0.labels") {
+				obj["labels"] = tpgresource.ConvertStringMap(d.Get("boot_disk.0.initialize_params.0.labels").(map[string]interface{}))
+				obj["labelFingerprint"] = disk.LabelFingerprint
+				url := "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels"
+				err := updateDisk(d, config, userAgent, project, url, obj)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
