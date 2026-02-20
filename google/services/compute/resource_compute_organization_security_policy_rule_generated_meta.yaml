@@ -1,0 +1,23 @@
+resource: google_compute_organization_security_policy_rule
+generation_type: mmv1
+source_file: products/compute/OrganizationSecurityPolicyRule.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: SecurityPolicy
+fields:
+    - api_field: rules.action
+      field: action
+    - api_field: rules.description
+      field: description
+    - api_field: rules.match.config.srcIpRanges
+      field: match.config.src_ip_ranges
+    - api_field: rules.match.description
+      field: match.description
+    - api_field: rules.match.versionedExpr
+      field: match.versioned_expr
+    - field: policy_id
+      provider_only: true
+    - api_field: rules.preview
+      field: preview
+    - api_field: rules.priority
+      field: priority
