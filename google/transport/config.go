@@ -340,6 +340,7 @@ type Config struct {
 	GKEHub2BasePath                  string
 	GkeonpremBasePath                string
 	HealthcareBasePath               string
+	HypercomputeclusterBasePath      string
 	IAM2BasePath                     string
 	IAM3BasePath                     string
 	IAMBetaBasePath                  string
@@ -517,6 +518,7 @@ const GKEHubBasePathKey = "GKEHub"
 const GKEHub2BasePathKey = "GKEHub2"
 const GkeonpremBasePathKey = "Gkeonprem"
 const HealthcareBasePathKey = "Healthcare"
+const HypercomputeclusterBasePathKey = "Hypercomputecluster"
 const IAM2BasePathKey = "IAM2"
 const IAM3BasePathKey = "IAM3"
 const IAMBetaBasePathKey = "IAMBeta"
@@ -683,6 +685,7 @@ var DefaultBasePaths = map[string]string{
 	GKEHub2BasePathKey:                  "https://gkehub.googleapis.com/v1/",
 	GkeonpremBasePathKey:                "https://gkeonprem.googleapis.com/v1/",
 	HealthcareBasePathKey:               "https://healthcare.googleapis.com/v1/",
+	HypercomputeclusterBasePathKey:      "https://hypercomputecluster.googleapis.com/v1/",
 	IAM2BasePathKey:                     "https://iam.googleapis.com/v2/",
 	IAM3BasePathKey:                     "https://iam.googleapis.com/v3/",
 	IAMBetaBasePathKey:                  "https://iam.googleapis.com/v1/",
@@ -1253,6 +1256,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("healthcare_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_HEALTHCARE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[HealthcareBasePathKey]))
+	}
+	if d.Get("hypercomputecluster_custom_endpoint") == "" {
+		d.Set("hypercomputecluster_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_HYPERCOMPUTECLUSTER_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[HypercomputeclusterBasePathKey]))
 	}
 	if d.Get("iam2_custom_endpoint") == "" {
 		d.Set("iam2_custom_endpoint", MultiEnvDefault([]string{
@@ -2768,6 +2776,7 @@ func ConfigureBasePaths(c *Config) {
 	c.GKEHub2BasePath = DefaultBasePaths[GKEHub2BasePathKey]
 	c.GkeonpremBasePath = DefaultBasePaths[GkeonpremBasePathKey]
 	c.HealthcareBasePath = DefaultBasePaths[HealthcareBasePathKey]
+	c.HypercomputeclusterBasePath = DefaultBasePaths[HypercomputeclusterBasePathKey]
 	c.IAM2BasePath = DefaultBasePaths[IAM2BasePathKey]
 	c.IAM3BasePath = DefaultBasePaths[IAM3BasePathKey]
 	c.IAMBetaBasePath = DefaultBasePaths[IAMBetaBasePathKey]

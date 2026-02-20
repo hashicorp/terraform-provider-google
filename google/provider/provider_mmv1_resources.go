@@ -100,6 +100,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub2"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkeonprem"
 	"github.com/hashicorp/terraform-provider-google/google/services/healthcare"
+	"github.com/hashicorp/terraform-provider-google/google/services/hypercomputecluster"
 	"github.com/hashicorp/terraform-provider-google/google/services/iam2"
 	"github.com/hashicorp/terraform-provider-google/google/services/iam3"
 	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
@@ -601,9 +602,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 715
+// Generated resources: 716
 // Generated IAM resources: 333
-// Total generated resources: 1048
+// Total generated resources: 1049
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -1228,6 +1229,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_healthcare_hl7_v2_store":                                             registry.Resource("google_healthcare_hl7_v2_store"),
 	"google_healthcare_pipeline_job":                                             registry.Resource("google_healthcare_pipeline_job"),
 	"google_healthcare_workspace":                                                registry.Resource("google_healthcare_workspace"),
+	"google_hypercomputecluster_cluster":                                         registry.Resource("google_hypercomputecluster_cluster"),
 	"google_iam_access_boundary_policy":                                          registry.Resource("google_iam_access_boundary_policy"),
 	"google_iam_deny_policy":                                                     registry.Resource("google_iam_deny_policy"),
 	"google_iam_folders_policy_binding":                                          registry.Resource("google_iam_folders_policy_binding"),
@@ -1868,6 +1870,7 @@ func UseGeneratedProducts() {
 	var _ = gkehub2.ProductName
 	var _ = gkeonprem.ProductName
 	var _ = healthcare.ProductName
+	var _ = hypercomputecluster.ProductName
 	var _ = iam2.ProductName
 	var _ = iam3.ProductName
 	var _ = iambeta.ProductName

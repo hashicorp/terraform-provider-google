@@ -603,6 +603,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"hypercomputecluster_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"iam2_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1245,6 +1250,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.GKEHub2BasePath = d.Get("gke_hub2_custom_endpoint").(string)
 	config.GkeonpremBasePath = d.Get("gkeonprem_custom_endpoint").(string)
 	config.HealthcareBasePath = d.Get("healthcare_custom_endpoint").(string)
+	config.HypercomputeclusterBasePath = d.Get("hypercomputecluster_custom_endpoint").(string)
 	config.IAM2BasePath = d.Get("iam2_custom_endpoint").(string)
 	config.IAM3BasePath = d.Get("iam3_custom_endpoint").(string)
 	config.IAMBetaBasePath = d.Get("iam_beta_custom_endpoint").(string)
