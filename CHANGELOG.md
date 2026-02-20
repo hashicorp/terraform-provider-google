@@ -1,4 +1,46 @@
-## 7.20.0 (Unreleased)
+## 7.21.0 (Unreleased)
+
+## 7.20.0 (Feb 17, 2026)
+
+FEATURES:
+* **New Data Source:** `google_access_context_manager_supported_service` ([#26092](https://github.com/hashicorp/terraform-provider-google/pull/26092))
+* **New Data Source:** `google_access_context_manager_supported_services` ([#26092](https://github.com/hashicorp/terraform-provider-google/pull/26092))
+* **New Data Source:** `google_backup_dr_data_sources` ([#26080](https://github.com/hashicorp/terraform-provider-google/pull/26080))
+* **New Data Source:** `google_kms_secret_asymmetric` ([#26096](https://github.com/hashicorp/terraform-provider-google/pull/26096))
+* **New Data Source:** `google_storage_bucket_object_contents` ([#26054](https://github.com/hashicorp/terraform-provider-google/pull/26054))
+* **New Resource:** `google_biglake_iceberg_namespace` ([#26076](https://github.com/hashicorp/terraform-provider-google/pull/26076))
+* **New Resource:** `google_compute_rollout_plan` ([#26093](https://github.com/hashicorp/terraform-provider-google/pull/26093))
+* **New Resource:** `google_oracle_database_exadb_vm_cluster` ([#26021](https://github.com/hashicorp/terraform-provider-google/pull/26021))
+* **New Resource:** `google_vector_search_collection` ([#26098](https://github.com/hashicorp/terraform-provider-google/pull/26098))
+
+IMPROVEMENTS:
+* alloydb: added write-only support for `initial_user.password_wo` to `google_alloydb_cluster` ([#26074](https://github.com/hashicorp/terraform-provider-google/pull/26074))
+* ces: added `mcp_toolset` field to `google_ces_toolset` resource ([#26025](https://github.com/hashicorp/terraform-provider-google/pull/26025))
+* compute: added `allow_subnet_cidr_routes_overlap` field to `google_compute_subnetwork` resource ([#26019](https://github.com/hashicorp/terraform-provider-google/pull/26019))
+* compute: added write-only support for `private_key` to `google_compute_region_ssl_certificate` resource ([#26072](https://github.com/hashicorp/terraform-provider-google/pull/26072))
+* compute: added write-only support for `private_key` to `google_compute_ssl_certificate` resource ([#26072](https://github.com/hashicorp/terraform-provider-google/pull/26072))
+* compute: added `enable` field to `google_compute_packet_mirroring` resource ([#26064](https://github.com/hashicorp/terraform-provider-google/pull/26064))
+* compute: added `params` field to `google_compute_external_vpn_gateway` resource ([#26089](https://github.com/hashicorp/terraform-provider-google/pull/26089))
+* compute: added `params` field to `google_compute_ha_vpn_gateway` resource ([#26089](https://github.com/hashicorp/terraform-provider-google/pull/26089))
+* compute: added `params` field to `google_compute_interconnect_attachment` resource ([#26042](https://github.com/hashicorp/terraform-provider-google/pull/26042))
+* compute: added `params` field to `google_compute_vpn_gateway` resource ([#26089](https://github.com/hashicorp/terraform-provider-google/pull/26089))
+* compute: added `params` field to `google_compute_vpn_tunnel` resource ([#26089](https://github.com/hashicorp/terraform-provider-google/pull/26089))
+* compute: added `slice_controller_config` field to `google_container_cluster` resource ([#26023](https://github.com/hashicorp/terraform-provider-google/pull/26023))
+* container: added `additional_ip_ranges_config.status` to `google_container_cluster` resource ([#26061](https://github.com/hashicorp/terraform-provider-google/pull/26061))
+* dataproc: added `instance_flexibility_policy` to `master_config` and `worker_config` in `google_dataproc_cluster` resource ([#26058](https://github.com/hashicorp/terraform-provider-google/pull/26058))
+* developerconnect: added `target_projects` field to `google_developer_connect_insights_config` resource ([#26073](https://github.com/hashicorp/terraform-provider-google/pull/26073))
+* filestore: added `replica_action` to `google_filestore_instance` resource ([#26082](https://github.com/hashicorp/terraform-provider-google/pull/26082))
+* networksecurity: added `policy_profile`, `http_rules.0.to.0.operations.0.mcp` to `google_network_security_authz_policy` resource ([#26090](https://github.com/hashicorp/terraform-provider-google/pull/26090))
+* networkservices: added `ull_multicast_domain` field to `google_network_services_multicast_domain` resource ([#26071](https://github.com/hashicorp/terraform-provider-google/pull/26071))
+* networkservices: relaxed `load_balancing_scheme` validation to support non-Backend Service targets in `google_network_services_authz_extension` ([#26090](https://github.com/hashicorp/terraform-provider-google/pull/26090))
+* spanner: added support for `user_project_override` in `google_spanner_database_iam` and `google_spanner_instance_iam` resources ([#26052](https://github.com/hashicorp/terraform-provider-google/pull/26052))
+* vmwareengine: added `datastore_mount_config` field to `google_vmwareengine_cluster` resource ([#26083](https://github.com/hashicorp/terraform-provider-google/pull/26083))
+
+BUG FIXES:
+* bigquery: fixed permadiff with the `collation` field in `google_bigquery_table.schema` when it inherits the value from `google_bigquery_dataset.default_collation` ([#26065](https://github.com/hashicorp/terraform-provider-google/pull/26065))
+* bigqueryanalyticshub: fixed update failure for `replica_locations` in `google_bigquery_analytics_hub_listing` ([#26046](https://github.com/hashicorp/terraform-provider-google/pull/26046))
+* iam: fixed an issue where iam resources not retry on error 409 concurrent policy changes ([#26095](https://github.com/hashicorp/terraform-provider-google/pull/26095))
+* publicca: fixed `mac_key` fields not being properly set in `google_public_ca_external_account_key` ([#26099](https://github.com/hashicorp/terraform-provider-google/pull/26099))
 
 ## 7.19.0 (Feb 10, 2026)
 
