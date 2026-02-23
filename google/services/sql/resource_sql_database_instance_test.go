@@ -7217,6 +7217,7 @@ resource "google_sql_database_instance" "instance" {
 
     activation_policy = "ALWAYS"
     connector_enforcement = "REQUIRED"
+	data_api_access = "ALLOW_DATA_API"
   }
 }
 `

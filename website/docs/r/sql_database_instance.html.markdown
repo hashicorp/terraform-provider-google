@@ -444,6 +444,8 @@ The `settings` block supports:
 
 * `connector_enforcement` - (Optional) Control the enforcement of Cloud SQL Auth Proxy or Cloud SQL connectors for all the connections, can be `REQUIRED` or `NOT_REQUIRED`. If enabled, all the direct connections are rejected.
 
+* `data_api_access` - (Optional) Configures ExecuteSql API's access to the instance. connections, can be `ALLOW_DATA_API` or `DISALLOW_DATA_API` (default). `ALLOW_DATA_API` allows using ExecuteSql API to connect to the instance. For private IP instances, this allows authorized users to access the instance from the public internet using ExecuteSql API.
+
 * `deletion_protection_enabled` - (Optional) Enables deletion protection of an instance at the GCP level. Enabling this protection will guard against accidental deletion across all surfaces (API, gcloud, Cloud Console and Terraform) by enabling the [GCP Cloud SQL instance deletion protection](https://cloud.google.com/sql/docs/postgres/deletion-protection). Terraform provider support was introduced in version 4.48.0. Defaults to `false`.
 
 * `enable_google_ml_integration` - (Optional) Enables [Cloud SQL instances to connect to Vertex AI](https://cloud.google.com/sql/docs/postgres/integrate-cloud-sql-with-vertex-ai) and pass requests for real-time predictions and insights. Defaults to `false`.
