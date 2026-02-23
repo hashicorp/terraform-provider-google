@@ -111,6 +111,7 @@ fields:
   - api_field: 'settings.connectionPoolConfig.flags.name'
   - api_field: 'settings.connectionPoolConfig.flags.value'
   - api_field: 'settings.connectorEnforcement'
+  - api_field: 'settings.dataApiAccess'
   - api_field: 'settings.dataCacheConfig.dataCacheEnabled'
   - api_field: 'settings.databaseFlags.name'
   - api_field: 'settings.databaseFlags.value'
