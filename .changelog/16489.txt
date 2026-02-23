@@ -1,0 +1,3 @@
+```release-note:bug
+servicenetworking: added retry when creating `google_service_networking_connection` if it looks like the service account permissions haven't yet propagated
+```
