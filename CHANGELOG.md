@@ -1,4 +1,4 @@
-## 7.21.0 (Unreleased)
+## 7.21.0 (Feb 24, 2026)
 
 FEATURES:
 * **New Data Source:** `google_vmwareengine_announcements` ([#26145](https://github.com/hashicorp/terraform-provider-google/pull/26145))
@@ -13,7 +13,7 @@ IMPROVEMENTS:
 * cloudrunv2: promoted the `iap_enabled` field to GA in the `google_cloud_run_v2_service` resource ([#26161](https://github.com/hashicorp/terraform-provider-google/pull/26161))
 * dataproc: added `wait_for_completion` to `google_dataproc_job` resource ([#26177](https://github.com/hashicorp/terraform-provider-google/pull/26177))
 * discoveryengine: added `disable_analytics` field to `google_discovery_engine_search_engine` resource ([#26171](https://github.com/hashicorp/terraform-provider-google/pull/26171))
-* dlp: added `targets.cloud_storage_target.filter.collection.include_tags` to `google_data_loss_prevention_discovery_config` ([#26178](https://github.com/hashicorp/terraform-provider-google/pull/26178))
+* dlp: added `targets.cloud_storage_target.filter.collection.include_tags` block to `google_data_loss_prevention_discovery_config` resource ([#26178](https://github.com/hashicorp/terraform-provider-google/pull/26178))
 * iap: added `client_id`, `client_secret`, and `client_secret_sha256` fields to `google_iap_settings` resource ([#26170](https://github.com/hashicorp/terraform-provider-google/pull/26170))
 * networksecurity: promoted `mirroring_deployment_groups` and `mirroring_endpoint_group_type` fields to GA in the `google_network_security_security_profile` resource ([#26137](https://github.com/hashicorp/terraform-provider-google/pull/26137))
 
