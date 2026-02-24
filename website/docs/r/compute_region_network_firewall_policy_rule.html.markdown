@@ -173,6 +173,70 @@ resource "google_compute_network" "network" {
   name     = "network"
 }
 ```
+## Example Usage - Region Network Firewall Policy Rule Network Context Egress
+
+
+```hcl
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
+  name        = "fw-policy"
+  description = "Sample regional network firewall policy"
+  project     = "my-project-name"
+  region      = "us-west1"
+}
+
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
+  action          = "allow"
+  description     = "This is a simple rule description"
+  direction       = "EGRESS"
+  disabled        = false
+  enable_logging  = true
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
+  priority        = 1000
+  region          = "us-west1"
+  rule_name       = "test-rule"
+
+  match {
+    dest_ip_ranges     = ["10.100.0.1/32"]
+    dest_network_context = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+```
+## Example Usage - Region Network Firewall Policy Rule Network Context Ingress
+
+
+```hcl
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
+  name        = "fw-policy"
+  description = "Sample regional network firewall policy"
+  project     = "my-project-name"
+  region      = "us-west1"
+}
+
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
+  action          = "allow"
+  description     = "This is a simple rule description"
+  direction       = "INGRESS"
+  disabled        = false
+  enable_logging  = true
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
+  priority        = 1000
+  region          = "us-west1"
+  rule_name       = "test-rule"
+
+  match {
+    src_ip_ranges     = ["10.100.0.1/32"]
+    src_network_context = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -270,16 +334,26 @@ The following arguments are supported:
 * `src_network_scope` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   Network scope of the traffic source.
-  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+  Possible values are: `UNSPECIFIED`, `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+
+* `src_network_context` -
+  (Optional)
+  Network context of the traffic source.
+  Possible values are: `UNSPECIFIED`, `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `src_networks` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Networks of the traffic source. It can be either a full or partial url.
 
 * `dest_network_scope` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   Network scope of the traffic destination.
-  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+  Possible values are: `UNSPECIFIED`, `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+
+* `dest_network_context` -
+  (Optional)
+  Network context of the traffic destination.
+  Possible values are: `UNSPECIFIED`, `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `layer4_configs` -
   (Required)

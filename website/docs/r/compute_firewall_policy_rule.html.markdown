@@ -151,6 +151,83 @@ resource "google_compute_network" "network" {
   auto_create_subnetworks = false
 }
 ```
+## Example Usage - Firewall Policy Rule Network Context
+
+
+```hcl
+resource "google_folder" "folder" {
+  display_name        = "folder"
+  parent              = "organizations/123456789"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "default" {
+  parent      = google_folder.folder.id
+  short_name  = "fw-policy"
+  description = "Firewall policy"
+}
+
+resource "google_compute_firewall_policy_rule" "primary" {
+  firewall_policy = google_compute_firewall_policy.default.name
+  description     = "Firewall policy rule with network context"
+  priority        = 8000
+  action          = "allow"
+  direction       = "INGRESS"
+  disabled        = false
+
+  match {
+    src_ip_ranges     = ["11.100.0.1/32"]
+    src_network_context = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = [8080]
+    }
+
+    layer4_configs {
+      ip_protocol = "udp"
+      ports       = [22]
+    }
+  }
+}
+
+resource "google_compute_firewall_policy_rule" "egress-primary" {
+  firewall_policy = google_compute_firewall_policy.default.name
+  description     = "Firewall policy rule with network context"
+  priority        = 9000
+  action          = "allow"
+  direction       = "EGRESS"
+  disabled        = false
+
+  match {
+    dest_ip_ranges     = ["11.100.0.1/32"]
+    dest_network_context = "NON_INTERNET"
+
+    layer4_configs {
+      ip_protocol = "tcp"
+    }
+  }
+}
+
+resource "google_compute_firewall_policy_rule" "unset-primary" {
+  firewall_policy = google_compute_firewall_policy.default.name
+  description     = "Firewall policy rule with network context"
+  priority        = 10000
+  action          = "allow"
+  direction       = "EGRESS"
+  disabled        = false
+
+  match {
+    dest_ip_ranges     = ["11.100.0.1/32"]
+    dest_network_context = "UNSPECIFIED"
+
+    layer4_configs {
+      ip_protocol = "tcp"
+    }
+  }
+}
+
+```
 ## Example Usage - Firewall Policy Rule Secure Tags
 
 
@@ -307,16 +384,26 @@ The following arguments are supported:
 * `src_network_scope` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   Network scope of the traffic source.
-  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+  Possible values are: `UNSPECIFIED`, `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+
+* `src_network_context` -
+  (Optional)
+  Network context of the traffic source.
+  Possible values are: `UNSPECIFIED`, `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `src_networks` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Networks of the traffic source. It can be either a full or partial url.
 
 * `dest_network_scope` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   Network scope of the traffic destination.
-  Possible values are: `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+  Possible values are: `UNSPECIFIED`, `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
+
+* `dest_network_context` -
+  (Optional)
+  Network context of the traffic destination.
+  Possible values are: `UNSPECIFIED`, `INTERNET`, `INTRA_VPC`, `NON_INTERNET`, `VPC_NETWORKS`.
 
 * `layer4_configs` -
   (Required)
