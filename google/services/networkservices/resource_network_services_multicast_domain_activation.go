@@ -470,6 +470,7 @@ func resourceNetworkServicesMulticastDomainActivationRead(d *schema.ResourceData
 }
 
 func resourceNetworkServicesMulticastDomainActivationUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

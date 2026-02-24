@@ -349,6 +349,7 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

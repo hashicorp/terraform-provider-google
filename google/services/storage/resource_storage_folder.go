@@ -283,6 +283,7 @@ func resourceStorageFolderRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceStorageFolderUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	_ = config
 	// we can only get here if force_destroy was updated

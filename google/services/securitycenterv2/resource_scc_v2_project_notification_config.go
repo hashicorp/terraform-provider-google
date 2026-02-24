@@ -346,6 +346,7 @@ func resourceSecurityCenterV2ProjectNotificationConfigRead(d *schema.ResourceDat
 }
 
 func resourceSecurityCenterV2ProjectNotificationConfigUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

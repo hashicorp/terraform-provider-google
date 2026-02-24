@@ -443,6 +443,7 @@ func resourceNetworkServicesMulticastDomainRead(d *schema.ResourceData, meta int
 }
 
 func resourceNetworkServicesMulticastDomainUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

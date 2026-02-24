@@ -538,6 +538,7 @@ func resourceStorageBatchOperationsJobRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceStorageBatchOperationsJobUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	_ = config
 	// we can only get here if delete_protection was updated

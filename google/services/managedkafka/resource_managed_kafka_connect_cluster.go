@@ -427,6 +427,7 @@ func resourceManagedKafkaConnectClusterRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceManagedKafkaConnectClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
