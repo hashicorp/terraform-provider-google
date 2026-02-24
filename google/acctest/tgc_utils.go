@@ -157,17 +157,16 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 					caiAssetNameFormat := ""
 					if len(yamlMetadata.CaiAssetNameFormats) == 1 {
 						caiAssetNameFormat = yamlMetadata.CaiAssetNameFormats[0]
+						caiAssetName := formatCaiAssetName(caiAssetNameFormat, rState.Primary.Attributes)
+						if _, ok := serviceWithProjectNumber[metadata.Service]; ok {
+							caiAssetName = strings.Replace(caiAssetName, projectId, projectNumber, 1)
+						}
+						metadata.CaiAssetNames = []string{caiAssetName}
 					} else {
 						if strings.HasPrefix(yamlMetadata.Resource, "google_container_") {
-							caiAssetNameFormat = resolveContainerCaiAssetNameFormat(yamlMetadata.CaiAssetNameFormats, rState.Primary.Attributes["location"])
+							metadata.CaiAssetNames = resolveContainerCaiAssetName(yamlMetadata.CaiAssetNameFormats, rState.Primary.ID, rState.Primary.Attributes["location"])
 						}
 					}
-
-					caiAssetName := formatCaiAssetName(caiAssetNameFormat, rState.Primary.Attributes)
-					if _, ok := serviceWithProjectNumber[metadata.Service]; ok {
-						caiAssetName = strings.Replace(caiAssetName, projectId, projectNumber, 1)
-					}
-					metadata.CaiAssetNames = []string{caiAssetName}
 				}
 			}
 
@@ -196,23 +195,23 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 	}
 }
 
-// resolveContainerCaiAssetNameFormat determines the correct CAI asset name format
+// resolveContainerCaiAssetName determines the correct CAI asset name
 // for GKE resources based on whether the resource location is a zone or a region.
-func resolveContainerCaiAssetNameFormat(caiAssetNameFormats []string, location string) string {
+func resolveContainerCaiAssetName(caiAssetNameFormats []string, rName, location string) []string {
+	serviceDomain := getServiceDomain(caiAssetNameFormats[0])
 	if tpgresource.IsZone(location) {
-		for _, nameFormat := range caiAssetNameFormats {
-			if strings.Contains(nameFormat, "/zones/") {
-				return nameFormat
-			}
-		}
-	} else {
-		for _, nameFormat := range caiAssetNameFormats {
-			if strings.Contains(nameFormat, "/locations/") {
-				return nameFormat
-			}
-		}
+		rName = strings.Replace(rName, "/locations/", "/zones/", 1)
 	}
 
+	return []string{fmt.Sprintf("//%s/%s", serviceDomain, rName)}
+}
+
+func getServiceDomain(caiAssetName string) string {
+	// caiAssetName format: //container.googleapis.com/projects/...
+	parts := strings.Split(caiAssetName, "/")
+	if len(parts) >= 3 {
+		return parts[2]
+	}
 	return ""
 }
 
