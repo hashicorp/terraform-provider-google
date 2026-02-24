@@ -9,7 +9,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * beyondcorp: added `logging` field to `google_beyondcorp_security_gateway` resource ([#26159](https://github.com/hashicorp/terraform-provider-google/pull/26159))
-* cloudfunctions2: promoted `direct_vpc_network_interface` and `direct_vpc_egress` fields to GA in the `google_cloudfunctions2_function` resource. Users who directly enabled DirectVPC on the underlying Cloud Run service will see a diff as a result of this update. ([#26142](https://github.com/hashicorp/terraform-provider-google/pull/26142))
+* cloudfunctions2: added `direct_vpc_network_interface` and `direct_vpc_egress` fields to `google_cloudfunctions2_function` resource. Users who directly enabled DirectVPC on the underlying Cloud Run service will see a diff as a result of this update. ([#26142](https://github.com/hashicorp/terraform-provider-google/pull/26142))
 * cloudrunv2: promoted the `iap_enabled` field to GA in the `google_cloud_run_v2_service` resource ([#26161](https://github.com/hashicorp/terraform-provider-google/pull/26161))
 * dataproc: added `wait_for_completion` to `google_dataproc_job` resource ([#26177](https://github.com/hashicorp/terraform-provider-google/pull/26177))
 * discoveryengine: added `disable_analytics` field to `google_discovery_engine_search_engine` resource ([#26171](https://github.com/hashicorp/terraform-provider-google/pull/26171))
