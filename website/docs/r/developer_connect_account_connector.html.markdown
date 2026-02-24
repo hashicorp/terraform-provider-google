@@ -63,101 +63,6 @@ resource "google_developer_connect_account_connector" "my-account-connector" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_account_connector_google&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Developer Connect Account Connector Google
-
-
-```hcl
-resource "google_developer_connect_account_connector" "my-account-connector" {
-  location = "us-central1"
-  account_connector_id = "tf-test-ac"
-
-  provider_oauth_config {
-    system_provider_id = "GOOGLE"
-    scopes = ["https://www.googleapis.com/auth/drive.readonly"]
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_account_connector_sentry&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Developer Connect Account Connector Sentry
-
-
-```hcl
-resource "google_developer_connect_account_connector" "my-account-connector" {
-  location = "us-central1"
-  account_connector_id = "tf-test-ac"
-
-  provider_oauth_config {
-    system_provider_id = "SENTRY"
-    scopes = ["org:read"]
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_account_connector_rovo&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Developer Connect Account Connector Rovo
-
-
-```hcl
-resource "google_developer_connect_account_connector" "my-account-connector" {
-  location = "us-central1"
-  account_connector_id = "tf-test-ac"
-
-  provider_oauth_config {
-    system_provider_id = "ROVO"
-    scopes = ["rovo"]
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_account_connector_new_relic&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Developer Connect Account Connector New Relic
-
-
-```hcl
-resource "google_developer_connect_account_connector" "my-account-connector" {
-  location = "us-central1"
-  account_connector_id = "tf-test-ac"
-
-  provider_oauth_config {
-    system_provider_id = "NEW_RELIC"
-    scopes = []
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_account_connector_datastax&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Developer Connect Account Connector Datastax
-
-
-```hcl
-resource "google_developer_connect_account_connector" "my-account-connector" {
-  location = "us-central1"
-  account_connector_id = "tf-test-ac"
-
-  provider_oauth_config {
-    system_provider_id = "DATASTAX"
-    scopes = []
-  }
-}
-```
 
 ## Argument Reference
 
@@ -202,7 +107,9 @@ The following arguments are supported:
 
 * `system_provider_id` -
   (Optional)
-  List of providers that are owned by Developer Connect.
+  List of providers that are owned by Developer Connect. Creation of
+  new non-SCM providers Account Connectors is not possible at this
+  time.
   Possible values:
   GITHUB
   GITLAB
