@@ -174,7 +174,9 @@ be deleted and users will re-auth again.`,
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `List of providers that are owned by Developer Connect.
+							Description: `List of providers that are owned by Developer Connect. Creation of
+new non-SCM providers Account Connectors is not possible at this
+time.
 
 Possible values:
 GITHUB
