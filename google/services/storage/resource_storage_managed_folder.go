@@ -286,6 +286,7 @@ func resourceStorageManagedFolderRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceStorageManagedFolderUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	_ = config
 

@@ -288,6 +288,7 @@ func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceStorageBucketAccessControlUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

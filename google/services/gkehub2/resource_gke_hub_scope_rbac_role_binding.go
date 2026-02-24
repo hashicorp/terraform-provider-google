@@ -416,6 +416,7 @@ func resourceGKEHub2ScopeRBACRoleBindingRead(d *schema.ResourceData, meta interf
 }
 
 func resourceGKEHub2ScopeRBACRoleBindingUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {

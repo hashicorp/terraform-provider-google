@@ -443,6 +443,7 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceSecretManagerSecretVersionUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	err := setEnabled(d.Get("enabled"), d, config)
 	if err != nil {

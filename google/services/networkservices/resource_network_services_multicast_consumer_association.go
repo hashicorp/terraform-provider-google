@@ -419,6 +419,7 @@ func resourceNetworkServicesMulticastConsumerAssociationRead(d *schema.ResourceD
 }
 
 func resourceNetworkServicesMulticastConsumerAssociationUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
