@@ -201,6 +201,14 @@ Example inputs include: ["22"], ["80","443"], and ["12345-12349"].`,
 								Type: schema.TypeString,
 							},
 						},
+						"dest_network_context": {
+							Type:          schema.TypeString,
+							Computed:      true,
+							Optional:      true,
+							ValidateFunc:  verify.ValidateEnum([]string{"UNSPECIFIED", "INTERNET", "INTRA_VPC", "NON_INTERNET", "VPC_NETWORKS", ""}),
+							Description:   `Network context of the traffic destination. Possible values: ["UNSPECIFIED", "INTERNET", "INTRA_VPC", "NON_INTERNET", "VPC_NETWORKS"]`,
+							ConflictsWith: []string{},
+						},
 						"dest_region_codes": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -237,6 +245,22 @@ Example inputs include: ["22"], ["80","443"], and ["12345-12349"].`,
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: `CIDR IP address range. Maximum number of source CIDR IP ranges allowed is 5000.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"src_network_context": {
+							Type:          schema.TypeString,
+							Computed:      true,
+							Optional:      true,
+							ValidateFunc:  verify.ValidateEnum([]string{"UNSPECIFIED", "INTERNET", "INTRA_VPC", "NON_INTERNET", "VPC_NETWORKS", ""}),
+							Description:   `Network context of the traffic source. Possible values: ["UNSPECIFIED", "INTERNET", "INTRA_VPC", "NON_INTERNET", "VPC_NETWORKS"]`,
+							ConflictsWith: []string{},
+						},
+						"src_networks": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Networks of the traffic source. It can be either a full or partial url.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -700,6 +724,11 @@ func resourceComputeNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData, meta
 		obj["disabled"] = disabledProp
 	}
 
+	obj, err = resourceComputeNetworkFirewallPolicyRuleUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/patchRule?priority={{priority}}")
 	if err != nil {
 		return err
@@ -863,6 +892,12 @@ func flattenComputeNetworkFirewallPolicyRuleMatch(v interface{}, d *schema.Resou
 		flattenComputeNetworkFirewallPolicyRuleMatchSrcIpRanges(original["srcIpRanges"], d, config)
 	transformed["dest_ip_ranges"] =
 		flattenComputeNetworkFirewallPolicyRuleMatchDestIpRanges(original["destIpRanges"], d, config)
+	transformed["src_network_context"] =
+		flattenComputeNetworkFirewallPolicyRuleMatchSrcNetworkContext(original["srcNetworkContext"], d, config)
+	transformed["src_networks"] =
+		flattenComputeNetworkFirewallPolicyRuleMatchSrcNetworks(original["srcNetworks"], d, config)
+	transformed["dest_network_context"] =
+		flattenComputeNetworkFirewallPolicyRuleMatchDestNetworkContext(original["destNetworkContext"], d, config)
 	transformed["layer4_configs"] =
 		flattenComputeNetworkFirewallPolicyRuleMatchLayer4Configs(original["layer4Configs"], d, config)
 	transformed["src_secure_tags"] =
@@ -890,6 +925,18 @@ func flattenComputeNetworkFirewallPolicyRuleMatchSrcIpRanges(v interface{}, d *s
 }
 
 func flattenComputeNetworkFirewallPolicyRuleMatchDestIpRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkFirewallPolicyRuleMatchSrcNetworkContext(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkFirewallPolicyRuleMatchSrcNetworks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeNetworkFirewallPolicyRuleMatchDestNetworkContext(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1133,6 +1180,27 @@ func expandComputeNetworkFirewallPolicyRuleMatch(v interface{}, d tpgresource.Te
 		transformed["destIpRanges"] = transformedDestIpRanges
 	}
 
+	transformedSrcNetworkContext, err := expandComputeNetworkFirewallPolicyRuleMatchSrcNetworkContext(original["src_network_context"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSrcNetworkContext); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["srcNetworkContext"] = transformedSrcNetworkContext
+	}
+
+	transformedSrcNetworks, err := expandComputeNetworkFirewallPolicyRuleMatchSrcNetworks(original["src_networks"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSrcNetworks); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["srcNetworks"] = transformedSrcNetworks
+	}
+
+	transformedDestNetworkContext, err := expandComputeNetworkFirewallPolicyRuleMatchDestNetworkContext(original["dest_network_context"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDestNetworkContext); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["destNetworkContext"] = transformedDestNetworkContext
+	}
+
 	transformedLayer4Configs, err := expandComputeNetworkFirewallPolicyRuleMatchLayer4Configs(original["layer4_configs"], d, config)
 	if err != nil {
 		return nil, err
@@ -1211,6 +1279,18 @@ func expandComputeNetworkFirewallPolicyRuleMatchSrcIpRanges(v interface{}, d tpg
 }
 
 func expandComputeNetworkFirewallPolicyRuleMatchDestIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkFirewallPolicyRuleMatchSrcNetworkContext(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkFirewallPolicyRuleMatchSrcNetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkFirewallPolicyRuleMatchDestNetworkContext(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1392,4 +1472,18 @@ func expandComputeNetworkFirewallPolicyRuleTargetSecureTagsState(v interface{}, 
 
 func expandComputeNetworkFirewallPolicyRuleDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceComputeNetworkFirewallPolicyRuleUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	if !d.HasChange("match") {
+		return obj, nil
+	}
+	oldMatch, newMatch := d.GetChange("match")
+
+	err := adjustFirewallPolicyRuleNetworkContextFields(obj, oldMatch, newMatch)
+	if err != nil {
+		return obj, err
+	}
+
+	return obj, nil
 }
