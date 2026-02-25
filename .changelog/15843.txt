@@ -1,0 +1,3 @@
+```release-note:enhancement
+developerconnect: added `http_config` field to `google_developer_connect_connection` resource
+```
