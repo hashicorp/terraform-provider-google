@@ -1,0 +1,6 @@
+```release-note:enhancement
+netapp: added `scaleTier` field to `netapp_storage_pool` resource (beta)
+```
+```release-note:enhancement
+netapp: added `largeCapacityConfig` block with `constituentCount` field to `netapp_volume` resource (beta)
+```

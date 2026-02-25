@@ -204,6 +204,12 @@ The following arguments are supported:
   If not specified during creation, it defaults to FILE.
   Possible values are: `STORAGE_POOL_TYPE_UNSPECIFIED`, `FILE`, `UNIFIED`.
 
+* `scale_tier` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  The effective scale tier of the storage pool. If `scale_tier` is not
+  specified during creation, this defaults to `SCALE_TIER_STANDARD`.
+  Possible values are: `SCALE_TIER_UNSPECIFIED`, `SCALE_TIER_STANDARD`, `SCALE_TIER_ENTERPRISE`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
