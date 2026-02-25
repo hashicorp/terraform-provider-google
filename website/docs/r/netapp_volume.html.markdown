@@ -194,6 +194,13 @@ The following arguments are supported:
   Currently, only one block device is permitted per Volume.
   Structure is [documented below](#nested_block_devices).
 
+* `large_capacity_config` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Configuration for a Large Capacity Volume. A Large Capacity Volume
+  supports sizes ranging from 12 TiB to 20 PiB, it is composed of multiple
+  internal constituents, and must be created in a large capacity pool.
+  Structure is [documented below](#nested_large_capacity_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -548,6 +555,13 @@ Possible values: DEFAULT, FORCE.
   The OS type of the volume.
   This field can't be changed after the block device is created.
   Possible values are: `LINUX`, `WINDOWS`, `ESXI`.
+
+<a name="nested_large_capacity_config"></a>The `large_capacity_config` block supports:
+
+* `constituent_count` -
+  (Optional)
+  The number of internal constituents (e.g., FlexVols) for this large volume.
+  The minimum number of constituents is 2.
 
 ## Attributes Reference
 
