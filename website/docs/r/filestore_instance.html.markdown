@@ -280,6 +280,12 @@ The following arguments are supported:
   projects/{projectId}/locations/{locationId}/backups/{backupId},
   that this file share has been restored from.
 
+* `source_backupdr_backup` -
+  (Optional)
+  The resource name of the BackupDR backup, in the format
+  `projects/{project_id}/locations/{location_id}/backupVaults/{backupvault_id}/dataSources/{datasource_id}/backups/{backup_id}`,
+  that this file share has been restored from.
+
 * `nfs_export_options` -
   (Optional)
   Nfs Export Options. There is a limit of 10 export options per file share.

@@ -239,6 +239,14 @@ for not allowing root access. The default is NO_ROOT_SQUASH. Default value: "NO_
 projects/{projectId}/locations/{locationId}/backups/{backupId},
 that this file share has been restored from.`,
 						},
+						"source_backupdr_backup": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The resource name of the BackupDR backup, in the format
+'projects/{project_id}/locations/{location_id}/backupVaults/{backupvault_id}/dataSources/{datasource_id}/backups/{backup_id}',
+that this file share has been restored from.`,
+						},
 					},
 				},
 			},
@@ -1214,10 +1222,11 @@ func flattenFilestoreInstanceFileShares(v interface{}, d *schema.ResourceData, c
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":               flattenFilestoreInstanceFileSharesName(original["name"], d, config),
-			"capacity_gb":        flattenFilestoreInstanceFileSharesCapacityGb(original["capacityGb"], d, config),
-			"source_backup":      flattenFilestoreInstanceFileSharesSourceBackup(original["sourceBackup"], d, config),
-			"nfs_export_options": flattenFilestoreInstanceFileSharesNfsExportOptions(original["nfsExportOptions"], d, config),
+			"name":                   flattenFilestoreInstanceFileSharesName(original["name"], d, config),
+			"capacity_gb":            flattenFilestoreInstanceFileSharesCapacityGb(original["capacityGb"], d, config),
+			"source_backup":          flattenFilestoreInstanceFileSharesSourceBackup(original["sourceBackup"], d, config),
+			"source_backupdr_backup": flattenFilestoreInstanceFileSharesSourceBackupdrBackup(original["sourceBackupdrBackup"], d, config),
+			"nfs_export_options":     flattenFilestoreInstanceFileSharesNfsExportOptions(original["nfsExportOptions"], d, config),
 		})
 	}
 	return transformed
@@ -1244,6 +1253,10 @@ func flattenFilestoreInstanceFileSharesCapacityGb(v interface{}, d *schema.Resou
 }
 
 func flattenFilestoreInstanceFileSharesSourceBackup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFilestoreInstanceFileSharesSourceBackupdrBackup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1644,6 +1657,13 @@ func expandFilestoreInstanceFileShares(v interface{}, d tpgresource.TerraformRes
 			transformed["sourceBackup"] = transformedSourceBackup
 		}
 
+		transformedSourceBackupdrBackup, err := expandFilestoreInstanceFileSharesSourceBackupdrBackup(original["source_backupdr_backup"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSourceBackupdrBackup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sourceBackupdrBackup"] = transformedSourceBackupdrBackup
+		}
+
 		transformedNfsExportOptions, err := expandFilestoreInstanceFileSharesNfsExportOptions(original["nfs_export_options"], d, config)
 		if err != nil {
 			return nil, err
@@ -1665,6 +1685,10 @@ func expandFilestoreInstanceFileSharesCapacityGb(v interface{}, d tpgresource.Te
 }
 
 func expandFilestoreInstanceFileSharesSourceBackup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFilestoreInstanceFileSharesSourceBackupdrBackup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

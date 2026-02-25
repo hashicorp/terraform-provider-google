@@ -37,6 +37,7 @@ fields:
     - api_field: fileShares.nfsExportOptions.network
     - api_field: fileShares.nfsExportOptions.squashMode
     - api_field: fileShares.sourceBackup
+    - api_field: fileShares.sourceBackupdrBackup
     - api_field: replication.replicas.peerInstance
       field: initial_replication.replicas.peer_instance
     - api_field: replication.role
