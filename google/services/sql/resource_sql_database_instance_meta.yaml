@@ -140,6 +140,7 @@ fields:
   - api_field: 'settings.insightsConfig.queryStringLength'
   - api_field: 'settings.insightsConfig.recordApplicationTags'
   - api_field: 'settings.insightsConfig.recordClientAddress'
+  - api_field: 'settings.insightsConfig.enhancedQueryInsightsEnabled'
   - api_field: 'settings.ipConfiguration.allocatedIpRange'
   - field: 'settings.ip_configuration.authorized_networks.expiration_time'
   - field: 'settings.ip_configuration.authorized_networks.name'
