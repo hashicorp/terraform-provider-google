@@ -752,6 +752,51 @@ resource "google_developer_connect_connection" "my-connection" {
   ]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_http_conn_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Connection Http Conn Basic
+
+
+```hcl
+resource "google_developer_connect_connection" "my-connection" {
+  location = "us-central1"
+  connection_id = "tf-test-connection"
+
+  http_config {
+    basic_authentication {
+        username = "devconnectprober@gmail.com"
+        password_secret_version = "projects/devconnect-terraform-creds/secrets/http-basic-auth/versions/latest"
+    }
+    host_uri = "https://devconnectprober.atlassian.net"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=developer_connect_connection_http_conn_bearer&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Developer Connect Connection Http Conn Bearer
+
+
+```hcl
+resource "google_developer_connect_connection" "my-connection" {
+  location = "us-central1"
+  connection_id = "tf-test-connection"
+
+  http_config {
+    host_uri = "https://devconnectprober.atlassian.net"
+    
+    bearer_token_authentication {
+      token_secret_version = "projects/devconnect-terraform-creds/secrets/http-bearer-token/versions/latest"
+    }
+    
+  }
+}
+```
 
 ## Argument Reference
 
@@ -822,6 +867,11 @@ The following arguments are supported:
   (Optional)
   Configuration for connections to gitlab.com.
   Structure is [documented below](#nested_gitlab_config).
+
+* `http_config` -
+  (Optional)
+  Configuration for connections to an HTTP service provider.
+  Structure is [documented below](#nested_http_config).
 
 * `crypto_key_config` -
   (Optional)
@@ -1165,6 +1215,57 @@ The following arguments are supported:
 * `username` -
   (Output)
   Output only. The username associated with this token.
+
+<a name="nested_http_config"></a>The `http_config` block supports:
+
+* `basic_authentication` -
+  (Optional)
+  Basic authentication with username and password.
+  Structure is [documented below](#nested_http_config_basic_authentication).
+
+* `bearer_token_authentication` -
+  (Optional)
+  Bearer token authentication with a token.
+  Structure is [documented below](#nested_http_config_bearer_token_authentication).
+
+* `host_uri` -
+  (Required)
+  The service provider's https endpoint.
+
+* `service_directory_config` -
+  (Optional)
+  ServiceDirectoryConfig represents Service Directory configuration for a
+  connection.
+  Structure is [documented below](#nested_http_config_service_directory_config).
+
+* `ssl_ca_certificate` -
+  (Optional)
+  The SSL certificate to use for requests to the HTTP service provider.
+
+
+<a name="nested_http_config_basic_authentication"></a>The `basic_authentication` block supports:
+
+* `password_secret_version` -
+  (Optional)
+  The password SecretManager secret version to authenticate as.
+
+* `username` -
+  (Required)
+  The username to authenticate as.
+
+<a name="nested_http_config_bearer_token_authentication"></a>The `bearer_token_authentication` block supports:
+
+* `token_secret_version` -
+  (Optional)
+  The token SecretManager secret version to authenticate as.
+
+<a name="nested_http_config_service_directory_config"></a>The `service_directory_config` block supports:
+
+* `service` -
+  (Required)
+  The Service Directory service name.
+  Format:
+  projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.
 
 <a name="nested_crypto_key_config"></a>The `crypto_key_config` block supports:
 
