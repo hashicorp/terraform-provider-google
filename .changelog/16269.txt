@@ -1,0 +1,3 @@
+```release-note:enhancement
+filestore: added `source_backupdr_backup` field to `google_filestore_instance` resource
+```
