@@ -699,6 +699,11 @@ Defaults to false.
   The network that is allowed to connect to this service attachment.
   Only one of project_id_or_num and network_url may be set.
 
+* `endpoint_url` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  The endpoint that is allowed to connect to this service attachment.
+  Only one of project_id_or_num, network_url and endpoint_url may be set.
+
 * `connection_limit` -
   (Required)
   The number of consumer forwarding rules the consumer project can
