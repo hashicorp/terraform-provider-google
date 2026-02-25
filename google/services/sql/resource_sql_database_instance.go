@@ -134,6 +134,7 @@ var (
 		"settings.0.insights_config.0.record_application_tags",
 		"settings.0.insights_config.0.record_client_address",
 		"settings.0.insights_config.0.query_plans_per_minute",
+		"settings.0.insights_config.0.enhanced_query_insights_enabled",
 	}
 
 	sqlServerAuditConfigurationKeys = []string{
@@ -798,13 +799,19 @@ API (for read pools, effective_availability_type may differ from availability_ty
 										AtLeastOneOf: insightsConfigKeys,
 										Description:  `True if Query Insights feature is enabled.`,
 									},
+									"enhanced_query_insights_enabled": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `True if Enhanced Query Insights feature is enabled.`,
+									},
 									"query_string_length": {
 										Type:         schema.TypeInt,
 										Optional:     true,
-										Default:      1024,
+										Computed:     true,
 										ValidateFunc: validation.IntBetween(1, 1048576),
 										AtLeastOneOf: insightsConfigKeys,
-										Description:  `Maximum query length stored in bytes. Between 256 and 4500. Default to 1024. For Enterprise Plus instances, from 1 to 1048576.`,
+										Description:  `Maximum query length stored in bytes. Between 256 and 4500. Default to 1024. For Enterprise Plus instances, from 1024 to 100000.`,
 									},
 									"record_application_tags": {
 										Type:         schema.TypeBool,
@@ -2126,11 +2133,16 @@ func expandInsightsConfig(configured []interface{}) *sqladmin.InsightsConfig {
 
 	_insightsConfig := configured[0].(map[string]interface{})
 	return &sqladmin.InsightsConfig{
-		QueryInsightsEnabled:  _insightsConfig["query_insights_enabled"].(bool),
-		QueryStringLength:     int64(_insightsConfig["query_string_length"].(int)),
-		RecordApplicationTags: _insightsConfig["record_application_tags"].(bool),
-		RecordClientAddress:   _insightsConfig["record_client_address"].(bool),
-		QueryPlansPerMinute:   int64(_insightsConfig["query_plans_per_minute"].(int)),
+		QueryInsightsEnabled:         _insightsConfig["query_insights_enabled"].(bool),
+		QueryStringLength:            int64(_insightsConfig["query_string_length"].(int)),
+		RecordApplicationTags:        _insightsConfig["record_application_tags"].(bool),
+		RecordClientAddress:          _insightsConfig["record_client_address"].(bool),
+		QueryPlansPerMinute:          int64(_insightsConfig["query_plans_per_minute"].(int)),
+		EnhancedQueryInsightsEnabled: _insightsConfig["enhanced_query_insights_enabled"].(bool),
+		// Ensure boolean fields that may be set to false are always sent in API requests
+		// so Terraform can disable features (false) instead of leaving them as the
+		// server-side defaults when omitted.
+		ForceSendFields: []string{"EnhancedQueryInsightsEnabled"},
 	}
 }
 
@@ -3299,11 +3311,12 @@ func flattenServerCaCerts(caCerts []*sqladmin.SslCert) []map[string]interface{} 
 
 func flattenInsightsConfig(insightsConfig *sqladmin.InsightsConfig) interface{} {
 	data := map[string]interface{}{
-		"query_insights_enabled":  insightsConfig.QueryInsightsEnabled,
-		"query_string_length":     insightsConfig.QueryStringLength,
-		"record_application_tags": insightsConfig.RecordApplicationTags,
-		"record_client_address":   insightsConfig.RecordClientAddress,
-		"query_plans_per_minute":  insightsConfig.QueryPlansPerMinute,
+		"query_insights_enabled":          insightsConfig.QueryInsightsEnabled,
+		"query_string_length":             insightsConfig.QueryStringLength,
+		"record_application_tags":         insightsConfig.RecordApplicationTags,
+		"record_client_address":           insightsConfig.RecordClientAddress,
+		"query_plans_per_minute":          insightsConfig.QueryPlansPerMinute,
+		"enhanced_query_insights_enabled": insightsConfig.EnhancedQueryInsightsEnabled,
 	}
 
 	return []map[string]interface{}{data}
