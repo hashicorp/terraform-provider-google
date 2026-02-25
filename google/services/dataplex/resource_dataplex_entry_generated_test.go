@@ -479,6 +479,7 @@ resource "google_dataplex_entry" "tf_test_glossary_term" {
          EOF
      }
    }
+  depends_on = [google_dataplex_glossary_term.example-glossary-term]
 }
 `, context)
 }
