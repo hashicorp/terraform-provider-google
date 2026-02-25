@@ -678,3 +678,125 @@ resource "google_network_services_gateway" "default" {
 }
 `, context)
 }
+
+func TestAccComputeServiceAttachment_serviceAttachmentEndpointUrl(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Create SA without endpoint_url (Required by API)
+				Config: testAccComputeServiceAttachment_serviceAttachmentEndpointUrl(context, false),
+			},
+			{
+				// Step 2: Update with numerical ID-based endpoint_url
+				Config: testAccComputeServiceAttachment_serviceAttachmentEndpointUrl(context, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_compute_service_attachment.psc_ilb_service_attachment", "consumer_accept_lists.0.endpoint_url"),
+					resource.TestCheckResourceAttr("google_compute_service_attachment.psc_ilb_service_attachment", "consumer_accept_lists.0.connection_limit", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"target_service", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeServiceAttachment_serviceAttachmentEndpointUrl(context map[string]interface{}, addEndpoint bool) string {
+	context["endpoint_block"] = ""
+	if addEndpoint {
+		// Use a static string with a numerical ID to avoid a Terraform dependency cycle
+		context["endpoint_block"] = `
+  consumer_accept_lists {
+    endpoint_url     = "projects/psc-endpoint-security-348642/regions/us-west2/forwardingRules/1234567890123456789"
+    connection_limit = 1
+  }
+  reconcile_connections = true`
+	}
+
+	return acctest.Nprintf(`
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  name                  = "tf-test-endpoint-url-%{random_suffix}"
+  region                = "us-west2"
+  description           = "A service attachment with endpoint_url"
+  enable_proxy_protocol = false
+  connection_preference = "ACCEPT_MANUAL"
+  nat_subnets           = [google_compute_subnetwork.psc_ilb_nat.id]
+  target_service        = google_compute_forwarding_rule.psc_ilb_target_service.id
+
+  %{endpoint_block}
+}
+
+# Consumer Infrastructure (independent of SA's accept list to avoid cycles)
+resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
+  name                  = "tf-test-consumer-fr-%{random_suffix}"
+  region                = "us-west2"
+  target                = google_compute_service_attachment.psc_ilb_service_attachment.id
+  load_balancing_scheme = "" 
+  network               = "default"
+  ip_address            = google_compute_address.psc_ilb_consumer_address.id
+}
+
+resource "google_compute_address" "psc_ilb_consumer_address" {
+  name         = "tf-test-consumer-addr-%{random_suffix}"
+  region       = "us-west2"
+  subnetwork   = "default"
+  address_type = "INTERNAL"
+}
+
+# Producer Infrastructure
+resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
+  name                  = "tf-test-producer-fr-%{random_suffix}"
+  region                = "us-west2"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_producer_subnetwork.name
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name          = "tf-test-producer-bs-%{random_suffix}"
+  region        = "us-west2"
+  health_checks = [google_compute_health_check.producer_service_health_check.id]
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  name = "tf-test-producer-hc-%{random_suffix}"
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_network" "psc_ilb_network" {
+  name                    = "tf-test-psc-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
+  name          = "tf-test-prod-sub-%{random_suffix}"
+  region        = "us-west2"
+  network       = google_compute_network.psc_ilb_network.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_subnetwork" "psc_ilb_nat" {
+  name          = "tf-test-nat-sub-%{random_suffix}"
+  region        = "us-west2"
+  network       = google_compute_network.psc_ilb_network.id
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/16"
+}
+`, context)
+}
