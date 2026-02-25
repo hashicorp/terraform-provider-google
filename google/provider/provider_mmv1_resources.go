@@ -165,6 +165,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/services/transcoder"
+	"github.com/hashicorp/terraform-provider-google/google/services/vectorsearch"
 	"github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	"github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
@@ -602,9 +603,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 717
+// Generated resources: 718
 // Generated IAM resources: 333
-// Total generated resources: 1050
+// Total generated resources: 1051
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -1590,6 +1591,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_tags_tag_value_iam_policy":                                           registry.Resource("google_tags_tag_value_iam_policy"),
 	"google_transcoder_job":                                                      registry.Resource("google_transcoder_job"),
 	"google_transcoder_job_template":                                             registry.Resource("google_transcoder_job_template"),
+	"google_vector_search_collection":                                            registry.Resource("google_vector_search_collection"),
 	"google_vertex_ai_cache_config":                                              registry.Resource("google_vertex_ai_cache_config"),
 	"google_vertex_ai_dataset":                                                   registry.Resource("google_vertex_ai_dataset"),
 	"google_vertex_ai_deployment_resource_pool":                                  registry.Resource("google_vertex_ai_deployment_resource_pool"),
@@ -1936,6 +1938,7 @@ func UseGeneratedProducts() {
 	var _ = storagetransfer.ProductName
 	var _ = tags.ProductName
 	var _ = transcoder.ProductName
+	var _ = vectorsearch.ProductName
 	var _ = vertexai.ProductName
 	var _ = vmwareengine.ProductName
 	var _ = vpcaccess.ProductName
