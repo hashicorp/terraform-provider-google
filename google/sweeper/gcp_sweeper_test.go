@@ -166,7 +166,6 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/transcoder"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/vectorsearch"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"

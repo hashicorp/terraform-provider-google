@@ -1,0 +1,3 @@
+```release-note:new-resource
+reverted `google_vector_search_collection` (ga)
+```
