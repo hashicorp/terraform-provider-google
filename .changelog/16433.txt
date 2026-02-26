@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `erase_windows_vss_signature` field to `google_compute_disk` (beta)
+```
+```release-note:enhancement
+compute: added `erase_windows_vss_signature` field to `google_compute_region_disk` (beta)
+```
