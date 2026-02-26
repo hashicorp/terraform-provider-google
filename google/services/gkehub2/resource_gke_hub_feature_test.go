@@ -862,6 +862,165 @@ resource "google_gke_hub_feature" "feature" {
 `, context)
 }
 
+func TestAccGKEHubFeature_WorkloadIdentity(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckGKEHubFeatureDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeature_WorkloadIdentity(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccGKEHubFeature_WorkloadIdentityUpdate(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEHubFeature_WorkloadIdentity(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "tf-test%{random_suffix}"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  project = google_project.project.project_id
+  deletion_protection = false
+  workload_identity_config {
+    workload_pool = "${google_project.project.project_id}.svc.id.goog"
+  }
+  depends_on = [time_sleep.wait_for_gkehub_enablement]
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "tf-test%{random_suffix}"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
+    }
+  }
+  authority {
+    issuer = "https://container.googleapis.com/v1/${google_container_cluster.cluster.id}"
+  }
+  project = google_project.project.project_id
+}
+
+resource "google_project_iam_member" "fleet-p4sa-workload-identity-admin" {
+  project = google_project.project.project_id
+  role = "roles/iam.workloadIdentityPoolAdmin"
+  member = "serviceAccount:service-${google_project.project.number}@gcp-sa-gkehub.iam.gserviceaccount.com"
+  depends_on = [google_gke_hub_membership.membership]
+}
+
+resource "time_sleep" "wait_for_workload_identity_binding_propagation" {
+  depends_on = [google_project_iam_member.fleet-p4sa-workload-identity-admin]
+  create_duration = "60s"
+}
+
+resource "google_iam_workload_identity_pool" "fleet-pool" {
+  project = google_project.project.project_id
+  workload_identity_pool_id = "fleet-pool%{random_suffix}"
+  mode                      = "TRUST_DOMAIN"
+  depends_on = [time_sleep.wait_for_workload_identity_binding_propagation]
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "workloadidentity"
+  location = "global"
+  spec {
+    workloadidentity {
+	    scope_tenancy_pool = google_iam_workload_identity_pool.fleet-pool.name
+    }
+  }
+  depends_on = [time_sleep.wait_for_gkehub_enablement, time_sleep.wait_for_workload_identity_binding_propagation, google_iam_workload_identity_pool.fleet-pool]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_WorkloadIdentityUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "tf-test%{random_suffix}"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  project = google_project.project.project_id
+  deletion_protection = false
+  workload_identity_config {
+    workload_pool = "${google_project.project.project_id}.svc.id.goog"
+  }
+  depends_on = [time_sleep.wait_for_gkehub_enablement]
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "tf-test%{random_suffix}"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
+    }
+  }
+  authority {
+    issuer = "https://container.googleapis.com/v1/${google_container_cluster.cluster.id}"
+  }
+  project = google_project.project.project_id
+}
+
+resource "google_project_iam_member" "fleet-p4sa-workload-identity-admin" {
+  project = google_project.project.project_id
+  role = "roles/iam.workloadIdentityPoolAdmin"
+  member = "serviceAccount:service-${google_project.project.number}@gcp-sa-gkehub.iam.gserviceaccount.com"
+  depends_on = [google_gke_hub_membership.membership]
+}
+
+resource "time_sleep" "wait_for_workload_identity_binding_propagation" {
+  depends_on = [google_project_iam_member.fleet-p4sa-workload-identity-admin]
+  create_duration = "60s"
+}
+
+resource "google_iam_workload_identity_pool" "other-fleet-pool" {
+  project = google_project.project.project_id
+  workload_identity_pool_id = "my-other-fleet-pool%{random_suffix}"
+  mode                      = "TRUST_DOMAIN"
+  depends_on = [time_sleep.wait_for_workload_identity_binding_propagation]
+}
+  
+resource "google_gke_hub_feature" "feature" {
+  name = "workloadidentity"
+  location = "global"
+  spec {
+    workloadidentity {
+	    scope_tenancy_pool = google_iam_workload_identity_pool.other-fleet-pool.name
+    }
+  }
+  depends_on = [time_sleep.wait_for_gkehub_enablement, time_sleep.wait_for_workload_identity_binding_propagation, google_iam_workload_identity_pool.other-fleet-pool]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
 func TestAccGKEHubFeature_Rbacrolebindingactuation(t *testing.T) {
 	t.Parallel()
 

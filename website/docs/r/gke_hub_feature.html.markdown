@@ -315,6 +315,27 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+## Example Usage - Gkehub Feature Workload Identity
+
+
+```hcl
+resource "google_iam_workload_identity_pool" "pool" {
+  provider = google-beta
+
+  workload_identity_pool_id = "example-pool"
+  mode                      = "TRUST_DOMAIN"
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "workloadidentity"
+  location = "global"
+  spec {
+    workloadidentity {
+      scope_tenancy_pool = google_iam_workload_identity_pool.pool.name
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -372,6 +393,11 @@ The following arguments are supported:
   (Optional)
   RBACRolebinding Actuation feature spec.
   Structure is [documented below](#nested_spec_rbacrolebindingactuation).
+
+* `workloadidentity` -
+  (Optional)
+  Workload Identity feature spec.
+  Structure is [documented below](#nested_spec_workloadidentity).
 
 
 <a name="nested_spec_multiclusteringress"></a>The `multiclusteringress` block supports:
@@ -472,6 +498,12 @@ The following arguments are supported:
 * `allowed_custom_roles` -
   (Optional)
   The list of allowed custom roles (ClusterRoles). If a custom role is not part of this list, it cannot be used in a fleet scope RBACRoleBinding. If a custom role in this list is in use, it cannot be removed from the list until the scope RBACRolebindings using it are deleted.
+
+<a name="nested_spec_workloadidentity"></a>The `workloadidentity` block supports:
+
+* `scope_tenancy_pool` -
+  (Required)
+  Pool to be used for Workload Identity. This pool in trust-domain mode is used with Fleet Tenancy, so that sameness can be enforced. ex: projects/example/locations/global/workloadidentitypools/custompool
 
 <a name="nested_fleet_default_member_config"></a>The `fleet_default_member_config` block supports:
 
