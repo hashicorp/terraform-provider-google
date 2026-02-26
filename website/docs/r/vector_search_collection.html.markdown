@@ -23,6 +23,8 @@ description: |-
 
 Description
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -35,6 +37,8 @@ Description
 
 ```hcl
 resource "google_vector_search_collection" "example-collection" {
+  provider = google-beta
+
   location      = "us-central1"
   collection_id = "example-collection"
 
