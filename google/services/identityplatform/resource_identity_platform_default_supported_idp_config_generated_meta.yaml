@@ -11,3 +11,5 @@ fields:
     - field: idp_id
       provider_only: true
     - api_field: name
+    - field: deletion_policy
+      provider_only: true

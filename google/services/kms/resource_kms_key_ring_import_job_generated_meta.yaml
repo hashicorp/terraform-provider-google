@@ -18,3 +18,5 @@ fields:
     - api_field: protectionLevel
     - api_field: publicKey.pem
     - api_field: state
+    - field: deletion_policy
+      provider_only: true

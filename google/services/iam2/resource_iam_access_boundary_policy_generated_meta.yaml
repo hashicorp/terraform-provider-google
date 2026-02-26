@@ -18,3 +18,5 @@ fields:
     - api_field: rules.accessBoundaryRule.availablePermissions
     - api_field: rules.accessBoundaryRule.availableResource
     - api_field: rules.description
+    - field: deletion_policy
+      provider_only: true

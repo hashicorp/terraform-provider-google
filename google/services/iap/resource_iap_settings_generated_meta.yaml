@@ -29,3 +29,5 @@ fields:
     - api_field: applicationSettings.cookieDomain
     - api_field: applicationSettings.csmSettings.rctokenAud
     - api_field: name
+    - field: deletion_policy
+      provider_only: true

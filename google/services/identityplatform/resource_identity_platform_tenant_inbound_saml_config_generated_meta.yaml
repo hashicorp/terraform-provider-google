@@ -17,3 +17,5 @@ fields:
     - api_field: spConfig.spEntityId
     - field: tenant
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

@@ -13,3 +13,5 @@ fields:
     - api_field: name
     - api_field: responseType.code
     - api_field: responseType.idToken
+    - field: deletion_policy
+      provider_only: true

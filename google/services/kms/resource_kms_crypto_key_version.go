@@ -244,6 +244,19 @@ Only provided for key versions with protectionLevel HSM.`,
 				Computed:    true,
 				Description: `The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -348,6 +361,13 @@ func resourceKMSCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("KMSCryptoKeyVersion %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
+
 	if err := d.Set("name", flattenKMSCryptoKeyVersionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
 	}
@@ -374,6 +394,18 @@ func resourceKMSCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceKMSCryptoKeyVersionUpdate(d *schema.ResourceData, meta interface{}) error {
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceKMSCryptoKeyVersion().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceKMSCryptoKeyVersionRead(d, meta)
+	}
 
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)

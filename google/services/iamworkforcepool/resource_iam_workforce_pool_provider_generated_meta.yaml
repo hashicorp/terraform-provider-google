@@ -40,3 +40,5 @@ fields:
     - api_field: state
     - field: workforce_pool_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

@@ -55,3 +55,5 @@ fields:
     - api_field: updateTime
     - api_field: validTime
     - api_field: visibility
+    - field: deletion_policy
+      provider_only: true
