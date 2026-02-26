@@ -8,3 +8,4 @@ INSTANCE_NAME=`curl -s -H "Metadata-Flavor: Google" http://metadata.google.inter
 ZONE=`curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/zone | awk -F "/" '{print $NF}'`
 echo '<!doctype html><html><body><h1>'$INSTANCE_NAME'</h1></body></html>' | tee /var/www/html/index.html
 gcloud compute instances delete-access-config $INSTANCE_NAME --zone $ZONE
+ 
