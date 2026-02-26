@@ -2830,6 +2830,31 @@ func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withSandboxConfigType(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withSandboxConfigType(clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_sandbox_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "node_config.0.taint", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withBootDiskKmsKey(t *testing.T) {
 	t.Parallel()
 
@@ -9183,6 +9208,93 @@ resource "google_container_cluster" "with_workload_metadata_config" {
   deletion_protection = false
 }
 `, clusterName, workloadMetadataConfigMode, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withSandboxConfigType(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_sandbox_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+
+  node_config {
+    machine_type = "n1-standard-1" // can't be e2 because of gvisor
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    image_type = "COS_CONTAINERD"
+
+    sandbox_config {
+      type = "GVISOR"
+    }
+
+    labels = {
+      "test.terraform.io/gke-sandbox" = "true"
+    }
+
+    taint {
+      key    = "test.terraform.io/gke-sandbox"
+      value  = "true"
+      effect = "NO_SCHEDULE"
+    }
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withSandboxConfigType_changeLabels(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_sandbox_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+
+  node_config {
+    machine_type = "n1-standard-1" // can't be e2 because of gvisor
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    image_type = "COS_CONTAINERD"
+
+    sandbox_config {
+      type = "GVISOR"
+    }
+
+    labels = {
+      "test.terraform.io/gke-sandbox"         = "true"
+      "test.terraform.io/gke-sandbox-amended" = "also-true"
+    }
+
+    taint {
+      key    = "test.terraform.io/gke-sandbox"
+      value  = "true"
+      effect = "NO_SCHEDULE"
+    }
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, clusterName, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withBootDiskKmsKey(clusterName, kmsKeyName, networkName, subnetworkName string) string {
