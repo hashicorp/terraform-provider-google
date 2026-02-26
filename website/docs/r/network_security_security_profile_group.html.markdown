@@ -146,7 +146,6 @@ resource "google_network_security_security_profile_group" "default" {
 
 ```hcl
 resource "google_network_security_security_profile_group" "default" {
-  provider                  = google-beta
   name                      = "sec-profile-group"
   parent                    = "organizations/123456789"
   description               = "my description"
@@ -158,7 +157,6 @@ resource "google_network_security_security_profile_group" "default" {
 }
 
 resource "google_network_security_security_profile" "security_profile" {
-  provider    = google-beta
   name        = "sec-profile"
   location    = "global"
   type        = "URL_FILTERING"
@@ -200,7 +198,7 @@ The following arguments are supported:
   Reference to a SecurityProfile with the threat prevention configuration for the SecurityProfileGroup.
 
 * `url_filtering_profile` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Reference to a SecurityProfile with the URL filtering configuration for the SecurityProfileGroup.
 
 * `custom_mirroring_profile` -
