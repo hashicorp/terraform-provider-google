@@ -36,3 +36,5 @@ fields:
     - api_field: validationConfig.disableRequiredFieldValidation
     - api_field: validationConfig.enabledImplementationGuides
     - api_field: version
+    - field: deletion_policy
+      provider_only: true

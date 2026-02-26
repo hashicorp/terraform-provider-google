@@ -11,3 +11,5 @@ fields:
     - api_field: name
     - api_field: selfLink
     - api_field: timeZone
+    - field: deletion_policy
+      provider_only: true

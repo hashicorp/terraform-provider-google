@@ -101,3 +101,5 @@ fields:
     - api_field: validationCheck.status.result.details
     - api_field: validationCheck.status.result.options
     - api_field: validationCheck.status.result.reason
+    - field: deletion_policy
+      provider_only: true

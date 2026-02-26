@@ -388,6 +388,12 @@ The following arguments are supported:
   A list of notifcation configs that configure the notification for every resource mutation in this FHIR store.
   Structure is [documented below](#nested_notification_configs).
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 
 
 <a name="nested_consent_config"></a>The `consent_config` block supports:

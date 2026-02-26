@@ -14,3 +14,5 @@ fields:
     - api_field: settings.dataProjectIds
     - field: terraform_labels
       provider_only: true
+    - field: deletion_policy
+      provider_only: true
