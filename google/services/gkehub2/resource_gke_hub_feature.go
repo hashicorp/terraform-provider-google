@@ -720,6 +720,21 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 								},
 							},
 						},
+						"workloadidentity": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Workload Identity feature spec.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"scope_tenancy_pool": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Pool to be used for Workload Identity. This pool in trust-domain mode is used with Fleet Tenancy, so that sameness can be enforced. ex: projects/example/locations/global/workloadidentitypools/custompool`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1282,6 +1297,8 @@ func flattenGKEHub2FeatureSpec(v interface{}, d *schema.ResourceData, config *tr
 		flattenGKEHub2FeatureSpecClusterupgrade(original["clusterupgrade"], d, config)
 	transformed["rbacrolebindingactuation"] =
 		flattenGKEHub2FeatureSpecRbacrolebindingactuation(original["rbacrolebindingactuation"], d, config)
+	transformed["workloadidentity"] =
+		flattenGKEHub2FeatureSpecWorkloadidentity(original["workloadidentity"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGKEHub2FeatureSpecMulticlusteringress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1474,6 +1491,23 @@ func flattenGKEHub2FeatureSpecRbacrolebindingactuation(v interface{}, d *schema.
 	return []interface{}{transformed}
 }
 func flattenGKEHub2FeatureSpecRbacrolebindingactuationAllowedCustomRoles(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureSpecWorkloadidentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["scope_tenancy_pool"] =
+		flattenGKEHub2FeatureSpecWorkloadidentityScopeTenancyPool(original["scopeTenancyPool"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureSpecWorkloadidentityScopeTenancyPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2103,6 +2137,13 @@ func expandGKEHub2FeatureSpec(v interface{}, d tpgresource.TerraformResourceData
 		transformed["rbacrolebindingactuation"] = transformedRbacrolebindingactuation
 	}
 
+	transformedWorkloadidentity, err := expandGKEHub2FeatureSpecWorkloadidentity(original["workloadidentity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWorkloadidentity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["workloadidentity"] = transformedWorkloadidentity
+	}
+
 	return transformed, nil
 }
 
@@ -2419,6 +2460,32 @@ func expandGKEHub2FeatureSpecRbacrolebindingactuation(v interface{}, d tpgresour
 }
 
 func expandGKEHub2FeatureSpecRbacrolebindingactuationAllowedCustomRoles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureSpecWorkloadidentity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScopeTenancyPool, err := expandGKEHub2FeatureSpecWorkloadidentityScopeTenancyPool(original["scope_tenancy_pool"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScopeTenancyPool); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scopeTenancyPool"] = transformedScopeTenancyPool
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureSpecWorkloadidentityScopeTenancyPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

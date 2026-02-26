@@ -82,6 +82,7 @@ fields:
     - api_field: spec.fleetobservability.loggingConfig.fleetScopeLogsConfig.mode
     - api_field: spec.multiclusteringress.configMembership
     - api_field: spec.rbacrolebindingactuation.allowedCustomRoles
+    - api_field: spec.workloadidentity.scopeTenancyPool
     - api_field: state.state.code
     - api_field: state.state.description
     - api_field: state.state.updateTime
