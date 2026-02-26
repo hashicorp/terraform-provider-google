@@ -12,3 +12,5 @@ fields:
     - api_field: displayName
     - api_field: enableEmailLinkSignin
     - api_field: name
+    - field: deletion_policy
+      provider_only: true

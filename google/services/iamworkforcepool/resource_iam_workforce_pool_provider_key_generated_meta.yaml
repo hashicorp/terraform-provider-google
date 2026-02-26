@@ -22,3 +22,5 @@ fields:
     - api_field: use
     - field: workforce_pool_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

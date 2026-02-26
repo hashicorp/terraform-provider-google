@@ -12,3 +12,5 @@ fields:
     - api_field: state
     - field: workload_identity_pool_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

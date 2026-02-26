@@ -167,6 +167,19 @@ Format: 'locations/{location}/workforcePools/{workforce_pool}/providers/{workfor
 * ACTIVE: The token is active and may be used to provision users and groups.
 * DELETED: The token is soft-deleted. Soft-deleted tokens are permanently deleted after approximately 30 days.`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -276,6 +289,13 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenRead(d *schema.Resour
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
+
 	if err := d.Set("name", flattenIAMWorkforcePoolWorkforcePoolProviderScimTokenName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WorkforcePoolProviderScimToken: %s", err)
 	}
@@ -293,6 +313,18 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenRead(d *schema.Resour
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenUpdate(d *schema.ResourceData, meta interface{}) error {
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceIAMWorkforcePoolWorkforcePoolProviderScimToken().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenRead(d, meta)
+	}
 
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -384,6 +416,13 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenDelete(d *schema.Reso
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy IAMWorkforcePoolWorkforcePoolProviderScimToken without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing WorkforcePoolProviderScimToken %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 
 	log.Printf("[DEBUG] Deleting WorkforcePoolProviderScimToken %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

@@ -11,3 +11,5 @@ fields:
       field: client_id
     - api_field: displayName
     - api_field: secret
+    - field: deletion_policy
+      provider_only: true

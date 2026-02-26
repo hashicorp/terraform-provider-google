@@ -15,3 +15,5 @@ fields:
     - api_field: spConfig.callbackUri
     - api_field: spConfig.spCertificates.x509Certificate
     - api_field: spConfig.spEntityId
+    - field: deletion_policy
+      provider_only: true

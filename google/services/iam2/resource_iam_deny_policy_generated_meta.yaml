@@ -21,3 +21,5 @@ fields:
     - api_field: rules.denyRule.exceptionPermissions
     - api_field: rules.denyRule.exceptionPrincipals
     - api_field: rules.description
+    - field: deletion_policy
+      provider_only: true
