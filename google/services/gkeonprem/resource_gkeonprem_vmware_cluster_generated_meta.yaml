@@ -94,3 +94,5 @@ fields:
     - api_field: vcenter.resourcePool
     - api_field: vcenter.storagePolicyName
     - api_field: vmTrackingEnabled
+    - field: deletion_policy
+      provider_only: true
