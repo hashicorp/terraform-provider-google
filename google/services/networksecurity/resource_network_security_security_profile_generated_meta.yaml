@@ -33,3 +33,6 @@ fields:
     - api_field: threatPreventionProfile.threatOverrides.type
     - api_field: type
     - api_field: updateTime
+    - api_field: urlFilteringProfile.urlFilters.filteringAction
+    - api_field: urlFilteringProfile.urlFilters.priority
+    - api_field: urlFilteringProfile.urlFilters.urls

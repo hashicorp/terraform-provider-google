@@ -208,6 +208,60 @@ resource "google_network_security_security_profile" "default" {
 `, context)
 }
 
+func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileUrlFilteringExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecuritySecurityProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileUrlFilteringExample(context),
+			},
+			{
+				ResourceName:            "google_network_security_security_profile.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileUrlFilteringExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_security_profile" "default" {
+  name        = "tf-test-my-security-profile%{random_suffix}"
+  parent      = "organizations/%{org_id}"
+  description = "my description"
+  type        = "URL_FILTERING"
+
+  url_filtering_profile {
+    url_filters {
+      priority = 1
+      filtering_action   = "ALLOW"
+      urls = ["*example.com", "*about.example.com", "*help.example.com"]
+    }
+    url_filters {
+      priority = 2
+      filtering_action   = "DENY"
+      urls = ["*restricted.example.com"]
+    }
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+`, context)
+}
+
 func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBrokerExample(t *testing.T) {
 	t.Parallel()
 

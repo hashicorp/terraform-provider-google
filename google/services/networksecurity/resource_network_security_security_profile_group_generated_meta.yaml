@@ -23,3 +23,4 @@ fields:
       provider_only: true
     - api_field: threatPreventionProfile
     - api_field: updateTime
+    - api_field: urlFilteringProfile

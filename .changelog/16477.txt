@@ -1,0 +1,6 @@
+```release-note:enhancement
+networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile` resource (ga)
+```
+```release-note:enhancement
+networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile_group` resource (ga)
+```

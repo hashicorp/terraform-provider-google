@@ -169,6 +169,11 @@ Format: organizations/{organization_id}.`,
 				Optional:    true,
 				Description: `Reference to a SecurityProfile with the threat prevention configuration for the SecurityProfileGroup.`,
 			},
+			"url_filtering_profile": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Reference to a SecurityProfile with the URL filtering configuration for the SecurityProfileGroup.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -224,6 +229,12 @@ func resourceNetworkSecuritySecurityProfileGroupCreate(d *schema.ResourceData, m
 		return err
 	} else if v, ok := d.GetOkExists("threat_prevention_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(threatPreventionProfileProp)) && (ok || !reflect.DeepEqual(v, threatPreventionProfileProp)) {
 		obj["threatPreventionProfile"] = threatPreventionProfileProp
+	}
+	urlFilteringProfileProp, err := expandNetworkSecuritySecurityProfileGroupUrlFilteringProfile(d.Get("url_filtering_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("url_filtering_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(urlFilteringProfileProp)) && (ok || !reflect.DeepEqual(v, urlFilteringProfileProp)) {
+		obj["urlFilteringProfile"] = urlFilteringProfileProp
 	}
 	customMirroringProfileProp, err := expandNetworkSecuritySecurityProfileGroupCustomMirroringProfile(d.Get("custom_mirroring_profile"), d, config)
 	if err != nil {
@@ -344,6 +355,9 @@ func resourceNetworkSecuritySecurityProfileGroupRead(d *schema.ResourceData, met
 	if err := d.Set("threat_prevention_profile", flattenNetworkSecuritySecurityProfileGroupThreatPreventionProfile(res["threatPreventionProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
 	}
+	if err := d.Set("url_filtering_profile", flattenNetworkSecuritySecurityProfileGroupUrlFilteringProfile(res["urlFilteringProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
+	}
 	if err := d.Set("custom_mirroring_profile", flattenNetworkSecuritySecurityProfileGroupCustomMirroringProfile(res["customMirroringProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
 	}
@@ -383,6 +397,12 @@ func resourceNetworkSecuritySecurityProfileGroupUpdate(d *schema.ResourceData, m
 	} else if v, ok := d.GetOkExists("threat_prevention_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, threatPreventionProfileProp)) {
 		obj["threatPreventionProfile"] = threatPreventionProfileProp
 	}
+	urlFilteringProfileProp, err := expandNetworkSecuritySecurityProfileGroupUrlFilteringProfile(d.Get("url_filtering_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("url_filtering_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, urlFilteringProfileProp)) {
+		obj["urlFilteringProfile"] = urlFilteringProfileProp
+	}
 	customMirroringProfileProp, err := expandNetworkSecuritySecurityProfileGroupCustomMirroringProfile(d.Get("custom_mirroring_profile"), d, config)
 	if err != nil {
 		return err
@@ -417,6 +437,10 @@ func resourceNetworkSecuritySecurityProfileGroupUpdate(d *schema.ResourceData, m
 
 	if d.HasChange("threat_prevention_profile") {
 		updateMask = append(updateMask, "threatPreventionProfile")
+	}
+
+	if d.HasChange("url_filtering_profile") {
+		updateMask = append(updateMask, "urlFilteringProfile")
 	}
 
 	if d.HasChange("custom_mirroring_profile") {
@@ -577,6 +601,10 @@ func flattenNetworkSecuritySecurityProfileGroupThreatPreventionProfile(v interfa
 	return v
 }
 
+func flattenNetworkSecuritySecurityProfileGroupUrlFilteringProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecuritySecurityProfileGroupCustomMirroringProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -609,6 +637,10 @@ func expandNetworkSecuritySecurityProfileGroupDescription(v interface{}, d tpgre
 }
 
 func expandNetworkSecuritySecurityProfileGroupThreatPreventionProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileGroupUrlFilteringProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

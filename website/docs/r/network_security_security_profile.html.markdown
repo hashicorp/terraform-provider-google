@@ -151,7 +151,6 @@ resource "google_network_security_security_profile" "default" {
 
 ```hcl
 resource "google_network_security_security_profile" "default" {
-  provider    = google-beta
   name        = "my-security-profile"
   parent      = "organizations/123456789"
   description = "my description"
@@ -242,7 +241,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_threat_prevention_profile).
 
 * `url_filtering_profile` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The url filtering configuration for the security profile.
   Structure is [documented below](#nested_url_filtering_profile).
 
