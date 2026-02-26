@@ -32,9 +32,6 @@ Retrieves the current IAM policy data for icebergnamespace
 data "google_biglake_iceberg_namespace_iam_policy" "policy" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
-project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
-  catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
   namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
 }
 ```
