@@ -52,9 +52,6 @@ data "google_iam_policy" "admin" {
 resource "google_biglake_iceberg_namespace_iam_policy" "policy" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
-project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
-  catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
   namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
   policy_data = data.google_iam_policy.admin.policy_data
 }
@@ -65,9 +62,6 @@ project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
 ```hcl
 resource "google_biglake_iceberg_namespace_iam_binding" "binding" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
-  catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
-project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
   namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
   role = "roles/biglake.editor"
@@ -82,9 +76,6 @@ project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
 ```hcl
 resource "google_biglake_iceberg_namespace_iam_member" "member" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
-  catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
-project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
   namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
   role = "roles/biglake.editor"

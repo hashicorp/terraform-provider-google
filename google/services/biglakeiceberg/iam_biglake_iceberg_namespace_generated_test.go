@@ -163,7 +163,7 @@ resource "google_biglake_iceberg_namespace" "my_iceberg_namespace" {
 resource "google_biglake_iceberg_namespace_iam_member" "foo" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
+  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
   role = "%{role}"
   member = "user:admin@hashicorptest.com"
 }
@@ -202,14 +202,14 @@ data "google_iam_policy" "foo" {
 resource "google_biglake_iceberg_namespace_iam_policy" "foo" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
+  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
   policy_data = data.google_iam_policy.foo.policy_data
 }
 
 data "google_biglake_iceberg_namespace_iam_policy" "foo" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
+  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
   depends_on = [
     google_biglake_iceberg_namespace_iam_policy.foo
   ]
@@ -245,7 +245,7 @@ data "google_iam_policy" "foo" {
 resource "google_biglake_iceberg_namespace_iam_policy" "foo" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
+  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
@@ -276,7 +276,7 @@ resource "google_biglake_iceberg_namespace" "my_iceberg_namespace" {
 resource "google_biglake_iceberg_namespace_iam_binding" "foo" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
+  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
 }
@@ -308,7 +308,7 @@ resource "google_biglake_iceberg_namespace" "my_iceberg_namespace" {
 resource "google_biglake_iceberg_namespace_iam_binding" "foo" {
   project = google_biglake_iceberg_namespace.my_iceberg_namespace.project
   catalog = google_biglake_iceberg_namespace.my_iceberg_namespace.catalog
-  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.namespace_id
+  namespace_id = google_biglake_iceberg_namespace.my_iceberg_namespace.id
   role = "%{role}"
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
