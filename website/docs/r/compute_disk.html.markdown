@@ -331,6 +331,10 @@ The following arguments are supported:
     * READ_ONLY_SINGLE: The AccessMode means the disk can be attached to multiple instances in RO mode.
   The AccessMode is only valid for Hyperdisk disk types.
 
+* `erase_windows_vss_signature` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Specifies whether the disk restored from a source snapshot should erase Windows specific VSS signature.
+
 * `zone` -
   (Optional)
   A reference to the zone where the disk resides.

@@ -290,6 +290,10 @@ The following arguments are supported:
   Indicates how much throughput to provision for the disk. This sets the number of throughput
   mb per second that the disk can handle. Values must be greater than or equal to 1.
 
+* `erase_windows_vss_signature` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Specifies whether the disk restored from a source snapshot should erase Windows specific VSS signature.
+
 * `region` -
   (Optional)
   A reference to the region where the disk resides.
