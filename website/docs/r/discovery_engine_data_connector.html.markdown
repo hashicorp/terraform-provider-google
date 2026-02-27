@@ -94,6 +94,76 @@ resource "google_discovery_engine_data_connector" "servicenow-basic" {
   sync_mode                    = "PERIODIC"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_dataconnector_jira_with_actions&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Discoveryengine Dataconnector Jira With Actions
+
+
+```hcl
+resource "google_discovery_engine_data_connector" "jira-with-actions" {
+  location                     = "global"
+  collection_id                = "collection-id"
+  collection_display_name      = "Jira Federated"
+  data_source                  = "jira"
+  data_source_version          = 3
+  params = {
+    instance_uri               = "https://example.atlassian.net"
+    instance_id                = "SECRET_MANAGER_RESOURCE_NAME"
+    client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
+    client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
+    refresh_token              = "SECRET_MANAGER_RESOURCE_NAME"
+    auth_type                  = "OAUTH"
+  }
+  refresh_interval             = "86400s"
+  entities {
+    entity_name                = "project"
+  }
+  entities {
+    entity_name                = "issue"
+  }
+  entities {
+    entity_name                = "comment"
+  }
+  entities {
+    entity_name                = "attachment"
+  }
+  static_ip_enabled            = false
+  destination_configs {
+    key = "url"
+    destinations {
+      host = "https://example.atlassian.net"
+    }
+  }
+  connector_modes              = ["FEDERATED", "ACTIONS"]
+  sync_mode                    = "PERIODIC"
+  auto_run_disabled            = true
+  incremental_sync_disabled    = true
+  action_config {
+    action_params = {
+      instance_uri             = "https://example.atlassian.net"
+      instance_id              = "SECRET_MANAGER_RESOURCE_NAME"
+      client_id                = "SECRET_MANAGER_RESOURCE_NAME"
+      client_secret            = "SECRET_MANAGER_RESOURCE_NAME"
+      auth_type                = "OAUTH"
+    }
+    create_bap_connection      = true
+  }
+  bap_config {
+    supported_connector_modes = ["ACTIONS"]
+    enabled_actions = [
+      "create_issue",
+      "update_issue",
+      "change_issue_status",
+      "create_comment",
+      "update_comment",
+      "upload_attachment",
+    ]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -135,6 +205,10 @@ The following arguments are supported:
   Dashboard. UTF-8 encoded string with limit of 1024 characters.
 
 
+* `data_source_version` -
+  (Optional)
+  The version of the data source. For example, `3` for Jira v3.
+
 * `params` -
   (Optional)
   Params needed to access the source in the format of String-to-String (Key, Value) pairs.
@@ -156,9 +230,28 @@ The following arguments are supported:
   If this field is set and processed successfully, the DataStores created by
   this connector will be protected by the KMS key.
 
+* `action_config` -
+  (Optional)
+  Action configuration for the data connector. Configures action
+  capabilities for connectors that support the ACTIONS connector mode.
+  Structure is [documented below](#nested_action_config).
+
+* `bap_config` -
+  (Optional)
+  BAP (Business Application Platform) configuration for the data
+  connector. Controls which actions are enabled for connectors
+  using the ACTIONS connector mode.
+  Structure is [documented below](#nested_bap_config).
+
 * `static_ip_enabled` -
   (Optional)
   Whether customer has enabled static IP addresses for this connector.
+
+* `destination_configs` -
+  (Optional)
+  Destination connector configurations for the data connector,
+  used to configure where data is served.
+  Structure is [documented below](#nested_destination_configs).
 
 * `connector_modes` -
   (Optional)
@@ -224,6 +317,57 @@ The following arguments are supported:
 * `params` -
   (Optional)
   The parameters for the entity to facilitate data ingestion.
+
+<a name="nested_action_config"></a>The `action_config` block supports:
+
+* `action_params` -
+  (Optional)
+  Params needed to configure the actions in the format of
+  String-to-String (Key, Value) pairs. Contains connection
+  credentials and configuration for the action connector.
+
+* `is_action_configured` -
+  (Output)
+  Whether the action connector is fully configured. Set by the system
+  after the action configuration is validated.
+
+* `create_bap_connection` -
+  (Optional)
+  Whether to create a BAP (Business Application Platform) connection
+  for this action connector.
+
+<a name="nested_bap_config"></a>The `bap_config` block supports:
+
+* `enabled_actions` -
+  (Optional)
+  The list of enabled actions for this connector. Supported
+  values include: `create_issue`, `update_issue`,
+  `change_issue_status`, `create_comment`, `update_comment`,
+  `upload_attachment`.
+
+* `supported_connector_modes` -
+  (Optional)
+  The connector modes supported by the BAP configuration.
+  The possible values include: `ACTIONS`.
+
+<a name="nested_destination_configs"></a>The `destination_configs` block supports:
+
+* `key` -
+  (Optional)
+  The key of the destination configuration, for example `url`.
+
+* `destinations` -
+  (Optional)
+  The list of destinations for this configuration.
+  Structure is [documented below](#nested_destination_configs_destinations).
+
+
+<a name="nested_destination_configs_destinations"></a>The `destinations` block supports:
+
+* `host` -
+  (Optional)
+  The host of the destination, for example
+  `https://example.atlassian.net`.
 
 ## Attributes Reference
 

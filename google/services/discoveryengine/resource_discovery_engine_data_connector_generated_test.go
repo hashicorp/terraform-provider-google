@@ -69,7 +69,7 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowB
 				ResourceName:            "google_discovery_engine_data_connector.servicenow-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "sync_mode"},
+				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "sync_mode"},
 			},
 		},
 	})
@@ -126,6 +126,96 @@ resource "google_discovery_engine_data_connector" "servicenow-basic" {
   static_ip_enabled            = false
   connector_modes              = ["DATA_INGESTION"]
   sync_mode                    = "PERIODIC"
+}
+`, context)
+}
+
+func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithActionsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDiscoveryEngineDataConnectorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithActionsExample(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_connector.jira-with-actions",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "sync_mode"},
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithActionsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_connector" "jira-with-actions" {
+  location                     = "global"
+  collection_id                = "tf-test-collection-id%{random_suffix}"
+  collection_display_name      = "Jira Federated"
+  data_source                  = "jira"
+  data_source_version          = 3
+  params = {
+    instance_uri               = "https://example.atlassian.net"
+    instance_id                = "SECRET_MANAGER_RESOURCE_NAME"
+    client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
+    client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
+    refresh_token              = "SECRET_MANAGER_RESOURCE_NAME"
+    auth_type                  = "OAUTH"
+  }
+  refresh_interval             = "86400s"
+  entities {
+    entity_name                = "project"
+  }
+  entities {
+    entity_name                = "issue"
+  }
+  entities {
+    entity_name                = "comment"
+  }
+  entities {
+    entity_name                = "attachment"
+  }
+  static_ip_enabled            = false
+  destination_configs {
+    key = "url"
+    destinations {
+      host = "https://example.atlassian.net"
+    }
+  }
+  connector_modes              = ["FEDERATED", "ACTIONS"]
+  sync_mode                    = "PERIODIC"
+  auto_run_disabled            = true
+  incremental_sync_disabled    = true
+  action_config {
+    action_params = {
+      instance_uri             = "https://example.atlassian.net"
+      instance_id              = "SECRET_MANAGER_RESOURCE_NAME"
+      client_id                = "SECRET_MANAGER_RESOURCE_NAME"
+      client_secret            = "SECRET_MANAGER_RESOURCE_NAME"
+      auth_type                = "OAUTH"
+    }
+    create_bap_connection      = true
+  }
+  bap_config {
+    supported_connector_modes = ["ACTIONS"]
+    enabled_actions = [
+      "create_issue",
+      "update_issue",
+      "change_issue_status",
+      "create_comment",
+      "update_comment",
+      "upload_attachment",
+    ]
+  }
 }
 `, context)
 }

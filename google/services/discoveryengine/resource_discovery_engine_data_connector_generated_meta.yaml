@@ -7,8 +7,13 @@ api_resource_type_kind: DataConnector
 api_variant_patterns:
     - projects/{project}/locations/{location}/collections/{collection}/dataConnector
 fields:
+    - api_field: actionConfig.actionParams
+    - api_field: actionConfig.createBapConnection
+    - api_field: actionConfig.isActionConfigured
     - api_field: actionState
     - api_field: autoRunDisabled
+    - api_field: bapConfig.enabledActions
+    - api_field: bapConfig.supportedConnectorModes
     - api_field: blockingReasons
     - field: collection_display_name
       provider_only: true
@@ -18,6 +23,9 @@ fields:
     - api_field: connectorType
     - api_field: createTime
     - api_field: dataSource
+    - api_field: dataSourceVersion
+    - api_field: destinationConfigs.destinations.host
+    - api_field: destinationConfigs.key
     - api_field: entities.dataStore
     - api_field: entities.entityName
     - api_field: entities.keyPropertyMappings
