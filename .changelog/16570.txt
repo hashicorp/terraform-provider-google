@@ -1,0 +1,7 @@
+```release-note:deprecation
+notebooks: `google_notebooks_environment` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead
+```
+
+```release-note:deprecation
+provider: `google_*_iam_*` resources and datasources will now show deprecation messages when their parent resource has been deprecated.
+```

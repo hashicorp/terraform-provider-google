@@ -225,7 +225,7 @@ func ResourceNotebooksInstance() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
-		DeprecationMessage: "`google_notebook_instance` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.",
+		DeprecationMessage: "`google_notebooks_instance` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.",
 
 		Schema: map[string]*schema.Schema{
 			"location": {

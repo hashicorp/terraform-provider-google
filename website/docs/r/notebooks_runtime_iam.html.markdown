@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Cloud AI Notebooks Runtime
+~> **Warning:** The parent resource has been deprecated: `google_notebooks_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.
 
 Three different resources help you manage your IAM policy for Cloud AI Notebooks Runtime. Each of these resources serves a different use case:
 
