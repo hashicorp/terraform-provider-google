@@ -765,6 +765,7 @@ fields:
   - api_field: 'userManagedKeysConfig.aggregationCa'
   - api_field: 'userManagedKeysConfig.clusterCa'
   - api_field: 'userManagedKeysConfig.controlPlaneDiskEncryptionKey'
+  - api_field: 'userManagedKeysConfig.controlPlaneDiskEncryptionKeyVersions'
   - api_field: 'userManagedKeysConfig.etcdApiCa'
   - api_field: 'userManagedKeysConfig.etcdPeerCa'
   - api_field: 'userManagedKeysConfig.gkeopsEtcdBackupEncryptionKey'
