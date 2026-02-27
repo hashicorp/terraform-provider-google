@@ -512,6 +512,11 @@ in order to avoid race conditions: An etag is returned in the response to backup
 and systems are expected to put that etag in the request to backupPlans.patch or
 backupPlans.delete to ensure that their change will be applied to the same version of the resource.`,
 			},
+			"protected_namespace_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of Kubernetes Namespaces backed up in the last successful Backup created via this BackupPlan.`,
+			},
 			"protected_pod_count": {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -736,6 +741,9 @@ func resourceGKEBackupBackupPlanRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 	if err := d.Set("protected_pod_count", flattenGKEBackupBackupPlanProtectedPodCount(res["protectedPodCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err := d.Set("protected_namespace_count", flattenGKEBackupBackupPlanProtectedNamespaceCount(res["protectedNamespaceCount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 	if err := d.Set("state", flattenGKEBackupBackupPlanState(res["state"], d, config)); err != nil {
@@ -1472,6 +1480,23 @@ func flattenGKEBackupBackupPlanBackupConfigPermissiveMode(v interface{}, d *sche
 }
 
 func flattenGKEBackupBackupPlanProtectedPodCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenGKEBackupBackupPlanProtectedNamespaceCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {

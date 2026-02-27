@@ -38,6 +38,7 @@ fields:
     - field: location
       provider_only: true
     - api_field: name
+    - api_field: protectedNamespaceCount
     - api_field: protectedPodCount
     - api_field: retentionPolicy.backupDeleteLockDays
     - api_field: retentionPolicy.backupRetainDays
