@@ -277,7 +277,7 @@ any other patch configuration fields.`,
 									},
 								},
 							},
-							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
+							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.skip_unpatchable_vms", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
 						},
 						"goo": {
 							Type:        schema.TypeList,
@@ -295,7 +295,7 @@ any other patch configuration fields.`,
 									},
 								},
 							},
-							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
+							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.skip_unpatchable_vms", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
 						},
 						"mig_instances_allowed": {
 							Type:        schema.TypeBool,
@@ -445,7 +445,7 @@ be executed directly, which will likely only succeed for scripts with shebang li
 									},
 								},
 							},
-							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
+							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.skip_unpatchable_vms", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
 						},
 						"pre_step": {
 							Type:        schema.TypeList,
@@ -589,7 +589,7 @@ be executed directly, which will likely only succeed for scripts with shebang li
 									},
 								},
 							},
-							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
+							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.skip_unpatchable_vms", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
 						},
 						"reboot_config": {
 							Type:         schema.TypeString,
@@ -597,7 +597,20 @@ be executed directly, which will likely only succeed for scripts with shebang li
 							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "ALWAYS", "NEVER", ""}),
 							Description:  `Post-patch reboot settings. Possible values: ["DEFAULT", "ALWAYS", "NEVER"]`,
-							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
+							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.skip_unpatchable_vms", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
+						},
+						"skip_unpatchable_vms": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+							Description: `Enables enhanced reporting for the patch job:
+
+1. The patch job skips instances that cannot be patched and reports them as 'SKIPPED'. An instance cannot be patched for two reasons:
+    * The instance runs Container-Optimized OS (COS), which cannot be patched.
+    * The instance is part of a managed instance group (MIG), and patching MIG instances is disabled in the patch job's configuration ('mig_instances_allowed' is false).
+2. The patch job is reported as 'SUCCEEDED' if it completes without errors, even if some instances are 'SKIPPED'.
+3. The patch job is reported as 'COMPLETED_WITH_INACTIVE_VMS' if it completes without errors, but does not patch instances that are 'INACTIVE'.`,
+							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.skip_unpatchable_vms", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
 						},
 						"windows_update": {
 							Type:        schema.TypeList,
@@ -644,7 +657,7 @@ This field must not be used with other patch configurations.`,
 									},
 								},
 							},
-							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
+							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.skip_unpatchable_vms", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
 						},
 						"yum": {
 							Type:        schema.TypeList,
@@ -692,7 +705,7 @@ any other patch configuration fields.`,
 									},
 								},
 							},
-							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
+							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.skip_unpatchable_vms", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
 						},
 						"zypper": {
 							Type:        schema.TypeList,
@@ -759,7 +772,7 @@ This field must not be used with any other patch configuration fields.`,
 									},
 								},
 							},
-							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
+							AtLeastOneOf: []string{"patch_config.0.apt", "patch_config.0.goo", "patch_config.0.post_step", "patch_config.0.pre_step", "patch_config.0.reboot_config", "patch_config.0.skip_unpatchable_vms", "patch_config.0.windows_update", "patch_config.0.yum", "patch_config.0.zypper"},
 						},
 					},
 				},
@@ -1363,6 +1376,8 @@ func flattenOSConfigPatchDeploymentPatchConfig(v interface{}, d *schema.Resource
 	transformed := make(map[string]interface{})
 	transformed["mig_instances_allowed"] =
 		flattenOSConfigPatchDeploymentPatchConfigMigInstancesAllowed(original["migInstancesAllowed"], d, config)
+	transformed["skip_unpatchable_vms"] =
+		flattenOSConfigPatchDeploymentPatchConfigSkipUnpatchableVms(original["skipUnpatchableVms"], d, config)
 	transformed["reboot_config"] =
 		flattenOSConfigPatchDeploymentPatchConfigRebootConfig(original["rebootConfig"], d, config)
 	transformed["apt"] =
@@ -1382,6 +1397,10 @@ func flattenOSConfigPatchDeploymentPatchConfig(v interface{}, d *schema.Resource
 	return []interface{}{transformed}
 }
 func flattenOSConfigPatchDeploymentPatchConfigMigInstancesAllowed(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOSConfigPatchDeploymentPatchConfigSkipUnpatchableVms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2297,6 +2316,13 @@ func expandOSConfigPatchDeploymentPatchConfig(v interface{}, d tpgresource.Terra
 		transformed["migInstancesAllowed"] = transformedMigInstancesAllowed
 	}
 
+	transformedSkipUnpatchableVms, err := expandOSConfigPatchDeploymentPatchConfigSkipUnpatchableVms(original["skip_unpatchable_vms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSkipUnpatchableVms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["skipUnpatchableVms"] = transformedSkipUnpatchableVms
+	}
+
 	transformedRebootConfig, err := expandOSConfigPatchDeploymentPatchConfigRebootConfig(original["reboot_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -2357,6 +2383,10 @@ func expandOSConfigPatchDeploymentPatchConfig(v interface{}, d tpgresource.Terra
 }
 
 func expandOSConfigPatchDeploymentPatchConfigMigInstancesAllowed(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOSConfigPatchDeploymentPatchConfigSkipUnpatchableVms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

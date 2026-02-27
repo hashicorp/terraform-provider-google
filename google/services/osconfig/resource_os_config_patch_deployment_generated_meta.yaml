@@ -46,6 +46,7 @@ fields:
     - api_field: patchConfig.preStep.windowsExecStepConfig.interpreter
     - api_field: patchConfig.preStep.windowsExecStepConfig.localPath
     - api_field: patchConfig.rebootConfig
+    - api_field: patchConfig.skipUnpatchableVms
     - api_field: patchConfig.windowsUpdate.classifications
     - api_field: patchConfig.windowsUpdate.excludes
     - api_field: patchConfig.windowsUpdate.exclusivePatches
