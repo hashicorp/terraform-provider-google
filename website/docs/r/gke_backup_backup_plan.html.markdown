@@ -741,6 +741,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `protected_pod_count` -
   The number of Kubernetes Pods backed up in the last successful Backup created via this BackupPlan.
 
+* `protected_namespace_count` -
+  The number of Kubernetes Namespaces backed up in the last successful Backup created via this BackupPlan.
+
 * `state` -
   The State of the BackupPlan.
 
