@@ -624,16 +624,45 @@ The following arguments are supported:
   (Optional)
   Publish a portion of each profile to Dataplex Universal Catalog with the aspect type Sensitive Data Protection Profile.
 
+* `publish_to_chronicle` -
+  (Optional)
+  Publishes generated data profiles to Google Security Operations. For more information, see [Use Sensitive Data Protection data in context-aware analytics](https://cloud.google.com/chronicle/docs/detection/usecase-dlp-high-risk-user-download).
+
+* `publish_to_scc` -
+  (Optional)
+  Publishes findings to Security Command Center for each data profile.
+
 
 <a name="nested_actions_export_data"></a>The `export_data` block supports:
 
 * `profile_table` -
   (Optional)
-  Store all table and column profiles in an existing table or a new table in an existing dataset. Each re-generation will result in a new row in BigQuery
+  Store all table and column profiles in an existing table or a new table in an existing dataset. Each re-generation will result in a new row in BigQuery.
+  The system will create a new dataset and table for you if none are are provided. The dataset will be named `sensitive_data_protection_discovery`
+  and table will be named `discovery_profiles`. This table will be placed in the same project as the container project running the scan.
   Structure is [documented below](#nested_actions_export_data_profile_table).
+
+* `sample_findings_table` -
+  (Optional)
+  Store sample findings in an existing table or a new table in an existing dataset. Each re-generation will result in a new row in BigQuery
+  Structure is [documented below](#nested_actions_export_data_sample_findings_table).
 
 
 <a name="nested_actions_export_data_profile_table"></a>The `profile_table` block supports:
+
+* `project_id` -
+  (Optional)
+  The Google Cloud Platform project ID of the project containing the table. If omitted, the project ID is inferred from the API call.
+
+* `dataset_id` -
+  (Optional)
+  Dataset Id of the table
+
+* `table_id` -
+  (Optional)
+  Name of the table
+
+<a name="nested_actions_export_data_sample_findings_table"></a>The `sample_findings_table` block supports:
 
 * `project_id` -
   (Optional)
@@ -842,6 +871,12 @@ The following arguments are supported:
   if unset, this property matches all tables
 
 <a name="nested_targets_big_query_target_filter_table_reference"></a>The `table_reference` block supports:
+
+* `project_id` -
+  (Optional)
+  The Google Cloud project ID of the project containing the table.
+  If omitted, the project ID is inferred from the parent project.
+  This field is required if the parent resource is an organization.
 
 * `dataset_id` -
   (Required)
