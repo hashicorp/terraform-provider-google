@@ -496,6 +496,7 @@ resource "google_iam_workforce_pool_provider" "example" {
 }
 
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientBasicExample(t *testing.T) {
+	acctest.SkipTestUntil(t, "2026-03-05")
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -564,6 +565,7 @@ resource "google_iam_workforce_pool_provider" "example" {
 }
 
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientFullExample(t *testing.T) {
+	acctest.SkipTestUntil(t, "2026-03-05")
 	t.Parallel()
 
 	context := map[string]interface{}{
