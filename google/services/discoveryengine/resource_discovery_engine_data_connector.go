@@ -174,10 +174,73 @@ minimum is 30 minutes and maximum is 7 days. When the refresh interval is
 set to the same value as the incremental refresh interval, incremental
 sync will be disabled.`,
 			},
+			"action_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Action configuration for the data connector. Configures action
+capabilities for connectors that support the ACTIONS connector mode.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"action_params": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `Params needed to configure the actions in the format of
+String-to-String (Key, Value) pairs. Contains connection
+credentials and configuration for the action connector.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+						"create_bap_connection": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Whether to create a BAP (Business Application Platform) connection
+for this action connector.`,
+						},
+						"is_action_configured": {
+							Type:     schema.TypeBool,
+							Computed: true,
+							Description: `Whether the action connector is fully configured. Set by the system
+after the action configuration is validated.`,
+						},
+					},
+				},
+			},
 			"auto_run_disabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `Indicates whether full syncs are paused for this connector`,
+			},
+			"bap_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `BAP (Business Application Platform) configuration for the data
+connector. Controls which actions are enabled for connectors
+using the ACTIONS connector mode.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled_actions": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The list of enabled actions for this connector. Supported
+values include: 'create_issue', 'update_issue',
+'change_issue_status', 'create_comment', 'update_comment',
+'upload_attachment'.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"supported_connector_modes": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The connector modes supported by the BAP configuration.
+The possible values include: 'ACTIONS'.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 			"connector_modes": {
 				Type:     schema.TypeList,
@@ -187,6 +250,42 @@ sync will be disabled.`,
 'EUA', 'FEDERATED_AND_EUA'.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+				},
+			},
+			"data_source_version": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				Description: `The version of the data source. For example, '3' for Jira v3.`,
+			},
+			"destination_configs": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Destination connector configurations for the data connector,
+used to configure where data is served.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"destinations": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The list of destinations for this configuration.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"host": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The host of the destination, for example
+'https://example.atlassian.net'.`,
+									},
+								},
+							},
+						},
+						"key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The key of the destination configuration, for example 'url'.`,
+						},
+					},
 				},
 			},
 			"entities": {
@@ -206,6 +305,7 @@ sync will be disabled.`,
 						},
 						"key_property_mappings": {
 							Type:             schema.TypeMap,
+							Computed:         true,
 							Optional:         true,
 							DiffSuppressFunc: DataConnectorEntitiesFieldsDiffSuppress,
 							Description: `Attributes for indexing.
@@ -419,6 +519,12 @@ func resourceDiscoveryEngineDataConnectorCreate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("data_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataSourceProp)) && (ok || !reflect.DeepEqual(v, dataSourceProp)) {
 		obj["dataSource"] = dataSourceProp
 	}
+	dataSourceVersionProp, err := expandDiscoveryEngineDataConnectorDataSourceVersion(d.Get("data_source_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_source_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataSourceVersionProp)) && (ok || !reflect.DeepEqual(v, dataSourceVersionProp)) {
+		obj["dataSourceVersion"] = dataSourceVersionProp
+	}
 	paramsProp, err := expandDiscoveryEngineDataConnectorParams(d.Get("params"), d, config)
 	if err != nil {
 		return err
@@ -449,11 +555,29 @@ func resourceDiscoveryEngineDataConnectorCreate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
 		obj["kmsKeyName"] = kmsKeyNameProp
 	}
+	actionConfigProp, err := expandDiscoveryEngineDataConnectorActionConfig(d.Get("action_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("action_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(actionConfigProp)) && (ok || !reflect.DeepEqual(v, actionConfigProp)) {
+		obj["actionConfig"] = actionConfigProp
+	}
+	bapConfigProp, err := expandDiscoveryEngineDataConnectorBapConfig(d.Get("bap_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bap_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(bapConfigProp)) && (ok || !reflect.DeepEqual(v, bapConfigProp)) {
+		obj["bapConfig"] = bapConfigProp
+	}
 	staticIpEnabledProp, err := expandDiscoveryEngineDataConnectorStaticIpEnabled(d.Get("static_ip_enabled"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("static_ip_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(staticIpEnabledProp)) && (ok || !reflect.DeepEqual(v, staticIpEnabledProp)) {
 		obj["staticIpEnabled"] = staticIpEnabledProp
+	}
+	destinationConfigsProp, err := expandDiscoveryEngineDataConnectorDestinationConfigs(d.Get("destination_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("destination_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(destinationConfigsProp)) && (ok || !reflect.DeepEqual(v, destinationConfigsProp)) {
+		obj["destinationConfigs"] = destinationConfigsProp
 	}
 	connectorModesProp, err := expandDiscoveryEngineDataConnectorConnectorModes(d.Get("connector_modes"), d, config)
 	if err != nil {
@@ -593,6 +717,9 @@ func resourceDiscoveryEngineDataConnectorRead(d *schema.ResourceData, meta inter
 	if err := d.Set("data_source", flattenDiscoveryEngineDataConnectorDataSource(res["dataSource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
+	if err := d.Set("data_source_version", flattenDiscoveryEngineDataConnectorDataSourceVersion(res["dataSourceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
 	if err := d.Set("refresh_interval", flattenDiscoveryEngineDataConnectorRefreshInterval(res["refreshInterval"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
@@ -617,10 +744,19 @@ func resourceDiscoveryEngineDataConnectorRead(d *schema.ResourceData, meta inter
 	if err := d.Set("kms_key_name", flattenDiscoveryEngineDataConnectorKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
+	if err := d.Set("action_config", flattenDiscoveryEngineDataConnectorActionConfig(res["actionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err := d.Set("bap_config", flattenDiscoveryEngineDataConnectorBapConfig(res["bapConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
 	if err := d.Set("action_state", flattenDiscoveryEngineDataConnectorActionState(res["actionState"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
 	if err := d.Set("static_ip_enabled", flattenDiscoveryEngineDataConnectorStaticIpEnabled(res["staticIpEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err := d.Set("destination_configs", flattenDiscoveryEngineDataConnectorDestinationConfigs(res["destinationConfigs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
 	if err := d.Set("static_ip_addresses", flattenDiscoveryEngineDataConnectorStaticIpAddresses(res["staticIpAddresses"], d, config)); err != nil {
@@ -664,6 +800,12 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	dataSourceVersionProp, err := expandDiscoveryEngineDataConnectorDataSourceVersion(d.Get("data_source_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_source_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dataSourceVersionProp)) {
+		obj["dataSourceVersion"] = dataSourceVersionProp
+	}
 	paramsProp, err := expandDiscoveryEngineDataConnectorParams(d.Get("params"), d, config)
 	if err != nil {
 		return err
@@ -687,6 +829,24 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("entities"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entitiesProp)) {
 		obj["entities"] = entitiesProp
+	}
+	actionConfigProp, err := expandDiscoveryEngineDataConnectorActionConfig(d.Get("action_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("action_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, actionConfigProp)) {
+		obj["actionConfig"] = actionConfigProp
+	}
+	bapConfigProp, err := expandDiscoveryEngineDataConnectorBapConfig(d.Get("bap_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bap_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bapConfigProp)) {
+		obj["bapConfig"] = bapConfigProp
+	}
+	destinationConfigsProp, err := expandDiscoveryEngineDataConnectorDestinationConfigs(d.Get("destination_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("destination_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, destinationConfigsProp)) {
+		obj["destinationConfigs"] = destinationConfigsProp
 	}
 	connectorModesProp, err := expandDiscoveryEngineDataConnectorConnectorModes(d.Get("connector_modes"), d, config)
 	if err != nil {
@@ -728,6 +888,10 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 	headers := make(http.Header)
 	updateMask := []string{}
 
+	if d.HasChange("data_source_version") {
+		updateMask = append(updateMask, "dataSourceVersion")
+	}
+
 	if d.HasChange("params") {
 		updateMask = append(updateMask, "params")
 	}
@@ -743,6 +907,18 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 	if d.HasChange("entities") {
 		updateMask = append(updateMask, "entities.params",
 			"entities.keyPropertyMappings")
+	}
+
+	if d.HasChange("action_config") {
+		updateMask = append(updateMask, "actionConfig")
+	}
+
+	if d.HasChange("bap_config") {
+		updateMask = append(updateMask, "bapConfig")
+	}
+
+	if d.HasChange("destination_configs") {
+		updateMask = append(updateMask, "destinationConfigs")
 	}
 
 	if d.HasChange("connector_modes") {
@@ -888,6 +1064,23 @@ func flattenDiscoveryEngineDataConnectorDataSource(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenDiscoveryEngineDataConnectorDataSourceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenDiscoveryEngineDataConnectorRefreshInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -997,11 +1190,108 @@ func flattenDiscoveryEngineDataConnectorKmsKeyName(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenDiscoveryEngineDataConnectorActionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["action_params"] =
+		flattenDiscoveryEngineDataConnectorActionConfigActionParams(original["actionParams"], d, config)
+	transformed["is_action_configured"] =
+		flattenDiscoveryEngineDataConnectorActionConfigIsActionConfigured(original["isActionConfigured"], d, config)
+	transformed["create_bap_connection"] =
+		flattenDiscoveryEngineDataConnectorActionConfigCreateBapConnection(original["createBapConnection"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataConnectorActionConfigActionParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("action_config.0.action_params")
+}
+
+func flattenDiscoveryEngineDataConnectorActionConfigIsActionConfigured(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorActionConfigCreateBapConnection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("action_config.0.create_bap_connection")
+}
+
+func flattenDiscoveryEngineDataConnectorBapConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled_actions"] =
+		flattenDiscoveryEngineDataConnectorBapConfigEnabledActions(original["enabledActions"], d, config)
+	transformed["supported_connector_modes"] =
+		flattenDiscoveryEngineDataConnectorBapConfigSupportedConnectorModes(original["supportedConnectorModes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataConnectorBapConfigEnabledActions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorBapConfigSupportedConnectorModes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDiscoveryEngineDataConnectorActionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 func flattenDiscoveryEngineDataConnectorStaticIpEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorDestinationConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"key":          flattenDiscoveryEngineDataConnectorDestinationConfigsKey(original["key"], d, config),
+			"destinations": flattenDiscoveryEngineDataConnectorDestinationConfigsDestinations(original["destinations"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDiscoveryEngineDataConnectorDestinationConfigsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorDestinationConfigsDestinations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"host": flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(original["host"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1034,6 +1324,10 @@ func flattenDiscoveryEngineDataConnectorIncrementalRefreshInterval(v interface{}
 }
 
 func expandDiscoveryEngineDataConnectorDataSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorDataSourceVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1137,7 +1431,164 @@ func expandDiscoveryEngineDataConnectorKmsKeyName(v interface{}, d tpgresource.T
 	return v, nil
 }
 
+func expandDiscoveryEngineDataConnectorActionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedActionParams, err := expandDiscoveryEngineDataConnectorActionConfigActionParams(original["action_params"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedActionParams); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["actionParams"] = transformedActionParams
+	}
+
+	transformedIsActionConfigured, err := expandDiscoveryEngineDataConnectorActionConfigIsActionConfigured(original["is_action_configured"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIsActionConfigured); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["isActionConfigured"] = transformedIsActionConfigured
+	}
+
+	transformedCreateBapConnection, err := expandDiscoveryEngineDataConnectorActionConfigCreateBapConnection(original["create_bap_connection"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCreateBapConnection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["createBapConnection"] = transformedCreateBapConnection
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataConnectorActionConfigActionParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandDiscoveryEngineDataConnectorActionConfigIsActionConfigured(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorActionConfigCreateBapConnection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorBapConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabledActions, err := expandDiscoveryEngineDataConnectorBapConfigEnabledActions(original["enabled_actions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabledActions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabledActions"] = transformedEnabledActions
+	}
+
+	transformedSupportedConnectorModes, err := expandDiscoveryEngineDataConnectorBapConfigSupportedConnectorModes(original["supported_connector_modes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSupportedConnectorModes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["supportedConnectorModes"] = transformedSupportedConnectorModes
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataConnectorBapConfigEnabledActions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorBapConfigSupportedConnectorModes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDiscoveryEngineDataConnectorStaticIpEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorDestinationConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedKey, err := expandDiscoveryEngineDataConnectorDestinationConfigsKey(original["key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["key"] = transformedKey
+		}
+
+		transformedDestinations, err := expandDiscoveryEngineDataConnectorDestinationConfigsDestinations(original["destinations"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDestinations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["destinations"] = transformedDestinations
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDiscoveryEngineDataConnectorDestinationConfigsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorDestinationConfigsDestinations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedHost, err := expandDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(original["host"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHost); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["host"] = transformedHost
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDiscoveryEngineDataConnectorDestinationConfigsDestinationsHost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1215,6 +1666,10 @@ INVALID_ARGUMENT error is returned.`,
 				ForceNew: true,
 				Description: `The name of the data source.
 Supported values: 'salesforce', 'jira', 'confluence', 'bigquery'.`,
+			},
+			"data_source_version": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"location": {
 				Type:     schema.TypeString,
@@ -1332,6 +1787,30 @@ this connector will be protected by the KMS key.`,
 				Elem:         &schema.Schema{Type: schema.TypeString},
 				ExactlyOneOf: []string{"params", "json_params"},
 			},
+			"destination_configs": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"destinations": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"host": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"static_ip_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1343,6 +1822,47 @@ this connector will be protected by the KMS key.`,
 				Optional: true,
 				Description: `The data synchronization mode supported by the data connector. The possible value can be:
 'PERIODIC', 'STREAMING'.`,
+			},
+			"action_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"action_params": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"is_action_configured": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"create_bap_connection": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"bap_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled_actions": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"supported_connector_modes": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
 			},
 			"action_state": {
 				Type:     schema.TypeString,
