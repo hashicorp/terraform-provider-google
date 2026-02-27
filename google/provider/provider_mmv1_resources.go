@@ -378,6 +378,8 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_oracle_database_cloud_exadata_infrastructure":        oracledatabase.DataSourceOracleDatabaseCloudExadataInfrastructure(),
 	"google_oracle_database_cloud_vm_clusters":                   oracledatabase.DataSourceOracleDatabaseCloudVmClusters(),
 	"google_oracle_database_cloud_vm_cluster":                    oracledatabase.DataSourceOracleDatabaseCloudVmCluster(),
+	"google_oracle_database_odb_network":                         oracledatabase.DataSourceOracleDatabaseOdbNetwork(),
+	"google_oracle_database_odb_subnet":                          oracledatabase.DataSourceOracleDatabaseOdbSubnet(),
 	"google_organization":                                        resourcemanager.DataSourceGoogleOrganization(),
 	"google_organizations":                                       resourcemanager.DataSourceGoogleOrganizations(),
 	"google_organization_iam_custom_role":                        resourcemanager.DataSourceGoogleOrganizationIamCustomRole(),

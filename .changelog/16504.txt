@@ -1,0 +1,6 @@
+```release-note:new-datasource
+`google_oracle_database_odb_network`
+```
+```release-note:new-datasource
+`google_oracle_database_odb_subnet`
+```
