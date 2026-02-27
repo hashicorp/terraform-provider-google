@@ -665,6 +665,11 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
                 dataset_id = "dataset"
                 table_id = "table"
             }
+            sample_findings_table {
+                project_id = "%{project}"
+                dataset_id = "dataset"
+                table_id = "sample-table"
+            }
         }
     }
     actions { 
@@ -705,7 +710,10 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
         }
     }
     actions {
-	publish_to_dataplex_catalog {}
+        publish_to_dataplex_catalog {}
+    }
+    actions {
+        publish_to_scc {}
     }
     inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
 	depends_on = [
@@ -844,6 +852,9 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
 			folder_id = 123
 		}
 	}
+    actions {
+        publish_to_chronicle {}
+    }
     inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
 	status = "PAUSED"
 }
@@ -1135,6 +1146,7 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
         big_query_target {
             filter {
                 table_reference {
+                    project_id = "%{project}"
                     dataset_id = google_bigquery_dataset.default.dataset_id
                     table_id = google_bigquery_table.default.table_id
 				}

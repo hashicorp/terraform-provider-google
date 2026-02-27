@@ -8,13 +8,18 @@ fields:
     - api_field: actions.exportData.profileTable.datasetId
     - api_field: actions.exportData.profileTable.projectId
     - api_field: actions.exportData.profileTable.tableId
+    - api_field: actions.exportData.sampleFindingsTable.datasetId
+    - api_field: actions.exportData.sampleFindingsTable.projectId
+    - api_field: actions.exportData.sampleFindingsTable.tableId
     - api_field: actions.pubSubNotification.detailOfMessage
     - api_field: actions.pubSubNotification.event
     - api_field: actions.pubSubNotification.pubsubCondition.expressions.conditions.minimumRiskScore
     - api_field: actions.pubSubNotification.pubsubCondition.expressions.conditions.minimumSensitivityScore
     - api_field: actions.pubSubNotification.pubsubCondition.expressions.logicalOperator
     - api_field: actions.pubSubNotification.topic
+    - api_field: actions.publishToChronicle
     - api_field: actions.publishToDataplexCatalog
+    - api_field: actions.publishToScc
     - api_field: actions.tagResources.lowerDataRiskToLow
     - api_field: actions.tagResources.profileGenerationsToTag
     - api_field: actions.tagResources.tagConditions.sensitivityScore.score
@@ -51,6 +56,7 @@ fields:
     - api_field: targets.bigQueryTarget.disabled
     - api_field: targets.bigQueryTarget.filter.otherTables
     - api_field: targets.bigQueryTarget.filter.tableReference.datasetId
+    - api_field: targets.bigQueryTarget.filter.tableReference.projectId
     - api_field: targets.bigQueryTarget.filter.tableReference.tableId
     - api_field: targets.bigQueryTarget.filter.tables.includeRegexes.patterns.datasetIdRegex
     - api_field: targets.bigQueryTarget.filter.tables.includeRegexes.patterns.projectIdRegex

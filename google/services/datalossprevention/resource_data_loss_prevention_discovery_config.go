@@ -143,9 +143,36 @@ func ResourceDataLossPreventionDiscoveryConfig() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"profile_table": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Store all table and column profiles in an existing table or a new table in an existing dataset. Each re-generation will result in a new row in BigQuery.
+The system will create a new dataset and table for you if none are are provided. The dataset will be named 'sensitive_data_protection_discovery'
+and table will be named 'discovery_profiles'. This table will be placed in the same project as the container project running the scan.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"dataset_id": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Dataset Id of the table`,
+												},
+												"project_id": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The Google Cloud Platform project ID of the project containing the table. If omitted, the project ID is inferred from the API call.`,
+												},
+												"table_id": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Name of the table`,
+												},
+											},
+										},
+									},
+									"sample_findings_table": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Store all table and column profiles in an existing table or a new table in an existing dataset. Each re-generation will result in a new row in BigQuery`,
+										Description: `Store sample findings in an existing table or a new table in an existing dataset. Each re-generation will result in a new row in BigQuery`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -244,10 +271,28 @@ func ResourceDataLossPreventionDiscoveryConfig() *schema.Resource {
 								},
 							},
 						},
+						"publish_to_chronicle": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Publishes generated data profiles to Google Security Operations. For more information, see [Use Sensitive Data Protection data in context-aware analytics](https://cloud.google.com/chronicle/docs/detection/usecase-dlp-high-risk-user-download).`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+						},
 						"publish_to_dataplex_catalog": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: `Publish a portion of each profile to Dataplex Universal Catalog with the aspect type Sensitive Data Protection Profile.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+						},
+						"publish_to_scc": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Publishes findings to Security Command Center for each data profile.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
@@ -596,6 +641,13 @@ func ResourceDataLossPreventionDiscoveryConfig() *schema.Resource {
 																Type:        schema.TypeString,
 																Required:    true,
 																Description: `Name of the table.`,
+															},
+															"project_id": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `The Google Cloud project ID of the project containing the table.
+If omitted, the project ID is inferred from the parent project.
+This field is required if the parent resource is an organization.`,
 															},
 														},
 													},
@@ -1886,6 +1938,8 @@ func flattenDataLossPreventionDiscoveryConfigActions(v interface{}, d *schema.Re
 			"pub_sub_notification":        flattenDataLossPreventionDiscoveryConfigActionsPubSubNotification(original["pubSubNotification"], d, config),
 			"tag_resources":               flattenDataLossPreventionDiscoveryConfigActionsTagResources(original["tagResources"], d, config),
 			"publish_to_dataplex_catalog": flattenDataLossPreventionDiscoveryConfigActionsPublishToDataplexCatalog(original["publishToDataplexCatalog"], d, config),
+			"publish_to_chronicle":        flattenDataLossPreventionDiscoveryConfigActionsPublishToChronicle(original["publishToChronicle"], d, config),
+			"publish_to_scc":              flattenDataLossPreventionDiscoveryConfigActionsPublishToScc(original["publishToScc"], d, config),
 		})
 	}
 	return transformed
@@ -1901,6 +1955,8 @@ func flattenDataLossPreventionDiscoveryConfigActionsExportData(v interface{}, d 
 	transformed := make(map[string]interface{})
 	transformed["profile_table"] =
 		flattenDataLossPreventionDiscoveryConfigActionsExportDataProfileTable(original["profileTable"], d, config)
+	transformed["sample_findings_table"] =
+		flattenDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTable(original["sampleFindingsTable"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionDiscoveryConfigActionsExportDataProfileTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1929,6 +1985,35 @@ func flattenDataLossPreventionDiscoveryConfigActionsExportDataProfileTableDatase
 }
 
 func flattenDataLossPreventionDiscoveryConfigActionsExportDataProfileTableTableId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["project_id"] =
+		flattenDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableProjectId(original["projectId"], d, config)
+	transformed["dataset_id"] =
+		flattenDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableDatasetId(original["datasetId"], d, config)
+	transformed["table_id"] =
+		flattenDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableTableId(original["tableId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableTableId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2108,6 +2193,22 @@ func flattenDataLossPreventionDiscoveryConfigActionsPublishToDataplexCatalog(v i
 	return []interface{}{transformed}
 }
 
+func flattenDataLossPreventionDiscoveryConfigActionsPublishToChronicle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionDiscoveryConfigActionsPublishToScc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
 func flattenDataLossPreventionDiscoveryConfigTargets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2241,12 +2342,18 @@ func flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableRef
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["project_id"] =
+		flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableReferenceProjectId(original["projectId"], d, config)
 	transformed["dataset_id"] =
 		flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableReferenceDatasetId(original["datasetId"], d, config)
 	transformed["table_id"] =
 		flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableReferenceTableId(original["tableId"], d, config)
 	return []interface{}{transformed}
 }
+func flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableReferenceProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableReferenceDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -3470,6 +3577,20 @@ func expandDataLossPreventionDiscoveryConfigActions(v interface{}, d tpgresource
 			transformed["publishToDataplexCatalog"] = transformedPublishToDataplexCatalog
 		}
 
+		transformedPublishToChronicle, err := expandDataLossPreventionDiscoveryConfigActionsPublishToChronicle(original["publish_to_chronicle"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["publishToChronicle"] = transformedPublishToChronicle
+		}
+
+		transformedPublishToScc, err := expandDataLossPreventionDiscoveryConfigActionsPublishToScc(original["publish_to_scc"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["publishToScc"] = transformedPublishToScc
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -3492,6 +3613,13 @@ func expandDataLossPreventionDiscoveryConfigActionsExportData(v interface{}, d t
 		return nil, err
 	} else if val := reflect.ValueOf(transformedProfileTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["profileTable"] = transformedProfileTable
+	}
+
+	transformedSampleFindingsTable, err := expandDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTable(original["sample_findings_table"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSampleFindingsTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sampleFindingsTable"] = transformedSampleFindingsTable
 	}
 
 	return transformed, nil
@@ -3542,6 +3670,54 @@ func expandDataLossPreventionDiscoveryConfigActionsExportDataProfileTableDataset
 }
 
 func expandDataLossPreventionDiscoveryConfigActionsExportDataProfileTableTableId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedProjectId, err := expandDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
+	transformedDatasetId, err := expandDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableDatasetId(original["dataset_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["datasetId"] = transformedDatasetId
+	}
+
+	transformedTableId, err := expandDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableTableId(original["table_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTableId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tableId"] = transformedTableId
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableDatasetId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigActionsExportDataSampleFindingsTableTableId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3841,6 +4017,42 @@ func expandDataLossPreventionDiscoveryConfigActionsPublishToDataplexCatalog(v in
 	return transformed, nil
 }
 
+func expandDataLossPreventionDiscoveryConfigActionsPublishToChronicle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigActionsPublishToScc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
 func expandDataLossPreventionDiscoveryConfigTargets(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -4098,6 +4310,13 @@ func expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableRefe
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedProjectId, err := expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableReferenceProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
 	transformedDatasetId, err := expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableReferenceDatasetId(original["dataset_id"], d, config)
 	if err != nil {
 		return nil, err
@@ -4113,6 +4332,10 @@ func expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableRefe
 	}
 
 	return transformed, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableReferenceProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetFilterTableReferenceDatasetId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

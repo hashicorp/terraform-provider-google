@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added `actions.publish_to_scc`, `actions.publish_to_chronicle`, `actions.export_data.sample_findings_table` and `targets.big_query_target.filter.table_reference.project_id` fields to `google_data_loss_prevention_discovery_config` resource
+```
