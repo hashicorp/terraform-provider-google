@@ -21,6 +21,7 @@ description: |-
 
 
 # google_notebooks_runtime_iam_policy
+~> **Warning:** The parent resource has been deprecated: `google_notebooks_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.
 
 Retrieves the current IAM policy data for runtime
 
