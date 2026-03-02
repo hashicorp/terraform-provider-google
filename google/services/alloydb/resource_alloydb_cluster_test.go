@@ -1925,3 +1925,128 @@ resource "google_compute_network" "default" {
 }
 `, context)
 }
+
+func TestAccAlloydbCluster_withDefaultDataplexConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Create with NO config: Backend should enable dataplex by default
+			{
+				Config: testAccAlloydbCluster_noDataplexConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "dataplex_config.0.enabled", "true"),
+				),
+			},
+			// Add config with enabled=true: Should result in NO change/plan
+			{
+				Config: testAccAlloydbCluster_dataplexConfigExplicit(context, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "dataplex_config.0.enabled", "true"),
+				),
+			},
+			// Update to enabled=false: Verify PATCH works
+			{
+				Config: testAccAlloydbCluster_dataplexConfigExplicit(context, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "dataplex_config.0.enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "initial_user", "cluster_id", "location"},
+			},
+		},
+	})
+}
+
+func TestAccAlloydbCluster_withDataplexConfigDisabled(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Create with Dataplex enabled=false
+			{
+				Config: testAccAlloydbCluster_dataplexConfigExplicit(context, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "dataplex_config.0.enabled", "false"),
+				),
+			},
+			// Update to Dataplex enabled=true: Verify PATCH works
+			{
+				Config: testAccAlloydbCluster_dataplexConfigExplicit(context, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "dataplex_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "initial_user", "cluster_id", "location"},
+			},
+		},
+	})
+}
+
+// Config with no dataplex_config block.
+func testAccAlloydbCluster_noDataplexConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+  deletion_protection = false
+}
+data "google_project" "project" {}
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+`, context)
+}
+
+// Config with explicit enabled/disabled dataplex_config block.
+func testAccAlloydbCluster_dataplexConfigExplicit(context map[string]interface{}, enabled bool) string {
+	context["dataplex_enabled"] = enabled
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  }
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+  dataplex_config {
+    enabled = %{dataplex_enabled}
+  }
+  deletion_protection = false
+}
+data "google_project" "project" {}
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+`, context)
+}
