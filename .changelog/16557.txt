@@ -1,0 +1,3 @@
+```release-note:enhancement
+biglake: added `primary_location` to  `google_biglake_iceberg_catalog` resource
+```
