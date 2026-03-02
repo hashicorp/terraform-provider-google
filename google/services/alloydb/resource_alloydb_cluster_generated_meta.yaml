@@ -32,6 +32,7 @@ fields:
     - api_field: continuousBackupInfo.encryptionInfo.kmsKeyVersions
     - api_field: continuousBackupInfo.schedule
     - api_field: databaseVersion
+    - api_field: dataplexConfig.enabled
     - field: deletion_policy
       provider_only: true
     - field: deletion_protection

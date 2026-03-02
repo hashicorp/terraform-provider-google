@@ -336,6 +336,22 @@ If not set, defaults to 14 days.`,
 				Description: `The database engine major version. This is an optional field and it's populated at the Cluster creation time.
 Note: Changing this field to a higer version results in upgrading the AlloyDB cluster which is an irreversible change.`,
 			},
+			"dataplex_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Configuration for Dataplex integration. This is an optional field. If not set, Dataplex integration will be enabled by default.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Indicates whether Dataplex integration is enabled for the cluster.`,
+						},
+					},
+				},
+			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -958,6 +974,12 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("subscription_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(subscriptionTypeProp)) && (ok || !reflect.DeepEqual(v, subscriptionTypeProp)) {
 		obj["subscriptionType"] = subscriptionTypeProp
 	}
+	dataplexConfigProp, err := expandAlloydbClusterDataplexConfig(d.Get("dataplex_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dataplex_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataplexConfigProp)) && (ok || !reflect.DeepEqual(v, dataplexConfigProp)) {
+		obj["dataplexConfig"] = dataplexConfigProp
+	}
 	effectiveLabelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1244,6 +1266,9 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("trial_metadata", flattenAlloydbClusterTrialMetadata(res["trialMetadata"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("dataplex_config", flattenAlloydbClusterDataplexConfig(res["dataplexConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenAlloydbClusterTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1351,6 +1376,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("subscription_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, subscriptionTypeProp)) {
 		obj["subscriptionType"] = subscriptionTypeProp
 	}
+	dataplexConfigProp, err := expandAlloydbClusterDataplexConfig(d.Get("dataplex_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dataplex_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dataplexConfigProp)) {
+		obj["dataplexConfig"] = dataplexConfigProp
+	}
 	effectiveLabelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1430,6 +1461,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("subscription_type") {
 		updateMask = append(updateMask, "subscriptionType")
+	}
+
+	if d.HasChange("dataplex_config") {
+		updateMask = append(updateMask, "dataplexConfig")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -2435,6 +2470,39 @@ func flattenAlloydbClusterTrialMetadataGraceEndTime(v interface{}, d *schema.Res
 	return v
 }
 
+func flattenAlloydbClusterDataplexConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		// The API omits the block when the underlying boolean is its zero-value (false).
+		return []interface{}{
+			map[string]interface{}{
+				"enabled": false,
+			},
+		}
+	}
+
+	original, ok := v.(map[string]interface{})
+	if !ok {
+		// If the API returns an unexpected type, fallback to the zero-value (false)
+		// to remain consistent with the nil handling.
+		return []interface{}{
+			map[string]interface{}{
+				"enabled": false,
+			},
+		}
+	}
+
+	transformed := make(map[string]interface{})
+
+	if val, ok := original["enabled"]; ok {
+		transformed["enabled"] = val
+	} else {
+		// If the block exists but the field is missing, it is also the zero-value (false).
+		transformed["enabled"] = false
+	}
+
+	return []interface{}{transformed}
+}
+
 func flattenAlloydbClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3233,6 +3301,32 @@ func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeNanos
 }
 
 func expandAlloydbClusterSubscriptionType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterDataplexConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandAlloydbClusterDataplexConfigEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbClusterDataplexConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
