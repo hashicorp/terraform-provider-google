@@ -1,0 +1,1 @@
+unknown: Add bazel generation of alloydb resources
