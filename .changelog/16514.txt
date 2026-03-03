@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `preemption_notice_duration` field to `google_compute_instance`, `google_compute_instance_template`, and `google_compute_instance_from_machine_image ` resources (beta)
+```
