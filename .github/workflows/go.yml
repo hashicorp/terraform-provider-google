@@ -7,17 +7,16 @@ on:
     branches: [ main ]
 
 jobs:
-
   build:
-    name: Build
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
 
-    - name: Check out code into the Go module directory
+    - name: Check out code
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-    - name: Set up Go 1.x
-      uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+    - name: Set up Go
+      uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.31.0
       with:
         go-version-file: "go.mod"
 
@@ -25,12 +24,10 @@ jobs:
       run: |
         go mod download
 
-    - name: Build
-      run: |
-        make lint
-        go build
+    - name: Build and Lint
+      run: make build
 
     - name: Test
       run: |
         make docscheck
-        make test
+        make testnolint
