@@ -210,6 +210,14 @@ The following arguments are supported:
   specified during creation, this defaults to `SCALE_TIER_STANDARD`.
   Possible values are: `SCALE_TIER_UNSPECIFIED`, `SCALE_TIER_STANDARD`, `SCALE_TIER_ENTERPRISE`.
 
+* `mode` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Mode of the storage pool.
+  The operational mode of the storage pool. ONTAP mode enables operations
+  via ONTAP Mode APIs, while DEFAULT mode enables operations via NetApp Volumes APIs.
+  If not specified during creation, the mode defaults to DEFAULT.
+  Possible values are: `MODE_UNSPECIFIED`, `DEFAULT`, `ONTAP`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
