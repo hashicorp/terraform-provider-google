@@ -3,7 +3,7 @@ DEPRECATIONS:
 * dataplex: deprecated `google_dataplex_data_asset`. Use `google_dataplex_data_product_data_asset` instead. ([#26256](https://github.com/hashicorp/terraform-provider-google/pull/26256))
 
 FEATURES:
-* **New Resource:** `google_compute_organization_security_policy_rule` (ga) ([#26202](https://github.com/hashicorp/terraform-provider-google/pull/26202))
+* **New Resource:** `google_compute_organization_security_policy_rule` ([#26202](https://github.com/hashicorp/terraform-provider-google/pull/26202))
 * **New Resource:** `google_hypercomputecluster_cluster` ([#26180](https://github.com/hashicorp/terraform-provider-google/pull/26180))
 
 IMPROVEMENTS:
@@ -11,14 +11,12 @@ IMPROVEMENTS:
 * compute: added `dest_network_context`, `src_network_context` and `src_networks` fields to `google_compute_firewall_policy_rule` resource ([#26227](https://github.com/hashicorp/terraform-provider-google/pull/26227))
 * compute: added `dest_network_context`, `src_network_context` and `src_networks` fields to `google_compute_network_firewall_policy_rule` resource ([#26227](https://github.com/hashicorp/terraform-provider-google/pull/26227))
 * compute: added `dest_network_context`, `src_network_context` and `src_networks` fields to `google_compute_region_network_firewall_policy_rule` resource ([#26227](https://github.com/hashicorp/terraform-provider-google/pull/26227))
-* compute: added `endpoint_url` to `google_compute_service_attachment` `consumer_accept_lists` ([#26234](https://github.com/hashicorp/terraform-provider-google/pull/26234))
 * container: promoted `sandbox_config` field in `google_container_cluster` and `google_container_node_pool` resources to GA ([#26247](https://github.com/hashicorp/terraform-provider-google/pull/26247))
 * developerconnect: added `http_config` field to `google_developer_connect_connection` resource ([#26232](https://github.com/hashicorp/terraform-provider-google/pull/26232))
 * filestore: added `source_backupdr_backup` field to `google_filestore_instance` resource ([#26238](https://github.com/hashicorp/terraform-provider-google/pull/26238))
 * gkehub2: added field `spec.workloadidentity` to resource `google_gke_hub_feature` ([#26259](https://github.com/hashicorp/terraform-provider-google/pull/26259))
 * iam: added AZURE_AD_GROUPS_DISPLAY_NAME enum value to `extra_attributes_oauth2_client.attribute-type` field in `google_iam_workforce_pool_provider` resource ([#26226](https://github.com/hashicorp/terraform-provider-google/pull/26226))
 * kms: added a KMS AutokeyConfig-specific 10s post-create/post-update ([#26236](https://github.com/hashicorp/terraform-provider-google/pull/26236))
-* netapp: added `largeCapacityConfig` block with `constituentCount` field to `netapp_volume` resource (beta) ([#26243](https://github.com/hashicorp/terraform-provider-google/pull/26243))
 * networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile_group` resource ([#26266](https://github.com/hashicorp/terraform-provider-google/pull/26266))
 * networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile` resource ([#26266](https://github.com/hashicorp/terraform-provider-google/pull/26266))
 * networkservices: added support for use of multiple `ports` for `google_network_services_gateway` resources of type `SECURE_WEB_GATEWAY` ([#26265](https://github.com/hashicorp/terraform-provider-google/pull/26265))
