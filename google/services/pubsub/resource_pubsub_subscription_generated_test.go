@@ -566,6 +566,77 @@ resource "google_storage_bucket_iam_member" "admin" {
 `, context)
 }
 
+func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageTextExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_pubsubSubscriptionPushCloudstorageTextExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+		},
+	})
+}
+
+func testAccPubsubSubscription_pubsubSubscriptionPushCloudstorageTextExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "example" {
+  name  = "tf-test-example-bucket%{random_suffix}"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "tf-test-example-subscription%{random_suffix}"
+  topic = google_pubsub_topic.example.id
+
+  cloud_storage_config {
+    bucket = google_storage_bucket.example.name
+
+    filename_prefix = "pre-"
+    filename_suffix = "-%{random_suffix}"
+    filename_datetime_format = "YYYY-MM-DD/hh_mm_ssZ"
+
+    max_bytes = 1000
+    max_duration = "300s"
+    max_messages = 1000
+
+    text_config {}
+  }
+  depends_on = [
+    google_storage_bucket.example,
+    google_storage_bucket_iam_member.admin,
+  ]
+}
+
+data "google_project" "project" {
+}
+
+resource "google_storage_bucket_iam_member" "admin" {
+  bucket = google_storage_bucket.example.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+`, context)
+}
+
 func TestAccPubsubSubscription_pubsubSubscriptionPushCloudstorageAvroExample(t *testing.T) {
 	t.Parallel()
 
