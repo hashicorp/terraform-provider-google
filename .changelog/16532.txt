@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_observability_project_settings` (beta)
+```
+```release-note:new-datasource
+`google_observability_project_settings` (beta)
+```

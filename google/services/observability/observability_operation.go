@@ -46,6 +46,7 @@ var (
 type ObservabilityOperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
+	Project   string
 	tpgresource.CommonOperationWaiter
 }
 
@@ -59,15 +60,17 @@ func (w *ObservabilityOperationWaiter) QueryOp() (interface{}, error) {
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,
 		Method:    "GET",
+		Project:   w.Project,
 		RawURL:    url,
 		UserAgent: w.UserAgent,
 	})
 }
 
-func createObservabilityWaiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*ObservabilityOperationWaiter, error) {
+func createObservabilityWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*ObservabilityOperationWaiter, error) {
 	w := &ObservabilityOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
+		Project:   project,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
 		return nil, err
@@ -76,8 +79,8 @@ func createObservabilityWaiter(config *transport_tpg.Config, op map[string]inter
 }
 
 // nolint: deadcode,unused
-func ObservabilityOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
-	w, err := createObservabilityWaiter(config, op, activity, userAgent)
+func ObservabilityOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	w, err := createObservabilityWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
 	}
@@ -91,12 +94,12 @@ func ObservabilityOperationWaitTimeWithResponse(config *transport_tpg.Config, op
 	return json.Unmarshal(rawResponse, response)
 }
 
-func ObservabilityOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func ObservabilityOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil
 	}
-	w, err := createObservabilityWaiter(config, op, activity, userAgent)
+	w, err := createObservabilityWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		// If w is nil, the op was synchronous.
 		return err
