@@ -23,10 +23,10 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
+	"errors"
 	"log"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
 	"google.golang.org/api/storage/v1"
 )
 
@@ -109,12 +109,12 @@ func testSweepComposerEnvironments(config *transport_tpg.Config, region string) 
 		default:
 			op, deleteErr := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.Delete(e.Name).Do()
 			if deleteErr != nil {
-				allErrors = multierror.Append(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, deleteErr))
+				allErrors = errors.Join(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, deleteErr))
 				continue
 			}
 			waitErr := ComposerOperationWaitTime(config, op, config.Project, "Sweeping old test environments", config.UserAgent, 10*time.Minute)
 			if waitErr != nil {
-				allErrors = multierror.Append(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, waitErr))
+				allErrors = errors.Join(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, waitErr))
 			}
 		}
 	}
@@ -158,23 +158,21 @@ func testSweepComposerEnvironmentCleanUpBucket(config *transport_tpg.Config, buc
 	var allErrors error
 	objList, err := config.NewStorageClient(config.UserAgent).Objects.List(bucket.Name).Do()
 	if err != nil {
-		allErrors = multierror.Append(allErrors,
-			fmt.Errorf("Unable to list objects to delete for bucket %q: %s", bucket.Name, err))
+		allErrors = errors.Join(allErrors, fmt.Errorf("unable to list objects to delete for bucket %q: %s", bucket.Name, err))
 	}
 
 	for _, o := range objList.Items {
 		if err := config.NewStorageClient(config.UserAgent).Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
-			allErrors = multierror.Append(allErrors,
-				fmt.Errorf("Unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
+			allErrors = errors.Join(allErrors, fmt.Errorf("unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
 		}
 	}
 
 	if err := config.NewStorageClient(config.UserAgent).Buckets.Delete(bucket.Name).Do(); err != nil {
-		allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
+		allErrors = errors.Join(allErrors, fmt.Errorf("unable to delete bucket %q: %s", bucket.Name, err))
 	}
 
 	if allErrors != nil {
-		return fmt.Errorf("Unable to clean up bucket %q: %v", bucket.Name, allErrors)
+		return fmt.Errorf("unable to clean up bucket %q: %w", bucket.Name, allErrors)
 	}
 
 	log.Printf("Cleaned up bucket %q for composer environment tests", bucket.Name)
