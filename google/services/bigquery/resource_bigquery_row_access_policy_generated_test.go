@@ -85,6 +85,15 @@ resource "google_bigquery_dataset" "example" {
 resource "google_bigquery_table" "example" {
   deletion_protection = false
 
+  schema = <<EOF
+[
+  {
+    "name": "nullable_field",
+    "type": "STRING"
+  }
+]
+EOF
+
   dataset_id = google_bigquery_dataset.example.dataset_id
   table_id   = "tf_test_table_id%{random_suffix}"
 }

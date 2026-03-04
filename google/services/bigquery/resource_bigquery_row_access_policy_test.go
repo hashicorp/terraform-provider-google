@@ -67,6 +67,15 @@ resource "google_bigquery_dataset" "test" {
 resource "google_bigquery_table" "test" {
   deletion_protection = false
 
+  schema = <<EOF
+[
+  {
+    "name": "nullable_field",
+    "type": "STRING"
+  }
+]
+EOF
+
   dataset_id = google_bigquery_dataset.test.dataset_id
   table_id   = "tf_test_table_id%{random_suffix}"
 }
@@ -93,6 +102,15 @@ resource "google_bigquery_dataset" "test" {
 
 resource "google_bigquery_table" "test" {
   deletion_protection = false
+
+  schema = <<EOF
+[
+  {
+    "name": "nullable_field",
+    "type": "STRING"
+  }
+]
+EOF
 
   dataset_id = google_bigquery_dataset.test.dataset_id
   table_id   = "tf_test_table_id%{random_suffix}"
