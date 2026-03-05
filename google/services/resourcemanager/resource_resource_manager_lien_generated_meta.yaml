@@ -11,3 +11,5 @@ fields:
     - api_field: parent
     - api_field: reason
     - api_field: restrictions
+    - field: deletion_policy
+      provider_only: true

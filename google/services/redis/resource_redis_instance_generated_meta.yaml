@@ -64,3 +64,5 @@ fields:
       provider_only: true
     - api_field: tier
     - api_field: transitEncryptionMode
+    - field: deletion_policy
+      provider_only: true

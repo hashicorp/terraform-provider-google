@@ -13,3 +13,5 @@ fields:
     - api_field: topic
     - field: zone
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

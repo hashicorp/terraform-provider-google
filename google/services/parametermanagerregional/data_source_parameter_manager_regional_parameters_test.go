@@ -46,8 +46,9 @@ func TestAccDataSourceParameterManagerRegionalRegionalParameters_basic(t *testin
 						"data.google_parameter_manager_regional_parameters.regional-parameters-datasource",
 						"google_parameter_manager_regional_parameter.regional-parameters",
 						map[string]struct{}{
-							"id":      {},
-							"project": {},
+							"id":              {},
+							"project":         {},
+							"deletion_policy": {},
 						},
 					),
 				),
@@ -105,8 +106,9 @@ func TestAccDataSourceParameterManagerRegionalRegionalParameters_filter(t *testi
 						"google_parameter_manager_regional_parameter.regional-parameters-1",
 						"google_parameter_manager_regional_parameter.regional-parameters-2",
 						map[string]struct{}{
-							"id":      {},
-							"project": {},
+							"id":              {},
+							"project":         {},
+							"deletion_policy": {},
 						},
 					),
 				),
