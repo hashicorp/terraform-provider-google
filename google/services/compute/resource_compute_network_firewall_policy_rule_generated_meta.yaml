@@ -27,6 +27,8 @@ fields:
       field: match.dest_fqdns
     - api_field: rules.match.destIpRanges
       field: match.dest_ip_ranges
+    - api_field: rules.match.destNetworkContext
+      field: match.dest_network_context
     - api_field: rules.match.destRegionCodes
       field: match.dest_region_codes
     - api_field: rules.match.destThreatIntelligences
@@ -41,6 +43,10 @@ fields:
       field: match.src_fqdns
     - api_field: rules.match.srcIpRanges
       field: match.src_ip_ranges
+    - api_field: rules.match.srcNetworkContext
+      field: match.src_network_context
+    - api_field: rules.match.srcNetworks
+      field: match.src_networks
     - api_field: rules.match.srcRegionCodes
       field: match.src_region_codes
     - api_field: rules.match.srcSecureTags.name

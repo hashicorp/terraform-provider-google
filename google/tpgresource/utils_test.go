@@ -989,7 +989,10 @@ func TestConflictError(t *testing.T) {
 		t.Error("did not find that a 409 was a conflict error.")
 	}
 	if !tpgresource.IsConflictError(errwrap.Wrapf("wrap", confErr)) {
-		t.Error("did not find that a wrapped 409 was a conflict error.")
+		t.Error("did not find that a wrapped (errwrap) 409 was a conflict error.")
+	}
+	if !tpgresource.IsConflictError(fmt.Errorf("wrap: %w", confErr)) {
+		t.Error("did not find that a wrapped (fmt.Errorf) 409 was a conflict error.")
 	}
 	confErr = &googleapi.Error{
 		Code: 412,
@@ -999,6 +1002,9 @@ func TestConflictError(t *testing.T) {
 	}
 	if !tpgresource.IsConflictError(errwrap.Wrapf("wrap", confErr)) {
 		t.Error("did not find that a wrapped 412 was a conflict error.")
+	}
+	if !tpgresource.IsConflictError(fmt.Errorf("wrap: %w", confErr)) {
+		t.Error("did not find that a wrapped (fmt.Errorf) 412 was a conflict error.")
 	}
 	// skipping negative tests as other cases may be added later.
 }

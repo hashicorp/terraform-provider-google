@@ -113,15 +113,15 @@ resource "google_project_service" "servicenetworking" {
   depends_on = [google_project_service.compute]
 }
 
-resource "time_sleep" "wait_120_seconds" {
-  create_duration = "120s"
+resource "time_sleep" "wait_300_seconds" {
+  create_duration = "300s"
   depends_on = [google_project_service.servicenetworking]
 }
 
 resource "google_compute_network" "apigee_network" {
   name       = "apigee-network"
   project    = google_project.project.project_id
-  depends_on = [time_sleep.wait_120_seconds]
+  depends_on = [time_sleep.wait_300_seconds]
 }
 
 resource "google_compute_global_address" "apigee_range" {
@@ -202,8 +202,8 @@ resource "google_project_service" "apigee" {
   service = "apigee.googleapis.com"
 }
 
-resource "time_sleep" "wait_120_seconds" {
-  create_duration = "120s"
+resource "time_sleep" "wait_300_seconds" {
+  create_duration = "300s"
   depends_on = [google_project_service.apigee]
 }
 
@@ -214,7 +214,7 @@ resource "google_apigee_organization" "org" {
   project_id          = google_project.project.project_id
   disable_vpc_peering = true
   depends_on          = [
-    time_sleep.wait_120_seconds,
+    time_sleep.wait_300_seconds,
   ]
 }
 
@@ -274,8 +274,8 @@ resource "google_project_service" "apigee" {
   service = "apigee.googleapis.com"
 }
 
-resource "time_sleep" "wait_120_seconds" {
-  create_duration = "120s"
+resource "time_sleep" "wait_300_seconds" {
+  create_duration = "300s"
   depends_on = [google_project_service.apigee]
 }
 
@@ -286,7 +286,7 @@ resource "google_apigee_organization" "org" {
   billing_type               = "PAYG"
   disable_vpc_peering        = true
   depends_on                 = [
-    time_sleep.wait_120_seconds,
+    time_sleep.wait_300_seconds,
   ]
 }
 

@@ -135,6 +135,61 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 `, context)
 }
 
+func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourceExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourceExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourceExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-reasoning-engine%{random_suffix}"
+  description  = "A basic reasoning engine"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      developer_connect_source {
+        config {
+          git_repository_link = "projects/${data.google_project.project.project_id}/locations/us-central1/connections/tpg-test-bot-github/gitRepositoryLinks/tpg-test-vertex-reasoning"
+          dir                 = "source"
+          revision            = "main"
+        }
+      }
+
+      python_spec {
+        version           = "3.14"
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+      }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testing.T) {
 	t.Parallel()
 	acctest.BootstrapIamMembers(t, []acctest.IamMember{

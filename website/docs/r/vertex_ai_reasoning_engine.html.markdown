@@ -60,6 +60,41 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_developer_connect_source&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Reasoning Engine Developer Connect Source
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "reasoning-engine"
+  description  = "A basic reasoning engine"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      developer_connect_source {
+        config {
+          git_repository_link = "projects/${data.google_project.project.project_id}/locations/us-central1/connections/tpg-test-bot-github/gitRepositoryLinks/tpg-test-vertex-reasoning"
+          dir                 = "source"
+          revision            = "main"
+        }
+      }
+
+      python_spec {
+        version           = "3.14"
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+      }
+    }
+  }
+}
+```
 ## Example Usage - Vertex Ai Reasoning Engine Psc Interface
 
 
@@ -598,6 +633,11 @@ The following arguments are supported:
   Specification for running a Python application from source.
   Structure is [documented below](#nested_spec_source_code_spec_python_spec).
 
+* `developer_connect_source` -
+  (Optional)
+  Specification for source code to be fetched from a Git repository managed through the Developer Connect service.
+  Structure is [documented below](#nested_spec_source_code_spec_developer_connect_source).
+
 
 <a name="nested_spec_source_code_spec_inline_source"></a>The `inline_source` block supports:
 
@@ -633,6 +673,28 @@ The following arguments are supported:
   Optional. The version of Python to use. Support version
   includes 3.9, 3.10, 3.11, 3.12, 3.13. If not specified,
   default value is 3.10.
+
+<a name="nested_spec_source_code_spec_developer_connect_source"></a>The `developer_connect_source` block supports:
+
+* `config` -
+  (Required)
+  The Developer Connect configuration that defines the specific repository, revision, and directory to use as the source code root.
+  Structure is [documented below](#nested_spec_source_code_spec_developer_connect_source_config).
+
+
+<a name="nested_spec_source_code_spec_developer_connect_source_config"></a>The `config` block supports:
+
+* `git_repository_link` -
+  (Required)
+  The Developer Connect Git repository link, formatted as projects/*/locations/*/connections/*/gitRepositoryLink/*.
+
+* `dir` -
+  (Required)
+  Directory, relative to the source root, in which to run the build.
+
+* `revision` -
+  (Required)
+  The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.
 
 ## Attributes Reference
 

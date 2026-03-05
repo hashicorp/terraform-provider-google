@@ -27,6 +27,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
@@ -170,6 +171,22 @@ func RandIntRange(t *testing.T, minInt int, maxInt int) int {
 	}
 
 	return rand.New(s.source).Intn(maxInt-minInt) + minInt
+}
+
+// SkipTestUntil skips a test until a given date, specified in YYYY-MM-DD.
+// You can bypass this skip by setting DISABLE_SKIP_TEST_UNTIL to "true"
+func SkipTestUntil(t *testing.T, enableDate string) {
+	format := "2006-01-02"                                // go string for YYYY-MM-DD.
+	enableDateTime, err := time.Parse(format, enableDate) // With no timezone we will use local time rather than UTC or a fixed TZ.
+	if err != nil {
+		t.Fatalf("failed to parse SkipTestUntil: %q, err: %v", enableDate, err)
+	}
+
+	if time.Now().Before(enableDateTime) {
+		if v := os.Getenv("DISABLE_SKIP_TEST_UNTIL"); v != "true" {
+			t.Skipf("skipping test until %v", enableDate)
+		}
+	}
 }
 
 // ProtoV5ProviderFactories returns a muxed ProviderServer that uses the provider code from this repo (SDK and plugin-framework).

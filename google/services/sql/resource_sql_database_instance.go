@@ -134,6 +134,7 @@ var (
 		"settings.0.insights_config.0.record_application_tags",
 		"settings.0.insights_config.0.record_client_address",
 		"settings.0.insights_config.0.query_plans_per_minute",
+		"settings.0.insights_config.0.enhanced_query_insights_enabled",
 	}
 
 	sqlServerAuditConfigurationKeys = []string{
@@ -245,6 +246,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 			privateNetworkCustomizeDiff,
 			pitrSupportDbCustomizeDiff,
 			nodeCountCustomDiff,
+			autoUpgradeEnabledCustomizeDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -530,6 +532,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Optional:    true,
 							Description: `Enables Vertex AI Integration.`,
 						},
+						"auto_upgrade_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Enables Automatic Version Upgrade feature. Can be used with MySQL only.`,
+						},
 						"enable_dataplex_integration": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -792,13 +799,19 @@ API (for read pools, effective_availability_type may differ from availability_ty
 										AtLeastOneOf: insightsConfigKeys,
 										Description:  `True if Query Insights feature is enabled.`,
 									},
+									"enhanced_query_insights_enabled": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `True if Enhanced Query Insights feature is enabled.`,
+									},
 									"query_string_length": {
 										Type:         schema.TypeInt,
 										Optional:     true,
-										Default:      1024,
+										Computed:     true,
 										ValidateFunc: validation.IntBetween(1, 1048576),
 										AtLeastOneOf: insightsConfigKeys,
-										Description:  `Maximum query length stored in bytes. Between 256 and 4500. Default to 1024. For Enterprise Plus instances, from 1 to 1048576.`,
+										Description:  `Maximum query length stored in bytes. Between 256 and 4500. Default to 1024. For Enterprise Plus instances, from 1024 to 100000.`,
 									},
 									"record_application_tags": {
 										Type:         schema.TypeBool,
@@ -872,6 +885,13 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"NOT_REQUIRED", "REQUIRED"}, false),
 							Description:  `Enables the enforcement of Cloud SQL Auth Proxy or Cloud SQL connectors for all the connections. If enabled, all the direct connections are rejected.`,
+						},
+						"data_api_access": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"DISALLOW_DATA_API", "ALLOW_DATA_API"}, false),
+							Description:  `Allows using ExecuteSql API to connect to the instance. Disallowed when unspecified.`,
 						},
 						"deletion_protection_enabled": {
 							Type:        schema.TypeBool,
@@ -1002,7 +1022,7 @@ API (for read pools, effective_availability_type may differ from availability_ty
 			"database_version": {
 				Type:             schema.TypeString,
 				Required:         true,
-				Description:      `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, MYSQL_8_4, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, POSTGRES_15, POSTGRES_16, POSTGRES_17, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
+				Description:      `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, MYSQL_8_4, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, POSTGRES_15, POSTGRES_16, POSTGRES_17, POSTGRES_18, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 				DiffSuppressFunc: databaseVersionDiffSuppress,
 			},
 			"encryption_key_name": {
@@ -1450,6 +1470,24 @@ func privateNetworkCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta
 	return nil
 }
 
+// Ensures auto_upgrade_enabled is never unset (in-place) if already set to true.
+func autoUpgradeEnabledCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+	if !d.HasChange("settings.0.auto_upgrade_enabled") {
+		return nil
+	}
+	oldValueI, newValueI := d.GetChange("settings.0.auto_upgrade_enabled")
+	if oldValueI == nil && !(newValueI.(bool)) {
+		if err := d.SetNew("settings.0.auto_upgrade_enabled", nil); err != nil {
+			return err
+		}
+	} else if oldValueI != nil && oldValueI.(bool) && (newValueI == nil || !(newValueI.(bool))) {
+		if err := d.ForceNew("settings.0.auto_upgrade_enabled"); err != nil {
+			return fmt.Errorf("The setting auto_upgrade_enabled cannot be set to false after being set true: %s", err)
+		}
+	}
+	return nil
+}
+
 // helper function to see if string within list contains a particular substring
 func stringContainsSlice(arr []string, str string) bool {
 	for _, i := range arr {
@@ -1524,6 +1562,12 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
 	pointInTimeRestoreContext := expandPointInTimeRestoreContext(d.Get("point_in_time_restore_context").([]interface{}))
+
+	if valueI, ok := d.GetOk("settings.0.auto_upgrade_enabled"); ok && !(valueI.(bool)) {
+		if err := d.Set("settings.0.auto_upgrade_enabled", nil); err != nil {
+			return err
+		}
+	}
 
 	s, ok := d.GetOk("settings")
 	desiredSettings := expandSqlDatabaseInstanceSettings(s.([]interface{}), databaseVersion)
@@ -1742,6 +1786,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		AvailabilityType:          _settings["availability_type"].(string),
 		ConnectorEnforcement:      _settings["connector_enforcement"].(string),
 		Collation:                 _settings["collation"].(string),
+		DataApiAccess:             _settings["data_api_access"].(string),
 		DataDiskSizeGb:            int64(_settings["disk_size"].(int)),
 		DataDiskType:              _settings["disk_type"].(string),
 		PricingPlan:               _settings["pricing_plan"].(string),
@@ -1765,6 +1810,10 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 	resize := _settings["disk_autoresize"].(bool)
 	settings.StorageAutoResize = &resize
 	settings.StorageAutoResizeLimit = int64(_settings["disk_autoresize_limit"].(int))
+
+	if _settings["auto_upgrade_enabled"] != nil {
+		settings.AutoUpgradeEnabled = _settings["auto_upgrade_enabled"].(bool)
+	}
 
 	return settings
 }
@@ -2084,11 +2133,16 @@ func expandInsightsConfig(configured []interface{}) *sqladmin.InsightsConfig {
 
 	_insightsConfig := configured[0].(map[string]interface{})
 	return &sqladmin.InsightsConfig{
-		QueryInsightsEnabled:  _insightsConfig["query_insights_enabled"].(bool),
-		QueryStringLength:     int64(_insightsConfig["query_string_length"].(int)),
-		RecordApplicationTags: _insightsConfig["record_application_tags"].(bool),
-		RecordClientAddress:   _insightsConfig["record_client_address"].(bool),
-		QueryPlansPerMinute:   int64(_insightsConfig["query_plans_per_minute"].(int)),
+		QueryInsightsEnabled:         _insightsConfig["query_insights_enabled"].(bool),
+		QueryStringLength:            int64(_insightsConfig["query_string_length"].(int)),
+		RecordApplicationTags:        _insightsConfig["record_application_tags"].(bool),
+		RecordClientAddress:          _insightsConfig["record_client_address"].(bool),
+		QueryPlansPerMinute:          int64(_insightsConfig["query_plans_per_minute"].(int)),
+		EnhancedQueryInsightsEnabled: _insightsConfig["enhanced_query_insights_enabled"].(bool),
+		// Ensure boolean fields that may be set to false are always sent in API requests
+		// so Terraform can disable features (false) instead of leaving them as the
+		// server-side defaults when omitted.
+		ForceSendFields: []string{"EnhancedQueryInsightsEnabled"},
 	}
 }
 
@@ -2586,8 +2640,11 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		instance.PscServiceAttachmentLink = d.Get("psc_service_attachment_link").(string)
 	}
 
-	// Database Version is required for all calls with Google ML integration enabled or it will be rejected by the API.
-	if d.Get("settings.0.enable_google_ml_integration").(bool) || len(_settings["connection_pool_config"].(*schema.Set).List()) > 0 {
+	// Database Version is required for all calls with Google ML Integration, Auto Upgrade,
+	// and Connection Pool enabled, or it will be rejected by the API.
+	if d.Get("settings.0.enable_google_ml_integration").(bool) ||
+		d.Get("settings.0.auto_upgrade_enabled").(bool) ||
+		len(_settings["connection_pool_config"].(*schema.Set).List()) > 0 {
 		instance.DatabaseVersion = databaseVersion
 	}
 
@@ -2801,6 +2858,7 @@ func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.Resour
 		"effective_availability_type": settings.AvailabilityType,
 		"collation":                   settings.Collation,
 		"connector_enforcement":       settings.ConnectorEnforcement,
+		"data_api_access":             settings.DataApiAccess,
 		"disk_type":                   settings.DataDiskType,
 		"disk_size":                   settings.DataDiskSizeGb,
 		"pricing_plan":                settings.PricingPlan,
@@ -2883,6 +2941,10 @@ func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.Resour
 
 	data["enable_google_ml_integration"] = settings.EnableGoogleMlIntegration
 	data["enable_dataplex_integration"] = settings.EnableDataplexIntegration
+
+	if settings.AutoUpgradeEnabled {
+		data["auto_upgrade_enabled"] = settings.AutoUpgradeEnabled
+	}
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels
@@ -3249,11 +3311,12 @@ func flattenServerCaCerts(caCerts []*sqladmin.SslCert) []map[string]interface{} 
 
 func flattenInsightsConfig(insightsConfig *sqladmin.InsightsConfig) interface{} {
 	data := map[string]interface{}{
-		"query_insights_enabled":  insightsConfig.QueryInsightsEnabled,
-		"query_string_length":     insightsConfig.QueryStringLength,
-		"record_application_tags": insightsConfig.RecordApplicationTags,
-		"record_client_address":   insightsConfig.RecordClientAddress,
-		"query_plans_per_minute":  insightsConfig.QueryPlansPerMinute,
+		"query_insights_enabled":          insightsConfig.QueryInsightsEnabled,
+		"query_string_length":             insightsConfig.QueryStringLength,
+		"record_application_tags":         insightsConfig.RecordApplicationTags,
+		"record_client_address":           insightsConfig.RecordClientAddress,
+		"query_plans_per_minute":          insightsConfig.QueryPlansPerMinute,
+		"enhanced_query_insights_enabled": insightsConfig.EnhancedQueryInsightsEnabled,
 	}
 
 	return []map[string]interface{}{data}

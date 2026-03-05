@@ -308,6 +308,37 @@ resource "google_firestore_index" "my-index" {
   skip_wait = true
 }
 ```
+## Example Usage - Firestore Index Deletion Policy
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id-deletion-policy"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+  project     = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "atestcollection"
+
+  fields {
+    field_path = "name"
+    order      = "ASCENDING"
+  }
+
+  fields {
+    field_path = "description"
+    order      = "DESCENDING"
+  }
+  deletion_policy = ""PREVENT""
+}
+```
 
 ## Argument Reference
 
@@ -361,13 +392,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
-	When a 'terraform destroy' or 'terraform apply' would delete the resource,
-	the command will fail if this field is set to "PREVENT" in Terraform state.
-	When set to "ABANDON", the command will remove the resource from Terraform
-	management without updating or deleting the resource in the API.
-	When set to "DELETE", deleting the resource is allowed.
 * `skip_wait` - (Optional) Whether to skip waiting for the index to be created.
+* `deletion_policy` - (Optional) Deletion behavior for this index.
+If the deletion policy is `PREVENT`, the index cannot be deleted and a terraform destroy will fail.
+If the deletion policy is `DELETE`, the index will both be removed from Terraform state and deleted from Google Cloud upon destruction.
+The default value is `DELETE`.
+
 
 
 <a name="nested_fields"></a>The `fields` block supports:

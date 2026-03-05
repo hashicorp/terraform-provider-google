@@ -25,6 +25,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -1237,17 +1238,28 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// delete objects
-	for deleteObjectError == nil {
-		listResponse, listErr := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true).Do()
+	var token string
+	first := true
+	var errMu sync.Mutex
+
+	for token != "" || first {
+		first = false
+
+		listCall := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true)
+		if token != "" {
+			listCall.PageToken(token)
+		}
+		listResponse, listErr := listCall.Do()
 		if listErr != nil {
 			log.Printf("Error listing contents of bucket %s: %v", bucket, listErr)
 			// If we can't list the contents, fall through and try deleting the bucket anyway in case it's empty
 			objectsListError = listErr
 			break
 		}
+		token = listResponse.NextPageToken
 
 		if len(listResponse.Items) == 0 {
-			break // 0 items, bucket empty
+			continue // 0 items on this page, but there might be more pages (unlikely but possible)
 		}
 
 		if d.Get("retention_policy.0.is_locked").(bool) {
@@ -1272,17 +1284,19 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		}
 
 		// GCS requires that a bucket be empty (have no objects or object versions) before it can be deleted.
-		log.Printf("[DEBUG] Attempting to destroy %v objects in bucket %q due to `force_destroy` being set to true. There may be more objects- additional pages are not checked in advance.", len(listResponse.Items), bucket)
+		log.Printf("[DEBUG] Attempting to destroy %v objects in bucket %q due to `force_destroy` being set to true.", len(listResponse.Items), bucket)
 
 		for _, object := range listResponse.Items {
-			object := object // ensure that local variable is maintained over loop iterations. Go probably fixed this issue but that should be evaluated in depth.
-
+			object := object // ensure that local variable is maintained over loop iterations.
 			wp.Submit(func() {
-				log.Printf("[DEBUG] Deleting object %q in bucket %q", object.Name, bucket)
 				err := config.NewStorageClient(userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do()
 				if err != nil {
-					deleteObjectError = err
-					log.Printf("[DEBUG] Failed to delete object %q in bucket %q: %s", object.Name, bucket, err)
+					errMu.Lock()
+					defer errMu.Unlock()
+					if deleteObjectError == nil {
+						deleteObjectError = err
+						log.Printf("[DEBUG] Failed to delete object %q in bucket %q: %s", object.Name, bucket, err)
+					}
 				}
 			})
 		}

@@ -21,6 +21,7 @@ description: |-
 
 
 # google_notebooks_instance_iam_policy
+~> **Warning:** The parent resource has been deprecated: `google_notebooks_instance` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.
 
 Retrieves the current IAM policy data for instance
 

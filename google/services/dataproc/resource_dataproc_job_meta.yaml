@@ -73,3 +73,5 @@ fields:
   - api_field: 'status.substate'
   - field: 'terraform_labels'
     provider_only: true
+  - field: 'wait_for_completion'
+    provider_only: true

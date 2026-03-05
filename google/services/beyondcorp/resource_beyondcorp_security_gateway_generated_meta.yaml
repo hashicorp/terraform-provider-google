@@ -16,6 +16,7 @@ fields:
       field: hubs.internet_gateway.assigned_ips
     - field: location
       provider_only: true
+    - api_field: logging
     - api_field: name
     - api_field: proxyProtocolConfig.allowedClientHeaders
     - api_field: proxyProtocolConfig.clientIp

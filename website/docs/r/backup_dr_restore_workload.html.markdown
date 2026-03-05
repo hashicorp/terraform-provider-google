@@ -25,8 +25,6 @@ An imperative resource that triggers a GCBDR restoration event.
 Creating this resource will initiate a restore operation from a specified backup.
 The resource represents the restore operation and its result.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage - Backup Dr Restore Workload Compute Instance Basic
@@ -38,8 +36,6 @@ resource "google_backup_dr_restore_workload" "restore_compute_basic" {
   backup_vault_id  = "backup-vault"
   data_source_id   = "data-source"
   backup_id        = "backup"
-  
-  name = "projects/my-project/locations/us-central1/backups/my-backup"
 
   compute_instance_target_environment {
     project = "my-project-name"
@@ -48,7 +44,7 @@ resource "google_backup_dr_restore_workload" "restore_compute_basic" {
 
   compute_instance_restore_properties {
     name         = "restored-instance"
-    machine_type = "e2-medium"
+    machine_type = "zones/us-central1-a/machineTypes/e2-medium"
   }
 }
 ```
@@ -61,8 +57,6 @@ resource "google_backup_dr_restore_workload" "restore_compute_full" {
   backup_vault_id  = "backup-vault"
   data_source_id   = "data-source"
   backup_id        = "backup"
-  
-  name = "projects/my-project/locations/us-central1/backups/my-backup"
 
   compute_instance_target_environment {
     project = "my-project-name"
@@ -71,16 +65,25 @@ resource "google_backup_dr_restore_workload" "restore_compute_full" {
 
   compute_instance_restore_properties {
     name         = "restored-instance-full"
-    machine_type = "e2-medium"
+    machine_type = "zones/us-central1-a/machineTypes/e2-medium"
     description  = "Restored compute instance with advanced configuration"
     
     can_ip_forward      = true
     deletion_protection = false
     
-    labels = {
-      environment = "production"
-      restored    = "true"
-      team        = "infrastructure"
+    labels {
+      key   = "environment"
+      value = "production"
+    }
+
+    labels {
+      key   = "restored"
+      value = "true"
+    }
+
+    labels {
+      key   = "team"
+      value = "infrastructure"
     }
     
     tags {
@@ -88,11 +91,11 @@ resource "google_backup_dr_restore_workload" "restore_compute_full" {
     }
     
     network_interfaces {
-      network    = "default"
+      network    = "projects/my-project-name/global/networks/default"
       subnetwork = "projects/my-project-name/regions/us-central1/subnetworks/default"
       
       access_configs {
-        name         = "External NAT"
+        name         = "ONE_TO_ONE_NAT"
         network_tier = "PREMIUM"
       }
     }
@@ -145,8 +148,6 @@ resource "google_backup_dr_restore_workload" "restore_disk_basic" {
   backup_vault_id  = "backup-vault"
   data_source_id   = "data-source"
   backup_id        = "backup"
-  
-  name = "projects/my-project/locations/us-central1/backups/my-backup"
 
   disk_target_environment {
     project = "my-project-name"
@@ -156,7 +157,7 @@ resource "google_backup_dr_restore_workload" "restore_disk_basic" {
   disk_restore_properties {
     name    = "restored-disk"
     size_gb = 100
-    type    = "pd-standard"
+    type    = "projects/my-project-name/zones/us-central1-a/diskTypes/pd-standard"
     
     description = "Restored persistent disk from backup"
     
@@ -176,15 +177,13 @@ resource "google_backup_dr_restore_workload" "restore_regional_disk" {
   backup_vault_id  = "backup-vault"
   data_source_id   = "data-source"
   backup_id        = "backup"
-  
-  name = "projects/my-project/locations/us-central1/backups/my-backup"
 
   region_disk_target_environment {
     project = "my-project-name"
     region  = "us-central1"
     replica_zones = [
-      "us-central1-a",
-      "us-central1-b"
+      "projects/my-project-name/zones/us-central1-a",
+      "projects/my-project-name/zones/us-central1-b"
     ]
   }
 
@@ -215,8 +214,6 @@ resource "google_backup_dr_restore_workload" "restore_without_delete" {
   data_source_id   = "data-source"
   backup_id        = "backup"
   
-  name = "projects/my-project/locations/us-central1/backups/my-backup"
-  
   # Set to false to keep the restored resource in GCP after terraform destroy
   delete_restored_instance = false
 
@@ -226,9 +223,9 @@ resource "google_backup_dr_restore_workload" "restore_without_delete" {
   }
 
   disk_restore_properties {
-    name    = "persistent-disk"
-    size_gb = 50
-    type    = "pd-standard"
+    name        = "persistent-disk"
+    size_gb     = 100
+    type        = "projects/my-project-name/zones/us-central1-a/diskTypes/pd-standard"
   }
 }
 ```
@@ -237,10 +234,6 @@ resource "google_backup_dr_restore_workload" "restore_without_delete" {
 
 The following arguments are supported:
 
-
-* `name` -
-  (Required)
-  Required. The resource name of the backup instance.
 
 * `location` -
   (Required)
@@ -258,6 +251,12 @@ The following arguments are supported:
   (Required)
   Required. The ID of the backup to restore from.
 
+
+* `name` -
+  (Optional, Deprecated)
+  The resource name of the backup instance.
+
+  ~> **Warning:** `name` is deprecated and will be removed in a future major release. The backup is identified by the parameters (location, backup_vault_id, data_source_id, backup_id).
 
 * `request_id` -
   (Optional)

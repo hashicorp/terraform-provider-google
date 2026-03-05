@@ -129,8 +129,10 @@ func ResourceBiglakeIcebergIcebergCatalog() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `The name of the IcebergCatalog. Format:
-projects/{project_id_or_number}/catalogs/{iceberg_catalog_id}`,
+				Description: `The name of the IcebergCatalog.
+For CATALOG_TYPE_GCS_BUCKET typed catalogs, the name needs to be the
+exact same value of the GCS bucket's name. For example, for a bucket:
+gs://bucket-name, the catalog name will be exactly "bucket-name".`,
 			},
 			"credential_mode": {
 				Type:         schema.TypeString,
@@ -138,6 +140,14 @@ projects/{project_id_or_number}/catalogs/{iceberg_catalog_id}`,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"CREDENTIAL_MODE_END_USER", "CREDENTIAL_MODE_VENDED_CREDENTIALS", ""}),
 				Description:  `The credential mode used for the catalog. CREDENTIAL_MODE_END_USER - End user credentials, default. The authenticating user must have access to the catalog resources and the corresponding Google Cloud Storage files. CREDENTIAL_MODE_VENDED_CREDENTIALS - Use credential vending. The authenticating user must have access to the catalog resources and the system will provide the caller with downscoped credentials to access the Google Cloud Storage files. All table operations in this mode would require 'X-Iceberg-Access-Delegation' header with 'vended-credentials' value included. System will generate a service account and the catalog administrator must grant the service account appropriate permissions. Possible values: ["CREDENTIAL_MODE_END_USER", "CREDENTIAL_MODE_VENDED_CREDENTIALS"]`,
+			},
+			"primary_location": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The primary location for mirroring the remote catalog metadata. It must be
+a BigLake-supported location, and it should be proximate to the remote
+catalog's location.`,
 			},
 			"biglake_service_account": {
 				Type:        schema.TypeString,
@@ -230,7 +240,7 @@ func resourceBiglakeIcebergIcebergCatalogCreate(d *schema.ResourceData, meta int
 		obj["catalog-type"] = catalogTypeProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}&primary-location={{primary_location}}")
 	if err != nil {
 		return err
 	}

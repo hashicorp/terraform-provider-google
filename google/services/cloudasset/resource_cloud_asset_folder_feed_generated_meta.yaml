@@ -4,7 +4,8 @@ source_file: products/cloudasset/FolderFeed.yaml
 api_service_name: cloudasset.googleapis.com
 api_version: v1
 api_resource_type_kind: Feed
-cai_asset_name_format: //cloudasset.googleapis.com/folders/{{folder}}/feeds/{{feed_id}}
+cai_asset_name_formats:
+    - //cloudasset.googleapis.com/folders/{{folder}}/feeds/{{feed_id}}
 api_variant_patterns:
     - folders/{folder}/feeds/{feed}
 fields:

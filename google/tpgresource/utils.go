@@ -212,6 +212,11 @@ func IsConflictError(err error) bool {
 		if e.Code == 409 || e.Code == 412 {
 			return true
 		}
+	} else if gErr := (*googleapi.Error)(nil); errors.As(err, &gErr) {
+		// For cases where the error is not wrapped by errwrap such in 409 IAM concurrency errors.
+		if gErr.Code == 409 || gErr.Code == 412 {
+			return true
+		}
 	}
 	return false
 }

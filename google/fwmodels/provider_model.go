@@ -46,6 +46,7 @@ type ProviderModel struct {
 	UserProjectOverride                       types.Bool                 `tfsdk:"user_project_override"`
 	RequestTimeout                            types.String               `tfsdk:"request_timeout"`
 	RequestReason                             types.String               `tfsdk:"request_reason"`
+	PollInterval                              types.String               `tfsdk:"poll_interval"`
 	UniverseDomain                            types.String               `tfsdk:"universe_domain"`
 	DefaultLabels                             types.Map                  `tfsdk:"default_labels"`
 	AddTerraformAttributionLabel              types.Bool                 `tfsdk:"add_terraform_attribution_label"`
@@ -134,6 +135,7 @@ type ProviderModel struct {
 	GKEHub2CustomEndpoint                  types.String `tfsdk:"gke_hub2_custom_endpoint"`
 	GkeonpremCustomEndpoint                types.String `tfsdk:"gkeonprem_custom_endpoint"`
 	HealthcareCustomEndpoint               types.String `tfsdk:"healthcare_custom_endpoint"`
+	HypercomputeclusterCustomEndpoint      types.String `tfsdk:"hypercomputecluster_custom_endpoint"`
 	IAM2CustomEndpoint                     types.String `tfsdk:"iam2_custom_endpoint"`
 	IAM3CustomEndpoint                     types.String `tfsdk:"iam3_custom_endpoint"`
 	IAMBetaCustomEndpoint                  types.String `tfsdk:"iam_beta_custom_endpoint"`

@@ -23,6 +23,7 @@ fields:
     - api_field: cloudStorageConfig.maxMessages
     - api_field: cloudStorageConfig.serviceAccountEmail
     - api_field: cloudStorageConfig.state
+    - api_field: cloudStorageConfig.textConfig.state
     - api_field: deadLetterPolicy.deadLetterTopic
     - api_field: deadLetterPolicy.maxDeliveryAttempts
     - field: effective_labels

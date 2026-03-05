@@ -99,3 +99,143 @@ func testAccFilestoreInstanceRestore_restore(srcInstancetName, restoreInstanceNa
 	  
 	`, srcInstancetName, restoreInstanceName, backupName)
 }
+
+func TestAccFilestoreInstance_restoreBackupDR(t *testing.T) {
+	t.Parallel()
+
+	instanceID := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	backupVaultID := "tf-test-backup-vault-filestore"
+	location := "us-central1"
+	backupVault := acctest.BootstrapBackupDRVault(t, backupVaultID, location)
+
+	providerFactories := acctest.ProtoV5ProviderFactories(t)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: providerFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckFilestoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFilestoreInstance_restoreBackupDR(instanceID, backupVaultID, backupVault, location),
+			},
+			{
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone", "location"},
+			},
+		},
+	})
+}
+
+func testAccFilestoreInstance_restoreBackupDR(instanceID string, backupVaultID string, backupVaultName string, location string) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_filestore_instance" "source_instance" {
+  name     = "tf-source-instance-%{instance_id}"
+  location = "%{location}"
+  tier     = "REGIONAL"
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share"
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+
+  performance_config {
+    fixed_iops {
+      max_iops = "5000"
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan" "backup_plan" {
+ location       = "%{location}"
+ backup_plan_id = "tf-backup-plan-%{instance_id}"
+ resource_type  = "file.googleapis.com/Instance"
+ backup_vault   = "%{backup_vault_name}"
+
+ backup_rules {
+   rule_id                = "rule-1"
+   backup_retention_days  = 2
+
+    standard_schedule {
+     recurrence_type     = "HOURLY"
+     hourly_frequency    = 6
+     time_zone           = "UTC"
+
+     backup_window {
+       start_hour_of_day = 0
+       end_hour_of_day   = 23
+     }
+    }
+ }
+}
+
+resource "google_backup_dr_backup_plan_association" "bpa" {
+ location = "%{location}"
+ backup_plan_association_id = "tf-backup-plan-association-%{instance_id}"
+ resource = google_filestore_instance.source_instance.id
+ resource_type= "file.googleapis.com/Instance"
+ backup_plan = google_backup_dr_backup_plan.backup_plan.name
+ depends_on = [ google_filestore_instance.source_instance, google_backup_dr_backup_plan.backup_plan]
+}
+
+// Wait for the first backup to be created
+resource "time_sleep" "wait_10_mins" {
+  depends_on = [google_backup_dr_backup_plan_association.bpa]
+  create_duration = "600s"
+}
+
+data "google_backup_dr_backup" "filestore_backups" {
+  project = data.google_project.project.project_id
+  location      	= "%{location}"
+  backup_vault_id 	= "%{backup_vault_id}"
+  data_source_id 	= element(
+  	split("/", google_backup_dr_backup_plan_association.bpa.data_source), 
+	length(split("/", google_backup_dr_backup_plan_association.bpa.data_source)) - 1)
+  
+  depends_on = [time_sleep.wait_10_mins]
+}
+
+
+resource "google_filestore_instance" "instance" {
+  name     = "tf-restored-instance-%{instance_id}"
+  location = "%{location}"
+  tier     = "REGIONAL"
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share"
+    source_backupdr_backup = data.google_backup_dr_backup.filestore_backups.backups[0].name
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+
+  performance_config {
+    fixed_iops {
+      max_iops = "5000"
+    }
+  }
+
+  depends_on = [data.google_backup_dr_backup.filestore_backups]  
+}
+`,
+
+		map[string]interface{}{
+			"backup_vault_name": backupVaultName,
+			"backup_vault_id":   backupVaultID,
+			"location":          location,
+			"instance_id":       instanceID,
+		})
+}

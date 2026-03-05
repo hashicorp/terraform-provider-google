@@ -318,6 +318,22 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 [service agent](https://cloud.google.com/iam/docs/service-agents),
 service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.`,
 						},
+						"text_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							Description: `If set, message data will be written to Cloud Storage in text format.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"state": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. Placeholder to allow the empty text_config block.`,
+									},
+								},
+							},
+						},
 						"state": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -1369,6 +1385,8 @@ func flattenPubsubSubscriptionCloudStorageConfig(v interface{}, d *schema.Resour
 		flattenPubsubSubscriptionCloudStorageConfigState(original["state"], d, config)
 	transformed["avro_config"] =
 		flattenPubsubSubscriptionCloudStorageConfigAvroConfig(original["avroConfig"], d, config)
+	transformed["text_config"] =
+		flattenPubsubSubscriptionCloudStorageConfigTextConfig(original["textConfig"], d, config)
 	transformed["service_account_email"] =
 		flattenPubsubSubscriptionCloudStorageConfigServiceAccountEmail(original["serviceAccountEmail"], d, config)
 	return []interface{}{transformed}
@@ -1448,6 +1466,20 @@ func flattenPubsubSubscriptionCloudStorageConfigAvroConfigWriteMetadata(v interf
 }
 
 func flattenPubsubSubscriptionCloudStorageConfigAvroConfigUseTopicSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionCloudStorageConfigTextConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["state"] =
+		flattenPubsubSubscriptionCloudStorageConfigTextConfigState(original["state"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionCloudStorageConfigTextConfigState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1876,6 +1908,13 @@ func expandPubsubSubscriptionCloudStorageConfig(v interface{}, d tpgresource.Ter
 		transformed["avroConfig"] = transformedAvroConfig
 	}
 
+	transformedTextConfig, err := expandPubsubSubscriptionCloudStorageConfigTextConfig(original["text_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTextConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["textConfig"] = transformedTextConfig
+	}
+
 	transformedServiceAccountEmail, err := expandPubsubSubscriptionCloudStorageConfigServiceAccountEmail(original["service_account_email"], d, config)
 	if err != nil {
 		return nil, err
@@ -1945,7 +1984,7 @@ func expandPubsubSubscriptionCloudStorageConfigAvroConfig(v interface{}, d tpgre
 	transformedUseTopicSchema, err := expandPubsubSubscriptionCloudStorageConfigAvroConfigUseTopicSchema(original["use_topic_schema"], d, config)
 	if err != nil {
 		return nil, err
-	} else {
+	} else if val := reflect.ValueOf(transformedUseTopicSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["useTopicSchema"] = transformedUseTopicSchema
 	}
 
@@ -1957,6 +1996,37 @@ func expandPubsubSubscriptionCloudStorageConfigAvroConfigWriteMetadata(v interfa
 }
 
 func expandPubsubSubscriptionCloudStorageConfigAvroConfigUseTopicSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionCloudStorageConfigTextConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedState, err := expandPubsubSubscriptionCloudStorageConfigTextConfigState(original["state"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["state"] = transformedState
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionCloudStorageConfigTextConfigState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

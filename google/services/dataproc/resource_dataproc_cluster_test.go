@@ -653,6 +653,108 @@ func TestAccDataprocCluster_spotWithInstanceFlexibilityPolicy(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_allInstanceFlexibilityPolicy(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	expectedMasterMachines := []string{"n2d-standard-2", "e2-standard-2"}
+	expectedWorkerMachines := []string{"n2d-standard-2", "e2-standard-2"}
+	expectedPreemptibleWorkerMachines := []string{"n2d-standard-2", "e2-standard-2"}
+	var cluster dataproc.Cluster
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_allInstanceFlexibilityPolicy(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.all_instance_flexibility_policy", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.all_instance_flexibility_policy", "cluster_config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n2d-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.all_instance_flexibility_policy", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n2d-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.all_instance_flexibility_policy", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n2d-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.all_instance_flexibility_policy", "cluster_config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.all_instance_flexibility_policy", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "2"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.all_instance_flexibility_policy", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "1"),
+					resource.TestCheckResourceAttrWith("google_dataproc_cluster.all_instance_flexibility_policy", "cluster_config.0.master_config.0.instance_flexibility_policy.0.instance_selection_results.0.machine_type", validateMachineTypeExpected(expectedMasterMachines)),
+					resource.TestCheckResourceAttrWith("google_dataproc_cluster.all_instance_flexibility_policy", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_results.0.machine_type", validateMachineTypeExpected(expectedWorkerMachines)),
+					resource.TestCheckResourceAttrWith("google_dataproc_cluster.all_instance_flexibility_policy", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_results.0.machine_type", validateMachineTypeExpected(expectedPreemptibleWorkerMachines)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataprocCluster_masterInstanceFlexibilityPolicy(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	expectedMasterMachines := []string{"n2d-standard-2", "e2-standard-2"}
+	var cluster dataproc.Cluster
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_masterInstanceFlexibilityPolicy(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.master_instance_flexibility_policy", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.master_instance_flexibility_policy", "cluster_config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n2d-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.master_instance_flexibility_policy", "cluster_config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "1"),
+					resource.TestCheckResourceAttrWith("google_dataproc_cluster.master_instance_flexibility_policy", "cluster_config.0.master_config.0.instance_flexibility_policy.0.instance_selection_results.0.machine_type", validateMachineTypeExpected(expectedMasterMachines)),
+				),
+			},
+		},
+	})
+}
+
+// validateMachineTypeExpected returns a function that checks if the given machineTypeURI string
+// corresponds to one of the exact machine type names in the expectedMachineTypes list.
+func validateMachineTypeExpected(expectedMachineTypes []string) func(string) error {
+	return func(machineTypeURI string) error {
+		if machineTypeURI == "" {
+			return fmt.Errorf("expected a machine type URI, but got an empty string")
+		}
+
+		// Extract the machine type name from the URI
+		// Example URI: https://www.googleapis.com/compute/v1/projects/PROJECT/zones/ZONE/machineTypes/n2-standard-2
+		parts := strings.Split(machineTypeURI, "/")
+		machineType := parts[len(parts)-1]
+
+		for _, expected := range expectedMachineTypes {
+			if machineType == expected {
+				return nil // Match found: The selected machine type is one of the expected types.
+			}
+		}
+		return fmt.Errorf("selected machine type %q (from URI %q) is not one of the expected machine types: %v", machineType, machineTypeURI, expectedMachineTypes)
+	}
+}
+
+func TestAccDataprocCluster_workerInstanceFlexibilityPolicy(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	expectedWorkerMachines := []string{"n2d-standard-2", "e2-standard-2"}
+	var cluster dataproc.Cluster
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_workerInstanceFlexibilityPolicy(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.worker_instance_flexibility_policy", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.worker_instance_flexibility_policy", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n2d-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.worker_instance_flexibility_policy", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "1"),
+					resource.TestCheckResourceAttrWith("google_dataproc_cluster.worker_instance_flexibility_policy", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_results.0.machine_type", validateMachineTypeExpected(expectedWorkerMachines)),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_spotOnDemandMixing(t *testing.T) {
 	t.Parallel()
 
@@ -2371,7 +2473,148 @@ resource "google_dataproc_cluster" "spot_secondary" {
 }
 	`, rnd, subnetworkName)
 }
+func testAccDataprocCluster_allInstanceFlexibilityPolicy(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "all_instance_flexibility_policy" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
 
+  cluster_config {
+
+    master_config {
+      num_instances = "1"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+			instance_flexibility_policy {
+				instance_selection_list {
+					machine_types = ["n2d-standard-2"]
+					rank          = 1
+				}
+				instance_selection_list {
+					machine_types = ["e2-standard-2"]
+					rank          = 2
+				}
+			}
+    }
+
+    worker_config {
+      num_instances = "2"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+      instance_flexibility_policy {
+				instance_selection_list {
+					machine_types = ["n2d-standard-2"]
+					rank          = 2
+				}
+				instance_selection_list {
+					machine_types = ["e2-standard-2"]
+					rank          = 1
+				}
+			}
+    }
+
+    preemptible_worker_config {
+      num_instances = "3"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+      instance_flexibility_policy {
+				instance_selection_list {
+					machine_types = ["n2d-standard-2"]
+					rank          = 1
+				}
+				instance_selection_list {
+					machine_types = ["e2-standard-2"]
+					rank          = 2
+				}
+			}
+    }
+  }
+}
+	`, rnd)
+}
+func testAccDataprocCluster_workerInstanceFlexibilityPolicy(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "worker_instance_flexibility_policy" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+
+    master_config {
+      num_instances = "1"
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+
+    worker_config {
+      num_instances = "2"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+      instance_flexibility_policy {
+				instance_selection_list {
+					machine_types = ["n2d-standard-2"]
+					rank          = 1
+				}
+				instance_selection_list {
+					machine_types = ["e2-standard-2"]
+					rank          = 3
+				}
+			}
+    }
+  }
+}
+	`, rnd)
+}
+
+func testAccDataprocCluster_masterInstanceFlexibilityPolicy(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "master_instance_flexibility_policy" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+
+    master_config {
+      num_instances = "1"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+			instance_flexibility_policy {
+				instance_selection_list {
+					machine_types = ["n2d-standard-2"]
+					rank          = 1
+				}
+				instance_selection_list {
+					machine_types = ["e2-standard-2"]
+					rank          = 2
+				}
+			}
+    }
+
+    worker_config {
+      num_instances = "2"
+      machine_type  = "e2-standard-2"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+
+    preemptible_worker_config {
+      num_instances = "3"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+  }
+}
+	`, rnd)
+}
 func testAccDataprocCluster_spotWithInstanceFlexibilityPolicy(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "spot_with_instance_flexibility_policy" {

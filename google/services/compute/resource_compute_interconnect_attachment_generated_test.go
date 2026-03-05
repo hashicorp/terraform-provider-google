@@ -69,7 +69,7 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(t *
 				ResourceName:            "google_compute_interconnect_attachment.on_prem",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "region", "router", "subnet_length", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "params", "region", "router", "subnet_length", "terraform_labels"},
 			},
 		},
 	})
@@ -120,7 +120,7 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentDedicatedExample
 				ResourceName:            "google_compute_interconnect_attachment.on_prem",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "region", "router", "subnet_length", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "params", "region", "router", "subnet_length", "terraform_labels"},
 			},
 		},
 	})
@@ -187,7 +187,7 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncr
 				ResourceName:            "google_compute_interconnect_attachment.ipsec-encrypted-interconnect-attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "region", "router", "subnet_length", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "params", "region", "router", "subnet_length", "terraform_labels"},
 			},
 		},
 	})
@@ -250,7 +250,7 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentCustomRan
 				ResourceName:            "google_compute_interconnect_attachment.custom-ranges-interconnect-attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "region", "router", "subnet_length", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "labels", "params", "region", "router", "subnet_length", "terraform_labels"},
 			},
 		},
 	})

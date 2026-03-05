@@ -370,9 +370,10 @@ func schemaNodeConfig() *schema.Schema {
 					Type:     schema.TypeMap,
 					Optional: true,
 					// Computed=true because GKE Sandbox will automatically add labels to nodes that can/cannot run sandboxed pods.
-					Computed:    true,
-					Elem:        &schema.Schema{Type: schema.TypeString},
-					Description: `The map of Kubernetes labels (key/value pairs) to be applied to each node. These will added in addition to any default label(s) that Kubernetes may apply to the node.`,
+					Computed:         true,
+					Elem:             &schema.Schema{Type: schema.TypeString},
+					Description:      `The map of Kubernetes labels (key/value pairs) to be applied to each node. These will added in addition to any default label(s) that Kubernetes may apply to the node.`,
+					DiffSuppressFunc: containerNodePoolLabelsSuppress,
 				},
 
 				"resource_labels": {
@@ -687,6 +688,24 @@ func schemaNodeConfig() *schema.Schema {
 					},
 				},
 
+				"sandbox_config": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					ForceNew:    true,
+					MaxItems:    1,
+					Description: `Sandbox configuration for this node.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+
+							"type": {
+								Type:         schema.TypeString,
+								Required:     true,
+								Description:  `Type of the sandbox to use for the node (e.g. 'GVISOR').`,
+								ValidateFunc: validation.StringInSlice([]string{"GVISOR"}, false),
+							},
+						},
+					},
+				},
 				"boot_disk_kms_key": {
 					Type:        schema.TypeString,
 					Optional:    true,
@@ -1601,6 +1620,13 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 		nc.WorkloadMetadataConfig = expandWorkloadMetadataConfig(v)
 	}
 
+	if v, ok := nodeConfig["sandbox_config"]; ok && len(v.([]interface{})) > 0 {
+		conf := v.([]interface{})[0].(map[string]interface{})
+		nc.SandboxConfig = &container.SandboxConfig{}
+		if v, ok := conf["type"]; ok {
+			nc.SandboxConfig.Type = v.(string)
+		}
+	}
 	if v, ok := nodeConfig["boot_disk_kms_key"]; ok {
 		nc.BootDiskKmsKey = v.(string)
 	}
@@ -2405,6 +2431,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"taint":                              flattenTaints(c.Taints, oldTaints),
 		"effective_taints":                   flattenEffectiveTaints(c.Taints),
 		"workload_metadata_config":           flattenWorkloadMetadataConfig(c.WorkloadMetadataConfig),
+		"sandbox_config":                     flattenSandboxConfig(c.SandboxConfig),
 		"confidential_nodes":                 flattenConfidentialNodes(c.ConfidentialNodes),
 		"boot_disk_kms_key":                  c.BootDiskKmsKey,
 		"kubelet_config":                     flattenKubeletConfig(c.KubeletConfig),
@@ -2638,6 +2665,70 @@ func flattenWorkloadMetadataConfig(c *container.WorkloadMetadataConfig) []map[st
 		})
 	}
 	return result
+}
+
+func flattenSandboxConfig(c *container.SandboxConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		sandboxConfig := map[string]interface{}{}
+
+		if c.Type != "" {
+			sandboxConfig["type"] = c.Type
+		}
+		if len(sandboxConfig) > 0 {
+			result = append(result, sandboxConfig)
+		}
+	}
+	return result
+}
+
+func containerNodePoolLabelsSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Node configs are embedded into multiple resources (container cluster and
+	// container node pool) so we determine the node config key dynamically.
+	idx := strings.Index(k, ".labels.")
+	if idx < 0 {
+		return false
+	}
+
+	root := k[:idx]
+
+	// Right now, GKE only applies its own out-of-band labels when you enable
+	// Sandbox. We only need to perform diff suppression in this case;
+	// otherwise, the default Terraform behavior is fine.
+
+	typeOld, typeNew := d.GetChange(root + ".sandbox_config.0.type")
+
+	if typeOld == nil || typeNew == nil {
+		return false
+	}
+
+	// Pull the entire changeset as a list rather than trying to deal with each
+	// element individually.
+	o, n := d.GetChange(root + ".labels")
+	if o == nil || n == nil {
+		return false
+	}
+
+	labels := n.(map[string]interface{})
+
+	// Remove all current labels, skipping GKE-managed ones if not present in
+	// the new configuration.
+	for key, value := range o.(map[string]interface{}) {
+		if nv, ok := labels[key]; ok && nv == value {
+			delete(labels, key)
+		} else if !strings.HasPrefix(key, "sandbox.gke.io/") {
+			// User-provided label removed in new configuration.
+			return false
+		}
+	}
+
+	// If, at this point, the map still has elements, the new configuration
+	// added an additional taint.
+	if len(labels) > 0 {
+		return false
+	}
+
+	return true
 }
 
 func containerNodePoolResourceLabelsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {

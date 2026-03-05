@@ -117,6 +117,8 @@ func ResourceNotebooksEnvironment() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "`google_notebooks_environment` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.",
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:             schema.TypeString,

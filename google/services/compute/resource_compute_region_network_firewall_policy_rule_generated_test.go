@@ -150,6 +150,126 @@ resource "google_tags_tag_value" "basic_value" {
 `, context)
 }
 
+func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkContextEgressExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkFirewallPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkContextEgressExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_firewall_policy_rule.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkContextEgressExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
+  name        = "tf-test-fw-policy%{random_suffix}"
+  description = "Sample regional network firewall policy"
+  project     = "%{project_name}"
+  region      = "%{region}"
+}
+
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
+  action          = "allow"
+  description     = "This is a simple rule description"
+  direction       = "EGRESS"
+  disabled        = false
+  enable_logging  = true
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
+  priority        = 1000
+  region          = "%{region}"
+  rule_name       = "test-rule"
+
+  match {
+    dest_ip_ranges     = ["10.100.0.1/32"]
+    dest_network_context = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+`, context)
+}
+
+func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkContextIngressExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkFirewallPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkContextIngressExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_firewall_policy_rule.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRuleNetworkContextIngressExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
+  name        = "tf-test-fw-policy%{random_suffix}"
+  description = "Sample regional network firewall policy"
+  project     = "%{project_name}"
+  region      = "%{region}"
+}
+
+resource "google_compute_region_network_firewall_policy_rule" "primary" {
+  action          = "allow"
+  description     = "This is a simple rule description"
+  direction       = "INGRESS"
+  disabled        = false
+  enable_logging  = true
+  firewall_policy = google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
+  priority        = 1000
+  region          = "%{region}"
+  rule_name       = "test-rule"
+
+  match {
+    src_ip_ranges     = ["10.100.0.1/32"]
+    src_network_context = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "all"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeRegionNetworkFirewallPolicyRuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -286,23 +286,21 @@ with the same dimension.`,
 				Description: `Whether to skip waiting for the index to be created.`,
 				Default:     false,
 			},
+			"deletion_policy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DELETE", "PREVENT", ""}),
+				Description: `Deletion behavior for this index.
+If the deletion policy is 'PREVENT', the index cannot be deleted and a terraform destroy will fail.
+If the deletion policy is 'DELETE', the index will both be removed from Terraform state and deleted from Google Cloud upon destruction.
+The default value is 'DELETE'. Default value: "DELETE" Possible values: ["DELETE", "PREVENT"]`,
+				Default: "DELETE",
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-			},
-			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
-When a 'terraform destroy' or 'terraform apply' would delete the instance,
-the command will fail if this field is set to "PREVENT" in Terraform state.
-When set to "ABANDON", the command will remove the resource from Terraform
-management without updating or deleting the resource in the API.
-When set to "DELETE", deleting the resource is allowed.
-`,
-				Default: "DELETE",
 			},
 		},
 		UseJSONNumber: true,
@@ -571,11 +569,7 @@ func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 
 	headers := make(http.Header)
 	if d.Get("deletion_policy").(string) == "PREVENT" {
-		return fmt.Errorf("cannot destroy FirestoreIndex without setting deletion_policy=\"DELETE\" and running `terraform apply`")
-	}
-	if d.Get("deletion_policy").(string) == "ABANDON" {
-		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing Index %q from Terraform state without deletion", d.Id())
-		return nil
+		return fmt.Errorf("cannot destroy google_firestore_index resource with id : %q  without setting deletion_policy=DELETE and running `terraform apply`", d.Id())
 	}
 
 	log.Printf("[DEBUG] Deleting Index %q", d.Id())

@@ -100,6 +100,57 @@ resource "google_network_security_mirroring_endpoint_group" "default" {
 `, context)
 }
 
+func TestAccNetworkSecurityMirroringEndpointGroup_networkSecurityMirroringEndpointGroupBrokerBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecurityMirroringEndpointGroupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecurityMirroringEndpointGroup_networkSecurityMirroringEndpointGroupBrokerBasicExample(context),
+			},
+			{
+				ResourceName:            "google_network_security_mirroring_endpoint_group.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "mirroring_endpoint_group_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkSecurityMirroringEndpointGroup_networkSecurityMirroringEndpointGroupBrokerBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "network" {
+  name                    = "tf-test-example-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_security_mirroring_deployment_group" "deployment_group" {
+  mirroring_deployment_group_id = "tf-test-example-dg%{random_suffix}"
+  location                      = "global"
+  network                       = google_compute_network.network.id
+}
+
+resource "google_network_security_mirroring_endpoint_group" "default" {
+  mirroring_endpoint_group_id = "tf-test-example-eg%{random_suffix}"
+  location                    = "global"
+  type                        = "BROKER"
+  mirroring_deployment_groups = [google_network_security_mirroring_deployment_group.deployment_group.id]
+  description                 = "some description"
+  labels = {
+    foo = "bar"
+  }
+}
+`, context)
+}
+
 func testAccCheckNetworkSecurityMirroringEndpointGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

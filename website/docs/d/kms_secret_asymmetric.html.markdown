@@ -31,9 +31,6 @@ resource definitions, but it does not take care of protecting that data in the
 logging output, plan output, or state output.  Please take care to secure your secret
 data outside of resource definitions.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
-
 ## Example Usage
 
 First, create a KMS KeyRing and CryptoKey using the resource definitions:

@@ -73,3 +73,46 @@ data "google_backup_dr_data_source" "foo" {
 }
 `, context)
 }
+
+// this test cannot be ran locally without seeding your environment with a backup vault and scheduling the backup of a compute instance
+// to generate a unique datasourceId, that this test would need to be modified to use. the values in this test correspond to those used
+// in our testing processes.
+func TestAccDataSourceGoogleCloudBackupDRDataSources_basic(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{}
+	project := envvar.GetTestProjectFromEnv()
+
+	// Note: This test requires a pre-existing Backup Vault named "bv-test"
+	// in us-central1 containing at least one DataSource.
+	// The environment must be seeded before running this test.
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceGoogleCloudBackupDRDataSources_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					// Basic checks for the input attributes
+					resource.TestCheckResourceAttr("data.google_backup_dr_data_sources.all", "project", project),
+					resource.TestCheckResourceAttr("data.google_backup_dr_data_sources.all", "location", "us-central1"),
+					resource.TestCheckResourceAttr("data.google_backup_dr_data_sources.all", "backup_vault_id", "bv-test"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataSourceGoogleCloudBackupDRDataSources_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+data "google_backup_dr_data_sources" "all" {
+  project = data.google_project.project.project_id
+  location      = "us-central1"
+  backup_vault_id = "bv-test"
+}
+`, context)
+}

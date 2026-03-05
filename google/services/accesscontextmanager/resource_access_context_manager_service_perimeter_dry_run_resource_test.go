@@ -32,8 +32,6 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerServicePerimeterDryRunResource_basicTest(t *testing.T) {
-	// Multiple fine-grained resources
-	acctest.SkipIfVcr(t)
 	org := envvar.GetTestOrgFromEnv(t)
 	projects := acctest.BootstrapServicePerimeterProjects(t, 2)
 	policyTitle := "my policy"

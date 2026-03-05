@@ -788,3 +788,640 @@ resource "google_ces_toolset" "ces_toolset_bearer_token_config" {
 }
 `, context)
 }
+
+func TestAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESToolsetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample_full(context),
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_service_account_auth_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+			{
+				Config: testAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_toolset.ces_toolset_mcp_service_account_auth_config", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_service_account_auth_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+		},
+	})
+}
+
+func testAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_service_account_auth_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        service_account_auth_config {
+            service_account = "testaccount@gmail.com"
+        }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_service_account_auth_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="updated_example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service-updated"
+    }
+    api_authentication {
+        service_account_auth_config {
+            service_account = "testaccountupdated@gmail.com"
+        }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCESToolset_cesToolsetMcpOauthConfigExample_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESToolsetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESToolset_cesToolsetMcpOauthConfigExample_full(context),
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_oauth_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+			{
+				Config: testAccCESToolset_cesToolsetMcpOauthConfigExample_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_toolset.ces_toolset_mcp_oauth_config", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_oauth_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+		},
+	})
+}
+
+func testAccCESToolset_cesToolsetMcpOauthConfigExample_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_oauth_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        oauth_config {
+            oauth_grant_type = "CLIENT_CREDENTIAL"
+            client_id = "example_client_id"
+            client_secret_version = "projects/fake-project/secrets/fake-secret/versions/version1"
+            token_endpoint = "123"
+            scopes = ["scope1"]
+        }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCESToolset_cesToolsetMcpOauthConfigExample_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_oauth_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        oauth_config {
+            oauth_grant_type = "CLIENT_CREDENTIAL"
+            client_id = "example_client_id_update"
+            client_secret_version = "projects/fake-project/secrets/fake-secret/versions/version1"
+            token_endpoint = "123"
+            scopes = ["scope1"]
+        }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCESToolset_cesToolsetMcpBearerTokenConfigExample_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESToolsetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESToolset_cesToolsetMcpBearerTokenConfigExample_full(context),
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_bearer_token_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+			{
+				Config: testAccCESToolset_cesToolsetMcpBearerTokenConfigExample_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_toolset.ces_toolset_mcp_bearer_token_config", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_bearer_token_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+		},
+	})
+}
+
+func testAccCESToolset_cesToolsetMcpBearerTokenConfigExample_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_bearer_token_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        bearer_token_config {
+            token = "$context.variables.my_ces_toolset_auth_token"
+        }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCESToolset_cesToolsetMcpBearerTokenConfigExample_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_bearer_token_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        bearer_token_config {
+            token = "$context.variables.my_ces_toolset_auth_token_update"
+        }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCESToolset_cesToolsetMcpApiKeyConfigExample_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESToolsetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESToolset_cesToolsetMcpApiKeyConfigExample_full(context),
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_api_key_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+			{
+				Config: testAccCESToolset_cesToolsetMcpApiKeyConfigExample_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_toolset.ces_toolset_mcp_api_key_config", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_api_key_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+		},
+	})
+}
+
+func testAccCESToolset_cesToolsetMcpApiKeyConfigExample_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_api_key_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  description = "Test description"
+  execution_type = "SYNCHRONOUS"
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        api_key_config {
+            key_name = "ExampleKey"
+            api_key_secret_version = "projects/fake-project/secrets/fake-secret/versions/version-1"
+            request_location = "HEADER"
+        }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCESToolset_cesToolsetMcpApiKeyConfigExample_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_api_key_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  description = "Test description"
+  execution_type = "SYNCHRONOUS"
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        api_key_config {
+            key_name = "ExampleKeyUpdate"
+            api_key_secret_version = "projects/fake-project/secrets/fake-secret/versions/version-1"
+            request_location = "HEADER"
+        }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCESToolset_cesToolsetMcpServiceAgentIdTokenExample_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESToolsetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESToolset_cesToolsetMcpServiceAgentIdTokenExample_full(context),
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_service_agent_id_token_auth_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+			{
+				Config: testAccCESToolset_cesToolsetMcpServiceAgentIdTokenExample_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_toolset.ces_toolset_mcp_service_agent_id_token_auth_config", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_toolset.ces_toolset_mcp_service_agent_id_token_auth_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+		},
+	})
+}
+
+func testAccCESToolset_cesToolsetMcpServiceAgentIdTokenExample_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_service_agent_id_token_auth_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  mcp_toolset {
+    server_address = "https://api.example.com/mcp/"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        service_agent_id_token_auth_config {}
+    }
+  }
+}
+`, context)
+}
+
+func testAccCESToolset_cesToolsetMcpServiceAgentIdTokenExample_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_toolset" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Toolset example"
+  display_name = "tf-test-my-app%{random_suffix}"
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+resource "google_ces_toolset" "ces_toolset_mcp_service_agent_id_token_auth_config" {
+  toolset_id = "toolset1%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_toolset.app_id
+  display_name = "Basic toolset display name"
+  mcp_toolset {
+    server_address = "https://google.com/mcp"
+    tls_config {
+        ca_certs {
+          display_name="example"
+          cert="ZXhhbXBsZQ=="
+        }
+    }
+    service_directory_config {
+      service = "projects/example/locations/us/namespaces/namespace/services/service"
+    }
+    api_authentication {
+        service_agent_id_token_auth_config {}
+    }
+  }
+}
+`, context)
+}

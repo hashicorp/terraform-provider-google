@@ -98,6 +98,62 @@ resource "google_network_security_security_profile" "security_profile" {
 `, context)
 }
 
+func TestAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupUrlFilteringExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecuritySecurityProfileGroupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupUrlFilteringExample(context),
+			},
+			{
+				ResourceName:            "google_network_security_security_profile_group.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupUrlFilteringExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_security_profile_group" "default" {
+  name                      = "tf-test-sec-profile-group%{random_suffix}"
+  parent                    = "organizations/%{org_id}"
+  description               = "my description"
+  url_filtering_profile     = google_network_security_security_profile.security_profile.id
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_network_security_security_profile" "security_profile" {
+  name        = "tf-test-sec-profile%{random_suffix}"
+  location    = "global"
+  type        = "URL_FILTERING"
+
+  url_filtering_profile {
+    url_filters {
+      priority = 1
+      filtering_action   = "ALLOW"
+      urls = ["*example.com", "*about.example.com", "*help.example.com"]
+    }
+  }
+  parent = "organizations/%{org_id}"
+}
+`, context)
+}
+
 func testAccCheckNetworkSecuritySecurityProfileGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

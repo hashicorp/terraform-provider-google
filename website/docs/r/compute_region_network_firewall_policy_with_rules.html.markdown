@@ -176,7 +176,7 @@ The following arguments are supported:
   Policy type is used to determine which resources (networks) the policy can be associated with.
   A policy can be associated with a network only if the network has the matching policyType in its network profile.
   Different policy types may support some of the Firewall Rules features.
-  Possible values are: `VPC_POLICY`, `RDMA_ROCE_POLICY`.
+  Possible values are: `VPC_POLICY`, `RDMA_ROCE_POLICY`, `RDMA_FALCON_POLICY`, `ULL_POLICY`.
 
 * `region` -
   (Optional)

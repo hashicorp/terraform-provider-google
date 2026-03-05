@@ -110,6 +110,7 @@ var (
 		"addons_config.0.ray_operator_config",
 		"addons_config.0.parallelstore_csi_driver_config",
 		"addons_config.0.lustre_csi_driver_config",
+		"addons_config.0.slice_controller_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -547,6 +548,22 @@ func ResourceContainerCluster() *schema.Resource {
 							MaxItems:      1,
 							Description:   `The status of the Stateful HA addon, which provides automatic configurable failover for stateful applications. Defaults to disabled; set enabled = true to enable.`,
 							ConflictsWith: []string{"enable_autopilot"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"slice_controller_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `The status of the Slice Controller addon. It is disabled by default; set enabled = true to enable.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -1716,6 +1733,11 @@ func ResourceContainerCluster() *schema.Resource {
 										Description: `List of secondary ranges names within this subnetwork that can be used for pod IPs.`,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 									},
+									"status": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Status of the subnetwork, If in draining status, subnet will not be selected for new node pools.`,
+									},
 								},
 							},
 						},
@@ -2376,6 +2398,14 @@ func ResourceContainerCluster() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `The Cloud KMS cryptoKey to use for Confidential Hyperdisk on the control plane nodes.`,
+						},
+						"control_plane_disk_encryption_key_versions": {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Description: `The Cloud KMS cryptoKey versions to use for Confidential Hyperdisk on the control plane nodes.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 						"gkeops_etcd_backup_encryption_key": {
 							Type:        schema.TypeString,
@@ -5179,6 +5209,14 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+	if v, ok := config["slice_controller_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.SliceControllerConfig = &container.SliceControllerConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
+
 	if v, ok := config["ray_operator_config"]; ok && len(v.([]interface{})) > 0 {
 		addon := v.([]interface{})[0].(map[string]interface{})
 		ac.RayOperatorConfig = &container.RayOperatorConfig{
@@ -5265,6 +5303,7 @@ func expandAdditionalIpRangesConfigs(configured interface{}, d *schema.ResourceD
 		additionalIpRangesConfig = append(additionalIpRangesConfig, &container.AdditionalIPRangesConfig{
 			Subnetwork:        subnetwork.RelativeLink(),
 			PodIpv4RangeNames: expandPodIpv4RangeNames(config["pod_ipv4_range_names"]),
+			Status:            config["status"].(string),
 		})
 	}
 
@@ -5480,12 +5519,16 @@ func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *c
 			Enabled: defaultCCEnabled.(bool),
 		}
 	}
+	var defaults *container.AutoprovisioningNodePoolDefaults
+	if shouldInclude(d, "cluster_autoscaling.0.auto_provisioning_defaults") {
+		defaults = expandAutoProvisioningDefaults(config["auto_provisioning_defaults"], d)
+	}
 	return &container.ClusterAutoscaling{
 		EnableNodeAutoprovisioning:       config["enabled"].(bool),
 		ResourceLimits:                   resourceLimits,
 		DefaultComputeClassConfig:        defaultCCConfig,
 		AutoscalingProfile:               config["autoscaling_profile"].(string),
-		AutoprovisioningNodePoolDefaults: expandAutoProvisioningDefaults(config["auto_provisioning_defaults"], d),
+		AutoprovisioningNodePoolDefaults: defaults,
 		AutoprovisioningLocations:        tpgresource.ConvertStringArr(config["auto_provisioning_locations"].([]interface{})),
 	}
 }
@@ -5497,6 +5540,14 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	}
 	config := l[0].(map[string]interface{})
 
+	var management *container.NodeManagement
+	if shouldInclude(d, "cluster_autoscaling.0.auto_provisioning_defaults.0.management") {
+		management = expandManagement(config["management"])
+	}
+	var upgradeSettings *container.UpgradeSettings
+	if shouldInclude(d, "cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings") {
+		upgradeSettings = expandUpgradeSettings(config["upgrade_settings"], d)
+	}
 	npd := &container.AutoprovisioningNodePoolDefaults{
 		OauthScopes:     tpgresource.ConvertStringArr(config["oauth_scopes"].([]interface{})),
 		ServiceAccount:  config["service_account"].(string),
@@ -5504,8 +5555,8 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 		DiskType:        config["disk_type"].(string),
 		ImageType:       config["image_type"].(string),
 		BootDiskKmsKey:  config["boot_disk_kms_key"].(string),
-		Management:      expandManagement(config["management"]),
-		UpgradeSettings: expandUpgradeSettings(config["upgrade_settings"]),
+		Management:      management,
+		UpgradeSettings: upgradeSettings,
 	}
 
 	if v, ok := config["shielded_instance_config"]; ok && len(v.([]interface{})) > 0 {
@@ -5526,18 +5577,22 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	return npd
 }
 
-func expandUpgradeSettings(configured interface{}) *container.UpgradeSettings {
+func expandUpgradeSettings(configured interface{}, d *schema.ResourceData) *container.UpgradeSettings {
 	l, ok := configured.([]interface{})
 	if !ok || l == nil || len(l) == 0 || l[0] == nil {
 		return &container.UpgradeSettings{}
 	}
 	config := l[0].(map[string]interface{})
 
+	var blueGreenSettings *container.BlueGreenSettings
+	if shouldInclude(d, "cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.blue_green_settings") {
+		blueGreenSettings = expandBlueGreenSettings(config["blue_green_settings"])
+	}
 	upgradeSettings := &container.UpgradeSettings{
 		MaxSurge:          int64(config["max_surge"].(int)),
 		MaxUnavailable:    int64(config["max_unavailable"].(int)),
 		Strategy:          config["strategy"].(string),
-		BlueGreenSettings: expandBlueGreenSettings(config["blue_green_settings"]),
+		BlueGreenSettings: blueGreenSettings,
 	}
 
 	return upgradeSettings
@@ -5603,6 +5658,10 @@ func expandUpgradeOptions(configured interface{}) *container.AutoUpgradeOptions 
 	}
 
 	return upgradeOptions
+}
+
+func shouldInclude(d *schema.ResourceData, key string) bool {
+	return d.IsNewResource() || d.HasChange(key)
 }
 
 func expandAuthenticatorGroupsConfig(configured interface{}) *container.AuthenticatorGroupsConfig {
@@ -6623,6 +6682,13 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			},
 		}
 	}
+	if c.SliceControllerConfig != nil {
+		result["slice_controller_config"] = []map[string]interface{}{
+			{
+				"enabled": c.SliceControllerConfig.Enabled,
+			},
+		}
+	}
 	if c.RayOperatorConfig != nil {
 		rayConfig := c.RayOperatorConfig
 		result["ray_operator_config"] = []map[string]interface{}{
@@ -6851,6 +6917,7 @@ func flattenAdditionalIpRangesConfigs(c []*container.AdditionalIPRangesConfig) [
 		outRangeConfig := map[string]interface{}{
 			"subnetwork":           rangeConfig.Subnetwork,
 			"pod_ipv4_range_names": rangeConfig.PodIpv4RangeNames,
+			"status":               rangeConfig.Status,
 		}
 		outRanges = append(outRanges, outRangeConfig)
 	}
@@ -7341,6 +7408,10 @@ func flattenUserManagedKeysConfig(c *container.UserManagedKeysConfig) []map[stri
 	}
 	if len(c.ServiceAccountVerificationKeys) != 0 {
 		f["service_account_verification_keys"] = schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(c.ServiceAccountVerificationKeys))
+		allEmpty = false
+	}
+	if len(c.ControlPlaneDiskEncryptionKeyVersions) != 0 {
+		f["control_plane_disk_encryption_key_versions"] = schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(c.ControlPlaneDiskEncryptionKeyVersions))
 		allEmpty = false
 	}
 	if allEmpty {

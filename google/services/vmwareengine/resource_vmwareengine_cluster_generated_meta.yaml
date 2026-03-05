@@ -27,6 +27,16 @@ fields:
     - api_field: autoscalingSettings.maxClusterNodeCount
     - api_field: autoscalingSettings.minClusterNodeCount
     - api_field: createTime
+    - api_field: datastoreMountConfig.accessMode
+    - api_field: datastoreMountConfig.datastore
+    - api_field: datastoreMountConfig.datastoreNetwork.connectionCount
+    - api_field: datastoreMountConfig.datastoreNetwork.mtu
+    - api_field: datastoreMountConfig.datastoreNetwork.networkPeering
+    - api_field: datastoreMountConfig.datastoreNetwork.subnet
+    - api_field: datastoreMountConfig.fileShare
+    - api_field: datastoreMountConfig.ignoreColocation
+    - api_field: datastoreMountConfig.nfsVersion
+    - api_field: datastoreMountConfig.servers
     - api_field: management
     - field: name
       provider_only: true

@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_dataplex_data_asset
+~> **Warning:** `google_dataplex_data_asset` is deprecated and will be removed in a future major release. Please use `google_dataplex_data_product_data_asset` resource instead.
 
 A data asset resource that can be packaged and shared via a data product.
 

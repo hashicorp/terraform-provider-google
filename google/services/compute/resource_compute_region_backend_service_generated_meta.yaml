@@ -91,6 +91,8 @@ fields:
     - api_field: logConfig.sampleRate
     - api_field: name
     - api_field: network
+    - api_field: networkPassThroughLbTrafficPolicy.zonalAffinity.spillover
+    - api_field: networkPassThroughLbTrafficPolicy.zonalAffinity.spilloverRatio
     - api_field: outlierDetection.baseEjectionTime.nanos
     - api_field: outlierDetection.baseEjectionTime.seconds
     - api_field: outlierDetection.consecutiveErrors

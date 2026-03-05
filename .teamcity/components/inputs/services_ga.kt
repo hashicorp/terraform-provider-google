@@ -496,6 +496,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Healthcare",
         "path" to "./google/services/healthcare"
     ),
+    "hypercomputecluster" to mapOf(
+        "name" to "hypercomputecluster",
+        "displayName" to "ClusterDirector",
+        "path" to "./google/services/hypercomputecluster"
+    ),
     "iam2" to mapOf(
         "name" to "iam2",
         "displayName" to "Iam2",
@@ -855,6 +860,11 @@ var ServicesListGa = mapOf(
         "name" to "transcoder",
         "displayName" to "Transcoder",
         "path" to "./google/services/transcoder"
+    ),
+    "vectorsearch" to mapOf(
+        "name" to "vectorsearch",
+        "displayName" to "VectorSearch",
+        "path" to "./google/services/vectorsearch",
     ),
     "vertexai" to mapOf(
         "name" to "vertexai",

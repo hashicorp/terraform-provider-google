@@ -204,6 +204,14 @@ network. All mirrored subnetworks should belong to the given network.`,
 				ForceNew:    true,
 				Description: `A human-readable description of the rule.`,
 			},
+			"enable": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"TRUE", "FALSE", ""}),
+				Description: `Indicates whether or not this packet mirroring takes effect. If set to FALSE, this packet mirroring
+policy will not be enforced on the network. The default is TRUE. Possible values: ["TRUE", "FALSE"]`,
+			},
 			"filter": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -358,6 +366,12 @@ func resourceComputePacketMirroringCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("mirrored_resources"); !tpgresource.IsEmptyValue(reflect.ValueOf(mirroredResourcesProp)) && (ok || !reflect.DeepEqual(v, mirroredResourcesProp)) {
 		obj["mirroredResources"] = mirroredResourcesProp
 	}
+	enableProp, err := expandComputePacketMirroringEnable(d.Get("enable"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableProp)) && (ok || !reflect.DeepEqual(v, enableProp)) {
+		obj["enable"] = enableProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings")
 	if err != nil {
@@ -487,6 +501,9 @@ func resourceComputePacketMirroringRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("mirrored_resources", flattenComputePacketMirroringMirroredResources(res["mirroredResources"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PacketMirroring: %s", err)
 	}
+	if err := d.Set("enable", flattenComputePacketMirroringEnable(res["enable"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PacketMirroring: %s", err)
+	}
 
 	return nil
 }
@@ -555,6 +572,12 @@ func resourceComputePacketMirroringUpdate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("mirrored_resources"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mirroredResourcesProp)) {
 		obj["mirroredResources"] = mirroredResourcesProp
+	}
+	enableProp, err := expandComputePacketMirroringEnable(d.Get("enable"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableProp)) {
+		obj["enable"] = enableProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
@@ -854,6 +877,10 @@ func flattenComputePacketMirroringMirroredResourcesTags(v interface{}, d *schema
 	return v
 }
 
+func flattenComputePacketMirroringEnable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputePacketMirroringName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1083,5 +1110,9 @@ func expandComputePacketMirroringMirroredResourcesInstancesUrl(v interface{}, d 
 }
 
 func expandComputePacketMirroringMirroredResourcesTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputePacketMirroringEnable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

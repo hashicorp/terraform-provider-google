@@ -547,7 +547,7 @@ The following arguments are supported:
     
 * `audit_interval_seconds` -
   (Optional)
-  Sets the interval for Policy Controller Audit Scans (in seconds). When set to 0, this disables audit functionality altogether.
+  Sets the interval for Policy Controller Audit Scans (in seconds). When set to 0, this disables audit functionality altogether. Defaults to 60
     
 * `enabled` -
   (Optional)

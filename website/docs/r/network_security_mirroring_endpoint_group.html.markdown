@@ -74,20 +74,17 @@ resource "google_network_security_mirroring_endpoint_group" "default" {
 
 ```hcl
 resource "google_compute_network" "network" {
-  provider                = google-beta
   name                    = "example-network"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "deployment_group" {
-  provider                      = google-beta
   mirroring_deployment_group_id = "example-dg"
   location                      = "global"
   network                       = google_compute_network.network.id
 }
 
 resource "google_network_security_mirroring_endpoint_group" "default" {
-  provider                    = google-beta
   mirroring_endpoint_group_id = "example-eg"
   location                    = "global"
   type                        = "BROKER"
@@ -127,14 +124,14 @@ The following arguments are supported:
   See https://google.aip.dev/124.
 
 * `mirroring_deployment_groups` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   A list of the deployment groups that this BROKER endpoint group is
   connected to, for example:
   `projects/123456789/locations/global/mirroringDeploymentGroups/my-dg`.
   See https://google.aip.dev/124.
 
 * `type` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The type of the endpoint group.
   If left unspecified, defaults to DIRECT.
   Possible values:
