@@ -1897,6 +1897,87 @@ resource "google_compute_instance_template" "foobar" {
 `, context)
 }
 
+func TestAccComputeInstanceTemplate_storagePool(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	suffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_storagePool(suffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+					// Verify that the storage_pool attribute is set correctly in state
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "disk.0.storage_pool", "tf-test-storage-pool-"+suffix),
+					// Optional: Verify the API response contains the storage pool
+					testAccCheckComputeInstanceTemplateHasDiskStoragePool(&instanceTemplate, "tf-test-storage-pool-"+suffix),
+				),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCheckComputeInstanceTemplateHasDiskStoragePool(instanceTemplate *compute.InstanceTemplate, poolName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, disk := range instanceTemplate.Properties.Disks {
+			if disk.InitializeParams != nil && strings.Contains(disk.InitializeParams.StoragePool, poolName) {
+				return nil
+			}
+		}
+		return fmt.Errorf("Storage pool %s not found in instance template disks", poolName)
+	}
+}
+
+func testAccComputeInstanceTemplate_storagePool(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_storage_pool" "example" {
+  name                         = "tf-test-storage-pool-%s"
+  zone                         = "us-central1-a"
+  pool_provisioned_capacity_gb = 10240
+  pool_provisioned_throughput  = 1024
+  pool_provisioned_iops        = 10000
+  storage_pool_type            = "hyperdisk-balanced"
+  # Required for automated tests to clean up successfully
+  deletion_protection          = false 
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%s"
+  machine_type = "e2-medium"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    # Reference the ID (URL format) instead of the name
+    storage_pool = google_compute_storage_pool.example.id
+    disk_type    = "hyperdisk-balanced"
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, suffix, suffix)
+}
+
 func TestUnitComputeInstanceTemplate_IpCidrRangeDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Old, New           string
@@ -3764,6 +3845,7 @@ data "google_compute_image" "my_image" {
   family  = "debian-11"
   project = "debian-cloud"
 }
+
 
 resource "google_compute_instance_template" "foobar" {
   name         = "tf-test-instance-template-%s"

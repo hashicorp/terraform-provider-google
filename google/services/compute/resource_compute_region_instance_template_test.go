@@ -1728,6 +1728,72 @@ func testAccCheckComputeRegionInstanceTemplateDestroyProducer(t *testing.T) func
 	}
 }
 
+func TestAccComputeRegionInstanceTemplate_storagePool(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	suffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_storagePool(suffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "disk.0.storage_pool", "tf-test-storage-pool-"+suffix),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionInstanceTemplate_storagePool(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_storage_pool" "example" {
+  name                         = "tf-test-storage-pool-%s"
+  zone                         = "us-central1-a"
+  pool_provisioned_capacity_gb = 10240
+  pool_provisioned_throughput  = 1024
+  pool_provisioned_iops        = 10000
+  storage_pool_type            = "hyperdisk-balanced"
+  deletion_protection          = false
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%s"
+  region       = "us-central1"
+  machine_type = "e2-medium"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    storage_pool = google_compute_storage_pool.example.id
+    disk_type    = "hyperdisk-balanced"
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, suffix, suffix)
+}
+
 func testAccCheckComputeRegionInstanceTemplateExists(t *testing.T, n string, instanceTemplate interface{}) resource.TestCheckFunc {
 	if instanceTemplate == nil {
 		panic("Attempted to check existence of Instance template that was nil.")

@@ -495,6 +495,12 @@ The following arguments are supported:
 
 * `resource_policies` (Optional) -- A list (short name or id) of resource policies to attach to this disk for automatic snapshot creations. Currently a max of 1 resource policy is supported.
 
+* `storage_pool` - (Optional) The URL of the storage pool in which the new disk is created.
+    For example:
+    * `https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/storagePools/{storagePool}`
+    * `/projects/{project}/zones/{zone}/storagePools/{storagePool}`
+
+
 <a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
 
 * `raw_key` - (Optional)  A 256-bit [customer-supplied encryption key]

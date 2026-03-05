@@ -375,6 +375,13 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 								DiffSuppressFunc: tpgresource.CompareResourceNames,
 							},
 						},
+						"storage_pool": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.CompareResourceNames,
+							Description:      `The self_link or ID of the Storage Pool to create this disk in.`,
+						},
 					},
 				},
 			},
