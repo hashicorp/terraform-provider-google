@@ -407,6 +407,7 @@ type Config struct {
 	StorageTransferBasePath          string
 	TagsBasePath                     string
 	TranscoderBasePath               string
+	VectorSearchBasePath             string
 	VertexAIBasePath                 string
 	VmwareengineBasePath             string
 	VPCAccessBasePath                string
@@ -585,6 +586,7 @@ const StorageInsightsBasePathKey = "StorageInsights"
 const StorageTransferBasePathKey = "StorageTransfer"
 const TagsBasePathKey = "Tags"
 const TranscoderBasePathKey = "Transcoder"
+const VectorSearchBasePathKey = "VectorSearch"
 const VertexAIBasePathKey = "VertexAI"
 const VmwareengineBasePathKey = "Vmwareengine"
 const VPCAccessBasePathKey = "VPCAccess"
@@ -752,6 +754,7 @@ var DefaultBasePaths = map[string]string{
 	StorageTransferBasePathKey:          "https://storagetransfer.googleapis.com/v1/",
 	TagsBasePathKey:                     "https://cloudresourcemanager.googleapis.com/v3/",
 	TranscoderBasePathKey:               "https://transcoder.googleapis.com/v1/",
+	VectorSearchBasePathKey:             "https://vectorsearch.googleapis.com/v1/",
 	VertexAIBasePathKey:                 "https://{{region}}-aiplatform.googleapis.com/v1/",
 	VmwareengineBasePathKey:             "https://vmwareengine.googleapis.com/v1/",
 	VPCAccessBasePathKey:                "https://vpcaccess.googleapis.com/v1/",
@@ -1591,6 +1594,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("transcoder_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_TRANSCODER_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[TranscoderBasePathKey]))
+	}
+	if d.Get("vector_search_custom_endpoint") == "" {
+		d.Set("vector_search_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_VECTOR_SEARCH_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[VectorSearchBasePathKey]))
 	}
 	if d.Get("vertex_ai_custom_endpoint") == "" {
 		d.Set("vertex_ai_custom_endpoint", MultiEnvDefault([]string{
@@ -2843,6 +2851,7 @@ func ConfigureBasePaths(c *Config) {
 	c.StorageTransferBasePath = DefaultBasePaths[StorageTransferBasePathKey]
 	c.TagsBasePath = DefaultBasePaths[TagsBasePathKey]
 	c.TranscoderBasePath = DefaultBasePaths[TranscoderBasePathKey]
+	c.VectorSearchBasePath = DefaultBasePaths[VectorSearchBasePathKey]
 	c.VertexAIBasePath = DefaultBasePaths[VertexAIBasePathKey]
 	c.VmwareengineBasePath = DefaultBasePaths[VmwareengineBasePathKey]
 	c.VPCAccessBasePath = DefaultBasePaths[VPCAccessBasePathKey]
