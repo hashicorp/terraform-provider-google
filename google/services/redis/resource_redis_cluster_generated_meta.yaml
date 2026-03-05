@@ -76,3 +76,5 @@ fields:
     - api_field: uid
     - api_field: zoneDistributionConfig.mode
     - api_field: zoneDistributionConfig.zone
+    - field: deletion_policy
+      provider_only: true

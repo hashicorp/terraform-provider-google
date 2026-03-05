@@ -91,3 +91,5 @@ fields:
     - api_field: updateTime
     - api_field: userDefinedAccessUrls.aiaIssuingCertificateUrls
     - api_field: userDefinedAccessUrls.crlAccessUrls
+    - field: deletion_policy
+      provider_only: true
