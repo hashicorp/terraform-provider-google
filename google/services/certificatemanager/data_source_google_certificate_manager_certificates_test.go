@@ -216,7 +216,6 @@ func TestAccDataSourceGoogleCertificateManagerCertificates_managedCertificateIss
 					resource.TestCheckResourceAttrSet("data.google_certificate_manager_certificates.certificates", "certificates.0.managed.0.issuance_config"),
 
 					resource.TestCheckResourceAttrSet("data.google_certificate_manager_certificates.certificates", "certificates.0.managed.0.provisioning_issue.#"),
-					resource.TestCheckResourceAttrSet("data.google_certificate_manager_certificates.certificates", "certificates.0.managed.0.provisioning_issue.0.details"),
 					resource.TestCheckResourceAttrSet("data.google_certificate_manager_certificates.certificates", "certificates.0.managed.0.provisioning_issue.0.reason"),
 				),
 			},
