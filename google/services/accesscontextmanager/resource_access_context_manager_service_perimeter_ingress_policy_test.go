@@ -33,8 +33,6 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerServicePerimeterIngressPolicy_basicTest(t *testing.T) {
-	// Multiple fine-grained resources
-	acctest.SkipIfVcr(t)
 	org := envvar.GetTestOrgFromEnv(t)
 	//projects := acctest.BootstrapServicePerimeterProjects(t, 1)
 
@@ -145,6 +143,19 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
   	}
 }
 
+resource "google_access_context_manager_access_level" "test-access" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/level"
+  title       = "level"
+  description = "hello"
+  basic {
+    combining_function = "AND"
+    conditions {
+      ip_subnetworks = ["192.0.4.0/24"]
+    }
+  }
+}
+
 resource "google_access_context_manager_service_perimeter_ingress_policy" "test-access2" {
 	perimeter = google_access_context_manager_service_perimeter.test-access.name
 	ingress_from {
@@ -154,6 +165,7 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
 		resources = ["*"]
 		roles = ["roles/bigquery.admin"]
 	}
+	depends_on = [google_access_context_manager_service_perimeter_ingress_policy.test-access1]
 }
 
 resource "google_access_context_manager_service_perimeter_ingress_policy" "test-identity1" {
@@ -168,6 +180,7 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
 		resources = ["*"]
 		roles = ["roles/bigquery.admin"]
 	}
+	depends_on = [google_access_context_manager_service_perimeter_ingress_policy.test-access2]
 }
 
 `, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName), strings.ToUpper(serviceAccount))

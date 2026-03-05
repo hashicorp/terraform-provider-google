@@ -28,7 +28,6 @@ func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample_
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"kms_key_name":  acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us", "tftest-shared-key-6").CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -94,7 +93,10 @@ resource "google_discovery_engine_search_engine" "basic" {
     search_tier = "SEARCH_TIER_ENTERPRISE"
     search_add_ons = ["SEARCH_ADD_ON_LLM"]
   }
-  kms_key_name = "%{kms_key_name}"
+  knowledge_graph_config {
+    enable_cloud_knowledge_graph = true
+    enable_private_knowledge_graph = true
+  }
 }
 `, context)
 }
@@ -126,6 +128,7 @@ resource "google_discovery_engine_search_engine" "basic" {
   display_name = "Updated Example Display Name"
   data_store_ids = [google_discovery_engine_data_store.basic.data_store_id]
   industry_vertical = google_discovery_engine_data_store.basic.industry_vertical
+  disable_analytics = true
   common_config {
     company_name = "Updated Example Company Name"
   }
@@ -136,7 +139,17 @@ resource "google_discovery_engine_search_engine" "basic" {
   features = {
     feedback = "FEATURE_STATE_OFF"
   }
-  kms_key_name = "%{kms_key_name}"
+  knowledge_graph_config {
+    enable_cloud_knowledge_graph = false
+    cloud_knowledge_graph_types = ["foobar"]
+    enable_private_knowledge_graph = false
+    feature_config {
+      disable_private_kg_query_understanding = true
+      disable_private_kg_enrichment = true
+      disable_private_kg_auto_complete = true
+      disable_private_kg_query_ui_chips = true
+    }
+  }
 }
 `, context)
 }

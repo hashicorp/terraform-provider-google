@@ -198,7 +198,7 @@ resource "google_apphub_application" "my_apphub_application" {
 
 resource "google_developer_connect_insights_config" "insights_config" {
   location = "us-central1"
-  insights_config_id = "tf-test-ic%{random_suffix}"
+  insights_config_id = "tf-test-ic-apphub-%{random_suffix}"
   project = google_project.project.project_id
   annotations = {}
   labels = {}
@@ -217,6 +217,166 @@ resource "google_developer_connect_insights_config" "insights_config" {
     uri = "us-docker.pkg.dev/my-project/my-repo/my-image"
   }
   depends_on = [time_sleep.wait_for_propagation]
+}
+`, context)
+}
+
+func TestAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigProjectsExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckDeveloperConnectInsightsConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigProjectsExample(context),
+			},
+			{
+				ResourceName:            "google_developer_connect_insights_config.insights_config_projects",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigProjectsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id = "dci-tf-%{random_suffix}"
+  name = "Service Project"
+  org_id = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+
+# Grant Permissions
+resource "google_project_iam_member" "apphub_permissions" {
+  project = google_project.project.project_id
+  role = "roles/apphub.admin"
+  member = "serviceAccount:hashicorp-test-runner@ci-test-project-188019.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "insights_agent" {
+  project = google_project.project.project_id
+  role = "roles/developerconnect.insightsAgent"
+  member = "serviceAccount:66214305248-compute@developer.gserviceaccount.com"
+}
+
+# Enable APIs
+resource "google_project_service" "apphub_api_service" {
+  project = google_project.project.project_id
+  service = "apphub.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "containeranalysis_api" {
+  project = google_project.project.project_id
+  service = "containeranalysis.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "containerscanning_api" {
+  project = google_project.project.project_id
+  service = "containerscanning.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "container_api" {
+  project = google_project.project.project_id
+  service = "container.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "artifactregistry_api" {
+  project = google_project.project.project_id
+  service = "artifactregistry.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "cloudbuild_api" {
+  project = google_project.project.project_id
+  service = "cloudbuild.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "cloudasset_api" {
+  project = google_project.project.project_id
+  service = "cloudasset.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "compute_api" {
+  project = google_project.project.project_id
+  service = "compute.googleapis.com"
+  disable_dependent_services=true
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "devconnect_api" {
+  project = google_project.project.project_id
+  service = "developerconnect.googleapis.com"
+  depends_on = [google_project.project]
+}
+
+# Wait delay after enabling APIs and granting permissions
+resource "time_sleep" "wait_for_propagation" {
+  depends_on = [
+    google_project_iam_member.apphub_permissions,
+    google_project_iam_member.insights_agent,
+    google_project_service.apphub_api_service,
+    google_project_service.containeranalysis_api,
+    google_project_service.containerscanning_api,
+    google_project_service.container_api,
+    google_project_service.artifactregistry_api,
+    google_project_service.artifactregistry_api,
+    google_project_service.cloudbuild_api,
+    google_project_service.cloudasset_api,
+    google_project_service.compute_api,
+    google_project_service.devconnect_api,
+  ]
+  create_duration  = "120s"
+}
+
+resource "google_developer_connect_insights_config" "insights_config_projects" {
+    location           = "us-central1"
+    insights_config_id = "tf-test-ic-projects-%{random_suffix}"
+    project            = google_project.project.project_id
+    annotations        = {}
+    labels             = {}
+    target_projects {
+        project_ids = ["projects/${google_project.project.project_id}"]
+    }
+    artifact_configs {
+        google_artifact_analysis {
+            project_id = google_project.project.project_id
+        }
+        google_artifact_registry {
+            artifact_registry_package = "my-package"
+            project_id                = google_project.project.project_id
+        }
+        uri = "us-docker.pkg.dev/my-project/my-repo/my-image"
+    }
+    depends_on = [time_sleep.wait_for_propagation]
 }
 `, context)
 }

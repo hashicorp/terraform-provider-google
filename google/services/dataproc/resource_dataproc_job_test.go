@@ -411,7 +411,7 @@ func testAccCheckDataprocJobCompletesSuccessfully(t *testing.T, n string, job *d
 
 		jobCompleteTimeoutMins := 5 * time.Minute
 		waitErr := tpgdataproc.DataprocJobOperationWait(config, region, project, job.Reference.JobId,
-			"Awaiting Dataproc job completion", config.UserAgent, jobCompleteTimeoutMins)
+			"Awaiting Dataproc job completion", config.UserAgent, jobCompleteTimeoutMins, false)
 		if waitErr != nil {
 			return waitErr
 		}
@@ -756,6 +756,7 @@ resource "google_dataproc_job" "pyspark" {
   labels = {
     one = "1"
   }
+	wait_for_completion = true
 }
 `, rnd, subnetworkName, rnd)
 }
@@ -782,6 +783,7 @@ resource "google_dataproc_job" "spark" {
       }
     }
   }
+	wait_for_completion = false
 }
 `, rnd, subnetworkName)
 

@@ -128,6 +128,7 @@ resource "google_dataplex_entry_link" "full_entry_link" {
     name = "projects/${google_dataplex_entry_group.entry-group-full.project}/locations/us-central1/entryGroups/@dataplex/entries/projects/${google_dataplex_entry_group.entry-group-full.project}/locations/us-central1/glossaries/${google_dataplex_glossary.term_test_id_full.glossary_id}/terms/${google_dataplex_glossary_term.term_test_id_full.term_id}"
     type = "TARGET"
   }
+  depends_on = [google_dataplex_glossary_term.term_test_id_full]
 }
 ```
 

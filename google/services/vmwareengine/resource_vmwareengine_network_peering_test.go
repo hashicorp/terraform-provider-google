@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
 )
 
 func TestAccVmwareengineNetworkPeering_update(t *testing.T) {
@@ -99,4 +100,60 @@ data "google_vmwareengine_network_peering" "ds" {
   name = google_vmwareengine_network_peering.vmw-engine-network-peering.name
 }
 `, context)
+}
+
+func TestResourceVersionDiffSuppress(t *testing.T) {
+	cases := []struct {
+		name     string
+		old      string
+		new      string
+		expected bool
+	}{
+		{
+			name:     "identical strings",
+			old:      "v1/storage",
+			new:      "v1/storage",
+			expected: true,
+		},
+		{
+			name:     "different prefixes, same base - v1 vs beta",
+			old:      "projects/taad9c7bb48943283p-tp/global/networks/servicenetworking",
+			new:      "v1/projects/taad9c7bb48943283p-tp/global/networks/servicenetworking",
+			expected: true,
+		},
+		{
+			name:     "no prefix vs v1 prefix",
+			old:      "database",
+			new:      "beta/database",
+			expected: true,
+		},
+		{
+			name:     "completely different versions",
+			old:      "v1/alpha",
+			new:      "v1/beta",
+			expected: false,
+		},
+		{
+			name:     "different resources with same prefix",
+			old:      "v1/instance-a",
+			new:      "v1/instance-b",
+			expected: false,
+		},
+		{
+			name:     "empty strings",
+			old:      "",
+			new:      "",
+			expected: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			// ResourceData can be nil here as the function doesn't use it
+			actual := vmwareengine.ResourceVersionDiffSuppress("version", tc.old, tc.new, nil)
+			if actual != tc.expected {
+				t.Errorf("expected %v, got %v | old: %q, new: %q", tc.expected, actual, tc.old, tc.new)
+			}
+		})
+	}
 }

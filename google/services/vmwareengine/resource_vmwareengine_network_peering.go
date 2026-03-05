@@ -55,6 +55,13 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func ResourceVersionDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if strings.TrimPrefix(strings.TrimPrefix(new, "v1/"), "beta/") == strings.TrimPrefix(strings.TrimPrefix(old, "v1/"), "beta/") {
+		return true
+	}
+	return false
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -125,8 +132,9 @@ func ResourceVmwareengineNetworkPeering() *schema.Resource {
 				Description: `The ID of the Network Peering.`,
 			},
 			"peer_network": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: ResourceVersionDiffSuppress,
 				Description: `The relative resource name of the network to peer with a standard VMware Engine network.
 The provided network can be a consumer VPC network or another standard VMware Engine network.`,
 			},

@@ -20,7 +20,7 @@ description: |-
 ---
 
 # google_notebooks_instance
-~> **Warning:** `google_notebook_instance` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.
+~> **Warning:** `google_notebooks_instance` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.
 
 A Cloud AI Platform Notebook instance.
 

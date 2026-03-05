@@ -331,9 +331,10 @@ func testAccDeveloperConnectInsightsConfig_update(context map[string]interface{}
 		project = google_project.project.project_id
 		depends_on = [time_sleep.wait_for_propagation]
 	}
+
 	resource "google_developer_connect_insights_config" "insights_config" {
 		location           = "us-central1"
-		insights_config_id = "tf-test-ic%{random_suffix}"
+		insights_config_id = "tf-test-ic-%{random_suffix}"
 		project            = google_project.project.project_id
 		annotations = {}
     	labels = {}

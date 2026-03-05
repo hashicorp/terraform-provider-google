@@ -62,6 +62,12 @@ fields:
     - api_field: gitlabEnterpriseConfig.serviceDirectoryConfig.service
     - api_field: gitlabEnterpriseConfig.sslCaCertificate
     - api_field: gitlabEnterpriseConfig.webhookSecretSecretVersion
+    - api_field: httpConfig.basicAuthentication.passwordSecretVersion
+    - api_field: httpConfig.basicAuthentication.username
+    - api_field: httpConfig.bearerTokenAuthentication.tokenSecretVersion
+    - api_field: httpConfig.hostUri
+    - api_field: httpConfig.serviceDirectoryConfig.service
+    - api_field: httpConfig.sslCaCertificate
     - api_field: installationState.actionUri
     - api_field: installationState.message
     - api_field: installationState.stage

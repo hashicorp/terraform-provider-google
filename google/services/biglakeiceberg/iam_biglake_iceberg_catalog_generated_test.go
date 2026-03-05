@@ -145,12 +145,22 @@ resource "google_storage_bucket" "bucket_for_my_iceberg_catalog" {
 }
 
 resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
-    name = "tf_test_my_iceberg_catalog%{random_suffix}"
+    name = google_storage_bucket.bucket_for_my_iceberg_catalog.name
     catalog_type = "CATALOG_TYPE_GCS_BUCKET"
+    credential_mode = "CREDENTIAL_MODE_VENDED_CREDENTIALS"
     depends_on = [
       google_storage_bucket.bucket_for_my_iceberg_catalog
     ]
 }
+
+# You need to grant an appropriate role to the credential vending service account.
+# The service account will generate tokens for accessing the GCS bucket.
+# You do not need this if using the other credential_mode.
+# resource "google_storage_bucket_iam_member" "cv_sa_storage_admin" {
+#  bucket = google_storage_bucket.bucket_for_my_iceberg_catalog.name
+#  role = "roles/storage.admin"
+#  member = "serviceAccount:${google_biglake_iceberg_catalog.my_iceberg_catalog.biglake_service_account}"
+#}
 
 resource "google_biglake_iceberg_catalog_iam_member" "foo" {
   project = google_biglake_iceberg_catalog.my_iceberg_catalog.project
@@ -171,12 +181,22 @@ resource "google_storage_bucket" "bucket_for_my_iceberg_catalog" {
 }
 
 resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
-    name = "tf_test_my_iceberg_catalog%{random_suffix}"
+    name = google_storage_bucket.bucket_for_my_iceberg_catalog.name
     catalog_type = "CATALOG_TYPE_GCS_BUCKET"
+    credential_mode = "CREDENTIAL_MODE_VENDED_CREDENTIALS"
     depends_on = [
       google_storage_bucket.bucket_for_my_iceberg_catalog
     ]
 }
+
+# You need to grant an appropriate role to the credential vending service account.
+# The service account will generate tokens for accessing the GCS bucket.
+# You do not need this if using the other credential_mode.
+# resource "google_storage_bucket_iam_member" "cv_sa_storage_admin" {
+#  bucket = google_storage_bucket.bucket_for_my_iceberg_catalog.name
+#  role = "roles/storage.admin"
+#  member = "serviceAccount:${google_biglake_iceberg_catalog.my_iceberg_catalog.biglake_service_account}"
+#}
 
 data "google_iam_policy" "foo" {
   binding {
@@ -211,12 +231,22 @@ resource "google_storage_bucket" "bucket_for_my_iceberg_catalog" {
 }
 
 resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
-    name = "tf_test_my_iceberg_catalog%{random_suffix}"
+    name = google_storage_bucket.bucket_for_my_iceberg_catalog.name
     catalog_type = "CATALOG_TYPE_GCS_BUCKET"
+    credential_mode = "CREDENTIAL_MODE_VENDED_CREDENTIALS"
     depends_on = [
       google_storage_bucket.bucket_for_my_iceberg_catalog
     ]
 }
+
+# You need to grant an appropriate role to the credential vending service account.
+# The service account will generate tokens for accessing the GCS bucket.
+# You do not need this if using the other credential_mode.
+# resource "google_storage_bucket_iam_member" "cv_sa_storage_admin" {
+#  bucket = google_storage_bucket.bucket_for_my_iceberg_catalog.name
+#  role = "roles/storage.admin"
+#  member = "serviceAccount:${google_biglake_iceberg_catalog.my_iceberg_catalog.biglake_service_account}"
+#}
 
 data "google_iam_policy" "foo" {
 }
@@ -239,12 +269,22 @@ resource "google_storage_bucket" "bucket_for_my_iceberg_catalog" {
 }
 
 resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
-    name = "tf_test_my_iceberg_catalog%{random_suffix}"
+    name = google_storage_bucket.bucket_for_my_iceberg_catalog.name
     catalog_type = "CATALOG_TYPE_GCS_BUCKET"
+    credential_mode = "CREDENTIAL_MODE_VENDED_CREDENTIALS"
     depends_on = [
       google_storage_bucket.bucket_for_my_iceberg_catalog
     ]
 }
+
+# You need to grant an appropriate role to the credential vending service account.
+# The service account will generate tokens for accessing the GCS bucket.
+# You do not need this if using the other credential_mode.
+# resource "google_storage_bucket_iam_member" "cv_sa_storage_admin" {
+#  bucket = google_storage_bucket.bucket_for_my_iceberg_catalog.name
+#  role = "roles/storage.admin"
+#  member = "serviceAccount:${google_biglake_iceberg_catalog.my_iceberg_catalog.biglake_service_account}"
+#}
 
 resource "google_biglake_iceberg_catalog_iam_binding" "foo" {
   project = google_biglake_iceberg_catalog.my_iceberg_catalog.project
@@ -265,12 +305,22 @@ resource "google_storage_bucket" "bucket_for_my_iceberg_catalog" {
 }
 
 resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
-    name = "tf_test_my_iceberg_catalog%{random_suffix}"
+    name = google_storage_bucket.bucket_for_my_iceberg_catalog.name
     catalog_type = "CATALOG_TYPE_GCS_BUCKET"
+    credential_mode = "CREDENTIAL_MODE_VENDED_CREDENTIALS"
     depends_on = [
       google_storage_bucket.bucket_for_my_iceberg_catalog
     ]
 }
+
+# You need to grant an appropriate role to the credential vending service account.
+# The service account will generate tokens for accessing the GCS bucket.
+# You do not need this if using the other credential_mode.
+# resource "google_storage_bucket_iam_member" "cv_sa_storage_admin" {
+#  bucket = google_storage_bucket.bucket_for_my_iceberg_catalog.name
+#  role = "roles/storage.admin"
+#  member = "serviceAccount:${google_biglake_iceberg_catalog.my_iceberg_catalog.biglake_service_account}"
+#}
 
 resource "google_biglake_iceberg_catalog_iam_binding" "foo" {
   project = google_biglake_iceberg_catalog.my_iceberg_catalog.project

@@ -346,6 +346,98 @@ resource "google_network_services_gateway" "default" {
 	return config
 }
 
+func TestAccNetworkServicesGateway_networkServicesGatewaySecureWebProxyMultiplePorts(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesGatewayDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesGateway_networkServicesGatewaySWPMultiplePorts(context),
+			},
+			{
+				ResourceName:            "google_network_services_gateway.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "delete_swg_autogen_router_on_destroy", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesGateway_networkServicesGatewaySWPMultiplePorts(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_certificate_manager_certificate" "default" {
+  name        = "tf-test-my-certificate-%{random_suffix}"
+  location    = "us-central1"
+  self_managed {
+    pem_certificate = file("test-fixtures/cert.pem")
+    pem_private_key = file("test-fixtures/private-key.pem")
+  }
+}
+
+resource "google_compute_network" "default" {
+  name                    = "tf-test-my-network-%{random_suffix}"
+  routing_mode            = "REGIONAL"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "tf-test-my-subnetwork-name-%{random_suffix}"
+  purpose       = "PRIVATE"
+  ip_cidr_range = "10.128.0.0/20"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_compute_subnetwork" "proxyonlysubnet" {
+  name          = "tf-test-my-proxy-only-subnetwork-%{random_suffix}"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  ip_cidr_range = "192.168.0.0/23"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  name        = "tf-test-my-policy-name-%{random_suffix}"
+  location    = "us-central1"
+}
+
+resource "google_network_security_gateway_security_policy_rule" "default" {
+  name                    = "tf-test-my-policyrule-name-%{random_suffix}"
+  location                = "us-central1"
+  gateway_security_policy = google_network_security_gateway_security_policy.default.name
+  enabled                 = true
+  priority                = 1
+  session_matcher         = "host() == 'example.com'"
+  basic_profile           = "ALLOW"
+}
+
+resource "google_network_services_gateway" "default" {
+  name                                 = "tf-test-my-gateway-%{random_suffix}"
+  location                             = "us-central1"
+  addresses                            = ["10.128.0.99"]
+  type                                 = "SECURE_WEB_GATEWAY"
+  ports                                = [443, 500, 502]
+  scope                                = "tf-test-my-default-scope-%{random_suffix}"
+  certificate_urls                     = [google_certificate_manager_certificate.default.id]
+  gateway_security_policy              = google_network_security_gateway_security_policy.default.id
+  network                              = google_compute_network.default.id
+  subnetwork                           = google_compute_subnetwork.default.id
+  delete_swg_autogen_router_on_destroy = true
+  depends_on                           = [google_compute_subnetwork.proxyonlysubnet]
+}
+`, context)
+}
+
 func TestAccNetworkServicesGateway_swpUpdate(t *testing.T) {
 	cmName := fmt.Sprintf("tf-test-gateway-swp-cm-%s", acctest.RandString(t, 10))
 	netName := fmt.Sprintf("tf-test-gateway-swp-net-%s", acctest.RandString(t, 10))

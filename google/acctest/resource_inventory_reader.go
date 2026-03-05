@@ -43,17 +43,19 @@ type Metadata struct {
 	ApiServiceName      string          `yaml:"api_service_name"`
 	ApiVersion          string          `yaml:"api_version"`
 	ApiResourceTypeKind string          `yaml:"api_resource_type_kind"`
-	CaiAssetNameFormat  string          `yaml:"cai_asset_name_format"`
+	CaiAssetNameFormats []string        `yaml:"cai_asset_name_formats"`
 	ApiVariantPatterns  []string        `yaml:"api_variant_patterns"`
 	AutogenStatus       bool            `yaml:"autogen_status,omitempty"`
 	Fields              []MetadataField `yaml:"fields"`
 
 	// These keys store information about the metadata file itself.
 
-	// Path is the path of the loaded metadata file
+	// Path is the absolute path of the loaded metadata file
 	Path string
-	// ServicePackage is the folder within services/ that the metadata file is in
+	// ServicePackage is the folder within services/ that the metadata file is in, for example compute
 	ServicePackage string
+	// FileName is the filename of the metadata file, for example resource_compute_instance_meta.yaml
+	FileName string
 }
 
 type MetadataField struct {
@@ -117,6 +119,7 @@ func (mc *MetadataCache) Populate() error {
 		}
 
 		metadata.Path = path
+		metadata.FileName = filepath.Base(path)
 		pathParts := strings.Split(path, string(os.PathSeparator))
 		servicesIndex := slices.Index(pathParts, "services")
 		if servicesIndex == -1 {

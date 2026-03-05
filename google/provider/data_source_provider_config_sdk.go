@@ -87,6 +87,10 @@ func DataSourceGoogleProviderConfigSdk() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"poll_interval": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"default_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -155,6 +159,9 @@ func dataSourceClientConfigRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	if err := d.Set("request_timeout", config.RequestTimeout.String()); err != nil {
 		return fmt.Errorf("error setting request_timeout: %s", err)
+	}
+	if err := d.Set("poll_interval", config.PollInterval.String()); err != nil {
+		return fmt.Errorf("error setting poll_interval: %s", err)
 	}
 	if err := d.Set("default_labels", config.DefaultLabels); err != nil {
 		return fmt.Errorf("error setting default_labels: %s", err)

@@ -46,25 +46,25 @@ func init() {
 		Name:        "google_notebooks_runtime_iam_binding",
 		ProductName: "Notebooks",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamBinding(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamBinding(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc, tpgiamresource.IamWithDeprecationMessage("The parent resource has been deprecated: `google_notebooks_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.")),
 	}.Register()
 	registry.Schema{
 		Name:        "google_notebooks_runtime_iam_member",
 		ProductName: "Notebooks",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamMember(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc, tpgiamresource.IamWithDeprecationMessage("The parent resource has been deprecated: `google_notebooks_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.")),
 	}.Register()
 	registry.Schema{
 		Name:        "google_notebooks_runtime_iam_policy",
 		ProductName: "Notebooks",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamPolicy(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamPolicy(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc, tpgiamresource.IamWithDeprecationMessage("The parent resource has been deprecated: `google_notebooks_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.")),
 	}.Register()
 	registry.Schema{
 		Name:        "google_notebooks_runtime_iam_policy",
 		ProductName: "Notebooks",
 		Type:        registry.SchemaTypeIAMDataSource,
-		Schema:      tpgiamresource.DataSourceIamPolicy(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer),
+		Schema:      tpgiamresource.DataSourceIamPolicy(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, tpgiamresource.IamWithDeprecationMessage("The parent resource has been deprecated: `google_notebooks_runtime` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.")),
 	}.Register()
 }
 

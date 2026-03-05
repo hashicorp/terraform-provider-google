@@ -352,7 +352,6 @@ func ResourceComputeInstance() *schema.Resource {
 										Optional:     true,
 										AtLeastOneOf: initializeParamsKeys,
 										Computed:     true,
-										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 										Description:  `The size of the image in gigabytes.`,
 									},
@@ -641,6 +640,20 @@ func ResourceComputeInstance() *schema.Resource {
 							Description:      `The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.`,
 						},
 
+						"parent_nic_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Name of the parent network interface of a dynamic network interface.`,
+						},
+
+						"vlan": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.IntBetween(2, 255),
+							Description:  `VLAN tag of a dynamic network interface, must be an integer in the range from 2 to 255 inclusively.`,
+						},
+
 						"subnetwork_project": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -660,6 +673,7 @@ func ResourceComputeInstance() *schema.Resource {
 							Computed:    true,
 							Description: `The name of the interface`,
 						},
+
 						"nic_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -667,6 +681,7 @@ func ResourceComputeInstance() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"GVNIC", "VIRTIO_NET", "IDPF", "MRDMA", "IRDMA"}, false),
 							Description:  `The type of vNIC to be used on this interface. Possible values:GVNIC, VIRTIO_NET, IDPF, MRDMA, and IRDMA`,
 						},
+
 						"access_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -2589,13 +2604,23 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		obj := make(map[string]interface{})
 
-		if d.HasChange("boot_disk.0.initialize_params.0.labels") {
-			obj["labels"] = tpgresource.ConvertStringMap(d.Get("boot_disk.0.initialize_params.0.labels").(map[string]interface{}))
-			obj["labelFingerprint"] = disk.LabelFingerprint
-			url := "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels"
-			err := updateDisk(d, config, userAgent, project, url, obj)
-			if err != nil {
-				return err
+		if d.HasChange("boot_disk.0.initialize_params") {
+			if d.HasChange("boot_disk.0.initialize_params.0.size") {
+				obj["sizeGb"] = d.Get("boot_disk.0.initialize_params.0.size").(int)
+				url := "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/resize"
+				err := updateDisk(d, config, userAgent, project, url, obj)
+				if err != nil {
+					return err
+				}
+			}
+			if d.HasChange("boot_disk.0.initialize_params.0.labels") {
+				obj["labels"] = tpgresource.ConvertStringMap(d.Get("boot_disk.0.initialize_params.0.labels").(map[string]interface{}))
+				obj["labelFingerprint"] = disk.LabelFingerprint
+				url := "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels"
+				err := updateDisk(d, config, userAgent, project, url, obj)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

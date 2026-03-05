@@ -150,6 +150,109 @@ resource "google_tags_tag_value" "basic_value" {
 `, context)
 }
 
+func TestAccComputeFirewallPolicyRule_firewallPolicyRuleNetworkContextExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeFirewallPolicyRule_firewallPolicyRuleNetworkContextExample(context),
+			},
+			{
+				ResourceName:            "google_compute_firewall_policy_rule.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"firewall_policy"},
+			},
+		},
+	})
+}
+
+func testAccComputeFirewallPolicyRule_firewallPolicyRuleNetworkContextExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "folder" {
+  display_name        = "folder%{random_suffix}"
+  parent              = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+resource "google_compute_firewall_policy" "default" {
+  parent      = google_folder.folder.id
+  short_name  = "tf-test-fw-policy%{random_suffix}"
+  description = "Firewall policy"
+}
+
+resource "google_compute_firewall_policy_rule" "primary" {
+  firewall_policy = google_compute_firewall_policy.default.name
+  description     = "Firewall policy rule with network context"
+  priority        = 8000
+  action          = "allow"
+  direction       = "INGRESS"
+  disabled        = false
+
+  match {
+    src_ip_ranges     = ["11.100.0.1/32"]
+    src_network_context = "INTERNET"
+
+    layer4_configs {
+      ip_protocol = "tcp"
+      ports       = [8080]
+    }
+
+    layer4_configs {
+      ip_protocol = "udp"
+      ports       = [22]
+    }
+  }
+}
+
+resource "google_compute_firewall_policy_rule" "egress-primary" {
+  firewall_policy = google_compute_firewall_policy.default.name
+  description     = "Firewall policy rule with network context"
+  priority        = 9000
+  action          = "allow"
+  direction       = "EGRESS"
+  disabled        = false
+
+  match {
+    dest_ip_ranges     = ["11.100.0.1/32"]
+    dest_network_context = "NON_INTERNET"
+
+    layer4_configs {
+      ip_protocol = "tcp"
+    }
+  }
+}
+
+resource "google_compute_firewall_policy_rule" "unset-primary" {
+  firewall_policy = google_compute_firewall_policy.default.name
+  description     = "Firewall policy rule with network context"
+  priority        = 10000
+  action          = "allow"
+  direction       = "EGRESS"
+  disabled        = false
+
+  match {
+    dest_ip_ranges     = ["11.100.0.1/32"]
+    dest_network_context = "UNSPECIFIED"
+
+    layer4_configs {
+      ip_protocol = "tcp"
+    }
+  }
+}
+
+`, context)
+}
+
 func TestAccComputeFirewallPolicyRule_firewallPolicyRuleSecureTagsExample(t *testing.T) {
 	t.Parallel()
 

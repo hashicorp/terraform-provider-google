@@ -5,6 +5,9 @@ api_version: 'v1'
 api_resource_type_kind: 'Cluster'
 api_variant_patterns:
   - 'projects/{project}/locations/{location}/clusters/{cluster}'
+cai_asset_name_formats:
+  - //container.googleapis.com/projects/{{project}}/locations/{{location}}/clusters/{{name}}
+  - //container.googleapis.com/projects/{{project}}/zones/{{location}}/clusters/{{name}}
 fields:
   - field: 'addons_config.cloudrun_config.disabled'
     api_field: 'addonsConfig.cloudRunConfig.disabled'
@@ -26,6 +29,7 @@ fields:
   - api_field: 'addonsConfig.rayOperatorConfig.rayClusterLoggingConfig.enabled'
   - api_field: 'addonsConfig.rayOperatorConfig.rayClusterMonitoringConfig.enabled'
   - api_field: 'addonsConfig.statefulHaConfig.enabled'
+  - api_field: 'addonsConfig.sliceControllerConfig.enabled'
   - api_field: 'anonymousAuthenticationConfig.mode'
   - field: 'allow_net_admin'
     api_field: 'autopilot.workloadPolicyConfig.allowNetAdmin'
@@ -158,6 +162,7 @@ fields:
   - api_field: 'ipAllocationPolicy.additionalPodRangesConfig.podRangeNames'
   - field: 'ip_allocation_policy.additional_ip_ranges_config.subnetwork'
   - field: 'ip_allocation_policy.additional_ip_ranges_config.pod_ipv4_range_names'
+  - field: 'ip_allocation_policy.additional_ip_ranges_config.status'
   - api_field: 'ipAllocationPolicy.autoIpamConfig.enabled'
   - api_field: 'ipAllocationPolicy.clusterIpv4CidrBlock'
   - api_field: 'ipAllocationPolicy.clusterSecondaryRangeName'
@@ -339,6 +344,7 @@ fields:
   - api_field: 'nodeConfig.resourceLabels'
   - field: 'node_config.resource_manager_tags'
     api_field: 'nodeConfig.resourceManagerTags.tags'
+  - api_field: 'nodeConfig.sandboxConfig.type'
   - api_field: 'nodeConfig.secondaryBootDisks.diskImage'
   - api_field: 'nodeConfig.secondaryBootDisks.mode'
   - api_field: 'nodeConfig.serviceAccount'
@@ -623,6 +629,8 @@ fields:
     api_field: 'nodePools.config.resourceLabels'
   - field: 'node_pool.node_config.resource_manager_tags'
     api_field: 'nodePools.config.resourceManagerTags.tags'
+  - field: 'node_pool.node_config.sandbox_config.type'
+    api_field: 'nodePools.config.sandboxConfig.type'
   - field: 'node_pool.node_config.secondary_boot_disks.disk_image'
     api_field: 'nodePools.config.secondaryBootDisks.diskImage'
   - field: 'node_pool.node_config.secondary_boot_disks.mode'
@@ -757,6 +765,7 @@ fields:
   - api_field: 'userManagedKeysConfig.aggregationCa'
   - api_field: 'userManagedKeysConfig.clusterCa'
   - api_field: 'userManagedKeysConfig.controlPlaneDiskEncryptionKey'
+  - api_field: 'userManagedKeysConfig.controlPlaneDiskEncryptionKeyVersions'
   - api_field: 'userManagedKeysConfig.etcdApiCa'
   - api_field: 'userManagedKeysConfig.etcdPeerCa'
   - api_field: 'userManagedKeysConfig.gkeopsEtcdBackupEncryptionKey'

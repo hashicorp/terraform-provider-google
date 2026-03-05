@@ -238,7 +238,10 @@ resource "google_storage_notification" "notification_with_prefix" {
   payload_format     = "JSON_API_V1"
   topic              = google_pubsub_topic.topic.id
   object_name_prefix = "foobar"
-  depends_on         = [google_pubsub_topic_iam_binding.binding]
+  depends_on         = [
+    google_pubsub_topic_iam_binding.binding,
+    google_storage_notification.notification
+  ]
 }
 `, bucketName, topicName)
 }

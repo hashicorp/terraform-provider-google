@@ -30,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 type ResourceMetadata struct {
@@ -132,8 +133,8 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 				if !ok {
 					log.Printf("[DEBUG]TGC Terraform error: unknown resource type %s", metadata.ResourceType)
 					metadata.CaiAssetNames = []string{"unknown"}
-				} else if yamlMetadata.CaiAssetNameFormat == "" {
-					log.Printf("[DEBUG]TGC Terraform error: unknown CAI asset name format for resource type %s", yamlMetadata.CaiAssetNameFormat)
+				} else if len(yamlMetadata.CaiAssetNameFormats) == 0 {
+					log.Printf("[DEBUG]TGC Terraform error: unknown CAI asset name format for resource type %s", yamlMetadata.Resource)
 
 					var rName string
 					switch metadata.ResourceType {
@@ -153,20 +154,19 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 
 					metadata.CaiAssetNames = []string{fmt.Sprintf("//%s/%s", yamlMetadata.ApiServiceName, rName)}
 				} else {
-					paramsMap := make(map[string]any, 0)
-					params := extractIdentifiers(yamlMetadata.CaiAssetNameFormat)
-					for _, param := range params {
-						v := rState.Primary.Attributes[param]
-						paramsMap[param] = v
+					caiAssetNameFormat := ""
+					if len(yamlMetadata.CaiAssetNameFormats) == 1 {
+						caiAssetNameFormat = yamlMetadata.CaiAssetNameFormats[0]
+						caiAssetName := formatCaiAssetName(caiAssetNameFormat, rState.Primary.Attributes)
+						if _, ok := serviceWithProjectNumber[metadata.Service]; ok {
+							caiAssetName = strings.Replace(caiAssetName, projectId, projectNumber, 1)
+						}
+						metadata.CaiAssetNames = []string{caiAssetName}
+					} else {
+						if strings.HasPrefix(yamlMetadata.Resource, "google_container_") {
+							metadata.CaiAssetNames = resolveContainerCaiAssetName(yamlMetadata.CaiAssetNameFormats, rState.Primary.ID, rState.Primary.Attributes["location"])
+						}
 					}
-
-					caiAssetName := replacePlaceholders(yamlMetadata.CaiAssetNameFormat, paramsMap)
-
-					if _, ok := serviceWithProjectNumber[metadata.Service]; ok {
-						caiAssetName = strings.Replace(caiAssetName, projectId, projectNumber, 1)
-					}
-
-					metadata.CaiAssetNames = []string{caiAssetName}
 				}
 			}
 
@@ -193,6 +193,42 @@ func CollectAllTgcMetadata(tgcPayload TgcMetadataPayload) resource.TestCheckFunc
 
 		return nil
 	}
+}
+
+// resolveContainerCaiAssetName determines the correct CAI asset name
+// for GKE resources based on whether the resource location is a zone or a region.
+func resolveContainerCaiAssetName(caiAssetNameFormats []string, rName, location string) []string {
+	serviceDomain := getServiceDomain(caiAssetNameFormats[0])
+	if tpgresource.IsZone(location) {
+		rName = strings.Replace(rName, "/locations/", "/zones/", 1)
+	}
+
+	return []string{fmt.Sprintf("//%s/%s", serviceDomain, rName)}
+}
+
+func getServiceDomain(caiAssetName string) string {
+	// caiAssetName format: //container.googleapis.com/projects/...
+	parts := strings.Split(caiAssetName, "/")
+	if len(parts) >= 3 {
+		return parts[2]
+	}
+	return ""
+}
+
+// FormatCaiAssetName constructs a fully qualified Cloud Asset Inventory (CAI) asset name
+// by interpolating values from the provided attributes map into a format template.
+// It extracts required placeholders (e.g., "{{project}}", "{{name}}") from the
+// caiAssetNameFormat string and replaces them with their corresponding values from the map.
+func formatCaiAssetName(caiAssetNameFormat string, attributes map[string]string) string {
+	paramsMap := make(map[string]any, 0)
+	params := extractIdentifiers(caiAssetNameFormat)
+	for _, param := range params {
+		v := attributes[param]
+		paramsMap[param] = v
+	}
+
+	caiAssetName := replacePlaceholders(caiAssetNameFormat, paramsMap)
+	return caiAssetName
 }
 
 // For example, for the url "projects/{{project}}/schemas/{{schema}}",

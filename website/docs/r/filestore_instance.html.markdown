@@ -265,6 +265,8 @@ The following arguments are supported:
 	When set to "ABANDON", the command will remove the resource from Terraform
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
+* `desired_replica_state` - (Optional) The desired_replica_state field controls the state of a replica. Terraform will attempt to make the actual state of the replica match the desired state.
+
 
 
 <a name="nested_file_shares"></a>The `file_shares` block supports:
@@ -282,6 +284,12 @@ The following arguments are supported:
   (Optional)
   The resource name of the backup, in the format
   projects/{projectId}/locations/{locationId}/backups/{backupId},
+  that this file share has been restored from.
+
+* `source_backupdr_backup` -
+  (Optional)
+  The resource name of the BackupDR backup, in the format
+  `projects/{project_id}/locations/{location_id}/backupVaults/{backupvault_id}/dataSources/{datasource_id}/backups/{backup_id}`,
   that this file share has been restored from.
 
 * `nfs_export_options` -

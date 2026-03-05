@@ -230,6 +230,15 @@ except the last character, which cannot be a dash.`,
 				Description: `The network this subnet belongs to.
 Only networks that are in the distributed mode can have subnetworks.`,
 			},
+			"allow_subnet_cidr_routes_overlap": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				Description: `Typically packets destined to IPs within the subnetwork range that do not match
+existing resources are dropped and prevented from leaving the VPC.
+Setting this field to true will allow these packets to match dynamic routes injected
+via BGP even if their destinations match existing subnet ranges.`,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -711,6 +720,12 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("ip_collection"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipCollectionProp)) && (ok || !reflect.DeepEqual(v, ipCollectionProp)) {
 		obj["ipCollection"] = ipCollectionProp
 	}
+	allowSubnetCidrRoutesOverlapProp, err := expandComputeSubnetworkAllowSubnetCidrRoutesOverlap(d.Get("allow_subnet_cidr_routes_overlap"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allow_subnet_cidr_routes_overlap"); ok || !reflect.DeepEqual(v, allowSubnetCidrRoutesOverlapProp) {
+		obj["allowSubnetCidrRoutesOverlap"] = allowSubnetCidrRoutesOverlapProp
+	}
 	paramsProp, err := expandComputeSubnetworkParams(d.Get("params"), d, config)
 	if err != nil {
 		return err
@@ -885,6 +900,9 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("ipv6_gce_endpoint", flattenComputeSubnetworkIpv6GceEndpoint(res["ipv6GceEndpoint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
+	if err := d.Set("allow_subnet_cidr_routes_overlap", flattenComputeSubnetworkAllowSubnetCidrRoutesOverlap(res["allowSubnetCidrRoutesOverlap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
 	if err := d.Set("state", flattenComputeSubnetworkState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
@@ -1015,7 +1033,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 	}
-	if d.HasChange("private_ipv6_google_access") || d.HasChange("stack_type") || d.HasChange("ipv6_access_type") {
+	if d.HasChange("private_ipv6_google_access") || d.HasChange("stack_type") || d.HasChange("ipv6_access_type") || d.HasChange("allow_subnet_cidr_routes_overlap") {
 		obj := make(map[string]interface{})
 
 		getUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
@@ -1058,6 +1076,12 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		} else if v, ok := d.GetOkExists("ipv6_access_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ipv6AccessTypeProp)) {
 			obj["ipv6AccessType"] = ipv6AccessTypeProp
+		}
+		allowSubnetCidrRoutesOverlapProp, err := expandComputeSubnetworkAllowSubnetCidrRoutesOverlap(d.Get("allow_subnet_cidr_routes_overlap"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("allow_subnet_cidr_routes_overlap"); ok || !reflect.DeepEqual(v, allowSubnetCidrRoutesOverlapProp) {
+			obj["allowSubnetCidrRoutesOverlap"] = allowSubnetCidrRoutesOverlapProp
 		}
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
@@ -1697,6 +1721,10 @@ func flattenComputeSubnetworkIpv6GceEndpoint(v interface{}, d *schema.ResourceDa
 	return v
 }
 
+func flattenComputeSubnetworkAllowSubnetCidrRoutesOverlap(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeSubnetworkState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1849,6 +1877,10 @@ func expandComputeSubnetworkExternalIpv6Prefix(v interface{}, d tpgresource.Terr
 }
 
 func expandComputeSubnetworkIpCollection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSubnetworkAllowSubnetCidrRoutesOverlap(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

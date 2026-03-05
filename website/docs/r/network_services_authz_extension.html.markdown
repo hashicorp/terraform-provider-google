@@ -87,17 +87,29 @@ resource "google_network_services_authz_extension" "default" {
   forward_headers = ["Authorization"]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_authz_extension_iap&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Authz Extension Iap
+
+
+```hcl
+resource "google_network_services_authz_extension" "default" {
+  name     = "my-authz-ext"
+  location = "us-west1"
+
+  authority             = "ext11.com"
+  service               = "iap.googleapis.com"
+  timeout               = "0.1s"
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-
-* `load_balancing_scheme` -
-  (Required)
-  All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
-  For more information, refer to [Backend services overview](https://cloud.google.com/load-balancing/docs/backend-service).
-  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
 
 * `authority` -
   (Required)
@@ -105,9 +117,12 @@ The following arguments are supported:
 
 * `service` -
   (Required)
-  The reference to the service that runs the extension.
-  To configure a callout extension, service must be a fully-qualified reference to a [backend service](https://cloud.google.com/compute/docs/reference/rest/v1/backendServices) in the format:
-  https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/backendServices/{backendService} or https://www.googleapis.com/compute/v1/projects/{project}/global/backendServices/{backendService}.
+  The service that runs the extension.
+  The following values and formats are accepted:
+  * `iap.googleapis.com` when the policyProfile is set to REQUEST_AUTHZ
+  * `modelarmor.{{region}}.rep.googleapis.com` when the policyProfile is set to CONTENT_AUTHZ
+  * A fully qualified domain name that can be resolved by the dataplane
+  * Backend service resource URI of the form `https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/backendServices/{{name}}` or `https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendServices/{{name}}}}`
 
 * `timeout` -
   (Required)
@@ -133,6 +148,13 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `load_balancing_scheme` -
+  (Optional)
+  Required when the service points to a backend service. All backend services and forwarding rules referenced by
+  this extension must share the same load balancing scheme. For more information, refer to
+  [Backend services overview](https://cloud.google.com/load-balancing/docs/backend-service).
+  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
+
 * `fail_open` -
   (Optional)
   Determines how the proxy behaves if the call to the extension fails or times out.
@@ -151,8 +173,9 @@ The following arguments are supported:
 
 * `wire_format` -
   (Optional)
-  Specifies the communication protocol used by the callout extension
-  to communicate with its backend service.
+  The format of communication supported by the callout extension. Applicable only when the policyProfile is REQUEST_AUTHZ.
+  This field is supported only for regional AuthzExtension resources. If not specified, the default value
+  EXT_PROC_GRPC is used. Global AuthzExtension resources use the EXT_PROC_GRPC wire format.
   Supported values:
   - WIRE_FORMAT_UNSPECIFIED:
       No wire format is explicitly specified. The backend automatically

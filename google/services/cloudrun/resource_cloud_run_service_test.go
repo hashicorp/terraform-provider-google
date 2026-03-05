@@ -1625,3 +1625,84 @@ resource "google_cloud_run_service" "default" {
 }
 `, name, project)
 }
+
+func TestAccCloudRunService_cloudRunServiceIap_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_cloudRunServiceIapEnabled(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
+			},
+			{
+				Config: testAccCloudRunService_cloudRunServiceIapDisabled(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "name"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_cloudRunServiceIapEnabled(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  location = "us-central1"
+
+  metadata {
+    annotations = {
+      "run.googleapis.com/iap-enabled": true
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunService_cloudRunServiceIapDisabled(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  location = "us-central1"
+
+  metadata {
+    annotations = {
+      "run.googleapis.com/iap-enabled": false
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+}
+`, context)
+}

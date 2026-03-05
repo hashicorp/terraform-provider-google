@@ -933,7 +933,7 @@ func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData, c
 	transformed["bgp_inter_region_cost"] =
 		flattenComputeNetworkRoutingConfigBgpInterRegionCost(original["bgpInterRegionCost"], d, config)
 	transformed["delete_bgp_always_compare_med"] =
-		flattenComputeNetworkRoutingConfigDeleteBgpAlwaysCompareMed(original["delete_bgp_always_compare_med"], d, config)
+		flattenComputeNetworkRoutingConfigDeleteBgpAlwaysCompareMed(original["deleteBgpAlwaysCompareMed"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1029,13 +1029,6 @@ func expandComputeNetworkRoutingConfig(v interface{}, d tpgresource.TerraformRes
 		return nil, err
 	} else if val := reflect.ValueOf(transformedBgpInterRegionCost); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["bgpInterRegionCost"] = transformedBgpInterRegionCost
-	}
-
-	transformedDeleteBgpAlwaysCompareMed, err := expandComputeNetworkRoutingConfigDeleteBgpAlwaysCompareMed(d.Get("delete_bgp_always_compare_med"), d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDeleteBgpAlwaysCompareMed); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["delete_bgp_always_compare_med"] = transformedDeleteBgpAlwaysCompareMed
 	}
 
 	return transformed, nil

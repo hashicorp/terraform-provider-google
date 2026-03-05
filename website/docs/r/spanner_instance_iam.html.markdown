@@ -177,3 +177,7 @@ The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/c
 ```
 $ terraform import google_spanner_instance_iam_policy.default {{project}}/{{instance}}
 ```
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#user_project_override).

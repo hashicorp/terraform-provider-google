@@ -15,7 +15,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package publicca_test
+package compute_test
 
 import (
 	"fmt"
@@ -50,29 +50,68 @@ var (
 	_ = googleapi.Error{}
 )
 
-func TestAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(t *testing.T) {
+func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(context),
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleBasicExample(context),
+			},
+			{
+				ResourceName:            "google_compute_organization_security_policy_rule.policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"policy_id"},
 			},
 		},
 	})
 }
 
-func testAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(context map[string]interface{}) string {
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_public_ca_external_account_key" "prod" {
-  project = "%{project}"
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = "organizations/%{org_id}"
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action = "allow"
+
+  match {
+    config {
+      src_ip_ranges = ["192.168.0.0/16"]
+    }
+    versioned_expr = "SRC_IPS_V1"
+  }
+  priority = 100
 }
 `, context)
+}
+
+func testAccCheckComputeOrganizationSecurityPolicyRuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_organization_security_policy_rule" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			log.Printf("[DEBUG] Ignoring destroy during test")
+		}
+
+		return nil
+	}
 }

@@ -3,6 +3,9 @@ generation_type: 'handwritten'
 api_service_name: 'container.googleapis.com'
 api_version: 'v1'
 api_resource_type_kind: 'NodePool'
+cai_asset_name_formats:
+  - //container.googleapis.com/projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/nodePools/{{name}}
+  - //container.googleapis.com/projects/{{project}}/zones/{{location}}/clusters/{{cluster}}/nodePools/{{name}}
 fields:
   - api_field: 'autoscaling.locationPolicy'
   - api_field: 'autoscaling.maxNodeCount'
@@ -245,6 +248,8 @@ fields:
     api_field: 'config.resourceLabels'
   - field: 'node_config.resource_manager_tags'
     api_field: 'config.resourceManagerTags.tags'
+  - field: 'node_config.sandbox_config.type'
+    api_field: 'config.sandboxConfig.type'
   - field: 'node_config.secondary_boot_disks.disk_image'
     api_field: 'config.secondaryBootDisks.diskImage'
   - field: 'node_config.secondary_boot_disks.mode'

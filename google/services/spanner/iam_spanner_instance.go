@@ -91,12 +91,20 @@ func (u *SpannerInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 
-	p, err := u.Config.NewSpannerClient(userAgent).Projects.Instances.GetIamPolicy(SpannerInstanceId{
+	call := u.Config.NewSpannerClient(userAgent).Projects.Instances.GetIamPolicy(SpannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.GetIamPolicyRequest{
 		Options: &spanner.GetPolicyOptions{RequestedPolicyVersion: tpgiamresource.IamPolicyVersion},
-	}).Do()
+	})
+	if u.Config.UserProjectOverride {
+		billingProject := u.project
+		if u.Config.BillingProject != "" {
+			billingProject = u.Config.BillingProject
+		}
+		call.Header().Set("X-Goog-User-Project", billingProject)
+	}
+	p, err := call.Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
@@ -127,12 +135,20 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return err
 	}
 
-	_, err = u.Config.NewSpannerClient(userAgent).Projects.Instances.SetIamPolicy(SpannerInstanceId{
+	call := u.Config.NewSpannerClient(userAgent).Projects.Instances.SetIamPolicy(SpannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.SetIamPolicyRequest{
 		Policy: spannerPolicy,
-	}).Do()
+	})
+	if u.Config.UserProjectOverride {
+		billingProject := u.project
+		if u.Config.BillingProject != "" {
+			billingProject = u.Config.BillingProject
+		}
+		call.Header().Set("X-Goog-User-Project", billingProject)
+	}
+	_, err = call.Do()
 
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)

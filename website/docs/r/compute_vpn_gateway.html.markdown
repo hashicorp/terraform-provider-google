@@ -125,6 +125,11 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `params` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Additional params passed with the request, but not persisted as part of resource payload
+  Structure is [documented below](#nested_params).
+
 * `region` -
   (Optional)
   The region this gateway should sit in.
@@ -139,6 +144,14 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` -
+  (Optional)
+  Resource manager tags to be bound to the Vpn Gateway. Tag keys and values have the
+  same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id},
+  and values are in the format tagValues/456.
 
 ## Attributes Reference
 

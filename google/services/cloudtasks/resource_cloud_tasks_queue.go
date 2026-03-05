@@ -335,8 +335,9 @@ Note that the port value must be a positive integer.
 Setting the port to 0 (Zero) clears the URI port.`,
 									},
 									"query_override": {
-										Type:     schema.TypeList,
-										Optional: true,
+										Type:             schema.TypeList,
+										Optional:         true,
+										DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
 										Description: `URI query.
 
 When specified, replaces the query part of the task URI. Setting the query value to an empty string clears the URI query segment.`,

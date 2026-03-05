@@ -33,8 +33,6 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerServicePerimeterEgressPolicy_basicTest(t *testing.T) {
-	// Multiple fine-grained resources
-	acctest.SkipIfVcr(t)
 	org := envvar.GetTestOrgFromEnv(t)
 
 	// Bootstrap a service account to use as egress from identity
@@ -154,6 +152,7 @@ resource "google_access_context_manager_service_perimeter_egress_policy" "test-a
 		resources = ["*"]
 		roles = ["roles/bigquery.admin"]
 	}
+	depends_on = [google_access_context_manager_service_perimeter_egress_policy.test-access1]
 }
 
 resource "google_access_context_manager_service_perimeter_egress_policy" "test-access3" {
@@ -164,6 +163,7 @@ resource "google_access_context_manager_service_perimeter_egress_policy" "test-a
 		}
 		source_restriction = "SOURCE_RESTRICTION_ENABLED"
 	}
+	depends_on = [google_access_context_manager_service_perimeter_egress_policy.test-access2]
 }
 
 resource "google_access_context_manager_service_perimeter_egress_policy" "test-identity1" {
@@ -179,6 +179,7 @@ resource "google_access_context_manager_service_perimeter_egress_policy" "test-i
 			}
 		}
 	}
+	depends_on = [google_access_context_manager_service_perimeter_egress_policy.test-access3]
 }
 
 `, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName), projectNumber, strings.ToUpper(serviceAccount))

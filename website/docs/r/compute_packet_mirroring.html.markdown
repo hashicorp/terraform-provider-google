@@ -100,6 +100,7 @@ resource "google_compute_forwarding_rule" "default" {
 resource "google_compute_packet_mirroring" "foobar" {
   name = "my-mirroring"
   description = "bar"
+  enable = "TRUE"
   network {
     url = google_compute_network.default.id
   }
@@ -172,6 +173,12 @@ The following arguments are supported:
   (Optional)
   A filter for mirrored traffic.  If unset, all traffic is mirrored.
   Structure is [documented below](#nested_filter).
+
+* `enable` -
+  (Optional)
+  Indicates whether or not this packet mirroring takes effect. If set to FALSE, this packet mirroring
+  policy will not be enforced on the network. The default is TRUE.
+  Possible values are: `TRUE`, `FALSE`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

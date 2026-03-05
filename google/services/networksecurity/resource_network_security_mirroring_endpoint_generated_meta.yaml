@@ -1,0 +1,23 @@
+resource: google_network_security_mirroring_endpoint
+generation_type: mmv1
+source_file: products/networksecurity/MirroringEndpoint.yaml
+api_service_name: networksecurity.googleapis.com
+api_version: v1
+api_resource_type_kind: MirroringEndpoint
+fields:
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: mirroringEndpointGroup
+    - field: mirroring_endpoint_id
+      provider_only: true
+    - api_field: name
+    - api_field: reconciling
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime

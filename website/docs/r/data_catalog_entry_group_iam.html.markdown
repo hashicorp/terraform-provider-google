@@ -20,6 +20,7 @@ description: |-
 ---
 
 # IAM policy for Data Catalog EntryGroup
+~> **Warning:** The parent resource has been deprecated: `google_data_catalog_entry_group` is deprecated and will be removed in a future major release. Use `google_dataplex_entry_group` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.
 
 Three different resources help you manage your IAM policy for Data Catalog EntryGroup. Each of these resources serves a different use case:
 

@@ -147,7 +147,7 @@ Format: projects/{project_id}/locations/global/interceptEndpointGroups/{endpoint
 						},
 					},
 				},
-				ConflictsWith: []string{"custom_mirroring_profile", "threat_prevention_profile"},
+				ConflictsWith: []string{"custom_mirroring_profile", "threat_prevention_profile", "url_filtering_profile"},
 			},
 			"custom_mirroring_profile": {
 				Type:     schema.TypeList,
@@ -165,9 +165,28 @@ When a mirroring rule with this security profile attached matches a packet,
 a replica will be mirrored to the location-local target in this group.
 Format: projects/{project_id}/locations/global/mirroringEndpointGroups/{endpoint_group_id}`,
 						},
+						"mirroring_deployment_groups": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The target downstream Mirroring Deployment Groups.
+This field is used for Packet Broker mirroring endpoint groups to specify
+the deployment groups that the packet should be mirrored to by the broker.
+Format: projects/{project_id}/locations/global/mirroringDeploymentGroups/{deployment_group_id}`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"mirroring_endpoint_group_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The type of the mirroring endpoint group this profile is attached to.
+Possible values:
+DIRECT
+BROKER`,
+						},
 					},
 				},
-				ConflictsWith: []string{"custom_intercept_profile", "threat_prevention_profile"},
+				ConflictsWith: []string{"custom_intercept_profile", "threat_prevention_profile", "url_filtering_profile"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -231,7 +250,27 @@ and threat overrides, the threat overrides action is applied.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"custom_intercept_profile", "custom_mirroring_profile"},
+				ConflictsWith: []string{"custom_intercept_profile", "custom_mirroring_profile", "url_filtering_profile"},
+			},
+			"url_filtering_profile": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The url filtering configuration for the security profile.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"url_filters": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Description: `The configuration for action to take based on domain name match.
+A domain name would be checked for matching filters through the list in order of highest to lowest priority,
+and the first filter that a domain name matches with is the one whose actions gets applied.`,
+							Elem: networksecuritySecurityProfileUrlFilteringProfileUrlFiltersSchema(),
+							// Default schema.HashSchema is used.
+						},
+					},
+				},
+				ConflictsWith: []string{"custom_intercept_profile", "custom_mirroring_profile", "threat_prevention_profile"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -334,6 +373,35 @@ func networksecuritySecurityProfileThreatPreventionProfileAntivirusOverridesSche
 	}
 }
 
+func networksecuritySecurityProfileUrlFilteringProfileUrlFiltersSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"filtering_action": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ALLOW", "DENY"}),
+				Description:  `The action to take when the filter is applied. Possible values: ["ALLOW", "DENY"]`,
+			},
+			"priority": {
+				Type:     schema.TypeInt,
+				Required: true,
+				Description: `The priority of the filter within the URL filtering profile.
+Must be an integer from 0 and 2147483647, inclusive. Lower integers indicate higher priorities.
+The priority of a filter must be unique within a URL filtering profile.`,
+			},
+			"urls": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A list of domain matcher strings that a domain name gets compared with to determine if the filter is applicable.
+A domain name must match with at least one of the strings in the list for a filter to be applicable.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
 func resourceNetworkSecuritySecurityProfileCreate(d *schema.ResourceData, meta interface{}) error {
 	var project string
 	config := meta.(*transport_tpg.Config)
@@ -354,6 +422,12 @@ func resourceNetworkSecuritySecurityProfileCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("threat_prevention_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(threatPreventionProfileProp)) && (ok || !reflect.DeepEqual(v, threatPreventionProfileProp)) {
 		obj["threatPreventionProfile"] = threatPreventionProfileProp
+	}
+	urlFilteringProfileProp, err := expandNetworkSecuritySecurityProfileUrlFilteringProfile(d.Get("url_filtering_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("url_filtering_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(urlFilteringProfileProp)) && (ok || !reflect.DeepEqual(v, urlFilteringProfileProp)) {
+		obj["urlFilteringProfile"] = urlFilteringProfileProp
 	}
 	customMirroringProfileProp, err := expandNetworkSecuritySecurityProfileCustomMirroringProfile(d.Get("custom_mirroring_profile"), d, config)
 	if err != nil {
@@ -483,6 +557,9 @@ func resourceNetworkSecuritySecurityProfileRead(d *schema.ResourceData, meta int
 	if err := d.Set("threat_prevention_profile", flattenNetworkSecuritySecurityProfileThreatPreventionProfile(res["threatPreventionProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfile: %s", err)
 	}
+	if err := d.Set("url_filtering_profile", flattenNetworkSecuritySecurityProfileUrlFilteringProfile(res["urlFilteringProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfile: %s", err)
+	}
 	if err := d.Set("custom_mirroring_profile", flattenNetworkSecuritySecurityProfileCustomMirroringProfile(res["customMirroringProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfile: %s", err)
 	}
@@ -525,6 +602,12 @@ func resourceNetworkSecuritySecurityProfileUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("threat_prevention_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, threatPreventionProfileProp)) {
 		obj["threatPreventionProfile"] = threatPreventionProfileProp
 	}
+	urlFilteringProfileProp, err := expandNetworkSecuritySecurityProfileUrlFilteringProfile(d.Get("url_filtering_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("url_filtering_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, urlFilteringProfileProp)) {
+		obj["urlFilteringProfile"] = urlFilteringProfileProp
+	}
 	customMirroringProfileProp, err := expandNetworkSecuritySecurityProfileCustomMirroringProfile(d.Get("custom_mirroring_profile"), d, config)
 	if err != nil {
 		return err
@@ -559,6 +642,10 @@ func resourceNetworkSecuritySecurityProfileUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("threat_prevention_profile") {
 		updateMask = append(updateMask, "threatPreventionProfile")
+	}
+
+	if d.HasChange("url_filtering_profile") {
+		updateMask = append(updateMask, "urlFilteringProfile")
 	}
 
 	if d.HasChange("custom_mirroring_profile") {
@@ -822,6 +909,89 @@ func flattenNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverri
 	return v
 }
 
+func flattenNetworkSecuritySecurityProfileUrlFilteringProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["url_filters"] =
+		flattenNetworkSecuritySecurityProfileUrlFilteringProfileUrlFilters(original["urlFilters"], d, config)
+
+	// We check again the length after removing the default url_filter
+	if transformed["url_filters"].(*schema.Set).Len() == 0 {
+		return nil
+	}
+	return []interface{}{transformed}
+}
+func flattenNetworkSecuritySecurityProfileUrlFilteringProfileUrlFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	// We check if the user included the default filter in his config
+	resourceDataContainsDefaultFilter := false
+	resourceData, ok := d.GetOk("url_filtering_profile.0.url_filters")
+	if ok {
+		for _, raw := range resourceData.(*schema.Set).List() {
+			if raw.(map[string]interface{})["priority"] == 2147483647 {
+				resourceDataContainsDefaultFilter = true
+				break
+			}
+		}
+	}
+
+	l := v.([]interface{})
+	transformed := schema.NewSet(schema.HashResource(networksecuritySecurityProfileUrlFilteringProfileUrlFiltersSchema()), []interface{}{})
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+
+		priorityFlatten := flattenNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersPriority(original["priority"], d, config)
+		// Do not include the auto created default url_filter coming back from the api unless the user included it in his config
+		if priorityFlatten == 2147483647 && !resourceDataContainsDefaultFilter {
+			continue
+		}
+
+		transformed.Add(map[string]interface{}{
+			"filtering_action": flattenNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersFilteringAction(original["filteringAction"], d, config),
+			"urls":             flattenNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersUrls(original["urls"], d, config),
+			"priority":         priorityFlatten,
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersFilteringAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersPriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenNetworkSecuritySecurityProfileCustomMirroringProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -833,9 +1003,21 @@ func flattenNetworkSecuritySecurityProfileCustomMirroringProfile(v interface{}, 
 	transformed := make(map[string]interface{})
 	transformed["mirroring_endpoint_group"] =
 		flattenNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroup(original["mirroringEndpointGroup"], d, config)
+	transformed["mirroring_deployment_groups"] =
+		flattenNetworkSecuritySecurityProfileCustomMirroringProfileMirroringDeploymentGroups(original["mirroringDeploymentGroups"], d, config)
+	transformed["mirroring_endpoint_group_type"] =
+		flattenNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroupType(original["mirroringEndpointGroupType"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecuritySecurityProfileCustomMirroringProfileMirroringDeploymentGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroupType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1053,6 +1235,80 @@ func expandNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverrid
 	return v, nil
 }
 
+func expandNetworkSecuritySecurityProfileUrlFilteringProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUrlFilters, err := expandNetworkSecuritySecurityProfileUrlFilteringProfileUrlFilters(original["url_filters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUrlFilters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["urlFilters"] = transformedUrlFilters
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecuritySecurityProfileUrlFilteringProfileUrlFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedFilteringAction, err := expandNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersFilteringAction(original["filtering_action"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFilteringAction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["filteringAction"] = transformedFilteringAction
+		}
+
+		transformedUrls, err := expandNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersUrls(original["urls"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedUrls); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["urls"] = transformedUrls
+		}
+
+		transformedPriority, err := expandNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersPriority(original["priority"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPriority); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["priority"] = transformedPriority
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersFilteringAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersUrls(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileUrlFilteringProfileUrlFiltersPriority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkSecuritySecurityProfileCustomMirroringProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1072,10 +1328,32 @@ func expandNetworkSecuritySecurityProfileCustomMirroringProfile(v interface{}, d
 		transformed["mirroringEndpointGroup"] = transformedMirroringEndpointGroup
 	}
 
+	transformedMirroringDeploymentGroups, err := expandNetworkSecuritySecurityProfileCustomMirroringProfileMirroringDeploymentGroups(original["mirroring_deployment_groups"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMirroringDeploymentGroups); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mirroringDeploymentGroups"] = transformedMirroringDeploymentGroups
+	}
+
+	transformedMirroringEndpointGroupType, err := expandNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroupType(original["mirroring_endpoint_group_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMirroringEndpointGroupType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mirroringEndpointGroupType"] = transformedMirroringEndpointGroupType
+	}
+
 	return transformed, nil
 }
 
 func expandNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileCustomMirroringProfileMirroringDeploymentGroups(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileCustomMirroringProfileMirroringEndpointGroupType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

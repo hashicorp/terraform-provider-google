@@ -46,6 +46,10 @@ fields:
     - api_field: serviceConfig.availableCpu
     - api_field: serviceConfig.availableMemory
     - api_field: serviceConfig.binaryAuthorizationPolicy
+    - api_field: serviceConfig.directVpcEgress
+    - api_field: serviceConfig.directVpcNetworkInterface.network
+    - api_field: serviceConfig.directVpcNetworkInterface.subnetwork
+    - api_field: serviceConfig.directVpcNetworkInterface.tags
     - api_field: serviceConfig.environmentVariables
     - api_field: serviceConfig.gcfUri
     - api_field: serviceConfig.ingressSettings

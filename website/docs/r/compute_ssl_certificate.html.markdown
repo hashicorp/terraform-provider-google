@@ -36,6 +36,9 @@ To get more information about SslCertificate, see:
 values will be stored in the raw state as plain text: `certificate`, `private_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `private_key_wo`.
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ssl_certificate_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -50,6 +53,27 @@ resource "google_compute_ssl_certificate" "default" {
   description = "a description"
   private_key = file("path/to/private.key")
   certificate = file("path/to/certificate.crt")
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ssl_certificate_basic_writeonly&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ssl Certificate Basic Writeonly
+
+
+```hcl
+resource "google_compute_ssl_certificate" "default" {
+  name_prefix            = "my-certificate-"
+  description            = "a description"
+  private_key_wo         = file("path/to/private.key")
+  private_key_wo_version = parseint(filesha256("path/to/private.key"),16)%pow(2,32)
+  certificate            = file("path/to/certificate.crt")
 
   lifecycle {
     create_before_destroy = true
@@ -175,11 +199,6 @@ The following arguments are supported:
   The chain must include at least one intermediate cert.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-* `private_key` -
-  (Required)
-  The write-only private key in PEM format.
-  **Note**: This property is sensitive and will not be displayed in the plan.
-
 
 * `description` -
   (Optional)
@@ -195,6 +214,22 @@ The following arguments are supported:
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
   These are in the same namespace as the managed SSL certificates.
+
+* `private_key` -
+  (Optional)
+  The write-only private key in PEM format.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `private_key_wo` -
+  (Optional, Write-Only)
+  The write-only private key in PEM format.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `private_key` or `private_key_wo` can only be set.
+
+* `private_key_wo_version` -
+  (Optional)
+  Triggers update of `private_key_wo` write-only. Increment this value when an update to `private_key_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

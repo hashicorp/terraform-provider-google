@@ -39,6 +39,9 @@ func TestAccBinaryAuthorizationPolicy_basic(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationPolicyBasic(pid, org, billingId),
@@ -133,6 +136,9 @@ func TestAccBinaryAuthorizationPolicy_update(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationPolicyBasic(pid, org, billingId),
@@ -236,6 +242,12 @@ resource "google_project_service" "binauthz" {
   service = "binaryauthorization.googleapis.com"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+
+  depends_on = [google_project_service.binauthz]
+}
+
 resource "google_binary_authorization_policy" "policy" {
   project = google_project.project.project_id
 
@@ -248,7 +260,7 @@ resource "google_binary_authorization_policy" "policy" {
     enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
   }
 
-  depends_on = [google_project_service.binauthz]
+  depends_on = [time_sleep.wait_60_seconds]
 }
 `, pid, pid, org, billing)
 }

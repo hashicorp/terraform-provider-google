@@ -21,6 +21,7 @@ description: |-
 
 
 # google_data_catalog_tag_template_iam_policy
+~> **Warning:** The parent resource has been deprecated: `google_data_catalog_tag_template` is deprecated and will be removed in a future major release. Use `google_dataplex_aspect_type` instead. For steps to transition your Data Catalog users, workloads, and content to Dataplex Catalog, see https://cloud.google.com/dataplex/docs/transition-to-dataplex-catalog.
 
 Retrieves the current IAM policy data for tagtemplate
 

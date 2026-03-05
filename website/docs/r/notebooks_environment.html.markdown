@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_notebooks_environment
+~> **Warning:** `google_notebooks_environment` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.
 
 A Cloud AI Platform Notebook environment.
 
