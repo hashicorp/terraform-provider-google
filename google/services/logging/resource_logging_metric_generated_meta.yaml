@@ -28,3 +28,5 @@ fields:
     - api_field: metricDescriptor.valueType
     - api_field: name
     - api_field: valueExtractor
+    - field: deletion_policy
+      provider_only: true

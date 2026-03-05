@@ -30,3 +30,5 @@ fields:
     - api_field: type
     - api_field: userLabels
     - api_field: verificationStatus
+    - field: deletion_policy
+      provider_only: true

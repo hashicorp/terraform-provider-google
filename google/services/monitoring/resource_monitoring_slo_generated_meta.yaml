@@ -78,3 +78,5 @@ fields:
       field: windows_based_sli.metric_sum_in_range.time_series
     - api_field: serviceLevelIndicator.windowsBased.windowPeriod
       field: windows_based_sli.window_period
+    - field: deletion_policy
+      provider_only: true

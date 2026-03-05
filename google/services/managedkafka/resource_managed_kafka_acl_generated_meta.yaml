@@ -20,3 +20,5 @@ fields:
     - api_field: patternType
     - api_field: resourceName
     - api_field: resourceType
+    - field: deletion_policy
+      provider_only: true
