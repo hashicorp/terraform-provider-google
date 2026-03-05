@@ -19,3 +19,5 @@ fields:
     - api_field: type
     - api_field: unit
     - api_field: valueType
+    - field: deletion_policy
+      provider_only: true

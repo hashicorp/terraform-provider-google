@@ -10,3 +10,5 @@ fields:
     - api_field: isCluster
     - api_field: name
     - api_field: parentName
+    - field: deletion_policy
+      provider_only: true

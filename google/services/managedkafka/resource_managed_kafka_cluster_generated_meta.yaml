@@ -27,3 +27,5 @@ fields:
     - api_field: tlsConfig.sslPrincipalMappingRules
     - api_field: tlsConfig.trustConfig.casConfigs.caPool
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

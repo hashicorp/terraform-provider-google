@@ -29,3 +29,5 @@ fields:
     - api_field: virtualMachinePreferences.vmwareEnginePreferences.cpuOvercommitRatio
     - api_field: virtualMachinePreferences.vmwareEnginePreferences.memoryOvercommitRatio
     - api_field: virtualMachinePreferences.vmwareEnginePreferences.storageDeduplicationCompressionRatio
+    - field: deletion_policy
+      provider_only: true

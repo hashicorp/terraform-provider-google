@@ -77,3 +77,5 @@ fields:
     - api_field: notificationChannels
     - api_field: severity
     - api_field: userLabels
+    - field: deletion_policy
+      provider_only: true

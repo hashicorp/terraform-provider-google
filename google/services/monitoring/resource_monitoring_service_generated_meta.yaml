@@ -13,3 +13,5 @@ fields:
       provider_only: true
     - api_field: telemetry.resourceName
     - api_field: userLabels
+    - field: deletion_policy
+      provider_only: true

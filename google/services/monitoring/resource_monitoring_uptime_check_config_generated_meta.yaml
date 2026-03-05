@@ -44,3 +44,5 @@ fields:
     - api_field: id
       field: uptime_check_id
     - api_field: userLabels
+    - field: deletion_policy
+      provider_only: true

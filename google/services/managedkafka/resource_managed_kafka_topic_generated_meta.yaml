@@ -16,3 +16,5 @@ fields:
     - api_field: replicationFactor
     - field: topic_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

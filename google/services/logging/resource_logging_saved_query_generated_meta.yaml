@@ -26,3 +26,5 @@ fields:
       provider_only: true
     - api_field: updateTime
     - api_field: visibility
+    - field: deletion_policy
+      provider_only: true
