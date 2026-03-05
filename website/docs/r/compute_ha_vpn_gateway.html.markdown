@@ -200,7 +200,7 @@ The following arguments are supported:
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `params` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Additional params passed with the request, but not persisted as part of resource payload
   Structure is [documented below](#nested_params).
 
