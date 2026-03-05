@@ -22,6 +22,7 @@ fields:
     - api_field: labels
     - api_field: localTrafficSelector
     - api_field: name
+    - api_field: params.resourceManagerTags
     - api_field: peerExternalGateway
     - api_field: peerExternalGatewayInterface
     - api_field: peerGcpGateway

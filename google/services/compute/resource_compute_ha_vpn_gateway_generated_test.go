@@ -69,7 +69,7 @@ func TestAccComputeHaVpnGateway_haVpnGatewayBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_ha_vpn_gateway.ha_gateway1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "network", "region", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "network", "params", "region", "terraform_labels"},
 			},
 		},
 	})
@@ -109,7 +109,7 @@ func TestAccComputeHaVpnGateway_haVpnGatewayIpv6Example(t *testing.T) {
 				ResourceName:            "google_compute_ha_vpn_gateway.ha_gateway1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "network", "region", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "network", "params", "region", "terraform_labels"},
 			},
 		},
 	})

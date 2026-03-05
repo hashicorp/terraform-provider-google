@@ -70,7 +70,7 @@ func TestAccComputeExternalVpnGateway_externalVpnGatewayExample(t *testing.T) {
 				ResourceName:            "google_compute_external_vpn_gateway.external_gateway",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "params", "terraform_labels"},
 			},
 		},
 	})
@@ -201,7 +201,7 @@ func TestAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(t *testi
 				ResourceName:            "google_compute_external_vpn_gateway.external_gateway",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "params", "terraform_labels"},
 			},
 		},
 	})
