@@ -237,6 +237,49 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
   }
 }
 ```
+## Example Usage - Firewall Policy Rule Target Type Internal Managed Lb Instance Regional
+
+
+```hcl
+resource "google_compute_network" "net" {
+  provider                = google-beta
+  name                    = "test-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_region_network_firewall_policy" "fw_policy" {
+  provider = google-beta
+  name     = "simple-fw-policy"
+  region   = "us-central1"
+}
+
+resource "google_compute_region_network_firewall_policy_association" "assoc" {
+  provider          = google-beta
+  name              = "fw-policy-assoc"
+  region            = "us-central1"
+  firewall_policy   = google_compute_region_network_firewall_policy.fw_policy.id
+  attachment_target = google_compute_network.net.self_link
+}
+
+resource "google_compute_region_network_firewall_policy_rule" "internal_managed_lb_rule" {
+  provider        = google-beta
+  region          = "us-central1"
+  firewall_policy = google_compute_region_network_firewall_policy.fw_policy.name
+  priority        = 1000
+  action          = "allow"
+  direction       = "INGRESS"
+
+  target_type = "INTERNAL_MANAGED_LB"
+
+  match {
+    src_ip_ranges = ["10.0.0.0/8"]
+
+    layer4_configs {
+      ip_protocol = "tcp"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -311,6 +354,23 @@ The following arguments are supported:
   Denotes whether the firewall policy rule is disabled.
   When set to true, the firewall policy rule is not enforced and traffic behaves as if it did not exist.
   If this is unspecified, the firewall policy rule will be enabled.
+
+* `target_type` -
+  (Optional)
+  Target types of the firewall policy rule.
+  Default value is INSTANCES.
+  When target_type is INTERNAL_MANAGED_LB, target_forwarding_rules must be set
+  Possible values are: `INSTANCES`, `INTERNAL_MANAGED_LB`.
+
+* `target_forwarding_rules` -
+  (Optional)
+  A list of forwarding rules to which this rule applies.
+  This field allows you to control which load balancers get this rule.
+  For example, the following are valid values:
+  - https://www.googleapis.com/compute/v1/projects/project/global/forwardingRules/forwardingRule
+  - https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
+  - projects/project/global/forwardingRules/forwardingRule
+  - projects/project/regions/region/forwardingRules/forwardingRule
 
 * `region` -
   (Optional)

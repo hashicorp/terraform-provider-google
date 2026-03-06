@@ -344,6 +344,21 @@ Must be specified if action = 'apply_security_profile_group' and cannot be speci
 
 Security Profile Group and Firewall Policy Rule must be in the same scope.`,
 			},
+			"target_forwarding_rules": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
+				Description: `A list of forwarding rules to which this rule applies.
+This field allows you to control which load balancers get this rule.
+For example, the following are valid values:
+- https://www.googleapis.com/compute/v1/projects/project/global/forwardingRules/forwardingRule
+- https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
+- projects/project/global/forwardingRules/forwardingRule
+- projects/project/regions/region/forwardingRules/forwardingRule`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"target_secure_tags": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -373,6 +388,15 @@ targetSecureTag may not be set at the same time as targetServiceAccounts. If nei
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"target_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"INSTANCES", "INTERNAL_MANAGED_LB", ""}),
+				Description: `Target types of the firewall policy rule.
+Default value is INSTANCES.
+When target_type is INTERNAL_MANAGED_LB, target_forwarding_rules must be set Possible values: ["INSTANCES", "INTERNAL_MANAGED_LB"]`,
 			},
 			"tls_inspect": {
 				Type:     schema.TypeBool,
@@ -485,6 +509,18 @@ func resourceComputeRegionNetworkFirewallPolicyRuleCreate(d *schema.ResourceData
 		return err
 	} else if v, ok := d.GetOkExists("disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(disabledProp)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
 		obj["disabled"] = disabledProp
+	}
+	targetTypeProp, err := expandComputeRegionNetworkFirewallPolicyRuleTargetType(d.Get("target_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetTypeProp)) && (ok || !reflect.DeepEqual(v, targetTypeProp)) {
+		obj["targetType"] = targetTypeProp
+	}
+	targetForwardingRulesProp, err := expandComputeRegionNetworkFirewallPolicyRuleTargetForwardingRules(d.Get("target_forwarding_rules"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_forwarding_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetForwardingRulesProp)) && (ok || !reflect.DeepEqual(v, targetForwardingRulesProp)) {
+		obj["targetForwardingRules"] = targetForwardingRulesProp
 	}
 
 	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/addRule")
@@ -630,6 +666,12 @@ func resourceComputeRegionNetworkFirewallPolicyRuleRead(d *schema.ResourceData, 
 	if err := d.Set("disabled", flattenComputeRegionNetworkFirewallPolicyRuleDisabled(res["disabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyRule: %s", err)
 	}
+	if err := d.Set("target_type", flattenComputeRegionNetworkFirewallPolicyRuleTargetType(res["targetType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyRule: %s", err)
+	}
+	if err := d.Set("target_forwarding_rules", flattenComputeRegionNetworkFirewallPolicyRuleTargetForwardingRules(res["targetForwardingRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkFirewallPolicyRule: %s", err)
+	}
 
 	return nil
 }
@@ -721,6 +763,18 @@ func resourceComputeRegionNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData
 		return err
 	} else if v, ok := d.GetOkExists("disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
 		obj["disabled"] = disabledProp
+	}
+	targetTypeProp, err := expandComputeRegionNetworkFirewallPolicyRuleTargetType(d.Get("target_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetTypeProp)) {
+		obj["targetType"] = targetTypeProp
+	}
+	targetForwardingRulesProp, err := expandComputeRegionNetworkFirewallPolicyRuleTargetForwardingRules(d.Get("target_forwarding_rules"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_forwarding_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetForwardingRulesProp)) {
+		obj["targetForwardingRules"] = targetForwardingRulesProp
 	}
 
 	obj, err = resourceComputeRegionNetworkFirewallPolicyRuleUpdateEncoder(d, meta, obj)
@@ -1098,6 +1152,14 @@ func flattenComputeRegionNetworkFirewallPolicyRuleDisabled(v interface{}, d *sch
 	return v
 }
 
+func flattenComputeRegionNetworkFirewallPolicyRuleTargetType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionNetworkFirewallPolicyRuleTargetForwardingRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeRegionNetworkFirewallPolicyRuleRuleName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1427,6 +1489,14 @@ func expandComputeRegionNetworkFirewallPolicyRuleTargetSecureTagsState(v interfa
 }
 
 func expandComputeRegionNetworkFirewallPolicyRuleDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionNetworkFirewallPolicyRuleTargetType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionNetworkFirewallPolicyRuleTargetForwardingRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
