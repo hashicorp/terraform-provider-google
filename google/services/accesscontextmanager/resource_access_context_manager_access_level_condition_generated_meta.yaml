@@ -7,19 +7,33 @@ api_resource_type_kind: AccessLevel
 fields:
     - field: access_level
       provider_only: true
-    - api_field: accessPolicyId
-    - api_field: devicePolicy.allowedDeviceManagementLevels
-    - api_field: devicePolicy.allowedEncryptionStatuses
-    - api_field: devicePolicy.osConstraints.minimumVersion
-    - api_field: devicePolicy.osConstraints.osType
-    - api_field: devicePolicy.requireAdminApproval
-    - api_field: devicePolicy.requireCorpOwned
-    - api_field: devicePolicy.requireScreenlock
+    - field: access_policy_id
+      provider_only: true
+    - api_field: basic.conditions.devicePolicy.allowedDeviceManagementLevels
+      field: device_policy.allowed_device_management_levels
+    - api_field: basic.conditions.devicePolicy.allowedEncryptionStatuses
+      field: device_policy.allowed_encryption_statuses
+    - api_field: basic.conditions.devicePolicy.osConstraints.minimumVersion
+      field: device_policy.os_constraints.minimum_version
+    - api_field: basic.conditions.devicePolicy.osConstraints.osType
+      field: device_policy.os_constraints.os_type
+    - api_field: basic.conditions.devicePolicy.requireAdminApproval
+      field: device_policy.require_admin_approval
+    - api_field: basic.conditions.devicePolicy.requireCorpOwned
+      field: device_policy.require_corp_owned
+    - api_field: basic.conditions.devicePolicy.requireScreenlock
       field: device_policy.require_screen_lock
-    - api_field: ipSubnetworks
-    - api_field: members
-    - api_field: negate
-    - api_field: regions
-    - api_field: requiredAccessLevels
-    - api_field: vpcNetworkSources.vpcSubnetwork.network
-    - api_field: vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks
+    - api_field: basic.conditions.ipSubnetworks
+      field: ip_subnetworks
+    - api_field: basic.conditions.members
+      field: members
+    - api_field: basic.conditions.negate
+      field: negate
+    - api_field: basic.conditions.regions
+      field: regions
+    - api_field: basic.conditions.requiredAccessLevels
+      field: required_access_levels
+    - api_field: basic.conditions.vpcNetworkSources.vpcSubnetwork.network
+      field: vpc_network_sources.vpc_subnetwork.network
+    - api_field: basic.conditions.vpcNetworkSources.vpcSubnetwork.vpcIpSubnetworks
+      field: vpc_network_sources.vpc_subnetwork.vpc_ip_subnetworks

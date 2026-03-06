@@ -5,7 +5,9 @@ api_service_name: accesscontextmanager.googleapis.com
 api_version: v1
 api_resource_type_kind: ServicePerimeter
 fields:
-    - api_field: accessPolicyId
+    - field: access_policy_id
+      provider_only: true
     - field: ingress_policy_name
       provider_only: true
-    - api_field: resource
+    - api_field: status.resources.resource
+      field: resource
