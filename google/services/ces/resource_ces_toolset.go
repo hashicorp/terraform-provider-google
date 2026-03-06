@@ -294,6 +294,15 @@ The service account must have the
 CES service agent
 'service-@gcp-sa-ces.iam.gserviceaccount.com'.`,
 												},
+												"scopes": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `The OAuth scopes to grant. If not specified, the default scope
+'https://www.googleapis.com/auth/cloud-platform' is used.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 											},
 										},
 									},
@@ -508,6 +517,15 @@ The service account must have the
 'roles/iam.serviceAccountTokenCreator' role granted to the
 CES service agent
 'service-@gcp-sa-ces.iam.gserviceaccount.com'.`,
+												},
+												"scopes": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `The OAuth scopes to grant. If not specified, the default scope
+'https://www.googleapis.com/auth/cloud-platform' is used.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 											},
 										},
@@ -1126,9 +1144,15 @@ func flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfig(v 
 	transformed := make(map[string]interface{})
 	transformed["service_account"] =
 		flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(original["serviceAccount"], d, config)
+	transformed["scopes"] =
+		flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1351,9 +1375,15 @@ func flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfig(v inte
 	transformed := make(map[string]interface{})
 	transformed["service_account"] =
 		flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(original["serviceAccount"], d, config)
+	transformed["scopes"] =
+		flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1699,10 +1729,21 @@ func expandCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfig(v i
 		transformed["serviceAccount"] = transformedServiceAccount
 	}
 
+	transformedScopes, err := expandCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scopes"] = transformedScopes
+	}
+
 	return transformed, nil
 }
 
 func expandCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2084,10 +2125,21 @@ func expandCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfig(v inter
 		transformed["serviceAccount"] = transformedServiceAccount
 	}
 
+	transformedScopes, err := expandCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scopes"] = transformedScopes
+	}
+
 	return transformed, nil
 }
 
 func expandCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

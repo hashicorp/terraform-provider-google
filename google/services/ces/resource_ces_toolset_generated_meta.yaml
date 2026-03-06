@@ -24,6 +24,7 @@ fields:
     - api_field: mcpToolset.apiAuthentication.oauthConfig.oauthGrantType
     - api_field: mcpToolset.apiAuthentication.oauthConfig.scopes
     - api_field: mcpToolset.apiAuthentication.oauthConfig.tokenEndpoint
+    - api_field: mcpToolset.apiAuthentication.serviceAccountAuthConfig.scopes
     - api_field: mcpToolset.apiAuthentication.serviceAccountAuthConfig.serviceAccount
     - api_field: mcpToolset.apiAuthentication.serviceAgentIdTokenAuthConfig
     - api_field: mcpToolset.serverAddress
@@ -40,6 +41,7 @@ fields:
     - api_field: openApiToolset.apiAuthentication.oauthConfig.oauthGrantType
     - api_field: openApiToolset.apiAuthentication.oauthConfig.scopes
     - api_field: openApiToolset.apiAuthentication.oauthConfig.tokenEndpoint
+    - api_field: openApiToolset.apiAuthentication.serviceAccountAuthConfig.scopes
     - api_field: openApiToolset.apiAuthentication.serviceAccountAuthConfig.serviceAccount
     - api_field: openApiToolset.apiAuthentication.serviceAgentIdTokenAuthConfig
     - api_field: openApiToolset.ignoreUnknownFields

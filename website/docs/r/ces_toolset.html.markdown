@@ -75,7 +75,8 @@ resource "google_ces_toolset" "ces_toolset_openapi_service_account_auth_config" 
     }
     api_authentication {
         service_account_auth_config {
-            service_account = "testaccount@gmail.com"
+            service_account = "my@service-account.com"
+            scopes = ["scope1"]
         }
     }
   }
@@ -373,6 +374,7 @@ resource "google_ces_toolset" "ces_toolset_mcp_service_account_auth_config" {
     api_authentication {
         service_account_auth_config {
             service_account = "my@service-account.com"
+            scopes = ["scope1"]
         }
     }
   }
@@ -768,6 +770,11 @@ The following arguments are supported:
   CES service agent
   `service-@gcp-sa-ces.iam.gserviceaccount.com`.
 
+* `scopes` -
+  (Optional)
+  The OAuth scopes to grant. If not specified, the default scope
+  `https://www.googleapis.com/auth/cloud-platform` is used.
+
 <a name="nested_open_api_toolset_api_authentication_bearer_token_config"></a>The `bearer_token_config` block supports:
 
 * `token` -
@@ -934,6 +941,11 @@ The following arguments are supported:
   `roles/iam.serviceAccountTokenCreator` role granted to the
   CES service agent
   `service-@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `scopes` -
+  (Optional)
+  The OAuth scopes to grant. If not specified, the default scope
+  `https://www.googleapis.com/auth/cloud-platform` is used.
 
 <a name="nested_mcp_toolset_api_authentication_bearer_token_config"></a>The `bearer_token_config` block supports:
 
