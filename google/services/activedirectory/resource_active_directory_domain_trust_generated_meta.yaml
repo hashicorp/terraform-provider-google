@@ -7,9 +7,15 @@ api_resource_type_kind: Domain
 fields:
     - field: domain
       provider_only: true
-    - api_field: selectiveAuthentication
-    - api_field: targetDnsIpAddresses
-    - api_field: targetDomainName
-    - api_field: trustDirection
-    - api_field: trustHandshakeSecret
-    - api_field: trustType
+    - api_field: trusts.selectiveAuthentication
+      field: selective_authentication
+    - api_field: trusts.targetDnsIpAddresses
+      field: target_dns_ip_addresses
+    - api_field: trusts.targetDomainName
+      field: target_domain_name
+    - api_field: trusts.trustDirection
+      field: trust_direction
+    - api_field: trusts.trustHandshakeSecret
+      field: trust_handshake_secret
+    - api_field: trusts.trustType
+      field: trust_type
