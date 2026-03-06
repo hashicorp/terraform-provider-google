@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added Service Account OAuth `scopes` fields to `google_ces_toolset` resource
+```
