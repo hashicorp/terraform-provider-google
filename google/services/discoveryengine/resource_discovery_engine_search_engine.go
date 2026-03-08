@@ -158,6 +158,7 @@ func ResourceDiscoveryEngineSearchEngine() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"search_add_ons": {
 							Type:        schema.TypeList,
+							Computed:    true,
 							Optional:    true,
 							Description: `The add-on that this search engine enables. Possible values: ["SEARCH_ADD_ON_LLM"]`,
 							Elem: &schema.Schema{
@@ -206,6 +207,7 @@ The supported values: 'APP_TYPE_UNSPECIFIED', 'APP_TYPE_INTRANET'.`,
 			},
 			"features": {
 				Type:        schema.TypeMap,
+				Computed:    true,
 				Optional:    true,
 				Description: `A map of the feature config for the engine to opt in or opt out of features.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -231,6 +233,7 @@ protected by the KMS key, as indicated in the cmek_config field.`,
 			},
 			"knowledge_graph_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Configurations for the Knowledge Graph.`,
 				MaxItems:    1,
@@ -238,6 +241,7 @@ protected by the KMS key, as indicated in the cmek_config field.`,
 					Schema: map[string]*schema.Schema{
 						"cloud_knowledge_graph_types": {
 							Type:        schema.TypeList,
+							Computed:    true,
 							Optional:    true,
 							Description: `Specify entity types to support.`,
 							Elem: &schema.Schema{
