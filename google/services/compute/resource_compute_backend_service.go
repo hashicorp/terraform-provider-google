@@ -4772,7 +4772,7 @@ func expandComputeBackendServiceIap(v interface{}, d tpgresource.TerraformResour
 	transformedOauth2ClientId, err := expandComputeBackendServiceIapOauth2ClientId(original["oauth2_client_id"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedOauth2ClientId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["oauth2ClientId"] = transformedOauth2ClientId
 	}
 
