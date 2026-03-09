@@ -1,0 +1,3 @@
+```release-note:deprecation
+iamworkforcepool: deprecated `extended_attributes_oauth2_client` on `google_iam_workforce_pool_provider`. Use `scim_usage` instead.
+```
