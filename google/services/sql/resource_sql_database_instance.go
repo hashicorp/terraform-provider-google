@@ -1560,7 +1560,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
 	}
 
-	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
+	cloneContext, cloneSourceInstance := expandCloneContext(d.Get("clone").([]interface{}))
 	pointInTimeRestoreContext := expandPointInTimeRestoreContext(d.Get("point_in_time_restore_context").([]interface{}))
 
 	if valueI, ok := d.GetOk("settings.0.auto_upgrade_enabled"); ok && !(valueI.(bool)) {
@@ -1623,7 +1623,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 			if cloneContext != nil {
 				cloneContext.DestinationInstanceName = name
 				clodeReq := sqladmin.InstancesCloneRequest{CloneContext: cloneContext}
-				op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(project, cloneSource, &clodeReq).Do()
+				op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(project, cloneSourceInstance, &clodeReq).Do()
 			} else if pointInTimeRestoreContext != nil {
 				parent := fmt.Sprintf("projects/%s", project)
 				op, operr = config.NewSqlAdminClient(userAgent).Instances.PointInTimeRestore(parent, pointInTimeRestoreContext).Do()

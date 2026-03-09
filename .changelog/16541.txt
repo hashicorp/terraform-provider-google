@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `clone_context.source_project` field to `google_sql_database_instance` resource to support cross project clone (beta)
+```
