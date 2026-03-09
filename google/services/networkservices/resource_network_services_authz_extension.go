@@ -119,11 +119,6 @@ func ResourceNetworkServicesAuthzExtension() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"authority": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The :authority header in the gRPC request sent from Envoy to the extension service.`,
-			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -150,6 +145,11 @@ The following values and formats are accepted:
 				Required:         true,
 				DiffSuppressFunc: tpgresource.DurationDiffSuppress,
 				Description:      `Specifies the timeout for each individual message on the stream. The timeout must be between 10-10000 milliseconds.`,
+			},
+			"authority": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The :authority header in the gRPC request sent from Envoy to the extension service.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
