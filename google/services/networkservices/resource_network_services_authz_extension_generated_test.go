@@ -136,7 +136,6 @@ resource "google_network_services_authz_extension" "default" {
   name     = "tf-test-my-authz-ext%{random_suffix}"
   location = "us-west1"
 
-  authority             = "ext11.com"
   service               = "iap.googleapis.com"
   timeout               = "0.1s"
 }
