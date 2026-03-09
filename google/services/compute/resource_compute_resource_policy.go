@@ -443,14 +443,28 @@ with RFC1035.`,
 and cannot be set if max topology distance is set.`,
 							ConflictsWith: []string{"workload_policy.0.max_topology_distance"},
 						},
+						"accelerator_topology_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"AUTO_CONNECT", "PROVISION_ONLY", ""}),
+							Description: `Specifies the connection mode for the accelerator topology.
+Supported values are:
+  * 'AUTO_CONNECT': The interconnected chips are pre-configured at the time of VM creation.
+  * 'PROVISION_ONLY': The interconnected chips are connected on demand. At the time of VM creation, the chips are not connected.
+
+If not specified, the default is AUTO_CONNECT.
+This field can be set only when the workload policy type is HIGH_THROUGHPUT and cannot be set if max topology distance is set. Possible values: ["AUTO_CONNECT", "PROVISION_ONLY"]`,
+							ConflictsWith: []string{"workload_policy.0.max_topology_distance"},
+						},
 						"max_topology_distance": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"BLOCK", "CLUSTER", "SUBBLOCK", ""}),
 							Description: `The maximum topology distance. This field can be set only when the workload policy type is HIGH_THROUGHPUT
-and cannot be set if accelerator topology is set. Possible values: ["BLOCK", "CLUSTER", "SUBBLOCK"]`,
-							ConflictsWith: []string{"workload_policy.0.accelerator_topology"},
+and cannot be set if accelerator topology or accelerator topology mode is set. Possible values: ["BLOCK", "CLUSTER", "SUBBLOCK"]`,
+							ConflictsWith: []string{"workload_policy.0.accelerator_topology", "workload_policy.0.accelerator_topology_mode"},
 						},
 					},
 				},
@@ -1237,6 +1251,8 @@ func flattenComputeResourcePolicyWorkloadPolicy(v interface{}, d *schema.Resourc
 		flattenComputeResourcePolicyWorkloadPolicyMaxTopologyDistance(original["maxTopologyDistance"], d, config)
 	transformed["accelerator_topology"] =
 		flattenComputeResourcePolicyWorkloadPolicyAcceleratorTopology(original["acceleratorTopology"], d, config)
+	transformed["accelerator_topology_mode"] =
+		flattenComputeResourcePolicyWorkloadPolicyAcceleratorTopologyMode(original["acceleratorTopologyMode"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeResourcePolicyWorkloadPolicyType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1248,6 +1264,10 @@ func flattenComputeResourcePolicyWorkloadPolicyMaxTopologyDistance(v interface{}
 }
 
 func flattenComputeResourcePolicyWorkloadPolicyAcceleratorTopology(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeResourcePolicyWorkloadPolicyAcceleratorTopologyMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1795,6 +1815,13 @@ func expandComputeResourcePolicyWorkloadPolicy(v interface{}, d tpgresource.Terr
 		transformed["acceleratorTopology"] = transformedAcceleratorTopology
 	}
 
+	transformedAcceleratorTopologyMode, err := expandComputeResourcePolicyWorkloadPolicyAcceleratorTopologyMode(original["accelerator_topology_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAcceleratorTopologyMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["acceleratorTopologyMode"] = transformedAcceleratorTopologyMode
+	}
+
 	return transformed, nil
 }
 
@@ -1807,6 +1834,10 @@ func expandComputeResourcePolicyWorkloadPolicyMaxTopologyDistance(v interface{},
 }
 
 func expandComputeResourcePolicyWorkloadPolicyAcceleratorTopology(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyWorkloadPolicyAcceleratorTopologyMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
