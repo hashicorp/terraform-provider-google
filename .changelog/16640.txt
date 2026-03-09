@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_network_security_ull_mirroring_engine` (beta)
+```
+
+```release-note:new-resource
+`google_network_security_ull_mirroring_collector` (beta)
+```
