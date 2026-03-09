@@ -1691,6 +1691,16 @@ func TestAccSqlDatabaseInstance_basicClone(t *testing.T) {
 	})
 }
 
+func testAccSqlDatabaseInstanceImportStateIdFunc(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("Not found: %s", resourceName)
+		}
+		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["project"], rs.Primary.Attributes["name"]), nil
+	}
+}
+
 func TestAccSqlDatabaseInstance_cloneWithSettings(t *testing.T) {
 	// Sqladmin client
 	acctest.SkipIfVcr(t)
@@ -8178,6 +8188,113 @@ resource "google_sql_database_instance" "instance" {
 data "google_sql_backup_run" "backup" {
 	instance = "%{original_db_name}"
 	most_recent = true
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_crossProjectClone(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+  provider = google-beta
+  name                = "tf-test-cpc-%{random_suffix}"
+  project_id          = "tf-test-cpc-%{random_suffix}"
+  org_id              = "%{orgId}"
+  billing_account     = "%{billingAccount}"
+  deletion_policy     = "DELETE"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [google_project.project]
+}
+
+resource "google_project_service" "compute" {
+  provider = google-beta
+  project = google_project.project.project_id
+  service = "compute.googleapis.com"
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "google_project_service" "servicenetworking" {
+  provider = google-beta
+  project = google_project.project.project_id
+  service = "servicenetworking.googleapis.com"
+  depends_on = [google_project_service.compute]
+}
+
+resource "time_sleep" "wait_300_seconds" {
+  create_duration = "300s"
+  depends_on = [google_project_service.servicenetworking]
+}
+
+resource "google_compute_network" "sql_network" {
+  provider = google-beta
+  name       = "sql-network"
+  project    = google_project.project.project_id
+  depends_on = [time_sleep.wait_300_seconds]
+}
+
+resource "google_compute_global_address" "sql_range" {
+  provider = google-beta
+  name          = "sql-range"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.sql_network.id
+  project       = google_project.project.project_id
+}
+
+resource "google_service_networking_connection" "sql_vpc_connection" {
+  provider = google-beta
+  network                 = google_compute_network.sql_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.sql_range.name]
+  depends_on              = [google_project_service.servicenetworking]
+  deletion_policy         = "ABANDON"
+}
+
+resource "google_sql_database_instance" "instance" {
+	provider = google-beta
+	name             = "tf-test-cpc-%{random_suffix}"
+	database_version = "POSTGRES_11"
+	region           = "us-central1"
+	project = google_project.project.project_id
+
+	settings {
+		tier = "db-custom-2-3840"
+		edition = "ENTERPRISE"
+		ip_configuration {
+			private_network = google_compute_network.sql_network.self_link
+		}
+		backup_configuration {
+			enabled                        = true
+			point_in_time_recovery_enabled = true
+		}
+	}
+
+	clone {
+		source_project = "%{cloneSourceProject}"
+		source_instance_name = google_sql_database_instance.source_instance.name
+	}
+
+	deletion_protection = false
+
+	// Ignore changes, since the most recent backup may change during the test
+	lifecycle{
+		ignore_changes = [clone[0].point_in_time]
+	}
+	depends_on = [google_service_networking_connection.sql_vpc_connection]
+}
+
+resource "google_sql_database_instance" "source_instance" {
+	provider = google-beta
+	name = "tf-test-source-%{random_suffix}"
+	database_version = "POSTGRES_11"
+	region           = "us-central1"
+	deletion_protection = false
+	settings {
+		tier = "db-g1-small"
+	}
 }
 `, context)
 }
