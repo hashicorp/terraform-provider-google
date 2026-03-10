@@ -153,6 +153,12 @@ The following arguments are supported:
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   Config for data retention policy in offline storage. TTL in days for feature values that will be stored in offline storage. The Feature Store offline storage periodically removes obsolete feature values older than offlineStorageTtlDays since the feature generation time. If unset (or explicitly set to 0), default to 4000 days TTL.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 
 
 <a name="nested_monitoring_config"></a>The `monitoring_config` block supports:

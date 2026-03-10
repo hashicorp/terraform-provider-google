@@ -21,3 +21,5 @@ fields:
     - api_field: updateTime
     - api_field: vmwareEngineNetwork
     - api_field: vmwareEngineNetworkCanonical
+    - field: deletion_policy
+      provider_only: true

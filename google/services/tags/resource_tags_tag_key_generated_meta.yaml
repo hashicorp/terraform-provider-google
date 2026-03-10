@@ -15,3 +15,5 @@ fields:
     - api_field: purposeData
     - api_field: shortName
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

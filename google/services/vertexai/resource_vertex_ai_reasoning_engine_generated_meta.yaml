@@ -42,3 +42,5 @@ fields:
     - api_field: spec.sourceCodeSpec.pythonSpec.requirementsFile
     - api_field: spec.sourceCodeSpec.pythonSpec.version
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

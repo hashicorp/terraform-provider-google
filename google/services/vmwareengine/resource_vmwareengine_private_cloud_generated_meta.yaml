@@ -68,3 +68,5 @@ fields:
     - api_field: vcenter.internalIp
     - api_field: vcenter.state
     - api_field: vcenter.version
+    - field: deletion_policy
+      provider_only: true

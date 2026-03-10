@@ -11,3 +11,5 @@ fields:
     - api_field: ragManagedDbConfig.unprovisioned
     - field: region
       provider_only: true
+    - field: deletion_policy
+      provider_only: true
