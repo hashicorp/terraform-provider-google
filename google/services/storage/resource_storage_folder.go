@@ -164,6 +164,18 @@ trailing '/'. For example, 'example_dir/example_dir2/', 'example@#/', 'a-b/d-f/'
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -262,6 +274,11 @@ func resourceStorageFolderRead(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error setting force_destroy: %s", err)
 		}
 	}
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 
 	if err := d.Set("create_time", flattenStorageFolderCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Folder: %s", err)
@@ -283,6 +300,18 @@ func resourceStorageFolderRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceStorageFolderUpdate(d *schema.ResourceData, meta interface{}) error {
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceStorageFolder().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceStorageFolderRead(d, meta)
+	}
 
 	config := meta.(*transport_tpg.Config)
 	_ = config

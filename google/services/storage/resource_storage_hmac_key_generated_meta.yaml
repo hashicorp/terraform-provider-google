@@ -11,3 +11,5 @@ fields:
     - api_field: state
     - api_field: timeCreated
     - api_field: updated
+    - field: deletion_policy
+      provider_only: true
