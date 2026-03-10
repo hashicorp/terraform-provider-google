@@ -482,6 +482,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_beyondcorp_security_gateway_application_iam_policy": registry.DataSource("google_beyondcorp_security_gateway_application_iam_policy"),
 	"google_biglake_iceberg_catalog_iam_policy":                 registry.DataSource("google_biglake_iceberg_catalog_iam_policy"),
 	"google_biglake_iceberg_namespace_iam_policy":               registry.DataSource("google_biglake_iceberg_namespace_iam_policy"),
+	"google_biglake_iceberg_table_iam_policy":                   registry.DataSource("google_biglake_iceberg_table_iam_policy"),
 	"google_bigquery_table_iam_policy":                          registry.DataSource("google_bigquery_table_iam_policy"),
 	"google_bigquery_analytics_hub_data_exchange_iam_policy":    registry.DataSource("google_bigquery_analytics_hub_data_exchange_iam_policy"),
 	"google_bigquery_analytics_hub_listing_iam_policy":          registry.DataSource("google_bigquery_analytics_hub_listing_iam_policy"),
@@ -605,9 +606,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 718
-// Generated IAM resources: 333
-// Total generated resources: 1051
+// Generated resources: 719
+// Generated IAM resources: 336
+// Total generated resources: 1055
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -718,6 +719,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_biglake_iceberg_namespace_iam_binding":                               registry.Resource("google_biglake_iceberg_namespace_iam_binding"),
 	"google_biglake_iceberg_namespace_iam_member":                                registry.Resource("google_biglake_iceberg_namespace_iam_member"),
 	"google_biglake_iceberg_namespace_iam_policy":                                registry.Resource("google_biglake_iceberg_namespace_iam_policy"),
+	"google_biglake_iceberg_table":                                               registry.Resource("google_biglake_iceberg_table"),
+	"google_biglake_iceberg_table_iam_binding":                                   registry.Resource("google_biglake_iceberg_table_iam_binding"),
+	"google_biglake_iceberg_table_iam_member":                                    registry.Resource("google_biglake_iceberg_table_iam_member"),
+	"google_biglake_iceberg_table_iam_policy":                                    registry.Resource("google_biglake_iceberg_table_iam_policy"),
 	"google_bigquery_dataset":                                                    registry.Resource("google_bigquery_dataset"),
 	"google_bigquery_dataset_access":                                             registry.Resource("google_bigquery_dataset_access"),
 	"google_bigquery_job":                                                        registry.Resource("google_bigquery_job"),

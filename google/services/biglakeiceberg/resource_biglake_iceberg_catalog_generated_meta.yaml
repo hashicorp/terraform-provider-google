@@ -6,7 +6,6 @@ api_version: ""
 api_resource_type_kind: IcebergCatalog
 fields:
     - api_field: biglake-service-account
-      field: biglake_service_account
     - api_field: catalog-type
     - api_field: create-time
     - api_field: credential-mode
