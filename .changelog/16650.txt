@@ -1,0 +1,3 @@
+```release-note:bug
+workbench: made `install-nvidia-driver` metadata key settable for `google_workbench_instance`
+```
