@@ -148,6 +148,7 @@ resource "google_backup_dr_backup_plan" "csql-test" {
     ignore_changes = [backup_vault]
   }
   log_retention_days = 4
+  max_custom_on_demand_retention_days = 30
   backup_rules {
     rule_id = "rule-1"
     backup_retention_days = 5
