@@ -162,6 +162,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
       }
     }
   }
+  depends_on = [google_gke_hub_feature_membership.feature_member_1]
 }
 `, context)
 }
@@ -242,6 +243,7 @@ resource "google_gke_hub_feature_membership" "feature_member_2" {
       }
     }
   }
+  depends_on = [google_gke_hub_feature_membership.feature_member_1]
 }
 `, context)
 }
@@ -293,6 +295,7 @@ resource "google_gke_hub_feature_membership" "feature_member_3" {
       }
     }
   }
+  depends_on = [google_gke_hub_feature_membership.feature_member_2]
 }
 
 resource "google_gke_hub_feature_membership" "feature_member_4" {
@@ -303,6 +306,7 @@ resource "google_gke_hub_feature_membership" "feature_member_4" {
   configmanagement {
     version = "1.23.1"
   }
+  depends_on = [google_gke_hub_feature_membership.feature_member_3]
 }
 `, context)
 }
