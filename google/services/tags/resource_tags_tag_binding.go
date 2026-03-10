@@ -100,6 +100,7 @@ func ResourceTagsTagBinding() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceTagsTagBindingCreate,
 		Read:   resourceTagsTagBindingRead,
+		Update: resourceTagsTagBindingUpdate,
 		Delete: resourceTagsTagBindingDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -128,6 +129,19 @@ func ResourceTagsTagBinding() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The generated id for the TagBinding. This is a string of the form 'tagBindings/{full-resource-name}/{tag-value-name}' or 'tagBindings/{full-resource-name}/{tag-key-name}'`,
+			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed.
+`,
+				Default: "DELETE",
 			},
 		},
 		UseJSONNumber: true,
@@ -331,6 +345,13 @@ func resourceTagsTagBindingRead(d *schema.ResourceData, meta interface{}) error 
 		log.Printf("[DEBUG] Read: Existing tag_value in state: %s.", d.Get("tag_value").(string))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
+
 	if err := d.Set("name", flattenTagsTagBindingName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TagBinding: %s", err)
 	}
@@ -339,6 +360,11 @@ func resourceTagsTagBindingRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
+}
+
+func resourceTagsTagBindingUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	return resourceTagsTagBindingRead(d, meta)
 }
 
 func resourceTagsTagBindingDelete(d *schema.ResourceData, meta interface{}) error {
@@ -370,6 +396,13 @@ func resourceTagsTagBindingDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_policy").(string) == "PREVENT" {
+		return fmt.Errorf("cannot destroy TagsTagBinding without setting deletion_policy=\"DELETE\" and running `terraform apply`")
+	}
+	if d.Get("deletion_policy").(string) == "ABANDON" {
+		log.Printf("[DEBUG] deletion_policy set to \"ABANDON\", removing TagBinding %q from Terraform state without deletion", d.Id())
+		return nil
+	}
 
 	log.Printf("[DEBUG] Deleting TagBinding %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

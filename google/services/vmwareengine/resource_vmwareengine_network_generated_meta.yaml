@@ -18,3 +18,5 @@ fields:
     - api_field: updateTime
     - api_field: vpcNetworks.network
     - api_field: vpcNetworks.type
+    - field: deletion_policy
+      provider_only: true

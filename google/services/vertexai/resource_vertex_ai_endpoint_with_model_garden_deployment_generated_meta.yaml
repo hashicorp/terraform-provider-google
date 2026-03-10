@@ -104,3 +104,5 @@ fields:
     - api_field: modelConfig.huggingFaceCacheEnabled
     - api_field: modelConfig.modelDisplayName
     - api_field: publisherModelName
+    - field: deletion_policy
+      provider_only: true

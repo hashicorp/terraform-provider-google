@@ -20,3 +20,5 @@ fields:
     - api_field: state
     - api_field: subnet.name
     - api_field: subnet.projectId
+    - field: deletion_policy
+      provider_only: true

@@ -71,3 +71,5 @@ fields:
     - api_field: upgradeHistory.targetVersion
     - api_field: upgradeHistory.version
     - api_field: upgradeHistory.vmImage
+    - field: deletion_policy
+      provider_only: true
