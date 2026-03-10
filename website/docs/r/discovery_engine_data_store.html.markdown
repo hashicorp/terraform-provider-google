@@ -145,11 +145,6 @@ The following arguments are supported:
   The industry vertical that the data store registers.
   Possible values are: `GENERIC`, `MEDIA`, `HEALTHCARE_FHIR`.
 
-* `content_config` -
-  (Required)
-  The content config of the data store.
-  Possible values are: `NO_CONTENT`, `CONTENT_REQUIRED`, `PUBLIC_WEBSITE`.
-
 * `location` -
   (Required)
   The geographic location where the data store should reside. The value can
@@ -164,6 +159,11 @@ The following arguments are supported:
   (Optional)
   The solutions that the data store enrolls.
   Each value may be one of: `SOLUTION_TYPE_RECOMMENDATION`, `SOLUTION_TYPE_SEARCH`, `SOLUTION_TYPE_CHAT`, `SOLUTION_TYPE_GENERATIVE_CHAT`.
+
+* `content_config` -
+  (Optional)
+  The content config of the data store.
+  Possible values are: `NO_CONTENT`, `CONTENT_REQUIRED`, `PUBLIC_WEBSITE`.
 
 * `advanced_site_search_config` -
   (Optional)

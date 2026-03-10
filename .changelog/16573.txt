@@ -1,0 +1,6 @@
+```release-note:enhancement
+discoveryengine: added `search_engine_config.required_subscription_tier ` field to `google_discovery_engine_search_engine` resource
+```
+```release-note:enhancement
+discoveryengine: marked `content_config` as optional field in `google_discovery_engine_data_store`
+```
