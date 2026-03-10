@@ -729,6 +729,7 @@ The optional `point_in_time_restore_context` block supports:
 The optional `clone` block supports:
 
 * `source_instance_name` - (Required) Name of the source instance which will be cloned.
+* `source_project` - (Optional) Id of source project where source instances exits, required for cross project clone scenario.
 
 * `point_in_time` -  (Optional) The timestamp of the point in time that should be restored.
 
