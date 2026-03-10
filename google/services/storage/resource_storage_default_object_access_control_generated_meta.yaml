@@ -15,3 +15,5 @@ fields:
     - api_field: projectTeam.projectNumber
     - api_field: projectTeam.team
     - api_field: role
+    - field: deletion_policy
+      provider_only: true

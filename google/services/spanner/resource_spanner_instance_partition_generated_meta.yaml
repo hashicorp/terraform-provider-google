@@ -13,3 +13,5 @@ fields:
     - api_field: nodeCount
     - api_field: processingUnits
     - api_field: state
+    - field: deletion_policy
+      provider_only: true

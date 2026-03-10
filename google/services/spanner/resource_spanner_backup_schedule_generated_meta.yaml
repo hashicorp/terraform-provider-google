@@ -17,3 +17,5 @@ fields:
     - api_field: name
     - api_field: retentionDuration
     - api_field: spec.cronSpec.text
+    - field: deletion_policy
+      provider_only: true

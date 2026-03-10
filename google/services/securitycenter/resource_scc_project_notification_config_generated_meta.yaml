@@ -14,3 +14,5 @@ fields:
     - api_field: pubsubTopic
     - api_field: serviceAccount
     - api_field: streamingConfig.filter
+    - field: deletion_policy
+      provider_only: true

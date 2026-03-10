@@ -77,6 +77,12 @@ The following arguments are supported:
   trailing '/'. For example, `example_dir/example_dir2/`.
 
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
+	When a 'terraform destroy' or 'terraform apply' would delete the resource,
+	the command will fail if this field is set to "PREVENT" in Terraform state.
+	When set to "ABANDON", the command will remove the resource from Terraform
+	management without updating or deleting the resource in the API.
+	When set to "DELETE", deleting the resource is allowed.
 * `force_destroy` - (Optional) Allows the deletion of a managed folder even if contains
 objects. If a non-empty managed folder is deleted, any objects
 within the folder will remain in a simulated folder with the

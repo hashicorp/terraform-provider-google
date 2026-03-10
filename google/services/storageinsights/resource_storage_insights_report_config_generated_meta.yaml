@@ -26,3 +26,5 @@ fields:
     - api_field: objectMetadataReportOptions.storageDestinationOptions.destinationPath
     - api_field: objectMetadataReportOptions.storageFilters.bucket
     - api_field: parquetOptions
+    - field: deletion_policy
+      provider_only: true

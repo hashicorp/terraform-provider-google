@@ -46,8 +46,9 @@ func TestAccDataSourceSecretManagerSecrets_basic(t *testing.T) {
 						"data.google_secret_manager_secrets.foo",
 						"google_secret_manager_secret.foo",
 						map[string]struct{}{
-							"id":      {},
-							"project": {},
+							"id":              {},
+							"project":         {},
+							"deletion_policy": {},
 						},
 					),
 				),
@@ -112,8 +113,9 @@ func TestAccDataSourceSecretManagerSecrets_filter(t *testing.T) {
 						"google_secret_manager_secret.foo",
 						"google_secret_manager_secret.bar",
 						map[string]struct{}{
-							"id":      {},
-							"project": {},
+							"id":              {},
+							"project":         {},
+							"deletion_policy": {},
 						},
 					),
 				),

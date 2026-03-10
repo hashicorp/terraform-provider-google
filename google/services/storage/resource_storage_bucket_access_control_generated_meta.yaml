@@ -10,3 +10,5 @@ fields:
     - api_field: email
     - api_field: entity
     - api_field: role
+    - field: deletion_policy
+      provider_only: true

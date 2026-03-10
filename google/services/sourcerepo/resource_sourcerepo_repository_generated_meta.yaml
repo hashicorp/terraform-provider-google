@@ -14,3 +14,5 @@ fields:
       field: pubsub_configs.service_account_email
     - api_field: size
     - api_field: url
+    - field: deletion_policy
+      provider_only: true

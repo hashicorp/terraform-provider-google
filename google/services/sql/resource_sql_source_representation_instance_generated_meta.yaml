@@ -24,3 +24,5 @@ fields:
     - api_field: region
     - api_field: onPremisesConfiguration.username
       field: username
+    - field: deletion_policy
+      provider_only: true
