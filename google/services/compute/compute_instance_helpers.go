@@ -150,6 +150,10 @@ func expandScheduling(v interface{}) (*compute.Scheduling, error) {
 	if v, ok := original["min_node_cpus"]; ok {
 		scheduling.MinNodeCpus = int64(v.(int))
 	}
+	if v, ok := original["location_hint"]; ok {
+		scheduling.LocationHint = v.(string)
+		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "LocationHint")
+	}
 	if v, ok := original["provisioning_model"]; ok {
 		scheduling.ProvisioningModel = v.(string)
 		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "ProvisioningModel")
@@ -282,6 +286,7 @@ func flattenScheduling(resp *compute.Scheduling) []map[string]interface{} {
 		"on_host_maintenance":         resp.OnHostMaintenance,
 		"preemptible":                 resp.Preemptible,
 		"min_node_cpus":               resp.MinNodeCpus,
+		"location_hint":               resp.LocationHint,
 		"provisioning_model":          resp.ProvisioningModel,
 		"instance_termination_action": resp.InstanceTerminationAction,
 		"availability_domain":         resp.AvailabilityDomain,
@@ -716,6 +721,10 @@ func schedulingHasChangeWithoutReboot(d *schema.ResourceData) bool {
 	}
 
 	if oScheduling["on_host_maintenance"] != newScheduling["on_host_maintenance"] {
+		return true
+	}
+
+	if oScheduling["location_hint"] != newScheduling["location_hint"] {
 		return true
 	}
 

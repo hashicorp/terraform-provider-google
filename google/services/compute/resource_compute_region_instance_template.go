@@ -758,6 +758,13 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							Description:  `Minimum number of cpus for the instance.`,
 						},
+						"location_hint": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							AtLeastOneOf: schedulingInstTemplateKeys,
+							Description:  `An opaque location hint used to place the instance close to other resources. This field is for use by internal tools that use the public API.`,
+						},
 						"provisioning_model": {
 							Type:         schema.TypeString,
 							Optional:     true,

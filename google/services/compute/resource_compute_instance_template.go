@@ -44,6 +44,7 @@ var (
 		"scheduling.0.preemptible",
 		"scheduling.0.node_affinities",
 		"scheduling.0.min_node_cpus",
+		"scheduling.0.location_hint",
 		"scheduling.0.provisioning_model",
 		"scheduling.0.instance_termination_action",
 		"scheduling.0.availability_domain",
@@ -786,6 +787,13 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 							ForceNew:     true,
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							Description:  `Minimum number of cpus for the instance.`,
+						},
+						"location_hint": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							AtLeastOneOf: schedulingInstTemplateKeys,
+							Description:  `An opaque location hint used to place the instance close to other resources. This field is for use by internal tools that use the public API.`,
 						},
 						"provisioning_model": {
 							Type:         schema.TypeString,

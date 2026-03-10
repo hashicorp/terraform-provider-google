@@ -8935,6 +8935,7 @@ resource "google_compute_instance" "foobar" {
     }
 
     min_node_cpus = 4
+    location_hint = "ANY"
   }
 }
 
@@ -9004,6 +9005,7 @@ resource "google_compute_instance" "foobar" {
     }
 
     min_node_cpus = 6
+    location_hint = "ANY"
   }
 }
 
@@ -9067,6 +9069,7 @@ resource "google_compute_instance" "foobar" {
     }
 
     min_node_cpus = 6
+    location_hint = "ANY"
   }
 }
 

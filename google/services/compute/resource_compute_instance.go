@@ -124,6 +124,7 @@ var (
 		"scheduling.0.preemptible",
 		"scheduling.0.node_affinities",
 		"scheduling.0.min_node_cpus",
+		"scheduling.0.location_hint",
 		"scheduling.0.provisioning_model",
 		"scheduling.0.instance_termination_action",
 		"scheduling.0.termination_time",
@@ -1090,6 +1091,13 @@ func ResourceComputeInstance() *schema.Resource {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							AtLeastOneOf: schedulingKeys,
+						},
+
+						"location_hint": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: schedulingKeys,
+							Description:  `An opaque location hint used to place the instance close to other resources. This field is for use by internal tools that use the public API.`,
 						},
 
 						"provisioning_model": {

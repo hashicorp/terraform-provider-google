@@ -3222,6 +3222,7 @@ resource "google_compute_region_instance_template" "foobar" {
     }
 
     min_node_cpus = 2
+    location_hint = "ANY"
   }
 
   service_account {
