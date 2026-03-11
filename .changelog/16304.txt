@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Make subnetwork user settable in nodepool (before this was output_only).
+```
