@@ -1425,7 +1425,7 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   The different types of medium supported for EmptyDir.
   Default value is `MEMORY`.
-  Possible values are: `MEMORY`.
+  Possible values are: `MEMORY`, `DISK`.
 
 * `size_limit` -
   (Optional)
