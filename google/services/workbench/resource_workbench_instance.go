@@ -252,11 +252,12 @@ func modifyWorkbenchInstanceState(config *transport_tpg.Config, d *schema.Resour
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
+		Config:               config,
+		Method:               "POST",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Unable to %q google_workbench_instance %q: %s", state, d.Id(), err)
