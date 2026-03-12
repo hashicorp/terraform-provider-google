@@ -128,6 +128,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	"github.com/hashicorp/terraform-provider-google/google/services/notebooks"
+	"github.com/hashicorp/terraform-provider-google/google/services/observability"
 	"github.com/hashicorp/terraform-provider-google/google/services/oracledatabase"
 	"github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	"github.com/hashicorp/terraform-provider-google/google/services/osconfig"
@@ -606,9 +607,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 720
+// Generated resources: 721
 // Generated IAM resources: 336
-// Total generated resources: 1056
+// Total generated resources: 1057
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -1442,6 +1443,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_notebooks_runtime_iam_binding":                                       registry.Resource("google_notebooks_runtime_iam_binding"),
 	"google_notebooks_runtime_iam_member":                                        registry.Resource("google_notebooks_runtime_iam_member"),
 	"google_notebooks_runtime_iam_policy":                                        registry.Resource("google_notebooks_runtime_iam_policy"),
+	"google_observability_trace_scope":                                           registry.Resource("google_observability_trace_scope"),
 	"google_oracle_database_autonomous_database":                                 registry.Resource("google_oracle_database_autonomous_database"),
 	"google_oracle_database_cloud_exadata_infrastructure":                        registry.Resource("google_oracle_database_cloud_exadata_infrastructure"),
 	"google_oracle_database_cloud_vm_cluster":                                    registry.Resource("google_oracle_database_cloud_vm_cluster"),
@@ -1909,6 +1911,7 @@ func UseGeneratedProducts() {
 	var _ = networksecurity.ProductName
 	var _ = networkservices.ProductName
 	var _ = notebooks.ProductName
+	var _ = observability.ProductName
 	var _ = oracledatabase.ProductName
 	var _ = orgpolicy.ProductName
 	var _ = osconfig.ProductName
