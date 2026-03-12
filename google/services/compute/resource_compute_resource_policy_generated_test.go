@@ -436,45 +436,6 @@ resource "google_compute_resource_policy" "bar" {
 `, context)
 }
 
-func TestAccComputeResourcePolicy_resourcePolicyWorkloadPolicyAcceleratorTopologyModeExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeResourcePolicy_resourcePolicyWorkloadPolicyAcceleratorTopologyModeExample(context),
-			},
-			{
-				ResourceName:            "google_compute_resource_policy.bar",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
-			},
-		},
-	})
-}
-
-func testAccComputeResourcePolicy_resourcePolicyWorkloadPolicyAcceleratorTopologyModeExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_resource_policy" "bar" {
-  name   = "tf-test-gce-policy%{random_suffix}"
-  region = "europe-west1"
-  workload_policy {
-    type = "HIGH_THROUGHPUT"
-    accelerator_topology = "2x2"
-    accelerator_topology_mode = "AUTO_CONNECT"
-  }
-}
-`, context)
-}
-
 func TestAccComputeResourcePolicy_resourcePolicyWorkloadPolicyMaxTopologyDistanceExample(t *testing.T) {
 	t.Parallel()
 
