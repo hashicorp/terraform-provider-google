@@ -565,6 +565,7 @@ should be non-negative and less than or equal to 50. If not set
 								Schema: map[string]*schema.Schema{
 									"binary_log_position": {
 										Type:        schema.TypeList,
+										Computed:    true,
 										Optional:    true,
 										Description: `CDC reader reads from binary logs replication cdc method.`,
 										MaxItems:    1,
