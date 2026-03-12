@@ -88,6 +88,8 @@ fields:
     - api_field: pscAutoConnections.pscConnectionStatus
     - api_field: pscAutoConnections.serviceAttachment
     - api_field: replicaCount
+    - api_field: serverCaMode
+    - api_field: serverCaPool
     - api_field: shardCount
     - api_field: state
     - api_field: stateInfo.updateInfo.targetEngineVersion

@@ -65,6 +65,8 @@ fields:
     - field: region
       provider_only: true
     - api_field: replicaCount
+    - api_field: serverCaMode
+    - api_field: serverCaPool
     - api_field: shardCount
     - api_field: sizeGb
     - api_field: state

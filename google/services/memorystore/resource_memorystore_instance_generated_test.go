@@ -495,6 +495,137 @@ data "google_project" "project" {
 `, context)
 }
 
+func TestAccMemorystoreInstance_memorystoreInstanceFlexibleCaExample(t *testing.T) {
+	t.Parallel()
+	acctest.BootstrapIamMembers(t, []acctest.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-memorystore.iam.gserviceaccount.com",
+			Role:   "roles/privateca.certificateRequester",
+		},
+	})
+
+	context := map[string]interface{}{
+		"deletion_protection_enabled": false,
+		"random_suffix":               acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMemorystoreInstance_memorystoreInstanceFlexibleCaExample(context),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.test-instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccMemorystoreInstance_memorystoreInstanceFlexibleCaExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_memorystore_instance" "test-instance" {
+  instance_id  = "tf-test-ca-instance%{random_suffix}"
+  shard_count = 3
+  location     = "us-central1"
+  
+  desired_auto_created_endpoints {
+    network    = google_compute_network.producer_net.id
+    project_id = data.google_project.project.project_id
+  }
+
+  # Security configurations
+  transit_encryption_mode = "SERVER_AUTHENTICATION"
+  server_ca_mode          = "CUSTOMER_MANAGED_CAS_CA"
+  server_ca_pool          = google_privateca_ca_pool.default.id
+
+  deletion_protection_enabled = %{deletion_protection_enabled}
+
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default,
+    google_privateca_certificate_authority.default,
+    google_privateca_ca_pool_iam_member.memorystore_p4sa_requester
+  ]
+}
+
+resource "google_privateca_ca_pool" "default" {
+  name     = "tf-test-ca-pool%{random_suffix}"
+  location = "us-central1"
+  tier     = "ENTERPRISE"
+}
+
+resource "google_privateca_ca_pool_iam_member" "memorystore_p4sa_requester" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role    = "roles/privateca.certificateRequester"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-memorystore.iam.gserviceaccount.com"
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  pool                     = google_privateca_ca_pool.default.name
+  certificate_authority_id = "tf-test-ca-auth%{random_suffix}"
+  location                 = "us-central1"
+  config {
+    subject_config {
+      subject {
+        organization = "Google"
+        common_name  = "my-memorystore-ca"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign  = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+  
+  ignore_active_certificates_on_deletion = true
+  deletion_protection = false
+  skip_grace_period   = true
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name           = "tf-test-ca-policy%{random_suffix}"
+  location       = "us-central1"
+  service_class  = "gcp-memorystore"
+  network        = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "tf-test-ca-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "tf-test-ca-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func testAccCheckMemorystoreInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
