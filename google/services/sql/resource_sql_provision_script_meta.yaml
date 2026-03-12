@@ -1,0 +1,11 @@
+resource: 'google_sql_provision_script'
+generation_type: 'handwritten'
+api_service_name: 'sqladmin.googleapis.com'
+api_version: 'v1beta4'
+#api_resource_type_kind: none. Not associated with any REST resource.
+fields:
+  - field: 'name'
+  - field: 'script'
+  - field: 'instance'
+  - field: 'database'
+  - field: 'deletion_policy'
