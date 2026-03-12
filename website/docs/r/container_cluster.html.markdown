@@ -739,6 +739,7 @@ This block also contains several computed attributes, documented below.
 * `daily_maintenance_window` - (Optional) structure documented below.
 * `recurring_window` - (Optional) structure documented below
 * `maintenance_exclusion` - (Optional) structure documented below
+* `disruption_budget` - (Optional) structure documented below
 
 In beta, one or the other of `recurring_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
 
@@ -822,6 +823,24 @@ maintenance_policy {
       scope = "NO_MINOR_UPGRADES"
       end_time_behavior = "UNTIL_END_OF_SUPPORT"
     }
+  }
+}
+```
+
+* `disruption_budget` - cluster control plane minor and patch version disruption interval.
+
+<a name="nested_disruption_budget"></a>The `disruption_budget` block supports:
+* `minor_version_disruption_interval` - (Optional) The minimum duration between two minor version upgrades of the control plane.
+* `patch_version_disruption_interval` - (Optional) The minimum duration between two patch version upgrades of the control plane.
+* `last_minor_version_disruption_time` - (Output) The last minor version disruption time of the control plane.
+* `last_disruption_time` - (Output) The last disruption time of the control plane.
+
+Examples:
+```hcl
+maintenance_policy {
+  disruption_budget{
+    minor_version_disruption_interval = "2592000s"
+    patch_version_disruption_interval = "86400s"
   }
 }
 ```
