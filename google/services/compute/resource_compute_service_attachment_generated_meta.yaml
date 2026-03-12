@@ -13,6 +13,7 @@ fields:
     - api_field: connectedEndpoints.status
     - api_field: connectionPreference
     - api_field: consumerAcceptLists.connectionLimit
+    - api_field: consumerAcceptLists.endpointUrl
     - api_field: consumerAcceptLists.networkUrl
     - api_field: consumerAcceptLists.projectIdOrNum
     - api_field: consumerRejectLists
