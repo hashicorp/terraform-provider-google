@@ -1,0 +1,7 @@
+```release-note:enhancement
+redis: added `server_ca_mode` and `server_ca_pool` fields to `google_redis_cluster` resource
+```
+
+```release-note:enhancement
+memorystore: added `server_ca_mode` and `server_ca_pool` fields to `google_memorystore_instance` resource
+```

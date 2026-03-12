@@ -599,6 +599,23 @@ used.`,
 				Optional:    true,
 				Description: `Optional. Number of replica nodes per shard. If omitted the default is 0 replicas.`,
 			},
+			"server_ca_mode": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"GOOGLE_MANAGED_PER_INSTANCE_CA", "GOOGLE_MANAGED_SHARED_CA", "CUSTOMER_MANAGED_CAS_CA", "SERVER_CA_MODE_UNSPECIFIED", ""}),
+				Description: `The serverCaMode for the TLS enabled Memorystore instance.
+If not provided, GOOGLE_MANAGED_PER_INSTANCE_CA will be used as default Possible values: ["GOOGLE_MANAGED_PER_INSTANCE_CA", "GOOGLE_MANAGED_SHARED_CA", "CUSTOMER_MANAGED_CAS_CA", "SERVER_CA_MODE_UNSPECIFIED"]`,
+			},
+			"server_ca_pool": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The resource name of the server CA pool for an instance with CUSTOMER_MANAGED_CAS_CA
+as the server_ca_mode.
+Format: projects/{project}/locations/{region}/caPools/{caPoolId}`,
+			},
 			"transit_encryption_mode": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -1171,6 +1188,18 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
 	}
+	serverCaModeProp, err := expandMemorystoreInstanceServerCaMode(d.Get("server_ca_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("server_ca_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(serverCaModeProp)) && (ok || !reflect.DeepEqual(v, serverCaModeProp)) {
+		obj["serverCaMode"] = serverCaModeProp
+	}
+	serverCaPoolProp, err := expandMemorystoreInstanceServerCaPool(d.Get("server_ca_pool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("server_ca_pool"); !tpgresource.IsEmptyValue(reflect.ValueOf(serverCaPoolProp)) && (ok || !reflect.DeepEqual(v, serverCaPoolProp)) {
+		obj["serverCaPool"] = serverCaPoolProp
+	}
 	effectiveLabelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1391,6 +1420,12 @@ func resourceMemorystoreInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("managed_server_ca", flattenMemorystoreInstanceManagedServerCa(res["managedServerCa"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("server_ca_mode", flattenMemorystoreInstanceServerCaMode(res["serverCaMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("server_ca_pool", flattenMemorystoreInstanceServerCaPool(res["serverCaPool"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenMemorystoreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -2637,6 +2672,14 @@ func flattenMemorystoreInstanceManagedServerCaCaCertsCertificates(v interface{},
 	return v
 }
 
+func flattenMemorystoreInstanceServerCaMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceServerCaPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenMemorystoreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3376,6 +3419,14 @@ func expandMemorystoreInstanceKmsKey(v interface{}, d tpgresource.TerraformResou
 	return v, nil
 }
 
+func expandMemorystoreInstanceServerCaMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMemorystoreInstanceServerCaPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandMemorystoreInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -3588,8 +3639,16 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 		return nil, err
 	}
 
+	// Only instances with SERVER_AUTHENTICATION mode have certificate authority set.
+	// We skip this call if the serverCaMode is CUSTOMER_MANAGED_CAS_CA.
+	transitMode, transitOk := res["transitEncryptionMode"].(string)
+	caMode, caOk := res["serverCaMode"].(string)
+
+	isServerAuth := transitOk && transitMode == "SERVER_AUTHENTICATION"
+	isCustomerManaged := caOk && caMode == "CUSTOMER_MANAGED_CAS_CA"
+
 	// Only instances with SERVER_AUTHENTICATION mode have certificate authority set
-	if v, ok := res["transitEncryptionMode"].(string); ok && v == "SERVER_AUTHENTICATION" {
+	if isServerAuth && !isCustomerManaged {
 		url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance_id}}/certificateAuthority")
 		if err != nil {
 			return nil, err
