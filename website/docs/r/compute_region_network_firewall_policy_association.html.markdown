@@ -52,34 +52,6 @@ resource "google_compute_region_network_firewall_policy_association" "default" {
   region = "us-west1"
 }
 ```
-## Example Usage - Region Network Firewall Policy Association Priority
-
-
-```hcl
-resource "google_compute_region_network_firewall_policy" "policy" {
-  provider = google-beta
-  name = "my-policy"
-  project = "my-project-name"
-  description = "Sample global network firewall policy"
-  region = "us-west1"
-}
-
-resource "google_compute_network" "network" {
-  provider = google-beta
-  name = "my-network"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_region_network_firewall_policy_association" "association" {
-  provider = google-beta
-  name = "my-association"
-  project = "my-project-name"
-  attachment_target = google_compute_network.network.id
-  firewall_policy =  google_compute_region_network_firewall_policy.policy.id
-  region = "us-west1"
-  priority = 1
-}
-```
 
 ## Argument Reference
 
@@ -98,10 +70,6 @@ The following arguments are supported:
   (Required)
   The firewall policy of the resource.
 
-
-* `priority` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
-  An integer indicating the priority of an association.
 
 * `region` -
   (Optional)
@@ -128,7 +96,6 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

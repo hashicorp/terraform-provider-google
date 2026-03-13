@@ -1,0 +1,3 @@
+```release-note:bug
+compute:  revert adding new priority field to 'resource google_compute_region_network_firewall_policy_association'
+```
