@@ -100,6 +100,7 @@ func ResourceComputeRegionNetworkFirewallPolicyAssociation() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRegionNetworkFirewallPolicyAssociationCreate,
 		Read:   resourceComputeRegionNetworkFirewallPolicyAssociationRead,
+		Update: resourceComputeRegionNetworkFirewallPolicyAssociationUpdate,
 		Delete: resourceComputeRegionNetworkFirewallPolicyAssociationDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -108,6 +109,7 @@ func ResourceComputeRegionNetworkFirewallPolicyAssociation() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -289,6 +291,76 @@ func resourceComputeRegionNetworkFirewallPolicyAssociationRead(d *schema.Resourc
 	}
 
 	return nil
+}
+
+func resourceComputeRegionNetworkFirewallPolicyAssociationUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for RegionNetworkFirewallPolicyAssociation: %s", err)
+	}
+	billingProject = strings.TrimPrefix(project, "projects/")
+
+	obj := make(map[string]interface{})
+	nameProp, err := expandComputeRegionNetworkFirewallPolicyAssociationName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+	attachmentTargetProp, err := expandComputeRegionNetworkFirewallPolicyAssociationAttachmentTarget(d.Get("attachment_target"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("attachment_target"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attachmentTargetProp)) {
+		obj["attachmentTarget"] = attachmentTargetProp
+	}
+
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/patchAssociation")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating RegionNetworkFirewallPolicyAssociation %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating RegionNetworkFirewallPolicyAssociation %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating RegionNetworkFirewallPolicyAssociation %q: %#v", d.Id(), res)
+	}
+
+	err = ComputeOperationWaitTime(
+		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Updating RegionNetworkFirewallPolicyAssociation", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
+
+	return resourceComputeRegionNetworkFirewallPolicyAssociationRead(d, meta)
 }
 
 func resourceComputeRegionNetworkFirewallPolicyAssociationDelete(d *schema.ResourceData, meta interface{}) error {
