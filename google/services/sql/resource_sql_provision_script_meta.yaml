@@ -4,7 +4,7 @@ api_service_name: 'sqladmin.googleapis.com'
 api_version: 'v1beta4'
 #api_resource_type_kind: none. Not associated with any REST resource.
 fields:
-  - field: 'name'
+  - field: 'description'
   - field: 'script'
   - field: 'instance'
   - field: 'database'
