@@ -1,4 +1,4 @@
-TEST?=$$(bash scripts/get_unit_test_pkgs.sh)
+TEST?=$$(pkgs=$$(bash scripts/get_unit_test_pkgs.sh); [ -n "$$pkgs" ] && echo "$$pkgs" || { echo "Error: No test packages found"; exit 1; })
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=google
 DIR_NAME=google
