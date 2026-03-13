@@ -573,7 +573,7 @@ The following arguments are supported:
   to a unique Microsoft Entra ID user.
   Structure is [documented below](#nested_extended_attributes_oauth2_client).
 
-  ~> **Warning:** `extended_attributes_oauth2_client` is deprecated. Use SCIM instead.
+  ~> **Warning:** `extended_attributes_oauth2_client` is restricted. We suggest use SCIM instead.
 
 * `scim_usage` -
   (Optional)
