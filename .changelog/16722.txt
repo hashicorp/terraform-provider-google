@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `customHeaders` field to MCP toolset in CES `google_ces_toolset` resource
+```
