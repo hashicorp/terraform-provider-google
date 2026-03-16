@@ -664,6 +664,9 @@ resource "google_ces_toolset" "ces_toolset_mcp_service_agent_id_token_auth_confi
 
   mcp_toolset {
     server_address = "https://api.example.com/mcp/"
+    custom_headers = {
+      "X-Custom-Header" = "$context.variables.my_variable"
+    }
     tls_config {
         ca_certs {
           display_name="example"

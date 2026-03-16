@@ -320,6 +320,16 @@ from service agent.`,
 								},
 							},
 						},
+						"custom_headers": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `The custom headers to send in the request to the MCP server. The values
+must be in the format '$context.variables.<name_of_variable>' and can be
+set in the session variables. See
+https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/tool/open-api#openapi-injection
+for more details.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
 						"service_directory_config": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1267,6 +1277,8 @@ func flattenCESToolsetMcpToolset(v interface{}, d *schema.ResourceData, config *
 		flattenCESToolsetMcpToolsetServiceDirectoryConfig(original["serviceDirectoryConfig"], d, config)
 	transformed["tls_config"] =
 		flattenCESToolsetMcpToolsetTlsConfig(original["tlsConfig"], d, config)
+	transformed["custom_headers"] =
+		flattenCESToolsetMcpToolsetCustomHeaders(original["customHeaders"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolsetMcpToolsetServerAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1466,6 +1478,10 @@ func flattenCESToolsetMcpToolsetTlsConfigCaCertsCert(v interface{}, d *schema.Re
 }
 
 func flattenCESToolsetMcpToolsetTlsConfigCaCertsDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolsetMcpToolsetCustomHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1931,6 +1947,13 @@ func expandCESToolsetMcpToolset(v interface{}, d tpgresource.TerraformResourceDa
 		transformed["tlsConfig"] = transformedTlsConfig
 	}
 
+	transformedCustomHeaders, err := expandCESToolsetMcpToolsetCustomHeaders(original["custom_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["customHeaders"] = transformedCustomHeaders
+	}
+
 	return transformed, nil
 }
 
@@ -2273,4 +2296,15 @@ func expandCESToolsetMcpToolsetTlsConfigCaCertsCert(v interface{}, d tpgresource
 
 func expandCESToolsetMcpToolsetTlsConfigCaCertsDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCESToolsetMcpToolsetCustomHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
