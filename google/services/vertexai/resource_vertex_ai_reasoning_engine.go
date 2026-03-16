@@ -158,6 +158,7 @@ is created.`,
 			},
 			"spec": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Optional. Configurations of the ReasoningEngine.`,
 				MaxItems:    1,

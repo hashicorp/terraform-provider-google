@@ -1,0 +1,7 @@
+```release-note:enhancement
+vertexai: added `spec.identity_type` and `spec.effective_identity` fields to `google_vertex_ai_reasoning_engine` resource (beta)
+```
+
+```release-note:enhancement
+vertexai: marked `spec` field as computed in `google_vertex_ai_reasoning_engine` resource
+```
