@@ -1,4 +1,88 @@
-## 7.21.0 (Unreleased)
+## 7.24.0 (Unreleased)
+
+## 7.23.0 (Mar 10, 2026)
+
+DEPRECATIONS:
+* notebooks: `google_notebooks_environment` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead ([#26288](https://github.com/hashicorp/terraform-provider-google/pull/26288))
+* provider: `google_*_iam_*` resources and datasources will now show deprecation messages when their parent resource has been deprecated ([#26288](https://github.com/hashicorp/terraform-provider-google/pull/26288))
+
+FEATURES:
+* **New Data Source:** `google_oracle_database_odb_network` ([#26290](https://github.com/hashicorp/terraform-provider-google/pull/26290))
+* **New Data Source:** `google_oracle_database_odb_subnet` ([#26290](https://github.com/hashicorp/terraform-provider-google/pull/26290))
+* **New Resource:** `google_vector_search_collection` ([#26353](https://github.com/hashicorp/terraform-provider-google/pull/26353))
+
+IMPROVEMENTS:
+* alloydb: added `dataplex_config` field to `google_alloydb_cluster` resource ([#26304](https://github.com/hashicorp/terraform-provider-google/pull/26304))
+* biglake: added `primary_location` to `google_biglake_iceberg_catalog` resource ([#26307](https://github.com/hashicorp/terraform-provider-google/pull/26307))
+* compute: added `params` field to `google_compute_external_vpn_gateway` resource ([#26348](https://github.com/hashicorp/terraform-provider-google/pull/26348))
+* compute: added `params` field to `google_compute_ha_vpn_gateway` resource ([#26348](https://github.com/hashicorp/terraform-provider-google/pull/26348))
+* compute: added `params` field to `google_compute_vpn_gateway` resource ([#26348](https://github.com/hashicorp/terraform-provider-google/pull/26348))
+* compute: added `params` field to `google_compute_vpn_tunnel` resource ([#26348](https://github.com/hashicorp/terraform-provider-google/pull/26348))
+* compute: added `storage_pool` support to `google_compute_instance_template` and `google_compute_region_instance_template` disks ([#26347](https://github.com/hashicorp/terraform-provider-google/pull/26347))
+* container: added `control_plane_disk_encryption_key_versions` field to `user_managed_keys_config` in `google_container_cluster` resource ([#26289](https://github.com/hashicorp/terraform-provider-google/pull/26289))
+* dataproc: added `cluster_type` to `google_dataproc_cluster` resource ([#26350](https://github.com/hashicorp/terraform-provider-google/pull/26350))
+* dlp: added `actions.publish_to_scc`, `actions.publish_to_chronicle`, `actions.export_data.sample_findings_table` and `targets.big_query_target.filter.table_reference.project_id` fields to `google_data_loss_prevention_discovery_config` resource ([#26281](https://github.com/hashicorp/terraform-provider-google/pull/26281))
+* gkebackup: added `protected_namespace_count` field to `google_gke_backup_backup_plan` resource ([#26283](https://github.com/hashicorp/terraform-provider-google/pull/26283))
+* netapp: added `mode` field to `google_netapp_storage_pool` resource ([#26319](https://github.com/hashicorp/terraform-provider-google/pull/26319))
+* osconfig: added `patch_config.skip_unpatchable_vms` field to `google_os_config_patch_deployment` resource ([#26282](https://github.com/hashicorp/terraform-provider-google/pull/26282))
+* pubsub: added `text_config` field to `google_pubsub_subscription` resource ([#26329](https://github.com/hashicorp/terraform-provider-google/pull/26329))
+
+BUG FIXES:
+* tags: fixed iam read-after-write consistency issue with conditions in `google_tags_tag_key_iam_member` resource ([#26330](https://github.com/hashicorp/terraform-provider-google/pull/26330))
+
+## 7.22.0 (Mar 3, 2026)
+
+DEPRECATIONS:
+* dataplex: deprecated `google_dataplex_data_asset`. Use `google_dataplex_data_product_data_asset` instead. ([#26256](https://github.com/hashicorp/terraform-provider-google/pull/26256))
+
+FEATURES:
+* **New Resource:** `google_compute_organization_security_policy_rule` ([#26202](https://github.com/hashicorp/terraform-provider-google/pull/26202))
+* **New Resource:** `google_hypercomputecluster_cluster` ([#26180](https://github.com/hashicorp/terraform-provider-google/pull/26180))
+
+IMPROVEMENTS:
+* compute: `initialize_params.size` is now updatable in-place in the `google_compute_instance` resource ([#26195](https://github.com/hashicorp/terraform-provider-google/pull/26195))
+* compute: added `dest_network_context`, `src_network_context` and `src_networks` fields to `google_compute_firewall_policy_rule` resource ([#26227](https://github.com/hashicorp/terraform-provider-google/pull/26227))
+* compute: added `dest_network_context`, `src_network_context` and `src_networks` fields to `google_compute_network_firewall_policy_rule` resource ([#26227](https://github.com/hashicorp/terraform-provider-google/pull/26227))
+* compute: added `dest_network_context`, `src_network_context` and `src_networks` fields to `google_compute_region_network_firewall_policy_rule` resource ([#26227](https://github.com/hashicorp/terraform-provider-google/pull/26227))
+* container: promoted `sandbox_config` field in `google_container_cluster` and `google_container_node_pool` resources to GA ([#26247](https://github.com/hashicorp/terraform-provider-google/pull/26247))
+* developerconnect: added `http_config` field to `google_developer_connect_connection` resource ([#26232](https://github.com/hashicorp/terraform-provider-google/pull/26232))
+* filestore: added `source_backupdr_backup` field to `google_filestore_instance` resource ([#26238](https://github.com/hashicorp/terraform-provider-google/pull/26238))
+* gkehub2: added field `spec.workloadidentity` to resource `google_gke_hub_feature` ([#26259](https://github.com/hashicorp/terraform-provider-google/pull/26259))
+* iam: added AZURE_AD_GROUPS_DISPLAY_NAME enum value to `extra_attributes_oauth2_client.attribute-type` field in `google_iam_workforce_pool_provider` resource ([#26226](https://github.com/hashicorp/terraform-provider-google/pull/26226))
+* kms: added a KMS AutokeyConfig-specific 10s post-create/post-update ([#26236](https://github.com/hashicorp/terraform-provider-google/pull/26236))
+* networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile_group` resource ([#26266](https://github.com/hashicorp/terraform-provider-google/pull/26266))
+* networksecurity: added `url_filtering_profile` field  to `google_network_security_security_profile` resource ([#26266](https://github.com/hashicorp/terraform-provider-google/pull/26266))
+* networkservices: added support for use of multiple `ports` for `google_network_services_gateway` resources of type `SECURE_WEB_GATEWAY` ([#26265](https://github.com/hashicorp/terraform-provider-google/pull/26265))
+* sql: added `auto_upgrade_enabled` field to `google_sql_database_instance` resource. ([#26205](https://github.com/hashicorp/terraform-provider-google/pull/26205))
+* sql: added `data_api_access` field to `google_sql_database_instance` resource ([#26217](https://github.com/hashicorp/terraform-provider-google/pull/26217))
+* sql: added `enhanced_query_insights_enabled` field to `google_sql_database_instance` resource ([#26244](https://github.com/hashicorp/terraform-provider-google/pull/26244))
+
+BUG FIXES:
+* datastream: fixed permadiff where `google_datastream_connection_profile.salesforce_profile.oauth2_client_credentials.client_id` is not read properly from the API ([#26201](https://github.com/hashicorp/terraform-provider-google/pull/26201))
+* servicenetworking: added retry when creating `google_service_networking_connection` if it looks like the service account permissions haven't yet propagated ([#26220](https://github.com/hashicorp/terraform-provider-google/pull/26220))
+
+## 7.21.0 (Feb 24, 2026)
+
+FEATURES:
+* **New Data Source:** `google_vmwareengine_announcements` ([#26145](https://github.com/hashicorp/terraform-provider-google/pull/26145))
+* **New Data Source:** `google_vmwareengine_upgrades` ([#26174](https://github.com/hashicorp/terraform-provider-google/pull/26174))
+* **New Resource:** `google_compute_region_backend_bucket` ([#26144](https://github.com/hashicorp/terraform-provider-google/pull/26144))
+* **New Resource:** `google_hypercomputecluster_cluster` ([#26180](https://github.com/hashicorp/terraform-provider-google/pull/26180))
+* **New Resource:** `google_network_services_agent_gateway` (beta) ([#26140](https://github.com/hashicorp/terraform-provider-google/pull/26140))
+
+IMPROVEMENTS:
+* beyondcorp: added `logging` field to `google_beyondcorp_security_gateway` resource ([#26159](https://github.com/hashicorp/terraform-provider-google/pull/26159))
+* cloudfunctions2: added `direct_vpc_network_interface` and `direct_vpc_egress` fields to `google_cloudfunctions2_function` resource. Users who directly enabled DirectVPC on the underlying Cloud Run service will see a diff as a result of this update. ([#26142](https://github.com/hashicorp/terraform-provider-google/pull/26142))
+* cloudrunv2: added the `iap_enabled` field to `google_cloud_run_v2_service` resource ([#26161](https://github.com/hashicorp/terraform-provider-google/pull/26161))
+* dataproc: added `wait_for_completion` to `google_dataproc_job` resource ([#26177](https://github.com/hashicorp/terraform-provider-google/pull/26177))
+* discoveryengine: added `disable_analytics` field to `google_discovery_engine_search_engine` resource ([#26171](https://github.com/hashicorp/terraform-provider-google/pull/26171))
+* dlp: added `targets.cloud_storage_target.filter.collection.include_tags` block to `google_data_loss_prevention_discovery_config` resource ([#26178](https://github.com/hashicorp/terraform-provider-google/pull/26178))
+* iap: added `client_id`, `client_secret`, and `client_secret_sha256` fields to `google_iap_settings` resource ([#26170](https://github.com/hashicorp/terraform-provider-google/pull/26170))
+* networksecurity: added `mirroring_deployment_groups` and `mirroring_endpoint_group_type` fields to `google_network_security_security_profile` resource ([#26137](https://github.com/hashicorp/terraform-provider-google/pull/26137))
+
+BUG FIXES:
+* cloudrun: fixed perma-diff on `http_target.uri_override.query_override` in `google_cloud_tasks_queue` ([#26172](https://github.com/hashicorp/terraform-provider-google/pull/26172))
+* storage: fixed a bug in `google_storage_bucket` where `force_destroy = true` would fail to delete buckets with large number of objects due to missing pagination ([#26164](https://github.com/hashicorp/terraform-provider-google/pull/26164))
 
 ## 7.20.0 (Feb 17, 2026)
 
