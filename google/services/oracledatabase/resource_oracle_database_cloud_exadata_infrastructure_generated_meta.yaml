@@ -57,3 +57,5 @@ fields:
     - api_field: properties.totalStorageSizeGb
     - field: terraform_labels
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

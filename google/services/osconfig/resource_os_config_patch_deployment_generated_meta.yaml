@@ -82,3 +82,5 @@ fields:
       field: rollout.disruption_budget.percentage
     - api_field: rollout.mode
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

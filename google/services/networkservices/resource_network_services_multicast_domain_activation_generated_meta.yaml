@@ -29,3 +29,5 @@ fields:
     - api_field: trafficSpec.maxPerGroupSubscribers
     - api_field: uniqueId
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

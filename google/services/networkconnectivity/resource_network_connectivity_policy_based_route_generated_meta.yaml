@@ -29,3 +29,5 @@ fields:
     - api_field: warnings.code
     - api_field: warnings.data
     - api_field: warnings.warningMessage
+    - field: deletion_policy
+      provider_only: true

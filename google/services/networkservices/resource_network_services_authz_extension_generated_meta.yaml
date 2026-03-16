@@ -24,3 +24,5 @@ fields:
     - api_field: timeout
     - api_field: updateTime
     - api_field: wireFormat
+    - field: deletion_policy
+      provider_only: true

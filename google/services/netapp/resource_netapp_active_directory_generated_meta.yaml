@@ -34,3 +34,5 @@ fields:
     - field: terraform_labels
       provider_only: true
     - api_field: username
+    - field: deletion_policy
+      provider_only: true

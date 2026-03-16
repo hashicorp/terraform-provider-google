@@ -32,3 +32,5 @@ fields:
     - api_field: timeout.maxAttemptsTimeout
     - api_field: timeout.readTimeout
     - api_field: timeout.responseTimeout
+    - field: deletion_policy
+      provider_only: true

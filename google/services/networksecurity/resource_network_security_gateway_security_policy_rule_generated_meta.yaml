@@ -21,3 +21,5 @@ fields:
     - api_field: sessionMatcher
     - api_field: tlsInspectionEnabled
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

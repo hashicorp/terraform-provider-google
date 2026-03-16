@@ -20,3 +20,5 @@ fields:
     - api_field: trustConfig
     - api_field: updateTime
     - api_field: wellKnownRoots
+    - field: deletion_policy
+      provider_only: true

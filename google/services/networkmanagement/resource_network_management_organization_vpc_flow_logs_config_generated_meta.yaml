@@ -27,3 +27,5 @@ fields:
     - api_field: updateTime
     - field: vpc_flow_logs_config_id
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

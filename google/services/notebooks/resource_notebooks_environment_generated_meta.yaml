@@ -18,3 +18,5 @@ fields:
     - api_field: vmImage.imageFamily
     - api_field: vmImage.imageName
     - api_field: vmImage.project
+    - field: deletion_policy
+      provider_only: true

@@ -36,3 +36,5 @@ fields:
     - api_field: urlFilteringProfile.urlFilters.filteringAction
     - api_field: urlFilteringProfile.urlFilters.priority
     - api_field: urlFilteringProfile.urlFilters.urls
+    - field: deletion_policy
+      provider_only: true

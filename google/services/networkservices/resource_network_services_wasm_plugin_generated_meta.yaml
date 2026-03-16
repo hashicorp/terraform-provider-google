@@ -42,3 +42,5 @@ fields:
       field: versions.plugin_config_uri
     - api_field: versions.value.updateTime
       field: versions.update_time
+    - field: deletion_policy
+      provider_only: true

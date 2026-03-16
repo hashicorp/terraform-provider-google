@@ -68,3 +68,5 @@ fields:
     - api_field: virtualMachine.virtualMachineConfig.subnet
     - api_field: virtualMachine.virtualMachineConfig.tags
     - api_field: virtualMachine.virtualMachineConfig.zone
+    - field: deletion_policy
+      provider_only: true

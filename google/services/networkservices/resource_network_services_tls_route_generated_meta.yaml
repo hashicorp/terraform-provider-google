@@ -17,3 +17,5 @@ fields:
     - api_field: rules.matches.sniHost
     - api_field: selfLink
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

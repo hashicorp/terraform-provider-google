@@ -37,3 +37,5 @@ fields:
     - api_field: volumeCapacityGib
     - api_field: volumeCount
     - api_field: zone
+    - field: deletion_policy
+      provider_only: true

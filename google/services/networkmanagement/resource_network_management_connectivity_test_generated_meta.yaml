@@ -38,3 +38,5 @@ fields:
     - api_field: source.projectId
     - field: terraform_labels
       provider_only: true
+    - field: deletion_policy
+      provider_only: true
