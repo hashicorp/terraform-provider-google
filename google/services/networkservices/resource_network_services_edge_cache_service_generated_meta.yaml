@@ -163,3 +163,5 @@ fields:
     - api_field: sslPolicy
     - field: terraform_labels
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

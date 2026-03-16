@@ -57,3 +57,5 @@ fields:
       provider_only: true
     - field: wait_for_mirror
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

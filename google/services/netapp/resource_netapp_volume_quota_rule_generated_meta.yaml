@@ -23,3 +23,5 @@ fields:
     - api_field: type
     - field: volume_name
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

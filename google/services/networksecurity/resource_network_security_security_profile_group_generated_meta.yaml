@@ -24,3 +24,5 @@ fields:
     - api_field: threatPreventionProfile
     - api_field: updateTime
     - api_field: urlFilteringProfile
+    - field: deletion_policy
+      provider_only: true

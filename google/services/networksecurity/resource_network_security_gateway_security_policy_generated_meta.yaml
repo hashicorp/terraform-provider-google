@@ -14,3 +14,5 @@ fields:
     - api_field: selfLink
     - api_field: tlsInspectionPolicy
     - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

@@ -29,3 +29,5 @@ fields:
     - field: vpc_flow_logs_config_id
       provider_only: true
     - api_field: vpnTunnel
+    - field: deletion_policy
+      provider_only: true

@@ -73,3 +73,5 @@ fields:
     - api_field: properties.timeZone.id
     - field: terraform_labels
       provider_only: true
+    - field: deletion_policy
+      provider_only: true

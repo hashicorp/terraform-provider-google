@@ -43,3 +43,5 @@ fields:
     - api_field: spec.rules.values.allowedValues
     - api_field: spec.rules.values.deniedValues
     - api_field: spec.updateTime
+    - field: deletion_policy
+      provider_only: true
