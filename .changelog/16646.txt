@@ -1,0 +1,3 @@
+```release-note:enhancement
+firebaseailogic: added `traffic_filter` field to `google_firebase_ai_logic_config` resource
+```
