@@ -1,0 +1,3 @@
+```release-note:enhancement
+dialogflow: added field `use_bidi_streaming` to resource `google_dialogflow_conversation_profile` (beta)
+```
