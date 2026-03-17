@@ -607,9 +607,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 721
+// Generated resources: 722
 // Generated IAM resources: 336
-// Total generated resources: 1057
+// Total generated resources: 1058
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -1101,6 +1101,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dialogflow_conversation_profile":                                     registry.Resource("google_dialogflow_conversation_profile"),
 	"google_dialogflow_encryption_spec":                                          registry.Resource("google_dialogflow_encryption_spec"),
 	"google_dialogflow_entity_type":                                              registry.Resource("google_dialogflow_entity_type"),
+	"google_dialogflow_environment":                                              registry.Resource("google_dialogflow_environment"),
 	"google_dialogflow_fulfillment":                                              registry.Resource("google_dialogflow_fulfillment"),
 	"google_dialogflow_generator":                                                registry.Resource("google_dialogflow_generator"),
 	"google_dialogflow_intent":                                                   registry.Resource("google_dialogflow_intent"),
