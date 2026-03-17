@@ -348,35 +348,6 @@ resource "google_dns_managed_zone" "cloud-logging-enabled-zone" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dns_managed_zone_iam_condition&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Dns Managed Zone Iam Condition
-
-
-```hcl
-resource "google_dns_managed_zone" "default" {
-  name        = "example-zone"
-  dns_name    = "example.com."
-  description = "Example zone for IAM conditions"
-}
-
-resource "google_dns_managed_zone_iam_member" "condition_test" {
-  project      = google_dns_managed_zone.default.project
-  managed_zone = google_dns_managed_zone.default.name
-  role         = "roles/dns.admin"
-  member       = "user:admin@hashicorptest.com"
-
-  condition {
-    title       = "Exact Record Match"
-    description = "Allow modifying only api.example.com. A records"
-    # Mandatory pass-through clause for parent Managed Zone checks
-    expression = "(resource.type == 'dns.googleapis.com/ResourceRecordSet' && resource.name.endsWith('/rrsets/api.example.com./A')) || (resource.type != 'dns.googleapis.com/ResourceRecordSet')"
-  }
-}
-```
 
 ## Argument Reference
 
