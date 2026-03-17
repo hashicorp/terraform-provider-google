@@ -1,4 +1,38 @@
-## 7.24.0 (Unreleased)
+## 7.25.0 (Unreleased)
+
+## 7.24.0 (Mar 17, 2026)
+
+DEPRECATIONS:
+* iamworkforcepool: deprecated `extended_attributes_oauth2_client` on `google_iam_workforce_pool_provider`. Use `scim_usage` instead. ([#26388](https://github.com/hashicorp/terraform-provider-google/pull/26388))
+
+FEATURES:
+* **New Resource:** `google_biglake_iceberg_table` ([#26394](https://github.com/hashicorp/terraform-provider-google/pull/26394))
+* **New Resource:** `google_contact_center_insights_auto_labeling_rule` ([#26426](https://github.com/hashicorp/terraform-provider-google/pull/26426))
+* **New Resource:** `google_observability_trace_scope` ([#26428](https://github.com/hashicorp/terraform-provider-google/pull/26428))
+* **New Resource:** `google_sql_provision_script` ([#26432](https://github.com/hashicorp/terraform-provider-google/pull/26432))
+
+IMPROVEMENTS:
+* ces: added Service Account OAuth `scopes` fields to `google_ces_toolset` resource ([#26368](https://github.com/hashicorp/terraform-provider-google/pull/26368))
+* cloudrunv2: added `DISK` fields to `google_cloud_run_v2_service` resource ([#26418](https://github.com/hashicorp/terraform-provider-google/pull/26418))
+* cloudsql: added `max_custom_on_demand_retention_days` field to `sqladmin` resource ([#26407](https://github.com/hashicorp/terraform-provider-google/pull/26407))
+* compute: added `ForwardProxy` field in `google_compute_region_backend_service` resource ([#26449](https://github.com/hashicorp/terraform-provider-google/pull/26449))
+* compute: added `accelerator_topology_mode` field to `google_compute_resource_policy` resource ([#26383](https://github.com/hashicorp/terraform-provider-google/pull/26383))
+* compute: added `target_type` and `target_forwarding_rules` on `google_compute_region_network_firewall_policy_rule` resource ([#26369](https://github.com/hashicorp/terraform-provider-google/pull/26369))
+* compute: promoted the `endpoint_url` field in  `google_compute_service_attachment` to GA ([#26434](https://github.com/hashicorp/terraform-provider-google/pull/26434))
+* container: marked `subnetwork` as settable in `google_container_node_pool` ([#26416](https://github.com/hashicorp/terraform-provider-google/pull/26416))
+* container: added `disruption_budget` field to `google_container_cluster` resource ([#26425](https://github.com/hashicorp/terraform-provider-google/pull/26425))
+* discoveryengine: added `search_engine_config.required_subscription_tier ` field to `google_discovery_engine_search_engine` resource ([#26398](https://github.com/hashicorp/terraform-provider-google/pull/26398))
+* discoveryengine: marked `content_config` as optional field in `google_discovery_engine_data_store` ([#26398](https://github.com/hashicorp/terraform-provider-google/pull/26398))
+* memorystore: added `server_ca_mode` and `server_ca_pool` fields to `google_memorystore_instance` resource ([#26437](https://github.com/hashicorp/terraform-provider-google/pull/26437))
+* networkservices: relaxed `authority` validation in `google_network_services_authz_extension` for different target types ([#26386](https://github.com/hashicorp/terraform-provider-google/pull/26386))
+* redis: added `server_ca_mode` and `server_ca_pool` fields to `google_redis_cluster` resource ([#26437](https://github.com/hashicorp/terraform-provider-google/pull/26437))
+* sql: added `clone_context.source_project` field to `google_sql_database_instance` resource to support cross project clone (beta) ([#26384](https://github.com/hashicorp/terraform-provider-google/pull/26384))
+* transport: added automatic retry for GCE 403 errors with reason `CONCURRENT_OPERATIONS_QUOTA_EXCEEDED` ([#26417](https://github.com/hashicorp/terraform-provider-google/pull/26417))
+
+BUG FIXES:
+* compute: fixed perpetual diff for `oauth2_client_id` in `iap` block of `google_compute_backend_service` and `google_compute_region_backend_service` when disabling IAP ([#26385](https://github.com/hashicorp/terraform-provider-google/pull/26385))
+* datastream: fixed an issue in `google_datastream_stream` where `source_config.mysql_source_config.binary_log_position` would show a diff when unset ([#26435](https://github.com/hashicorp/terraform-provider-google/pull/26435))
+* workbench: marked `install-nvidia-driver` metadata key as settable for `google_workbench_instance` ([#26402](https://github.com/hashicorp/terraform-provider-google/pull/26402))
 
 ## 7.23.0 (Mar 10, 2026)
 
