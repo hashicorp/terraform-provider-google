@@ -190,7 +190,7 @@ func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 				ResourceName:            "google_colab_runtime.runtime",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auto_upgrade", "desired_state", "location", "name"},
+				ImportStateVerifyIgnore: []string{"auto_upgrade", "desired_state", "expiration_time", "location", "name"},
 			},
 		},
 	})
