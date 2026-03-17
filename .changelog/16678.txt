@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added field `load_balancing_scheme` to resource `google_compute_region_target_tcp_proxy` (beta)
+```
+```release-note:enhancement
+compute: make field `backend_service` optional for resource `google_compute_region_target_tcp_proxy`
+```
