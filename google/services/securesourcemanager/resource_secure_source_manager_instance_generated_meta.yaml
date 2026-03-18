@@ -22,6 +22,10 @@ fields:
       provider_only: true
     - api_field: name
     - api_field: privateConfig.caPool
+    - api_field: privateConfig.customHostConfig.api
+    - api_field: privateConfig.customHostConfig.gitHttp
+    - api_field: privateConfig.customHostConfig.gitSsh
+    - api_field: privateConfig.customHostConfig.html
     - api_field: privateConfig.httpServiceAttachment
     - api_field: privateConfig.isPrivate
     - api_field: privateConfig.sshServiceAttachment

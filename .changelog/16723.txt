@@ -1,0 +1,3 @@
+```release-note:enhancement
+securesourcemanager: added `private_config.custom_host_config` field to `google_secure_source_manager_instance` resource (beta)
+```
