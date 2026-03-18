@@ -5,9 +5,11 @@ api_service_name: compute.googleapis.com
 api_version: v1
 api_resource_type_kind: BackendBucket
 fields:
-    - api_field: backendBucket
-    - api_field: keyValue
-    - api_field: keyName
+    - api_field: cdnPolicy.signedUrlKeyNames.backendBucket
+      field: backend_bucket
+    - api_field: cdnPolicy.signedUrlKeyNames.keyValue
+      field: key_value
+    - api_field: cdnPolicy.signedUrlKeyNames.keyName
       field: name
     - field: deletion_policy
       provider_only: true

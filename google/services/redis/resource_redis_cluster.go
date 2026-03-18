@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -584,6 +584,21 @@ https://cloud.google.com/memorystore/docs/cluster/supported-instance-configurati
 				Optional:    true,
 				Description: `Optional. The number of replica nodes per shard.`,
 			},
+			"server_ca_mode": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"SERVER_CA_MODE_GOOGLE_MANAGED_PER_INSTANCE_CA", "SERVER_CA_MODE_GOOGLE_MANAGED_SHARED_CA", "SERVER_CA_MODE_CUSTOMER_MANAGED_CAS_CA", "SERVER_CA_MODE_UNSPECIFIED", ""}),
+				Description: `The serverCaMode for the TLS enabled Redis cluster.
+If not provided, SERVER_CA_MODE_GOOGLE_MANAGED_PER_INSTANCE_CA will be used as default Possible values: ["SERVER_CA_MODE_GOOGLE_MANAGED_PER_INSTANCE_CA", "SERVER_CA_MODE_GOOGLE_MANAGED_SHARED_CA", "SERVER_CA_MODE_CUSTOMER_MANAGED_CAS_CA", "SERVER_CA_MODE_UNSPECIFIED"]`,
+			},
+			"server_ca_pool": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The resource name of the server CA pool for an instance with SERVER_CA_MODE_CUSTOMER_MANAGED_CAS_CA
+as the server_ca_mode.
+Format: projects/{project}/locations/{region}/caPools/{caPoolId}`,
+			},
 			"transit_encryption_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -988,6 +1003,18 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
 	}
+	serverCaModeProp, err := expandRedisClusterServerCaMode(d.Get("server_ca_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("server_ca_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(serverCaModeProp)) && (ok || !reflect.DeepEqual(v, serverCaModeProp)) {
+		obj["serverCaMode"] = serverCaModeProp
+	}
+	serverCaPoolProp, err := expandRedisClusterServerCaPool(d.Get("server_ca_pool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("server_ca_pool"); !tpgresource.IsEmptyValue(reflect.ValueOf(serverCaPoolProp)) && (ok || !reflect.DeepEqual(v, serverCaPoolProp)) {
+		obj["serverCaPool"] = serverCaPoolProp
+	}
 	effectiveLabelsProp, err := expandRedisClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1211,6 +1238,12 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("managed_server_ca", flattenRedisClusterManagedServerCa(res["managedServerCa"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("server_ca_mode", flattenRedisClusterServerCaMode(res["serverCaMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("server_ca_pool", flattenRedisClusterServerCaPool(res["serverCaPool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenRedisClusterTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1322,6 +1355,18 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
 		obj["kmsKey"] = kmsKeyProp
 	}
+	serverCaModeProp, err := expandRedisClusterServerCaMode(d.Get("server_ca_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("server_ca_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serverCaModeProp)) {
+		obj["serverCaMode"] = serverCaModeProp
+	}
+	serverCaPoolProp, err := expandRedisClusterServerCaPool(d.Get("server_ca_pool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("server_ca_pool"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serverCaPoolProp)) {
+		obj["serverCaPool"] = serverCaPoolProp
+	}
 	effectiveLabelsProp, err := expandRedisClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1389,6 +1434,14 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("kms_key") {
 		updateMask = append(updateMask, "kmsKey")
+	}
+
+	if d.HasChange("server_ca_mode") {
+		updateMask = append(updateMask, "serverCaMode")
+	}
+
+	if d.HasChange("server_ca_pool") {
+		updateMask = append(updateMask, "serverCaPool")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -2327,6 +2380,14 @@ func flattenRedisClusterManagedServerCaCaCertsCertificates(v interface{}, d *sch
 	return v
 }
 
+func flattenRedisClusterServerCaMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterServerCaPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenRedisClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3086,6 +3147,14 @@ func expandRedisClusterKmsKey(v interface{}, d tpgresource.TerraformResourceData
 	return v, nil
 }
 
+func expandRedisClusterServerCaMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisClusterServerCaPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandRedisClusterEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -3121,8 +3190,14 @@ func resourceRedisClusterDecoder(d *schema.ResourceData, meta interface{}, res m
 		return nil, err
 	}
 
-	// Only clusters with TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION mode have certificate authority set
-	if v, ok := res["transitEncryptionMode"].(string); !ok || v != "TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION" {
+	transitMode, transitOk := res["transitEncryptionMode"].(string)
+	caMode, caOk := res["serverCaMode"].(string)
+
+	isServerAuth := transitOk && transitMode == "TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION"
+	isCustomerManaged := caOk && caMode == "SERVER_CA_MODE_CUSTOMER_MANAGED_CAS_CA"
+
+	if !(isServerAuth && !isCustomerManaged) {
+		// Skip the dedicated API call if it's not server-auth or if it is customer-managed
 		return res, nil
 	}
 

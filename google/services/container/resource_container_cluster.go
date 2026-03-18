@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -1172,6 +1172,32 @@ func ResourceContainerCluster() *schema.Resource {
 												},
 											},
 										},
+									},
+								},
+							},
+						},
+						"disruption_budget": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Cluster disruption intervals for minor version and patch version upgrade`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"minor_version_disruption_interval": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"patch_version_disruption_interval": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"last_minor_version_disruption_time": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"last_disruption_time": {
+										Type:     schema.TypeString,
+										Computed: true,
 									},
 								},
 							},
@@ -5447,6 +5473,18 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 		}
 	}
 
+	var budget *container.DisruptionBudget
+	if disruptionBudget, ok := maintenancePolicy["disruption_budget"]; ok && len(disruptionBudget.([]interface{})) > 0 {
+		db := disruptionBudget.([]interface{})[0].(map[string]interface{})
+		budget = &container.DisruptionBudget{}
+		if _, ok := db["minor_version_disruption_interval"]; ok {
+			budget.MinorVersionDisruptionInterval = db["minor_version_disruption_interval"].(string)
+		}
+		if _, ok := db["patch_version_disruption_interval"]; ok {
+			budget.PatchVersionDisruptionInterval = db["patch_version_disruption_interval"].(string)
+		}
+	}
+
 	if dailyMaintenanceWindow, ok := maintenancePolicy["daily_maintenance_window"]; ok && len(dailyMaintenanceWindow.([]interface{})) > 0 {
 		dmw := dailyMaintenanceWindow.([]interface{})[0].(map[string]interface{})
 		startTime := dmw["start_time"].(string)
@@ -5457,7 +5495,8 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 					StartTime: startTime,
 				},
 			},
-			ResourceVersion: resourceVersion,
+			DisruptionBudget: budget,
+			ResourceVersion:  resourceVersion,
 		}
 	}
 	if recurringWindow, ok := maintenancePolicy["recurring_window"]; ok && len(recurringWindow.([]interface{})) > 0 {
@@ -5473,7 +5512,8 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 					Recurrence: rw["recurrence"].(string),
 				},
 			},
-			ResourceVersion: resourceVersion,
+			DisruptionBudget: budget,
+			ResourceVersion:  resourceVersion,
 		}
 	}
 	return nil
@@ -7031,6 +7071,25 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 			exclusions = append(exclusions, exclusion)
 		}
 	}
+	var budget []map[string]interface{}
+	if mp.DisruptionBudget != nil {
+		m := make(map[string]interface{})
+		if mp.DisruptionBudget.MinorVersionDisruptionInterval != "" {
+			m["minor_version_disruption_interval"] = mp.DisruptionBudget.MinorVersionDisruptionInterval
+		}
+		if mp.DisruptionBudget.PatchVersionDisruptionInterval != "" {
+			m["patch_version_disruption_interval"] = mp.DisruptionBudget.PatchVersionDisruptionInterval
+		}
+		if mp.DisruptionBudget.LastMinorVersionDisruptionTime != "" {
+			m["last_minor_version_disruption_time"] = mp.DisruptionBudget.LastMinorVersionDisruptionTime
+		}
+		if mp.DisruptionBudget.LastDisruptionTime != "" {
+			m["last_disruption_time"] = mp.DisruptionBudget.LastDisruptionTime
+		}
+		if len(m) > 0 {
+			budget = append(budget, m)
+		}
+	}
 
 	if mp.Window.DailyMaintenanceWindow != nil {
 		return []map[string]interface{}{
@@ -7042,6 +7101,7 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 					},
 				},
 				"maintenance_exclusion": exclusions,
+				"disruption_budget":     budget,
 			},
 		}
 	}
@@ -7056,6 +7116,7 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 					},
 				},
 				"maintenance_exclusion": exclusions,
+				"disruption_budget":     budget,
 			},
 		}
 	}

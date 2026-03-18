@@ -560,7 +560,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_extra_attributes_oauth2_client).
 
 * `extended_attributes_oauth2_client` -
-  (Optional)
+  (Optional, Deprecated)
   The configuration for OAuth 2.0 client used to get the extended group
   memberships for user identities. Only the `AZURE_AD_GROUPS_ID` attribute
   type is supported. Extended groups supports a subset of Google Cloud
@@ -572,6 +572,8 @@ The following arguments are supported:
   active session. Each user identity in the workforce identity pool must map
   to a unique Microsoft Entra ID user.
   Structure is [documented below](#nested_extended_attributes_oauth2_client).
+
+  ~> **Warning:** `extended_attributes_oauth2_client` is restricted. We suggest use SCIM instead.
 
 * `scim_usage` -
   (Optional)

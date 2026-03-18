@@ -381,6 +381,110 @@ resource "google_compute_network" "secondary_producer_net" {
 data "google_project" "project" {
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=memorystore_instance_flexible_ca&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Memorystore Instance Flexible Ca
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_memorystore_instance" "test-instance" {
+  instance_id  = "ca-instance"
+  shard_count = 3
+  location     = "us-central1"
+  
+  desired_auto_created_endpoints {
+    network    = google_compute_network.producer_net.id
+    project_id = data.google_project.project.project_id
+  }
+
+  # Security configurations
+  transit_encryption_mode = "SERVER_AUTHENTICATION"
+  server_ca_mode          = "CUSTOMER_MANAGED_CAS_CA"
+  server_ca_pool          = google_privateca_ca_pool.default.id
+
+  deletion_protection_enabled = true
+
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default,
+    google_privateca_certificate_authority.default,
+    google_privateca_ca_pool_iam_member.memorystore_p4sa_requester
+  ]
+}
+
+resource "google_privateca_ca_pool" "default" {
+  name     = "ca-pool"
+  location = "us-central1"
+  tier     = "ENTERPRISE"
+}
+
+resource "google_privateca_ca_pool_iam_member" "memorystore_p4sa_requester" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role    = "roles/privateca.certificateRequester"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-memorystore.iam.gserviceaccount.com"
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  pool                     = google_privateca_ca_pool.default.name
+  certificate_authority_id = "ca-auth"
+  location                 = "us-central1"
+  config {
+    subject_config {
+      subject {
+        organization = "Google"
+        common_name  = "my-memorystore-ca"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign  = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+  
+  ignore_active_certificates_on_deletion = true
+  deletion_protection = false
+  skip_grace_period   = true
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name           = "ca-policy"
+  location       = "us-central1"
+  service_class  = "gcp-memorystore"
+  network        = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "ca-subnet"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "ca-network"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -502,6 +606,18 @@ The following arguments are supported:
 * `kms_key` -
   (Optional)
   The KMS key used to encrypt the at-rest data of the cluster
+
+* `server_ca_mode` -
+  (Optional)
+  The serverCaMode for the TLS enabled Memorystore instance.
+  If not provided, GOOGLE_MANAGED_PER_INSTANCE_CA will be used as default
+  Possible values are: `GOOGLE_MANAGED_PER_INSTANCE_CA`, `GOOGLE_MANAGED_SHARED_CA`, `CUSTOMER_MANAGED_CAS_CA`, `SERVER_CA_MODE_UNSPECIFIED`.
+
+* `server_ca_pool` -
+  (Optional)
+  The resource name of the server CA pool for an instance with CUSTOMER_MANAGED_CAS_CA
+  as the server_ca_mode.
+  Format: projects/{project}/locations/{region}/caPools/{caPoolId}
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

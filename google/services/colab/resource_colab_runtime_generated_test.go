@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -190,7 +190,7 @@ func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 				ResourceName:            "google_colab_runtime.runtime",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auto_upgrade", "desired_state", "location", "name"},
+				ImportStateVerifyIgnore: []string{"auto_upgrade", "desired_state", "expiration_time", "location", "name"},
 			},
 		},
 	})

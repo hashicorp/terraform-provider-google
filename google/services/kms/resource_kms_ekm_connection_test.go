@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -70,9 +70,6 @@ data "google_secret_manager_secret_version" "hostname" {
 data "google_secret_manager_secret_version" "servicedirectoryservice" {
   secret = "external-servicedirectoryservice"
   project = "315636579862"
-}
-data "google_project" "vpc-project" {
-  project_id = "cloud-ekm-refekm-playground"
 }
 data "google_project" "project" {
 }
@@ -147,9 +144,6 @@ resource "google_kms_ekm_connection_iam_policy" "policy" {
 
 func testAccKMSEkmConnection_kmsEkmConnectionBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_project" "vpc-project" {
-  project_id = "cloud-ekm-refekm-playground"
-}
 data "google_project" "project" {
 }
 data "google_secret_manager_secret_version" "raw_der" {

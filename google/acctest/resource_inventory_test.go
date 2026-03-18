@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -181,7 +181,7 @@ func ignoreField(r, f string) bool {
 func underscore(source string) string {
 	tmp := regexp.MustCompile(`([A-Z]+)([A-Z][a-z])`).ReplaceAllString(source, "${1}_${2}")
 	tmp = regexp.MustCompile(`([a-z\d])([A-Z])`).ReplaceAllString(tmp, "${1}_${2}")
-	tmp = strings.Replace(tmp, "-", "_", 1)
+	tmp = strings.ReplaceAll(tmp, "-", "_")
 	// skip this because we want to operate on nested api fields
 	// tmp = strings.Replace(tmp, ".", "_", 1)
 	tmp = strings.ToLower(tmp)
@@ -281,17 +281,16 @@ func TestValidateResourceMetadata(t *testing.T) {
 			t.Errorf("%s: can't detect service package", r.FileName)
 		}
 
-		// Allowlist google_container_registry because it doesn't clearly correspond to a service.
-		// We don't currently have a concept of a "provider-only" resource; if more examples show up,
-		// we could consider adding one.
-		if resourceName != "google_container_registry" {
+		// Resources that don't clearly correspond to an API resource or don't have a CAIS mapping.
+		providerOnlyResources := []string{"google_container_registry", "google_sql_provision_script"}
+		if !slices.Contains(providerOnlyResources, resourceName) {
 			if r.ApiServiceName == "" {
 				t.Errorf("%s: `api_service_name` is required and not set", r.FileName)
 			}
 
 			// Allowlist google_biglake_iceberg resources as a pre-existing case.
 			// This product doesn't have a version in the base_url because resources & IAM have different base_urls. (Resources include an `iceberg` prefix that isn't present for IAM URLs.)
-			ignoredResources := []string{"google_biglake_iceberg_catalog", "google_biglake_iceberg_namespace"}
+			ignoredResources := []string{"google_biglake_iceberg_catalog", "google_biglake_iceberg_namespace", "google_biglake_iceberg_table"}
 			if r.ApiVersion == "" && !slices.Contains(ignoredResources, resourceName) {
 				t.Errorf("%s: `api_version` is required and not set", r.FileName)
 			}

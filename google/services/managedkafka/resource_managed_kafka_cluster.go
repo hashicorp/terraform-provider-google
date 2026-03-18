@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -496,6 +496,9 @@ func resourceManagedKafkaClusterRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("capacity_config", flattenManagedKafkaClusterCapacityConfig(res["capacityConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("broker_capacity_config", flattenManagedKafkaClusterBrokerCapacityConfig(res["brokerCapacityConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("rebalance_config", flattenManagedKafkaClusterRebalanceConfig(res["rebalanceConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -840,6 +843,23 @@ func flattenManagedKafkaClusterCapacityConfigVcpuCount(v interface{}, d *schema.
 }
 
 func flattenManagedKafkaClusterCapacityConfigMemoryBytes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenManagedKafkaClusterBrokerCapacityConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["disk_size_gib"] =
+		flattenManagedKafkaClusterBrokerCapacityConfigDiskSizeGib(original["diskSizeGib"], d, config)
+	return []interface{}{transformed}
+}
+func flattenManagedKafkaClusterBrokerCapacityConfigDiskSizeGib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

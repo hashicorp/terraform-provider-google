@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_vpn_gateway.target_gateway",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"network", "params", "region"},
 			},
 		},
 	})
@@ -119,6 +119,115 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
   shared_secret = "a secret message"
 
   target_vpn_gateway = google_compute_vpn_gateway.target_gateway.id
+
+  depends_on = [
+    google_compute_forwarding_rule.fr_esp,
+    google_compute_forwarding_rule.fr_udp500,
+    google_compute_forwarding_rule.fr_udp4500,
+  ]
+}
+
+resource "google_compute_route" "route1" {
+  name       = "route1%{random_suffix}"
+  network    = google_compute_network.network1.name
+  dest_range = "15.0.0.0/24"
+  priority   = 1000
+
+  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.id
+}
+`, context)
+}
+
+func TestAccComputeVpnGateway_targetVpnGatewayTagsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"tag_key":       "tf-test-key-" + acctest.RandString(t, 10),
+		"tag_value":     "tf-test-value-" + acctest.RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeVpnGatewayDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeVpnGateway_targetVpnGatewayTagsExample(context),
+			},
+			{
+				ResourceName:            "google_compute_vpn_gateway.target_gateway_tags",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "params", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeVpnGateway_targetVpnGatewayTagsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+resource "google_compute_vpn_gateway" "target_gateway_tags" {
+  name    = "tf-test-vpn-1%{random_suffix}"
+  network = google_compute_network.network1.id
+  params {
+    resource_manager_tags = {
+      (google_tags_tag_key.tag_key1.id) = (google_tags_tag_value.tag_value1.id)
+    }
+  }
+}
+
+resource "google_tags_tag_key" "tag_key1" {
+  parent     = "organizations/%{org_id}"
+  short_name = "%{tag_key}"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  parent     = google_tags_tag_key.tag_key1.id
+  short_name = "%{tag_value}"
+}
+
+resource "google_compute_network" "network1" {
+  name = "tf-test-network-1%{random_suffix}"
+}
+
+resource "google_compute_address" "vpn_static_ip" {
+  name = "tf-test-vpn-static-ip%{random_suffix}"
+}
+
+resource "google_compute_forwarding_rule" "fr_esp" {
+  name        = "tf-test-fr-esp%{random_suffix}"
+  ip_protocol = "ESP"
+  ip_address  = google_compute_address.vpn_static_ip.address
+  target      = google_compute_vpn_gateway.target_gateway_tags.id
+}
+
+resource "google_compute_forwarding_rule" "fr_udp500" {
+  name        = "tf-test-fr-udp500%{random_suffix}"
+  ip_protocol = "UDP"
+  port_range  = "500"
+  ip_address  = google_compute_address.vpn_static_ip.address
+  target      = google_compute_vpn_gateway.target_gateway_tags.id
+}
+
+resource "google_compute_forwarding_rule" "fr_udp4500" {
+  name        = "tf-test-fr-udp4500%{random_suffix}"
+  ip_protocol = "UDP"
+  port_range  = "4500"
+  ip_address  = google_compute_address.vpn_static_ip.address
+  target      = google_compute_vpn_gateway.target_gateway_tags.id
+}
+
+resource "google_compute_vpn_tunnel" "tunnel1" {
+  name          = "tunnel1%{random_suffix}"
+  peer_ip       = "15.0.0.120"
+  shared_secret = "a secret message"
+
+  target_vpn_gateway = google_compute_vpn_gateway.target_gateway_tags.id
 
   depends_on = [
     google_compute_forwarding_rule.fr_esp,

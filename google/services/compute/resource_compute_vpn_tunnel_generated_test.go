@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_vpn_tunnel.tunnel1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "peer_external_gateway", "peer_gcp_gateway", "region", "router", "shared_secret", "shared_secret_wo", "shared_secret_wo_version", "target_vpn_gateway", "terraform_labels", "vpn_gateway"},
+				ImportStateVerifyIgnore: []string{"labels", "params", "peer_external_gateway", "peer_gcp_gateway", "region", "router", "shared_secret", "shared_secret_wo", "shared_secret_wo_version", "target_vpn_gateway", "terraform_labels", "vpn_gateway"},
 			},
 		},
 	})
@@ -161,7 +161,7 @@ func TestAccComputeVpnTunnel_vpnTunnelCipherSuiteExample(t *testing.T) {
 				ResourceName:            "google_compute_vpn_tunnel.tunnel1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "peer_external_gateway", "peer_gcp_gateway", "region", "router", "shared_secret", "shared_secret_wo", "shared_secret_wo_version", "target_vpn_gateway", "terraform_labels", "vpn_gateway"},
+				ImportStateVerifyIgnore: []string{"labels", "params", "peer_external_gateway", "peer_gcp_gateway", "region", "router", "shared_secret", "shared_secret_wo", "shared_secret_wo_version", "target_vpn_gateway", "terraform_labels", "vpn_gateway"},
 			},
 		},
 	})

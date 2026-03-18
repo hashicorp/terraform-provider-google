@@ -65,12 +65,16 @@ fields:
       field: rule_tuple_count
     - api_field: rules.securityProfileGroup
       field: security_profile_group
+    - api_field: rules.targetForwardingRules
+      field: target_forwarding_rules
     - api_field: rules.targetSecureTags.name
       field: target_secure_tags.name
     - api_field: rules.targetSecureTags.state
       field: target_secure_tags.state
     - api_field: rules.targetServiceAccounts
       field: target_service_accounts
+    - api_field: rules.targetType
+      field: target_type
     - api_field: rules.tlsInspect
       field: tls_inspect
     - field: deletion_policy

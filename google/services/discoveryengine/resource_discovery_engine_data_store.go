@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -118,13 +118,6 @@ func ResourceDiscoveryEngineDataStore() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"content_config": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"NO_CONTENT", "CONTENT_REQUIRED", "PUBLIC_WEBSITE"}),
-				Description:  `The content config of the data store. Possible values: ["NO_CONTENT", "CONTENT_REQUIRED", "PUBLIC_WEBSITE"]`,
-			},
 			"data_store_id": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -172,6 +165,13 @@ only be one of "global", "us" and "eu".`,
 						},
 					},
 				},
+			},
+			"content_config": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"NO_CONTENT", "CONTENT_REQUIRED", "PUBLIC_WEBSITE", ""}),
+				Description:  `The content config of the data store. Possible values: ["NO_CONTENT", "CONTENT_REQUIRED", "PUBLIC_WEBSITE"]`,
 			},
 			"create_advanced_site_search": {
 				Type:     schema.TypeBool,

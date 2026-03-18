@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -14,11 +14,9 @@
 //     overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
 /*
-	This file is a copy of mmv1/third_party/terraform/services/bigquery/iam_bigquery_dataset.go
-	with new functions mergeAccess and GetCurrentResourceAccess
+This file is a copy of mmv1/third_party/terraform/services/bigquery/iam_bigquery_dataset.go
+with new functions mergeAccess and GetCurrentResourceAccess
 */
 package bigquery
 
