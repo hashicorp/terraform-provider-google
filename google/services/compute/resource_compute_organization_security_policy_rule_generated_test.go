@@ -99,6 +99,55 @@ resource "google_compute_organization_security_policy_rule" "policy" {
 `, context)
 }
 
+func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleExpressionExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleExpressionExample(context),
+			},
+			{
+				ResourceName:            "google_compute_organization_security_policy_rule.policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"policy_id"},
+			},
+		},
+	})
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleExpressionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_organization_security_policy" "policy" {
+  short_name = "tf-test%{random_suffix}"
+  parent     = "organizations/%{org_id}"
+  type       = "CLOUD_ARMOR"
+}
+
+resource "google_compute_organization_security_policy_rule" "policy" {
+  policy_id = google_compute_organization_security_policy.policy.id
+  action = "allow"
+
+  match {
+    expr {
+      expression = "request.path.contains('/folder/test/')"
+    }
+		versioned_expr = ""
+  }
+  priority = 100
+}
+`, context)
+}
+
 func testAccCheckComputeOrganizationSecurityPolicyRuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
