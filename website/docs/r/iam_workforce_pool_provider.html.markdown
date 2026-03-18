@@ -441,6 +441,39 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+## Example Usage - Iam Workforce Pool Provider Oidc Detailed Audit Logging
+
+
+```hcl
+resource "google_iam_workforce_pool" "pool" {
+  workforce_pool_id = "example-pool"
+  parent            = "organizations/123456789"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "example" {
+  workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
+  location           = google_iam_workforce_pool.pool.location
+  provider_id        = "example-prvdr"
+  attribute_mapping  = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri       = "https://accounts.thirdparty.com"
+    client_id        = "client-id"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+    }
+  }
+  detailed_audit_logging = true
+}
+```
 
 ## Argument Reference
 
@@ -573,7 +606,7 @@ The following arguments are supported:
   to a unique Microsoft Entra ID user.
   Structure is [documented below](#nested_extended_attributes_oauth2_client).
 
-  ~> **Warning:** `extended_attributes_oauth2_client` is restricted. We suggest use SCIM instead.
+  ~> **Warning:** `extended_attributes_oauth2_client` is deprecated. Use SCIM instead.
 
 * `scim_usage` -
   (Optional)
@@ -587,6 +620,10 @@ The following arguments are supported:
   * ENABLED_FOR_GROUPS: Use SCIM-managed groups instead of the `google.groups`
     attribute mapping for authorization checks
   Possible values are: `SCIM_USAGE_UNSPECIFIED`, `ENABLED_FOR_GROUPS`.
+
+* `detailed_audit_logging` -
+  (Optional)
+  If true, populates additional debug information in Cloud Audit Logs for this provider. Logged attribute mappings and values can be found in `sts.googleapis.com` data access logs. Default value is false.
 
 
 

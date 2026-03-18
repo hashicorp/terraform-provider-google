@@ -775,6 +775,65 @@ resource "google_iam_workforce_pool_provider" "example" {
 `, context)
 }
 
+func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDetailedAuditLoggingExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDetailedAuditLoggingExample(context),
+			},
+			{
+				ResourceName:            "google_iam_workforce_pool_provider.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "oidc.0.client_secret.0.value.0.plain_text", "provider_id", "workforce_pool_id"},
+			},
+		},
+	})
+}
+
+func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDetailedAuditLoggingExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workforce_pool" "pool" {
+  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  parent            = "organizations/%{org_id}"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "example" {
+  workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
+  location           = google_iam_workforce_pool.pool.location
+  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  attribute_mapping  = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri       = "https://accounts.thirdparty.com"
+    client_id        = "client-id"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+    }
+  }
+  detailed_audit_logging = true
+}
+`, context)
+}
+
 func testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
