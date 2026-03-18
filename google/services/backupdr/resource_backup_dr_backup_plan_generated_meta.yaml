@@ -23,6 +23,7 @@ fields:
     - api_field: backupVaultServiceAccount
     - api_field: createTime
     - api_field: description
+    - api_field: diskBackupPlanProperties.guestFlush
     - field: location
       provider_only: true
     - api_field: logRetentionDays
