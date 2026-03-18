@@ -118,10 +118,35 @@ func ResourceBackupDRBackupPlan() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"backup_vault": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+				Description:      `Backup vault where the backups gets stored using this Backup plan.`,
+			},
+			"backup_plan_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the backup plan`,
+			},
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The location for the backup plan`,
+			},
+			"resource_type": {
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The resource type to which the 'BackupPlan' will be applied.
+Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "sqladmin.googleapis.com/Instance", "alloydb.googleapis.com/Cluster", "file.googleapis.com/Instance" and "storage.googleapis.com/Bucket".`,
+			},
 			"backup_rules": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: `The backup rules for this 'BackupPlan'. There must be at least one 'BackupRule' message.`,
+				Optional:    true,
+				Description: `The backup rules for this 'BackupPlan'.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"backup_retention_days": {
@@ -233,31 +258,6 @@ This is required for 'recurrence_type', 'HOURLY' and is not applicable otherwise
 						},
 					},
 				},
-			},
-			"backup_vault": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-				Description:      `Backup vault where the backups gets stored using this Backup plan.`,
-			},
-			"backup_plan_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The ID of the backup plan`,
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The location for the backup plan`,
-			},
-			"resource_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				Description: `The resource type to which the 'BackupPlan' will be applied.
-Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk", "sqladmin.googleapis.com/Instance", "alloydb.googleapis.com/Cluster", "file.googleapis.com/Instance" and "storage.googleapis.com/Bucket".`,
 			},
 			"description": {
 				Type:        schema.TypeString,
