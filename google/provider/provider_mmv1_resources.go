@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -128,6 +128,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	"github.com/hashicorp/terraform-provider-google/google/services/notebooks"
+	"github.com/hashicorp/terraform-provider-google/google/services/observability"
 	"github.com/hashicorp/terraform-provider-google/google/services/oracledatabase"
 	"github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	"github.com/hashicorp/terraform-provider-google/google/services/osconfig"
@@ -165,6 +166,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/services/transcoder"
+	"github.com/hashicorp/terraform-provider-google/google/services/vectorsearch"
 	"github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	"github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
@@ -481,6 +483,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_beyondcorp_security_gateway_application_iam_policy": registry.DataSource("google_beyondcorp_security_gateway_application_iam_policy"),
 	"google_biglake_iceberg_catalog_iam_policy":                 registry.DataSource("google_biglake_iceberg_catalog_iam_policy"),
 	"google_biglake_iceberg_namespace_iam_policy":               registry.DataSource("google_biglake_iceberg_namespace_iam_policy"),
+	"google_biglake_iceberg_table_iam_policy":                   registry.DataSource("google_biglake_iceberg_table_iam_policy"),
 	"google_bigquery_table_iam_policy":                          registry.DataSource("google_bigquery_table_iam_policy"),
 	"google_bigquery_analytics_hub_data_exchange_iam_policy":    registry.DataSource("google_bigquery_analytics_hub_data_exchange_iam_policy"),
 	"google_bigquery_analytics_hub_listing_iam_policy":          registry.DataSource("google_bigquery_analytics_hub_listing_iam_policy"),
@@ -604,9 +607,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 717
-// Generated IAM resources: 333
-// Total generated resources: 1050
+// Generated resources: 721
+// Generated IAM resources: 336
+// Total generated resources: 1057
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -717,6 +720,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_biglake_iceberg_namespace_iam_binding":                               registry.Resource("google_biglake_iceberg_namespace_iam_binding"),
 	"google_biglake_iceberg_namespace_iam_member":                                registry.Resource("google_biglake_iceberg_namespace_iam_member"),
 	"google_biglake_iceberg_namespace_iam_policy":                                registry.Resource("google_biglake_iceberg_namespace_iam_policy"),
+	"google_biglake_iceberg_table":                                               registry.Resource("google_biglake_iceberg_table"),
+	"google_biglake_iceberg_table_iam_binding":                                   registry.Resource("google_biglake_iceberg_table_iam_binding"),
+	"google_biglake_iceberg_table_iam_member":                                    registry.Resource("google_biglake_iceberg_table_iam_member"),
+	"google_biglake_iceberg_table_iam_policy":                                    registry.Resource("google_biglake_iceberg_table_iam_policy"),
 	"google_bigquery_dataset":                                                    registry.Resource("google_bigquery_dataset"),
 	"google_bigquery_dataset_access":                                             registry.Resource("google_bigquery_dataset_access"),
 	"google_bigquery_job":                                                        registry.Resource("google_bigquery_job"),
@@ -982,6 +989,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_vpn_tunnel":                                                  registry.Resource("google_compute_vpn_tunnel"),
 	"google_compute_wire_group":                                                  registry.Resource("google_compute_wire_group"),
 	"google_contact_center_insights_analysis_rule":                               registry.Resource("google_contact_center_insights_analysis_rule"),
+	"google_contact_center_insights_auto_labeling_rule":                          registry.Resource("google_contact_center_insights_auto_labeling_rule"),
 	"google_contact_center_insights_view":                                        registry.Resource("google_contact_center_insights_view"),
 	"google_container_analysis_note":                                             registry.Resource("google_container_analysis_note"),
 	"google_container_analysis_note_iam_binding":                                 registry.Resource("google_container_analysis_note_iam_binding"),
@@ -1435,6 +1443,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_notebooks_runtime_iam_binding":                                       registry.Resource("google_notebooks_runtime_iam_binding"),
 	"google_notebooks_runtime_iam_member":                                        registry.Resource("google_notebooks_runtime_iam_member"),
 	"google_notebooks_runtime_iam_policy":                                        registry.Resource("google_notebooks_runtime_iam_policy"),
+	"google_observability_trace_scope":                                           registry.Resource("google_observability_trace_scope"),
 	"google_oracle_database_autonomous_database":                                 registry.Resource("google_oracle_database_autonomous_database"),
 	"google_oracle_database_cloud_exadata_infrastructure":                        registry.Resource("google_oracle_database_cloud_exadata_infrastructure"),
 	"google_oracle_database_cloud_vm_cluster":                                    registry.Resource("google_oracle_database_cloud_vm_cluster"),
@@ -1592,6 +1601,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_tags_tag_value_iam_policy":                                           registry.Resource("google_tags_tag_value_iam_policy"),
 	"google_transcoder_job":                                                      registry.Resource("google_transcoder_job"),
 	"google_transcoder_job_template":                                             registry.Resource("google_transcoder_job_template"),
+	"google_vector_search_collection":                                            registry.Resource("google_vector_search_collection"),
 	"google_vertex_ai_cache_config":                                              registry.Resource("google_vertex_ai_cache_config"),
 	"google_vertex_ai_dataset":                                                   registry.Resource("google_vertex_ai_dataset"),
 	"google_vertex_ai_deployment_resource_pool":                                  registry.Resource("google_vertex_ai_deployment_resource_pool"),
@@ -1689,6 +1699,7 @@ var handwrittenResources = map[string]*schema.Resource{
 	"google_os_config_os_policy_assignment":        osconfig.ResourceOSConfigOSPolicyAssignment(),
 	"google_service_networking_connection":         servicenetworking.ResourceServiceNetworkingConnection(),
 	"google_sql_database_instance":                 sql.ResourceSqlDatabaseInstance(),
+	"google_sql_provision_script":                  sql.ResourceSqlProvisionScript(),
 	"google_sql_ssl_cert":                          sql.ResourceSqlSslCert(),
 	"google_sql_user":                              sql.ResourceSqlUser(),
 	"google_organization_iam_custom_role":          resourcemanager.ResourceGoogleOrganizationIamCustomRole(),
@@ -1901,6 +1912,7 @@ func UseGeneratedProducts() {
 	var _ = networksecurity.ProductName
 	var _ = networkservices.ProductName
 	var _ = notebooks.ProductName
+	var _ = observability.ProductName
 	var _ = oracledatabase.ProductName
 	var _ = orgpolicy.ProductName
 	var _ = osconfig.ProductName
@@ -1938,6 +1950,7 @@ func UseGeneratedProducts() {
 	var _ = storagetransfer.ProductName
 	var _ = tags.ProductName
 	var _ = transcoder.ProductName
+	var _ = vectorsearch.ProductName
 	var _ = vertexai.ProductName
 	var _ = vmwareengine.ProductName
 	var _ = vpcaccess.ProductName

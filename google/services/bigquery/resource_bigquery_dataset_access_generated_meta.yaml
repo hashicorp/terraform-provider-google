@@ -5,25 +5,45 @@ api_service_name: bigquery.googleapis.com
 api_version: v2
 api_resource_type_kind: Dataset
 fields:
-    - api_field: condition.description
-    - api_field: condition.expression
-    - api_field: condition.location
-    - api_field: condition.title
-    - api_field: dataset.dataset.datasetId
-    - api_field: dataset.dataset.projectId
-    - api_field: dataset.targetTypes
-    - api_field: datasetId
-    - api_field: domain
-    - api_field: groupByEmail
-    - api_field: iamMember
-    - api_field: role
-    - api_field: routine.datasetId
-    - api_field: routine.projectId
-    - api_field: routine.routineId
-    - api_field: specialGroup
-    - api_field: userByEmail
-    - api_field: view.datasetId
-    - api_field: view.projectId
-    - api_field: view.tableId
+    - api_field: access.condition.description
+      field: condition.description
+    - api_field: access.condition.expression
+      field: condition.expression
+    - api_field: access.condition.location
+      field: condition.location
+    - api_field: access.condition.title
+      field: condition.title
+    - api_field: access.dataset.dataset.datasetId
+      field: dataset.dataset.dataset_id
+    - api_field: access.dataset.dataset.projectId
+      field: dataset.dataset.project_id
+    - api_field: access.dataset.targetTypes
+      field: dataset.target_types
+    - api_field: access.datasetId
+      field: dataset_id
+    - api_field: access.domain
+      field: domain
+    - api_field: access.groupByEmail
+      field: group_by_email
+    - api_field: access.iamMember
+      field: iam_member
+    - api_field: access.role
+      field: role
+    - api_field: access.routine.datasetId
+      field: routine.dataset_id
+    - api_field: access.routine.projectId
+      field: routine.project_id
+    - api_field: access.routine.routineId
+      field: routine.routine_id
+    - api_field: access.specialGroup
+      field: special_group
+    - api_field: access.userByEmail
+      field: user_by_email
+    - api_field: access.view.datasetId
+      field: view.dataset_id
+    - api_field: access.view.projectId
+      field: view.project_id
+    - api_field: access.view.tableId
+      field: view.table_id
     - field: deletion_policy
       provider_only: true

@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -411,7 +411,7 @@ func compareIamPolicies(a, b *cloudresourcemanager.Policy) bool {
 		return false
 	}
 	if a.Version != b.Version {
-		log.Printf("[DEBUG] policies version differ: %q vs %q", a.Version, b.Version)
+		log.Printf("[DEBUG] policies version differ: \"%v\" vs \"%v\"", a.Version, b.Version)
 		return false
 	}
 	if !CompareBindings(a.Bindings, b.Bindings) {

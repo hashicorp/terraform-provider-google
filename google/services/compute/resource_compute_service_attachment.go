@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -379,6 +379,13 @@ func computeServiceAttachmentConsumerAcceptListsSchema() *schema.Resource {
 				Required: true,
 				Description: `The number of consumer forwarding rules the consumer project can
 create.`,
+			},
+			"endpoint_url": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
+				Description: `The endpoint that is allowed to connect to this service attachment.
+Only one of project_id_or_num, network_url and endpoint_url may be set.`,
 			},
 			"network_url": {
 				Type:             schema.TypeString,
@@ -1017,6 +1024,7 @@ func flattenComputeServiceAttachmentConsumerAcceptLists(v interface{}, d *schema
 		transformed.Add(map[string]interface{}{
 			"project_id_or_num": flattenComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(original["projectIdOrNum"], d, config),
 			"network_url":       flattenComputeServiceAttachmentConsumerAcceptListsNetworkUrl(original["networkUrl"], d, config),
+			"endpoint_url":      flattenComputeServiceAttachmentConsumerAcceptListsEndpointUrl(original["endpointUrl"], d, config),
 			"connection_limit":  flattenComputeServiceAttachmentConsumerAcceptListsConnectionLimit(original["connectionLimit"], d, config),
 		})
 	}
@@ -1027,6 +1035,10 @@ func flattenComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(v interfac
 }
 
 func flattenComputeServiceAttachmentConsumerAcceptListsNetworkUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeServiceAttachmentConsumerAcceptListsEndpointUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1149,6 +1161,13 @@ func expandComputeServiceAttachmentConsumerAcceptLists(v interface{}, d tpgresou
 			transformed["networkUrl"] = transformedNetworkUrl
 		}
 
+		transformedEndpointUrl, err := expandComputeServiceAttachmentConsumerAcceptListsEndpointUrl(original["endpoint_url"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEndpointUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["endpointUrl"] = transformedEndpointUrl
+		}
+
 		transformedConnectionLimit, err := expandComputeServiceAttachmentConsumerAcceptListsConnectionLimit(original["connection_limit"], d, config)
 		if err != nil {
 			return nil, err
@@ -1166,6 +1185,10 @@ func expandComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(v interface
 }
 
 func expandComputeServiceAttachmentConsumerAcceptListsNetworkUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeServiceAttachmentConsumerAcceptListsEndpointUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

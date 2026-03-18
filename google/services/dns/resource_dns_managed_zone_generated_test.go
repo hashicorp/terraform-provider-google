@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -685,6 +685,56 @@ resource "google_dns_managed_zone" "cloud-logging-enabled-zone" {
 
   cloud_logging_config {
     enable_logging = true
+  }
+}
+`, context)
+}
+
+func TestAccDNSManagedZone_dnsManagedZoneIamConditionExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"dns_name":      "conditions.example.com-" + acctest.RandString(t, 10) + ".",
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsManagedZoneIamConditionExample(context),
+			},
+			{
+				ResourceName:            "google_dns_managed_zone.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsManagedZoneIamConditionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dns_managed_zone" "default" {
+  name        = "tf-test-example-zone%{random_suffix}"
+  dns_name    = "%{dns_name}"
+  description = "Example zone for IAM conditions"
+}
+
+resource "google_dns_managed_zone_iam_member" "condition_test" {
+  project      = google_dns_managed_zone.default.project
+  managed_zone = google_dns_managed_zone.default.name
+  role         = "roles/dns.admin"
+  member       = "user:admin@hashicorptest.com"
+
+  condition {
+    title       = "Exact Record Match"
+    description = "Allow modifying only api.example.com. A records"
+    # Mandatory pass-through clause for parent Managed Zone checks
+    expression = "(resource.type == 'dns.googleapis.com/ResourceRecordSet' && resource.name.endsWith('/rrsets/api.%{dns_name}/A')) || (resource.type != 'dns.googleapis.com/ResourceRecordSet')"
   }
 }
 `, context)

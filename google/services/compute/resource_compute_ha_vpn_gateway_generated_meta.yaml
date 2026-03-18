@@ -13,6 +13,7 @@ fields:
     - api_field: labels
     - api_field: name
     - api_field: network
+    - api_field: params.resourceManagerTags
     - api_field: region
     - api_field: stackType
     - field: terraform_labels

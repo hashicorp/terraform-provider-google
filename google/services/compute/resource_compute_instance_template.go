@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -397,6 +397,13 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 								Type:             schema.TypeString,
 								DiffSuppressFunc: tpgresource.CompareResourceNames,
 							},
+						},
+						"storage_pool": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.CompareResourceNames,
+							Description:      `The self_link or ID of the Storage Pool to create this disk in.`,
 						},
 					},
 				},
@@ -1430,6 +1437,15 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 				// instance template only supports a resource name here (not uri)
 				disk.InitializeParams.ResourcePolicies = expandInstanceTemplateResourcePolicies(d, prefix+".resource_policies")
 			}
+
+			if v, ok := d.GetOk(prefix + ".storage_pool"); ok {
+				// Convert name/partial ID to a full URL
+				storagePoolUrl, err := ExpandStoragePoolUrl(v, d, config)
+				if err != nil {
+					return nil, err
+				}
+				disk.InitializeParams.StoragePool = storagePoolUrl
+			}
 		}
 
 		if v, ok := d.GetOk(prefix + ".interface"); ok {
@@ -1693,6 +1709,9 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 		}
 		diskMap["resource_policies"] = disk.InitializeParams.ResourcePolicies
 		diskMap["resource_manager_tags"] = disk.InitializeParams.ResourceManagerTags
+		if disk.InitializeParams.StoragePool != "" {
+			diskMap["storage_pool"] = tpgresource.GetResourceNameFromSelfLink(disk.InitializeParams.StoragePool)
+		}
 	}
 
 	if disk.DiskEncryptionKey != nil {

@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -449,7 +449,7 @@ and cannot be set if max topology distance is set.`,
 							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"BLOCK", "CLUSTER", "SUBBLOCK", ""}),
 							Description: `The maximum topology distance. This field can be set only when the workload policy type is HIGH_THROUGHPUT
-and cannot be set if accelerator topology is set. Possible values: ["BLOCK", "CLUSTER", "SUBBLOCK"]`,
+and cannot be set if accelerator topology or accelerator topology mode is set. Possible values: ["BLOCK", "CLUSTER", "SUBBLOCK"]`,
 							ConflictsWith: []string{"workload_policy.0.accelerator_topology"},
 						},
 					},

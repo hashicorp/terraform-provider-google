@@ -233,6 +233,26 @@ resource "google_compute_resource_policy" "bar" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=resource_policy_workload_policy_accelerator_topology_mode&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Resource Policy Workload Policy Accelerator Topology Mode
+
+
+```hcl
+resource "google_compute_resource_policy" "bar" {
+  provider = google-beta
+  name   = "gce-policy"
+  region = "europe-west1"
+  workload_policy {
+    type = "HIGH_THROUGHPUT"
+    accelerator_topology = "2x2"
+    accelerator_topology_mode = "AUTO_CONNECT"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=resource_policy_workload_policy_max_topology_distance&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -550,13 +570,23 @@ The following arguments are supported:
 * `max_topology_distance` -
   (Optional)
   The maximum topology distance. This field can be set only when the workload policy type is HIGH_THROUGHPUT
-  and cannot be set if accelerator topology is set.
+  and cannot be set if accelerator topology or accelerator topology mode is set.
   Possible values are: `BLOCK`, `CLUSTER`, `SUBBLOCK`.
 
 * `accelerator_topology` -
   (Optional)
   The accelerator topology. This field can be set only when the workload policy type is HIGH_THROUGHPUT
   and cannot be set if max topology distance is set.
+
+* `accelerator_topology_mode` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Specifies the connection mode for the accelerator topology.
+  Supported values are:
+    * `AUTO_CONNECT`: The interconnected chips are pre-configured at the time of VM creation.
+    * `PROVISION_ONLY`: The interconnected chips are connected on demand. At the time of VM creation, the chips are not connected.
+  If not specified, the default is AUTO_CONNECT.
+  This field can be set only when the workload policy type is HIGH_THROUGHPUT and cannot be set if max topology distance is set.
+  Possible values are: `AUTO_CONNECT`, `PROVISION_ONLY`.
 
 ## Attributes Reference
 

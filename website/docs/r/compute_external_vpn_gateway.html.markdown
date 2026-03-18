@@ -177,7 +177,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_interface).
 
 * `params` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Additional params passed with the request, but not persisted as part of resource payload
   Structure is [documented below](#nested_params).
 

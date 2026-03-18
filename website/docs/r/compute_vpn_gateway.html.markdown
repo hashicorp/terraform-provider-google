@@ -100,6 +100,92 @@ resource "google_compute_route" "route1" {
   next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.id
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=target_vpn_gateway_tags&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Target Vpn Gateway Tags
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_compute_vpn_gateway" "target_gateway_tags" {
+  name    = "vpn-1"
+  network = google_compute_network.network1.id
+  params {
+    resource_manager_tags = {
+      (google_tags_tag_key.tag_key1.id) = (google_tags_tag_value.tag_value1.id)
+    }
+  }
+}
+
+resource "google_tags_tag_key" "tag_key1" {
+  parent     = "organizations/123456789"
+  short_name = "tagkey"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  parent     = google_tags_tag_key.tag_key1.id
+  short_name = "tagvalue"
+}
+
+resource "google_compute_network" "network1" {
+  name = "network-1"
+}
+
+resource "google_compute_address" "vpn_static_ip" {
+  name = "vpn-static-ip"
+}
+
+resource "google_compute_forwarding_rule" "fr_esp" {
+  name        = "fr-esp"
+  ip_protocol = "ESP"
+  ip_address  = google_compute_address.vpn_static_ip.address
+  target      = google_compute_vpn_gateway.target_gateway_tags.id
+}
+
+resource "google_compute_forwarding_rule" "fr_udp500" {
+  name        = "fr-udp500"
+  ip_protocol = "UDP"
+  port_range  = "500"
+  ip_address  = google_compute_address.vpn_static_ip.address
+  target      = google_compute_vpn_gateway.target_gateway_tags.id
+}
+
+resource "google_compute_forwarding_rule" "fr_udp4500" {
+  name        = "fr-udp4500"
+  ip_protocol = "UDP"
+  port_range  = "4500"
+  ip_address  = google_compute_address.vpn_static_ip.address
+  target      = google_compute_vpn_gateway.target_gateway_tags.id
+}
+
+resource "google_compute_vpn_tunnel" "tunnel1" {
+  name          = "tunnel1"
+  peer_ip       = "15.0.0.120"
+  shared_secret = "a secret message"
+
+  target_vpn_gateway = google_compute_vpn_gateway.target_gateway_tags.id
+
+  depends_on = [
+    google_compute_forwarding_rule.fr_esp,
+    google_compute_forwarding_rule.fr_udp500,
+    google_compute_forwarding_rule.fr_udp4500,
+  ]
+}
+
+resource "google_compute_route" "route1" {
+  name       = "route1"
+  network    = google_compute_network.network1.name
+  dest_range = "15.0.0.0/24"
+  priority   = 1000
+
+  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.id
+}
+```
 
 ## Argument Reference
 
@@ -126,7 +212,7 @@ The following arguments are supported:
   An optional description of this resource.
 
 * `params` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Additional params passed with the request, but not persisted as part of resource payload
   Structure is [documented below](#nested_params).
 

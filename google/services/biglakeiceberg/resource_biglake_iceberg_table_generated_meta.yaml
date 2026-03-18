@@ -1,0 +1,29 @@
+resource: google_biglake_iceberg_table
+generation_type: mmv1
+source_file: products/biglakeiceberg/IcebergTable.yaml
+api_service_name: biglake.googleapis.com
+api_version: ""
+api_resource_type_kind: IcebergTable
+fields:
+    - field: catalog
+      provider_only: true
+    - api_field: location
+    - api_field: name
+    - field: namespace
+      provider_only: true
+    - api_field: partition-spec.fields.field-id
+    - api_field: partition-spec.fields.name
+    - api_field: partition-spec.fields.source-id
+    - api_field: partition-spec.fields.transform
+    - api_field: partition-spec.spec-id
+    - api_field: properties
+    - api_field: schema.fields.doc
+    - api_field: schema.fields.id
+    - api_field: schema.fields.name
+    - api_field: schema.fields.required
+    - api_field: schema.fields.type
+    - api_field: schema.identifier-field-ids
+    - api_field: schema.schema-id
+    - api_field: schema.type
+    - field: deletion_policy
+      provider_only: true

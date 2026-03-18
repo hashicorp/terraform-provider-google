@@ -100,7 +100,6 @@ resource "google_network_services_authz_extension" "default" {
   name     = "my-authz-ext"
   location = "us-west1"
 
-  authority             = "ext11.com"
   service               = "iap.googleapis.com"
   timeout               = "0.1s"
 }
@@ -110,10 +109,6 @@ resource "google_network_services_authz_extension" "default" {
 
 The following arguments are supported:
 
-
-* `authority` -
-  (Required)
-  The :authority header in the gRPC request sent from Envoy to the extension service.
 
 * `service` -
   (Required)
@@ -154,6 +149,10 @@ The following arguments are supported:
   this extension must share the same load balancing scheme. For more information, refer to
   [Backend services overview](https://cloud.google.com/load-balancing/docs/backend-service).
   Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
+
+* `authority` -
+  (Optional)
+  The :authority header in the gRPC request sent from Envoy to the extension service.
 
 * `fail_open` -
   (Optional)

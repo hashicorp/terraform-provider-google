@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // ----------------------------------------------------------------------------
@@ -294,6 +294,15 @@ The service account must have the
 CES service agent
 'service-@gcp-sa-ces.iam.gserviceaccount.com'.`,
 												},
+												"scopes": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `The OAuth scopes to grant. If not specified, the default scope
+'https://www.googleapis.com/auth/cloud-platform' is used.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 											},
 										},
 									},
@@ -310,6 +319,16 @@ from service agent.`,
 									},
 								},
 							},
+						},
+						"custom_headers": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `The custom headers to send in the request to the MCP server. The values
+must be in the format '$context.variables.<name_of_variable>' and can be
+set in the session variables. See
+https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/tool/open-api#openapi-injection
+for more details.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"service_directory_config": {
 							Type:     schema.TypeList,
@@ -508,6 +527,15 @@ The service account must have the
 'roles/iam.serviceAccountTokenCreator' role granted to the
 CES service agent
 'service-@gcp-sa-ces.iam.gserviceaccount.com'.`,
+												},
+												"scopes": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `The OAuth scopes to grant. If not specified, the default scope
+'https://www.googleapis.com/auth/cloud-platform' is used.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
 												},
 											},
 										},
@@ -1164,9 +1192,15 @@ func flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfig(v 
 	transformed := make(map[string]interface{})
 	transformed["service_account"] =
 		flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(original["serviceAccount"], d, config)
+	transformed["scopes"] =
+		flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1281,6 +1315,8 @@ func flattenCESToolsetMcpToolset(v interface{}, d *schema.ResourceData, config *
 		flattenCESToolsetMcpToolsetServiceDirectoryConfig(original["serviceDirectoryConfig"], d, config)
 	transformed["tls_config"] =
 		flattenCESToolsetMcpToolsetTlsConfig(original["tlsConfig"], d, config)
+	transformed["custom_headers"] =
+		flattenCESToolsetMcpToolsetCustomHeaders(original["customHeaders"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolsetMcpToolsetServerAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1389,9 +1425,15 @@ func flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfig(v inte
 	transformed := make(map[string]interface{})
 	transformed["service_account"] =
 		flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(original["serviceAccount"], d, config)
+	transformed["scopes"] =
+		flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1474,6 +1516,10 @@ func flattenCESToolsetMcpToolsetTlsConfigCaCertsCert(v interface{}, d *schema.Re
 }
 
 func flattenCESToolsetMcpToolsetTlsConfigCaCertsDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolsetMcpToolsetCustomHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1737,10 +1783,21 @@ func expandCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfig(v i
 		transformed["serviceAccount"] = transformedServiceAccount
 	}
 
+	transformedScopes, err := expandCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scopes"] = transformedScopes
+	}
+
 	return transformed, nil
 }
 
 func expandCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolsetOpenApiToolsetApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1926,6 +1983,13 @@ func expandCESToolsetMcpToolset(v interface{}, d tpgresource.TerraformResourceDa
 		return nil, err
 	} else if val := reflect.ValueOf(transformedTlsConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tlsConfig"] = transformedTlsConfig
+	}
+
+	transformedCustomHeaders, err := expandCESToolsetMcpToolsetCustomHeaders(original["custom_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["customHeaders"] = transformedCustomHeaders
 	}
 
 	return transformed, nil
@@ -2122,10 +2186,21 @@ func expandCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfig(v inter
 		transformed["serviceAccount"] = transformedServiceAccount
 	}
 
+	transformedScopes, err := expandCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scopes"] = transformedScopes
+	}
+
 	return transformed, nil
 }
 
 func expandCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolsetMcpToolsetApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2259,4 +2334,15 @@ func expandCESToolsetMcpToolsetTlsConfigCaCertsCert(v interface{}, d tpgresource
 
 func expandCESToolsetMcpToolsetTlsConfigCaCertsDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCESToolsetMcpToolsetCustomHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

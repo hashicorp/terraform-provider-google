@@ -82,6 +82,8 @@ fields:
     api_field: 'properties.disks.initializeParams.sourceSnapshotEncryptionKey.rawKey'
   - field: 'disk.source_snapshot_encryption_key.rsa_encrypted_key'
     api_field: 'properties.disks.initializeParams.sourceSnapshotEncryptionKey.rsaEncryptedKey'
+  - field: 'disk.storage_pool'
+    api_field: 'properties.disks.initializeParams.storagePool'
   - field: 'disk.type'
     api_field: 'properties.disks.type'
   - field: 'effective_labels'

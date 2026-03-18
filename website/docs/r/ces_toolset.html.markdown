@@ -75,7 +75,8 @@ resource "google_ces_toolset" "ces_toolset_openapi_service_account_auth_config" 
     }
     api_authentication {
         service_account_auth_config {
-            service_account = "testaccount@gmail.com"
+            service_account = "my@service-account.com"
+            scopes = ["scope1"]
         }
     }
   }
@@ -373,6 +374,7 @@ resource "google_ces_toolset" "ces_toolset_mcp_service_account_auth_config" {
     api_authentication {
         service_account_auth_config {
             service_account = "my@service-account.com"
+            scopes = ["scope1"]
         }
     }
   }
@@ -467,6 +469,9 @@ resource "google_ces_toolset" "ces_toolset_mcp_service_agent_id_token_auth_confi
 
   mcp_toolset {
     server_address = "https://api.example.com/mcp/"
+    custom_headers = {
+      "X-Custom-Header" = "$context.variables.my_variable"
+    }
     tls_config {
         ca_certs {
           display_name="example"
@@ -774,6 +779,11 @@ The following arguments are supported:
   CES service agent
   `service-@gcp-sa-ces.iam.gserviceaccount.com`.
 
+* `scopes` -
+  (Optional)
+  The OAuth scopes to grant. If not specified, the default scope
+  `https://www.googleapis.com/auth/cloud-platform` is used.
+
 <a name="nested_open_api_toolset_api_authentication_bearer_token_config"></a>The `bearer_token_config` block supports:
 
 * `token` -
@@ -847,6 +857,14 @@ The following arguments are supported:
   The TLS configuration. Includes the custom server certificates that the
   client should trust.
   Structure is [documented below](#nested_mcp_toolset_tls_config).
+
+* `custom_headers` -
+  (Optional)
+  The custom headers to send in the request to the MCP server. The values
+  must be in the format `$context.variables.<name_of_variable>` and can be
+  set in the session variables. See
+  https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/tool/open-api#openapi-injection
+  for more details.
 
 
 <a name="nested_mcp_toolset_api_authentication"></a>The `api_authentication` block supports:
@@ -940,6 +958,11 @@ The following arguments are supported:
   `roles/iam.serviceAccountTokenCreator` role granted to the
   CES service agent
   `service-@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `scopes` -
+  (Optional)
+  The OAuth scopes to grant. If not specified, the default scope
+  `https://www.googleapis.com/auth/cloud-platform` is used.
 
 <a name="nested_mcp_toolset_api_authentication_bearer_token_config"></a>The `bearer_token_config` block supports:
 

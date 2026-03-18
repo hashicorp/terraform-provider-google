@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 // ----------------------------------------------------------------------------
 //
@@ -24,6 +24,7 @@ import (
 )
 
 func TestAccDiscoveryEngineLicenseConfig_discoveryengineLicenseconfigBasicExample_update(t *testing.T) {
+	t.Skip("License Config creation has been deprecated at the project level for Gemini Enterprise")
 	t.Parallel()
 
 	context := map[string]interface{}{
