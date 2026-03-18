@@ -1,0 +1,7 @@
+```release-note:enhancement
+kms: added `key_project_resolution_mode` field to `google_kms_autokey_config` resource
+```
+
+```release-note:new-resource
+`google_kms_project_autokey_config`
+```
