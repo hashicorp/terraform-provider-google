@@ -9,3 +9,4 @@ fields:
     - field: folder
       provider_only: true
     - api_field: keyProject
+    - api_field: keyProjectResolutionMode
