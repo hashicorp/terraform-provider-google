@@ -1,0 +1,3 @@
+```release-note:enhancement
+blockchainnodeengine: added `ethereum_details.validator_config.beacon_fee_recipient` field to `google_blockchain_node_engine_blockchain_nodes` resource
+```
