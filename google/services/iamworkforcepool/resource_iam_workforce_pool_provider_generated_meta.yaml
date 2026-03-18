@@ -8,6 +8,7 @@ fields:
     - api_field: attributeCondition
     - api_field: attributeMapping
     - api_field: description
+    - api_field: detailedAuditLogging
     - api_field: disabled
     - api_field: displayName
     - api_field: extendedAttributesOauth2Client.attributesType
