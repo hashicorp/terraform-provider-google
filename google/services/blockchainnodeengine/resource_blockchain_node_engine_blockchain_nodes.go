@@ -208,6 +208,11 @@ func ResourceBlockchainNodeEngineBlockchainNodes() *schema.Resource {
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"beacon_fee_recipient": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `An Ethereum address which the beacon client will send fee rewards to if no recipient is configured in the validator client. See https://lighthouse-book.sigmaprime.io/suggested-fee-recipient.html or https://docs.prylabs.network/docs/execution-node/fee-recipient for examples of how this is used. Note that while this is often described as "suggested", as we run the execution node we can trust the execution node, and therefore this is considered enforced.`,
+									},
 									"mev_relay_urls": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -745,9 +750,15 @@ func flattenBlockchainNodeEngineBlockchainNodesEthereumDetailsValidatorConfig(v 
 	transformed := make(map[string]interface{})
 	transformed["mev_relay_urls"] =
 		flattenBlockchainNodeEngineBlockchainNodesEthereumDetailsValidatorConfigMevRelayUrls(original["mevRelayUrls"], d, config)
+	transformed["beacon_fee_recipient"] =
+		flattenBlockchainNodeEngineBlockchainNodesEthereumDetailsValidatorConfigBeaconFeeRecipient(original["beaconFeeRecipient"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBlockchainNodeEngineBlockchainNodesEthereumDetailsValidatorConfigMevRelayUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBlockchainNodeEngineBlockchainNodesEthereumDetailsValidatorConfigBeaconFeeRecipient(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -941,10 +952,21 @@ func expandBlockchainNodeEngineBlockchainNodesEthereumDetailsValidatorConfig(v i
 		transformed["mevRelayUrls"] = transformedMevRelayUrls
 	}
 
+	transformedBeaconFeeRecipient, err := expandBlockchainNodeEngineBlockchainNodesEthereumDetailsValidatorConfigBeaconFeeRecipient(original["beacon_fee_recipient"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBeaconFeeRecipient); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["beaconFeeRecipient"] = transformedBeaconFeeRecipient
+	}
+
 	return transformed, nil
 }
 
 func expandBlockchainNodeEngineBlockchainNodesEthereumDetailsValidatorConfigMevRelayUrls(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBlockchainNodeEngineBlockchainNodesEthereumDetailsValidatorConfigBeaconFeeRecipient(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
