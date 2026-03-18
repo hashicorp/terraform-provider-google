@@ -132,6 +132,7 @@ func ResourceNetworkServicesMesh() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Short name of the Mesh resource to be created.`,
+				ForceNew:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
