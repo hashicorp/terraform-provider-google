@@ -42,6 +42,7 @@ fields:
   - field: 'point_in_time_restore_context.target_instance'
   - field: 'point_in_time_restore_context.point_in_time'
   - field: 'point_in_time_restore_context.preferred_zone'
+  - field: 'point_in_time_restore_context.region'
   - api_field: 'ipAddresses.ipAddress'
     field: 'private_ip_address'
   - api_field: 'project'
