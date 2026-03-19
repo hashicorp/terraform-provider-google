@@ -1448,6 +1448,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Optional:    true,
 							Description: `The name of the target instance to restore to.`,
 						},
+						"region": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The region of the target instance to restore to.`,
+						},
 					},
 				},
 			},
@@ -3470,6 +3475,7 @@ func expandPointInTimeRestoreContext(configured []interface{}) *sqladmin.PointIn
 		Datasource:       _pitrc["datasource"].(string),
 		AllocatedIpRange: _pitrc["allocated_ip_range"].(string),
 		TargetInstance:   _pitrc["target_instance"].(string),
+		Region:           _pitrc["region"].(string),
 	}
 }
 
