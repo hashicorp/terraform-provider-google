@@ -18,4 +18,5 @@ fields:
     - api_field: rules.matches.alpn
     - api_field: rules.matches.sniHost
     - api_field: selfLink
+    - api_field: targetProxies
     - api_field: updateTime

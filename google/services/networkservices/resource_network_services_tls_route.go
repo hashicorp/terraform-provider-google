@@ -228,6 +228,15 @@ The attached Mesh should be of a type SIDECAR`,
 					Type: schema.TypeString,
 				},
 			},
+			"target_proxies": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `TargetProxies defines a list of target proxies this TlsRoute is attached to, as one of the routing rules to route the requests served by the load balancer.
+Each target proxy reference should match the pattern: projects/*/locations/global/targetTcpProxies/<target_tcp_proxy_name>`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -279,6 +288,12 @@ func resourceNetworkServicesTlsRouteCreate(d *schema.ResourceData, meta interfac
 		return err
 	} else if v, ok := d.GetOkExists("gateways"); ok || !reflect.DeepEqual(v, gatewaysProp) {
 		obj["gateways"] = gatewaysProp
+	}
+	targetProxiesProp, err := expandNetworkServicesTlsRouteTargetProxies(d.Get("target_proxies"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_proxies"); ok || !reflect.DeepEqual(v, targetProxiesProp) {
+		obj["targetProxies"] = targetProxiesProp
 	}
 	rulesProp, err := expandNetworkServicesTlsRouteRules(d.Get("rules"), d, config)
 	if err != nil {
@@ -403,6 +418,9 @@ func resourceNetworkServicesTlsRouteRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("gateways", flattenNetworkServicesTlsRouteGateways(res["gateways"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TlsRoute: %s", err)
 	}
+	if err := d.Set("target_proxies", flattenNetworkServicesTlsRouteTargetProxies(res["targetProxies"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsRoute: %s", err)
+	}
 	if err := d.Set("rules", flattenNetworkServicesTlsRouteRules(res["rules"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TlsRoute: %s", err)
 	}
@@ -444,6 +462,12 @@ func resourceNetworkServicesTlsRouteUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("gateways"); ok || !reflect.DeepEqual(v, gatewaysProp) {
 		obj["gateways"] = gatewaysProp
 	}
+	targetProxiesProp, err := expandNetworkServicesTlsRouteTargetProxies(d.Get("target_proxies"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_proxies"); ok || !reflect.DeepEqual(v, targetProxiesProp) {
+		obj["targetProxies"] = targetProxiesProp
+	}
 	rulesProp, err := expandNetworkServicesTlsRouteRules(d.Get("rules"), d, config)
 	if err != nil {
 		return err
@@ -470,6 +494,10 @@ func resourceNetworkServicesTlsRouteUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("gateways") {
 		updateMask = append(updateMask, "gateways")
+	}
+
+	if d.HasChange("target_proxies") {
+		updateMask = append(updateMask, "targetProxies")
 	}
 
 	if d.HasChange("rules") {
@@ -619,6 +647,10 @@ func flattenNetworkServicesTlsRouteGateways(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenNetworkServicesTlsRouteTargetProxies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesTlsRouteRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -727,6 +759,10 @@ func expandNetworkServicesTlsRouteMeshes(v interface{}, d tpgresource.TerraformR
 }
 
 func expandNetworkServicesTlsRouteGateways(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesTlsRouteTargetProxies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
