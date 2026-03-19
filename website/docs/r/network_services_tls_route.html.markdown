@@ -67,6 +67,50 @@ resource "google_network_services_tls_route" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_tls_route_regional_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Tls Route Regional Basic
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  name        = "my-backend-service"
+  protocol    = "TCP"
+  timeout_sec = 10
+  region      = "europe-west4"
+
+  health_checks         = [google_compute_region_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_region_health_check" "default" {
+  name               = "backend-service-health-check"
+  region             = "europe-west4"
+  timeout_sec        = 1
+  check_interval_sec = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_network_services_tls_route" "default" {
+  name     = "my-tls-route"
+  location = "europe-west4"
+  rules {
+    matches {
+      sni_host = ["example.com"]
+    }
+    action {
+      destinations {
+        service_name = google_compute_region_backend_service.default.self_link
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_tls_route_mesh_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -191,13 +235,17 @@ The following arguments are supported:
 * `meshes` -
   (Optional)
   Meshes defines a list of meshes this TlsRoute is attached to, as one of the routing rules to route the requests served by the mesh.
-  Each mesh reference should match the pattern: projects/*/locations/global/meshes/<mesh_name>
+  Each mesh reference should match the pattern: projects/*/locations/*/meshes/<mesh_name>
   The attached Mesh should be of a type SIDECAR
 
 * `gateways` -
   (Optional)
   Gateways defines a list of gateways this TlsRoute is attached to, as one of the routing rules to route the requests served by the gateway.
-  Each gateway reference should match the pattern: projects/*/locations/global/gateways/<gateway_name>
+  Each gateway reference should match the pattern: projects/*/locations/*/gateways/<gateway_name>
+
+* `location` -
+  (Optional)
+  Location (region) of the TLS Route.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -250,7 +298,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/global/tlsRoutes/{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}`
 
 * `self_link` -
   Server-defined URL of this resource.
@@ -276,16 +324,17 @@ This resource provides the following
 
 TlsRoute can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}`
 * `projects/{{project}}/locations/global/tlsRoutes/{{name}}`
-* `{{project}}/{{name}}`
-* `{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
 
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import TlsRoute using one of the formats above. For example:
 
 ```tf
 import {
-  id = "projects/{{project}}/locations/global/tlsRoutes/{{name}}"
+  id = "projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}"
   to = google_network_services_tls_route.default
 }
 ```
@@ -293,9 +342,10 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), TlsRoute can be imported using one of the formats above. For example:
 
 ```
+$ terraform import google_network_services_tls_route.default projects/{{project}}/locations/{{location}}/tlsRoutes/{{name}}
 $ terraform import google_network_services_tls_route.default projects/{{project}}/locations/global/tlsRoutes/{{name}}
-$ terraform import google_network_services_tls_route.default {{project}}/{{name}}
-$ terraform import google_network_services_tls_route.default {{name}}
+$ terraform import google_network_services_tls_route.default {{project}}/{{location}}/{{name}}
+$ terraform import google_network_services_tls_route.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides
