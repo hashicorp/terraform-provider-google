@@ -50,6 +50,42 @@ var (
 	_ = googleapi.Error{}
 )
 
+func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name    = "tf-test-reasoning-engine%{random_suffix}"
+  description     = "A reasoning engine with deletion policy"
+  region          = "us-central1"
+  deletion_policy = "FORCE"
+}
+`, context)
+}
+
 func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testing.T) {
 	t.Parallel()
 
@@ -69,7 +105,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testi
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
@@ -104,7 +140,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceBasedDeployment
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
@@ -154,7 +190,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeveloperConnectSourc
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
@@ -219,7 +255,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testin
 				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "spec.0.source_code_spec.0.inline_source"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "region", "spec.0.source_code_spec.0.inline_source"},
 			},
 		},
 	})
