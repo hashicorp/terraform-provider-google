@@ -415,6 +415,8 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `deletion_policy` - (Optional) Optional. The deletion policy for the reasoning engine. Setting this to FORCE allows the reasoning engine to be deleted regardless of child undeleted resources.
+
 
 
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
