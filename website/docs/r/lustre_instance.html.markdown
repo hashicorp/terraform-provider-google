@@ -138,6 +138,11 @@ The following arguments are supported:
   squashing behavior and specific access rules based on IP addresses.
   Structure is [documented below](#nested_access_rules_options).
 
+* `maintenance_policy` -
+  (Optional)
+  The maintenance policy for the instance to determine when to allow or exclude the instance from maintenance updates.
+  Structure is [documented below](#nested_maintenance_policy).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -183,6 +188,114 @@ The following arguments are supported:
   The squash mode for this specific rule. Currently, only "NO_SQUASH"
   is supported for exceptions.
   Possible values are: `NO_SQUASH`.
+
+<a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
+
+* `weekly_maintenance_windows` -
+  (Optional)
+  The weekly maintenance windows for the instance. Currently limited to 1 window.
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_windows).
+
+* `maintenance_exclusion_window` -
+  (Optional)
+  The exclusion windows for the instance. Currently limited to 1 window.
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window).
+
+
+<a name="nested_maintenance_policy_weekly_maintenance_windows"></a>The `weekly_maintenance_windows` block supports:
+
+* `day_of_week` -
+  (Required)
+  Day of the week for the maintenance window.
+  Possible values are: `SUNDAY`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`.
+
+* `start_time` -
+  (Required)
+  Start time of the maintenance window in UTC.
+  Structure is [documented below](#nested_maintenance_policy_weekly_maintenance_windows_start_time).
+
+
+<a name="nested_maintenance_policy_weekly_maintenance_windows_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must be from 0 to 59.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_maintenance_policy_maintenance_exclusion_window"></a>The `maintenance_exclusion_window` block supports:
+
+* `start_date` -
+  (Required)
+  Start date of the exclusion period in UTC.
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window_start_date).
+
+* `end_date` -
+  (Required)
+  End date of the exclusion period in UTC.
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window_end_date).
+
+* `time` -
+  (Required)
+  Time in UTC for the exclusion window.
+  Structure is [documented below](#nested_maintenance_policy_maintenance_exclusion_window_time).
+
+
+<a name="nested_maintenance_policy_maintenance_exclusion_window_start_date"></a>The `start_date` block supports:
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 for recurring.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12.
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month.
+
+<a name="nested_maintenance_policy_maintenance_exclusion_window_end_date"></a>The `end_date` block supports:
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 for recurring.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12.
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month.
+
+<a name="nested_maintenance_policy_maintenance_exclusion_window_time"></a>The `time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must be from 0 to 59.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
 ## Attributes Reference
 

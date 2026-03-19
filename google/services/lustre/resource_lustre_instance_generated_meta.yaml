@@ -25,6 +25,21 @@ fields:
     - api_field: labels
     - field: location
       provider_only: true
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.endDate.day
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.endDate.month
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.endDate.year
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.startDate.day
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.startDate.month
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.startDate.year
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.time.hours
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.time.minutes
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.time.nanos
+    - api_field: maintenancePolicy.maintenanceExclusionWindow.time.seconds
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.dayOfWeek
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.startTime.hours
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.startTime.minutes
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.startTime.nanos
+    - api_field: maintenancePolicy.weeklyMaintenanceWindows.startTime.seconds
     - api_field: mountPoint
     - api_field: name
     - api_field: network
