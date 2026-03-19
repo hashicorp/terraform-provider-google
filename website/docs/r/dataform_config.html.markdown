@@ -59,6 +59,9 @@ resource "google_project_service" "dataform_api" {
   project            = google_project.project.project_id
   service            = "dataform.googleapis.com"
   disable_on_destroy = false
+  depends_on      = [
+    google_project_service.cloudkms_api
+  ]
 }
 
 # Add a sleep to wait for IAM propagation after API enablement
@@ -74,6 +77,9 @@ resource "google_project_service_identity" "dataform_sa" {
   provider = google-beta
   project  = google_project.project.project_id
   service  = "dataform.googleapis.com"
+  depends_on = [
+    time_sleep.wait_for_dataform_api
+  ]
 }
 
 resource "google_kms_key_ring" "keyring" {
@@ -82,7 +88,7 @@ resource "google_kms_key_ring" "keyring" {
   name       = "example-key-ring"
   location   = "us-central1"
   depends_on = [
-    google_project_service.cloudkms_api
+    time_sleep.wait_for_dataform_api
   ]
 }
 
@@ -110,7 +116,6 @@ resource "google_dataform_config" "config" {
   # Ensure IAM binding is created before the Dataform Config
   depends_on = [
     google_kms_crypto_key_iam_member.crypto_key_binding,
-    time_sleep.wait_for_dataform_api
   ]
 }
 ```
