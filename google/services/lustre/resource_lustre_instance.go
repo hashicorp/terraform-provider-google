@@ -251,6 +251,167 @@ GKE clients are not supported.`,
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"maintenance_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The maintenance policy for the instance to determine when to allow or exclude the instance from maintenance updates.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"maintenance_exclusion_window": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The exclusion windows for the instance. Currently limited to 1 window.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"end_date": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `End date of the exclusion period in UTC.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"day": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Day of a month. Must be from 1 to 31 and valid for the year and month.`,
+												},
+												"month": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Month of a year. Must be from 1 to 12.`,
+												},
+												"year": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Year of the date. Must be from 1 to 9999, or 0 for recurring.`,
+												},
+											},
+										},
+									},
+									"start_date": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Start date of the exclusion period in UTC.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"day": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Day of a month. Must be from 1 to 31 and valid for the year and month.`,
+												},
+												"month": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Month of a year. Must be from 1 to 12.`,
+												},
+												"year": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Year of the date. Must be from 1 to 9999, or 0 for recurring.`,
+												},
+											},
+										},
+									},
+									"time": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Time in UTC for the exclusion window.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hours": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Hours of day in 24 hour format. Should be from 0 to 23.`,
+												},
+												"minutes": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Minutes of hour of day. Must be from 0 to 59.`,
+												},
+												"nanos": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+												},
+												"seconds": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Seconds of minutes of the time. Must be from 0 to 59.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"weekly_maintenance_windows": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The weekly maintenance windows for the instance. Currently limited to 1 window.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"day_of_week": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"}),
+										Description:  `Day of the week for the maintenance window. Possible values: ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]`,
+									},
+									"start_time": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Start time of the maintenance window in UTC.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hours": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Hours of day in 24 hour format. Should be from 0 to 23.`,
+												},
+												"minutes": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Minutes of hour of day. Must be from 0 to 59.`,
+												},
+												"nanos": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+												},
+												"seconds": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Optional:    true,
+													Description: `Seconds of minutes of the time. Must be from 0 to 59.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"placement_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -373,6 +534,12 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("access_rules_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessRulesOptionsProp)) && (ok || !reflect.DeepEqual(v, accessRulesOptionsProp)) {
 		obj["accessRulesOptions"] = accessRulesOptionsProp
+	}
+	maintenancePolicyProp, err := expandLustreInstanceMaintenancePolicy(d.Get("maintenance_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
+		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -525,6 +692,9 @@ func resourceLustreInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("access_rules_options", flattenLustreInstanceAccessRulesOptions(res["accessRulesOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("maintenance_policy", flattenLustreInstanceMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenLustreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -901,6 +1071,374 @@ func flattenLustreInstanceAccessRulesOptionsAccessRulesSquashMode(v interface{},
 	return v
 }
 
+func flattenLustreInstanceMaintenancePolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["weekly_maintenance_windows"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindows(original["weeklyMaintenanceWindows"], d, config)
+	transformed["maintenance_exclusion_window"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindow(original["maintenanceExclusionWindow"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindows(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"day_of_week": flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsDayOfWeek(original["dayOfWeek"], d, config),
+			"start_time":  flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTime(original["startTime"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsDayOfWeek(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeMinutes(original["minutes"], d, config)
+	transformed["seconds"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeMinutes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"start_date": flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDate(original["startDate"], d, config),
+			"end_date":   flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDate(original["endDate"], d, config),
+			"time":       flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTime(original["time"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["year"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateYear(original["year"], d, config)
+	transformed["month"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateMonth(original["month"], d, config)
+	transformed["day"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateDay(original["day"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateYear(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateMonth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateDay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["year"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateYear(original["year"], d, config)
+	transformed["month"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateMonth(original["month"], d, config)
+	transformed["day"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateDay(original["day"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateYear(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateMonth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateDay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeMinutes(original["minutes"], d, config)
+	transformed["seconds"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeMinutes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenLustreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1055,6 +1593,324 @@ func expandLustreInstanceAccessRulesOptionsAccessRulesIpAddressRanges(v interfac
 }
 
 func expandLustreInstanceAccessRulesOptionsAccessRulesSquashMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWeeklyMaintenanceWindows, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindows(original["weekly_maintenance_windows"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWeeklyMaintenanceWindows); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["weeklyMaintenanceWindows"] = transformedWeeklyMaintenanceWindows
+	}
+
+	transformedMaintenanceExclusionWindow, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindow(original["maintenance_exclusion_window"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaintenanceExclusionWindow); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maintenanceExclusionWindow"] = transformedMaintenanceExclusionWindow
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindows(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDayOfWeek, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsDayOfWeek(original["day_of_week"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDayOfWeek); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dayOfWeek"] = transformedDayOfWeek
+		}
+
+		transformedStartTime, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTime(original["start_time"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["startTime"] = transformedStartTime
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsDayOfWeek(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedSeconds, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeHours(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeMinutes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyWeeklyMaintenanceWindowsStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindow(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedStartDate, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDate(original["start_date"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStartDate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["startDate"] = transformedStartDate
+		}
+
+		transformedEndDate, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDate(original["end_date"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEndDate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["endDate"] = transformedEndDate
+		}
+
+		transformedTime, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTime(original["time"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["time"] = transformedTime
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedYear, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	transformedMonth, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedDay, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateYear(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateMonth(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowStartDateDay(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedYear, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateYear(original["year"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedYear); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["year"] = transformedYear
+	}
+
+	transformedMonth, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateMonth(original["month"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonth); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["month"] = transformedMonth
+	}
+
+	transformedDay, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateDay(original["day"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["day"] = transformedDay
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateYear(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateMonth(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowEndDateDay(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedSeconds, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeHours(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeMinutes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLustreInstanceMaintenancePolicyMaintenanceExclusionWindowTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
