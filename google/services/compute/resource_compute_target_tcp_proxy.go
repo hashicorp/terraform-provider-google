@@ -118,12 +118,6 @@ func ResourceComputeTargetTcpProxy() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"backend_service": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      `A reference to the BackendService resource.`,
-			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -135,6 +129,14 @@ the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
+			},
+			"backend_service": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `A reference to the BackendService resource. This field is optional when
+the loadBalancingScheme (available in beta) is set to INTERNAL_MANAGED.`,
+				AtLeastOneOf: []string{"backend_service"},
 			},
 			"description": {
 				Type:        schema.TypeString,

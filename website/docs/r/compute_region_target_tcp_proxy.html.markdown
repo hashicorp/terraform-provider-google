@@ -214,7 +214,7 @@ The following arguments are supported:
 * `backend_service` -
   (Optional)
   A reference to the BackendService resource. This field is optional when
-  the loadBalancingScheme is specified.
+  the loadBalancingScheme (available in beta) is specified.
 
 * `proxy_bind` -
   (Optional)
