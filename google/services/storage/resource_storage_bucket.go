@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/gammazero/workerpool"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -40,6 +41,30 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
 )
+
+func buckeEncryptionEnforcementConfigSchema(encryptionType string) *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"restriction_mode": {
+					Type:         schema.TypeString,
+					Required:     true,
+					ValidateFunc: verify.ValidateEnum([]string{"NotRestricted", "FullyRestricted"}),
+					Description:  fmt.Sprintf("Whether %s is restricted for new objects within the bucket. If FullyRestricted, new objects can't be created using %s encryption. If NotRestricted or unset, creation of new objects with %s encryption is allowed.", encryptionType, encryptionType, encryptionType),
+				},
+				"effective_time": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `Time from which the config was effective. This is service-provided.`,
+				},
+			},
+		},
+		Description: fmt.Sprintf("If omitted, then new objects with %s encryption-type is allowed. If FullyRestricted, then new objects created in this bucket must comply with enforcement config. Changing this has no effect on existing objects; it applies to new objects only.", encryptionType),
+	}
+}
 
 func ResourceStorageBucket() *schema.Resource {
 	return &schema.Resource{
@@ -101,9 +126,12 @@ func ResourceStorageBucket() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"default_kms_key_name": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: `A Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified. You must pay attention to whether the crypto key is available in the location that this bucket is created in. See the docs for more details.`,
 						},
+						"google_managed_encryption_enforcement_config":    buckeEncryptionEnforcementConfigSchema("GMEK"),
+						"customer_managed_encryption_enforcement_config":  buckeEncryptionEnforcementConfigSchema("CMEK"),
+						"customer_supplied_encryption_enforcement_config": buckeEncryptionEnforcementConfigSchema("CSEK"),
 					},
 				},
 				Description: `The bucket's encryption configuration.`,
@@ -1449,13 +1477,59 @@ func expandBucketEncryption(configured interface{}) *storage.BucketEncryption {
 	}
 	enc := encs[0].(map[string]interface{})
 	keyname := enc["default_kms_key_name"]
-	if keyname == nil || keyname.(string) == "" {
+	bucketencryption := &storage.BucketEncryption{
+		DefaultKmsKeyName:                           keyname.(string),
+		GoogleManagedEncryptionEnforcementConfig:    expandGoogleManagedEncryptionEnforcementConfig(enc["google_managed_encryption_enforcement_config"]),
+		CustomerManagedEncryptionEnforcementConfig:  expandCustomerManagedEncryptionEnforcementConfig(enc["customer_managed_encryption_enforcement_config"]),
+		CustomerSuppliedEncryptionEnforcementConfig: expandCustomerSuppliedEncryptionEnforcementConfig(enc["customer_supplied_encryption_enforcement_config"]),
+	}
+
+	return bucketencryption
+}
+
+func expandGoogleManagedEncryptionEnforcementConfig(gmek interface{}) *storage.BucketEncryptionGoogleManagedEncryptionEnforcementConfig {
+	if gmek == nil {
 		return nil
 	}
-	bucketenc := &storage.BucketEncryption{
-		DefaultKmsKeyName: keyname.(string),
+	l := gmek.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
 	}
-	return bucketenc
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	return &storage.BucketEncryptionGoogleManagedEncryptionEnforcementConfig{
+		RestrictionMode: original["restriction_mode"].(string),
+	}
+}
+
+func expandCustomerManagedEncryptionEnforcementConfig(cmek interface{}) *storage.BucketEncryptionCustomerManagedEncryptionEnforcementConfig {
+	if cmek == nil {
+		return nil
+	}
+	l := cmek.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	return &storage.BucketEncryptionCustomerManagedEncryptionEnforcementConfig{
+		RestrictionMode: original["restriction_mode"].(string),
+	}
+}
+
+func expandCustomerSuppliedEncryptionEnforcementConfig(csek interface{}) *storage.BucketEncryptionCustomerSuppliedEncryptionEnforcementConfig {
+	if csek == nil {
+		return nil
+	}
+	l := csek.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	return &storage.BucketEncryptionCustomerSuppliedEncryptionEnforcementConfig{
+		RestrictionMode: original["restriction_mode"].(string),
+	}
 }
 
 func flattenBucketEncryption(enc *storage.BucketEncryption) []map[string]interface{} {
@@ -1465,11 +1539,67 @@ func flattenBucketEncryption(enc *storage.BucketEncryption) []map[string]interfa
 		return encryption
 	}
 
-	encryption = append(encryption, map[string]interface{}{
-		"default_kms_key_name": enc.DefaultKmsKeyName,
-	})
+	flattenEncryption := make(map[string]interface{})
 
+	if enc.DefaultKmsKeyName != "" {
+		flattenEncryption["default_kms_key_name"] = enc.DefaultKmsKeyName
+	}
+
+	if enc.CustomerManagedEncryptionEnforcementConfig != nil {
+		flattenEncryption["customer_managed_encryption_enforcement_config"] = flattenCustomerManagedEncryptionEnforcementConfig(enc.CustomerManagedEncryptionEnforcementConfig)
+	}
+
+	if enc.CustomerSuppliedEncryptionEnforcementConfig != nil {
+		flattenEncryption["customer_supplied_encryption_enforcement_config"] = flattenCustomerSuppliedEncryptionEnforcementConfig(enc.CustomerSuppliedEncryptionEnforcementConfig)
+	}
+
+	if enc.GoogleManagedEncryptionEnforcementConfig != nil {
+		flattenEncryption["google_managed_encryption_enforcement_config"] = flattenGoogleManagedEncryptionEnforcementConfig(enc.GoogleManagedEncryptionEnforcementConfig)
+	}
+	encryption = append(encryption, flattenEncryption)
 	return encryption
+}
+
+func flattenCustomerManagedEncryptionEnforcementConfig(cmek *storage.BucketEncryptionCustomerManagedEncryptionEnforcementConfig) []map[string]interface{} {
+	encryptionConfig := make([]map[string]interface{}, 0, 1)
+
+	if cmek == nil {
+		return encryptionConfig
+	}
+
+	encryptionConfig = append(encryptionConfig, map[string]interface{}{
+		"restriction_mode": cmek.RestrictionMode,
+		"effective_time":   cmek.EffectiveTime,
+	})
+	return encryptionConfig
+}
+
+func flattenCustomerSuppliedEncryptionEnforcementConfig(cmek *storage.BucketEncryptionCustomerSuppliedEncryptionEnforcementConfig) []map[string]interface{} {
+	encryptionConfig := make([]map[string]interface{}, 0, 1)
+
+	if cmek == nil {
+		return encryptionConfig
+	}
+
+	encryptionConfig = append(encryptionConfig, map[string]interface{}{
+		"restriction_mode": cmek.RestrictionMode,
+		"effective_time":   cmek.EffectiveTime,
+	})
+	return encryptionConfig
+}
+
+func flattenGoogleManagedEncryptionEnforcementConfig(cmek *storage.BucketEncryptionGoogleManagedEncryptionEnforcementConfig) []map[string]interface{} {
+	encryptionConfig := make([]map[string]interface{}, 0, 1)
+
+	if cmek == nil {
+		return encryptionConfig
+	}
+
+	encryptionConfig = append(encryptionConfig, map[string]interface{}{
+		"restriction_mode": cmek.RestrictionMode,
+		"effective_time":   cmek.EffectiveTime,
+	})
+	return encryptionConfig
 }
 
 func expandBucketCustomPlacementConfig(configured interface{}) *storage.BucketCustomPlacementConfig {

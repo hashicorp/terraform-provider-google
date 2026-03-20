@@ -170,6 +170,27 @@ resource "google_storage_bucket" "hns-enabled" {
   }
 }
 ```
+## Example Usage - Enabling encryption enforcement config
+
+```hcl
+resource "google_storage_bucket" "hns-enabled" {
+  name          = "hns-enabled-bucket"
+  location      = "US"
+  force_destroy = true
+
+  encryption  {
+    google_managed_encryption_enforcement_config {
+      restriction_mode = "FullyRestricted"
+    }
+    customer_managed_encryption_enforcement_config {
+      restriction_mode = "FullyRestricted"
+    }
+    customer_supplied_encryption_enforcement_config {
+      restriction_mode = "NotRestricted"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -318,7 +339,7 @@ The following arguments are supported:
 
 <a name="nested_encryption"></a>The `encryption` block supports:
 
-* `default_kms_key_name`: The `id` of a Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified.
+* `default_kms_key_name` -  (Optional) The `id` of a Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified.
   You must pay attention to whether the crypto key is available in the location that this bucket is created in.
   See [the docs](https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys) for more details.
 
@@ -332,6 +353,17 @@ The following arguments are supported:
   This data source calls an API which creates the account if required, ensuring your Terraform applies cleanly and repeatedly irrespective of the
   state of the project.
   You should take care for race conditions when the same Terraform manages IAM policy on the Cloud KMS crypto key. See the data source page for more details.
+
+* `google_managed_encryption_enforcement_config`: (Optional) If omitted, then new objects with GMEK encryption-type is allowed. If set, then new objects created in this bucket must comply with enforcement config. Changing this has no effect on existing objects; it applies to new objects only, Structure is documented below [documented below](#nested_google_managed_encryption_enforcement_config).
+
+* `customer_managed_encryption_enforcement_config`: (Optional) If omitted, then new objects with CMEK encryption-type is allowed. If set, then new objects created in this bucket must comply with enforcement config. Changing this has no effect on existing objects; it applies to new objects only, Structure is documented below [documented below](#nested_customer_managed_encryption_enforcement_config).
+
+* `customer_supplied_encryption_enforcement_config`: (Optional) If omitted, then new objects with CSEK encryption-type is allowed. If set, then new objects created in this bucket must comply with enforcement config. Changing this has no effect on existing objects; it applies to new objects only, Structure is documented below [documented below](#nested_customer_supplied_encryption_enforcement_config).
+* `google_managed_encryption_enforcement_config` - (Optional) If omitted, then new objects with GMEK encryption-type is allowed. If set, then new objects created in this bucket must comply with enforcement config. Changing this has no effect on existing objects; it applies to new objects only, Structure is documented below [documented below](#nested_google_managed_encryption_enforcement_config).
+
+* `customer_managed_encryption_enforcement_config` - (Optional) If omitted, then new objects with CMEK encryption-type is allowed. If set, then new objects created in this bucket must comply with enforcement config. Changing this has no effect on existing objects; it applies to new objects only, Structure is documented below [documented below](#nested_customer_managed_encryption_enforcement_config).
+
+* `customer_supplied_encryption_enforcement_config` - (Optional) If omitted, then new objects with CSEK encryption-type is allowed. If set, then new objects created in this bucket must comply with enforcement config. Changing this has no effect on existing objects; it applies to new objects only, Structure is documented below [documented below](#nested_customer_supplied_encryption_enforcement_config).
 
 <a name="nested_custom_placement_config"></a>The `custom_placement_config` block supports:
 
@@ -372,6 +404,24 @@ The following arguments are supported:
 * `network` - Name of the network. Format: `projects/PROJECT_ID/global/networks/NETWORK_NAME`
 
 * `allowed_ip_cidr_ranges` - The list of public or private IPv4 and IPv6 CIDR ranges that can access the bucket.
+
+<a name="nested_google_managed_encryption_enforcement_config"></a>The `google_managed_encryption_enforcement_config` block supports:
+
+* `restriction_mode` - (Required) Whether Google Managed Encryption (GMEK) is restricted for new objects within the bucket. If FullyRestricted, new objects can't be created using GMEK encryption. If NotRestricted or unset, creation of new objects with GMEK encryption is allowed.
+
+* `effective_time` - Time from which the config was effective.
+
+<a name="nested_customer_supplied_encryption_enforcement_config"></a>The `customer_supplied_encryption_enforcement_config` block supports:
+
+* `restriction_mode` - (Required) Whether Customer Supplied Encryption (CSEK) is restricted for new objects within the bucket. If FullyRestricted, new objects can't be created using CSEK encryption. If NotRestricted or unset, creation of new objects with CSEK encryption is allowed.
+
+* `effective_time` - Time from which the config was effective.
+
+<a name="nested_customer_managed_encryption_enforcement_config"></a>The `customer_managed_encryption_enforcement_config` block supports:
+
+* `restriction_mode` - (Required) Whether Customer Managed Encryption (CMEK) is restricted for new objects within the bucket. If FullyRestricted, new objects can't be created using CMEK encryption. If NotRestricted or unset, creation of new objects with CMEK encryption is allowed.
+
+* `effective_time` - Time from which the config was effective.
 
 ## Attributes Reference
 
