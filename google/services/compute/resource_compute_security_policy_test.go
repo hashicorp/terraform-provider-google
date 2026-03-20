@@ -636,6 +636,36 @@ func TestAccComputeSecurityPolicy_withRecaptchaOptionsConfig(t *testing.T) {
 	})
 }
 
+func TestAccComputeSecurityPolicy_ruleActionUpdate(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicy_ruleActionThrottle(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicy_ruleActionDeny(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeSecurityPolicy_withHeadAction(t *testing.T) {
 	t.Parallel()
 
@@ -2225,6 +2255,80 @@ resource "google_compute_security_policy" "policy" {
   labels = {
     "env" = "test",
 	"new_label" = "abcd1"
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_ruleActionThrottle(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name = "%s"
+
+  rule {
+    action   = "allow"
+    priority = "2147483647"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+
+  rule {
+    action   = "throttle"
+    priority = "1000"
+    match {
+      expr {
+        expression = "request.path == 'my-path' && token.recaptcha_action.score <= 0.5"
+      }
+    }
+
+    rate_limit_options {
+      conform_action = "allow"
+      exceed_action = "deny(403)"
+
+      rate_limit_threshold {
+        count = 10
+        interval_sec = 10
+      }
+    }
+    description = "Block requests if their reCAPTCHA Enterprise score is too low"
+    preview = true
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_ruleActionDeny(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name = "%s"
+
+  rule {
+    action   = "allow"
+    priority = "2147483647"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+
+  rule {
+    action   = "deny(403)"
+    priority = "1000"
+    match {
+      expr {
+        expression = "request.path == 'my-path' && token.recaptcha_action.score <= 0.5"
+      }
+    }
+    description = "Block requests if their reCAPTCHA Enterprise score is too low"
+    preview = true
   }
 }
 `, spName)
