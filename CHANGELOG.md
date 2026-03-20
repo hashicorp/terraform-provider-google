@@ -1,5 +1,30 @@
 ## 7.25.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_compute_network_endpoint_groups` ([#26515](https://github.com/hashicorp/terraform-provider-google/pull/26515))
+* **New Resource:** `google_dialogflow_environment` ([#26489](https://github.com/hashicorp/terraform-provider-google/pull/26489))
+* **New Resource:** `google_kms_project_autokey_config` ([#26501](https://github.com/hashicorp/terraform-provider-google/pull/26501))
+
+IMPROVEMENTS:
+* backupdr: added `disk_backup_plan_properties` field to `google_backup_dr_backup_plan` resource ([#26497](https://github.com/hashicorp/terraform-provider-google/pull/26497))
+* backupdr: made backup rules optional in backup plans ([#26494](https://github.com/hashicorp/terraform-provider-google/pull/26494))
+* blockchainnodeengine: added `ethereum_details.validator_config.beacon_fee_recipient` field to `google_blockchain_node_engine_blockchain_nodes` resource ([#26499](https://github.com/hashicorp/terraform-provider-google/pull/26499))
+* ces: added `customHeaders` field to MCP toolset in CES `google_ces_toolset` resource ([#26473](https://github.com/hashicorp/terraform-provider-google/pull/26473))
+* cloudsql: removed `max_custom_on_demand_retention_days` field from `sqladmin` resource ([#26472](https://github.com/hashicorp/terraform-provider-google/pull/26472))
+* compute: added `ForwardProxy` field in `google_compute_region_backend_service` resource ([#26449](https://github.com/hashicorp/terraform-provider-google/pull/26449))
+* compute: added `expr` field  to `google_compute_organization_security_policy_rule` resource ([#26506](https://github.com/hashicorp/terraform-provider-google/pull/26506))
+* compute: added field `location` to resource `google_network_services_tls_route` ([#26514](https://github.com/hashicorp/terraform-provider-google/pull/26514))
+* compute: added field `target_proxies` to resource `google_network_services_tls_route` ([#26516](https://github.com/hashicorp/terraform-provider-google/pull/26516))
+* compute: made field `backendService` optional for resource `google_compute_target_tcp_proxy` ([#26519](https://github.com/hashicorp/terraform-provider-google/pull/26519))
+* compute: made field `backend_service` optional for resource `google_compute_region_target_tcp_proxy` ([#26493](https://github.com/hashicorp/terraform-provider-google/pull/26493))
+* firebaseailogic: added `traffic_filter` field to `google_firebase_ai_logic_config` resource ([#26491](https://github.com/hashicorp/terraform-provider-google/pull/26491))
+* iamworkforcepool: added `detailed_audit_logging` field to `google_iam_workforce_pool_provider` resource ([#26500](https://github.com/hashicorp/terraform-provider-google/pull/26500))
+* kms: added `key_project_resolution_mode` field to `google_kms_autokey_config` resource ([#26501](https://github.com/hashicorp/terraform-provider-google/pull/26501))
+* lustre: added `maintenance_policy` field to `google_lustre_instance` resource ([#26512](https://github.com/hashicorp/terraform-provider-google/pull/26512))
+* sql: added `point_in_time_restore_context.region` field to `google_sql_database_instance` resource ([#26510](https://github.com/hashicorp/terraform-provider-google/pull/26510))
+* vertexai: added `deletion_policy` field to `resource_vertex_ai_reasoning_engine` resource ([#26518](https://github.com/hashicorp/terraform-provider-google/pull/26518))
+* vertexai: marked `spec` field as computed in `google_vertex_ai_reasoning_engine` resource ([#26470](https://github.com/hashicorp/terraform-provider-google/pull/26470))
+
 ## 7.24.0 (Mar 17, 2026)
 
 DEPRECATIONS:
