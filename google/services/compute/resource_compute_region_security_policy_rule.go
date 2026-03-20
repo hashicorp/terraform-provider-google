@@ -882,7 +882,8 @@ func resourceComputeRegionSecurityPolicyRuleUpdate(d *schema.ResourceData, meta 
 	}
 
 	if d.HasChange("rate_limit_options") {
-		updateMask = append(updateMask, "rateLimitOptions.rateLimitThreshold",
+		updateMask = append(updateMask, "rateLimitOptions",
+			"rateLimitOptions.rateLimitThreshold",
 			"rateLimitOptions.conformAction",
 			"rateLimitOptions.exceedAction",
 			"rateLimitOptions.enforceOnKey",
