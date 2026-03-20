@@ -18,6 +18,12 @@ fields:
     field: 'enable_object_retention'
   - api_field: 'encryption.defaultKmsKey'
     field: 'encryption.default_kms_key_name'
+  - api_field: 'encryption.customerManagedEncryptionEnforcementConfig.effectiveTime'
+  - api_field: 'encryption.customerManagedEncryptionEnforcementConfig.restrictionMode'
+  - api_field: 'encryption.customerSuppliedEncryptionEnforcementConfig.effectiveTime'
+  - api_field: 'encryption.customerSuppliedEncryptionEnforcementConfig.restrictionMode'
+  - api_field: 'encryption.googleManagedEncryptionEnforcementConfig.effectiveTime'
+  - api_field: 'encryption.googleManagedEncryptionEnforcementConfig.restrictionMode'
   - field: 'force_destroy'
     provider_only: true
   - api_field: 'hierarchicalNamespace.enabled'
