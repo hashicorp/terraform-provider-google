@@ -1064,6 +1064,10 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 					}
 				}
 
+				if fmt.Sprintf("%v", oMap) != fmt.Sprintf("%v", nMap) {
+					updateMask = append(updateMask, "rate_limit_options")
+				}
+
 				if fmt.Sprintf("%v", oMap["enforce_on_key"]) != fmt.Sprintf("%v", nMap["enforce_on_key"]) {
 					updateMask = append(updateMask, "rate_limit_options.enforce_on_key")
 				}

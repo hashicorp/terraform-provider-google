@@ -901,7 +901,8 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 	}
 
 	if d.HasChange("rate_limit_options") {
-		updateMask = append(updateMask, "rateLimitOptions.rateLimitThreshold",
+		updateMask = append(updateMask, "rateLimitOptions",
+			"rateLimitOptions.rateLimitThreshold",
 			"rateLimitOptions.conformAction",
 			"rateLimitOptions.exceedRedirectOptions",
 			"rateLimitOptions.exceedAction",
