@@ -99,6 +99,7 @@ type ProviderModel struct {
 	ComposerCustomEndpoint                 types.String `tfsdk:"composer_custom_endpoint"`
 	ComputeCustomEndpoint                  types.String `tfsdk:"compute_custom_endpoint"`
 	ContactCenterInsightsCustomEndpoint    types.String `tfsdk:"contact_center_insights_custom_endpoint"`
+	ContainerCustomEndpoint                types.String `tfsdk:"container_custom_endpoint"`
 	ContainerAnalysisCustomEndpoint        types.String `tfsdk:"container_analysis_custom_endpoint"`
 	ContainerAttachedCustomEndpoint        types.String `tfsdk:"container_attached_custom_endpoint"`
 	CoreBillingCustomEndpoint              types.String `tfsdk:"core_billing_custom_endpoint"`
@@ -212,7 +213,6 @@ type ProviderModel struct {
 
 	// Handwritten Products / Versioned / Atypical Entries
 	CloudBillingCustomEndpoint      types.String `tfsdk:"cloud_billing_custom_endpoint"`
-	ContainerCustomEndpoint         types.String `tfsdk:"container_custom_endpoint"`
 	DataflowCustomEndpoint          types.String `tfsdk:"dataflow_custom_endpoint"`
 	IamCredentialsCustomEndpoint    types.String `tfsdk:"iam_credentials_custom_endpoint"`
 	ResourceManagerV3CustomEndpoint types.String `tfsdk:"resource_manager_v3_custom_endpoint"`
