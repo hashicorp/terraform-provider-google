@@ -1,0 +1,82 @@
+resource: google_workstations_workstation_config
+generation_type: mmv1
+source_file: products/workstations/WorkstationConfig.yaml
+api_service_name: workstations.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkstationConfig
+fields:
+    - api_field: allowedPorts.first
+    - api_field: allowedPorts.last
+    - api_field: annotations
+    - api_field: conditions.code
+    - api_field: conditions.details
+    - api_field: conditions.message
+    - api_field: container.args
+    - api_field: container.command
+    - api_field: container.env
+    - api_field: container.image
+    - api_field: container.runAsUser
+    - api_field: container.workingDir
+    - api_field: createTime
+    - api_field: degraded
+    - api_field: disableTcpConnections
+    - api_field: displayName
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: enableAuditAgent
+    - api_field: encryptionKey.kmsKey
+    - api_field: encryptionKey.kmsKeyServiceAccount
+    - api_field: ephemeralDirectories.gcePd.diskType
+    - api_field: ephemeralDirectories.gcePd.readOnly
+    - api_field: ephemeralDirectories.gcePd.sourceImage
+    - api_field: ephemeralDirectories.gcePd.sourceSnapshot
+    - api_field: ephemeralDirectories.mountPath
+    - api_field: etag
+    - api_field: host.gceInstance.accelerators.count
+    - api_field: host.gceInstance.accelerators.type
+    - api_field: host.gceInstance.boostConfigs.accelerators.count
+    - api_field: host.gceInstance.boostConfigs.accelerators.type
+    - api_field: host.gceInstance.boostConfigs.bootDiskSizeGb
+    - api_field: host.gceInstance.boostConfigs.enableNestedVirtualization
+    - api_field: host.gceInstance.boostConfigs.id
+    - api_field: host.gceInstance.boostConfigs.machineType
+    - api_field: host.gceInstance.boostConfigs.poolSize
+    - api_field: host.gceInstance.bootDiskSizeGb
+    - api_field: host.gceInstance.confidentialInstanceConfig.enableConfidentialCompute
+    - api_field: host.gceInstance.disablePublicIpAddresses
+    - api_field: host.gceInstance.disableSsh
+    - api_field: host.gceInstance.enableNestedVirtualization
+    - api_field: host.gceInstance.machineType
+    - api_field: host.gceInstance.poolSize
+    - api_field: host.gceInstance.serviceAccount
+    - api_field: host.gceInstance.serviceAccountScopes
+    - api_field: host.gceInstance.shieldedInstanceConfig.enableIntegrityMonitoring
+    - api_field: host.gceInstance.shieldedInstanceConfig.enableSecureBoot
+    - api_field: host.gceInstance.shieldedInstanceConfig.enableVtpm
+    - api_field: host.gceInstance.tags
+    - api_field: host.gceInstance.vmTags
+    - api_field: idleTimeout
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: maxUsableWorkstations
+    - api_field: name
+    - api_field: persistentDirectories.gcePd.diskType
+    - api_field: persistentDirectories.gcePd.fsType
+    - api_field: persistentDirectories.gcePd.reclaimPolicy
+    - api_field: persistentDirectories.gcePd.sizeGb
+    - api_field: persistentDirectories.gcePd.sourceSnapshot
+    - api_field: persistentDirectories.mountPath
+    - api_field: readinessChecks.path
+    - api_field: readinessChecks.port
+    - api_field: replicaZones
+    - api_field: runningTimeout
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - field: workstation_cluster_id
+      provider_only: true
+    - field: workstation_config_id
+      provider_only: true

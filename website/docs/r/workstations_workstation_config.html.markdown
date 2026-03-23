@@ -23,12 +23,10 @@ description: |-
 
 A set of configuration options describing how a workstation will be run. Workstation configurations are intended to be shared across multiple workstations.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about WorkstationConfig, see:
 
-* [API documentation](https://cloud.google.com/workstations/docs/reference/rest/v1beta/projects.locations.workstationClusters.workstationConfigs/create)
+* [API documentation](https://cloud.google.com/workstations/docs/reference/rest/v1/projects.locations.workstationClusters.workstationConfigs/create)
 * How-to Guides
     * [Workstations](https://cloud.google.com/workstations/docs/)
 
@@ -42,25 +40,21 @@ To get more information about WorkstationConfig, see:
 
 ```hcl
 resource "google_tags_tag_key" "tag_key1" {
-  provider   = google-beta
   parent     = "organizations/123456789"
   short_name = "keyname"
 }
 
 resource "google_tags_tag_value" "tag_value1" {
-  provider   = google-beta
   parent     = google_tags_tag_key.tag_key1.id
   short_name = "valuename"
 }
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -68,7 +62,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -84,7 +77,6 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
@@ -126,13 +118,11 @@ resource "google_workstations_workstation_config" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -140,7 +130,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -156,7 +145,6 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
@@ -189,13 +177,11 @@ resource "google_workstations_workstation_config" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -203,7 +189,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -219,7 +204,6 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
@@ -257,13 +241,11 @@ resource "google_workstations_workstation_config" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -271,7 +253,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_disk" "my_source_disk" {
-  provider = google-beta
   name     = "workstation-config"
   size     = 10
   type     = "pd-ssd"
@@ -279,14 +260,12 @@ resource "google_compute_disk" "my_source_disk" {
 }
 
 resource "google_compute_snapshot" "my_source_snapshot" {
-  provider    = google-beta
   name        = "workstation-config"
   source_disk = google_compute_disk.my_source_disk.name
   zone        = "us-central1-a"
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -294,7 +273,6 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location               = google_workstations_workstation_cluster.default.location
@@ -319,13 +297,11 @@ resource "google_workstations_workstation_config" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -333,7 +309,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -349,7 +324,6 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
@@ -377,13 +351,11 @@ resource "google_workstations_workstation_config" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -391,7 +363,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -407,7 +378,6 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location               = "us-central1"
@@ -435,13 +405,11 @@ resource "google_workstations_workstation_config" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -449,7 +417,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -465,7 +432,6 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location               = "us-central1"
@@ -504,14 +470,12 @@ resource "google_workstations_workstation_config" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider = google-beta
 
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider = google-beta
 
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
@@ -520,7 +484,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider = google-beta
 
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
@@ -537,28 +500,24 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_kms_key_ring" "default" {
-  provider = google-beta
 
   name     = "workstation-cluster"
   location = "us-central1"
 }
 
 resource "google_kms_crypto_key" "default" {
-  provider = google-beta
 
   name            = "workstation-cluster"
   key_ring        = google_kms_key_ring.default.id
 }
 
 resource "google_service_account" "default" {
-  provider = google-beta
 
   account_id   = "my-account"
   display_name = "Service Account"
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
 
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
@@ -592,13 +551,11 @@ resource "google_workstations_workstation_config" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -606,7 +563,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -622,7 +578,6 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location               = "us-central1"
@@ -804,7 +759,7 @@ The following arguments are supported:
 * `enable_nested_virtualization` -
   (Optional)
   Whether to enable nested virtualization on the Compute Engine VMs backing the Workstations.
-  See https://cloud.google.com/workstations/docs/reference/rest/v1beta/projects.locations.workstationClusters.workstationConfigs#GceInstance.FIELDS.enable_nested_virtualization
+  See https://cloud.google.com/workstations/docs/reference/rest/v1/projects.locations.workstationClusters.workstationConfigs#GceInstance.FIELDS.enable_nested_virtualization
 
 * `shielded_instance_config` -
   (Optional)
@@ -882,7 +837,7 @@ The following arguments are supported:
 * `enable_nested_virtualization` -
   (Optional)
   Whether to enable nested virtualization on the Compute Engine VMs backing boosted Workstations.
-  See https://cloud.google.com/workstations/docs/reference/rest/v1beta/projects.locations.workstationClusters.workstationConfigs#GceInstance.FIELDS.enable_nested_virtualization
+  See https://cloud.google.com/workstations/docs/reference/rest/v1/projects.locations.workstationClusters.workstationConfigs#GceInstance.FIELDS.enable_nested_virtualization
 
 * `pool_size` -
   (Optional)

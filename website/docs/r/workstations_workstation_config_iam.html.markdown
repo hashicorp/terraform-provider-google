@@ -36,14 +36,11 @@ A data source can be used to retrieve policy data in advent you do not need crea
 ~> **Note:** `google_workstations_workstation_config_iam_binding` resources **can be** used in conjunction with `google_workstations_workstation_config_iam_member` resources **only if** they do not grant privilege to the same role.
 
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 ## google_workstations_workstation_config_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
-  provider = google-beta
   binding {
     role = "roles/viewer"
     members = [
@@ -53,7 +50,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_workstations_workstation_config_iam_policy" "policy" {
-  provider = google-beta
   project = google_workstations_workstation_config.default.project
   location = google_workstations_workstation_config.default.location
   workstation_cluster_id = google_workstations_workstation_config.default.workstation_cluster_id
@@ -66,7 +62,6 @@ resource "google_workstations_workstation_config_iam_policy" "policy" {
 
 ```hcl
 resource "google_workstations_workstation_config_iam_binding" "binding" {
-  provider = google-beta
   project = google_workstations_workstation_config.default.project
   location = google_workstations_workstation_config.default.location
   workstation_cluster_id = google_workstations_workstation_config.default.workstation_cluster_id
@@ -82,7 +77,6 @@ resource "google_workstations_workstation_config_iam_binding" "binding" {
 
 ```hcl
 resource "google_workstations_workstation_config_iam_member" "member" {
-  provider = google-beta
   project = google_workstations_workstation_config.default.project
   location = google_workstations_workstation_config.default.location
   workstation_cluster_id = google_workstations_workstation_config.default.workstation_cluster_id

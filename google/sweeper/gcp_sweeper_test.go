@@ -172,6 +172,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workflows"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/workstations"
 	"testing"
 
 	// Manually add the services for DCL resource and handwritten resource sweepers if they are not in the above list
