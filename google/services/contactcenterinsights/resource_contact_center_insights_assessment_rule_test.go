@@ -69,6 +69,9 @@ func TestAccContactCenterInsightsAssessmentRule_update(t *testing.T) {
 func TestAccContactCenterInsightsAssessmentRule_sampleRow(t *testing.T) {
 	t.Parallel()
 
+	// Uses time.Now
+	acctest.SkipIfVcr(t)
+
 	now := time.Now().UTC()
 	startTime := now.Add(1 * time.Hour).Format(time.RFC3339)
 	endTime := now.Add(2 * time.Hour).Format(time.RFC3339)
