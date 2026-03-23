@@ -473,6 +473,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_region_backend_service":                      compute.DataSourceGoogleComputeRegionBackendService(),
 	"google_network_management_connectivity_test_run":            networkmanagement.DataSourceGoogleNetworkManagementTestRun(),
 	"google_network_management_connectivity_tests":               networkmanagement.DataSourceGoogleNetworkManagementConnectivityTests(),
+	"google_network_security_address_groups":                     networksecurity.DataSourceNetworkSecurityAddressGroups(),
 	// ####### END handwritten datasources ###########
 }
 
