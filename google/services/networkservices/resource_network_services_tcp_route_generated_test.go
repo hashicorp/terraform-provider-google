@@ -78,15 +78,17 @@ func TestAccNetworkServicesTcpRoute_networkServicesTcpRouteBasicExample(t *testi
 func testAccNetworkServicesTcpRoute_networkServicesTcpRouteBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-my-backend-service%{random_suffix}"
-  health_checks = [google_compute_http_health_check.default.id]
+  name                  = "tf-test-my-backend-service%{random_suffix}"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-backend-service-health-check%{random_suffix}"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
+resource "google_compute_health_check" "default" {
+  name = "tf-test-backend-service-health-check%{random_suffix}"
+
+  tcp_health_check {
+    port = 80
+  }
 }
 
 resource "google_network_services_tcp_route" "default" {
@@ -140,15 +142,17 @@ func TestAccNetworkServicesTcpRoute_networkServicesTcpRouteActionsExample(t *tes
 func testAccNetworkServicesTcpRoute_networkServicesTcpRouteActionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-my-backend-service%{random_suffix}"
-  health_checks = [google_compute_http_health_check.default.id]
+  name                  = "tf-test-my-backend-service%{random_suffix}"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-backend-service-health-check%{random_suffix}"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
+resource "google_compute_health_check" "default" {
+  name = "tf-test-backend-service-health-check%{random_suffix}"
+
+  tcp_health_check {
+    port = 80
+  }
 }
 
 resource "google_network_services_tcp_route" "default" {
@@ -199,15 +203,17 @@ func TestAccNetworkServicesTcpRoute_networkServicesTcpRouteMeshBasicExample(t *t
 func testAccNetworkServicesTcpRoute_networkServicesTcpRouteMeshBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-my-backend-service%{random_suffix}"
-  health_checks = [google_compute_http_health_check.default.id]
+  name                  = "tf-test-my-backend-service%{random_suffix}"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-backend-service-health-check%{random_suffix}"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
+resource "google_compute_health_check" "default" {
+  name = "tf-test-backend-service-health-check%{random_suffix}"
+
+  tcp_health_check {
+    port = 80
+  }
 }
 
 resource "google_network_services_mesh" "default" {
@@ -273,15 +279,17 @@ func TestAccNetworkServicesTcpRoute_networkServicesTcpRouteGatewayBasicExample(t
 func testAccNetworkServicesTcpRoute_networkServicesTcpRouteGatewayBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-my-backend-service%{random_suffix}"
-  health_checks = [google_compute_http_health_check.default.id]
+  name                  = "tf-test-my-backend-service%{random_suffix}"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
-  name               = "tf-test-backend-service-health-check%{random_suffix}"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
+resource "google_compute_health_check" "default" {
+  name = "tf-test-backend-service-health-check%{random_suffix}"
+
+  tcp_health_check {
+    port = 80
+  }
 }
 
 resource "google_network_services_gateway" "default" {
