@@ -159,7 +159,13 @@ The following arguments are supported:
   format: `ns/<namespace>/sa/<workload_identifier>`.
   `google_iam_workload_identity_pool_provider`s cannot be created within `TRUST_DOMAIN`
   mode pools.
-  Possible values are: `FEDERATION_ONLY`, `TRUST_DOMAIN`.
+  * `SYSTEM_TRUST_DOMAIN`: Pools are managed by Google Cloud services. Neither
+  `google_iam_workload_identity_pool_namespace`s nor `google_iam_workload_identity_pool_provider`s
+  can be created within `SYSTEM_TRUST_DOMAIN` mode pools. All identities within a
+  `SYSTEM_TRUST_DOMAIN` mode pool are in one of the following formats:
+      * `spiffe://<trust-domain>/ns/<kubernetes-namespace>/sa/<kubernetes-service-account>`
+      * `spiffe://<trust-domain>/resources/<resource-scope>/<resource-name>`
+  Possible values are: `FEDERATION_ONLY`, `TRUST_DOMAIN`, `SYSTEM_TRUST_DOMAIN`.
 
 * `inline_certificate_issuance_config` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
