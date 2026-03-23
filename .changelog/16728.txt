@@ -1,0 +1,6 @@
+```release-note:enhancement
+cloudfunctionsv2: Add validation to only allow one of `direct_vpc_network_interface` or `vpc_connector`
+```
+```release-note:enhancement
+cloudrunv2: Add validation to only allow one of `network_interfaces` or `connector` for Services and Jobs
+```
