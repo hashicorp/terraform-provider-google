@@ -64,6 +64,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/composer"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/contactcenterinsights"
+	"github.com/hashicorp/terraform-provider-google/google/services/container"
 	"github.com/hashicorp/terraform-provider-google/google/services/containeranalysis"
 	"github.com/hashicorp/terraform-provider-google/google/services/containerattached"
 	"github.com/hashicorp/terraform-provider-google/google/services/corebilling"
@@ -175,7 +176,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/workstations"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
-	"github.com/hashicorp/terraform-provider-google/google/services/container"
 	"github.com/hashicorp/terraform-provider-google/google/services/containeraws"
 	"github.com/hashicorp/terraform-provider-google/google/services/containerazure"
 	"github.com/hashicorp/terraform-provider-google/google/services/dataflow"
@@ -1866,6 +1866,7 @@ func UseGeneratedProducts() {
 	var _ = composer.ProductName
 	var _ = compute.ProductName
 	var _ = contactcenterinsights.ProductName
+	var _ = container.ProductName
 	var _ = containeranalysis.ProductName
 	var _ = containerattached.ProductName
 	var _ = corebilling.ProductName
