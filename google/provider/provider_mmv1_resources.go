@@ -172,6 +172,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
 	"github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	"github.com/hashicorp/terraform-provider-google/google/services/workflows"
+	"github.com/hashicorp/terraform-provider-google/google/services/workstations"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/services/container"
@@ -578,6 +579,8 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_tags_tag_key_iam_policy":                            registry.DataSource("google_tags_tag_key_iam_policy"),
 	"google_tags_tag_value_iam_policy":                          registry.DataSource("google_tags_tag_value_iam_policy"),
 	"google_workbench_instance_iam_policy":                      registry.DataSource("google_workbench_instance_iam_policy"),
+	"google_workstations_workstation_iam_policy":                registry.DataSource("google_workstations_workstation_iam_policy"),
+	"google_workstations_workstation_config_iam_policy":         registry.DataSource("google_workstations_workstation_config_iam_policy"),
 	// ####### END generated IAM datasources ###########
 }
 
@@ -608,9 +611,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 725
-// Generated IAM resources: 336
-// Total generated resources: 1061
+// Generated resources: 728
+// Generated IAM resources: 342
+// Total generated resources: 1070
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -1640,6 +1643,15 @@ var generatedResources = map[string]*schema.Resource{
 	"google_workbench_instance_iam_member":                                       registry.Resource("google_workbench_instance_iam_member"),
 	"google_workbench_instance_iam_policy":                                       registry.Resource("google_workbench_instance_iam_policy"),
 	"google_workflows_workflow":                                                  registry.Resource("google_workflows_workflow"),
+	"google_workstations_workstation":                                            registry.Resource("google_workstations_workstation"),
+	"google_workstations_workstation_iam_binding":                                registry.Resource("google_workstations_workstation_iam_binding"),
+	"google_workstations_workstation_iam_member":                                 registry.Resource("google_workstations_workstation_iam_member"),
+	"google_workstations_workstation_iam_policy":                                 registry.Resource("google_workstations_workstation_iam_policy"),
+	"google_workstations_workstation_cluster":                                    registry.Resource("google_workstations_workstation_cluster"),
+	"google_workstations_workstation_config":                                     registry.Resource("google_workstations_workstation_config"),
+	"google_workstations_workstation_config_iam_binding":                         registry.Resource("google_workstations_workstation_config_iam_binding"),
+	"google_workstations_workstation_config_iam_member":                          registry.Resource("google_workstations_workstation_config_iam_member"),
+	"google_workstations_workstation_config_iam_policy":                          registry.Resource("google_workstations_workstation_config_iam_policy"),
 }
 
 var handwrittenResources = map[string]*schema.Resource{
@@ -1961,4 +1973,5 @@ func UseGeneratedProducts() {
 	var _ = vpcaccess.ProductName
 	var _ = workbench.ProductName
 	var _ = workflows.ProductName
+	var _ = workstations.ProductName
 }

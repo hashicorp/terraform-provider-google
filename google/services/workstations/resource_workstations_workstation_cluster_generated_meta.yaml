@@ -1,0 +1,37 @@
+resource: google_workstations_workstation_cluster
+generation_type: mmv1
+source_file: products/workstations/WorkstationCluster.yaml
+api_service_name: workstations.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkstationCluster
+fields:
+    - api_field: annotations
+    - api_field: conditions.code
+    - api_field: conditions.details
+    - api_field: conditions.message
+    - api_field: controlPlaneIp
+    - api_field: createTime
+    - api_field: degraded
+    - api_field: displayName
+    - api_field: domainConfig.domain
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: network
+    - api_field: privateClusterConfig.allowedProjects
+    - api_field: privateClusterConfig.clusterHostname
+    - api_field: privateClusterConfig.enablePrivateEndpoint
+    - api_field: privateClusterConfig.serviceAttachmentUri
+    - api_field: subnetwork
+    - api_field: tags
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - field: workstation_cluster_id
+      provider_only: true

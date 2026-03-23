@@ -1,0 +1,3 @@
+```release-note:note
+Graduated Workstation, WorkstationConfig, and WorkstationCluster resources from beta to GA provider.
+```
