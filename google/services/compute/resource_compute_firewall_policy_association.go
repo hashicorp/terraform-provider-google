@@ -269,6 +269,8 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeFirewallPolicyAssociation %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeFirewallPolicyAssociation %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenComputeFirewallPolicyAssociationName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallPolicyAssociation: %s", err)
 	}

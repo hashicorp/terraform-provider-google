@@ -320,6 +320,8 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsRead(d *schema.Resour
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterV2OrganizationSccBigQueryExports %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterV2OrganizationSccBigQueryExports %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityCenterV2OrganizationSccBigQueryExportsName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSccBigQueryExports: %s", err)
 	}

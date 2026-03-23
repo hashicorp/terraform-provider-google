@@ -365,6 +365,8 @@ func resourceBigqueryAnalyticsHubDataExchangeRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryAnalyticsHubDataExchange %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BigqueryAnalyticsHubDataExchange %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading DataExchange: %s", err)
 	}

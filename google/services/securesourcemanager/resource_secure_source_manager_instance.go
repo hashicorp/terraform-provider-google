@@ -452,6 +452,8 @@ func resourceSecureSourceManagerInstanceRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecureSourceManagerInstance %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecureSourceManagerInstance %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		if err := d.Set("deletion_policy", "PREVENT"); err != nil {

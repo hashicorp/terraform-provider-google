@@ -1708,6 +1708,8 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudRunV2Service %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading CloudRunV2Service %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_protection"); !ok {
 		if err := d.Set("deletion_protection", true); err != nil {

@@ -630,6 +630,8 @@ func resourceCloudSecurityComplianceFrameworkDeploymentRead(d *schema.ResourceDa
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudSecurityComplianceFrameworkDeployment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading CloudSecurityComplianceFrameworkDeployment %q: %#v", d.Id(), res)
+
 	if err := d.Set("cloud_control_deployment_references", flattenCloudSecurityComplianceFrameworkDeploymentCloudControlDeploymentReferences(res["cloudControlDeploymentReferences"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FrameworkDeployment: %s", err)
 	}

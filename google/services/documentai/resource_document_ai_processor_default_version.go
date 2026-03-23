@@ -234,6 +234,8 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DocumentAIProcessorDefaultVersion %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DocumentAIProcessorDefaultVersion %q: %#v", d.Id(), res)
+
 	if err := d.Set("version", flattenDocumentAIProcessorDefaultVersionVersion(res["defaultProcessorVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ProcessorDefaultVersion: %s", err)
 	}

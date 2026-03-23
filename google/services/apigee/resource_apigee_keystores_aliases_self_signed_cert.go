@@ -430,6 +430,8 @@ func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, me
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeKeystoresAliasesSelfSignedCert %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeKeystoresAliasesSelfSignedCert %q: %#v", d.Id(), res)
+
 	if err := d.Set("certs_info", flattenApigeeKeystoresAliasesSelfSignedCertCertsInfo(res["certsInfo"], d, config)); err != nil {
 		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
 	}

@@ -396,6 +396,8 @@ func resourceNetworkServicesTlsRouteRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkServicesTlsRoute %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkServicesTlsRoute %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading TlsRoute: %s", err)
 	}

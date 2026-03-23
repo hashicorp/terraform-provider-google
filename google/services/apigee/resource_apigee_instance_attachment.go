@@ -253,6 +253,8 @@ func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeInstanceAttachment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeInstanceAttachment %q: %#v", d.Id(), res)
+
 	if err := d.Set("environment", flattenApigeeInstanceAttachmentEnvironment(res["environment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InstanceAttachment: %s", err)
 	}

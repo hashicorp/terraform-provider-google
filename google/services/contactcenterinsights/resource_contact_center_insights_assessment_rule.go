@@ -380,6 +380,8 @@ func resourceContactCenterInsightsAssessmentRuleRead(d *schema.ResourceData, met
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ContactCenterInsightsAssessmentRule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ContactCenterInsightsAssessmentRule %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading AssessmentRule: %s", err)
 	}

@@ -229,6 +229,8 @@ func resourceApigeeEnvironmentKeyvaluemapsEntriesRead(d *schema.ResourceData, me
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvironmentKeyvaluemapsEntries %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeEnvironmentKeyvaluemapsEntries %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenApigeeEnvironmentKeyvaluemapsEntriesName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EnvironmentKeyvaluemapsEntries: %s", err)
 	}

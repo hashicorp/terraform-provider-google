@@ -654,6 +654,8 @@ func resourceDataplexEntryRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataplexEntry %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DataplexEntry %q: %#v", d.Id(), res)
+
 	res, err = resourceDataplexEntryDecoder(d, meta, res)
 	if err != nil {
 		return err

@@ -257,6 +257,8 @@ func resourceLoggingOrganizationSettingsRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("LoggingOrganizationSettings %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading LoggingOrganizationSettings %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenLoggingOrganizationSettingsName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSettings: %s", err)
 	}

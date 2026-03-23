@@ -334,6 +334,8 @@ func resourceLoggingSavedQueryRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("LoggingSavedQuery %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading LoggingSavedQuery %q: %#v", d.Id(), res)
+
 	if err := d.Set("display_name", flattenLoggingSavedQueryDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SavedQuery: %s", err)
 	}

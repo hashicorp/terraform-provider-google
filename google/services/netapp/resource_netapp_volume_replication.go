@@ -631,6 +631,8 @@ func resourceNetappVolumeReplicationRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetappVolumeReplication %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetappVolumeReplication %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("delete_destination_volume"); !ok {
 		if err := d.Set("delete_destination_volume", false); err != nil {

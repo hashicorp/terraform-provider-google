@@ -448,6 +448,8 @@ func resourceDialogflowCXGenerativeSettingsRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXGenerativeSettings %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DialogflowCXGenerativeSettings %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenDialogflowCXGenerativeSettingsName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GenerativeSettings: %s", err)
 	}

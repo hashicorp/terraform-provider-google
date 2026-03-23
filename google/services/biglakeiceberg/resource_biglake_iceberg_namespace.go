@@ -275,6 +275,8 @@ func resourceBiglakeIcebergIcebergNamespaceRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BiglakeIcebergIcebergNamespace %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BiglakeIcebergIcebergNamespace %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading IcebergNamespace: %s", err)
 	}

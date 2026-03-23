@@ -285,6 +285,8 @@ func resourceManagedKafkaTopicRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ManagedKafkaTopic %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ManagedKafkaTopic %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}

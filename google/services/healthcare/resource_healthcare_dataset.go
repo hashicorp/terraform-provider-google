@@ -288,6 +288,8 @@ func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("HealthcareDataset %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading HealthcareDataset %q: %#v", d.Id(), res)
+
 	res, err = resourceHealthcareDatasetDecoder(d, meta, res)
 	if err != nil {
 		return err

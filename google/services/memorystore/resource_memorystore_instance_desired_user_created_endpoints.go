@@ -329,6 +329,8 @@ func resourceMemorystoreInstanceDesiredUserCreatedEndpointsRead(d *schema.Resour
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("MemorystoreInstanceDesiredUserCreatedEndpoints %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading MemorystoreInstanceDesiredUserCreatedEndpoints %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading InstanceDesiredUserCreatedEndpoints: %s", err)
 	}

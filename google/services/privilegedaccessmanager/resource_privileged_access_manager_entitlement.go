@@ -540,6 +540,8 @@ func resourcePrivilegedAccessManagerEntitlementRead(d *schema.ResourceData, meta
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("PrivilegedAccessManagerEntitlement %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading PrivilegedAccessManagerEntitlement %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenPrivilegedAccessManagerEntitlementName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Entitlement: %s", err)
 	}

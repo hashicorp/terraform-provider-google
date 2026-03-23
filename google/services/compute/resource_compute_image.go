@@ -846,6 +846,8 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeImage %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeImage %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}

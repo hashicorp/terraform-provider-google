@@ -551,6 +551,8 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyRead(d *sche
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeterDryRunIngressPolicy %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading AccessContextManagerServicePerimeterDryRunIngressPolicy %q: %#v", d.Id(), res)
 	if err := d.Set("etag", res["etag"]); err != nil {
 		log.Printf("[ERROR] Unable to set etag: %s", err)
 	}

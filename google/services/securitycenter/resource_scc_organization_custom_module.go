@@ -421,6 +421,8 @@ func resourceSecurityCenterOrganizationCustomModuleRead(d *schema.ResourceData, 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterOrganizationCustomModule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterOrganizationCustomModule %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityCenterOrganizationCustomModuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationCustomModule: %s", err)
 	}

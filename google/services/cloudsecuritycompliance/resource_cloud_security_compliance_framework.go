@@ -443,6 +443,8 @@ func resourceCloudSecurityComplianceFrameworkRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudSecurityComplianceFramework %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading CloudSecurityComplianceFramework %q: %#v", d.Id(), res)
+
 	if err := d.Set("category", flattenCloudSecurityComplianceFrameworkCategory(res["category"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Framework: %s", err)
 	}

@@ -615,6 +615,8 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DNSManagedZone %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DNSManagedZone %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("force_destroy"); !ok {
 		if err := d.Set("force_destroy", false); err != nil {

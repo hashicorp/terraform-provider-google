@@ -748,6 +748,8 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AlloydbInstance %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AlloydbInstance %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenAlloydbInstanceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}

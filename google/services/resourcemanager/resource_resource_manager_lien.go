@@ -275,6 +275,8 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ResourceManagerLien %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ResourceManagerLien %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedResourceManagerLien(d, meta, res)
 	if err != nil {
 		return err

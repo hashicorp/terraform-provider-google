@@ -238,6 +238,8 @@ func resourceApigeeSyncAuthorizationRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeSyncAuthorization %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeSyncAuthorization %q: %#v", d.Id(), res)
+
 	if err := d.Set("identities", flattenApigeeSyncAuthorizationIdentities(res["identities"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SyncAuthorization: %s", err)
 	}

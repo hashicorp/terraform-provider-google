@@ -278,6 +278,8 @@ func resourceFirebaseAppCheckDeviceCheckConfigRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FirebaseAppCheckDeviceCheckConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading FirebaseAppCheckDeviceCheckConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading DeviceCheckConfig: %s", err)
 	}

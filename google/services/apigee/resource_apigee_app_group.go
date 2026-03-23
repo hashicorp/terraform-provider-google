@@ -309,6 +309,8 @@ func resourceApigeeAppGroupRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeAppGroup %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeAppGroup %q: %#v", d.Id(), res)
+
 	if err := d.Set("app_group_id", flattenApigeeAppGroupAppGroupId(res["appGroupId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AppGroup: %s", err)
 	}

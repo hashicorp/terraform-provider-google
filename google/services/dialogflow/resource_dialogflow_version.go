@@ -239,6 +239,8 @@ func resourceDialogflowVersionRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowVersion %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DialogflowVersion %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenDialogflowVersionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Version: %s", err)
 	}

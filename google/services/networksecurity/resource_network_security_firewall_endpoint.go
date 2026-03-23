@@ -332,6 +332,8 @@ func resourceNetworkSecurityFirewallEndpointRead(d *schema.ResourceData, meta in
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkSecurityFirewallEndpoint %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkSecurityFirewallEndpoint %q: %#v", d.Id(), res)
+
 	if err := d.Set("labels", flattenNetworkSecurityFirewallEndpointLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallEndpoint: %s", err)
 	}

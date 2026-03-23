@@ -1109,6 +1109,8 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("RedisCluster %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading RedisCluster %q: %#v", d.Id(), res)
+
 	res, err = resourceRedisClusterDecoder(d, meta, res)
 	if err != nil {
 		return err

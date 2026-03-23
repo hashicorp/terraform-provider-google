@@ -602,6 +602,8 @@ func resourceNetworkServicesGatewayRead(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkServicesGateway %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkServicesGateway %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("delete_swg_autogen_router_on_destroy"); !ok {
 		if err := d.Set("delete_swg_autogen_router_on_destroy", false); err != nil {

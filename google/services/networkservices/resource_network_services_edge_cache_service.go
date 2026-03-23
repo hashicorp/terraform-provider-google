@@ -1287,6 +1287,8 @@ func resourceNetworkServicesEdgeCacheServiceRead(d *schema.ResourceData, meta in
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkServicesEdgeCacheService %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkServicesEdgeCacheService %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheService: %s", err)
 	}

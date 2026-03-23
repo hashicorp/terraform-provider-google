@@ -250,6 +250,8 @@ func resourceKMSAutokeyConfigRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("KMSAutokeyConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading KMSAutokeyConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("key_project", flattenKMSAutokeyConfigKeyProject(res["keyProject"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutokeyConfig: %s", err)
 	}

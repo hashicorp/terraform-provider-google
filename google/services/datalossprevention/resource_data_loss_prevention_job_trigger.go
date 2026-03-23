@@ -1631,6 +1631,8 @@ func resourceDataLossPreventionJobTriggerRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataLossPreventionJobTrigger %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DataLossPreventionJobTrigger %q: %#v", d.Id(), res)
+
 	res, err = resourceDataLossPreventionJobTriggerDecoder(d, meta, res)
 	if err != nil {
 		return err

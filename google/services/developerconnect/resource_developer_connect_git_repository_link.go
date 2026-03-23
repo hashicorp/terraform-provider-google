@@ -364,6 +364,8 @@ func resourceDeveloperConnectGitRepositoryLinkRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DeveloperConnectGitRepositoryLink %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DeveloperConnectGitRepositoryLink %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading GitRepositoryLink: %s", err)
 	}

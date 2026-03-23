@@ -280,6 +280,8 @@ func resourceOSLoginSSHPublicKeyRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("OSLoginSSHPublicKey %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading OSLoginSSHPublicKey %q: %#v", d.Id(), res)
+
 	if err := d.Set("key", flattenOSLoginSSHPublicKeyKey(res["key"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SSHPublicKey: %s", err)
 	}

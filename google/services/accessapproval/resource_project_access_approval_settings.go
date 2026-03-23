@@ -347,6 +347,8 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessApprovalProjectSettings %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AccessApprovalProjectSettings %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenAccessApprovalProjectSettingsName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ProjectSettings: %s", err)
 	}

@@ -255,6 +255,8 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("KMSSecretCiphertext %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading KMSSecretCiphertext %q: %#v", d.Id(), res)
+
 	res, err = resourceKMSSecretCiphertextDecoder(d, meta, res)
 	if err != nil {
 		return err

@@ -414,6 +414,8 @@ func resourceBiglakeIcebergIcebergTableRead(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BiglakeIcebergIcebergTable %q", d.Id()))
 	}
+
+	log.Printf("[DEBUG] Finished reading BiglakeIcebergIcebergTable %q: %#v", d.Id(), res)
 	if metadata, ok := res["metadata"].(map[string]interface{}); ok {
 		// Find current schema
 		if schemas, ok := metadata["schemas"].([]interface{}); ok {

@@ -239,6 +239,8 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IapClient %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IapClient %q: %#v", d.Id(), res)
+
 	if err := d.Set("secret", flattenIapClientSecret(res["secret"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Client: %s", err)
 	}
