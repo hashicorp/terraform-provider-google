@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: fixed an issue where `password_wo` and `password_wo_version` fields were not functioning properly during update requests in `google_alloydb_user` resource
+```
