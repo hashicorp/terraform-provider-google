@@ -29,6 +29,7 @@ fields:
     - api_field: purpose
     - api_field: region
     - api_field: reservedInternalRange
+    - api_field: resolveSubnetMask
     - api_field: role
     - api_field: secondaryIpRanges.ipCidrRange
       field: secondary_ip_range.ip_cidr_range

@@ -425,6 +425,13 @@ If unspecified, the purpose defaults to 'PRIVATE'.`,
 				Description: `The ID of the reserved internal range. Must be prefixed with 'networkconnectivity.googleapis.com'
 E.g. 'networkconnectivity.googleapis.com/projects/{project}/locations/global/internalRanges/{rangeId}'`,
 			},
+			"resolve_subnet_mask": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ARP_ALL_RANGES", "ARP_PRIMARY_RANGE", ""}),
+				Description:  `'Configures subnet mask resolution for this subnetwork.' Possible values: ["ARP_ALL_RANGES", "ARP_PRIMARY_RANGE"]`,
+			},
 			"role": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -720,6 +727,12 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("params"); !tpgresource.IsEmptyValue(reflect.ValueOf(paramsProp)) && (ok || !reflect.DeepEqual(v, paramsProp)) {
 		obj["params"] = paramsProp
 	}
+	resolveSubnetMaskProp, err := expandComputeSubnetworkResolveSubnetMask(d.Get("resolve_subnet_mask"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("resolve_subnet_mask"); !tpgresource.IsEmptyValue(reflect.ValueOf(resolveSubnetMaskProp)) && (ok || !reflect.DeepEqual(v, resolveSubnetMaskProp)) {
+		obj["resolveSubnetMask"] = resolveSubnetMaskProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks")
 	if err != nil {
@@ -889,6 +902,9 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("state", flattenComputeSubnetworkState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("resolve_subnet_mask", flattenComputeSubnetworkResolveSubnetMask(res["resolveSubnetMask"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -1694,6 +1710,10 @@ func flattenComputeSubnetworkState(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
+func flattenComputeSubnetworkResolveSubnetMask(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeSubnetworkDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1880,4 +1900,8 @@ func expandComputeSubnetworkParamsResourceManagerTags(v interface{}, d tpgresour
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandComputeSubnetworkResolveSubnetMask(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
