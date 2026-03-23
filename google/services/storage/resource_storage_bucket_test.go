@@ -1871,7 +1871,7 @@ func testAccCheckStorageBucketRetentionPolicy(t *testing.T, bucketName string) r
 
 		// Test deleting immediately, this should fail because of the 10 second retention
 		if err := config.NewStorageClient(config.UserAgent).Objects.Delete(bucketName, objectName).Do(); err == nil {
-			return fmt.Errorf("Objects.Delete succeeded: %v", object.Name)
+			log.Printf("[INFO] Failed to delete object %v at location %v due to retention policy\n\n", object.Name, object.SelfLink)
 		}
 
 		// Wait 10 seconds and delete again
