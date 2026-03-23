@@ -301,6 +301,8 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpoint %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeNetworkEndpoint %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedComputeNetworkEndpoint(d, meta, res)
 	if err != nil {
 		return err

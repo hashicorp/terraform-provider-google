@@ -337,6 +337,8 @@ func resourceTagsTagKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TagsTagKey %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading TagsTagKey %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenTagsTagKeyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TagKey: %s", err)
 	}

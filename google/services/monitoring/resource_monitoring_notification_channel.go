@@ -441,6 +441,8 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("MonitoringNotificationChannel %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading MonitoringNotificationChannel %q: %#v", d.Id(), res)
+
 	res, err = resourceMonitoringNotificationChannelDecoder(d, meta, res)
 	if err != nil {
 		return err

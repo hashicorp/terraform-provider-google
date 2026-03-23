@@ -578,6 +578,8 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeServiceAttachment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeServiceAttachment %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("send_propagated_connection_limit_if_zero"); !ok {
 		if err := d.Set("send_propagated_connection_limit_if_zero", false); err != nil {

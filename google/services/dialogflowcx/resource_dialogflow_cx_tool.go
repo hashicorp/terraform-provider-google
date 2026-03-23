@@ -610,6 +610,8 @@ func resourceDialogflowCXToolRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXTool %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DialogflowCXTool %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenDialogflowCXToolName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}

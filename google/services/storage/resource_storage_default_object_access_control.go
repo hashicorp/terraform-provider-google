@@ -301,6 +301,8 @@ func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageDefaultObjectAccessControl %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading StorageDefaultObjectAccessControl %q: %#v", d.Id(), res)
+
 	if err := d.Set("domain", flattenStorageDefaultObjectAccessControlDomain(res["domain"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DefaultObjectAccessControl: %s", err)
 	}

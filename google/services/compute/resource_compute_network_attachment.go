@@ -402,6 +402,8 @@ func resourceComputeNetworkAttachmentRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkAttachment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeNetworkAttachment %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading NetworkAttachment: %s", err)
 	}

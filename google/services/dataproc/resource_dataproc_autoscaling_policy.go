@@ -434,6 +434,8 @@ func resourceDataprocAutoscalingPolicyRead(d *schema.ResourceData, meta interfac
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataprocAutoscalingPolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DataprocAutoscalingPolicy %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
 	}

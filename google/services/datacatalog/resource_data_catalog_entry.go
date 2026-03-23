@@ -468,6 +468,8 @@ func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataCatalogEntry %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DataCatalogEntry %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenDataCatalogEntryName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Entry: %s", err)
 	}

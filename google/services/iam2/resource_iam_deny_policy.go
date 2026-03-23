@@ -343,6 +343,8 @@ func resourceIAM2DenyPolicyRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAM2DenyPolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAM2DenyPolicy %q: %#v", d.Id(), res)
+
 	if err := d.Set("display_name", flattenIAM2DenyPolicyDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DenyPolicy: %s", err)
 	}

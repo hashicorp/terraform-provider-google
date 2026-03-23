@@ -815,6 +815,8 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeSubnetwork %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)

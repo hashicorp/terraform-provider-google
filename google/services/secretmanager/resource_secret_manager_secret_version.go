@@ -389,6 +389,8 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecretManagerSecretVersion %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecretManagerSecretVersion %q: %#v", d.Id(), res)
+
 	res, err = resourceSecretManagerSecretVersionDecoder(d, meta, res)
 	if err != nil {
 		return err

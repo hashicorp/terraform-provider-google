@@ -365,6 +365,8 @@ func resourceApigeeTargetServerRead(d *schema.ResourceData, meta interface{}) er
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeTargetServer %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeTargetServer %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenApigeeTargetServerName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetServer: %s", err)
 	}

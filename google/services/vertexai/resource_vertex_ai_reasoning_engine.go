@@ -685,6 +685,8 @@ func resourceVertexAIReasoningEngineRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VertexAIReasoningEngine %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VertexAIReasoningEngine %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ReasoningEngine: %s", err)

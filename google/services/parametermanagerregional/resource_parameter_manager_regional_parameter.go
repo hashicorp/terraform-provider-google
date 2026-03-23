@@ -341,6 +341,8 @@ func resourceParameterManagerRegionalRegionalParameterRead(d *schema.ResourceDat
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ParameterManagerRegionalRegionalParameter %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ParameterManagerRegionalRegionalParameter %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading RegionalParameter: %s", err)
 	}

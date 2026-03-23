@@ -293,6 +293,8 @@ func resourceTagsTagValueRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TagsTagValue %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading TagsTagValue %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenTagsTagValueName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TagValue: %s", err)
 	}

@@ -446,6 +446,8 @@ func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) er
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeOrganization %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeOrganization %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenApigeeOrganizationName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}

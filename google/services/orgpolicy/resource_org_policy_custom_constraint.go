@@ -299,6 +299,8 @@ func resourceOrgPolicyCustomConstraintRead(d *schema.ResourceData, meta interfac
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("OrgPolicyCustomConstraint %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading OrgPolicyCustomConstraint %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenOrgPolicyCustomConstraintName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CustomConstraint: %s", err)
 	}

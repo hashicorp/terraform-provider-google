@@ -287,6 +287,8 @@ func resourceSecurityCenterEventThreatDetectionCustomModuleRead(d *schema.Resour
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterEventThreatDetectionCustomModule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterEventThreatDetectionCustomModule %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityCenterEventThreatDetectionCustomModuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EventThreatDetectionCustomModule: %s", err)
 	}

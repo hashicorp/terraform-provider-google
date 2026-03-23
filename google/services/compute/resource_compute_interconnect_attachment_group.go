@@ -518,6 +518,8 @@ func resourceComputeInterconnectAttachmentGroupRead(d *schema.ResourceData, meta
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeInterconnectAttachmentGroup %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeInterconnectAttachmentGroup %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachmentGroup: %s", err)
 	}

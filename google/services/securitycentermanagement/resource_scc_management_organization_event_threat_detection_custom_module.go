@@ -294,6 +294,8 @@ func resourceSecurityCenterManagementOrganizationEventThreatDetectionCustomModul
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterManagementOrganizationEventThreatDetectionCustomModule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterManagementOrganizationEventThreatDetectionCustomModule %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityCenterManagementOrganizationEventThreatDetectionCustomModuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationEventThreatDetectionCustomModule: %s", err)
 	}

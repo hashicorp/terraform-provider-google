@@ -343,6 +343,8 @@ func resourceNetworkConnectivityGroupRead(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkConnectivityGroup %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkConnectivityGroup %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}

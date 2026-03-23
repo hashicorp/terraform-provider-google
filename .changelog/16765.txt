@@ -1,0 +1,7 @@
+```release-note:enhancement
+bigqueryreservation: added `reservation_group` field to `reservation` resource
+```
+
+```release-note:new-resource
+`google_bigqueryreservation_reservation_group`
+```

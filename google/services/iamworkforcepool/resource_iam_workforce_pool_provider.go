@@ -839,6 +839,8 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, m
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAMWorkforcePoolWorkforcePoolProvider %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAMWorkforcePoolWorkforcePoolProvider %q: %#v", d.Id(), res)
+
 	res, err = resourceIAMWorkforcePoolWorkforcePoolProviderDecoder(d, meta, res)
 	if err != nil {
 		return err

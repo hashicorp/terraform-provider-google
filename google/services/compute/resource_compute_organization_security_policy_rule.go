@@ -348,6 +348,8 @@ func resourceComputeOrganizationSecurityPolicyRuleRead(d *schema.ResourceData, m
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeOrganizationSecurityPolicyRule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeOrganizationSecurityPolicyRule %q: %#v", d.Id(), res)
+
 	if err := d.Set("description", flattenComputeOrganizationSecurityPolicyRuleDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSecurityPolicyRule: %s", err)
 	}

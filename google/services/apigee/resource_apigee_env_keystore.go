@@ -225,6 +225,8 @@ func resourceApigeeEnvKeystoreRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvKeystore %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ApigeeEnvKeystore %q: %#v", d.Id(), res)
+
 	if err := d.Set("aliases", flattenApigeeEnvKeystoreAliases(res["aliases"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EnvKeystore: %s", err)
 	}

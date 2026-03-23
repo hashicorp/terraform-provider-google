@@ -536,6 +536,8 @@ func resourceNetworkSecuritySecurityProfileRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkSecuritySecurityProfile %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkSecuritySecurityProfile %q: %#v", d.Id(), res)
+
 	if err := d.Set("self_link", flattenNetworkSecuritySecurityProfileSelfLink(res["selfLink"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfile: %s", err)
 	}

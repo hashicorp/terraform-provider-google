@@ -500,6 +500,8 @@ func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessLevels %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AccessContextManagerAccessLevels %q: %#v", d.Id(), res)
+
 	if err := d.Set("access_levels", flattenAccessContextManagerAccessLevelsAccessLevels(res["accessLevels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessLevels: %s", err)
 	}

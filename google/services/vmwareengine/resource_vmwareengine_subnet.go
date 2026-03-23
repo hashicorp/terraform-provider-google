@@ -306,6 +306,8 @@ func resourceVmwareengineSubnetRead(d *schema.ResourceData, meta interface{}) er
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VmwareengineSubnet %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VmwareengineSubnet %q: %#v", d.Id(), res)
+
 	if err := d.Set("create_time", flattenVmwareengineSubnetCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnet: %s", err)
 	}

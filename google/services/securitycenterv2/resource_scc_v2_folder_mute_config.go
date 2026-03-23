@@ -285,6 +285,8 @@ func resourceSecurityCenterV2FolderMuteConfigRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterV2FolderMuteConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterV2FolderMuteConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityCenterV2FolderMuteConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FolderMuteConfig: %s", err)
 	}

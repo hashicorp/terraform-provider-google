@@ -69,7 +69,7 @@ func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *te
 				ResourceName:            "google_bigquery_reservation.reservation",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "reservation_group"},
 			},
 		},
 	})
@@ -112,7 +112,7 @@ func TestAccBigqueryReservationReservation_bigqueryReservationWithDisasterRecove
 				ResourceName:            "google_bigquery_reservation.reservation",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "reservation_group"},
 			},
 		},
 	})

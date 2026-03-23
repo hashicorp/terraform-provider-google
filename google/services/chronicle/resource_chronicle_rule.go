@@ -477,6 +477,8 @@ func resourceChronicleRuleRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ChronicleRule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ChronicleRule %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		if err := d.Set("deletion_policy", "DEFAULT"); err != nil {

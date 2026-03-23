@@ -264,6 +264,8 @@ func resourceComputeResourcePolicyAttachmentRead(d *schema.ResourceData, meta in
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeResourcePolicyAttachment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeResourcePolicyAttachment %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedComputeResourcePolicyAttachment(d, meta, res)
 	if err != nil {
 		return err

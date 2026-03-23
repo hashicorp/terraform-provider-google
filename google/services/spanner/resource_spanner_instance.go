@@ -644,6 +644,8 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SpannerInstance %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SpannerInstance %q: %#v", d.Id(), res)
+
 	res, err = resourceSpannerInstanceDecoder(d, meta, res)
 	if err != nil {
 		return err

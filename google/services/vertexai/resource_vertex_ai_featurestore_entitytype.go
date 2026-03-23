@@ -404,6 +404,8 @@ func resourceVertexAIFeaturestoreEntitytypeRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VertexAIFeaturestoreEntitytype %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading VertexAIFeaturestoreEntitytype %q: %#v", d.Id(), res)
+
 	if err := d.Set("description", flattenVertexAIFeaturestoreEntitytypeDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeaturestoreEntitytype: %s", err)
 	}

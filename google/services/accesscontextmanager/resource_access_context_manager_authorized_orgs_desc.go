@@ -338,6 +338,8 @@ func resourceAccessContextManagerAuthorizedOrgsDescRead(d *schema.ResourceData, 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAuthorizedOrgsDesc %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AccessContextManagerAuthorizedOrgsDesc %q: %#v", d.Id(), res)
+
 	if err := d.Set("create_time", flattenAccessContextManagerAuthorizedOrgsDescCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AuthorizedOrgsDesc: %s", err)
 	}

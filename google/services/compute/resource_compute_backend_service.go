@@ -1987,6 +1987,8 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeBackendService %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeBackendService %q: %#v", d.Id(), res)
+
 	res, err = resourceComputeBackendServiceDecoder(d, meta, res)
 	if err != nil {
 		return err

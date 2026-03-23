@@ -299,6 +299,8 @@ func resourceBigqueryDatapolicyDataPolicyRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryDatapolicyDataPolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BigqueryDatapolicyDataPolicy %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading DataPolicy: %s", err)
 	}

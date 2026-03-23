@@ -264,6 +264,8 @@ func resourceComputeDiskResourcePolicyAttachmentRead(d *schema.ResourceData, met
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeDiskResourcePolicyAttachment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeDiskResourcePolicyAttachment %q: %#v", d.Id(), res)
+
 	res, err = flattenNestedComputeDiskResourcePolicyAttachment(d, meta, res)
 	if err != nil {
 		return err

@@ -412,6 +412,8 @@ func resourceDialogflowCXPlaybookRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXPlaybook %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DialogflowCXPlaybook %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenDialogflowCXPlaybookName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Playbook: %s", err)
 	}

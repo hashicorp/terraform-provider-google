@@ -354,6 +354,8 @@ func resourceNetworkSecurityInterceptDeploymentRead(d *schema.ResourceData, meta
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkSecurityInterceptDeployment %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NetworkSecurityInterceptDeployment %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading InterceptDeployment: %s", err)
 	}

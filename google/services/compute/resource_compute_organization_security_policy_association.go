@@ -263,6 +263,8 @@ func resourceComputeOrganizationSecurityPolicyAssociationRead(d *schema.Resource
 		return transport_tpg.HandleNotFoundError(transformSecurityPolicyAssociationReadError(err), d, fmt.Sprintf("ComputeOrganizationSecurityPolicyAssociation %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeOrganizationSecurityPolicyAssociation %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenComputeOrganizationSecurityPolicyAssociationName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationSecurityPolicyAssociation: %s", err)
 	}

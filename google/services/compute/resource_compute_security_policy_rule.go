@@ -765,6 +765,8 @@ func resourceComputeSecurityPolicyRuleRead(d *schema.ResourceData, meta interfac
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSecurityPolicyRule %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading ComputeSecurityPolicyRule %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
 	}

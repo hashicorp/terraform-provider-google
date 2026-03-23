@@ -267,6 +267,8 @@ func resourceSiteVerificationWebResourceRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SiteVerificationWebResource %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SiteVerificationWebResource %q: %#v", d.Id(), res)
+
 	if err := d.Set("web_resource_id", flattenSiteVerificationWebResourceWebResourceId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WebResource: %s", err)
 	}

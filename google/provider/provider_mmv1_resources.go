@@ -608,9 +608,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 724
+// Generated resources: 725
 // Generated IAM resources: 336
-// Total generated resources: 1060
+// Total generated resources: 1061
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -759,6 +759,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_bigquery_capacity_commitment":                                        registry.Resource("google_bigquery_capacity_commitment"),
 	"google_bigquery_reservation":                                                registry.Resource("google_bigquery_reservation"),
 	"google_bigquery_reservation_assignment":                                     registry.Resource("google_bigquery_reservation_assignment"),
+	"google_bigquery_reservation_group":                                          registry.Resource("google_bigquery_reservation_group"),
 	"google_bigtable_app_profile":                                                registry.Resource("google_bigtable_app_profile"),
 	"google_bigtable_logical_view":                                               registry.Resource("google_bigtable_logical_view"),
 	"google_bigtable_materialized_view":                                          registry.Resource("google_bigtable_materialized_view"),

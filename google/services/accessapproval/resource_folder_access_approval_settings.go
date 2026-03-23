@@ -368,6 +368,8 @@ func resourceAccessApprovalFolderSettingsRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessApprovalFolderSettings %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AccessApprovalFolderSettings %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenAccessApprovalFolderSettingsName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FolderSettings: %s", err)
 	}

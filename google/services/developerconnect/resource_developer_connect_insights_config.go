@@ -551,6 +551,8 @@ func resourceDeveloperConnectInsightsConfigRead(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DeveloperConnectInsightsConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading DeveloperConnectInsightsConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading InsightsConfig: %s", err)
 	}

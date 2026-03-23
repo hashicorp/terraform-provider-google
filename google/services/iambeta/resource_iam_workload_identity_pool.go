@@ -328,6 +328,8 @@ func resourceIAMBetaWorkloadIdentityPoolRead(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IAMBetaWorkloadIdentityPool %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading IAMBetaWorkloadIdentityPool %q: %#v", d.Id(), res)
+
 	res, err = resourceIAMBetaWorkloadIdentityPoolDecoder(d, meta, res)
 	if err != nil {
 		return err

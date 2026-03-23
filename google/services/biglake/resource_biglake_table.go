@@ -319,6 +319,8 @@ func resourceBiglakeTableRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BiglakeTable %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading BiglakeTable %q: %#v", d.Id(), res)
+
 	if err := d.Set("create_time", flattenBiglakeTableCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Table: %s", err)
 	}

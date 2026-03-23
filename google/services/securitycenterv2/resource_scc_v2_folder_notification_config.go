@@ -300,6 +300,8 @@ func resourceSecurityCenterV2FolderNotificationConfigRead(d *schema.ResourceData
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterV2FolderNotificationConfig %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading SecurityCenterV2FolderNotificationConfig %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenSecurityCenterV2FolderNotificationConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
 	}

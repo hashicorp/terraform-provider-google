@@ -287,6 +287,8 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessPolicy %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading AccessContextManagerAccessPolicy %q: %#v", d.Id(), res)
+
 	if err := d.Set("name", flattenAccessContextManagerAccessPolicyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessPolicy: %s", err)
 	}

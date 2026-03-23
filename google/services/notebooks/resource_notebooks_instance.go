@@ -918,6 +918,8 @@ func resourceNotebooksInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NotebooksInstance %q", d.Id()))
 	}
 
+	log.Printf("[DEBUG] Finished reading NotebooksInstance %q: %#v", d.Id(), res)
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("desired_state"); !ok {
 		if err := d.Set("desired_state", "ACTIVE"); err != nil {
