@@ -1,0 +1,1 @@
+unknown: Add SYSTEM_TRUST_DOMAIN to mode for iam workload identity pool
