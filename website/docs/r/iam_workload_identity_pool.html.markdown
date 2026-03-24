@@ -113,6 +113,51 @@ resource "google_iam_workload_identity_pool" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_workload_identity_pool_full_trust_domain_mode_with_default_shared_ca&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Iam Workload Identity Pool Full Trust Domain Mode With Default Shared Ca
+
+
+```hcl
+resource "google_iam_workload_identity_pool" "example" {
+  provider = google-beta
+
+  workload_identity_pool_id = "example-pool"
+  display_name              = "Name of the pool"
+  description               = "Identity pool operates in TRUST_DOMAIN mode"
+  disabled                  = true
+  mode                      = "TRUST_DOMAIN"
+  inline_certificate_issuance_config {
+    use_default_shared_ca      = true
+    lifetime                   = "86400s"
+    rotation_window_percentage = 50
+    key_algorithm              = "ECDSA_P256"
+  }
+  inline_trust_config {
+    additional_trust_bundles {
+      trust_domain = "example.com"
+      trust_anchors {
+        pem_certificate = file("test-fixtures/trust_anchor_1.pem")
+      }
+      trust_anchors {
+        pem_certificate = file("test-fixtures/trust_anchor_2.pem")
+      }
+    }
+    additional_trust_bundles {
+      trust_domain = "example.net"
+      trust_anchors {
+        pem_certificate = file("test-fixtures/trust_anchor_3.pem")
+      }
+      trust_anchors {
+        pem_certificate = file("test-fixtures/trust_anchor_4.pem")
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -191,7 +236,7 @@ The following arguments are supported:
 <a name="nested_inline_certificate_issuance_config"></a>The `inline_certificate_issuance_config` block supports:
 
 * `ca_pools` -
-  (Required)
+  (Optional)
   A required mapping of a cloud region to the CA pool resource located in that region used
   for certificate issuance, adhering to these constraints:
   * **Key format:** A supported cloud region name equivalent to the location identifier in
@@ -200,6 +245,16 @@ The following arguments are supported:
   `projects/{project}/locations/{location}/caPools/{ca_pool}`
   * **Region Matching:** Workloads are ONLY issued certificates from CA pools within the
   same region. Also the CA pool region (in value) must match the workload's region (key).
+
+* `use_default_shared_ca` -
+  (Optional)
+  If set to true, the trust domain will utilize the GCP-provisioned default CA. A default
+  CA in the same region as the workload will be selected to issue the certificate. Enabling
+  this will clear any existing `ca_pools` configuration to provision the certificates.
+  
+  ~> **Note** This field is mutually exclusive with `ca_pools`. If this flag is enabled,
+  certificates will be automatically provisioned from the default shared CAs. This flag should
+  not be set if you want to use your own CA pools to provision the certificates.
 
 * `lifetime` -
   (Optional)
