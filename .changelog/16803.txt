@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `remote_dialogflow_agent.respect_response_interruption_settings` field to `google_ces_agent` resource
+```

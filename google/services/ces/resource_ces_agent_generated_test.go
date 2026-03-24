@@ -326,6 +326,78 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent" {
 `, context)
 }
 
+func TestAccCESAgent_cesAgentRemoteDialogflowAgentInterruptionExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESAgentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESAgent_cesAgentRemoteDialogflowAgentInterruptionExample(context),
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_dialogflow_agent_interruption",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+		},
+	})
+}
+
+func testAccCESAgent_cesAgentRemoteDialogflowAgentInterruptionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id       = "tf-test-app-id%{random_suffix}"
+  location     = "us"
+  description  = "App used as parent for CES Agent example"
+  display_name = "tf-test-my-app%{random_suffix}"
+
+  language_settings {
+    default_language_code       = "en-US"
+    supported_language_codes    = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action             = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_dialogflow_agent_interruption" {
+  agent_id     = "tf-test-agent-id%{random_suffix}"
+  location     = "us"
+  app          = google_ces_app.ces_app_for_agent.app_id
+  display_name = "tf-test-my-agent%{random_suffix}"
+
+  model_settings {
+    model       = "gemini-1.5-flash"
+    temperature = 0.5
+  }
+
+  remote_dialogflow_agent {
+    agent                                  = "projects/example/locations/us/agents/fake-agent"
+    flow_id                                = "fake-flow"
+    environment_id                         = "fake-env"
+    respect_response_interruption_settings = true
+    input_variable_mapping = {
+        "example" : 1
+    }
+    output_variable_mapping = {
+        "example" : 1
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckCESAgentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
