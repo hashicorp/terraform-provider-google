@@ -704,7 +704,7 @@ func ResourceContainerCluster() *schema.Resource {
 										Default:          "pd-standard",
 										Description:      `Type of the disk attached to each node.`,
 										DiffSuppressFunc: suppressDiffForAutopilot,
-										ValidateFunc:     validation.StringInSlice([]string{"pd-standard", "pd-ssd", "pd-balanced"}, false),
+										ValidateFunc:     validation.StringInSlice([]string{"pd-standard", "pd-ssd", "pd-balanced", "hyperdisk-balanced"}, false),
 									},
 									"image_type": {
 										Type:             schema.TypeString,
