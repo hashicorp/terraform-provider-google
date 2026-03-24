@@ -88,7 +88,7 @@ func TestAccIAMBetaWorkloadIdentityPool_minimal(t *testing.T) {
 func testAccIAMBetaWorkloadIdentityPool_full(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_iam_workload_identity_pool" "my_pool" {
-  workload_identity_pool_id = "my-pool-%s"
+  workload_identity_pool_id = "tf-test-my-pool-%s"
   display_name              = "Name of pool"
   description               = "Identity pool for automated test"
   disabled                  = true
@@ -99,7 +99,7 @@ resource "google_iam_workload_identity_pool" "my_pool" {
 func testAccIAMBetaWorkloadIdentityPool_minimal(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_iam_workload_identity_pool" "my_pool" {
-  workload_identity_pool_id = "my-pool-%s"
+  workload_identity_pool_id = "tf-test-my-pool-%s"
 }
 `, suffix)
 }
@@ -107,7 +107,7 @@ resource "google_iam_workload_identity_pool" "my_pool" {
 func testAccIAMBetaWorkloadIdentityPool_update(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_iam_workload_identity_pool" "my_pool" {
-  workload_identity_pool_id = "my-pool-%s"
+  workload_identity_pool_id = "tf-test-my-pool-%s"
   display_name              = "Updated name of pool"
   description               = "Updated description"
   disabled                  = false
