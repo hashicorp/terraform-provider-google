@@ -26,6 +26,7 @@ fields:
     - api_field: networkSpec.subnetwork
     - api_field: networkTags
     - api_field: shieldedVmConfig.enableSecureBoot
+    - api_field: softwareConfig.colabImage.releaseName
     - api_field: softwareConfig.env.name
     - api_field: softwareConfig.env.value
     - api_field: softwareConfig.postStartupScriptConfig.postStartupScript

@@ -125,6 +125,9 @@ resource "google_colab_runtime_template" "runtime-template" {
   network_spec {
     enable_internet_access = true
   }
+
+  software_config {
+  }
 }
 `, context)
 }
@@ -223,6 +226,10 @@ resource "google_colab_runtime_template" "runtime-template" {
       post_startup_script = "echo 'hello world'"
       post_startup_script_url = "gs://colab-enterprise-pss-secure/secure_pss.sh"
       post_startup_script_behavior = "RUN_ONCE"
+    }
+
+    colab_image {
+      release_name = "py312"
     }
   }
 }
