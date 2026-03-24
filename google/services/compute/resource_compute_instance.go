@@ -1098,7 +1098,8 @@ func ResourceComputeInstance() *schema.Resource {
 							Computed:     true,
 							ForceNew:     true,
 							AtLeastOneOf: schedulingKeys,
-							Description:  `Whether the instance is spot. If this is set as SPOT.`,
+							ValidateFunc: validation.StringInSlice([]string{"", "STANDARD", "SPOT", "FLEX_START", "RESERVATION_BOUND"}, false),
+							Description:  `Describes the desired provisioning model for the instance. For STANDARD, resources are provisioned immediately. For SPOT, resources are offered at a discount compared to standard pricing but may be preempted. For FLEX_START, resources are offered at a discount with flexible start times. For RESERVATION_BOUND, the instance is bound to a specific reservation and will only consume capacity from that reservation.`,
 						},
 
 						"instance_termination_action": {
