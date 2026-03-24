@@ -46,6 +46,7 @@ fields:
     - api_field: remoteDialogflowAgent.flowId
     - api_field: remoteDialogflowAgent.inputVariableMapping
     - api_field: remoteDialogflowAgent.outputVariableMapping
+    - api_field: remoteDialogflowAgent.respectResponseInterruptionSettings
     - api_field: tools
     - api_field: toolsets.toolIds
     - api_field: toolsets.toolset
