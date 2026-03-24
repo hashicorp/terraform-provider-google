@@ -434,7 +434,10 @@ func TestAccDataplexEntry_dataplexEntryGlossaryTermExample(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDataplexEntryDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckDataplexEntryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataplexEntry_dataplexEntryGlossaryTermExample(context),
@@ -463,6 +466,12 @@ resource "google_dataplex_glossary_term" "example-glossary-term" {
   term_id = "tf-test-glossary-term%{random_suffix}"
 }
 
+# Introduce a 45-second wait after the glossary resource creation
+resource "time_sleep" "wait-for-sync" {
+  create_duration = "45s"
+  depends_on = [google_dataplex_glossary_term.example-glossary-term]
+}
+
 resource "google_dataplex_entry" "tf_test_glossary_term" {
   entry_group_id = "@dataplex"
   project = "%{project_number}"
@@ -479,7 +488,7 @@ resource "google_dataplex_entry" "tf_test_glossary_term" {
          EOF
      }
    }
-  depends_on = [google_dataplex_glossary_term.example-glossary-term]
+  depends_on = [time_sleep.wait-for-sync]
 }
 `, context)
 }
