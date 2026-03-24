@@ -8,7 +8,13 @@ cai_asset_name_formats:
     - //spanner.googleapis.com/projects/{{project}}/instances/{{name}}
 fields:
     - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.maxNodes
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.maxProcessingUnits
     - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.minNodes
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingLimits.minProcessingUnits
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingTargetHighPriorityCpuUtilizationPercent
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.autoscalingTargetTotalCpuUtilizationPercent
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.disableHighPriorityCpuAutoscaling
+    - api_field: autoscalingConfig.asymmetricAutoscalingOptions.overrides.disableTotalCpuAutoscaling
     - api_field: autoscalingConfig.asymmetricAutoscalingOptions.replicaSelection.location
     - api_field: autoscalingConfig.autoscalingLimits.maxNodes
     - api_field: autoscalingConfig.autoscalingLimits.maxProcessingUnits

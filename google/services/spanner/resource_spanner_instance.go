@@ -221,23 +221,70 @@ the instance.`,
 											Schema: map[string]*schema.Schema{
 												"autoscaling_limits": {
 													Type:        schema.TypeList,
-													Required:    true,
+													Optional:    true,
 													Description: `A nested object resource.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"max_nodes": {
-																Type:        schema.TypeInt,
-																Required:    true,
-																Description: `The maximum number of nodes for this specific replica.`,
+																Type:         schema.TypeInt,
+																Optional:     true,
+																Description:  `The maximum number of nodes for this specific replica.`,
+																ExactlyOneOf: []string{},
+																RequiredWith: []string{},
+															},
+															"max_processing_units": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `The maximum number of processing units for this specific replica.
+If set, this number should be multiples of 1000 and be greater than or equal to
+min_processing_units.`,
+																ExactlyOneOf: []string{},
+																RequiredWith: []string{},
 															},
 															"min_nodes": {
-																Type:        schema.TypeInt,
-																Required:    true,
-																Description: `The minimum number of nodes for this specific replica.`,
+																Type:         schema.TypeInt,
+																Optional:     true,
+																Description:  `The minimum number of nodes for this specific replica.`,
+																ExactlyOneOf: []string{},
+																RequiredWith: []string{},
+															},
+															"min_processing_units": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `The minimum number of processing units for this specific replica.
+If set, this number should be multiples of 1000.`,
+																ExactlyOneOf: []string{},
+																RequiredWith: []string{},
 															},
 														},
 													},
+												},
+												"autoscaling_target_high_priority_cpu_utilization_percent": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `The target high priority cpu utilization percentage that the autoscaler
+should be trying to achieve for this replica.
+This number is on a scale from 0 (no utilization) to 100 (full utilization).`,
+												},
+												"autoscaling_target_total_cpu_utilization_percent": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `The target total cpu utilization percentage that the autoscaler
+should be trying to achieve for this replica.
+This number is on a scale from 0 (no utilization) to 100 (full utilization).`,
+												},
+												"disable_high_priority_cpu_autoscaling": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Description: `If true, disables high priority CPU autoscaling for this replica and ignores
+high_priority_cpu_utilization_percent in the top-level autoscaling configuration.`,
+												},
+												"disable_total_cpu_autoscaling": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Description: `If true, disables total CPU autoscaling for this replica and ignores
+total_cpu_utilization_percent in the top-level autoscaling configuration.`,
 												},
 											},
 										},
@@ -1217,6 +1264,14 @@ func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverride
 	transformed := make(map[string]interface{})
 	transformed["autoscaling_limits"] =
 		flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimits(original["autoscalingLimits"], d, config)
+	transformed["autoscaling_target_high_priority_cpu_utilization_percent"] =
+		flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingTargetHighPriorityCpuUtilizationPercent(original["autoscalingTargetHighPriorityCpuUtilizationPercent"], d, config)
+	transformed["autoscaling_target_total_cpu_utilization_percent"] =
+		flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingTargetTotalCpuUtilizationPercent(original["autoscalingTargetTotalCpuUtilizationPercent"], d, config)
+	transformed["disable_high_priority_cpu_autoscaling"] =
+		flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesDisableHighPriorityCpuAutoscaling(original["disableHighPriorityCpuAutoscaling"], d, config)
+	transformed["disable_total_cpu_autoscaling"] =
+		flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesDisableTotalCpuAutoscaling(original["disableTotalCpuAutoscaling"], d, config)
 	return []interface{}{transformed}
 }
 func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1232,6 +1287,10 @@ func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverride
 		flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMinNodes(original["minNodes"], d, config)
 	transformed["max_nodes"] =
 		flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMaxNodes(original["maxNodes"], d, config)
+	transformed["min_processing_units"] =
+		flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMinProcessingUnits(original["minProcessingUnits"], d, config)
+	transformed["max_processing_units"] =
+		flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMaxProcessingUnits(original["maxProcessingUnits"], d, config)
 	return []interface{}{transformed}
 }
 func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMinNodes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1266,6 +1325,82 @@ func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverride
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMinProcessingUnits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMaxProcessingUnits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingTargetHighPriorityCpuUtilizationPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingTargetTotalCpuUtilizationPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesDisableHighPriorityCpuAutoscaling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesDisableTotalCpuAutoscaling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenSpannerInstanceEdition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1549,6 +1684,34 @@ func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverrides
 		transformed["autoscalingLimits"] = transformedAutoscalingLimits
 	}
 
+	transformedAutoscalingTargetHighPriorityCpuUtilizationPercent, err := expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingTargetHighPriorityCpuUtilizationPercent(original["autoscaling_target_high_priority_cpu_utilization_percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAutoscalingTargetHighPriorityCpuUtilizationPercent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["autoscalingTargetHighPriorityCpuUtilizationPercent"] = transformedAutoscalingTargetHighPriorityCpuUtilizationPercent
+	}
+
+	transformedAutoscalingTargetTotalCpuUtilizationPercent, err := expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingTargetTotalCpuUtilizationPercent(original["autoscaling_target_total_cpu_utilization_percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAutoscalingTargetTotalCpuUtilizationPercent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["autoscalingTargetTotalCpuUtilizationPercent"] = transformedAutoscalingTargetTotalCpuUtilizationPercent
+	}
+
+	transformedDisableHighPriorityCpuAutoscaling, err := expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesDisableHighPriorityCpuAutoscaling(original["disable_high_priority_cpu_autoscaling"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisableHighPriorityCpuAutoscaling); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disableHighPriorityCpuAutoscaling"] = transformedDisableHighPriorityCpuAutoscaling
+	}
+
+	transformedDisableTotalCpuAutoscaling, err := expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesDisableTotalCpuAutoscaling(original["disable_total_cpu_autoscaling"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisableTotalCpuAutoscaling); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disableTotalCpuAutoscaling"] = transformedDisableTotalCpuAutoscaling
+	}
+
 	return transformed, nil
 }
 
@@ -1578,6 +1741,20 @@ func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverrides
 		transformed["maxNodes"] = transformedMaxNodes
 	}
 
+	transformedMinProcessingUnits, err := expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMinProcessingUnits(original["min_processing_units"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinProcessingUnits); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minProcessingUnits"] = transformedMinProcessingUnits
+	}
+
+	transformedMaxProcessingUnits, err := expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMaxProcessingUnits(original["max_processing_units"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxProcessingUnits); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxProcessingUnits"] = transformedMaxProcessingUnits
+	}
+
 	return transformed, nil
 }
 
@@ -1586,6 +1763,30 @@ func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverrides
 }
 
 func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMaxNodes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMinProcessingUnits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingLimitsMaxProcessingUnits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingTargetHighPriorityCpuUtilizationPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesAutoscalingTargetTotalCpuUtilizationPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesDisableHighPriorityCpuAutoscaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerInstanceAutoscalingConfigAsymmetricAutoscalingOptionsOverridesDisableTotalCpuAutoscaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
