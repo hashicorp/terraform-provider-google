@@ -113,6 +113,13 @@ resource "google_dataplex_glossary_term" "term_test_id_full" {
   display_name = "terraform term"
   description = "term created by Terraform"
 }
+
+# Introduce a 45-second wait after the glossary resource creation
+resource "time_sleep" "wait-for-sync" {
+  create_duration = "45s"
+  depends_on = [google_dataplex_glossary_term.term_test_id_full]
+}
+
 resource "google_dataplex_entry_link" "full_entry_link" {
   project = "1111111111111"
   location = "us-central1"
@@ -128,7 +135,7 @@ resource "google_dataplex_entry_link" "full_entry_link" {
     name = "projects/${google_dataplex_entry_group.entry-group-full.project}/locations/us-central1/entryGroups/@dataplex/entries/projects/${google_dataplex_entry_group.entry-group-full.project}/locations/us-central1/glossaries/${google_dataplex_glossary.term_test_id_full.glossary_id}/terms/${google_dataplex_glossary_term.term_test_id_full.term_id}"
     type = "TARGET"
   }
-  depends_on = [google_dataplex_glossary_term.term_test_id_full]
+  depends_on = [time_sleep.wait-for-sync]
 }
 ```
 
