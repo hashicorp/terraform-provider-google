@@ -27,12 +27,10 @@ A health source resource specifies the source resources and the health
 aggregation policy applied to the source resources to determine the
 aggregated health status.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about RegionHealthSource, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/regionHealthSources)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionHealthSources)
 * How-to Guides
     * [Health checks overview](https://cloud.google.com/load-balancing/docs/health-check-concepts)
 
@@ -41,14 +39,12 @@ To get more information about RegionHealthSource, see:
 
 ```hcl
 resource "google_compute_region_health_aggregation_policy" "hap" {
-  provider    = google-beta
   name        = "test-health-source-hap"
   description = "health aggregation policy for health source"
   region      = "us-central1"
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name     = "test-health-source-hc"
   http_health_check {
     port = 80
@@ -56,7 +52,6 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_compute_region_backend_service" "default" {
-  provider              = google-beta
   name                  = "test-health-source-bs"
   region                = "us-central1"
   health_checks         = [google_compute_health_check.default.id]
@@ -64,7 +59,6 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_region_health_source" "example_test_health_source" {
-  provider                  = google-beta
   name                      = "test-health-source"
   description               = "Example health source basic"
   region                    = "us-central1"
