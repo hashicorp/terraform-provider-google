@@ -56,8 +56,6 @@ resource "google_iam_workload_identity_pool" "example" {
 
 ```hcl
 resource "google_iam_workload_identity_pool" "example" {
-  provider = google-beta
-
   workload_identity_pool_id = "example-pool"
   display_name              = "Name of the pool"
   description               = "Identity pool operates in FEDERATION_ONLY mode"
@@ -75,8 +73,6 @@ resource "google_iam_workload_identity_pool" "example" {
 
 ```hcl
 resource "google_iam_workload_identity_pool" "example" {
-  provider = google-beta
-
   workload_identity_pool_id = "example-pool"
   display_name              = "Name of the pool"
   description               = "Identity pool operates in TRUST_DOMAIN mode"
@@ -123,8 +119,6 @@ resource "google_iam_workload_identity_pool" "example" {
 
 ```hcl
 resource "google_iam_workload_identity_pool" "example" {
-  provider = google-beta
-
   workload_identity_pool_id = "example-pool"
   display_name              = "Name of the pool"
   description               = "Identity pool operates in TRUST_DOMAIN mode"
@@ -186,7 +180,7 @@ The following arguments are supported:
   access again.
 
 * `mode` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The mode for the pool is operating in. Pools with an unspecified mode will operate as if they
   are in `FEDERATION_ONLY` mode.
   
@@ -213,14 +207,14 @@ The following arguments are supported:
   Possible values are: `FEDERATION_ONLY`, `TRUST_DOMAIN`, `SYSTEM_TRUST_DOMAIN`.
 
 * `inline_certificate_issuance_config` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Represents configuration for generating mutual TLS (mTLS) certificates for the identities
   within this pool. Defines the Certificate Authority (CA) pool resources and configurations
   required for issuance and rotation of mTLS workload certificates.
   Structure is [documented below](#nested_inline_certificate_issuance_config).
 
 * `inline_trust_config` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Represents config to add additional trusted trust domains. Defines configuration for extending
   trust to additional trust domains. By establishing trust with another domain, the current
   domain will recognize and accept certificates issued by entities within the trusted domains.

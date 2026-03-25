@@ -8,6 +8,16 @@ fields:
     - api_field: description
     - api_field: disabled
     - api_field: displayName
+    - api_field: inlineCertificateIssuanceConfig.caPools
+    - api_field: inlineCertificateIssuanceConfig.keyAlgorithm
+    - api_field: inlineCertificateIssuanceConfig.lifetime
+    - api_field: inlineCertificateIssuanceConfig.rotationWindowPercentage
+    - api_field: inlineCertificateIssuanceConfig.useDefaultSharedCa
+    - api_field: inlineTrustConfig.additionalTrustBundles.key
+      field: inline_trust_config.additional_trust_bundles.trust_domain
+    - api_field: inlineTrustConfig.additionalTrustBundles.value.trustAnchors.pemCertificate
+      field: inline_trust_config.additional_trust_bundles.trust_anchors.pem_certificate
+    - api_field: mode
     - api_field: name
     - api_field: state
     - field: workload_identity_pool_id
