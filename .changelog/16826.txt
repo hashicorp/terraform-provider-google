@@ -1,0 +1,7 @@
+```release-note:breaking-change
+compute: Removed `google_compute_region_backend_bucket` from the `google` (GA) provider. It is currently beta-only, and calls to the nonexistent GA API always returned a 404. Until released in `google`, use `google-beta` instead.
+```
+
+```release-note:bug
+compute: fixed `google_compute_region_backend_bucket` being present in the `google` (GA) provider. It is currently beta-only, and calls to the nonexistent GA API always returned a 404.
+```
