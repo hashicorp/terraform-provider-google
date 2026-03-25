@@ -2706,7 +2706,7 @@ func AreADCCredentialsX509() bool {
 
 // Remove the `/{{version}}/` from a base path if present.
 func RemoveBasePathVersion(url string) string {
-	re := regexp.MustCompile(`(?P<base>http[s]://.*)(?P<version>/[^/]+?/$)`)
+	re := regexp.MustCompile(`(?P<base>https?://.*)(?P<version>/[^/]+?/$)`)
 	return re.ReplaceAllString(url, "$1/")
 }
 
