@@ -1,0 +1,11 @@
+```release-note:new-resource
+`google_compute_region_health_aggregation_policy` (ga)
+```
+
+```release-note:new-resource
+`google_compute_region_health_source` (ga)
+```
+
+```release-note:new-resource
+`google_compute_region_composite_health_check` (ga)
+```

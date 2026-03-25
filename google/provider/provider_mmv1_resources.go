@@ -612,9 +612,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 728
+// Generated resources: 731
 // Generated IAM resources: 342
-// Total generated resources: 1070
+// Total generated resources: 1073
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     registry.Resource("google_folder_access_approval_settings"),
 	"google_organization_access_approval_settings":                               registry.Resource("google_organization_access_approval_settings"),
@@ -937,12 +937,15 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_region_backend_bucket":                                       registry.Resource("google_compute_region_backend_bucket"),
 	"google_compute_region_backend_service":                                      registry.Resource("google_compute_region_backend_service"),
 	"google_compute_region_commitment":                                           registry.Resource("google_compute_region_commitment"),
+	"google_compute_region_composite_health_check":                               registry.Resource("google_compute_region_composite_health_check"),
 	"google_compute_region_disk":                                                 registry.Resource("google_compute_region_disk"),
 	"google_compute_region_disk_iam_binding":                                     registry.Resource("google_compute_region_disk_iam_binding"),
 	"google_compute_region_disk_iam_member":                                      registry.Resource("google_compute_region_disk_iam_member"),
 	"google_compute_region_disk_iam_policy":                                      registry.Resource("google_compute_region_disk_iam_policy"),
 	"google_compute_region_disk_resource_policy_attachment":                      registry.Resource("google_compute_region_disk_resource_policy_attachment"),
+	"google_compute_region_health_aggregation_policy":                            registry.Resource("google_compute_region_health_aggregation_policy"),
 	"google_compute_region_health_check":                                         registry.Resource("google_compute_region_health_check"),
+	"google_compute_region_health_source":                                        registry.Resource("google_compute_region_health_source"),
 	"google_compute_region_network_endpoint":                                     registry.Resource("google_compute_region_network_endpoint"),
 	"google_compute_region_network_endpoint_group":                               registry.Resource("google_compute_region_network_endpoint_group"),
 	"google_compute_region_network_firewall_policy":                              registry.Resource("google_compute_region_network_firewall_policy"),
