@@ -1,0 +1,2 @@
+```release-note:bug
+provider: fixed an issue when custom endpoints use `http://````
