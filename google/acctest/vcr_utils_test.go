@@ -68,6 +68,38 @@ func TestNewVcrMatcherFunc_canDetectMatches(t *testing.T) {
 				body:   "{\"field\":\"value\"}",
 			},
 		},
+		"matches GET requests when SendRequest adds alt=json but cassette has alt=json&prettyPrint=false": {
+			httpRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance",
+				query:  "alt=json",
+			},
+			cassetteRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance",
+				query:  "alt=json&prettyPrint=false",
+			},
+		},
+		"matches GET requests when both have alt and prettyPrint in different order": {
+			httpRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance",
+				query:  "prettyPrint=false&alt=json",
+			},
+			cassetteRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance",
+				query:  "alt=json&prettyPrint=false",
+			},
+		},
 		"matches POST requests with matching but re-ordered bodies, but only if Content-Type contains 'application/json'": {
 			httpRequest: requestDescription{
 				scheme: "https",
@@ -190,6 +222,22 @@ func TestNewVcrMatcherFunc_canDetectMismatches(t *testing.T) {
 				host:   "example.com",
 				path:   "foobar",
 				body:   "{\"field\":\"value is MNLOP\"}",
+			},
+		},
+		"requests with different non-standard query params do not match": {
+			httpRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance/detachDisk",
+				query:  "deviceName=disk-1&alt=json",
+			},
+			cassetteRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance/detachDisk",
+				query:  "deviceName=disk-2&alt=json&prettyPrint=false",
 			},
 		},
 		"POST requests with matching but re-ordered bodies aren't matching if Content-Type header is not 'application/json'": {
@@ -336,14 +384,16 @@ type requestDescription struct {
 	host    string
 	path    string
 	body    string
+	query   string
 	headers map[string]string
 }
 
 func prepareHttpRequest(d requestDescription) *http.Request {
 	url := &url.URL{
-		Scheme: d.scheme,
-		Host:   d.host,
-		Path:   d.path,
+		Scheme:   d.scheme,
+		Host:     d.host,
+		Path:     d.path,
+		RawQuery: d.query,
 	}
 
 	req := &http.Request{
@@ -369,6 +419,9 @@ func prepareHttpRequest(d requestDescription) *http.Request {
 
 func prepareCassetteRequest(d requestDescription) cassette.Request {
 	fullUrl := fmt.Sprintf("%s://%s/%s", d.scheme, d.host, d.path)
+	if d.query != "" {
+		fullUrl = fmt.Sprintf("%s?%s", fullUrl, d.query)
+	}
 
 	req := cassette.Request{
 		Method: d.method,
