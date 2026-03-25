@@ -208,7 +208,7 @@ func deleteResourceVmwareenginePrivateCloud(config *transport_tpg.Config, d *tpg
 	}
 	url = url + name
 	// Apply additional query string defined in Sweeper config
-	url = url + "?delay_hours=0"
+	url = url + "?delay_hours=0&force=true"
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
