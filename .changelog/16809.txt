@@ -1,0 +1,3 @@
+```release-note:enhancement
+iambeta: promoted `iam_policy` and fields `mode`, `inline_certificate_issuance_config`, `inline_trust_config` of   `google_iam_workload_identity_pool` resource to GA
+```
