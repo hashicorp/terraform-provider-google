@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccComputeAttachedDisk_basic(t *testing.T) {
@@ -183,7 +183,13 @@ func testCheckAttachedDiskIsNowDetached(t *testing.T, instanceName, diskName str
 			return err
 		}
 
-		ad := compute.FindDiskByName(instance.Disks, diskName)
+		var ad interface{}
+		for _, disk := range instance.Disks {
+			if tpgresource.CompareSelfLinkOrResourceName("", disk.Source, diskName, nil) {
+				ad = disk
+				break
+			}
+		}
 		if ad != nil {
 			return fmt.Errorf("compute disk is still attached to compute instance")
 		}
