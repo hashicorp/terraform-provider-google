@@ -1,0 +1,3 @@
+```release-note:bug
+biglake: fixed erroneous diff for the `properties` field in the `google_biglake_iceberg_table` and `google_biglake_iceberg_namespace` resources
+```

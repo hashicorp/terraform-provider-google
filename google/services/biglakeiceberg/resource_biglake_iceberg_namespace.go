@@ -61,8 +61,8 @@ var icebergNamespaceIgnoredProperties = map[string]bool{
 
 func icebergNamespacePropertiesDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// properties.KEY
-	parts := strings.Split(k, ".")
-	if len(parts) == 2 && icebergNamespaceIgnoredProperties[parts[1]] {
+	parts := strings.SplitN(k, ".", 2)
+	if len(parts) == 2 && icebergNamespaceIgnoredProperties[parts[1]] && new == "" {
 		return true
 	}
 	return false
