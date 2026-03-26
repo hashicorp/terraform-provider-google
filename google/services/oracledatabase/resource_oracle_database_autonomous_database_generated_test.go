@@ -284,11 +284,10 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseDis
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"adb_id":                    "do-not-delete-dr-adb",
+		"database_name":             fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection":       false,
 		"enable_backup_replication": true,
 		"location":                  "us-west3",
-		"peer_adb_name":             "projects/oci-terraform-testing-prod/locations/us-east4/autonomousDatabases/do-not-delete-dr-adb",
 		"project":                   "oci-terraform-testing-prod",
 		"random_suffix":             acctest.RandString(t, 10),
 	}
@@ -313,12 +312,30 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseDis
 
 func testAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseDisasterRecoveryExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_oracle_database_autonomous_database" "adb-dr"{
+  autonomous_database_id = "tf-test-my-instance%{random_suffix}"
+  location = "us-east4"
+  project = "%{project}"
+  database = "%{database_name}"
+  admin_password = "123Abpassword"
+  properties {
+    compute_count = "2"
+    data_storage_size_gb="20"
+    db_version = "19c"
+    db_workload = "OLTP"
+    license_type = "LICENSE_INCLUDED"
+    mtls_connection_required = "true"
+    }
+  deletion_protection = "%{deletion_protection}"
+}
+
+
 resource "google_oracle_database_autonomous_database" "myADB"{
-  autonomous_database_id = "%{adb_id}"
+  autonomous_database_id = "tf-test-my-instance%{random_suffix}"
   location = "%{location}"
   project = "%{project}"
   source_config {
-    autonomous_database = "%{peer_adb_name}"
+    autonomous_database = google_oracle_database_autonomous_database.adb-dr.name
     automatic_backups_replication_enabled = "%{enable_backup_replication}"
     }
   deletion_protection = "%{deletion_protection}"

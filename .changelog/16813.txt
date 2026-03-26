@@ -1,0 +1,3 @@
+```release-note:bug
+oracledatabase: update disaster recovery test for Oracle Database@Google Cloud Autonomous AI Database
+```
