@@ -449,13 +449,11 @@ boot disk for a Compute Engine VM instance.`,
 															"size_gb": {
 																Type:        schema.TypeString,
 																Required:    true,
-																ForceNew:    true,
 																Description: `Size of the disk in gigabytes. Must be at least 10GB.`,
 															},
 															"type": {
 																Type:     schema.TypeString,
 																Required: true,
-																ForceNew: true,
 																Description: `[Persistent disk
 type](https://cloud.google.com/compute/docs/disks#disk-types), in the
 format 'projects/{project}/zones/{zone}/diskTypes/{disk_type}'.`,
@@ -574,13 +572,11 @@ boot disk for a Compute Engine VM instance.`,
 																		"size_gb": {
 																			Type:        schema.TypeString,
 																			Required:    true,
-																			ForceNew:    true,
 																			Description: `Size of the disk in gigabytes. Must be at least 10GB.`,
 																		},
 																		"type": {
 																			Type:     schema.TypeString,
 																			Required: true,
-																			ForceNew: true,
 																			Description: `[Persistent disk
 type](https://cloud.google.com/compute/docs/disks#disk-types), in the
 format 'projects/{project}/zones/{zone}/diskTypes/{disk_type}'.`,
