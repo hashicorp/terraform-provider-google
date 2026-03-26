@@ -1,0 +1,1 @@
+unknown: Allow `mode` in `workload_identity_pool` to accept any values from api response

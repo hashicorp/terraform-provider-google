@@ -301,6 +301,7 @@ certificate(either root or intermediate cert).`,
 			},
 			"mode": {
 				Type:         schema.TypeString,
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"FEDERATION_ONLY", "TRUST_DOMAIN", "SYSTEM_TRUST_DOMAIN", ""}),
 				Description: `The mode for the pool is operating in. Pools with an unspecified mode will operate as if they
