@@ -120,6 +120,9 @@ func expandComputeMetadata(m map[string]interface{}) []*compute.MetadataItems {
 
 func flattenMetadataBeta(metadata *compute.Metadata) map[string]string {
 	metadataMap := make(map[string]string)
+	if metadata == nil {
+		return metadataMap
+	}
 	for _, item := range metadata.Items {
 		metadataMap[item.Key] = *item.Value
 	}
@@ -132,6 +135,9 @@ func flattenMetadataBeta(metadata *compute.Metadata) map[string]string {
 // beta support.
 func FlattenMetadata(metadata *compute.Metadata) map[string]interface{} {
 	metadataMap := make(map[string]interface{})
+	if metadata == nil {
+		return metadataMap
+	}
 	for _, item := range metadata.Items {
 		metadataMap[item.Key] = *item.Value
 	}
