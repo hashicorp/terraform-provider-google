@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed panic when setting `google_compute_project_metadata` on a project with no existing metadata
+```
