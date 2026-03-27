@@ -53,8 +53,13 @@ var (
 func TestAccNetworkSecurityMirroringDeploymentGroup_networkSecurityMirroringDeploymentGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"deployment_group_id": "tf-test-example-dg" + randomSuffix,
+		"network_name":        "tf-test-example-network" + randomSuffix,
+		"subnetwork_name":     "tf-test-example-subnet" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +83,12 @@ func TestAccNetworkSecurityMirroringDeploymentGroup_networkSecurityMirroringDepl
 func testAccNetworkSecurityMirroringDeploymentGroup_networkSecurityMirroringDeploymentGroupBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-example-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "default" {
-  mirroring_deployment_group_id = "tf-test-example-dg%{random_suffix}"
+  mirroring_deployment_group_id = "%{deployment_group_id}"
   location                      = "global"
   network                       = google_compute_network.network.id
   description                   = "some description"

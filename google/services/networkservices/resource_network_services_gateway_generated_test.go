@@ -53,8 +53,11 @@ var (
 func TestAccNetworkServicesGateway_networkServicesGatewayBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-gateway" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkServicesGateway_networkServicesGatewayBasicExample(t *testing
 func testAccNetworkServicesGateway_networkServicesGatewayBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_gateway" "default" {
-  name     = "tf-test-my-gateway%{random_suffix}"
+  name     = "%{resource_name}"
   scope    = "default-scope-basic"
   type     = "OPEN_MESH"
   ports    = [443]
@@ -89,8 +92,11 @@ resource "google_network_services_gateway" "default" {
 func TestAccNetworkServicesGateway_networkServicesGatewayAdvancedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-gateway" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -114,7 +120,7 @@ func TestAccNetworkServicesGateway_networkServicesGatewayAdvancedExample(t *test
 func testAccNetworkServicesGateway_networkServicesGatewayAdvancedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_services_gateway" "default" {
-  name        = "tf-test-my-gateway%{random_suffix}"
+  name        = "%{resource_name}"
   labels      = {
     foo = "bar"
   }
@@ -129,8 +135,18 @@ resource "google_network_services_gateway" "default" {
 func TestAccNetworkServicesGateway_networkServicesGatewaySecureWebProxyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"certificate_name":           "tf-test-my-certificate" + randomSuffix,
+		"gateway_name_1":             "tf-test-my-gateway1" + randomSuffix,
+		"network_name":               "tf-test-my-network" + randomSuffix,
+		"policy_name":                "tf-test-my-policy-name" + randomSuffix,
+		"policy_rule_name":           "tf-test-my-policyrule-name" + randomSuffix,
+		"proxy_only_subnetwork_name": "tf-test-my-proxy-only-subnetwork" + randomSuffix,
+		"scope_1":                    "tf-test-my-default-scope1" + randomSuffix,
+		"subnetwork_name":            "tf-test-my-subnetwork-name" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -154,7 +170,7 @@ func TestAccNetworkServicesGateway_networkServicesGatewaySecureWebProxyExample(t
 func testAccNetworkServicesGateway_networkServicesGatewaySecureWebProxyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-my-certificate%{random_suffix}"
+  name        = "%{certificate_name}"
   location    = "us-central1"
   self_managed {
     pem_certificate = file("test-fixtures/cert.pem")
@@ -163,13 +179,13 @@ resource "google_certificate_manager_certificate" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   routing_mode            = "REGIONAL"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-my-subnetwork-name%{random_suffix}"
+  name          = "%{subnetwork_name}"
   purpose       = "PRIVATE"
   ip_cidr_range = "10.128.0.0/20"
   region        = "us-central1"
@@ -178,7 +194,7 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_subnetwork" "proxyonlysubnet" {
-  name          = "tf-test-my-proxy-only-subnetwork%{random_suffix}"
+  name          = "%{proxy_only_subnetwork_name}"
   purpose       = "REGIONAL_MANAGED_PROXY"
   ip_cidr_range = "192.168.0.0/23"
   region        = "us-central1"
@@ -187,12 +203,12 @@ resource "google_compute_subnetwork" "proxyonlysubnet" {
 }
 
 resource "google_network_security_gateway_security_policy" "default" {
-  name        = "tf-test-my-policy-name%{random_suffix}"
+  name        = "%{policy_name}"
   location    = "us-central1"
 }
 
 resource "google_network_security_gateway_security_policy_rule" "default" {
-  name                    = "tf-test-my-policyrule-name%{random_suffix}"
+  name                    = "%{policy_rule_name}"
   location                = "us-central1"
   gateway_security_policy = google_network_security_gateway_security_policy.default.name
   enabled                 = true  
@@ -202,12 +218,12 @@ resource "google_network_security_gateway_security_policy_rule" "default" {
 }
 
 resource "google_network_services_gateway" "default" {
-  name                                 = "tf-test-my-gateway1%{random_suffix}"
+  name                                 = "%{gateway_name_1}"
   location                             = "us-central1"
   addresses                            = ["10.128.0.99"]
   type                                 = "SECURE_WEB_GATEWAY"
   ports                                = [443]
-  scope                                = "tf-test-my-default-scope1%{random_suffix}"
+  scope                                = "%{scope_1}"
   certificate_urls                     = [google_certificate_manager_certificate.default.id]
   gateway_security_policy              = google_network_security_gateway_security_policy.default.id
   network                              = google_compute_network.default.id
@@ -221,8 +237,20 @@ resource "google_network_services_gateway" "default" {
 func TestAccNetworkServicesGateway_networkServicesGatewayMultipleSwpSameNetworkExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"certificate_name":           "tf-test-my-certificate" + randomSuffix,
+		"gateway_name_1":             "tf-test-my-gateway1" + randomSuffix,
+		"gateway_name_2":             "tf-test-my-gateway2" + randomSuffix,
+		"network_name":               "tf-test-my-network" + randomSuffix,
+		"policy_name":                "tf-test-my-policy-name" + randomSuffix,
+		"policy_rule_name":           "tf-test-my-policyrule-name" + randomSuffix,
+		"proxy_only_subnetwork_name": "tf-test-my-proxy-only-subnetwork" + randomSuffix,
+		"scope_1":                    "tf-test-my-default-scope1" + randomSuffix,
+		"scope_2":                    "tf-test-my-default-scope2" + randomSuffix,
+		"subnetwork_name":            "tf-test-my-subnetwork-name" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -246,7 +274,7 @@ func TestAccNetworkServicesGateway_networkServicesGatewayMultipleSwpSameNetworkE
 func testAccNetworkServicesGateway_networkServicesGatewayMultipleSwpSameNetworkExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
-  name        = "tf-test-my-certificate%{random_suffix}"
+  name        = "%{certificate_name}"
   location    = "us-south1"
   self_managed {
     pem_certificate = file("test-fixtures/cert.pem")
@@ -255,13 +283,13 @@ resource "google_certificate_manager_certificate" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   routing_mode            = "REGIONAL"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-my-subnetwork-name%{random_suffix}"
+  name          = "%{subnetwork_name}"
   purpose       = "PRIVATE"
   ip_cidr_range = "10.128.0.0/20"
   region        = "us-south1"
@@ -270,7 +298,7 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_subnetwork" "proxyonlysubnet" {
-  name          = "tf-test-my-proxy-only-subnetwork%{random_suffix}"
+  name          = "%{proxy_only_subnetwork_name}"
   purpose       = "REGIONAL_MANAGED_PROXY"
   ip_cidr_range = "192.168.0.0/23"
   region        = "us-south1"
@@ -279,12 +307,12 @@ resource "google_compute_subnetwork" "proxyonlysubnet" {
 }
 
 resource "google_network_security_gateway_security_policy" "default" {
-  name        = "tf-test-my-policy-name%{random_suffix}"
+  name        = "%{policy_name}"
   location    = "us-south1"
 }
 
 resource "google_network_security_gateway_security_policy_rule" "default" {
-  name                    = "tf-test-my-policyrule-name%{random_suffix}"
+  name                    = "%{policy_rule_name}"
   location                = "us-south1"
   gateway_security_policy = google_network_security_gateway_security_policy.default.name
   enabled                 = true  
@@ -294,12 +322,12 @@ resource "google_network_security_gateway_security_policy_rule" "default" {
 }
 
 resource "google_network_services_gateway" "default" {
-  name                                 = "tf-test-my-gateway1%{random_suffix}"
+  name                                 = "%{gateway_name_1}"
   location                             = "us-south1"
   addresses                            = ["10.128.0.99"]
   type                                 = "SECURE_WEB_GATEWAY"
   ports                                = [443]
-  scope                                = "tf-test-my-default-scope1%{random_suffix}"
+  scope                                = "%{scope_1}"
   certificate_urls                     = [google_certificate_manager_certificate.default.id]
   gateway_security_policy              = google_network_security_gateway_security_policy.default.id
   network                              = google_compute_network.default.id
@@ -309,12 +337,12 @@ resource "google_network_services_gateway" "default" {
 }
 
 resource "google_network_services_gateway" "gateway2" {
-  name                                 = "tf-test-my-gateway2%{random_suffix}"
+  name                                 = "%{gateway_name_2}"
   location                             = "us-south1"
   addresses                            = ["10.128.0.98"]
   type                                 = "SECURE_WEB_GATEWAY"
   ports                                = [443]
-  scope                                = "tf-test-my-default-scope2%{random_suffix}"
+  scope                                = "%{scope_2}"
   certificate_urls                     = [google_certificate_manager_certificate.default.id]
   gateway_security_policy              = google_network_security_gateway_security_policy.default.id
   network                              = google_compute_network.default.id

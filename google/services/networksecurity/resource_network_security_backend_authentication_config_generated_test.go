@@ -53,8 +53,11 @@ var (
 func TestAccNetworkSecurityBackendAuthenticationConfig_networkSecurityBackendAuthenticationConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-backend-authentication-config" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNetworkSecurityBackendAuthenticationConfig_networkSecurityBackendAut
 func testAccNetworkSecurityBackendAuthenticationConfig_networkSecurityBackendAuthenticationConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_backend_authentication_config" "default" {
-  name             = "tf-test-my-backend-authentication-config%{random_suffix}"
+  name             = "%{resource_name}"
   labels           = {
     foo = "bar"
   }
@@ -91,8 +94,13 @@ resource "google_network_security_backend_authentication_config" "default" {
 func TestAccNetworkSecurityBackendAuthenticationConfig_networkSecurityBackendAuthenticationConfigFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"certificate_name":  "tf-test-my-certificate" + randomSuffix,
+		"resource_name":     "tf-test-my-backend-authentication-config" + randomSuffix,
+		"trust_config_name": "tf-test-my-trust-config" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -116,7 +124,7 @@ func TestAccNetworkSecurityBackendAuthenticationConfig_networkSecurityBackendAut
 func testAccNetworkSecurityBackendAuthenticationConfig_networkSecurityBackendAuthenticationConfigFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "certificate" {
-  name     = "tf-test-my-certificate%{random_suffix}"
+  name     = "%{certificate_name}"
   labels   = {
     foo = "bar"
   }
@@ -129,7 +137,7 @@ resource "google_certificate_manager_certificate" "certificate" {
 }
 
 resource "google_certificate_manager_trust_config" "trust_config" {
-  name        = "tf-test-my-trust-config%{random_suffix}"
+  name        = "%{trust_config_name}"
   description = "sample description for the trust config"
   location    = "global"
 
@@ -148,7 +156,7 @@ resource "google_certificate_manager_trust_config" "trust_config" {
 }
 
 resource "google_network_security_backend_authentication_config" "default" {
-  name     = "tf-test-my-backend-authentication-config%{random_suffix}"
+  name     = "%{resource_name}"
   labels   = {
     bar = "foo"
   }
@@ -164,8 +172,13 @@ resource "google_network_security_backend_authentication_config" "default" {
 func TestAccNetworkSecurityBackendAuthenticationConfig_backendServiceTlsSettingsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"authentication_name":  "authentication" + randomSuffix,
+		"backend_service_name": "tf-test-backend-service" + randomSuffix,
+		"health_check_name":    "tf-test-health-check" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -189,7 +202,7 @@ func TestAccNetworkSecurityBackendAuthenticationConfig_backendServiceTlsSettings
 func testAccNetworkSecurityBackendAuthenticationConfig_backendServiceTlsSettingsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "tf-test-backend-service%{random_suffix}"
+  name          = "%{backend_service_name}"
   health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "EXTERNAL_MANAGED"
   protocol = "HTTPS"
@@ -206,14 +219,14 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name = "tf-test-health-check%{random_suffix}"
+  name = "%{health_check_name}"
   http_health_check {
     port = 80
   }
 }
 
 resource "google_network_security_backend_authentication_config" "default" {
-  name             = "authentication%{random_suffix}"
+  name             = "%{authentication_name}"
   well_known_roots = "PUBLIC_ROOTS"
 }
 `, context)

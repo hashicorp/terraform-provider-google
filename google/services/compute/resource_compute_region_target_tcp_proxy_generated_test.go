@@ -53,8 +53,13 @@ var (
 func TestAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"health_check_name":            "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name":  "tf-test-backend-service" + randomSuffix,
+		"region_target_tcp_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +83,13 @@ func TestAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBasicExample(t *test
 func testAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_target_tcp_proxy" "default" {
-  name            = "tf-test-test-proxy%{random_suffix}"
+  name            = "%{region_target_tcp_proxy_name}"
   region          = "europe-west4"
   backend_service = google_compute_region_backend_service.default.id
 }
 
 resource "google_compute_region_backend_service" "default" {
-  name        = "tf-test-backend-service%{random_suffix}"
+  name        = "%{region_backend_service_name}"
   protocol    = "TCP"
   timeout_sec = 10
   region      = "europe-west4"
@@ -94,7 +99,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   region             = "europe-west4"
   timeout_sec        = 1
   check_interval_sec = 1

@@ -53,10 +53,13 @@ var (
 func TestAccFirestoreBackupSchedule_firestoreBackupScheduleDailyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +84,7 @@ func testAccFirestoreBackupSchedule_firestoreBackupScheduleDailyExample(context 
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 
@@ -103,10 +106,13 @@ resource "google_firestore_backup_schedule" "daily-backup" {
 func TestAccFirestoreBackupSchedule_firestoreBackupScheduleWeeklyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":              envvar.GetTestProjectFromEnv(),
+		"database_id":             "tf-test-database-id" + randomSuffix,
 		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -131,7 +137,7 @@ func testAccFirestoreBackupSchedule_firestoreBackupScheduleWeeklyExample(context
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project     = "%{project_id}"
-  name        = "tf-test-database-id%{random_suffix}"
+  name        = "%{database_id}"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 

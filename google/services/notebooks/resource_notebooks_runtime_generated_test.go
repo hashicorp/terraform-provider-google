@@ -53,8 +53,11 @@ var (
 func TestAccNotebooksRuntime_notebookRuntimeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"runtime_name":  "tf-test-notebooks-runtime" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicExample(t *testing.T) {
 func testAccNotebooksRuntime_notebookRuntimeBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime" {
-  name = "tf-test-notebooks-runtime%{random_suffix}"
+  name = "%{runtime_name}"
   location = "us-central1"
   access_config {
     access_type = "SINGLE_USER"
@@ -102,8 +105,11 @@ resource "google_notebooks_runtime" "runtime" {
 func TestAccNotebooksRuntime_notebookRuntimeBasicGpuExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"runtime_name":  "tf-test-notebooks-runtime-gpu" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +133,7 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicGpuExample(t *testing.T) {
 func testAccNotebooksRuntime_notebookRuntimeBasicGpuExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime_gpu" {
-  name = "tf-test-notebooks-runtime-gpu%{random_suffix}"
+  name = "%{runtime_name}"
   location = "us-central1"
   access_config {
     access_type = "SINGLE_USER"
@@ -158,8 +164,11 @@ resource "google_notebooks_runtime" "runtime_gpu" {
 func TestAccNotebooksRuntime_notebookRuntimeBasicContainerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"runtime_name":  "tf-test-notebooks-runtime-container" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -183,7 +192,7 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicContainerExample(t *testing.T) 
 func testAccNotebooksRuntime_notebookRuntimeBasicContainerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime_container" {
-  name = "tf-test-notebooks-runtime-container%{random_suffix}"
+  name = "%{runtime_name}"
   location = "us-central1"
   access_config {
     access_type = "SINGLE_USER"
@@ -215,8 +224,11 @@ resource "google_notebooks_runtime" "runtime_container" {
 func TestAccNotebooksRuntime_notebookRuntimeKernelsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"runtime_name":  "tf-test-notebooks-runtime-kernel" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -240,7 +252,7 @@ func TestAccNotebooksRuntime_notebookRuntimeKernelsExample(t *testing.T) {
 func testAccNotebooksRuntime_notebookRuntimeKernelsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime_container" {
-  name = "tf-test-notebooks-runtime-kernel%{random_suffix}"
+  name = "%{runtime_name}"
   location = "us-central1"
   access_config {
     access_type = "SINGLE_USER"
@@ -273,8 +285,11 @@ resource "google_notebooks_runtime" "runtime_container" {
 func TestAccNotebooksRuntime_notebookRuntimeScriptExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"runtime_name":  "tf-test-notebooks-runtime-script" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -298,7 +313,7 @@ func TestAccNotebooksRuntime_notebookRuntimeScriptExample(t *testing.T) {
 func testAccNotebooksRuntime_notebookRuntimeScriptExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime_container" {
-  name = "tf-test-notebooks-runtime-script%{random_suffix}"
+  name = "%{runtime_name}"
   location = "us-central1"
   access_config {
     access_type = "SINGLE_USER"

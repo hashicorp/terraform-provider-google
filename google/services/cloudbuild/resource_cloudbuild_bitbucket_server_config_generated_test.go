@@ -53,8 +53,11 @@ var (
 func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"config_id":     "tf-test-bbs-config" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigExamp
 func testAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config" {
-    config_id = "tf-test-bbs-config%{random_suffix}"
+    config_id = "%{config_id}"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {
@@ -95,8 +98,13 @@ resource "google_cloudbuild_bitbucket_server_config" "bbs-config" {
 func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigPeeredNetworkExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"config_id":           "tf-test-bbs-config" + randomSuffix,
+		"global_address_name": "tf-test-private-ip-alloc" + randomSuffix,
+		"network_name":        "tf-test-vpc-network" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,12 +134,12 @@ resource "google_project_service" "servicenetworking" {
 }
 
 resource "google_compute_network" "vpc_network" {
-    name       = "tf-test-vpc-network%{random_suffix}"
+    name       = "%{network_name}"
     depends_on = [google_project_service.servicenetworking]
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "tf-test-private-ip-alloc%{random_suffix}"
+  name          = "%{global_address_name}"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
@@ -146,7 +154,7 @@ resource "google_service_networking_connection" "default" {
 }
 
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config-with-peered-network" {
-    config_id = "tf-test-bbs-config%{random_suffix}"
+    config_id = "%{config_id}"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {

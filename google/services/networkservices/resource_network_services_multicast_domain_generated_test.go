@@ -53,8 +53,12 @@ var (
 func TestAccNetworkServicesMulticastDomain_networkServicesMulticastDomainBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"domain_name":   "tf-test-test-md-domain" + randomSuffix,
+		"network_name":  "tf-test-test-md-network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +82,12 @@ func TestAccNetworkServicesMulticastDomain_networkServicesMulticastDomainBasicEx
 func testAccNetworkServicesMulticastDomain_networkServicesMulticastDomainBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-test-md-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_services_multicast_domain" md_test {
-  multicast_domain_id = "tf-test-test-md-domain%{random_suffix}"
+  multicast_domain_id = "%{domain_name}"
   location = "global"
   description = "A sample domain"
   labels = {

@@ -53,8 +53,11 @@ var (
 func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureOnlineStoreExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf_test_example_feature_online_store" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureOnlineStoreExample(t *test
 func testAccVertexAIFeatureOnlineStore_vertexAiFeatureOnlineStoreExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_feature_online_store" "feature_online_store" {
-  name = "tf_test_example_feature_online_store%{random_suffix}"
+  name = "%{name}"
   labels = {
     foo = "bar"
   }
@@ -97,8 +100,11 @@ resource "google_vertex_ai_feature_online_store" "feature_online_store" {
 func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureonlinestoreWithOptimizedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf_test_example_feature_online_store_optimized" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -123,7 +129,7 @@ func testAccVertexAIFeatureOnlineStore_vertexAiFeatureonlinestoreWithOptimizedEx
 	return acctest.Nprintf(`
 resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
   provider = google
-  name     = "tf_test_example_feature_online_store_optimized%{random_suffix}"
+  name     = "%{name}"
   labels = {
     foo = "bar"
   }

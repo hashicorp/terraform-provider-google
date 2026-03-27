@@ -53,8 +53,12 @@ var (
 func TestAccStorageBatchOperationsJob_storageBatchOperationsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-tf-sample-bucket" + randomSuffix,
+		"job_id":        "tf-test-tf-job" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccStorageBatchOperationsJob_storageBatchOperationsExample(t *testing.T
 func testAccStorageBatchOperationsJob_storageBatchOperationsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-tf-sample-bucket%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "us-central1"
   force_destroy = true
 }
 
 resource "google_storage_batch_operations_job" "tf-job" {
-	job_id     = "tf-test-tf-job%{random_suffix}"
+	job_id     = "%{job_id}"
 	bucket_list {
 		buckets  {
 			bucket = google_storage_bucket.bucket.name

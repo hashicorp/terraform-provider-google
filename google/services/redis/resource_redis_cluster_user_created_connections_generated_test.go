@@ -53,8 +53,23 @@ var (
 func TestAccRedisClusterUserCreatedConnections_redisClusterUserCreatedConnectionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster_name":                   "tf-test-cluster-user-conn" + randomSuffix,
+		"forwarding_rule1_network1_name": "tf-test-fwd1-net1" + randomSuffix,
+		"forwarding_rule1_network2_name": "tf-test-fwd1-net2" + randomSuffix,
+		"forwarding_rule2_network1_name": "tf-test-fwd2-net1" + randomSuffix,
+		"forwarding_rule2_network2_name": "tf-test-fwd2-net2" + randomSuffix,
+		"ip1_network1_name":              "tf-test-ip1-net1" + randomSuffix,
+		"ip1_network2_name":              "tf-test-ip1-net2" + randomSuffix,
+		"ip2_network1_name":              "tf-test-ip2-net1" + randomSuffix,
+		"ip2_network2_name":              "tf-test-ip2-net2" + randomSuffix,
+		"network1_name":                  "net1" + randomSuffix,
+		"network2_name":                  "network2" + randomSuffix,
+		"subnet_network1_name":           "tf-test-subnet-net1" + randomSuffix,
+		"subnet_network2_name":           "tf-test-subnet-net2" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +93,7 @@ func TestAccRedisClusterUserCreatedConnections_redisClusterUserCreatedConnection
 func testAccRedisClusterUserCreatedConnections_redisClusterUserCreatedConnectionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster_user_created_connections" "cluster-user-conn" {
-  name = "tf-test-cluster-user-conn%{random_suffix}"
+  name = "%{cluster_name}"
   region = "us-central1"
   cluster_endpoints {
     connections {
@@ -124,7 +139,7 @@ resource "google_redis_cluster_user_created_connections" "cluster-user-conn" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
-  name                   = "tf-test-fwd1-net1%{random_suffix}"
+  name                   = "%{forwarding_rule1_network1_name}"
   region                 = "us-central1"
   ip_address             = google_compute_address.ip1_network1.id
   load_balancing_scheme  = ""
@@ -133,7 +148,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
-  name                   = "tf-test-fwd2-net1%{random_suffix}"
+  name                   = "%{forwarding_rule2_network1_name}"
   region                 = "us-central1"
   ip_address             = google_compute_address.ip2_network1.id
   load_balancing_scheme  = ""
@@ -142,7 +157,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
 }
 
 resource "google_compute_address" "ip1_network1" {
-  name         = "tf-test-ip1-net1%{random_suffix}"
+  name         = "%{ip1_network1_name}"
   region       = "us-central1"
   subnetwork   = google_compute_subnetwork.subnet_network1.id
   address_type = "INTERNAL"
@@ -150,7 +165,7 @@ resource "google_compute_address" "ip1_network1" {
 }
 
 resource "google_compute_address" "ip2_network1" {
-  name         = "tf-test-ip2-net1%{random_suffix}"
+  name         = "%{ip2_network1_name}"
   region       = "us-central1"
   subnetwork   = google_compute_subnetwork.subnet_network1.id
   address_type = "INTERNAL"
@@ -158,19 +173,19 @@ resource "google_compute_address" "ip2_network1" {
 }
 
 resource "google_compute_subnetwork" "subnet_network1" {
-  name          = "tf-test-subnet-net1%{random_suffix}"
+  name          = "%{subnet_network1_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name                    = "net1%{random_suffix}"
+  name                    = "%{network1_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
-  name                   = "tf-test-fwd1-net2%{random_suffix}"
+  name                   = "%{forwarding_rule1_network2_name}"
   region                 = "us-central1"
   ip_address             = google_compute_address.ip1_network2.id
   load_balancing_scheme  = ""
@@ -179,7 +194,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
-  name                   = "tf-test-fwd2-net2%{random_suffix}"
+  name                   = "%{forwarding_rule2_network2_name}"
   region                 = "us-central1"
   ip_address             = google_compute_address.ip2_network2.id
   load_balancing_scheme  = ""
@@ -188,7 +203,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 }
 
 resource "google_compute_address" "ip1_network2" {
-  name         = "tf-test-ip1-net2%{random_suffix}"
+  name         = "%{ip1_network2_name}"
   region       = "us-central1"
   subnetwork   = google_compute_subnetwork.subnet_network2.id
   address_type = "INTERNAL"
@@ -196,7 +211,7 @@ resource "google_compute_address" "ip1_network2" {
 }
 
 resource "google_compute_address" "ip2_network2" {
-  name         = "tf-test-ip2-net2%{random_suffix}"
+  name         = "%{ip2_network2_name}"
   region       = "us-central1"
   subnetwork   = google_compute_subnetwork.subnet_network2.id
   address_type = "INTERNAL"
@@ -204,20 +219,20 @@ resource "google_compute_address" "ip2_network2" {
 }
 
 resource "google_compute_subnetwork" "subnet_network2" {
-  name          = "tf-test-subnet-net2%{random_suffix}"
+  name          = "%{subnet_network2_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.network2.id
 }
 
 resource "google_compute_network" "network2" {
-  name                    = "network2%{random_suffix}"
+  name                    = "%{network2_name}"
   auto_create_subnetworks = false
 }
 
 // redis cluster without endpoint
 resource "google_redis_cluster" "cluster-user-conn" {
-  name           = "tf-test-cluster-user-conn%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   region = "us-central1"
   replica_count = 0
@@ -232,8 +247,20 @@ data "google_project" "project" {
 func TestAccRedisClusterUserCreatedConnections_redisClusterUserAndAutoCreatedConnectionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cluster_name":                   "tf-test-cluster-user-auto-conn" + randomSuffix,
+		"forwarding_rule1_network2_name": "tf-test-fwd1-net2" + randomSuffix,
+		"forwarding_rule2_network2_name": "tf-test-fwd2-net2" + randomSuffix,
+		"ip1_network2_name":              "tf-test-ip1-net2" + randomSuffix,
+		"ip2_network2_name":              "tf-test-ip2-net2" + randomSuffix,
+		"network1_name":                  "net1" + randomSuffix,
+		"network2_name":                  "network2" + randomSuffix,
+		"policy_name":                    "scpolicy" + randomSuffix,
+		"subnet_network1_name":           "tf-test-subnet-net1" + randomSuffix,
+		"subnet_network2_name":           "tf-test-subnet-net2" + randomSuffix,
+		"random_suffix":                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -257,7 +284,7 @@ func TestAccRedisClusterUserCreatedConnections_redisClusterUserAndAutoCreatedCon
 func testAccRedisClusterUserCreatedConnections_redisClusterUserAndAutoCreatedConnectionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster_user_created_connections" "cluster-user-auto-conn" {
-  name = "tf-test-cluster-user-auto-conn%{random_suffix}"
+  name = "%{cluster_name}"
   region = "us-central1"
   cluster_endpoints {
     connections {
@@ -282,7 +309,7 @@ resource "google_redis_cluster_user_created_connections" "cluster-user-auto-conn
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
-  name                   = "tf-test-fwd1-net2%{random_suffix}"
+  name                   = "%{forwarding_rule1_network2_name}"
   region                 = "us-central1"
   ip_address             = google_compute_address.ip1_network2.id
   load_balancing_scheme  = ""
@@ -291,7 +318,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 }
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
-  name                   = "tf-test-fwd2-net2%{random_suffix}"
+  name                   = "%{forwarding_rule2_network2_name}"
   region                 = "us-central1"
   ip_address             = google_compute_address.ip2_network2.id
   load_balancing_scheme  = ""
@@ -300,7 +327,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 }
 
 resource "google_compute_address" "ip1_network2" {
-  name         = "tf-test-ip1-net2%{random_suffix}"
+  name         = "%{ip1_network2_name}"
   region       = "us-central1"
   subnetwork   = google_compute_subnetwork.subnet_network2.id
   address_type = "INTERNAL"
@@ -308,7 +335,7 @@ resource "google_compute_address" "ip1_network2" {
 }
 
 resource "google_compute_address" "ip2_network2" {
-  name         = "tf-test-ip2-net2%{random_suffix}"
+  name         = "%{ip2_network2_name}"
   region       = "us-central1"
   subnetwork   = google_compute_subnetwork.subnet_network2.id
   address_type = "INTERNAL"
@@ -316,20 +343,20 @@ resource "google_compute_address" "ip2_network2" {
 }
 
 resource "google_compute_subnetwork" "subnet_network2" {
-  name          = "tf-test-subnet-net2%{random_suffix}"
+  name          = "%{subnet_network2_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.network2.id
 }
 
 resource "google_compute_network" "network2" {
-  name                    = "network2%{random_suffix}"
+  name                    = "%{network2_name}"
   auto_create_subnetworks = false
 }
 
 // redis cluster without endpoint
 resource "google_redis_cluster" "cluster-user-auto-conn" {
-  name           = "tf-test-cluster-user-auto-conn%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   region = "us-central1"
   replica_count = 0
@@ -343,7 +370,7 @@ resource "google_redis_cluster" "cluster-user-auto-conn" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "scpolicy%{random_suffix}"
+  name = "%{policy_name}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
@@ -354,14 +381,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "subnet_network1" {
-  name          = "tf-test-subnet-net1%{random_suffix}"
+  name          = "%{subnet_network1_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name                    = "net1%{random_suffix}"
+  name                    = "%{network1_name}"
   auto_create_subnetworks = false
 }
 `, context)

@@ -42,10 +42,14 @@ var (
 func TestAccBiglakeIcebergIcebergNamespaceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":          acctest.RandString(t, 10),
+		"random_suffix":          randomSuffix,
 		"role":                   "roles/biglake.editor",
 		"GOOGLE_BILLING_PROJECT": envvar.GetTestProjectFromEnv(),
+
+		"bucket_name": "tf-test-example-bucket" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,10 +82,14 @@ func TestAccBiglakeIcebergIcebergNamespaceIamBindingGenerated(t *testing.T) {
 func TestAccBiglakeIcebergIcebergNamespaceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":          acctest.RandString(t, 10),
+		"random_suffix":          randomSuffix,
 		"role":                   "roles/biglake.editor",
 		"GOOGLE_BILLING_PROJECT": envvar.GetTestProjectFromEnv(),
+
+		"bucket_name": "tf-test-example-bucket" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -105,10 +113,14 @@ func TestAccBiglakeIcebergIcebergNamespaceIamMemberGenerated(t *testing.T) {
 func TestAccBiglakeIcebergIcebergNamespaceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":          acctest.RandString(t, 10),
+		"random_suffix":          randomSuffix,
 		"role":                   "roles/biglake.editor",
 		"GOOGLE_BILLING_PROJECT": envvar.GetTestProjectFromEnv(),
+
+		"bucket_name": "tf-test-example-bucket" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -141,7 +153,7 @@ func TestAccBiglakeIcebergIcebergNamespaceIamPolicyGenerated(t *testing.T) {
 func testAccBiglakeIcebergIcebergNamespaceIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "tf-test-example-bucket%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -173,7 +185,7 @@ resource "google_biglake_iceberg_namespace_iam_member" "foo" {
 func testAccBiglakeIcebergIcebergNamespaceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "tf-test-example-bucket%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -220,7 +232,7 @@ data "google_biglake_iceberg_namespace_iam_policy" "foo" {
 func testAccBiglakeIcebergIcebergNamespaceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "tf-test-example-bucket%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -254,7 +266,7 @@ resource "google_biglake_iceberg_namespace_iam_policy" "foo" {
 func testAccBiglakeIcebergIcebergNamespaceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "tf-test-example-bucket%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -286,7 +298,7 @@ resource "google_biglake_iceberg_namespace_iam_binding" "foo" {
 func testAccBiglakeIcebergIcebergNamespaceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "tf-test-example-bucket%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true

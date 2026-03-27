@@ -53,8 +53,11 @@ var (
 func TestAccDialogflowGenerator_dialogflowGeneratorBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"profile_name":  "tf-test-dialogflow-profile" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

@@ -53,8 +53,14 @@ var (
 func TestAccCESAppVersion_cesAppVersionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"app_display_name":         "tf-test-my-app" + randomSuffix,
+		"app_id":                   "tf-test-app-id" + randomSuffix,
+		"app_version_display_name": "tf-test-my-app-version" + randomSuffix,
+		"app_version_id":           "tf-test-app-version-id" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,17 +85,17 @@ func testAccCESAppVersion_cesAppVersionBasicExample(context map[string]interface
 	return acctest.Nprintf(`
 resource "google_ces_app" "my-app" {
     location     = "us"
-    display_name = "tf-test-my-app%{random_suffix}"
-    app_id       = "tf-test-app-id%{random_suffix}"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
     time_zone_settings {   
         time_zone = "America/Los_Angeles"
     }
 }
 resource "google_ces_app_version" "my-app-version" {
     location       = "us"
-    display_name   = "tf-test-my-app-version%{random_suffix}"
+    display_name   = "%{app_version_display_name}"
     app            = google_ces_app.my-app.name
-    app_version_id = "tf-test-app-version-id%{random_suffix}"
+    app_version_id = "%{app_version_id}"
     description    = "example-app-version"
 }
 `, context)

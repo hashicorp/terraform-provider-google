@@ -53,9 +53,13 @@ var (
 func TestAccClouddeployAutomation_clouddeployAutomationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"service_account":   envvar.GetTestServiceAccountFromEnv(t),
+		"automation":        "tf-test-cd-automation" + randomSuffix,
+		"delivery_pipeline": "tf-test-cd-pipeline" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +83,7 @@ func TestAccClouddeployAutomation_clouddeployAutomationBasicExample(t *testing.T
 func testAccClouddeployAutomation_clouddeployAutomationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_clouddeploy_automation" "b-automation" {
-  name     = "tf-test-cd-automation%{random_suffix}"
+  name     = "%{automation}"
   project = google_clouddeploy_delivery_pipeline.pipeline.project
   location = google_clouddeploy_delivery_pipeline.pipeline.location
   delivery_pipeline = google_clouddeploy_delivery_pipeline.pipeline.name
@@ -122,7 +126,7 @@ resource "google_clouddeploy_automation" "b-automation" {
 }
 
 resource "google_clouddeploy_delivery_pipeline" "pipeline" {
-  name = "tf-test-cd-pipeline%{random_suffix}"
+  name = "%{delivery_pipeline}"
   location = "us-central1"
   serial_pipeline  {
     stages {
@@ -137,9 +141,13 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 func TestAccClouddeployAutomation_clouddeployAutomationFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"service_account":   envvar.GetTestServiceAccountFromEnv(t),
+		"automation":        "tf-test-cd-automation" + randomSuffix,
+		"delivery_pipeline": "tf-test-cd-pipeline" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -163,7 +171,7 @@ func TestAccClouddeployAutomation_clouddeployAutomationFullExample(t *testing.T)
 func testAccClouddeployAutomation_clouddeployAutomationFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_clouddeploy_automation" "f-automation" {
-  name     = "tf-test-cd-automation%{random_suffix}"
+  name     = "%{automation}"
   location = "us-central1"
   delivery_pipeline = google_clouddeploy_delivery_pipeline.pipeline.name
   service_account = "%{service_account}"
@@ -232,7 +240,7 @@ resource "google_clouddeploy_automation" "f-automation" {
 }
 
 resource "google_clouddeploy_delivery_pipeline" "pipeline" {
-  name = "tf-test-cd-pipeline%{random_suffix}"
+  name = "%{delivery_pipeline}"
   location = "us-central1"
   serial_pipeline  {
     stages {

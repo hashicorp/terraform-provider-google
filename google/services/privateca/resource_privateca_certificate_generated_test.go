@@ -53,9 +53,13 @@ var (
 func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":          envvar.GetTestProjectFromEnv(),
+		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
+		"certificate_name": "tf-test-my-certificate" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +85,7 @@ func testAccPrivatecaCertificate_privatecaCertificateConfigExample(context map[s
 
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{ca_pool_id}"
   tier = "ENTERPRISE"
 }
 
@@ -129,7 +133,7 @@ resource "google_privateca_certificate" "default" {
   pool = google_privateca_ca_pool.default.name
   certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
   lifetime = "86000s"
-  name = "tf-test-my-certificate%{random_suffix}"
+  name = "%{certificate_name}"
   config {
     subject_config  {
       subject {
@@ -184,9 +188,14 @@ resource "google_privateca_certificate" "default" {
 func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":                   envvar.GetTestProjectFromEnv(),
+		"ca_pool_id":                "tf-test-my-pool" + randomSuffix,
+		"certificate_name":          "tf-test-my-certificate" + randomSuffix,
+		"certificate_template_name": "tf-test-my-certificate-template" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -211,13 +220,13 @@ func testAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(context
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{ca_pool_id}"
   tier = "ENTERPRISE"
 }
 
 resource "google_privateca_certificate_template" "default" {
   location    = "us-central1"
-  name = "tf-test-my-certificate-template%{random_suffix}"
+  name = "%{certificate_template_name}"
   description = "An updated sample certificate template"
 
   identity_constraints {
@@ -336,7 +345,7 @@ resource "google_privateca_certificate" "default" {
   location = "us-central1"
   pool = google_privateca_ca_pool.default.name
   certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
-  name = "tf-test-my-certificate%{random_suffix}"
+  name = "%{certificate_name}"
   lifetime = "860s"
   pem_csr = file("test-fixtures/rsa_csr.pem")
   certificate_template = google_privateca_certificate_template.default.id
@@ -347,9 +356,13 @@ resource "google_privateca_certificate" "default" {
 func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":          envvar.GetTestProjectFromEnv(),
+		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
+		"certificate_name": "tf-test-my-certificate" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -374,7 +387,7 @@ func testAccPrivatecaCertificate_privatecaCertificateCsrExample(context map[stri
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{ca_pool_id}"
   tier = "ENTERPRISE"
 }
 
@@ -424,7 +437,7 @@ resource "google_privateca_certificate" "default" {
   location = "us-central1"
   pool = google_privateca_ca_pool.default.name
   certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
-  name = "tf-test-my-certificate%{random_suffix}"
+  name = "%{certificate_name}"
   lifetime = "860s"
   pem_csr = file("test-fixtures/rsa_csr.pem")
 }
@@ -434,9 +447,13 @@ resource "google_privateca_certificate" "default" {
 func TestAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":          envvar.GetTestProjectFromEnv(),
+		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
+		"certificate_name": "tf-test-my-certificate" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -461,7 +478,7 @@ func testAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(context 
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{ca_pool_id}"
   tier = "ENTERPRISE"
 }
 
@@ -510,7 +527,7 @@ resource "google_privateca_certificate_authority" "default" {
 resource "google_privateca_certificate" "default" {
   location = "us-central1"
   pool = google_privateca_ca_pool.default.name
-  name = "tf-test-my-certificate%{random_suffix}"
+  name = "%{certificate_name}"
   lifetime = "860s"
   config {
     subject_config  {
@@ -553,9 +570,13 @@ resource "google_privateca_certificate" "default" {
 func TestAccPrivatecaCertificate_privatecaCertificateCustomSkiExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":          envvar.GetTestProjectFromEnv(),
+		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
+		"certificate_name": "tf-test-my-certificate" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -580,7 +601,7 @@ func testAccPrivatecaCertificate_privatecaCertificateCustomSkiExample(context ma
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
-  name = "tf-test-my-pool%{random_suffix}"
+  name = "%{ca_pool_id}"
   tier = "ENTERPRISE"
 }
 
@@ -629,7 +650,7 @@ resource "google_privateca_certificate_authority" "default" {
 resource "google_privateca_certificate" "default" {
   location = "us-central1"
   pool = google_privateca_ca_pool.default.name
-  name = "tf-test-my-certificate%{random_suffix}"
+  name = "%{certificate_name}"
   lifetime = "860s"
   config {
     subject_config  {

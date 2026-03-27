@@ -42,11 +42,15 @@ var (
 func TestAccServiceManagementServiceConsumersIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":    acctest.RandString(t, 10),
+		"random_suffix":    randomSuffix,
 		"role":             "roles/servicemanagement.serviceController",
 		"consumer_project": envvar.GetTestProjectFromEnv(),
 		"project_name":     envvar.GetTestProjectFromEnv(),
+
+		"name": "endpoint" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,11 +83,15 @@ func TestAccServiceManagementServiceConsumersIamBindingGenerated(t *testing.T) {
 func TestAccServiceManagementServiceConsumersIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":    acctest.RandString(t, 10),
+		"random_suffix":    randomSuffix,
 		"role":             "roles/servicemanagement.serviceController",
 		"consumer_project": envvar.GetTestProjectFromEnv(),
 		"project_name":     envvar.GetTestProjectFromEnv(),
+
+		"name": "endpoint" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -107,11 +115,15 @@ func TestAccServiceManagementServiceConsumersIamMemberGenerated(t *testing.T) {
 func TestAccServiceManagementServiceConsumersIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":    acctest.RandString(t, 10),
+		"random_suffix":    randomSuffix,
 		"role":             "roles/servicemanagement.serviceController",
 		"consumer_project": envvar.GetTestProjectFromEnv(),
 		"project_name":     envvar.GetTestProjectFromEnv(),
+
+		"name": "endpoint" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -144,12 +156,12 @@ func TestAccServiceManagementServiceConsumersIamPolicyGenerated(t *testing.T) {
 func testAccServiceManagementServiceConsumersIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
-  service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
+  service_name = "%{name}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
   grpc_config = <<EOF
 type: google.api.Service
 config_version: 3
-name: endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog
+name: %{name}.endpoints.%{project_name}.cloud.goog
 usage:
   rules:
   - selector: endpoints.examples.bookstore.Bookstore.ListShelves
@@ -170,12 +182,12 @@ resource "google_endpoints_service_consumers_iam_member" "foo" {
 func testAccServiceManagementServiceConsumersIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
-  service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
+  service_name = "%{name}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
   grpc_config = <<EOF
 type: google.api.Service
 config_version: 3
-name: endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog
+name: %{name}.endpoints.%{project_name}.cloud.goog
 usage:
   rules:
   - selector: endpoints.examples.bookstore.Bookstore.ListShelves
@@ -210,12 +222,12 @@ data "google_endpoints_service_consumers_iam_policy" "foo" {
 func testAccServiceManagementServiceConsumersIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
-  service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
+  service_name = "%{name}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
   grpc_config = <<EOF
 type: google.api.Service
 config_version: 3
-name: endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog
+name: %{name}.endpoints.%{project_name}.cloud.goog
 usage:
   rules:
   - selector: endpoints.examples.bookstore.Bookstore.ListShelves
@@ -238,12 +250,12 @@ resource "google_endpoints_service_consumers_iam_policy" "foo" {
 func testAccServiceManagementServiceConsumersIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
-  service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
+  service_name = "%{name}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
   grpc_config = <<EOF
 type: google.api.Service
 config_version: 3
-name: endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog
+name: %{name}.endpoints.%{project_name}.cloud.goog
 usage:
   rules:
   - selector: endpoints.examples.bookstore.Bookstore.ListShelves
@@ -264,12 +276,12 @@ resource "google_endpoints_service_consumers_iam_binding" "foo" {
 func testAccServiceManagementServiceConsumersIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
-  service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
+  service_name = "%{name}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
   grpc_config = <<EOF
 type: google.api.Service
 config_version: 3
-name: endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog
+name: %{name}.endpoints.%{project_name}.cloud.goog
 usage:
   rules:
   - selector: endpoints.examples.bookstore.Bookstore.ListShelves

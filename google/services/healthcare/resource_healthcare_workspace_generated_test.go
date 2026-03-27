@@ -53,8 +53,13 @@ var (
 func TestAccHealthcareWorkspace_healthcareWorkspaceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_name":      "tf-test-example-dataset" + randomSuffix,
+		"source_project_id": "tf-test-example-data-source-project-id" + randomSuffix,
+		"workspace_name":    "tf-test-example-dm-workspace" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,11 +83,11 @@ func TestAccHealthcareWorkspace_healthcareWorkspaceBasicExample(t *testing.T) {
 func testAccHealthcareWorkspace_healthcareWorkspaceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_workspace" "default" {
-  name    = "tf-test-example-dm-workspace%{random_suffix}"
+  name    = "%{workspace_name}"
   dataset = google_healthcare_dataset.dataset.id
 
   settings {
-    data_project_ids = ["tf-test-example-data-source-project-id%{random_suffix}"]
+    data_project_ids = ["%{source_project_id}"]
   }
   
   labels = {
@@ -92,7 +97,7 @@ resource "google_healthcare_workspace" "default" {
 
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf-test-example-dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 `, context)

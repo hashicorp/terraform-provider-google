@@ -53,8 +53,13 @@ var (
 func TestAccDNSPolicy_dnsPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_1_name": "tf-test-network-1" + randomSuffix,
+		"network_2_name": "tf-test-network-2" + randomSuffix,
+		"policy_name":    "tf-test-example-policy" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +82,7 @@ func TestAccDNSPolicy_dnsPolicyBasicExample(t *testing.T) {
 func testAccDNSPolicy_dnsPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dns_policy" "example-policy" {
-  name                      = "tf-test-example-policy%{random_suffix}"
+  name                      = "%{policy_name}"
   enable_inbound_forwarding = true
 
   enable_logging = true
@@ -101,12 +106,12 @@ resource "google_dns_policy" "example-policy" {
 }
 
 resource "google_compute_network" "network-1" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-2" {
-  name                    = "tf-test-network-2%{random_suffix}"
+  name                    = "%{network_2_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -115,10 +120,17 @@ resource "google_compute_network" "network-2" {
 func TestAccDNSPolicy_dnsPolicyMultiprojectExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"network_1_name":  "tf-test-network-1" + randomSuffix,
+		"network_2_name":  "tf-test-network-2" + randomSuffix,
+		"policy_name":     "tf-test-example-policy-multiproject" + randomSuffix,
+		"project_1_name":  "tf-test-project-1" + randomSuffix,
+		"project_2_name":  "tf-test-project-2" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -141,7 +153,7 @@ func TestAccDNSPolicy_dnsPolicyMultiprojectExample(t *testing.T) {
 func testAccDNSPolicy_dnsPolicyMultiprojectExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dns_policy" "example-policy-multiproject" {
-  name                      = "tf-test-example-policy-multiproject%{random_suffix}"
+  name                      = "%{policy_name}"
   enable_inbound_forwarding = true
 
   enable_logging = true
@@ -168,23 +180,23 @@ resource "google_dns_policy" "example-policy-multiproject" {
 }
 
 resource "google_project" "project_1" {
-  name            = "tf-test-project-1%{random_suffix}"
-  project_id      = "tf-test-project-1%{random_suffix}"
+  name            = "%{project_1_name}"
+  project_id      = "%{project_1_name}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"
 }
 
 resource "google_project" "project_2" {
-  name            = "tf-test-project-2%{random_suffix}"
-  project_id      = "tf-test-project-2%{random_suffix}"
+  name            = "%{project_2_name}"
+  project_id      = "%{project_2_name}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
   deletion_policy = "DELETE"
 }
 
 resource "google_compute_network" "network_1_project_1" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   project                 = google_project.project_1.project_id
   auto_create_subnetworks = false
   depends_on              = [ 
@@ -194,7 +206,7 @@ resource "google_compute_network" "network_1_project_1" {
 }
 
 resource "google_compute_network" "network_2_project_1" {
-  name                    = "tf-test-network-2%{random_suffix}"
+  name                    = "%{network_2_name}"
   project                 = google_project.project_1.project_id
   auto_create_subnetworks = false
   depends_on              = [ 
@@ -204,7 +216,7 @@ resource "google_compute_network" "network_2_project_1" {
 }
 
 resource "google_compute_network" "network_1_project_2" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   project                 = google_project.project_2.project_id
   auto_create_subnetworks = false
   depends_on              = [ 
@@ -214,7 +226,7 @@ resource "google_compute_network" "network_1_project_2" {
 }
 
 resource "google_compute_network" "network_2_project_2" {
-  name                    = "tf-test-network-2%{random_suffix}"
+  name                    = "%{network_2_name}"
   project                 = google_project.project_2.project_id
   auto_create_subnetworks = false
   depends_on              = [ 

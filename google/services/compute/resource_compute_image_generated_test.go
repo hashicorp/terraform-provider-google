@@ -53,8 +53,12 @@ var (
 func TestAccComputeImage_imageBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":     "tf-test-example-disk" + randomSuffix,
+		"image_name":    "tf-test-example-image" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -83,7 +87,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-example-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -91,7 +95,7 @@ resource "google_compute_disk" "persistent" {
 }
 
 resource "google_compute_image" "example" {
-  name = "tf-test-example-image%{random_suffix}"
+  name = "%{image_name}"
 
   source_disk = google_compute_disk.persistent.id
 }
@@ -101,8 +105,12 @@ resource "google_compute_image" "example" {
 func TestAccComputeImage_imageGuestOsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":     "tf-test-example-disk" + randomSuffix,
+		"image_name":    "tf-test-example-image" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -131,7 +139,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-example-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -139,7 +147,7 @@ resource "google_compute_disk" "persistent" {
 }
 
 resource "google_compute_image" "example" {
-  name = "tf-test-example-image%{random_suffix}"
+  name = "%{image_name}"
 
   source_disk = google_compute_disk.persistent.id
 
@@ -169,8 +177,12 @@ resource "google_compute_image" "example" {
 func TestAccComputeImage_imageBasicStorageLocationExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"disk_name":     "tf-test-example-disk" + randomSuffix,
+		"image_name":    "tf-test-example-sl-image" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -199,7 +211,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-example-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -207,7 +219,7 @@ resource "google_compute_disk" "persistent" {
 }
 
 resource "google_compute_image" "example" {
-  name = "tf-test-example-sl-image%{random_suffix}"
+  name = "%{image_name}"
 
   source_disk = google_compute_disk.persistent.id
   storage_locations = ["us-central1"]

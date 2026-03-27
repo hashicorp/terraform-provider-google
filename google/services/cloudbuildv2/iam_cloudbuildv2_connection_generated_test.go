@@ -42,9 +42,12 @@ var (
 func TestAccCloudbuildv2ConnectionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/cloudbuild.connectionViewer",
+		"random_suffix":   randomSuffix,
+		"role":            "roles/cloudbuild.connectionViewer",
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -65,9 +68,12 @@ func TestAccCloudbuildv2ConnectionIamBindingGenerated(t *testing.T) {
 func TestAccCloudbuildv2ConnectionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/cloudbuild.connectionViewer",
+		"random_suffix":   randomSuffix,
+		"role":            "roles/cloudbuild.connectionViewer",
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -85,9 +91,12 @@ func TestAccCloudbuildv2ConnectionIamMemberGenerated(t *testing.T) {
 func TestAccCloudbuildv2ConnectionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/cloudbuild.connectionViewer",
+		"random_suffix":   randomSuffix,
+		"role":            "roles/cloudbuild.connectionViewer",
+		"connection_name": "tf-test-tf-test-connection" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -109,7 +118,7 @@ func testAccCloudbuildv2ConnectionIamMember_basicGenerated(context map[string]in
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "tf-test-tf-test-connection%{random_suffix}"
+  name = "%{connection_name}"
 
   github_config {
     app_installation_id = 0
@@ -134,7 +143,7 @@ func testAccCloudbuildv2ConnectionIamPolicy_basicGenerated(context map[string]in
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "tf-test-tf-test-connection%{random_suffix}"
+  name = "%{connection_name}"
 
   github_config {
     app_installation_id = 0
@@ -174,7 +183,7 @@ func testAccCloudbuildv2ConnectionIamPolicy_emptyBinding(context map[string]inte
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "tf-test-tf-test-connection%{random_suffix}"
+  name = "%{connection_name}"
 
   github_config {
     app_installation_id = 0
@@ -201,7 +210,7 @@ func testAccCloudbuildv2ConnectionIamBinding_basicGenerated(context map[string]i
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "tf-test-tf-test-connection%{random_suffix}"
+  name = "%{connection_name}"
 
   github_config {
     app_installation_id = 0
@@ -226,7 +235,7 @@ func testAccCloudbuildv2ConnectionIamBinding_updateGenerated(context map[string]
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "tf-test-tf-test-connection%{random_suffix}"
+  name = "%{connection_name}"
 
   github_config {
     app_installation_id = 0

@@ -53,8 +53,13 @@ var (
 func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +83,12 @@ func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 func testAccLookerInstance_lookerInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
-  name              = "tf-test-my-instance%{random_suffix}"
+  name              = "%{instance_name}"
   platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
   region            = "us-central1"
   oauth_config {
-    client_id = "tf-test-my-client-id%{random_suffix}"
-    client_secret = "tf-test-my-client-secret%{random_suffix}"
+    client_id = "%{client_id}"
+    client_secret = "%{client_secret}"
   }
   deletion_policy = "DEFAULT"
 }
@@ -93,8 +98,13 @@ resource "google_looker_instance" "looker-instance" {
 func TestAccLookerInstance_lookerInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -118,7 +128,7 @@ func TestAccLookerInstance_lookerInstanceFullExample(t *testing.T) {
 func testAccLookerInstance_lookerInstanceFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
-  name               = "tf-test-my-instance%{random_suffix}"
+  name               = "%{instance_name}"
   platform_edition   = "LOOKER_CORE_STANDARD_ANNUAL"
   region             = "us-central1"
   public_ip_enabled  = true
@@ -154,8 +164,8 @@ resource "google_looker_instance" "looker-instance" {
     }
   }
   oauth_config {
-    client_id = "tf-test-my-client-id%{random_suffix}"
-    client_secret = "tf-test-my-client-secret%{random_suffix}"
+    client_id = "%{client_id}"
+    client_secret = "%{client_secret}"
   }  
 }
 `, context)
@@ -164,8 +174,13 @@ resource "google_looker_instance" "looker-instance" {
 func TestAccLookerInstance_lookerInstanceFipsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"instance_name": "tf-test-my-instance-fips" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -189,14 +204,14 @@ func TestAccLookerInstance_lookerInstanceFipsExample(t *testing.T) {
 func testAccLookerInstance_lookerInstanceFipsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
-  name               = "tf-test-my-instance-fips%{random_suffix}"
+  name               = "%{instance_name}"
   platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
   region             = "us-central1"
   public_ip_enabled  = true
   fips_enabled = true
   oauth_config {
-    client_id = "tf-test-my-client-id%{random_suffix}"
-    client_secret = "tf-test-my-client-secret%{random_suffix}"
+    client_id = "%{client_id}"
+    client_secret = "%{client_secret}"
   }  
 }
 `, context)
@@ -205,11 +220,17 @@ resource "google_looker_instance" "looker-instance" {
 func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, "looker-vpc-network-3", acctest.AddressWithPrefixLength(8)),
-		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "looker-vpc-network-3", acctest.ServiceNetworkWithPrefixLength(8)),
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":      acctest.BootstrapSharedTestGlobalAddress(t, "looker-vpc-network-3", acctest.AddressWithPrefixLength(8)),
+		"client_id":         "tf-test-my-client-id" + randomSuffix,
+		"client_secret":     "tf-test-my-client-secret" + randomSuffix,
+		"instance_name":     "tf-test-my-instance" + randomSuffix,
+		"kms_key_name":      acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms_key_ring_name": "tf-test-looker-kms-ring" + randomSuffix,
+		"network_name":      acctest.BootstrapSharedServiceNetworkingConnection(t, "looker-vpc-network-3", acctest.ServiceNetworkWithPrefixLength(8)),
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -233,7 +254,7 @@ func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T)
 func testAccLookerInstance_lookerInstanceEnterpriseFullTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
-  name               = "tf-test-my-instance%{random_suffix}"
+  name               = "%{instance_name}"
   platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
   region             = "us-central1"
   private_ip_enabled = true
@@ -274,8 +295,8 @@ resource "google_looker_instance" "looker-instance" {
     }
   }
   oauth_config {
-    client_id = "tf-test-my-client-id%{random_suffix}"
-    client_secret = "tf-test-my-client-secret%{random_suffix}"
+    client_id = "%{client_id}"
+    client_secret = "%{client_secret}"
   }
 
   depends_on = [google_kms_crypto_key_iam_member.crypto_key]
@@ -302,8 +323,14 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 func TestAccLookerInstance_lookerInstanceCustomDomainExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"custom_domain": "tf-test-my-custom-domain" + randomSuffix,
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -327,17 +354,17 @@ func TestAccLookerInstance_lookerInstanceCustomDomainExample(t *testing.T) {
 func testAccLookerInstance_lookerInstanceCustomDomainExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
-  name              = "tf-test-my-instance%{random_suffix}"
+  name              = "%{instance_name}"
   platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
   region            = "us-central1"
   oauth_config {
-    client_id = "tf-test-my-client-id%{random_suffix}"
-    client_secret = "tf-test-my-client-secret%{random_suffix}"
+    client_id = "%{client_id}"
+    client_secret = "%{client_secret}"
   }
   // After your Looker (Google Cloud core) instance has been created, you can set up, view information about, or delete a custom domain for your instance. 
   // Therefore 2 terraform applies, one to create the instance, then another to set up the custom domain. 
   custom_domain {
-    domain = "tf-test-my-custom-domain%{random_suffix}.com"
+    domain = "%{custom_domain}.com"
   }
 }
 `, context)
@@ -346,8 +373,13 @@ resource "google_looker_instance" "looker-instance" {
 func TestAccLookerInstance_lookerInstancePscExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -371,15 +403,15 @@ func TestAccLookerInstance_lookerInstancePscExample(t *testing.T) {
 func testAccLookerInstance_lookerInstancePscExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
-  name               = "tf-test-my-instance%{random_suffix}"
+  name               = "%{instance_name}"
   platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
   region             = "us-central1"
   private_ip_enabled = false
   public_ip_enabled  = false
   psc_enabled        = true
   oauth_config {
-    client_id = "tf-test-my-client-id%{random_suffix}"
-    client_secret = "tf-test-my-client-secret%{random_suffix}"
+    client_id = "%{client_id}"
+    client_secret = "%{client_secret}"
   }
   psc_config {
     allowed_vpcs = ["projects/test-project/global/networks/test"]
@@ -409,8 +441,13 @@ resource "google_looker_instance" "looker-instance" {
 func TestAccLookerInstance_lookerInstanceForceDeleteExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -434,12 +471,12 @@ func TestAccLookerInstance_lookerInstanceForceDeleteExample(t *testing.T) {
 func testAccLookerInstance_lookerInstanceForceDeleteExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
-  name              = "tf-test-my-instance%{random_suffix}"
+  name              = "%{instance_name}"
   platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
   region            = "us-central1"
   oauth_config {
-    client_id = "tf-test-my-client-id%{random_suffix}"
-    client_secret = "tf-test-my-client-secret%{random_suffix}"
+    client_id = "%{client_id}"
+    client_secret = "%{client_secret}"
   }
   deletion_policy = "FORCE"
 }

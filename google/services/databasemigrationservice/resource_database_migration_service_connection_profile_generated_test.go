@@ -53,8 +53,16 @@ var (
 func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileCloudsqlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"from_profile":  "tf-test-my-fromprofileid" + randomSuffix,
+		"sqldb":         "tf-test-my-database" + randomSuffix,
+		"sqldb_cert":    "tf-test-my-cert" + randomSuffix,
+		"sqldb_pass":    "tf-test-my-password" + randomSuffix,
+		"sqldb_user":    "tf-test-my-username" + randomSuffix,
+		"to_profile":    "tf-test-my-toprofileid" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +89,7 @@ data "google_project" "project" {
 }
 
 resource "google_sql_database_instance" "cloudsqldb" {
-  name             = "tf-test-my-database%{random_suffix}"
+  name             = "%{sqldb}"
   database_version = "MYSQL_5_7"
   settings {
     tier = "db-n1-standard-1"
@@ -91,16 +99,16 @@ resource "google_sql_database_instance" "cloudsqldb" {
 }
 
 resource "google_sql_ssl_cert" "sql_client_cert" {
-  common_name = "tf-test-my-cert%{random_suffix}"
+  common_name = "%{sqldb_cert}"
   instance    = google_sql_database_instance.cloudsqldb.name
   
   depends_on = [google_sql_database_instance.cloudsqldb]
 }
 
 resource "google_sql_user" "sqldb_user" {
-  name     = "tf-test-my-username%{random_suffix}"
+  name     = "%{sqldb_user}"
   instance = google_sql_database_instance.cloudsqldb.name
-  password = "tf-test-my-password%{random_suffix}"
+  password = "%{sqldb_pass}"
   
   depends_on = [google_sql_ssl_cert.sql_client_cert]
 }
@@ -109,8 +117,8 @@ resource "google_sql_user" "sqldb_user" {
 
 resource "google_database_migration_service_connection_profile" "cloudsqlprofile" {
   location              = "us-central1"
-  connection_profile_id = "tf-test-my-fromprofileid%{random_suffix}"
-  display_name          = "tf-test-my-fromprofileid%{random_suffix}_display"
+  connection_profile_id = "%{from_profile}"
+  display_name          = "%{from_profile}_display"
   labels = { 
     foo = "bar"
   }
@@ -125,7 +133,7 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
       ca_certificate     = google_sql_ssl_cert.sql_client_cert.server_ca_cert
       type = "SERVER_CLIENT"
     }
-    cloud_sql_id = "tf-test-my-database%{random_suffix}"
+    cloud_sql_id = "%{sqldb}"
   }
 
   depends_on = [google_sql_user.sqldb_user]
@@ -134,8 +142,8 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
 
 resource "google_database_migration_service_connection_profile" "cloudsqlprofile_destination" {
   location              = "us-central1"
-  connection_profile_id = "tf-test-my-toprofileid%{random_suffix}"
-  display_name          = "tf-test-my-toprofileid%{random_suffix}_displayname"
+  connection_profile_id = "%{to_profile}"
+  display_name          = "%{to_profile}_displayname"
   labels = { 
     foo = "bar"
   }
@@ -157,7 +165,7 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
       data_disk_type        = "PD_HDD"
       data_disk_size_gb     = "11"
       zone                  = "us-central1-b"
-      source_id             = "projects/${data.google_project.project.project_id}/locations/us-central1/connectionProfiles/tf-test-my-fromprofileid%{random_suffix}"
+      source_id             = "projects/${data.google_project.project.project_id}/locations/us-central1/connectionProfiles/%{from_profile}"
       root_password         = "testpasscloudsql"
     }
   }
@@ -169,8 +177,15 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
 func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"profile":       "tf-test-my-profileid" + randomSuffix,
+		"sqldb":         "tf-test-my-database" + randomSuffix,
+		"sqldb_cert":    "tf-test-my-cert" + randomSuffix,
+		"sqldb_pass":    "tf-test-my-password" + randomSuffix,
+		"sqldb_user":    "tf-test-my-username" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -194,7 +209,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 func testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_database_instance" "postgresqldb" {
-  name             = "tf-test-my-database%{random_suffix}"
+  name             = "%{sqldb}"
   database_version = "POSTGRES_12"
   settings {
     tier = "db-custom-2-13312"
@@ -203,16 +218,16 @@ resource "google_sql_database_instance" "postgresqldb" {
 }
 
 resource "google_sql_ssl_cert" "sql_client_cert" {
-  common_name = "tf-test-my-cert%{random_suffix}"
+  common_name = "%{sqldb_cert}"
   instance    = google_sql_database_instance.postgresqldb.name
 
   depends_on = [google_sql_database_instance.postgresqldb]
 }
 
 resource "google_sql_user" "sqldb_user" {
-  name     = "tf-test-my-username%{random_suffix}"
+  name     = "%{sqldb_user}"
   instance = google_sql_database_instance.postgresqldb.name
-  password = "tf-test-my-password%{random_suffix}"
+  password = "%{sqldb_pass}"
 
 
   depends_on = [google_sql_ssl_cert.sql_client_cert]
@@ -220,8 +235,8 @@ resource "google_sql_user" "sqldb_user" {
 
 resource "google_database_migration_service_connection_profile" "postgresprofile" {
   location = "us-central1"
-  connection_profile_id = "tf-test-my-profileid%{random_suffix}"
-  display_name = "tf-test-my-profileid%{random_suffix}_display"
+  connection_profile_id = "%{profile}"
+  display_name = "%{profile}_display"
   labels = { 
     foo = "bar" 
   }
@@ -236,7 +251,7 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
       ca_certificate = google_sql_ssl_cert.sql_client_cert.server_ca_cert
       type = "SERVER_CLIENT"
     }
-    cloud_sql_id = "tf-test-my-database%{random_suffix}"
+    cloud_sql_id = "%{sqldb}"
   }
   depends_on = [google_sql_user.sqldb_user]
 }
@@ -246,8 +261,15 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
 func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresNoSslExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"profile":       "tf-test-my-profileid" + randomSuffix,
+		"sqldb":         "tf-test-my-database" + randomSuffix,
+		"sqldb_cert":    "tf-test-my-cert" + randomSuffix,
+		"sqldb_pass":    "tf-test-my-password" + randomSuffix,
+		"sqldb_user":    "tf-test-my-username" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -271,7 +293,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 func testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresNoSslExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_database_instance" "postgresqldb" {
-  name             = "tf-test-my-database%{random_suffix}"
+  name             = "%{sqldb}"
   database_version = "POSTGRES_12"
   settings {
     tier = "db-custom-2-13312"
@@ -280,16 +302,16 @@ resource "google_sql_database_instance" "postgresqldb" {
 }
 
 resource "google_sql_ssl_cert" "sql_client_cert" {
-  common_name = "tf-test-my-cert%{random_suffix}"
+  common_name = "%{sqldb_cert}"
   instance    = google_sql_database_instance.postgresqldb.name
 
   depends_on = [google_sql_database_instance.postgresqldb]
 }
 
 resource "google_sql_user" "sqldb_user" {
-  name     = "tf-test-my-username%{random_suffix}"
+  name     = "%{sqldb_user}"
   instance = google_sql_database_instance.postgresqldb.name
-  password = "tf-test-my-password%{random_suffix}"
+  password = "%{sqldb_pass}"
 
 
   depends_on = [google_sql_ssl_cert.sql_client_cert]
@@ -297,8 +319,8 @@ resource "google_sql_user" "sqldb_user" {
 
 resource "google_database_migration_service_connection_profile" "postgresprofile" {
   location = "us-central1"
-  connection_profile_id = "tf-test-my-profileid%{random_suffix}"
-  display_name = "tf-test-my-profileid%{random_suffix}_display"
+  connection_profile_id = "%{profile}"
+  display_name = "%{profile}_display"
   labels = { 
     foo = "bar" 
   }
@@ -310,7 +332,7 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
     ssl {
       type = "NONE"
     }
-    cloud_sql_id = "tf-test-my-database%{random_suffix}"
+    cloud_sql_id = "%{sqldb}"
   }
   depends_on = [google_sql_user.sqldb_user]
 }
@@ -320,8 +342,15 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
 func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresRequiredSslExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"profile":       "tf-test-my-profileid" + randomSuffix,
+		"sqldb":         "tf-test-my-database" + randomSuffix,
+		"sqldb_cert":    "tf-test-my-cert" + randomSuffix,
+		"sqldb_pass":    "tf-test-my-password" + randomSuffix,
+		"sqldb_user":    "tf-test-my-username" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -345,7 +374,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 func testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresRequiredSslExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_sql_database_instance" "postgresqldb" {
-  name             = "tf-test-my-database%{random_suffix}"
+  name             = "%{sqldb}"
   database_version = "POSTGRES_12"
   settings {
     tier = "db-custom-2-13312"
@@ -354,16 +383,16 @@ resource "google_sql_database_instance" "postgresqldb" {
 }
 
 resource "google_sql_ssl_cert" "sql_client_cert" {
-  common_name = "tf-test-my-cert%{random_suffix}"
+  common_name = "%{sqldb_cert}"
   instance    = google_sql_database_instance.postgresqldb.name
 
   depends_on = [google_sql_database_instance.postgresqldb]
 }
 
 resource "google_sql_user" "sqldb_user" {
-  name     = "tf-test-my-username%{random_suffix}"
+  name     = "%{sqldb_user}"
   instance = google_sql_database_instance.postgresqldb.name
-  password = "tf-test-my-password%{random_suffix}"
+  password = "%{sqldb_pass}"
 
 
   depends_on = [google_sql_ssl_cert.sql_client_cert]
@@ -371,8 +400,8 @@ resource "google_sql_user" "sqldb_user" {
 
 resource "google_database_migration_service_connection_profile" "postgresprofile" {
   location = "us-central1"
-  connection_profile_id = "tf-test-my-profileid%{random_suffix}"
-  display_name = "tf-test-my-profileid%{random_suffix}_display"
+  connection_profile_id = "%{profile}"
+  display_name = "%{profile}_display"
   labels = { 
     foo = "bar" 
   }
@@ -384,7 +413,7 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
     ssl {
       type = "REQUIRED"
     }
-    cloud_sql_id = "tf-test-my-database%{random_suffix}"
+    cloud_sql_id = "%{sqldb}"
   }
   depends_on = [google_sql_user.sqldb_user]
 }
@@ -394,8 +423,12 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
 func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileExistingMysqlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"destination_cp":   "tf-test-destination-cp" + randomSuffix,
+		"destination_csql": "tf-test-destination-csql" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -422,7 +455,7 @@ data "google_project" "project" {
 }
 
 resource "google_sql_database_instance" "destination_csql" {
-  name             = "tf-test-destination-csql%{random_suffix}"
+  name             = "%{destination_csql}"
   database_version = "MYSQL_5_7"
   settings {
     tier = "db-n1-standard-1"
@@ -433,13 +466,13 @@ resource "google_sql_database_instance" "destination_csql" {
 
 resource "google_database_migration_service_connection_profile" "existing-mysql" {
   location              = "us-central1"
-  connection_profile_id = "tf-test-destination-cp%{random_suffix}"
-  display_name          = "tf-test-destination-cp%{random_suffix}_display"
+  connection_profile_id = "%{destination_cp}"
+  display_name          = "%{destination_cp}_display"
   labels = {
     foo = "bar"
   }
   mysql {
-    cloud_sql_id = "tf-test-destination-csql%{random_suffix}"
+    cloud_sql_id = "%{destination_csql}"
   }
   depends_on = [google_sql_database_instance.destination_csql]
 }
@@ -449,8 +482,12 @@ resource "google_database_migration_service_connection_profile" "existing-mysql"
 func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileExistingPostgresExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"destination_cp":   "tf-test-destination-cp" + randomSuffix,
+		"destination_csql": "tf-test-destination-csql" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -477,7 +514,7 @@ data "google_project" "project" {
 }
 
 resource "google_sql_database_instance" "destination_csql" {
-  name             = "tf-test-destination-csql%{random_suffix}"
+  name             = "%{destination_csql}"
   database_version = "POSTGRES_15"
   settings {
     tier = "db-custom-2-13312"
@@ -488,13 +525,13 @@ resource "google_sql_database_instance" "destination_csql" {
 
 resource "google_database_migration_service_connection_profile" "existing-psql" {
   location              = "us-central1"
-  connection_profile_id = "tf-test-destination-cp%{random_suffix}"
-  display_name          = "tf-test-destination-cp%{random_suffix}_display"
+  connection_profile_id = "%{destination_cp}"
+  display_name          = "%{destination_cp}_display"
   labels = {
     foo = "bar"
   }
   postgresql {
-    cloud_sql_id = "tf-test-destination-csql%{random_suffix}"
+    cloud_sql_id = "%{destination_csql}"
   }
   depends_on = [google_sql_database_instance.destination_csql]
 }
@@ -504,8 +541,12 @@ resource "google_database_migration_service_connection_profile" "existing-psql" 
 func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileExistingAlloydbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"destination_alloydb": "tf-test-destination-alloydb" + randomSuffix,
+		"destination_cp":      "tf-test-destination-cp" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -532,7 +573,7 @@ data "google_project" "project" {
 }
 
 resource "google_alloydb_cluster" "destination_alloydb" {
-  cluster_id = "tf-test-destination-alloydb%{random_suffix}"
+  cluster_id = "%{destination_alloydb}"
   location   = "us-central1"
   network_config {
     network = google_compute_network.default.id
@@ -540,8 +581,8 @@ resource "google_alloydb_cluster" "destination_alloydb" {
   database_version = "POSTGRES_15"
 
   initial_user {
-    user     = "tf-test-destination-alloydb%{random_suffix}"
-    password = "tf-test-destination-alloydb%{random_suffix}"
+    user     = "%{destination_alloydb}"
+    password = "%{destination_alloydb}"
   }
 
   deletion_protection = false
@@ -549,14 +590,14 @@ resource "google_alloydb_cluster" "destination_alloydb" {
 
 resource "google_alloydb_instance" "destination_alloydb_primary" {
   cluster       = google_alloydb_cluster.destination_alloydb.name
-  instance_id   = "tf-test-destination-alloydb%{random_suffix}-primary"
+  instance_id   = "%{destination_alloydb}-primary"
   instance_type = "PRIMARY"
 
   depends_on = [google_service_networking_connection.vpc_connection]
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          =  "tf-test-destination-alloydb%{random_suffix}"
+  name          =  "%{destination_alloydb}"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
@@ -570,18 +611,18 @@ resource "google_service_networking_connection" "vpc_connection" {
 }
 
 resource "google_compute_network" "default" {
-  name = "tf-test-destination-alloydb%{random_suffix}"
+  name = "%{destination_alloydb}"
 }
 
 resource "google_database_migration_service_connection_profile" "existing-alloydb" {
   location              = "us-central1"
-  connection_profile_id = "tf-test-destination-cp%{random_suffix}"
-  display_name          = "tf-test-destination-cp%{random_suffix}_display"
+  connection_profile_id = "%{destination_cp}"
+  display_name          = "%{destination_cp}_display"
   labels = {
     foo = "bar"
   }
   postgresql {
-    alloydb_cluster_id = "tf-test-destination-alloydb%{random_suffix}"
+    alloydb_cluster_id = "%{destination_alloydb}"
   }
   depends_on = [google_alloydb_cluster.destination_alloydb, google_alloydb_instance.destination_alloydb_primary]
 }

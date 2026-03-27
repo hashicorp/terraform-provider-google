@@ -53,8 +53,11 @@ var (
 func TestAccCloudRunV2Job_cloudrunv2JobBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_job_name": "tf-test-cloudrun-job" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobBasicExample(t *testing.T) {
 func testAccCloudRunV2Job_cloudrunv2JobBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
-  name     = "tf-test-cloudrun-job%{random_suffix}"
+  name     = "%{cloud_run_job_name}"
   location = "us-central1"
   deletion_protection = false
 
@@ -96,8 +99,11 @@ resource "google_cloud_run_v2_job" "default" {
 func TestAccCloudRunV2Job_cloudrunv2JobLimitsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_job_name": "tf-test-cloudrun-job" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -121,7 +127,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobLimitsExample(t *testing.T) {
 func testAccCloudRunV2Job_cloudrunv2JobLimitsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
-  name     = "tf-test-cloudrun-job%{random_suffix}"
+  name     = "%{cloud_run_job_name}"
   location = "us-central1"
   deletion_protection = false
 
@@ -151,9 +157,14 @@ resource "google_cloud_run_v2_job" "default" {
 func TestAccCloudRunV2Job_cloudrunv2JobSqlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cloud_run_job_name":  "tf-test-cloudrun-job" + randomSuffix,
+		"cloud_run_sql_name":  "tf-test-cloudrun-sql" + randomSuffix,
 		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"secret_id":           "secret" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -177,7 +188,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobSqlExample(t *testing.T) {
 func testAccCloudRunV2Job_cloudrunv2JobSqlExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
-  name     = "tf-test-cloudrun-job%{random_suffix}"
+  name     = "%{cloud_run_job_name}"
   location = "us-central1"
   deletion_protection = false
   template {
@@ -218,7 +229,7 @@ data "google_project" "project" {
 }
 
 resource "google_secret_manager_secret" "secret" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
@@ -237,7 +248,7 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 }
 
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-cloudrun-sql%{random_suffix}"
+  name             = "%{cloud_run_sql_name}"
   region           = "us-central1"
   database_version = "MYSQL_5_7"
   settings {
@@ -252,8 +263,14 @@ resource "google_sql_database_instance" "instance" {
 func TestAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_job_name":          "tf-test-cloudrun-job" + randomSuffix,
+		"compute_network_name":        "tf-test-run-network" + randomSuffix,
+		"vpc_access_connector_name":   "tf-test-run-vpc" + randomSuffix,
+		"vpc_compute_subnetwork_name": "tf-test-run-subnetwork" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -277,7 +294,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(t *testing.T) {
 func testAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
-  name     = "tf-test-cloudrun-job%{random_suffix}"
+  name     = "%{cloud_run_job_name}"
   location = "us-central1"
   deletion_protection = false
 
@@ -295,7 +312,7 @@ resource "google_cloud_run_v2_job" "default" {
 }
 
 resource "google_vpc_access_connector" "connector" {
-  name          = "tf-test-run-vpc%{random_suffix}"
+  name          = "%{vpc_access_connector_name}"
   subnet {
     name = google_compute_subnetwork.custom_test.name
   }
@@ -305,13 +322,13 @@ resource "google_vpc_access_connector" "connector" {
   region        = "us-central1"
 }
 resource "google_compute_subnetwork" "custom_test" {
-  name          = "tf-test-run-subnetwork%{random_suffix}"
+  name          = "%{vpc_compute_subnetwork_name}"
   ip_cidr_range = "10.2.0.0/28"
   region        = "us-central1"
   network       = google_compute_network.custom_test.id
 }
 resource "google_compute_network" "custom_test" {
-  name                    = "tf-test-run-network%{random_suffix}"
+  name                    = "%{compute_network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -320,8 +337,11 @@ resource "google_compute_network" "custom_test" {
 func TestAccCloudRunV2Job_cloudrunv2JobDirectvpcExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_job_name": "tf-test-cloudrun-job" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -345,7 +365,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobDirectvpcExample(t *testing.T) {
 func testAccCloudRunV2Job_cloudrunv2JobDirectvpcExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
-  name     = "tf-test-cloudrun-job%{random_suffix}"
+  name     = "%{cloud_run_job_name}"
   location = "us-central1"
   deletion_protection = false
   launch_stage = "GA"
@@ -370,8 +390,12 @@ resource "google_cloud_run_v2_job" "default" {
 func TestAccCloudRunV2Job_cloudrunv2JobSecretExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_job_name": "tf-test-cloudrun-job" + randomSuffix,
+		"secret_id":          "secret" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -395,7 +419,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobSecretExample(t *testing.T) {
 func testAccCloudRunV2Job_cloudrunv2JobSecretExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
-  name     = "tf-test-cloudrun-job%{random_suffix}"
+  name     = "%{cloud_run_job_name}"
   location = "us-central1"
   deletion_protection = false
 
@@ -433,7 +457,7 @@ data "google_project" "project" {
 }
 
 resource "google_secret_manager_secret" "secret" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   replication {
     auto {}
   }
@@ -456,8 +480,11 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 func TestAccCloudRunV2Job_cloudrunv2JobEmptydirExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_job_name": "tf-test-cloudrun-job" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -481,7 +508,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobEmptydirExample(t *testing.T) {
 func testAccCloudRunV2Job_cloudrunv2JobEmptydirExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
-  name     = "tf-test-cloudrun-job%{random_suffix}"
+  name     = "%{cloud_run_job_name}"
   location = "us-central1"
   deletion_protection = false
   template {
@@ -509,8 +536,11 @@ resource "google_cloud_run_v2_job" "default" {
 func TestAccCloudRunV2Job_cloudrunv2JobMulticontainerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_job_name": "tf-test-cloudrun-job" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -534,7 +564,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobMulticontainerExample(t *testing.T) {
 func testAccCloudRunV2Job_cloudrunv2JobMulticontainerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
-  name     = "tf-test-cloudrun-job%{random_suffix}"
+  name     = "%{cloud_run_job_name}"
   location = "us-central1"
   deletion_protection = false
 
@@ -557,8 +587,11 @@ resource "google_cloud_run_v2_job" "default" {
 func TestAccCloudRunV2Job_cloudrunv2JobGpuExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloud_run_job_name": "tf-test-cloudrun-job" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -582,7 +615,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobGpuExample(t *testing.T) {
 func testAccCloudRunV2Job_cloudrunv2JobGpuExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
-  name     = "tf-test-cloudrun-job%{random_suffix}"
+  name     = "%{cloud_run_job_name}"
   location = "us-central1"
   deletion_protection = false
   template {

@@ -53,9 +53,12 @@ var (
 func TestAccDataplexEntryLink_dataplexEntryLinkBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+		"project_number":  envvar.GetTestProjectNumberFromEnv(),
+		"entry_link_name": "tf_test_entry_link_basic" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -128,9 +131,12 @@ resource "google_dataplex_entry_link" "basic_entry_link" {
 func TestAccDataplexEntryLink_dataplexEntryLinkFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+		"project_number":  envvar.GetTestProjectNumberFromEnv(),
+		"entry_link_name": "tf_test_my_entry_link_full" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

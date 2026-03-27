@@ -53,8 +53,13 @@ var (
 func TestAccWorkstationsWorkstation_workstationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"workstation_name":         "tf-test-work-station" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,19 +83,19 @@ func TestAccWorkstationsWorkstation_workstationBasicExample(t *testing.T) {
 func testAccWorkstationsWorkstation_workstationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
@@ -105,7 +110,7 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
   
@@ -119,7 +124,7 @@ resource "google_workstations_workstation_config" "default" {
 }
 
 resource "google_workstations_workstation" "default" {
-  workstation_id         = "tf-test-work-station%{random_suffix}"
+  workstation_id         = "%{workstation_name}"
   workstation_config_id  = google_workstations_workstation_config.default.workstation_config_id
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"

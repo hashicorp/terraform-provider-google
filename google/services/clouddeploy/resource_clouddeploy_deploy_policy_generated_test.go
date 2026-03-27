@@ -53,8 +53,12 @@ var (
 func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"delivery_pipeline": "tf-test-cd-pipeline" + randomSuffix,
+		"policy":            "tf-test-cd-policy" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,11 +82,11 @@ func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyBasicExample(t *testi
 func testAccClouddeployDeployPolicy_clouddeployDeployPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_clouddeploy_deploy_policy" "b-deploy-policy" {
-  name     = "tf-test-cd-policy%{random_suffix}"
+  name     = "%{policy}"
   location = "us-central1"
   selectors {
     delivery_pipeline {
-      id = "tf-test-cd-pipeline%{random_suffix}"
+      id = "%{delivery_pipeline}"
     }
   }
   rules {
@@ -110,8 +114,12 @@ resource "google_clouddeploy_deploy_policy" "b-deploy-policy" {
 func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"delivery_pipeline": "tf-test-cd-pipeline" + randomSuffix,
+		"policy":            "tf-test-cd-policy" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -135,7 +143,7 @@ func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyFullExample(t *testin
 func testAccClouddeployDeployPolicy_clouddeployDeployPolicyFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
-  name     = "tf-test-cd-policy%{random_suffix}"
+  name     = "%{policy}"
   location = "us-central1"
   annotations = {
     my_first_annotation = "example-annotation-1"
@@ -148,7 +156,7 @@ resource "google_clouddeploy_deploy_policy" "f-deploy-policy" {
   description = "policy resource"
   selectors {
     delivery_pipeline {
-      id = "tf-test-cd-pipeline%{random_suffix}"
+      id = "%{delivery_pipeline}"
       labels = {
       	foo = "bar"
       }

@@ -53,9 +53,15 @@ var (
 func TestAccRedisCluster_redisClusterHaWithLabelsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cluster_name":                "tf-test-ha-cluster" + randomSuffix,
 		"deletion_protection_enabled": false,
-		"random_suffix":               acctest.RandString(t, 10),
+		"network_name":                "tf-test-my-network" + randomSuffix,
+		"policy_name":                 "tf-test-my-policy" + randomSuffix,
+		"subnet_name":                 "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +85,7 @@ func TestAccRedisCluster_redisClusterHaWithLabelsExample(t *testing.T) {
 func testAccRedisCluster_redisClusterHaWithLabelsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster" "cluster-ha-with-labels" {
-  name           = "tf-test-ha-cluster%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   labels = {
     my_key = "my_val"
@@ -118,7 +124,7 @@ resource "google_redis_cluster" "cluster-ha-with-labels" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "tf-test-my-policy%{random_suffix}"
+  name = "%{policy_name}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
@@ -129,14 +135,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -145,9 +151,15 @@ resource "google_compute_network" "consumer_net" {
 func TestAccRedisCluster_redisClusterHaExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cluster_name":                "tf-test-ha-cluster" + randomSuffix,
 		"deletion_protection_enabled": false,
-		"random_suffix":               acctest.RandString(t, 10),
+		"network_name":                "tf-test-my-network" + randomSuffix,
+		"policy_name":                 "tf-test-my-policy" + randomSuffix,
+		"subnet_name":                 "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -171,7 +183,7 @@ func TestAccRedisCluster_redisClusterHaExample(t *testing.T) {
 func testAccRedisCluster_redisClusterHaExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster" "cluster-ha" {
-  name           = "tf-test-ha-cluster%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   psc_configs {
     network = google_compute_network.consumer_net.id
@@ -206,7 +218,7 @@ resource "google_redis_cluster" "cluster-ha" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "tf-test-my-policy%{random_suffix}"
+  name = "%{policy_name}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
@@ -217,14 +229,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -233,9 +245,15 @@ resource "google_compute_network" "consumer_net" {
 func TestAccRedisCluster_redisClusterHaSingleZoneExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cluster_name":                "tf-test-ha-cluster-single-zone" + randomSuffix,
 		"deletion_protection_enabled": false,
-		"random_suffix":               acctest.RandString(t, 10),
+		"network_name":                "tf-test-my-network" + randomSuffix,
+		"policy_name":                 "tf-test-my-policy" + randomSuffix,
+		"subnet_name":                 "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -259,7 +277,7 @@ func TestAccRedisCluster_redisClusterHaSingleZoneExample(t *testing.T) {
 func testAccRedisCluster_redisClusterHaSingleZoneExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster" "cluster-ha-single-zone" {
-  name           = "tf-test-ha-cluster-single-zone%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   psc_configs {
     network = google_compute_network.consumer_net.id
@@ -288,7 +306,7 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "tf-test-my-policy%{random_suffix}"
+  name = "%{policy_name}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
@@ -299,14 +317,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -315,10 +333,19 @@ resource "google_compute_network" "consumer_net" {
 func TestAccRedisCluster_redisClusterSecondaryExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"network_name": "mynetwork" + randomSuffix,
 		"primary_cluster_deletion_protection_enabled":   false,
+		"primary_cluster_name":                          "tf-test-my-primary-cluster" + randomSuffix,
+		"primary_cluster_policy_name":                   "tf-test-mypolicy-primary-cluster" + randomSuffix,
+		"primary_cluster_subnet_name":                   "tf-test-mysubnet-primary-cluster" + randomSuffix,
 		"secondary_cluster_deletion_protection_enabled": false,
-		"random_suffix": acctest.RandString(t, 10),
+		"secondary_cluster_name":                        "tf-test-my-secondary-cluster" + randomSuffix,
+		"secondary_cluster_policy_name":                 "tf-test-mypolicy-secondary-cluster" + randomSuffix,
+		"secondary_cluster_subnet_name":                 "tf-test-mysubnet-secondary-cluster" + randomSuffix,
+		"random_suffix":                                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -343,7 +370,7 @@ func testAccRedisCluster_redisClusterSecondaryExample(context map[string]interfa
 	return acctest.Nprintf(`
 // Primary cluster
 resource "google_redis_cluster" "primary_cluster" {
-  name          = "tf-test-my-primary-cluster%{random_suffix}"
+  name          = "%{primary_cluster_name}"
   region        = "us-east1"
   psc_configs {
     network = google_compute_network.consumer_net.id
@@ -394,7 +421,7 @@ resource "google_redis_cluster" "primary_cluster" {
 
 // Secondary cluster
 resource "google_redis_cluster" "secondary_cluster" {
-  name          = "tf-test-my-secondary-cluster%{random_suffix}"
+  name          = "%{secondary_cluster_name}"
   region        = "europe-west1"
   psc_configs {
     network = google_compute_network.consumer_net.id
@@ -452,7 +479,7 @@ resource "google_redis_cluster" "secondary_cluster" {
 
 
 resource "google_network_connectivity_service_connection_policy" "primary_cluster_region_scp" {
-  name = "tf-test-mypolicy-primary-cluster%{random_suffix}"
+  name = "%{primary_cluster_policy_name}"
   location = "us-east1"
   service_class = "gcp-memorystore-redis"
   description   = "Primary cluster service connection policy"
@@ -463,7 +490,7 @@ resource "google_network_connectivity_service_connection_policy" "primary_cluste
 }
 
 resource "google_compute_subnetwork" "primary_cluster_consumer_subnet" {
-  name          = "tf-test-mysubnet-primary-cluster%{random_suffix}"
+  name          = "%{primary_cluster_subnet_name}"
   ip_cidr_range = "10.0.1.0/29"
   region        = "us-east1"
   network       = google_compute_network.consumer_net.id
@@ -471,7 +498,7 @@ resource "google_compute_subnetwork" "primary_cluster_consumer_subnet" {
 
 
 resource "google_network_connectivity_service_connection_policy" "secondary_cluster_region_scp" {
-  name = "tf-test-mypolicy-secondary-cluster%{random_suffix}"
+  name = "%{secondary_cluster_policy_name}"
   location = "europe-west1"
   service_class = "gcp-memorystore-redis"
   description   = "Secondary cluster service connection policy"
@@ -482,14 +509,14 @@ resource "google_network_connectivity_service_connection_policy" "secondary_clus
 }
 
 resource "google_compute_subnetwork" "secondary_cluster_consumer_subnet" {
-  name          = "tf-test-mysubnet-secondary-cluster%{random_suffix}"
+  name          = "%{secondary_cluster_subnet_name}"
   ip_cidr_range = "10.0.2.0/29"
   region        = "europe-west1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "mynetwork%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -498,9 +525,15 @@ resource "google_compute_network" "consumer_net" {
 func TestAccRedisCluster_redisClusterRdbExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cluster_name":                "tf-test-rdb-cluster" + randomSuffix,
 		"deletion_protection_enabled": false,
-		"random_suffix":               acctest.RandString(t, 10),
+		"network_name":                "tf-test-my-network" + randomSuffix,
+		"policy_name":                 "tf-test-my-policy" + randomSuffix,
+		"subnet_name":                 "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -524,7 +557,7 @@ func TestAccRedisCluster_redisClusterRdbExample(t *testing.T) {
 func testAccRedisCluster_redisClusterRdbExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster" "cluster-rdb" {
-  name           = "tf-test-rdb-cluster%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   psc_configs {
     network = google_compute_network.consumer_net.id
@@ -566,7 +599,7 @@ resource "google_redis_cluster" "cluster-rdb" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "tf-test-my-policy%{random_suffix}"
+  name = "%{policy_name}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
@@ -577,14 +610,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -593,9 +626,15 @@ resource "google_compute_network" "consumer_net" {
 func TestAccRedisCluster_redisClusterAofExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cluster_name":                "tf-test-aof-cluster" + randomSuffix,
 		"deletion_protection_enabled": false,
-		"random_suffix":               acctest.RandString(t, 10),
+		"network_name":                "tf-test-my-network" + randomSuffix,
+		"policy_name":                 "tf-test-my-policy" + randomSuffix,
+		"subnet_name":                 "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -619,7 +658,7 @@ func TestAccRedisCluster_redisClusterAofExample(t *testing.T) {
 func testAccRedisCluster_redisClusterAofExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster" "cluster-aof" {
-  name           = "tf-test-aof-cluster%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   psc_configs {
     network = google_compute_network.consumer_net.id
@@ -659,7 +698,7 @@ resource "google_redis_cluster" "cluster-aof" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "tf-test-my-policy%{random_suffix}"
+  name = "%{policy_name}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
@@ -670,14 +709,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -692,10 +731,17 @@ func TestAccRedisCluster_redisClusterCmekExample(t *testing.T) {
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cluster_name":                "tf-test-cmek-cluster" + randomSuffix,
 		"deletion_protection_enabled": false,
 		"kms_key_name":                acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix":               acctest.RandString(t, 10),
+		"kms_ring_name":               "tf-test-my-key-ring" + randomSuffix,
+		"network_name":                "tf-test-my-network" + randomSuffix,
+		"policy_name":                 "tf-test-my-policy" + randomSuffix,
+		"subnet_name":                 "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -719,7 +765,7 @@ func TestAccRedisCluster_redisClusterCmekExample(t *testing.T) {
 func testAccRedisCluster_redisClusterCmekExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster" "cluster-cmek" {
-  name           = "tf-test-cmek-cluster%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   psc_configs {
     network = google_compute_network.consumer_net.id
@@ -737,7 +783,7 @@ data "google_project" "project" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name = "tf-test-my-policy%{random_suffix}"
+  name = "%{policy_name}"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
@@ -748,14 +794,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -770,9 +816,17 @@ func TestAccRedisCluster_redisClusterFlexibleCaExample(t *testing.T) {
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"ca_auth_id":                  "tf-test-ca-auth" + randomSuffix,
+		"ca_pool_name":                "tf-test-ca-pool" + randomSuffix,
+		"cluster_name":                "tf-test-ca-cluster" + randomSuffix,
 		"deletion_protection_enabled": false,
-		"random_suffix":               acctest.RandString(t, 10),
+		"network_name":                "tf-test-ca-network" + randomSuffix,
+		"policy_name":                 "tf-test-ca-policy" + randomSuffix,
+		"subnet_name":                 "tf-test-ca-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -796,7 +850,7 @@ func TestAccRedisCluster_redisClusterFlexibleCaExample(t *testing.T) {
 func testAccRedisCluster_redisClusterFlexibleCaExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster" "test-cluster" {
-  name           = "tf-test-ca-cluster%{random_suffix}"
+  name           = "%{cluster_name}"
   shard_count    = 3
   region         = "us-central1"
   
@@ -818,14 +872,14 @@ resource "google_redis_cluster" "test-cluster" {
 }
 
 resource "google_privateca_ca_pool" "default" {
-  name     = "tf-test-ca-pool%{random_suffix}"
+  name     = "%{ca_pool_name}"
   location = "us-central1"
   tier     = "ENTERPRISE"
 }
 
 resource "google_privateca_certificate_authority" "default" {
   pool                     = google_privateca_ca_pool.default.name
-  certificate_authority_id = "tf-test-ca-auth%{random_suffix}"
+  certificate_authority_id = "%{ca_auth_id}"
   location                 = "us-central1"
   config {
     subject_config {
@@ -860,7 +914,7 @@ resource "google_privateca_certificate_authority" "default" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name           = "tf-test-ca-policy%{random_suffix}"
+  name           = "%{policy_name}"
   location       = "us-central1"
   service_class  = "gcp-memorystore-redis"
   network        = google_compute_network.consumer_net.id
@@ -870,14 +924,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  name          = "tf-test-ca-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.consumer_net.id
 }
 
 resource "google_compute_network" "consumer_net" {
-  name                    = "tf-test-ca-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)

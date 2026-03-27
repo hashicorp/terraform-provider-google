@@ -53,8 +53,12 @@ var (
 func TestAccDeveloperConnectGitRepositoryLink_developerConnectGitRepositoryLinkGithubExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name":          "tf-test-my-connection" + randomSuffix,
+		"git_repository_link_name": "tf-test-my-repository" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccDeveloperConnectGitRepositoryLink_developerConnectGitRepositoryLinkG
 func testAccDeveloperConnectGitRepositoryLink_developerConnectGitRepositoryLinkGithubExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_developer_connect_git_repository_link" "primary" {
-  git_repository_link_id              = "tf-test-my-repository%{random_suffix}"
+  git_repository_link_id              = "%{git_repository_link_name}"
   parent_connection = google_developer_connect_connection.github_conn.connection_id
   clone_uri        = "https://github.com/gcb-developerconnect-robot/tf-demo.git"
   location          = "us-central1"
@@ -88,7 +92,7 @@ resource "google_developer_connect_git_repository_link" "primary" {
 resource "google_developer_connect_connection" "github_conn" {
   
   location = "us-central1"
-  connection_id     = "tf-test-my-connection%{random_suffix}"
+  connection_id     = "%{connection_name}"
   disabled = false
 
   github_config {

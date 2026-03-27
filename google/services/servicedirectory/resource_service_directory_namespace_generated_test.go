@@ -53,8 +53,11 @@ var (
 func TestAccServiceDirectoryNamespace_serviceDirectoryNamespaceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"namespace_id":  "tf-test-example-namespace" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccServiceDirectoryNamespace_serviceDirectoryNamespaceBasicExample(t *t
 func testAccServiceDirectoryNamespace_serviceDirectoryNamespaceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_service_directory_namespace" "example" {
-  namespace_id = "tf-test-example-namespace%{random_suffix}"
+  namespace_id = "%{namespace_id}"
   location     = "us-central1"
 
   labels = {

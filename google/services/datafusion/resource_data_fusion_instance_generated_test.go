@@ -53,9 +53,12 @@ var (
 func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-my-instance" + randomSuffix,
 		"prober_test_run": `options = { prober_test_run = "true" }`,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 func testAccDataFusionInstance_dataFusionInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "basic_instance" {
-  name   = "tf-test-my-instance%{random_suffix}"
+  name   = "%{instance_name}"
   region = "us-central1"
   type   = "BASIC"
   %{prober_test_run}
@@ -90,9 +93,14 @@ resource "google_data_fusion_instance" "basic_instance" {
 func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-my-instance" + randomSuffix,
+		"ip_alloc":        "tf-test-datafusion-ip-alloc" + randomSuffix,
+		"network_name":    "tf-test-datafusion-full-network" + randomSuffix,
 		"prober_test_run": `options = { prober_test_run = "true" }`,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -116,7 +124,7 @@ func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
 func testAccDataFusionInstance_dataFusionInstanceFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "extended_instance" {
-  name                          = "tf-test-my-instance%{random_suffix}"
+  name                          = "%{instance_name}"
   description                   = "My Data Fusion instance"
   display_name                  = "My Data Fusion instance"
   region                        = "us-central1"
@@ -146,11 +154,11 @@ data "google_app_engine_default_service_account" "default" {
 }
 
 resource "google_compute_network" "network" {
-  name = "tf-test-datafusion-full-network%{random_suffix}"
+  name = "%{network_name}"
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "tf-test-datafusion-ip-alloc%{random_suffix}"
+  name          = "%{ip_alloc}"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 22
@@ -162,9 +170,15 @@ resource "google_compute_global_address" "private_ip_alloc" {
 func TestAccDataFusionInstance_dataFusionInstancePscExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"attachment_name": "tf-test-datafusion-psc-attachment" + randomSuffix,
+		"instance_name":   "tf-test-psc-instance" + randomSuffix,
+		"network_name":    "tf-test-datafusion-psc-network" + randomSuffix,
 		"prober_test_run": `options = { prober_test_run = "true" }`,
-		"random_suffix":   acctest.RandString(t, 10),
+		"subnet_name":     "tf-test-datafusion-psc-subnet" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -188,7 +202,7 @@ func TestAccDataFusionInstance_dataFusionInstancePscExample(t *testing.T) {
 func testAccDataFusionInstance_dataFusionInstancePscExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "psc_instance" {
-  name             = "tf-test-psc-instance%{random_suffix}"
+  name             = "%{instance_name}"
   region           = "us-central1"
   type             = "BASIC"
   private_instance = true
@@ -205,12 +219,12 @@ resource "google_data_fusion_instance" "psc_instance" {
 }
 
 resource "google_compute_network" "psc" {
-  name                    = "tf-test-datafusion-psc-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "psc" {
-  name   = "tf-test-datafusion-psc-subnet%{random_suffix}"
+  name   = "%{subnet_name}"
   region = "us-central1"
 
   network       = google_compute_network.psc.id
@@ -218,7 +232,7 @@ resource "google_compute_subnetwork" "psc" {
 }
 
 resource "google_compute_network_attachment" "psc" {
-  name                  = "tf-test-datafusion-psc-attachment%{random_suffix}"
+  name                  = "%{attachment_name}"
   region                = "us-central1"
   connection_preference = "ACCEPT_AUTOMATIC"
 
@@ -232,8 +246,11 @@ resource "google_compute_network_attachment" "psc" {
 func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -257,7 +274,7 @@ func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
 func testAccDataFusionInstance_dataFusionInstanceCmekExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "cmek" {
-  name   = "tf-test-my-instance%{random_suffix}"
+  name   = "%{instance_name}"
   region = "us-central1"
   type   = "BASIC"
 
@@ -269,12 +286,12 @@ resource "google_data_fusion_instance" "cmek" {
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-  name     = "tf-test-my-instance%{random_suffix}"
+  name     = "%{instance_name}"
   key_ring = google_kms_key_ring.key_ring.id
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  name     = "tf-test-my-instance%{random_suffix}"
+  name     = "%{instance_name}"
   location = "us-central1"
 }
 
@@ -301,9 +318,12 @@ data "google_project" "project" {}
 func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-my-instance" + randomSuffix,
 		"prober_test_run": `options = { prober_test_run = "true" }`,
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -327,7 +347,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T)
 func testAccDataFusionInstance_dataFusionInstanceEnterpriseExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "enterprise_instance" {
-  name = "tf-test-my-instance%{random_suffix}"
+  name = "%{instance_name}"
   region = "us-central1"
   type = "ENTERPRISE"
   enable_rbac = true
@@ -339,8 +359,11 @@ resource "google_data_fusion_instance" "enterprise_instance" {
 func TestAccDataFusionInstance_dataFusionInstanceEventExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -364,7 +387,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEventExample(t *testing.T) {
 func testAccDataFusionInstance_dataFusionInstanceEventExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "event" {
-  name    = "tf-test-my-instance%{random_suffix}"
+  name    = "%{instance_name}"
   region  = "us-central1"
   type    = "BASIC"
 
@@ -375,7 +398,7 @@ resource "google_data_fusion_instance" "event" {
 }
 
 resource "google_pubsub_topic" "event" {
-  name = "tf-test-my-instance%{random_suffix}"
+  name = "%{instance_name}"
 }
 `, context)
 }
@@ -383,8 +406,11 @@ resource "google_pubsub_topic" "event" {
 func TestAccDataFusionInstance_dataFusionInstanceZoneExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -408,7 +434,7 @@ func TestAccDataFusionInstance_dataFusionInstanceZoneExample(t *testing.T) {
 func testAccDataFusionInstance_dataFusionInstanceZoneExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "zone" {
-  name   = "tf-test-my-instance%{random_suffix}"
+  name   = "%{instance_name}"
   region = "us-central1"
   zone   = "us-central1-a"
   type   = "DEVELOPER"
@@ -419,8 +445,11 @@ resource "google_data_fusion_instance" "zone" {
 func TestAccDataFusionInstance_dataFusionInstancePatchRevisionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -444,7 +473,7 @@ func TestAccDataFusionInstance_dataFusionInstancePatchRevisionExample(t *testing
 func testAccDataFusionInstance_dataFusionInstancePatchRevisionExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "data_fusion_instance_patch_revision" {
-  name = "tf-test-my-instance%{random_suffix}"
+  name = "%{instance_name}"
   region = "us-central1"
   type = "BASIC"
   version = "6.10.1"

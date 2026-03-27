@@ -53,9 +53,12 @@ var (
 func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBasicEx
 func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_security_profile" "default" {
-  name        = "tf-test-my-security-profile%{random_suffix}"
+  name        = "%{resource_name}"
   parent      = "organizations/%{org_id}"
   description = "my description"
   type        = "THREAT_PREVENTION"
@@ -94,9 +97,12 @@ resource "google_network_security_security_profile" "default" {
 func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileOverridesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -120,7 +126,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileOverrid
 func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileOverridesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_security_profile" "default" {
-  name        = "tf-test-my-security-profile%{random_suffix}"
+  name        = "%{resource_name}"
   parent      = "organizations/%{org_id}"
   description = "my description"
   type        = "THREAT_PREVENTION"
@@ -153,9 +159,15 @@ resource "google_network_security_security_profile" "default" {
 func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileMirroringExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"deployment_group_id": "tf-test-my-dg" + randomSuffix,
+		"endpoint_group_id":   "tf-test-my-eg" + randomSuffix,
+		"network_name":        "tf-test-my-network" + randomSuffix,
+		"resource_name":       "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -179,24 +191,24 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileMirrori
 func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileMirroringExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "default" {
-  mirroring_deployment_group_id = "tf-test-my-dg%{random_suffix}"
+  mirroring_deployment_group_id = "%{deployment_group_id}"
   location                      = "global"
   network                       = google_compute_network.default.id
 }
 
 resource "google_network_security_mirroring_endpoint_group" "default" {
-  mirroring_endpoint_group_id = "tf-test-my-eg%{random_suffix}"
+  mirroring_endpoint_group_id = "%{endpoint_group_id}"
   location                    = "global"
   mirroring_deployment_group  = google_network_security_mirroring_deployment_group.default.id
 }
 
 resource "google_network_security_security_profile" "default" {
-  name        = "tf-test-my-security-profile%{random_suffix}"
+  name        = "%{resource_name}"
   parent      = "organizations/%{org_id}"
   description = "my description"
   type        = "CUSTOM_MIRRORING"
@@ -211,9 +223,12 @@ resource "google_network_security_security_profile" "default" {
 func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileUrlFilteringExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -237,7 +252,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileUrlFilt
 func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileUrlFilteringExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_security_security_profile" "default" {
-  name        = "tf-test-my-security-profile%{random_suffix}"
+  name        = "%{resource_name}"
   parent      = "organizations/%{org_id}"
   description = "my description"
   type        = "URL_FILTERING"
@@ -265,9 +280,15 @@ resource "google_network_security_security_profile" "default" {
 func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBrokerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"deployment_group_id": "tf-test-my-dg" + randomSuffix,
+		"endpoint_group_id":   "tf-test-my-eg" + randomSuffix,
+		"network_name":        "tf-test-my-network" + randomSuffix,
+		"resource_name":       "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -291,25 +312,25 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBrokerE
 func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBrokerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_mirroring_deployment_group" "default" {
-  mirroring_deployment_group_id = "tf-test-my-dg%{random_suffix}"
+  mirroring_deployment_group_id = "%{deployment_group_id}"
   location                      = "global"
   network                       = google_compute_network.default.id
 }
 
 resource "google_network_security_mirroring_endpoint_group" "default" {
-  mirroring_endpoint_group_id = "tf-test-my-eg%{random_suffix}"
+  mirroring_endpoint_group_id = "%{endpoint_group_id}"
   location                    = "global"
   type                        = "BROKER"
   mirroring_deployment_groups = [google_network_security_mirroring_deployment_group.default.id]
 }
 
 resource "google_network_security_security_profile" "default" {
-  name        = "tf-test-my-security-profile%{random_suffix}"
+  name        = "%{resource_name}"
   parent      = "organizations/%{org_id}"
   description = "my description"
   type        = "CUSTOM_MIRRORING"

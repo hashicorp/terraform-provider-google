@@ -53,8 +53,11 @@ var (
 func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "secret" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 func testAccSecretManagerSecret_secretConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
   
   labels = {
     label = "my-label"
@@ -102,8 +105,11 @@ resource "google_secret_manager_secret" "secret-basic" {
 func TestAccSecretManagerSecret_secretWithAnnotationsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "secret" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +133,7 @@ func TestAccSecretManagerSecret_secretWithAnnotationsExample(t *testing.T) {
 func testAccSecretManagerSecret_secretWithAnnotationsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-with-annotations" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
 
   labels = {
     label = "my-label"
@@ -151,8 +157,11 @@ resource "google_secret_manager_secret" "secret-with-annotations" {
 func TestAccSecretManagerSecret_secretWithVersionDestroyTtlExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "secret" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -176,7 +185,7 @@ func TestAccSecretManagerSecret_secretWithVersionDestroyTtlExample(t *testing.T)
 func testAccSecretManagerSecret_secretWithVersionDestroyTtlExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-with-version-destroy-ttl" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
 
   version_destroy_ttl = "2592000s"
 
@@ -190,9 +199,12 @@ resource "google_secret_manager_secret" "secret-with-version-destroy-ttl" {
 func TestAccSecretManagerSecret_secretWithAutomaticCmekExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"kms_key_name":  acctest.BootstrapKMSKey(t).CryptoKey.Name,
-		"random_suffix": acctest.RandString(t, 10),
+		"secret_id":     "secret" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -224,7 +236,7 @@ resource "google_kms_crypto_key_iam_member" "kms-secret-binding" {
 }
 
 resource "google_secret_manager_secret" "secret-with-automatic-cmek" {
-  secret_id = "secret%{random_suffix}"
+  secret_id = "%{secret_id}"
 
   replication {
     auto {

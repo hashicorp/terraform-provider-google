@@ -53,8 +53,14 @@ var (
 func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestInstancesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dest_instance":         "tf-test-dest-vm" + randomSuffix,
+		"network_name":          "tf-test-conn-test-net" + randomSuffix,
+		"primary_resource_name": "tf-test-conn-test-instances" + randomSuffix,
+		"source_instance":       "tf-test-source-vm" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +84,7 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestI
 func testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestInstancesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_management_connectivity_test" "instance-test" {
-  name = "tf-test-conn-test-instances%{random_suffix}"
+  name = "%{primary_resource_name}"
   source {
     instance = google_compute_instance.source.id
   }
@@ -94,7 +100,7 @@ resource "google_network_management_connectivity_test" "instance-test" {
 }
 
 resource "google_compute_instance" "source" {
-  name = "tf-test-source-vm%{random_suffix}"
+  name = "%{source_instance}"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -111,7 +117,7 @@ resource "google_compute_instance" "source" {
 }
 
 resource "google_compute_instance" "destination" {
-  name = "tf-test-dest-vm%{random_suffix}"
+  name = "%{dest_instance}"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -128,7 +134,7 @@ resource "google_compute_instance" "destination" {
 }
 
 resource "google_compute_network" "vpc" {
-  name = "tf-test-conn-test-net%{random_suffix}"
+  name = "%{network_name}"
 }
 
 data "google_compute_image" "debian_9" {
@@ -141,8 +147,14 @@ data "google_compute_image" "debian_9" {
 func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestAddressesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dest_addr":             "tf-test-dest-addr" + randomSuffix,
+		"network":               "tf-test-connectivity-vpc" + randomSuffix,
+		"primary_resource_name": "tf-test-conn-test-addr" + randomSuffix,
+		"source_addr":           "tf-test-src-addr" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -166,7 +178,7 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestA
 func testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestAddressesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_management_connectivity_test" "address-test" {
-  name = "tf-test-conn-test-addr%{random_suffix}"
+  name = "%{primary_resource_name}"
   source {
       ip_address = google_compute_address.source-addr.address
       project_id = google_compute_address.source-addr.project
@@ -184,18 +196,18 @@ resource "google_network_management_connectivity_test" "address-test" {
 }
 
 resource "google_compute_network" "vpc" {
-  name = "tf-test-connectivity-vpc%{random_suffix}"
+  name = "%{network}"
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  name          = "tf-test-connectivity-vpc%{random_suffix}-subnet"
+  name          = "%{network}-subnet"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.vpc.id
 }
 
 resource "google_compute_address" "source-addr" {
-  name         = "tf-test-src-addr%{random_suffix}"
+  name         = "%{source_addr}"
   subnetwork   = google_compute_subnetwork.subnet.id
   address_type = "INTERNAL"
   address      = "10.0.42.42"
@@ -203,7 +215,7 @@ resource "google_compute_address" "source-addr" {
 }
 
 resource "google_compute_address" "dest-addr" {
-  name         = "tf-test-dest-addr%{random_suffix}"
+  name         = "%{dest_addr}"
   subnetwork   = google_compute_subnetwork.subnet.id
   address_type = "INTERNAL"
   address      = "10.0.43.43"
@@ -215,8 +227,11 @@ resource "google_compute_address" "dest-addr" {
 func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestEndpointsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"primary_resource_name": "tf-test-conn-test-endpoints" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -240,7 +255,7 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestE
 func testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestEndpointsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_management_connectivity_test" "endpoints-test" {
-  name = "tf-test-conn-test-endpoints%{random_suffix}"
+  name = "%{primary_resource_name}"
   source {
     gke_master_cluster =  "projects/test-project/locations/us-central1/clusters/name"
     cloud_sql_instance = "projects/test-project/instances/name"

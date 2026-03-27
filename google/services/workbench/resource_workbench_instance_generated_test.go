@@ -53,8 +53,11 @@ var (
 func TestAccWorkbenchInstance_workbenchInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-workbench-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicExample(t *testing.T) {
 func testAccWorkbenchInstance_workbenchInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_workbench_instance" "instance" {
-  name = "tf-test-workbench-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
 }
 `, context)
@@ -87,8 +90,11 @@ resource "google_workbench_instance" "instance" {
 func TestAccWorkbenchInstance_workbenchInstanceBasicContainerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-workbench-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -112,7 +118,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicContainerExample(t *testing.
 func testAccWorkbenchInstance_workbenchInstanceBasicContainerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_workbench_instance" "instance" {
-  name = "tf-test-workbench-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-west1-a"
 
   gce_setup {
@@ -128,8 +134,12 @@ resource "google_workbench_instance" "instance" {
 func TestAccWorkbenchInstance_workbenchInstanceBasicGpuExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name":    "tf-test-workbench-instance" + randomSuffix,
+		"reservation_name": "tf-test-wbi-reservation" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -153,7 +163,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicGpuExample(t *testing.T) {
 func testAccWorkbenchInstance_workbenchInstanceBasicGpuExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_reservation" "gpu_reservation" {
-  name     = "tf-test-wbi-reservation%{random_suffix}"
+  name     = "%{reservation_name}"
   zone     = "us-central1-a"
 
   specific_reservation {
@@ -173,7 +183,7 @@ resource "google_compute_reservation" "gpu_reservation" {
 }
 
 resource "google_workbench_instance" "instance" {
-  name = "tf-test-workbench-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-central1-a"
   gce_setup {
     machine_type = "n1-standard-1" // cant be e2 because of accelerator
@@ -201,9 +211,13 @@ resource "google_workbench_instance" "instance" {
 func TestAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"instance_name":   "tf-test-workbench-instance" + randomSuffix,
+		"network_name":    "tf-test-wbi-test-default" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -227,7 +241,7 @@ func TestAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(t *testing.T
 func testAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_workbench_instance" "instance" {
-  name = "tf-test-workbench-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-central1-a"
 
   gce_setup {
@@ -262,11 +276,16 @@ resource "google_workbench_instance" "instance" {
 func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project_id":      envvar.GetTestProjectFromEnv(),
-		"service_account": envvar.GetTestServiceAccountFromEnv(t),
-		"key_name":        acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix":   acctest.RandString(t, 10),
+		"project_id":       envvar.GetTestProjectFromEnv(),
+		"service_account":  envvar.GetTestServiceAccountFromEnv(t),
+		"instance_name":    "tf-test-workbench-instance" + randomSuffix,
+		"key_name":         acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"network_name":     "tf-test-wbi-test-default" + randomSuffix,
+		"reservation_name": "tf-test-wbi-reservation" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -290,19 +309,19 @@ func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 func testAccWorkbenchInstance_workbenchInstanceFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "my_network" {
-  name = "tf-test-wbi-test-default%{random_suffix}"
+  name = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "my_subnetwork" {
-  name   = "tf-test-wbi-test-default%{random_suffix}"
+  name   = "%{network_name}"
   network = google_compute_network.my_network.id
   region = "us-central1"
   ip_cidr_range = "10.0.1.0/24"
 }
 
 resource "google_compute_address" "static" {
-  name = "tf-test-wbi-test-default%{random_suffix}"
+  name = "%{network_name}"
 }
 
 resource "google_service_account_iam_binding" "act_as_permission" {
@@ -314,7 +333,7 @@ resource "google_service_account_iam_binding" "act_as_permission" {
 }
 
 resource "google_compute_reservation" "gpu_reservation" {
-  name     = "tf-test-wbi-reservation%{random_suffix}"
+  name     = "%{reservation_name}"
   zone     = "us-central1-a"
 
   specific_reservation {
@@ -334,7 +353,7 @@ resource "google_compute_reservation" "gpu_reservation" {
 }
 
 resource "google_workbench_instance" "instance" {
-  name = "tf-test-workbench-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-central1-a"
 
   gce_setup {
@@ -423,8 +442,11 @@ resource "google_workbench_instance" "instance" {
 func TestAccWorkbenchInstance_workbenchInstanceConfidentialComputeExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": "tf-test-workbench-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -448,7 +470,7 @@ func TestAccWorkbenchInstance_workbenchInstanceConfidentialComputeExample(t *tes
 func testAccWorkbenchInstance_workbenchInstanceConfidentialComputeExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_workbench_instance" "instance" {
-  name = "tf-test-workbench-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-central1-a"
 
   gce_setup {
@@ -476,10 +498,13 @@ resource "google_workbench_instance" "instance" {
 func TestAccWorkbenchInstance_workbenchInstanceEucExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":     envvar.GetTestProjectFromEnv(),
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":  acctest.RandString(t, 10),
+		"instance_name":  "tf-test-workbench-instance" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -511,7 +536,7 @@ resource "google_service_account_iam_binding" "act_as_permission" {
 }
 
 resource "google_workbench_instance" "instance" {
-  name = "tf-test-workbench-instance%{random_suffix}"
+  name = "%{instance_name}"
   location = "us-central1-a"
 
   gce_setup {

@@ -53,8 +53,11 @@ var (
 func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_profile_id": "tf-test-my-profile" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(
 resource "google_datastream_connection_profile" "default" {
 	display_name          = "Connection profile"
 	location              = "us-central1"
-	connection_profile_id = "tf-test-my-profile%{random_suffix}"
+	connection_profile_id = "%{connection_profile_id}"
 
 	gcs_profile {
 		bucket    = "my-bucket"
@@ -94,9 +97,19 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresqlPri
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"connection_profile_id":  "tf-test-my-profile" + randomSuffix,
+		"database_instance_name": "tf-test-my-instance" + randomSuffix,
+		"deletion_protection":    false,
+		"ingress_firewall_name":  "tf-test-ingress-rule" + randomSuffix,
+		"nat_vm_ip_name":         "tf-test-nat-vm-ip" + randomSuffix,
+		"nat_vm_name":            "tf-test-nat-vm" + randomSuffix,
+		"network_name":           "tf-test-my-network" + randomSuffix,
+		"private_connection_id":  "tf-test-my-connection" + randomSuffix,
+		"subnetwork_name":        "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -124,12 +137,12 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresqlPri
 func testAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresqlPrivateConnectionExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-    name = "tf-test-my-network%{random_suffix}"
+    name = "%{network_name}"
     auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-my-subnetwork%{random_suffix}"
+  name          = "%{subnetwork_name}"
   ip_cidr_range = "10.1.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.id
@@ -138,7 +151,7 @@ resource "google_compute_subnetwork" "default" {
 resource "google_datastream_private_connection" "private_connection" {
     display_name          = "Private connection"
     location              = "us-central1"
-    private_connection_id = "tf-test-my-connection%{random_suffix}"
+    private_connection_id = "%{private_connection_id}"
 
     vpc_peering_config {
         vpc = google_compute_network.default.id
@@ -147,7 +160,7 @@ resource "google_datastream_private_connection" "private_connection" {
 }
 
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-instance%{random_suffix}"
+    name             = "%{database_instance_name}"
     database_version = "POSTGRES_14"
     region           = "us-central1"
     settings {
@@ -179,11 +192,11 @@ resource "google_sql_user" "user" {
 }
 
 resource "google_compute_address" "nat_vm_ip" {
-  name         = "tf-test-nat-vm-ip%{random_suffix}"
+  name         = "%{nat_vm_ip_name}"
 }
 
 resource "google_compute_instance" "nat_vm" {
-  name           = "tf-test-nat-vm%{random_suffix}"
+  name           = "%{nat_vm_name}"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
   desired_status  = "RUNNING"
@@ -224,7 +237,7 @@ EOT
 }
 
 resource "google_compute_firewall" "rules" {
-  name        = "tf-test-ingress-rule%{random_suffix}"
+  name        = "%{ingress_firewall_name}"
   network     = google_datastream_private_connection.private_connection.vpc_peering_config.0.vpc
   description = "Allow traffic into NAT VM"
   direction   = "INGRESS"
@@ -240,7 +253,7 @@ resource "google_compute_firewall" "rules" {
 resource "google_datastream_connection_profile" "default" {
     display_name          = "Connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-my-profile%{random_suffix}"
+    connection_profile_id = "%{connection_profile_id}"
 
     postgresql_profile {
         hostname = google_compute_instance.nat_vm.network_interface.0.network_ip
@@ -260,8 +273,11 @@ resource "google_datastream_connection_profile" "default" {
 func TestAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_profile_id": "tf-test-my-profile" + randomSuffix,
+		"random_suffix":         randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -287,7 +303,7 @@ func testAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(c
 resource "google_datastream_connection_profile" "default" {
 	display_name          = "Connection profile"
 	location              = "us-central1"
-	connection_profile_id = "tf-test-my-profile%{random_suffix}"
+	connection_profile_id = "%{connection_profile_id}"
 
 	gcs_profile {
 		bucket    = "my-bucket"
@@ -311,9 +327,13 @@ func TestAccDatastreamConnectionProfile_datastreamStreamPostgresqlSslconfigServe
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"connection_profile_id":  "tf-test-profile-id" + randomSuffix,
+		"database_instance_name": "tf-test-my-instance" + randomSuffix,
+		"deletion_protection":    false,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -344,7 +364,7 @@ data "google_datastream_static_ips" "datastream_ips" {
 }
 
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-my-instance%{random_suffix}"
+  name             = "%{database_instance_name}"
   database_version = "POSTGRES_15"
   region           = "us-central1"
   settings {
@@ -391,7 +411,7 @@ resource "google_sql_ssl_cert" "client_cert" {
 resource "google_datastream_connection_profile" "default" {
     display_name          = "Connection Profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-profile-id%{random_suffix}"
+    connection_profile_id = "%{connection_profile_id}"
 
     postgresql_profile {
         hostname = google_sql_database_instance.instance.public_ip_address
@@ -414,8 +434,11 @@ resource "google_datastream_connection_profile" "default" {
 func TestAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresSecretManagerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"source_connection_profile_id": "tf-test-source-profile" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -441,7 +464,7 @@ func testAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresSecre
 resource "google_datastream_connection_profile" "default" {
     display_name              = "Postgres Source With Secret Manager"
     location                  = "us-central1"
-    connection_profile_id     = "tf-test-source-profile%{random_suffix}"
+    connection_profile_id     = "%{source_connection_profile_id}"
     create_without_validation = true
 
 

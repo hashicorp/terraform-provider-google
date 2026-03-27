@@ -53,9 +53,15 @@ var (
 func TestAccDNSResponsePolicy_dnsResponsePolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"cluster_1_name":       "tf-test-cluster-1" + randomSuffix,
+		"deletion_protection":  false,
+		"network_1_name":       "tf-test-network-1" + randomSuffix,
+		"network_2_name":       "tf-test-network-2" + randomSuffix,
+		"response_policy_name": "tf-test-example-response-policy" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +84,12 @@ func TestAccDNSResponsePolicy_dnsResponsePolicyBasicExample(t *testing.T) {
 func testAccDNSResponsePolicy_dnsResponsePolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network-1" {
-  name                    = "tf-test-network-1%{random_suffix}"
+  name                    = "%{network_1_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-2" {
-  name                    = "tf-test-network-2%{random_suffix}"
+  name                    = "%{network_2_name}"
   auto_create_subnetworks = false
 }
 
@@ -106,7 +112,7 @@ resource "google_compute_subnetwork" "subnetwork-1" {
 }
 
 resource "google_container_cluster" "cluster-1" {
-  name               = "tf-test-cluster-1%{random_suffix}"
+  name               = "%{cluster_1_name}"
   location           = "us-central1-c"
   initial_node_count = 1
 
@@ -135,7 +141,7 @@ resource "google_container_cluster" "cluster-1" {
 }
 
 resource "google_dns_response_policy" "example-response-policy" {
-  response_policy_name = "tf-test-example-response-policy%{random_suffix}"
+  response_policy_name = "%{response_policy_name}"
 
   networks {
     network_url = google_compute_network.network-1.id

@@ -53,9 +53,14 @@ var (
 func TestAccComputeWireGroup_computeWireGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":            envvar.GetTestProjectFromEnv(),
+		"cross_site_network": "tf-test-test-cross-site-network" + randomSuffix,
+		"description":        "Example Wire Group" + randomSuffix,
+		"name":               "tf-test-test-wire-group" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,14 +87,14 @@ data "google_project" "project" {
 }
 
 resource "google_compute_cross_site_network" "example-cross-site-network" {
-  name        = "tf-test-test-cross-site-network%{random_suffix}"
+  name        = "%{cross_site_network}"
   description = "Example cross site network"
 }
 
 resource "google_compute_wire_group" "example-test-wire-group" {
-  name               = "tf-test-test-wire-group%{random_suffix}"
-  description        = "Example Wire Group%{random_suffix}"
-  cross_site_network = "tf-test-test-cross-site-network%{random_suffix}"
+  name               = "%{name}"
+  description        = "%{description}"
+  cross_site_network = "%{cross_site_network}"
   depends_on = [
     google_compute_cross_site_network.example-cross-site-network
   ]

@@ -42,9 +42,14 @@ var (
 func TestAccBiglakeIcebergIcebergTableIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
+		"bucket_name":   "tf-test-my-bucket" + randomSuffix,
+		"namespace_id":  "tf_test_my_namespace" + randomSuffix,
+		"table_name":    "tf_test_my_table" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,9 +82,14 @@ func TestAccBiglakeIcebergIcebergTableIamBindingGenerated(t *testing.T) {
 func TestAccBiglakeIcebergIcebergTableIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
+		"bucket_name":   "tf-test-my-bucket" + randomSuffix,
+		"namespace_id":  "tf_test_my_namespace" + randomSuffix,
+		"table_name":    "tf_test_my_table" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -103,9 +113,14 @@ func TestAccBiglakeIcebergIcebergTableIamMemberGenerated(t *testing.T) {
 func TestAccBiglakeIcebergIcebergTableIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
+		"bucket_name":   "tf-test-my-bucket" + randomSuffix,
+		"namespace_id":  "tf_test_my_namespace" + randomSuffix,
+		"table_name":    "tf_test_my_table" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +153,7 @@ func TestAccBiglakeIcebergIcebergTableIamPolicyGenerated(t *testing.T) {
 func testAccBiglakeIcebergIcebergTableIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "my-bucket-%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -151,14 +166,14 @@ resource "google_biglake_iceberg_catalog" "catalog" {
 
 resource "google_biglake_iceberg_namespace" "namespace" {
   catalog = google_biglake_iceberg_catalog.catalog.name
-  namespace_id = "my_namespace_%{random_suffix}"
+  namespace_id = "%{namespace_id}"
 }
 
 resource "google_biglake_iceberg_table" "my_iceberg_table" {
   catalog   = google_biglake_iceberg_catalog.catalog.name
   namespace = google_biglake_iceberg_namespace.namespace.namespace_id
-  name      = "my_table_%{random_suffix}"
-  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/my_table_%{random_suffix}"
+  name      = "%{table_name}"
+  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/%{table_name}"
   schema {
     type = "struct"
     fields {
@@ -199,7 +214,7 @@ resource "google_biglake_iceberg_table_iam_member" "foo" {
 func testAccBiglakeIcebergIcebergTableIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "my-bucket-%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -212,14 +227,14 @@ resource "google_biglake_iceberg_catalog" "catalog" {
 
 resource "google_biglake_iceberg_namespace" "namespace" {
   catalog = google_biglake_iceberg_catalog.catalog.name
-  namespace_id = "my_namespace_%{random_suffix}"
+  namespace_id = "%{namespace_id}"
 }
 
 resource "google_biglake_iceberg_table" "my_iceberg_table" {
   catalog   = google_biglake_iceberg_catalog.catalog.name
   namespace = google_biglake_iceberg_namespace.namespace.namespace_id
-  name      = "my_table_%{random_suffix}"
-  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/my_table_%{random_suffix}"
+  name      = "%{table_name}"
+  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/%{table_name}"
   schema {
     type = "struct"
     fields {
@@ -276,7 +291,7 @@ data "google_biglake_iceberg_table_iam_policy" "foo" {
 func testAccBiglakeIcebergIcebergTableIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "my-bucket-%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -289,14 +304,14 @@ resource "google_biglake_iceberg_catalog" "catalog" {
 
 resource "google_biglake_iceberg_namespace" "namespace" {
   catalog = google_biglake_iceberg_catalog.catalog.name
-  namespace_id = "my_namespace_%{random_suffix}"
+  namespace_id = "%{namespace_id}"
 }
 
 resource "google_biglake_iceberg_table" "my_iceberg_table" {
   catalog   = google_biglake_iceberg_catalog.catalog.name
   namespace = google_biglake_iceberg_namespace.namespace.namespace_id
-  name      = "my_table_%{random_suffix}"
-  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/my_table_%{random_suffix}"
+  name      = "%{table_name}"
+  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/%{table_name}"
   schema {
     type = "struct"
     fields {
@@ -339,7 +354,7 @@ resource "google_biglake_iceberg_table_iam_policy" "foo" {
 func testAccBiglakeIcebergIcebergTableIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "my-bucket-%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -352,14 +367,14 @@ resource "google_biglake_iceberg_catalog" "catalog" {
 
 resource "google_biglake_iceberg_namespace" "namespace" {
   catalog = google_biglake_iceberg_catalog.catalog.name
-  namespace_id = "my_namespace_%{random_suffix}"
+  namespace_id = "%{namespace_id}"
 }
 
 resource "google_biglake_iceberg_table" "my_iceberg_table" {
   catalog   = google_biglake_iceberg_catalog.catalog.name
   namespace = google_biglake_iceberg_namespace.namespace.namespace_id
-  name      = "my_table_%{random_suffix}"
-  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/my_table_%{random_suffix}"
+  name      = "%{table_name}"
+  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/%{table_name}"
   schema {
     type = "struct"
     fields {
@@ -400,7 +415,7 @@ resource "google_biglake_iceberg_table_iam_binding" "foo" {
 func testAccBiglakeIcebergIcebergTableIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "my-bucket-%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
@@ -413,14 +428,14 @@ resource "google_biglake_iceberg_catalog" "catalog" {
 
 resource "google_biglake_iceberg_namespace" "namespace" {
   catalog = google_biglake_iceberg_catalog.catalog.name
-  namespace_id = "my_namespace_%{random_suffix}"
+  namespace_id = "%{namespace_id}"
 }
 
 resource "google_biglake_iceberg_table" "my_iceberg_table" {
   catalog   = google_biglake_iceberg_catalog.catalog.name
   namespace = google_biglake_iceberg_namespace.namespace.namespace_id
-  name      = "my_table_%{random_suffix}"
-  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/my_table_%{random_suffix}"
+  name      = "%{table_name}"
+  location  = "gs://${google_storage_bucket.bucket.name}/${google_biglake_iceberg_namespace.namespace.namespace_id}/%{table_name}"
   schema {
     type = "struct"
     fields {

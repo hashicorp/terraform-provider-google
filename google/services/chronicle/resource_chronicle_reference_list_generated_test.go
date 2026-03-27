@@ -53,9 +53,13 @@ var (
 func TestAccChronicleReferenceList_chronicleReferencelistBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"chronicle_id":         envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"data_access_scope_id": "tf-test-scope-id" + randomSuffix,
+		"reference_list_id":    "tf_test_reference_list_id" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +84,7 @@ func testAccChronicleReferenceList_chronicleReferencelistBasicExample(context ma
 resource "google_chronicle_data_access_scope" "test_scope" {
   location = "us"
   instance = "%{chronicle_id}"
-  data_access_scope_id = "tf-test-scope-id%{random_suffix}"
+  data_access_scope_id = "%{data_access_scope_id}"
   description = "test scope description"
   allowed_data_access_labels {
     log_type = "GCP_CLOUDAUDIT"
@@ -90,7 +94,7 @@ resource "google_chronicle_data_access_scope" "test_scope" {
 resource "google_chronicle_reference_list" "example" {
   location = "us"
   instance = "%{chronicle_id}"
-  reference_list_id = "tf_test_reference_list_id%{random_suffix}"
+  reference_list_id = "%{reference_list_id}"
   description = "referencelist-description"
   entries {
     value = "referencelist-entry-value"

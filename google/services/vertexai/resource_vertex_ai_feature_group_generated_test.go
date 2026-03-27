@@ -53,8 +53,12 @@ var (
 func TestAccVertexAIFeatureGroup_vertexAiFeatureGroupExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"feature_group_name": "tf_test_example_feature_group" + randomSuffix,
+		"job_id":             "tf_test_job_load" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccVertexAIFeatureGroup_vertexAiFeatureGroupExample(t *testing.T) {
 func testAccVertexAIFeatureGroup_vertexAiFeatureGroupExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
   resource "google_vertex_ai_feature_group" "feature_group" {
-  name = "tf_test_example_feature_group%{random_suffix}"
+  name = "%{feature_group_name}"
   description = "A sample feature group"
   region = "us-central1"
   labels = {
@@ -94,7 +98,7 @@ func testAccVertexAIFeatureGroup_vertexAiFeatureGroupExample(context map[string]
 }
 
 resource "google_bigquery_dataset" "sample_dataset" {
-  dataset_id                  = "tf_test_job_load%{random_suffix}_dataset"
+  dataset_id                  = "%{job_id}_dataset"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "US"
@@ -103,7 +107,7 @@ resource "google_bigquery_dataset" "sample_dataset" {
 resource "google_bigquery_table" "sample_table" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.sample_dataset.dataset_id
-  table_id   = "tf_test_job_load%{random_suffix}_table"
+  table_id   = "%{job_id}_table"
 
   schema = <<EOF
 [

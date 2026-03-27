@@ -42,9 +42,13 @@ var (
 func TestAccComputeSnapshotIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"disk_name":     "tf-test-debian-disk" + randomSuffix,
+		"snapshot_name": "tf-test-my-snapshot" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,9 +81,13 @@ func TestAccComputeSnapshotIamBindingGenerated(t *testing.T) {
 func TestAccComputeSnapshotIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"disk_name":     "tf-test-debian-disk" + randomSuffix,
+		"snapshot_name": "tf-test-my-snapshot" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -103,9 +111,13 @@ func TestAccComputeSnapshotIamMemberGenerated(t *testing.T) {
 func TestAccComputeSnapshotIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"disk_name":     "tf-test-debian-disk" + randomSuffix,
+		"snapshot_name": "tf-test-my-snapshot" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +150,7 @@ func TestAccComputeSnapshotIamPolicyGenerated(t *testing.T) {
 func testAccComputeSnapshotIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-  name        = "tf-test-my-snapshot%{random_suffix}"
+  name        = "%{snapshot_name}"
   source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
@@ -153,7 +165,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-debian-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -172,7 +184,7 @@ resource "google_compute_snapshot_iam_member" "foo" {
 func testAccComputeSnapshotIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-  name        = "tf-test-my-snapshot%{random_suffix}"
+  name        = "%{snapshot_name}"
   source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
@@ -187,7 +199,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-debian-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -220,7 +232,7 @@ data "google_compute_snapshot_iam_policy" "foo" {
 func testAccComputeSnapshotIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-  name        = "tf-test-my-snapshot%{random_suffix}"
+  name        = "%{snapshot_name}"
   source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
@@ -235,7 +247,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-debian-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -256,7 +268,7 @@ resource "google_compute_snapshot_iam_policy" "foo" {
 func testAccComputeSnapshotIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-  name        = "tf-test-my-snapshot%{random_suffix}"
+  name        = "%{snapshot_name}"
   source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
@@ -271,7 +283,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-debian-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -290,7 +302,7 @@ resource "google_compute_snapshot_iam_binding" "foo" {
 func testAccComputeSnapshotIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-  name        = "tf-test-my-snapshot%{random_suffix}"
+  name        = "%{snapshot_name}"
   source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
@@ -305,7 +317,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "tf-test-debian-disk%{random_suffix}"
+  name  = "%{disk_name}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"

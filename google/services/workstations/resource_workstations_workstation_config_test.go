@@ -17,7 +17,6 @@
 package workstations_test
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"testing"
@@ -738,13 +737,15 @@ func testAccWorkstationsWorkstationConfig_readinessChecks(context map[string]int
 func TestAccWorkstationsWorkstationConfig_update(t *testing.T) {
 	t.Parallel()
 
-	randString := acctest.RandString(t, 10)
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":    randString,
-		"project_id":       fmt.Sprintf("tf-test-proj-%s", randString),
-		"key_short_name":   fmt.Sprintf("tf-test-key-%s", randString),
-		"value_short_name": fmt.Sprintf("tf-test-value-%s", randString),
-		"org_id":           envvar.GetTestOrgFromEnv(t),
+		"key_short_name":           "tf-test-key-" + acctest.RandString(t, 10),
+		"org_id":                   envvar.GetTestOrgFromEnv(t),
+		"value_short_name":         "tf-test-value-" + acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -796,19 +797,19 @@ resource "google_tags_tag_value" "tag_value1" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id     = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id     = "%{workstation_cluster_name}"
   network                    = google_compute_network.default.id
   subnetwork                 = google_compute_subnetwork.default.id
   location   		         = "us-central1"
@@ -819,7 +820,7 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		     = "us-central1"
 

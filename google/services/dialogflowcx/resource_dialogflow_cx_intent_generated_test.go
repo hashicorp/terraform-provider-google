@@ -53,8 +53,11 @@ var (
 func TestAccDialogflowCXIntent_dialogflowcxIntentFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentFullExample(t *testing.T) {
 func testAccDialogflowCXIntent_dialogflowcxIntentFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name = "%{agent_name}"
   location = "global"
   default_language_code = "en"
   supported_language_codes = ["fr","de","es"]
@@ -130,8 +133,11 @@ resource "google_dialogflow_cx_intent" "basic_intent" {
 func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultNegativeIntentExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -155,7 +161,7 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultNegativeIntentExample(t 
 func testAccDialogflowCXIntent_dialogflowcxIntentDefaultNegativeIntentExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name          = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name          = "%{agent_name}"
   location              = "global"
   default_language_code = "en"
   time_zone             = "America/New_York"
@@ -181,8 +187,11 @@ resource "google_dialogflow_cx_intent" "default_negative_intent" {
 func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultWelcomeIntentExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"agent_name":    "tf-test-dialogflowcx-agent" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -206,7 +215,7 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultWelcomeIntentExample(t *
 func testAccDialogflowCXIntent_dialogflowcxIntentDefaultWelcomeIntentExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name          = "tf-test-dialogflowcx-agent%{random_suffix}"
+  display_name          = "%{agent_name}"
   location              = "global"
   default_language_code = "en"
   time_zone             = "America/New_York"

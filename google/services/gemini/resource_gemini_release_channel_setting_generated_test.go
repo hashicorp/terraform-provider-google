@@ -53,8 +53,11 @@ var (
 func TestAccGeminiReleaseChannelSetting_geminiReleaseChannelSettingBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"release_channel_setting_id": "tf-test-ls1-tf" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +81,7 @@ func TestAccGeminiReleaseChannelSetting_geminiReleaseChannelSettingBasicExample(
 func testAccGeminiReleaseChannelSetting_geminiReleaseChannelSettingBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gemini_release_channel_setting" "example" {
-    release_channel_setting_id = "tf-test-ls1-tf%{random_suffix}"
+    release_channel_setting_id = "%{release_channel_setting_id}"
     location = "global"
     labels = {"my_key": "my_value"}
     release_channel = "EXPERIMENTAL"

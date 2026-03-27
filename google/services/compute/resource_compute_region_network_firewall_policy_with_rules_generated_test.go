@@ -53,9 +53,16 @@ var (
 func TestAccComputeRegionNetworkFirewallPolicyWithRules_computeRegionNetworkFirewallPolicyWithRulesFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"address_group": "tf-test-address-group" + randomSuffix,
+		"fw_policy":     "tf-test-fw-policy" + randomSuffix,
+		"network":       "network" + randomSuffix,
+		"tag_key":       "tf-test-tag-key" + randomSuffix,
+		"tag_value":     "tf-test-tag-value" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,7 +89,7 @@ data "google_project" "project" {
 }
 
 resource "google_compute_region_network_firewall_policy_with_rules" "primary" {
-  name        = "tf-test-fw-policy%{random_suffix}"
+  name        = "%{fw_policy}"
   region      = "us-west2"
   description = "Terraform test"
 
@@ -139,7 +146,7 @@ resource "google_compute_region_network_firewall_policy_with_rules" "primary" {
 }
 
 resource "google_network_security_address_group" "address_group_1" {
-  name        = "tf-test-address-group%{random_suffix}"
+  name        = "%{address_group}"
   parent      = data.google_project.project.id
   description = "Regional address group"
   location    = "us-west2"
@@ -152,7 +159,7 @@ resource "google_tags_tag_key" "secure_tag_key_1" {
   description = "Tag key"
   parent      = data.google_project.project.id
   purpose     = "GCE_FIREWALL"
-  short_name  = "tf-test-tag-key%{random_suffix}"
+  short_name  = "%{tag_key}"
   purpose_data = {
     network = "${data.google_project.project.name}/default"
   }
@@ -161,7 +168,7 @@ resource "google_tags_tag_key" "secure_tag_key_1" {
 resource "google_tags_tag_value" "secure_tag_value_1" {
   description = "Tag value"
   parent      = google_tags_tag_key.secure_tag_key_1.id
-  short_name  = "tf-test-tag-value%{random_suffix}"
+  short_name  = "%{tag_value}"
 }
 `, context)
 }
@@ -169,8 +176,11 @@ resource "google_tags_tag_value" "secure_tag_value_1" {
 func TestAccComputeRegionNetworkFirewallPolicyWithRules_computeRegionNetworkFirewallPolicyWithRulesRoceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"policy_name":   "tf-test-rnf-policy" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -194,7 +204,7 @@ func TestAccComputeRegionNetworkFirewallPolicyWithRules_computeRegionNetworkFire
 func testAccComputeRegionNetworkFirewallPolicyWithRules_computeRegionNetworkFirewallPolicyWithRulesRoceExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_network_firewall_policy_with_rules" "policy" {
-  name        = "tf-test-rnf-policy%{random_suffix}"
+  name        = "%{policy_name}"
   description = "Terraform test"
   policy_type = "RDMA_ROCE_POLICY"
 

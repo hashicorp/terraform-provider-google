@@ -53,8 +53,11 @@ var (
 func TestAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-appengine-static-content" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -76,7 +79,7 @@ func TestAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExamp
 func testAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-	name     = "tf-test-appengine-static-content%{random_suffix}"
+	name     = "%{bucket_name}"
   location = "US"
 }
 

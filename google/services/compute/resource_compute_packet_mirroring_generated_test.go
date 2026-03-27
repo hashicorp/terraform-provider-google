@@ -53,8 +53,17 @@ var (
 func TestAccComputePacketMirroring_computePacketMirroringFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"hc_name":         "tf-test-my-healthcheck" + randomSuffix,
+		"ilb_rule_name":   "tf-test-my-ilb" + randomSuffix,
+		"instance_name":   "tf-test-my-instance" + randomSuffix,
+		"mirroring_name":  "tf-test-my-mirroring" + randomSuffix,
+		"network_name":    "tf-test-my-network" + randomSuffix,
+		"service_name":    "tf-test-my-service" + randomSuffix,
+		"subnetwork_name": "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,7 +86,7 @@ func TestAccComputePacketMirroring_computePacketMirroringFullExample(t *testing.
 func testAccComputePacketMirroring_computePacketMirroringFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance" "mirror" {
-  name = "tf-test-my-instance%{random_suffix}"
+  name = "%{instance_name}"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -94,23 +103,23 @@ resource "google_compute_instance" "mirror" {
 }
 
 resource "google_compute_network" "default" {
-  name = "tf-test-my-network%{random_suffix}"
+  name = "%{network_name}"
 }
 
 resource "google_compute_subnetwork" "default" {
-  name = "tf-test-my-subnetwork%{random_suffix}"
+  name = "%{subnetwork_name}"
   network       = google_compute_network.default.id
   ip_cidr_range = "10.2.0.0/16"
 
 }
 
 resource "google_compute_region_backend_service" "default" {
-  name = "tf-test-my-service%{random_suffix}"
+  name = "%{service_name}"
   health_checks = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_health_check" "default" {
-  name = "tf-test-my-healthcheck%{random_suffix}"
+  name = "%{hc_name}"
   check_interval_sec = 1
   timeout_sec        = 1
   tcp_health_check {
@@ -120,7 +129,7 @@ resource "google_compute_health_check" "default" {
 
 resource "google_compute_forwarding_rule" "default" {
   depends_on = [google_compute_subnetwork.default]
-  name       = "tf-test-my-ilb%{random_suffix}"
+  name       = "%{ilb_rule_name}"
 
   is_mirroring_collector = true
   ip_protocol            = "TCP"
@@ -133,7 +142,7 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_packet_mirroring" "foobar" {
-  name = "tf-test-my-mirroring%{random_suffix}"
+  name = "%{mirroring_name}"
   description = "bar"
   enable = "TRUE"
   network {

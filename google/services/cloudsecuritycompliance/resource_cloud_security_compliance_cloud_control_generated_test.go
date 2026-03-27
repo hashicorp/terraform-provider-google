@@ -53,9 +53,12 @@ var (
 func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcontrolBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"cloudcontrol_name": "tf-test-example-cloudcontrol" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -81,7 +84,7 @@ func testAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcont
 resource "google_cloud_security_compliance_cloud_control" "example" {
   organization        = "%{org_id}"
   location            = "global"
-  cloud_control_id    = "tf-test-example-cloudcontrol%{random_suffix}"
+  cloud_control_id    = "%{cloudcontrol_name}"
 
   display_name      = "TF test CloudControl Name"
   description       = "A test cloud control for security compliance"

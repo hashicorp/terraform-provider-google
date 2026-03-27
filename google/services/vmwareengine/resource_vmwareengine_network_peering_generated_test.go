@@ -53,9 +53,12 @@ var (
 func TestAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringVenExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"region":        envvar.GetTestRegionFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-sample-network-peering" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -89,7 +92,7 @@ resource "google_vmwareengine_network" "network-peering-peer-nw" {
    type              = "STANDARD"
 }
 resource "google_vmwareengine_network_peering" "vmw-engine-network-peering" {
-    name = "tf-test-sample-network-peering%{random_suffix}"
+    name = "%{name}"
     description = "Sample description"
     vmware_engine_network = google_vmwareengine_network.network-peering-nw.id
     peer_network = google_vmwareengine_network.network-peering-peer-nw.id
@@ -105,9 +108,12 @@ resource "google_vmwareengine_network_peering" "vmw-engine-network-peering" {
 func TestAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringStandardExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"region":        envvar.GetTestRegionFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"name":          "tf-test-sample-network-peering" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -139,7 +145,7 @@ resource "google_vmwareengine_network" "network-peering-standard-nw" {
    type              = "STANDARD"
 }
 resource "google_vmwareengine_network_peering" "vmw-engine-network-peering" {
-    name = "tf-test-sample-network-peering%{random_suffix}"
+    name = "%{name}"
     description = "Sample description"
     peer_network = google_compute_network.network-peering-vpc.id
     peer_network_type = "STANDARD"

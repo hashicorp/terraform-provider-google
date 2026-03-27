@@ -27,8 +27,11 @@ import (
 func TestAccMigrationCenterGroup_migrationGroupUpdate(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"group_name":    "tf-test-group-test" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -62,7 +65,7 @@ func testAccMigrationCenterGroup_migrationGroupUpdate(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_migration_center_group" "default" {
   location     = "us-central1"
-  group_id     = "tf-test-group-test%{random_suffix}"
+  group_id     = "%{group_name}"
   description  = "Updated Terraform integration test description"
   display_name = "Updated  integration test display"
   labels       = {

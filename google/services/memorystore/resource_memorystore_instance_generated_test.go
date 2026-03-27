@@ -53,9 +53,15 @@ var (
 func TestAccMemorystoreInstance_memorystoreInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-basic-instance" + randomSuffix,
+		"network_name":    "tf-test-my-network" + randomSuffix,
+		"policy_name":     "tf-test-my-policy" + randomSuffix,
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"subnet_name":     "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +85,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceBasicExample(t *testing.T) {
 func testAccMemorystoreInstance_memorystoreInstanceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-basic" {
-  instance_id = "tf-test-basic-instance%{random_suffix}"
+  instance_id = "%{instance_name}"
   shard_count = 1
   desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
@@ -108,7 +114,7 @@ resource "google_memorystore_instance" "instance-basic" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name          = "tf-test-my-policy%{random_suffix}"
+  name          = "%{policy_name}"
   location      = "us-central1"
   service_class = "gcp-memorystore"
   description   = "my basic service connection policy"
@@ -119,14 +125,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.producer_net.id
 }
 
 resource "google_compute_network" "producer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
@@ -144,10 +150,16 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-full-instance" + randomSuffix,
 		"kms_key_name":    acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"network_name":    "tf-test-my-network" + randomSuffix,
+		"policy_name":     "tf-test-my-policy" + randomSuffix,
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"subnet_name":     "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -171,7 +183,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 func testAccMemorystoreInstance_memorystoreInstanceFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-full" {
-  instance_id                  = "tf-test-full-instance%{random_suffix}"
+  instance_id                  = "%{instance_name}"
   shard_count                  = 1
   desired_auto_created_endpoints {
     network                    = google_compute_network.producer_net.id
@@ -224,7 +236,7 @@ resource "google_memorystore_instance" "instance-full" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name          = "tf-test-my-policy%{random_suffix}"
+  name          = "%{policy_name}"
   location      = "us-central1"
   service_class = "gcp-memorystore"
   description   = "my basic service connection policy"
@@ -235,14 +247,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.producer_net.id
 }
 
 resource "google_compute_network" "producer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
@@ -254,9 +266,15 @@ data "google_project" "project" {
 func TestAccMemorystoreInstance_memorystoreInstancePersistenceAofExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"instance_name":   "tf-test-aof-instance" + randomSuffix,
+		"network_name":    "tf-test-my-network" + randomSuffix,
+		"policy_name":     "tf-test-my-policy" + randomSuffix,
 		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"subnet_name":     "tf-test-my-subnet" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -280,7 +298,7 @@ func TestAccMemorystoreInstance_memorystoreInstancePersistenceAofExample(t *test
 func testAccMemorystoreInstance_memorystoreInstancePersistenceAofExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_memorystore_instance" "instance-persistence-aof" {
-  instance_id = "tf-test-aof-instance%{random_suffix}"
+  instance_id = "%{instance_name}"
   shard_count = 1
   desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
@@ -303,7 +321,7 @@ resource "google_memorystore_instance" "instance-persistence-aof" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name          = "tf-test-my-policy%{random_suffix}"
+  name          = "%{policy_name}"
   location      = "us-central1"
   service_class = "gcp-memorystore"
   description   = "my basic service connection policy"
@@ -314,14 +332,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "tf-test-my-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.producer_net.id
 }
 
 resource "google_compute_network" "producer_net" {
-  name                    = "tf-test-my-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
@@ -333,12 +351,22 @@ data "google_project" "project" {
 func TestAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"primary_instance_deletion_protection_enabled":   false,
+		"primary_instance_name":                          "tf-test-primary-instance" + randomSuffix,
+		"primary_instance_policy_name":                   "tf-test-my-policy-primary-instance" + randomSuffix,
 		"primary_instance_prevent_destroy":               false,
+		"primary_instance_subnet_name":                   "tf-test-my-subnet-primary-instance" + randomSuffix,
+		"primary_network_name":                           "tf-test-my-network-primary-instance" + randomSuffix,
 		"secondary_instance_deletion_protection_enabled": false,
+		"secondary_instance_name":                        "tf-test-secondary-instance" + randomSuffix,
+		"secondary_instance_policy_name":                 "tf-test-my-policy-secondary-instance" + randomSuffix,
 		"secondary_instance_prevent_destroy":             false,
-		"random_suffix":                                  acctest.RandString(t, 10),
+		"secondary_instance_subnet_name":                 "tf-test-my-subnet-secondary-instance" + randomSuffix,
+		"secondary_network_name":                         "tf-test-my-network-secondary-instance" + randomSuffix,
+		"random_suffix":                                  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -363,7 +391,7 @@ func testAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(cont
 	return acctest.Nprintf(`
 // Primary instance
 resource "google_memorystore_instance" "primary_instance" {
-  instance_id                    = "tf-test-primary-instance%{random_suffix}"
+  instance_id                    = "%{primary_instance_name}"
   shard_count                    = 1
   desired_auto_created_endpoints {
     network                      = google_compute_network.primary_producer_net.id
@@ -400,7 +428,7 @@ resource "google_memorystore_instance" "primary_instance" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "primary_policy" {
-  name                           = "tf-test-my-policy-primary-instance%{random_suffix}"
+  name                           = "%{primary_instance_policy_name}"
   location                       = "asia-east1"
   service_class                  = "gcp-memorystore"
   description                    = "my basic service connection policy"
@@ -411,20 +439,20 @@ resource "google_network_connectivity_service_connection_policy" "primary_policy
 }
 
 resource "google_compute_subnetwork" "primary_producer_subnet" {
-  name                           = "tf-test-my-subnet-primary-instance%{random_suffix}"
+  name                           = "%{primary_instance_subnet_name}"
   ip_cidr_range                  = "10.0.1.0/29"
   region                         = "asia-east1"
   network                        = google_compute_network.primary_producer_net.id
 }
 
 resource "google_compute_network" "primary_producer_net" {
-  name                           = "tf-test-my-network-primary-instance%{random_suffix}"
+  name                           = "%{primary_network_name}"
   auto_create_subnetworks        = false
 }
 
 // Secondary instance
 resource "google_memorystore_instance" "secondary_instance" {
-  instance_id                    = "tf-test-secondary-instance%{random_suffix}"
+  instance_id                    = "%{secondary_instance_name}"
   shard_count                    = 1
   desired_auto_created_endpoints {
     network                      = google_compute_network.secondary_producer_net.id
@@ -468,7 +496,7 @@ resource "google_memorystore_instance" "secondary_instance" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "secondary_policy" {
-  name                           = "tf-test-my-policy-secondary-instance%{random_suffix}"
+  name                           = "%{secondary_instance_policy_name}"
   location                       = "europe-north1"
   service_class                  = "gcp-memorystore"
   description                    = "my basic service connection policy"
@@ -479,14 +507,14 @@ resource "google_network_connectivity_service_connection_policy" "secondary_poli
 }
 
 resource "google_compute_subnetwork" "secondary_producer_subnet" {
-  name                           = "tf-test-my-subnet-secondary-instance%{random_suffix}"
+  name                           = "%{secondary_instance_subnet_name}"
   ip_cidr_range                  = "10.0.2.0/29"
   region                         = "europe-north1"
   network                        = google_compute_network.secondary_producer_net.id
 }
 
 resource "google_compute_network" "secondary_producer_net" {
-  name                           =  "tf-test-my-network-secondary-instance%{random_suffix}"
+  name                           =  "%{secondary_network_name}"
   auto_create_subnetworks        = false
 }
 
@@ -504,9 +532,17 @@ func TestAccMemorystoreInstance_memorystoreInstanceFlexibleCaExample(t *testing.
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"ca_auth_id":                  "tf-test-ca-auth" + randomSuffix,
+		"ca_pool_name":                "tf-test-ca-pool" + randomSuffix,
 		"deletion_protection_enabled": false,
-		"random_suffix":               acctest.RandString(t, 10),
+		"instance_name":               "tf-test-ca-instance" + randomSuffix,
+		"network_name":                "tf-test-ca-network" + randomSuffix,
+		"policy_name":                 "tf-test-ca-policy" + randomSuffix,
+		"subnet_name":                 "tf-test-ca-subnet" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -532,7 +568,7 @@ func testAccMemorystoreInstance_memorystoreInstanceFlexibleCaExample(context map
 data "google_project" "project" {}
 
 resource "google_memorystore_instance" "test-instance" {
-  instance_id  = "tf-test-ca-instance%{random_suffix}"
+  instance_id  = "%{instance_name}"
   shard_count = 3
   location     = "us-central1"
   
@@ -556,7 +592,7 @@ resource "google_memorystore_instance" "test-instance" {
 }
 
 resource "google_privateca_ca_pool" "default" {
-  name     = "tf-test-ca-pool%{random_suffix}"
+  name     = "%{ca_pool_name}"
   location = "us-central1"
   tier     = "ENTERPRISE"
 }
@@ -569,7 +605,7 @@ resource "google_privateca_ca_pool_iam_member" "memorystore_p4sa_requester" {
 
 resource "google_privateca_certificate_authority" "default" {
   pool                     = google_privateca_ca_pool.default.name
-  certificate_authority_id = "tf-test-ca-auth%{random_suffix}"
+  certificate_authority_id = "%{ca_auth_id}"
   location                 = "us-central1"
   config {
     subject_config {
@@ -603,7 +639,7 @@ resource "google_privateca_certificate_authority" "default" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  name           = "tf-test-ca-policy%{random_suffix}"
+  name           = "%{policy_name}"
   location       = "us-central1"
   service_class  = "gcp-memorystore"
   network        = google_compute_network.producer_net.id
@@ -613,14 +649,14 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  name          = "tf-test-ca-subnet%{random_suffix}"
+  name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
   network       = google_compute_network.producer_net.id
 }
 
 resource "google_compute_network" "producer_net" {
-  name                    = "tf-test-ca-network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)

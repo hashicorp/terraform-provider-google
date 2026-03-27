@@ -53,8 +53,12 @@ var (
 func TestAccComputeRegionNetworkEndpoint_regionNetworkEndpointInternetIpPortExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-ip-port-neg" + randomSuffix,
+		"network_name":  "network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -87,7 +91,7 @@ resource "google_compute_region_network_endpoint" "region-internet-ip-port-endpo
 
 
 resource "google_compute_region_network_endpoint_group" "group" {
-  name         = "tf-test-ip-port-neg%{random_suffix}"
+  name         = "%{neg_name}"
   network      = google_compute_network.default.id
 
   region         = "us-central1"
@@ -95,7 +99,7 @@ resource "google_compute_region_network_endpoint_group" "group" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)
@@ -104,8 +108,12 @@ resource "google_compute_network" "default" {
 func TestAccComputeRegionNetworkEndpoint_regionNetworkEndpointInternetFqdnPortExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"neg_name":      "tf-test-fqdn-port-neg" + randomSuffix,
+		"network_name":  "network" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +146,7 @@ resource "google_compute_region_network_endpoint" "region-internet-fqdn-port-end
 
 
 resource "google_compute_region_network_endpoint_group" "group" {
-  name         = "tf-test-fqdn-port-neg%{random_suffix}"
+  name         = "%{neg_name}"
   network      = google_compute_network.default.id
 
   region         = "us-central1"
@@ -146,7 +154,7 @@ resource "google_compute_region_network_endpoint_group" "group" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "network%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 `, context)

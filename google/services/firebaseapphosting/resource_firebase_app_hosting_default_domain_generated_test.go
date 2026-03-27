@@ -53,10 +53,13 @@ var (
 func TestAccFirebaseAppHostingDefaultDomain_firebaseAppHostingDefaultDomainMinimalExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":     envvar.GetTestProjectFromEnv(),
+		"backend_id":     "tf-test-dd-mini" + randomSuffix,
 		"service_act_id": "tf-test-dd-mi",
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -90,7 +93,7 @@ resource "google_firebase_app_hosting_backend" "example" {
 
   # Choose the region closest to your users
   location         = "us-central1"
-  backend_id       = "tf-test-dd-mini%{random_suffix}"
+  backend_id       = "%{backend_id}"
   app_id           = "1:0000000000:web:674cde32020e16fbce9dbd"
   serving_locality = "GLOBAL_ACCESS"
   service_account  = google_service_account.service_account.email
@@ -112,10 +115,13 @@ resource "google_service_account" "service_account" {
 func TestAccFirebaseAppHostingDefaultDomain_firebaseAppHostingDefaultDomainFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":     envvar.GetTestProjectFromEnv(),
+		"backend_id":     "tf-test-dd-full" + randomSuffix,
 		"service_act_id": "tf-test-dd-full",
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -151,7 +157,7 @@ resource "google_firebase_app_hosting_backend" "example" {
 
   # Choose the region closest to your users
   location         = "us-central1"
-  backend_id       = "tf-test-dd-full%{random_suffix}"
+  backend_id       = "%{backend_id}"
   app_id           = "1:0000000000:web:674cde32020e16fbce9dbd"
   serving_locality = "GLOBAL_ACCESS"
   service_account  = google_service_account.service_account.email
@@ -173,10 +179,13 @@ resource "google_service_account" "service_account" {
 func TestAccFirebaseAppHostingDefaultDomain_firebaseAppHostingDefaultDomainDisabledExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project_id":     envvar.GetTestProjectFromEnv(),
+		"backend_id":     "tf-test-dd-disabled" + randomSuffix,
 		"service_act_id": "tf-test-dd-disabled",
-		"random_suffix":  acctest.RandString(t, 10),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -212,7 +221,7 @@ resource "google_firebase_app_hosting_backend" "example" {
 
   # Choose the region closest to your users
   location         = "us-central1"
-  backend_id       = "tf-test-dd-disabled%{random_suffix}"
+  backend_id       = "%{backend_id}"
   app_id           = "1:0000000000:web:674cde32020e16fbce9dbd"
   serving_locality = "GLOBAL_ACCESS"
   service_account  = google_service_account.service_account.email

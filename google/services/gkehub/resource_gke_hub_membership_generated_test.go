@@ -53,12 +53,16 @@ var (
 func TestAccGKEHubMembership_gkehubMembershipRegionalExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"location":        envvar.GetTestRegionFromEnv(),
 		"project":         envvar.GetTestProjectFromEnv(),
+		"cluster_name":    "tf-test-basic-cluster" + randomSuffix,
+		"name":            "basic" + randomSuffix,
 		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
-		"random_suffix":   acctest.RandString(t, 10),
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,7 +86,7 @@ func TestAccGKEHubMembership_gkehubMembershipRegionalExample(t *testing.T) {
 func testAccGKEHubMembership_gkehubMembershipRegionalExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-basic-cluster%{random_suffix}"
+  name               = "%{cluster_name}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
@@ -91,7 +95,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_hub_membership" "membership" {
-  membership_id = "basic%{random_suffix}"
+  membership_id = "%{name}"
   location = "%{location}"
   endpoint {
     gke_cluster {
@@ -105,11 +109,15 @@ resource "google_gke_hub_membership" "membership" {
 func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
+		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
 		"deletion_protection": false,
+		"name":                "basic" + randomSuffix,
 		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -133,7 +141,7 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 func testAccGKEHubMembership_gkehubMembershipBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-basic-cluster%{random_suffix}"
+  name               = "%{cluster_name}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection  = %{deletion_protection}
@@ -142,7 +150,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_hub_membership" "membership" {
-  membership_id = "basic%{random_suffix}"
+  membership_id = "%{name}"
   endpoint {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
@@ -159,12 +167,16 @@ resource "google_gke_hub_membership" "membership" {
 func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
+		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
 		"deletion_protection": false,
+		"name":                "basic" + randomSuffix,
 		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
-		"random_suffix":       acctest.RandString(t, 10),
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -188,7 +200,7 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 func testAccGKEHubMembership_gkehubMembershipIssuerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-basic-cluster%{random_suffix}"
+  name               = "%{cluster_name}"
   location           = "us-central1-a"
   initial_node_count = 1
   workload_identity_config {
@@ -200,7 +212,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_gke_hub_membership" "membership" {
-  membership_id = "basic%{random_suffix}"
+  membership_id = "%{name}"
   endpoint {
     gke_cluster {
       resource_link = google_container_cluster.primary.id

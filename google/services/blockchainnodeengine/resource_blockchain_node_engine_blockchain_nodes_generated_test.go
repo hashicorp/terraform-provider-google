@@ -53,8 +53,11 @@ var (
 func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"blockchain_node_id": "tf_test_blockchain_basic_node" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +83,7 @@ func testAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBasicExample(cont
 resource "google_blockchain_node_engine_blockchain_nodes" "default_node" {
   location = "us-central1"
   blockchain_type = "ETHEREUM"
-  blockchain_node_id = "tf_test_blockchain_basic_node%{random_suffix}"
+  blockchain_node_id = "%{blockchain_node_id}"
   ethereum_details {
     api_enable_admin = true
     api_enable_debug = true
@@ -103,8 +106,11 @@ resource "google_blockchain_node_engine_blockchain_nodes" "default_node" {
 func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesGethDetailsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"blockchain_node_id": "tf_test_blockchain_geth_node" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -130,7 +136,7 @@ func testAccBlockchainNodeEngineBlockchainNodes_blockchainNodesGethDetailsExampl
 resource "google_blockchain_node_engine_blockchain_nodes" "default_node_geth" {
   location = "us-central1"
   blockchain_type = "ETHEREUM"
-  blockchain_node_id = "tf_test_blockchain_geth_node%{random_suffix}"
+  blockchain_node_id = "%{blockchain_node_id}"
   ethereum_details {
     api_enable_admin = true
     api_enable_debug = true
@@ -156,8 +162,11 @@ resource "google_blockchain_node_engine_blockchain_nodes" "default_node_geth" {
 func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBeaconFeeRecipientExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"blockchain_node_id": "tf_test_beacon_fee_node" + randomSuffix,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -183,7 +192,7 @@ func testAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBeaconFeeRecipien
 resource "google_blockchain_node_engine_blockchain_nodes" "default_node_beacon_fee" {
   location = "us-central1"
   blockchain_type = "ETHEREUM"
-  blockchain_node_id = "tf_test_beacon_fee_node%{random_suffix}"
+  blockchain_node_id = "%{blockchain_node_id}"
   ethereum_details {
     api_enable_admin = true
     api_enable_debug = true

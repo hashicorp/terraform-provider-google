@@ -53,8 +53,13 @@ var (
 func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "tf-test-my-backend-service" + randomSuffix,
+		"health_check_name":    "tf-test-backend-service-health-check" + randomSuffix,
+		"resource_name":        "tf-test-my-tls-route" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +83,13 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteBasicExample(t *testi
 func testAccNetworkServicesTlsRoute_networkServicesTlsRouteBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name                  = "tf-test-my-backend-service%{random_suffix}"
+  name                  = "%{backend_service_name}"
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
   health_checks         = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_health_check" "default" {
-  name = "tf-test-backend-service-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   https_health_check {
     port = 443
@@ -92,7 +97,7 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_network_services_tls_route" "default" {
-  name                   = "tf-test-my-tls-route%{random_suffix}"
+  name                   = "%{resource_name}"
   description             = "my description"
   rules                   {
     matches {
@@ -113,8 +118,13 @@ resource "google_network_services_tls_route" "default" {
 func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteRegionalBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "tf-test-my-backend-service" + randomSuffix,
+		"health_check_name":    "tf-test-backend-service-health-check" + randomSuffix,
+		"resource_name":        "tf-test-my-tls-route" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +148,7 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteRegionalBasicExample(
 func testAccNetworkServicesTlsRoute_networkServicesTlsRouteRegionalBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name        = "tf-test-my-backend-service%{random_suffix}"
+  name        = "%{backend_service_name}"
   protocol    = "TCP"
   timeout_sec = 10
   region      = "europe-west4"
@@ -148,7 +158,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  name               = "tf-test-backend-service-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   region             = "europe-west4"
   timeout_sec        = 1
   check_interval_sec = 1
@@ -158,7 +168,7 @@ resource "google_compute_region_health_check" "default" {
 }
 
 resource "google_network_services_tls_route" "default" {
-  name     = "tf-test-my-tls-route%{random_suffix}"
+  name     = "%{resource_name}"
   location = "europe-west4"
   rules {
     matches {
@@ -177,8 +187,13 @@ resource "google_network_services_tls_route" "default" {
 func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteMeshBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "tf-test-my-backend-service" + randomSuffix,
+		"health_check_name":    "tf-test-backend-service-health-check" + randomSuffix,
+		"resource_name":        "tf-test-my-tls-route" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -202,13 +217,13 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteMeshBasicExample(t *t
 func testAccNetworkServicesTlsRoute_networkServicesTlsRouteMeshBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name                  = "tf-test-my-backend-service%{random_suffix}"
+  name                  = "%{backend_service_name}"
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
   health_checks         = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_health_check" "default" {
-  name = "tf-test-backend-service-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   https_health_check {
     port = 443
@@ -216,7 +231,7 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_network_services_mesh" "default" {
-  name        = "tf-test-my-tls-route%{random_suffix}"
+  name        = "%{resource_name}"
   labels      = {
     foo = "bar"
   }
@@ -225,7 +240,7 @@ resource "google_network_services_mesh" "default" {
 
 
 resource "google_network_services_tls_route" "default" {
-  name                   = "tf-test-my-tls-route%{random_suffix}"
+  name                   = "%{resource_name}"
   description             = "my description"
   meshes = [
     google_network_services_mesh.default.id
@@ -249,8 +264,13 @@ resource "google_network_services_tls_route" "default" {
 func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteGatewayBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name": "tf-test-my-backend-service" + randomSuffix,
+		"health_check_name":    "tf-test-backend-service-health-check" + randomSuffix,
+		"resource_name":        "tf-test-my-tls-route" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -274,13 +294,13 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteGatewayBasicExample(t
 func testAccNetworkServicesTlsRoute_networkServicesTlsRouteGatewayBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name                  = "tf-test-my-backend-service%{random_suffix}"
+  name                  = "%{backend_service_name}"
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
   health_checks         = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_health_check" "default" {
-  name = "tf-test-backend-service-health-check%{random_suffix}"
+  name = "%{health_check_name}"
 
   https_health_check {
     port = 443
@@ -288,7 +308,7 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_network_services_gateway" "default" {
-  name        = "tf-test-my-tls-route%{random_suffix}"
+  name        = "%{resource_name}"
   labels      = {
     foo = "bar"
   }
@@ -299,7 +319,7 @@ resource "google_network_services_gateway" "default" {
 }
 
 resource "google_network_services_tls_route" "default" {
-  name                   = "tf-test-my-tls-route%{random_suffix}"
+  name                   = "%{resource_name}"
   description             = "my description"
   gateways = [
     google_network_services_gateway.default.id

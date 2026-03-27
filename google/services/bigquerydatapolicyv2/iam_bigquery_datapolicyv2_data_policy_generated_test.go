@@ -42,9 +42,12 @@ var (
 func TestAccBigqueryDatapolicyv2DataPolicyIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"random_suffix":  randomSuffix,
+		"role":           "roles/viewer",
+		"data_policy_id": "tf_test_basic_data_policy" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,9 +80,12 @@ func TestAccBigqueryDatapolicyv2DataPolicyIamBindingGenerated(t *testing.T) {
 func TestAccBigqueryDatapolicyv2DataPolicyIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"random_suffix":  randomSuffix,
+		"role":           "roles/viewer",
+		"data_policy_id": "tf_test_basic_data_policy" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -103,9 +109,12 @@ func TestAccBigqueryDatapolicyv2DataPolicyIamMemberGenerated(t *testing.T) {
 func TestAccBigqueryDatapolicyv2DataPolicyIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/viewer",
+		"random_suffix":  randomSuffix,
+		"role":           "roles/viewer",
+		"data_policy_id": "tf_test_basic_data_policy" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -140,7 +149,7 @@ func testAccBigqueryDatapolicyv2DataPolicyIamMember_basicGenerated(context map[s
 resource "google_bigquery_datapolicyv2_data_policy" "basic_data_policy" {
   location         = "us-central1"
   data_policy_type = "RAW_DATA_ACCESS_POLICY"
-  data_policy_id   = "tf_test_basic_data_policy%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
 }
 
 resource "google_bigquery_datapolicyv2_data_policy_iam_member" "foo" {
@@ -158,7 +167,7 @@ func testAccBigqueryDatapolicyv2DataPolicyIamPolicy_basicGenerated(context map[s
 resource "google_bigquery_datapolicyv2_data_policy" "basic_data_policy" {
   location         = "us-central1"
   data_policy_type = "RAW_DATA_ACCESS_POLICY"
-  data_policy_id   = "tf_test_basic_data_policy%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
 }
 
 data "google_iam_policy" "foo" {
@@ -191,7 +200,7 @@ func testAccBigqueryDatapolicyv2DataPolicyIamPolicy_emptyBinding(context map[str
 resource "google_bigquery_datapolicyv2_data_policy" "basic_data_policy" {
   location         = "us-central1"
   data_policy_type = "RAW_DATA_ACCESS_POLICY"
-  data_policy_id   = "tf_test_basic_data_policy%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
 }
 
 data "google_iam_policy" "foo" {
@@ -211,7 +220,7 @@ func testAccBigqueryDatapolicyv2DataPolicyIamBinding_basicGenerated(context map[
 resource "google_bigquery_datapolicyv2_data_policy" "basic_data_policy" {
   location         = "us-central1"
   data_policy_type = "RAW_DATA_ACCESS_POLICY"
-  data_policy_id   = "tf_test_basic_data_policy%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
 }
 
 resource "google_bigquery_datapolicyv2_data_policy_iam_binding" "foo" {
@@ -229,7 +238,7 @@ func testAccBigqueryDatapolicyv2DataPolicyIamBinding_updateGenerated(context map
 resource "google_bigquery_datapolicyv2_data_policy" "basic_data_policy" {
   location         = "us-central1"
   data_policy_type = "RAW_DATA_ACCESS_POLICY"
-  data_policy_id   = "tf_test_basic_data_policy%{random_suffix}"
+  data_policy_id   = "%{data_policy_id}"
 }
 
 resource "google_bigquery_datapolicyv2_data_policy_iam_binding" "foo" {

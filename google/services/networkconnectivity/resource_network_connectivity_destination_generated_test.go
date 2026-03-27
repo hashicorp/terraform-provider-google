@@ -53,8 +53,12 @@ var (
 func TestAccNetworkConnectivityDestination_networkConnectivityDestinationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"config_name":      "tf-test-basic-config" + randomSuffix,
+		"destination_name": "tf-test-basic-destination" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +82,13 @@ func TestAccNetworkConnectivityDestination_networkConnectivityDestinationBasicEx
 func testAccNetworkConnectivityDestination_networkConnectivityDestinationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_multicloud_data_transfer_config" "config" {
-  name        = "tf-test-basic-config%{random_suffix}"
+  name        = "%{config_name}"
   location    = "europe-west4"
   description = "A basic multicloud data transfer config for the destination example"
 }
 
 resource "google_network_connectivity_destination" "example" {
-  name        = "tf-test-basic-destination%{random_suffix}"
+  name        = "%{destination_name}"
   location    = "europe-west4"
   multicloud_data_transfer_config = google_network_connectivity_multicloud_data_transfer_config.config.name
   description = "A basic destination"

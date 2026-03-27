@@ -42,9 +42,12 @@ var (
 func TestAccPubsubSchemaIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"schema_name":   "tf-test-example-schema" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -77,9 +80,12 @@ func TestAccPubsubSchemaIamBindingGenerated(t *testing.T) {
 func TestAccPubsubSchemaIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"schema_name":   "tf-test-example-schema" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -103,9 +109,12 @@ func TestAccPubsubSchemaIamMemberGenerated(t *testing.T) {
 func TestAccPubsubSchemaIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"schema_name":   "tf-test-example-schema" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +147,7 @@ func TestAccPubsubSchemaIamPolicyGenerated(t *testing.T) {
 func testAccPubsubSchemaIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
-  name = "tf-test-example-schema%{random_suffix}"
+  name = "%{schema_name}"
   type = "AVRO"
   definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
 }
@@ -155,7 +164,7 @@ resource "google_pubsub_schema_iam_member" "foo" {
 func testAccPubsubSchemaIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
-  name = "tf-test-example-schema%{random_suffix}"
+  name = "%{schema_name}"
   type = "AVRO"
   definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
 }
@@ -186,7 +195,7 @@ data "google_pubsub_schema_iam_policy" "foo" {
 func testAccPubsubSchemaIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
-  name = "tf-test-example-schema%{random_suffix}"
+  name = "%{schema_name}"
   type = "AVRO"
   definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
 }
@@ -205,7 +214,7 @@ resource "google_pubsub_schema_iam_policy" "foo" {
 func testAccPubsubSchemaIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
-  name = "tf-test-example-schema%{random_suffix}"
+  name = "%{schema_name}"
   type = "AVRO"
   definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
 }
@@ -222,7 +231,7 @@ resource "google_pubsub_schema_iam_binding" "foo" {
 func testAccPubsubSchemaIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
-  name = "tf-test-example-schema%{random_suffix}"
+  name = "%{schema_name}"
   type = "AVRO"
   definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
 }

@@ -53,11 +53,15 @@ var (
 func TestAccWorkstationsWorkstationConfig_workstationConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"key_short_name":   "tf-test-key-" + acctest.RandString(t, 10),
-		"org_id":           envvar.GetTestOrgFromEnv(t),
-		"value_short_name": "tf-test-value-" + acctest.RandString(t, 10),
-		"random_suffix":    acctest.RandString(t, 10),
+		"key_short_name":           "tf-test-key-" + acctest.RandString(t, 10),
+		"org_id":                   envvar.GetTestOrgFromEnv(t),
+		"value_short_name":         "tf-test-value-" + acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -91,19 +95,19 @@ resource "google_tags_tag_value" "tag_value1" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
@@ -118,7 +122,7 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
 
@@ -154,8 +158,12 @@ resource "google_workstations_workstation_config" "default" {
 func TestAccWorkstationsWorkstationConfig_workstationConfigContainerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -179,19 +187,19 @@ func TestAccWorkstationsWorkstationConfig_workstationConfigContainerExample(t *t
 func testAccWorkstationsWorkstationConfig_workstationConfigContainerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
@@ -206,7 +214,7 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
 
@@ -233,8 +241,12 @@ resource "google_workstations_workstation_config" "default" {
 func TestAccWorkstationsWorkstationConfig_workstationConfigPersistentDirectoriesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -258,19 +270,19 @@ func TestAccWorkstationsWorkstationConfig_workstationConfigPersistentDirectories
 func testAccWorkstationsWorkstationConfig_workstationConfigPersistentDirectoriesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
@@ -285,7 +297,7 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
 
@@ -317,8 +329,12 @@ resource "google_workstations_workstation_config" "default" {
 func TestAccWorkstationsWorkstationConfig_workstationConfigSourceSnapshotExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -342,39 +358,39 @@ func TestAccWorkstationsWorkstationConfig_workstationConfigSourceSnapshotExample
 func testAccWorkstationsWorkstationConfig_workstationConfigSourceSnapshotExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_compute_disk" "my_source_disk" {
-  name     = "tf-test-workstation-config%{random_suffix}"
+  name     = "%{workstation_config_name}"
   size     = 10
   type     = "pd-ssd"
   zone     = "us-central1-a"
 }
 
 resource "google_compute_snapshot" "my_source_snapshot" {
-  name        = "tf-test-workstation-config%{random_suffix}"
+  name        = "%{workstation_config_name}"
   source_disk = google_compute_disk.my_source_disk.name
   zone        = "us-central1-a"
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location               = google_workstations_workstation_cluster.default.location
 
@@ -393,8 +409,12 @@ resource "google_workstations_workstation_config" "default" {
 func TestAccWorkstationsWorkstationConfig_workstationConfigShieldedInstanceConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -418,19 +438,19 @@ func TestAccWorkstationsWorkstationConfig_workstationConfigShieldedInstanceConfi
 func testAccWorkstationsWorkstationConfig_workstationConfigShieldedInstanceConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
@@ -445,7 +465,7 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
 
@@ -467,8 +487,12 @@ resource "google_workstations_workstation_config" "default" {
 func TestAccWorkstationsWorkstationConfig_workstationConfigAcceleratorsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -492,19 +516,19 @@ func TestAccWorkstationsWorkstationConfig_workstationConfigAcceleratorsExample(t
 func testAccWorkstationsWorkstationConfig_workstationConfigAcceleratorsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
@@ -519,7 +543,7 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location               = "us-central1"
 
@@ -541,8 +565,12 @@ resource "google_workstations_workstation_config" "default" {
 func TestAccWorkstationsWorkstationConfig_workstationConfigBoostExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -566,19 +594,19 @@ func TestAccWorkstationsWorkstationConfig_workstationConfigBoostExample(t *testi
 func testAccWorkstationsWorkstationConfig_workstationConfigBoostExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
@@ -593,7 +621,7 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location               = "us-central1"
 
@@ -626,8 +654,13 @@ resource "google_workstations_workstation_config" "default" {
 func TestAccWorkstationsWorkstationConfig_workstationConfigEncryptionKeyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":               "tf-test-my-account" + randomSuffix,
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -652,13 +685,13 @@ func testAccWorkstationsWorkstationConfig_workstationConfigEncryptionKeyExample(
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
 
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
 
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
@@ -666,7 +699,7 @@ resource "google_compute_subnetwork" "default" {
 
 resource "google_workstations_workstation_cluster" "default" {
 
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
@@ -682,25 +715,25 @@ resource "google_workstations_workstation_cluster" "default" {
 
 resource "google_kms_key_ring" "default" {
 
-  name     = "tf-test-workstation-cluster%{random_suffix}"
+  name     = "%{workstation_cluster_name}"
   location = "us-central1"
 }
 
 resource "google_kms_crypto_key" "default" {
 
-  name            = "tf-test-workstation-cluster%{random_suffix}"
+  name            = "%{workstation_cluster_name}"
   key_ring        = google_kms_key_ring.default.id
 }
 
 resource "google_service_account" "default" {
 
-  account_id   = "tf-test-my-account%{random_suffix}"
+  account_id   = "%{account_id}"
   display_name = "Service Account"
 }
 
 resource "google_workstations_workstation_config" "default" {
 
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
 
@@ -727,8 +760,12 @@ resource "google_workstations_workstation_config" "default" {
 func TestAccWorkstationsWorkstationConfig_workstationConfigAllowedPortsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"workstation_config_name":  "tf-test-workstation-config" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -752,19 +789,19 @@ func TestAccWorkstationsWorkstationConfig_workstationConfigAllowedPortsExample(t
 func testAccWorkstationsWorkstationConfig_workstationConfigAllowedPortsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "tf-test-workstation-cluster%{random_suffix}"
+  workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
@@ -779,7 +816,7 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
+  workstation_config_id  = "%{workstation_config_name}"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location               = "us-central1"
 

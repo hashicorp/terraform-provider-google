@@ -42,9 +42,13 @@ var (
 func TestAccDataprocMetastoreFederationIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"federation_id": "tf-test-metastore-fed" + randomSuffix,
+		"service_id":    "tf-test-metastore-service" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -65,9 +69,13 @@ func TestAccDataprocMetastoreFederationIamBindingGenerated(t *testing.T) {
 func TestAccDataprocMetastoreFederationIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"federation_id": "tf-test-metastore-fed" + randomSuffix,
+		"service_id":    "tf-test-metastore-service" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -85,9 +93,13 @@ func TestAccDataprocMetastoreFederationIamMemberGenerated(t *testing.T) {
 func TestAccDataprocMetastoreFederationIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
+		"federation_id": "tf-test-metastore-fed" + randomSuffix,
+		"service_id":    "tf-test-metastore-service" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -109,7 +121,7 @@ func testAccDataprocMetastoreFederationIamMember_basicGenerated(context map[stri
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_federation" "default" {
   location      = "us-central1"
-  federation_id = "tf-test-metastore-fed%{random_suffix}"
+  federation_id = "%{federation_id}"
   version       = "3.1.2"
 
   backend_metastores {
@@ -120,7 +132,7 @@ resource "google_dataproc_metastore_federation" "default" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "tf-test-metastore-service%{random_suffix}"
+  service_id = "%{service_id}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 
@@ -146,7 +158,7 @@ func testAccDataprocMetastoreFederationIamPolicy_basicGenerated(context map[stri
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_federation" "default" {
   location      = "us-central1"
-  federation_id = "tf-test-metastore-fed%{random_suffix}"
+  federation_id = "%{federation_id}"
   version       = "3.1.2"
 
   backend_metastores {
@@ -157,7 +169,7 @@ resource "google_dataproc_metastore_federation" "default" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "tf-test-metastore-service%{random_suffix}"
+  service_id = "%{service_id}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 
@@ -198,7 +210,7 @@ func testAccDataprocMetastoreFederationIamPolicy_emptyBinding(context map[string
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_federation" "default" {
   location      = "us-central1"
-  federation_id = "tf-test-metastore-fed%{random_suffix}"
+  federation_id = "%{federation_id}"
   version       = "3.1.2"
 
   backend_metastores {
@@ -209,7 +221,7 @@ resource "google_dataproc_metastore_federation" "default" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "tf-test-metastore-service%{random_suffix}"
+  service_id = "%{service_id}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 
@@ -237,7 +249,7 @@ func testAccDataprocMetastoreFederationIamBinding_basicGenerated(context map[str
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_federation" "default" {
   location      = "us-central1"
-  federation_id = "tf-test-metastore-fed%{random_suffix}"
+  federation_id = "%{federation_id}"
   version       = "3.1.2"
 
   backend_metastores {
@@ -248,7 +260,7 @@ resource "google_dataproc_metastore_federation" "default" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "tf-test-metastore-service%{random_suffix}"
+  service_id = "%{service_id}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 
@@ -274,7 +286,7 @@ func testAccDataprocMetastoreFederationIamBinding_updateGenerated(context map[st
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_federation" "default" {
   location      = "us-central1"
-  federation_id = "tf-test-metastore-fed%{random_suffix}"
+  federation_id = "%{federation_id}"
   version       = "3.1.2"
 
   backend_metastores {
@@ -285,7 +297,7 @@ resource "google_dataproc_metastore_federation" "default" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "tf-test-metastore-service%{random_suffix}"
+  service_id = "%{service_id}"
   location   = "us-central1"
   tier       = "DEVELOPER"
 

@@ -53,8 +53,12 @@ var (
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderAwsBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +82,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderAwsBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   aws {
     account_id = "999999999999"
   }
@@ -94,8 +98,12 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderAwsFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,12 +127,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderAwsFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   display_name                       = "Name of provider"
   description                        = "AWS identity pool provider for automated test"
   disabled                           = true
@@ -144,8 +152,12 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderGithubActionsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -169,12 +181,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderG
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderGithubActionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   display_name                       = "Name of provider"
   description                        = "GitHub Actions identity pool provider for automated test"
   disabled                           = true
@@ -200,8 +212,12 @@ EOT
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -225,12 +241,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   attribute_mapping                  = {
     "google.subject" = "assertion.sub"
   }
@@ -244,8 +260,12 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -269,12 +289,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   display_name                       = "Name of provider"
   description                        = "OIDC identity pool provider for automated test"
   disabled                           = true
@@ -300,8 +320,12 @@ EOT
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderSamlBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -325,12 +349,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderS
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderSamlBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   attribute_mapping                  = {
     "google.subject"        = "assertion.arn"
     "attribute.aws_account" = "assertion.account"
@@ -346,8 +370,12 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderSamlFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -371,12 +399,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderS
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderSamlFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   display_name                       = "Name of provider"
   description                        = "SAML 2.0 identity pool provider for automated test"
   disabled                           = true
@@ -395,8 +423,12 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcUploadKeyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -420,12 +452,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcUploadKeyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   display_name                       = "Name of provider"
   description                        = "OIDC identity pool provider for automated test"
   disabled                           = true
@@ -452,8 +484,12 @@ EOT
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509BasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -477,12 +513,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509BasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   attribute_mapping                  = {
     "google.subject"        = "assertion.subject.dn.cn"
   }
@@ -500,8 +536,12 @@ resource "google_iam_workload_identity_pool_provider" "example" {
 func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509FullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
+		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -525,12 +565,12 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509FullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
-  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+  workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
   display_name                       = "Name of provider"
   description                        = "X.509 identity pool provider for automated test"
   disabled                           = true

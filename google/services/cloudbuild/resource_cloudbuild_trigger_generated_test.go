@@ -53,8 +53,10 @@ var (
 func TestAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -98,8 +100,11 @@ resource "google_cloudbuild_trigger" "filename-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerBuildExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloudbuild_trigger_name": "tf-test-my-trigger" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -123,7 +128,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBuildExample(t *testing.T) {
 func testAccCloudBuildTrigger_cloudbuildTriggerBuildExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "build-trigger" {
-  name = "tf-test-my-trigger%{random_suffix}"
+  name = "%{cloudbuild_trigger_name}"
   location = "global"
 
   trigger_template {
@@ -219,8 +224,11 @@ resource "google_cloudbuild_trigger" "build-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"sa_name":       "tf-test-cloud-sa" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -260,7 +268,7 @@ resource "google_cloudbuild_trigger" "service-account-trigger" {
 }
 
 resource "google_service_account" "cloudbuild_service_account" {
-  account_id = "tf-test-cloud-sa%{random_suffix}"
+  account_id = "%{sa_name}"
 }
 
 resource "google_project_iam_member" "act_as" {
@@ -280,8 +288,12 @@ resource "google_project_iam_member" "logs_writer" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerPubsubConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloudbuild_trigger_name": "tf-test-pubsub-trigger" + randomSuffix,
+		"pubsub_topic_name":       "tf-test-my-topic" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -306,12 +318,12 @@ func testAccCloudBuildTrigger_cloudbuildTriggerPubsubConfigExample(context map[s
 	return acctest.Nprintf(`
 
 resource "google_pubsub_topic" "mytopic" {
-  name = "tf-test-my-topic%{random_suffix}"
+  name = "%{pubsub_topic_name}"
 }
 
 resource "google_cloudbuild_trigger" "pubsub-config-trigger" {
   location    = "us-central1"
-  name        = "tf-test-pubsub-trigger%{random_suffix}"
+  name        = "%{cloudbuild_trigger_name}"
   description = "acceptance test example pubsub build trigger"
 
   pubsub_config {
@@ -343,8 +355,12 @@ resource "google_cloudbuild_trigger" "pubsub-config-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerWebhookConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloudbuild_trigger_name": "tf-test-webhook-trigger" + randomSuffix,
+		"secret_id":               "tf-test-webhook-trigger-secret-key" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -369,7 +385,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerWebhookConfigExample(context map[
 	return acctest.Nprintf(`
 
 resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
-  secret_id = "tf-test-webhook-trigger-secret-key%{random_suffix}"
+  secret_id = "%{secret_id}"
 
   replication {
     user_managed {
@@ -405,7 +421,7 @@ resource "google_secret_manager_secret_iam_policy" "policy" {
 
 
 resource "google_cloudbuild_trigger" "webhook-config-trigger" {
-  name        = "tf-test-webhook-trigger%{random_suffix}"
+  name        = "%{cloudbuild_trigger_name}"
   description = "acceptance test example webhook build trigger"
  
  webhook_config {
@@ -431,8 +447,11 @@ resource "google_cloudbuild_trigger" "webhook-config-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerManualExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloudbuild_trigger_name": "tf-test-manual-trigger" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -456,7 +475,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerManualExample(t *testing.T) {
 func testAccCloudBuildTrigger_cloudbuildTriggerManualExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "manual-trigger" {
-  name = "tf-test-manual-trigger%{random_suffix}"
+  name = "%{cloudbuild_trigger_name}"
 
   build {
     step {
@@ -478,8 +497,10 @@ resource "google_cloudbuild_trigger" "manual-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerManualBitbucketServerExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -526,11 +547,15 @@ resource "google_cloudbuild_trigger" "manual-bitbucket-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerRepoExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"installation_id": 31300675,
-		"pat_secret":      "projects/gcb-terraform-creds/secrets/github-pat/versions/latest",
-		"repo_uri":        "https://github.com/gcb-repos-robot/tf-demo.git",
-		"random_suffix":   acctest.RandString(t, 10),
+		"cloudbuildv2_connection_name": "tf-test-my-connection" + randomSuffix,
+		"cloudbuildv2_repo_name":       "tf-test-my-repo" + randomSuffix,
+		"installation_id":              31300675,
+		"pat_secret":                   "projects/gcb-terraform-creds/secrets/github-pat/versions/latest",
+		"repo_uri":                     "https://github.com/gcb-repos-robot/tf-demo.git",
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -555,7 +580,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerRepoExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "tf-test-my-connection%{random_suffix}"
+  name = "%{cloudbuildv2_connection_name}"
 
   github_config {
     app_installation_id = %{installation_id}
@@ -566,7 +591,7 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 }
 
 resource "google_cloudbuildv2_repository" "my-repository" {
-  name = "tf-test-my-repo%{random_suffix}"
+  name = "%{cloudbuildv2_repo_name}"
   parent_connection = google_cloudbuildv2_connection.my-connection.id
   remote_uri = "%{repo_uri}"
 }
@@ -589,8 +614,11 @@ resource "google_cloudbuild_trigger" "repo-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPushExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloudbuild_trigger_name": "tf-test-bbs-push-trigger" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -618,7 +646,7 @@ resource "google_cloudbuild_trigger" "bbs-push-trigger" {
   location    = "us-central1"
 
   bitbucket_server_trigger_config {
-    repo_slug = "tf-test-bbs-push-trigger%{random_suffix}"
+    repo_slug = "%{cloudbuild_trigger_name}"
     project_key = "STAG"
     bitbucket_server_config_resource = "projects/123456789/locations/us-central1/bitbucketServerConfigs/myBitbucketConfig"
     push {
@@ -635,8 +663,11 @@ resource "google_cloudbuild_trigger" "bbs-push-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPullRequestExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloudbuild_trigger_name": "tf-test-ghe-trigger" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -660,7 +691,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPullRequestExample
 func testAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPullRequestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "bbs-pull-request-trigger" {
-  name        = "tf-test-ghe-trigger%{random_suffix}"
+  name        = "%{cloudbuild_trigger_name}"
   location    = "us-central1"
 
   bitbucket_server_trigger_config {
@@ -682,8 +713,11 @@ resource "google_cloudbuild_trigger" "bbs-pull-request-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloudbuild_trigger_name": "tf-test-my-trigger" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -707,7 +741,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(t *testing.T)
 func testAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "allow-failure-trigger" {
-  name = "tf-test-my-trigger%{random_suffix}"
+  name = "%{cloudbuild_trigger_name}"
   location = "global"
 
   trigger_template {
@@ -779,8 +813,11 @@ resource "google_cloudbuild_trigger" "allow-failure-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cloudbuild_trigger_name": "tf-test-my-trigger" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -804,7 +841,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(t *testing.
 func testAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
-  name = "tf-test-my-trigger%{random_suffix}"
+  name = "%{cloudbuild_trigger_name}"
   location = "global"
 
   trigger_template {
@@ -876,11 +913,17 @@ resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerPubsubWithRepoExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"installation_id": 31300675,
-		"pat_secret":      "projects/gcb-terraform-creds/secrets/github-pat/versions/latest",
-		"repo_uri":        "https://github.com/gcb-repos-robot/tf-demo.git",
-		"random_suffix":   acctest.RandString(t, 10),
+		"cloudbuild_trigger_name":      "tf-test-pubsub-with-repo-trigger" + randomSuffix,
+		"cloudbuildv2_connection_name": "tf-test-my-connection" + randomSuffix,
+		"cloudbuildv2_repo_name":       "tf-test-my-repo" + randomSuffix,
+		"installation_id":              31300675,
+		"pat_secret":                   "projects/gcb-terraform-creds/secrets/github-pat/versions/latest",
+		"pubsub_topic_name":            "tf-test-my-topic" + randomSuffix,
+		"repo_uri":                     "https://github.com/gcb-repos-robot/tf-demo.git",
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -905,7 +948,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerPubsubWithRepoExample(context map
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "tf-test-my-connection%{random_suffix}"
+  name = "%{cloudbuildv2_connection_name}"
 
   github_config {
     app_installation_id = %{installation_id}
@@ -916,17 +959,17 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 }
 
 resource "google_cloudbuildv2_repository" "my-repository" {
-  name = "tf-test-my-repo%{random_suffix}"
+  name = "%{cloudbuildv2_repo_name}"
   parent_connection = google_cloudbuildv2_connection.my-connection.id
   remote_uri = "%{repo_uri}"
 }
 
 resource "google_pubsub_topic" "mytopic" {
-  name = "tf-test-my-topic%{random_suffix}"
+  name = "%{pubsub_topic_name}"
 }
 
 resource "google_cloudbuild_trigger" "pubsub-with-repo-trigger" {
-  name = "tf-test-pubsub-with-repo-trigger%{random_suffix}"
+  name = "%{cloudbuild_trigger_name}"
   location = "us-central1"
 
   pubsub_config {
@@ -950,8 +993,10 @@ resource "google_cloudbuild_trigger" "pubsub-with-repo-trigger" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -993,8 +1038,10 @@ resource "google_cloudbuild_trigger" "developer-connect-trigger-pull" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPushExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1035,8 +1082,10 @@ resource "google_cloudbuild_trigger" "developer-connect-trigger-push" {
 func TestAccCloudBuildTrigger_cloudbuildTriggerDeveloperConnectPushBranchExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

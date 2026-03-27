@@ -53,8 +53,28 @@ var (
 func TestAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name":          "tf-test-l7-ilb-backend-subnet" + randomSuffix,
+		"backend_subnet_name":           "tf-test-l7-ilb-subnet" + randomSuffix,
+		"callouts_backend_name":         "tf-test-l7-ilb-callouts-backend" + randomSuffix,
+		"callouts_hc_name":              "tf-test-l7-ilb-callouts-hc" + randomSuffix,
+		"callouts_instance_group":       "tf-test-l7-ilb-callouts-ins-group" + randomSuffix,
+		"callouts_instance_name":        "tf-test-l7-ilb-callouts-ins" + randomSuffix,
+		"forwarding_rule_name":          "tf-test-l7-ilb-forwarding-rule" + randomSuffix,
+		"fw_allow_iap_hc_name":          "tf-test-l7-ilb-fw-allow-iap-hc" + randomSuffix,
+		"fw_allow_ilb_to_backends_name": "tf-test-l7-ilb-fw-allow-ilb-to-backends" + randomSuffix,
+		"hc_name":                       "tf-test-l7-ilb-hc" + randomSuffix,
+		"ilb_network_name":              "tf-test-l7-ilb-network" + randomSuffix,
+		"lb_route_extension_name":       "tf-test-l7-ilb-route-ext" + randomSuffix,
+		"mig_name":                      "tf-test-l7-ilb-mig1" + randomSuffix,
+		"mig_template_name":             "tf-test-l7-ilb-mig-template" + randomSuffix,
+		"proxy_subnet_name":             "tf-test-l7-ilb-proxy-subnet" + randomSuffix,
+		"regional_url_map_name":         "tf-test-l7-ilb-regional-url-map" + randomSuffix,
+		"target_http_proxy_name":        "tf-test-l7-ilb-target-http-proxy" + randomSuffix,
+		"vm_test_name":                  "tf-test-l7-ilb-test-vm" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,13 +100,13 @@ func testAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionBasic
 # Internal HTTP load balancer with a managed instance group backend
 # VPC network
 resource "google_compute_network" "ilb_network" {
-  name                    = "tf-test-l7-ilb-network%{random_suffix}"
+  name                    = "%{ilb_network_name}"
   auto_create_subnetworks = false
 }
 
 # proxy-only subnet
 resource "google_compute_subnetwork" "proxy_subnet" {
-  name          = "tf-test-l7-ilb-proxy-subnet%{random_suffix}"
+  name          = "%{proxy_subnet_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-west1"
   purpose       = "REGIONAL_MANAGED_PROXY"
@@ -96,7 +116,7 @@ resource "google_compute_subnetwork" "proxy_subnet" {
 
 # backend subnet
 resource "google_compute_subnetwork" "ilb_subnet" {
-  name          = "tf-test-l7-ilb-subnet%{random_suffix}"
+  name          = "%{backend_subnet_name}"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-west1"
   network       = google_compute_network.ilb_network.id
@@ -108,7 +128,7 @@ resource "google_compute_subnetwork" "ilb_subnet" {
 
 # forwarding rule
 resource "google_compute_forwarding_rule" "default" {
-  name                  = "tf-test-l7-ilb-forwarding-rule%{random_suffix}"
+  name                  = "%{forwarding_rule_name}"
   region                = "us-west1"
   ip_protocol           = "TCP"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -125,7 +145,7 @@ resource "google_compute_forwarding_rule" "default" {
 
 # HTTP target proxy
 resource "google_compute_region_target_http_proxy" "default" {
-  name     = "tf-test-l7-ilb-target-http-proxy%{random_suffix}"
+  name     = "%{target_http_proxy_name}"
   region   = "us-west1"
   url_map  = google_compute_region_url_map.default.id
 }
@@ -149,7 +169,7 @@ resource "google_compute_region_url_map" "default" {
 
 # backend service
 resource "google_compute_region_backend_service" "default" {
-  name                  = "tf-test-l7-ilb-backend-subnet%{random_suffix}"
+  name                  = "%{backend_service_name}"
   region                = "us-west1"
   protocol              = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -165,7 +185,7 @@ resource "google_compute_region_backend_service" "default" {
 
 # instance template
 resource "google_compute_instance_template" "instance_template" {
-  name         = "tf-test-l7-ilb-mig-template%{random_suffix}"
+  name         = "%{mig_template_name}"
   machine_type = "e2-small"
   tags         = ["http-server"]
 
@@ -215,7 +235,7 @@ resource "google_compute_instance_template" "instance_template" {
 
 # health check
 resource "google_compute_region_health_check" "default" {
-  name     = "tf-test-l7-ilb-hc%{random_suffix}"
+  name     = "%{hc_name}"
   region   = "us-west1"
 
   http_health_check {
@@ -225,7 +245,7 @@ resource "google_compute_region_health_check" "default" {
 
 # MIG
 resource "google_compute_region_instance_group_manager" "mig" {
-  name     = "tf-test-l7-ilb-mig1%{random_suffix}"
+  name     = "%{mig_name}"
   region   = "us-west1"
 
   base_instance_name = "vm"
@@ -239,7 +259,7 @@ resource "google_compute_region_instance_group_manager" "mig" {
 
 # allow all access from IAP and health check ranges
 resource "google_compute_firewall" "fw_iap" {
-  name          = "tf-test-l7-ilb-fw-allow-iap-hc%{random_suffix}"
+  name          = "%{fw_allow_iap_hc_name}"
   direction     = "INGRESS"
   network       = google_compute_network.ilb_network.id
   source_ranges = ["130.211.0.0/22", "35.191.0.0/16", "35.235.240.0/20"]
@@ -251,7 +271,7 @@ resource "google_compute_firewall" "fw_iap" {
 
 # allow http from proxy subnet to backends
 resource "google_compute_firewall" "fw_ilb_to_backends" {
-  name          = "tf-test-l7-ilb-fw-allow-ilb-to-backends%{random_suffix}"
+  name          = "%{fw_allow_ilb_to_backends_name}"
   direction     = "INGRESS"
   network       = google_compute_network.ilb_network.id
   source_ranges = ["10.0.0.0/24"]
@@ -268,7 +288,7 @@ resource "google_compute_firewall" "fw_ilb_to_backends" {
 }
 
 resource "google_network_services_lb_route_extension" "default" {
-  name                  = "tf-test-l7-ilb-route-ext%{random_suffix}"
+  name                  = "%{lb_route_extension_name}"
   description           = "my route extension"
   location              = "us-west1"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -305,7 +325,7 @@ resource "google_network_services_lb_route_extension" "default" {
 
 # test instance
 resource "google_compute_instance" "vm_test" {
-  name         = "tf-test-l7-ilb-test-vm%{random_suffix}"
+  name         = "%{vm_test_name}"
   zone         = "us-west1-b"
   machine_type = "e2-small"
 
@@ -323,7 +343,7 @@ resource "google_compute_instance" "vm_test" {
 
 # Route Extension Backend Instance
 resource "google_compute_instance" "callouts_instance" {
-  name         = "tf-test-l7-ilb-callouts-ins%{random_suffix}"
+  name         = "%{callouts_instance_name}"
   zone         = "us-west1-a"
   machine_type = "e2-small"
 
@@ -378,7 +398,7 @@ resource "google_compute_instance" "callouts_instance" {
 
 // callouts instance group
 resource "google_compute_instance_group" "callouts_instance_group" {
-  name        = "tf-test-l7-ilb-callouts-ins-group%{random_suffix}"
+  name        = "%{callouts_instance_group}"
   description = "Terraform test instance group"
   zone        = "us-west1-a"
 
@@ -399,7 +419,7 @@ resource "google_compute_instance_group" "callouts_instance_group" {
 
 # callout health check
 resource "google_compute_region_health_check" "callouts_health_check" {
-  name     = "tf-test-l7-ilb-callouts-hc%{random_suffix}"
+  name     = "%{callouts_hc_name}"
   region   = "us-west1"
 
   http_health_check {
@@ -413,7 +433,7 @@ resource "google_compute_region_health_check" "callouts_health_check" {
 
 # callout backend service
 resource "google_compute_region_backend_service" "callouts_backend" {
-  name                  = "tf-test-l7-ilb-callouts-backend%{random_suffix}"
+  name                  = "%{callouts_backend_name}"
   region                = "us-west1"
   protocol              = "HTTP2"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -437,8 +457,28 @@ resource "google_compute_region_backend_service" "callouts_backend" {
 func TestAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionObservabilityExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"backend_service_name":          "tf-test-l7-ilb-backend-subnet" + randomSuffix,
+		"backend_subnet_name":           "tf-test-l7-ilb-subnet" + randomSuffix,
+		"callouts_backend_name":         "tf-test-l7-ilb-callouts-backend" + randomSuffix,
+		"callouts_hc_name":              "tf-test-l7-ilb-callouts-hc" + randomSuffix,
+		"callouts_instance_group":       "tf-test-l7-ilb-callouts-ins-group" + randomSuffix,
+		"callouts_instance_name":        "tf-test-l7-ilb-callouts-ins" + randomSuffix,
+		"forwarding_rule_name":          "tf-test-l7-ilb-forwarding-rule" + randomSuffix,
+		"fw_allow_iap_hc_name":          "tf-test-l7-ilb-fw-allow-iap-hc" + randomSuffix,
+		"fw_allow_ilb_to_backends_name": "tf-test-l7-ilb-fw-allow-ilb-to-backends" + randomSuffix,
+		"hc_name":                       "tf-test-l7-ilb-hc" + randomSuffix,
+		"ilb_network_name":              "tf-test-l7-ilb-network" + randomSuffix,
+		"lb_route_extension_name":       "tf-test-l7-ilb-route-ext" + randomSuffix,
+		"mig_name":                      "tf-test-l7-ilb-mig1" + randomSuffix,
+		"mig_template_name":             "tf-test-l7-ilb-mig-template" + randomSuffix,
+		"proxy_subnet_name":             "tf-test-l7-ilb-proxy-subnet" + randomSuffix,
+		"regional_url_map_name":         "tf-test-l7-ilb-regional-url-map" + randomSuffix,
+		"target_http_proxy_name":        "tf-test-l7-ilb-target-http-proxy" + randomSuffix,
+		"vm_test_name":                  "tf-test-l7-ilb-test-vm" + randomSuffix,
+		"random_suffix":                 randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -464,13 +504,13 @@ func testAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionObser
 # Internal HTTP load balancer with a managed instance group backend
 # VPC network
 resource "google_compute_network" "ilb_network" {
-  name                    = "tf-test-l7-ilb-network%{random_suffix}"
+  name                    = "%{ilb_network_name}"
   auto_create_subnetworks = false
 }
 
 # proxy-only subnet
 resource "google_compute_subnetwork" "proxy_subnet" {
-  name          = "tf-test-l7-ilb-proxy-subnet%{random_suffix}"
+  name          = "%{proxy_subnet_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-west1"
   purpose       = "REGIONAL_MANAGED_PROXY"
@@ -480,7 +520,7 @@ resource "google_compute_subnetwork" "proxy_subnet" {
 
 # backend subnet
 resource "google_compute_subnetwork" "ilb_subnet" {
-  name          = "tf-test-l7-ilb-subnet%{random_suffix}"
+  name          = "%{backend_subnet_name}"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-west1"
   network       = google_compute_network.ilb_network.id
@@ -492,7 +532,7 @@ resource "google_compute_subnetwork" "ilb_subnet" {
 
 # forwarding rule
 resource "google_compute_forwarding_rule" "default" {
-  name                  = "tf-test-l7-ilb-forwarding-rule%{random_suffix}"
+  name                  = "%{forwarding_rule_name}"
   region                = "us-west1"
   ip_protocol           = "TCP"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -509,7 +549,7 @@ resource "google_compute_forwarding_rule" "default" {
 
 # HTTP target proxy
 resource "google_compute_region_target_http_proxy" "default" {
-  name     = "tf-test-l7-ilb-target-http-proxy%{random_suffix}"
+  name     = "%{target_http_proxy_name}"
   region   = "us-west1"
   url_map  = google_compute_region_url_map.default.id
 }
@@ -533,7 +573,7 @@ resource "google_compute_region_url_map" "default" {
 
 # backend service
 resource "google_compute_region_backend_service" "default" {
-  name                  = "tf-test-l7-ilb-backend-subnet%{random_suffix}"
+  name                  = "%{backend_service_name}"
   region                = "us-west1"
   protocol              = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -549,7 +589,7 @@ resource "google_compute_region_backend_service" "default" {
 
 # instance template
 resource "google_compute_instance_template" "instance_template" {
-  name         = "tf-test-l7-ilb-mig-template%{random_suffix}"
+  name         = "%{mig_template_name}"
   machine_type = "e2-small"
   tags         = ["http-server"]
 
@@ -599,7 +639,7 @@ resource "google_compute_instance_template" "instance_template" {
 
 # health check
 resource "google_compute_region_health_check" "default" {
-  name     = "tf-test-l7-ilb-hc%{random_suffix}"
+  name     = "%{hc_name}"
   region   = "us-west1"
 
   http_health_check {
@@ -609,7 +649,7 @@ resource "google_compute_region_health_check" "default" {
 
 # MIG
 resource "google_compute_region_instance_group_manager" "mig" {
-  name     = "tf-test-l7-ilb-mig1%{random_suffix}"
+  name     = "%{mig_name}"
   region   = "us-west1"
 
   base_instance_name = "vm"
@@ -623,7 +663,7 @@ resource "google_compute_region_instance_group_manager" "mig" {
 
 # allow all access from IAP and health check ranges
 resource "google_compute_firewall" "fw_iap" {
-  name          = "tf-test-l7-ilb-fw-allow-iap-hc%{random_suffix}"
+  name          = "%{fw_allow_iap_hc_name}"
   direction     = "INGRESS"
   network       = google_compute_network.ilb_network.id
   source_ranges = ["130.211.0.0/22", "35.191.0.0/16", "35.235.240.0/20"]
@@ -635,7 +675,7 @@ resource "google_compute_firewall" "fw_iap" {
 
 # allow http from proxy subnet to backends
 resource "google_compute_firewall" "fw_ilb_to_backends" {
-  name          = "tf-test-l7-ilb-fw-allow-ilb-to-backends%{random_suffix}"
+  name          = "%{fw_allow_ilb_to_backends_name}"
   direction     = "INGRESS"
   network       = google_compute_network.ilb_network.id
   source_ranges = ["10.0.0.0/24"]
@@ -652,7 +692,7 @@ resource "google_compute_firewall" "fw_ilb_to_backends" {
 }
 
 resource "google_network_services_lb_route_extension" "default" {
-  name                  = "tf-test-l7-ilb-route-ext%{random_suffix}"
+  name                  = "%{lb_route_extension_name}"
   description           = "my route extension"
   location              = "us-west1"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -684,7 +724,7 @@ resource "google_network_services_lb_route_extension" "default" {
 
 # test instance
 resource "google_compute_instance" "vm_test" {
-  name         = "tf-test-l7-ilb-test-vm%{random_suffix}"
+  name         = "%{vm_test_name}"
   zone         = "us-west1-b"
   machine_type = "e2-small"
 
@@ -702,7 +742,7 @@ resource "google_compute_instance" "vm_test" {
 
 # Route Extension Backend Instance
 resource "google_compute_instance" "callouts_instance" {
-  name         = "tf-test-l7-ilb-callouts-ins%{random_suffix}"
+  name         = "%{callouts_instance_name}"
   zone         = "us-west1-a"
   machine_type = "e2-small"
 
@@ -757,7 +797,7 @@ resource "google_compute_instance" "callouts_instance" {
 
 // callouts instance group
 resource "google_compute_instance_group" "callouts_instance_group" {
-  name        = "tf-test-l7-ilb-callouts-ins-group%{random_suffix}"
+  name        = "%{callouts_instance_group}"
   description = "Terraform test instance group"
   zone        = "us-west1-a"
 
@@ -778,7 +818,7 @@ resource "google_compute_instance_group" "callouts_instance_group" {
 
 # callout health check
 resource "google_compute_region_health_check" "callouts_health_check" {
-  name     = "tf-test-l7-ilb-callouts-hc%{random_suffix}"
+  name     = "%{callouts_hc_name}"
   region   = "us-west1"
 
   http_health_check {
@@ -792,7 +832,7 @@ resource "google_compute_region_health_check" "callouts_health_check" {
 
 # callout backend service
 resource "google_compute_region_backend_service" "callouts_backend" {
-  name                  = "tf-test-l7-ilb-callouts-backend%{random_suffix}"
+  name                  = "%{callouts_backend_name}"
   region                = "us-west1"
   protocol              = "HTTP2"
   load_balancing_scheme = "INTERNAL_MANAGED"

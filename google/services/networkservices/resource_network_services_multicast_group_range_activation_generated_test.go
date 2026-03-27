@@ -53,8 +53,16 @@ var (
 func TestAccNetworkServicesMulticastGroupRangeActivation_networkServicesMulticastGroupRangeActivationBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"domain_activation_name":      "tf-test-test-domain-activation-mgra" + randomSuffix,
+		"domain_name":                 "tf-test-test-domain-mgra" + randomSuffix,
+		"group_range_activation_name": "tf-test-test-mgra-mgra" + randomSuffix,
+		"group_range_name":            "tf-test-test-group-range-mgra" + randomSuffix,
+		"internal_range_name":         "tf-test-test-internal-range-mgra" + randomSuffix,
+		"network_name":                "tf-test-test-network-mgra" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +86,12 @@ func TestAccNetworkServicesMulticastGroupRangeActivation_networkServicesMulticas
 func testAccNetworkServicesMulticastGroupRangeActivation_networkServicesMulticastGroupRangeActivationBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-test-test-network-mgra%{random_suffix}"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_services_multicast_domain" "multicast_domain" {
-  multicast_domain_id                    = "tf-test-test-domain-mgra%{random_suffix}"
+  multicast_domain_id                    = "%{domain_name}"
   location = "global"
   admin_network = google_compute_network.network.id
   connection_config  { connection_type="SAME_VPC"}
@@ -91,7 +99,7 @@ resource "google_network_services_multicast_domain" "multicast_domain" {
 }
 
 resource "google_network_connectivity_internal_range" "internal_range" {
-  name    = "tf-test-test-internal-range-mgra%{random_suffix}"
+  name    = "%{internal_range_name}"
   network = google_compute_network.network.self_link
   usage   = "FOR_VPC"
   peering = "FOR_SELF"
@@ -99,20 +107,20 @@ resource "google_network_connectivity_internal_range" "internal_range" {
 }
 
 resource "google_network_services_multicast_group_range" "group_range" {
-  multicast_group_range_id                   = "tf-test-test-group-range-mgra%{random_suffix}"
+  multicast_group_range_id                   = "%{group_range_name}"
   location = "global"
   reserved_internal_range = google_network_connectivity_internal_range.internal_range.id
   multicast_domain = google_network_services_multicast_domain.multicast_domain.id
 }
 
 resource "google_network_services_multicast_domain_activation" "multicast_domain_activation" {
-  multicast_domain_activation_id                    = "tf-test-test-domain-activation-mgra%{random_suffix}"
+  multicast_domain_activation_id                    = "%{domain_activation_name}"
   location = "us-central1-b"
   multicast_domain = google_network_services_multicast_domain.multicast_domain.id
 }
 
 resource "google_network_services_multicast_group_range_activation" mgra_test {
-  multicast_group_range_activation_id                   = "tf-test-test-mgra-mgra%{random_suffix}"
+  multicast_group_range_activation_id                   = "%{group_range_activation_name}"
   location = "us-central1-b"
   description = "my description"
   labels = {

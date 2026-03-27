@@ -53,8 +53,14 @@ var (
 func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"home_region_backend_service_name":  "home" + randomSuffix,
+		"login_region_backend_service_name": "login" + randomSuffix,
+		"region_health_check_name":          "tf-test-health-check" + randomSuffix,
+		"region_url_map_name":               "regionurlmap" + randomSuffix,
+		"random_suffix":                     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -80,7 +86,7 @@ func testAccComputeRegionUrlMap_regionUrlMapBasicExample(context map[string]inte
 resource "google_compute_region_url_map" "regionurlmap" {
   region = "us-central1"
 
-  name        = "regionurlmap%{random_suffix}"
+  name        = "%{region_url_map_name}"
   description = "a description"
 
   default_service = google_compute_region_backend_service.home.id
@@ -115,7 +121,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 resource "google_compute_region_backend_service" "login" {
   region = "us-central1"
 
-  name        = "login%{random_suffix}"
+  name        = "%{login_region_backend_service_name}"
   protocol    = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
@@ -126,7 +132,7 @@ resource "google_compute_region_backend_service" "login" {
 resource "google_compute_region_backend_service" "home" {
   region = "us-central1"
 
-  name        = "home%{random_suffix}"
+  name        = "%{home_region_backend_service_name}"
   protocol    = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
@@ -137,7 +143,7 @@ resource "google_compute_region_backend_service" "home" {
 resource "google_compute_region_health_check" "default" {
   region = "us-central1"
 
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{region_health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
   http_health_check {
@@ -151,8 +157,14 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"home_region_backend_service_name":  "home" + randomSuffix,
+		"login_region_backend_service_name": "login" + randomSuffix,
+		"region_health_check_name":          "tf-test-health-check" + randomSuffix,
+		"region_url_map_name":               "regionurlmap" + randomSuffix,
+		"random_suffix":                     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -178,7 +190,7 @@ func testAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(context ma
 resource "google_compute_region_url_map" "regionurlmap" {
   region = "us-central1"
 
-  name        = "regionurlmap%{random_suffix}"
+  name        = "%{region_url_map_name}"
   description = "a description"
 
   default_route_action {
@@ -314,7 +326,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 resource "google_compute_region_backend_service" "login" {
   region = "us-central1"
 
-  name        = "login%{random_suffix}"
+  name        = "%{login_region_backend_service_name}"
   protocol    = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
@@ -325,7 +337,7 @@ resource "google_compute_region_backend_service" "login" {
 resource "google_compute_region_backend_service" "home" {
   region = "us-central1"
 
-  name        = "home%{random_suffix}"
+  name        = "%{home_region_backend_service_name}"
   protocol    = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
@@ -336,7 +348,7 @@ resource "google_compute_region_backend_service" "home" {
 resource "google_compute_region_health_check" "default" {
   region = "us-central1"
 
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{region_health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
   http_health_check {
@@ -350,8 +362,13 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"home_region_backend_service_name": "home" + randomSuffix,
+		"region_health_check_name":         "tf-test-health-check" + randomSuffix,
+		"region_url_map_name":              "regionurlmap" + randomSuffix,
+		"random_suffix":                    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -375,7 +392,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 func testAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
-  name        = "regionurlmap%{random_suffix}"
+  name        = "%{region_url_map_name}"
   description = "a description"
   default_service = google_compute_region_backend_service.home.id
 
@@ -461,7 +478,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 }
 
 resource "google_compute_region_backend_service" "home" {
-  name        = "home%{random_suffix}"
+  name        = "%{home_region_backend_service_name}"
   protocol    = "HTTP"
   timeout_sec = 10
 
@@ -470,7 +487,7 @@ resource "google_compute_region_backend_service" "home" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{region_health_check_name}"
   http_health_check {
     port = 80
   }
@@ -481,8 +498,13 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"home_region_backend_service_name": "home" + randomSuffix,
+		"region_health_check_name":         "tf-test-health-check" + randomSuffix,
+		"region_url_map_name":              "regionurlmap" + randomSuffix,
+		"random_suffix":                    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -506,7 +528,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T
 func testAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
-  name        = "regionurlmap%{random_suffix}"
+  name        = "%{region_url_map_name}"
   description = "a description"
   default_service = google_compute_region_backend_service.home.id
 
@@ -560,7 +582,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 }
 
 resource "google_compute_region_backend_service" "home" {
-  name        = "home%{random_suffix}"
+  name        = "%{home_region_backend_service_name}"
   protocol    = "HTTP"
   timeout_sec = 10
 
@@ -569,7 +591,7 @@ resource "google_compute_region_backend_service" "home" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{region_health_check_name}"
   http_health_check {
     port = 80
   }
@@ -580,8 +602,13 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"home_region_backend_service_name": "home" + randomSuffix,
+		"region_health_check_name":         "tf-test-health-check" + randomSuffix,
+		"region_url_map_name":              "regionurlmap" + randomSuffix,
+		"random_suffix":                    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -605,7 +632,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 func testAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
-  name            = "regionurlmap%{random_suffix}"
+  name            = "%{region_url_map_name}"
   description     = "a description"
   default_service = google_compute_region_backend_service.home.id
 
@@ -672,7 +699,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 }
 
 resource "google_compute_region_backend_service" "home" {
-  name        = "home%{random_suffix}"
+  name        = "%{home_region_backend_service_name}"
   protocol    = "HTTP"
   timeout_sec = 10
 
@@ -681,7 +708,7 @@ resource "google_compute_region_backend_service" "home" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  name     = "tf-test-health-check%{random_suffix}"
+  name     = "%{region_health_check_name}"
   http_health_check {
     port = 80
   }
@@ -692,8 +719,13 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"home_region_backend_service_name": "home" + randomSuffix,
+		"region_health_check_name":         "tf-test-health-check" + randomSuffix,
+		"region_url_map_name":              "regionurlmap" + randomSuffix,
+		"random_suffix":                    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -717,7 +749,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.
 func testAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
-  name        = "regionurlmap%{random_suffix}"
+  name        = "%{region_url_map_name}"
   description = "a description"
   default_service = google_compute_region_backend_service.home.id
 
@@ -759,7 +791,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 }
 
 resource "google_compute_region_backend_service" "home" {
-  name        = "home%{random_suffix}"
+  name        = "%{home_region_backend_service_name}"
   protocol    = "HTTP"
   timeout_sec = 10
 
@@ -768,7 +800,7 @@ resource "google_compute_region_backend_service" "home" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{region_health_check_name}"
   http_health_check {
     port = 80
   }
@@ -779,8 +811,15 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionUrlMap_regionUrlMapPathTemplateMatchExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"cart_backend_service_name": "tf-test-cart-service" + randomSuffix,
+		"health_check_name":         "tf-test-health-check" + randomSuffix,
+		"home_backend_service_name": "tf-test-home-service" + randomSuffix,
+		"url_map_name":              "urlmap" + randomSuffix,
+		"user_backend_service_name": "tf-test-user-service" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -806,7 +845,7 @@ func testAccComputeRegionUrlMap_regionUrlMapPathTemplateMatchExample(context map
 resource "google_compute_region_url_map" "urlmap" {
   region = "us-central1"
 
-  name        = "urlmap%{random_suffix}"
+  name        = "%{url_map_name}"
   description = "a description"
 
   default_service = google_compute_region_backend_service.home-backend.id
@@ -846,7 +885,7 @@ resource "google_compute_region_url_map" "urlmap" {
 resource "google_compute_region_backend_service" "home-backend" {
   region = "us-central1"
 
-  name        = "tf-test-home-service%{random_suffix}"
+  name        = "%{home_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -858,7 +897,7 @@ resource "google_compute_region_backend_service" "home-backend" {
 resource "google_compute_region_backend_service" "cart-backend" {
   region = "us-central1"
 
-  name        = "tf-test-cart-service%{random_suffix}"
+  name        = "%{cart_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -870,7 +909,7 @@ resource "google_compute_region_backend_service" "cart-backend" {
 resource "google_compute_region_backend_service" "user-backend" {
   region = "us-central1"
 
-  name        = "tf-test-user-service%{random_suffix}"
+  name        = "%{user_backend_service_name}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -882,7 +921,7 @@ resource "google_compute_region_backend_service" "user-backend" {
 resource "google_compute_region_health_check" "default" {
   region = "us-central1"
 
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
   http_health_check {
@@ -896,8 +935,14 @@ resource "google_compute_region_health_check" "default" {
 func TestAccComputeRegionUrlMap_regionUrlMapPathMatcherDefaultRouteActionExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"home_region_backend_service_name":  "home" + randomSuffix,
+		"login_region_backend_service_name": "login" + randomSuffix,
+		"region_health_check_name":          "tf-test-health-check" + randomSuffix,
+		"region_url_map_name":               "regionurlmap" + randomSuffix,
+		"random_suffix":                     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -923,7 +968,7 @@ func testAccComputeRegionUrlMap_regionUrlMapPathMatcherDefaultRouteActionExample
 resource "google_compute_region_url_map" "regionurlmap" {
   region = "us-central1"
 
-  name        = "regionurlmap%{random_suffix}"
+  name        = "%{region_url_map_name}"
   description = "a description"
   default_service = google_compute_region_backend_service.home.id
 
@@ -1068,7 +1113,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 resource "google_compute_region_backend_service" "login" {
   region = "us-central1"
 
-  name        = "login%{random_suffix}"
+  name        = "%{login_region_backend_service_name}"
   protocol    = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
@@ -1079,7 +1124,7 @@ resource "google_compute_region_backend_service" "login" {
 resource "google_compute_region_backend_service" "home" {
   region = "us-central1"
 
-  name        = "home%{random_suffix}"
+  name        = "%{home_region_backend_service_name}"
   protocol    = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
@@ -1090,7 +1135,7 @@ resource "google_compute_region_backend_service" "home" {
 resource "google_compute_region_health_check" "default" {
   region = "us-central1"
 
-  name               = "tf-test-health-check%{random_suffix}"
+  name               = "%{region_health_check_name}"
   check_interval_sec = 1
   timeout_sec        = 1
   http_health_check {

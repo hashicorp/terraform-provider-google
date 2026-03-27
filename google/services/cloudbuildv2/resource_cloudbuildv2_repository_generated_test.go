@@ -53,8 +53,12 @@ var (
 func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGheExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "connection" + randomSuffix,
+		"repository_name": "repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +82,7 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGheExample(t *testing.T
 func testAccCloudbuildv2Repository_cloudbuildv2RepositoryGheExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_repository" "primary" {
-  name              = "repository%{random_suffix}"
+  name              = "%{repository_name}"
   parent_connection = google_cloudbuildv2_connection.ghe_complete.name
   remote_uri        = "https://ghe.proctor-staging-test.com/proctorteam/regional_test.git"
   location          = "us-central1"
@@ -89,7 +93,7 @@ resource "google_cloudbuildv2_repository" "primary" {
 
 resource "google_cloudbuildv2_connection" "ghe_complete" {
   location = "us-central1"
-  name     = "connection%{random_suffix}"
+  name     = "%{connection_name}"
 
   github_enterprise_config {
     host_uri                      = "https://ghe.proctor-staging-test.com"
@@ -108,8 +112,12 @@ resource "google_cloudbuildv2_connection" "ghe_complete" {
 func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGithubExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "connection" + randomSuffix,
+		"repository_name": "repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -133,7 +141,7 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGithubExample(t *testin
 func testAccCloudbuildv2Repository_cloudbuildv2RepositoryGithubExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_repository" "primary" {
-  name              = "repository%{random_suffix}"
+  name              = "%{repository_name}"
   parent_connection = google_cloudbuildv2_connection.github_update.name
   remote_uri        = "https://github.com/gcb-repos-robot/tf-demo.git"
   location          = "us-central1"
@@ -142,7 +150,7 @@ resource "google_cloudbuildv2_repository" "primary" {
 
 resource "google_cloudbuildv2_connection" "github_update" {
   location = "us-central1"
-  name     = "connection%{random_suffix}"
+  name     = "%{connection_name}"
   disabled = false
 
   github_config {
@@ -165,8 +173,12 @@ resource "google_cloudbuildv2_connection" "github_update" {
 func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGleExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"connection_name": "connection" + randomSuffix,
+		"repository_name": "repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -190,7 +202,7 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGleExample(t *testing.T
 func testAccCloudbuildv2Repository_cloudbuildv2RepositoryGleExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_repository" "primary" {
-  name              = "repository%{random_suffix}"
+  name              = "%{repository_name}"
   parent_connection = google_cloudbuildv2_connection.gle.name
   remote_uri        = "https://gle-us-central1.gcb-test.com/proctor-test/smoketest.git"
   location          = "us-west1"
@@ -202,7 +214,7 @@ resource "google_cloudbuildv2_repository" "primary" {
 
 resource "google_cloudbuildv2_connection" "gle" {
   location = "us-west1"
-  name     = "connection%{random_suffix}"
+  name     = "%{connection_name}"
 
   gitlab_config {
     authorizer_credential {

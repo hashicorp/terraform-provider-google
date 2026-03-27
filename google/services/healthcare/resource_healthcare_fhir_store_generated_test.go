@@ -53,8 +53,13 @@ var (
 func TestAccHealthcareFhirStore_healthcareFhirStoreBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_name":    "tf-test-example-dataset" + randomSuffix,
+		"fhir_store_name": "tf-test-example-fhir-store" + randomSuffix,
+		"pubsub_topic":    "tf-test-fhir-notifications" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreBasicExample(t *testing.T) {
 func testAccHealthcareFhirStore_healthcareFhirStoreBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_fhir_store" "default" {
-  name    = "tf-test-example-fhir-store%{random_suffix}"
+  name    = "%{fhir_store_name}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
   complex_data_type_reference_parsing = "DISABLED"
@@ -99,11 +104,11 @@ resource "google_healthcare_fhir_store" "default" {
 }
 
 resource "google_pubsub_topic" "topic" {
-  name     = "tf-test-fhir-notifications%{random_suffix}"
+  name     = "%{pubsub_topic}"
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf-test-example-dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 `, context)
@@ -122,8 +127,14 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *tes
 		},
 	})
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bq_dataset_name": "tf_test_bq_example_dataset" + randomSuffix,
+		"dataset_name":    "tf-test-example-dataset" + randomSuffix,
+		"fhir_store_name": "tf-test-example-fhir-store" + randomSuffix,
+		"pubsub_topic":    "tf-test-fhir-notifications" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -147,7 +158,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *tes
 func testAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_fhir_store" "default" {
-  name    = "tf-test-example-fhir-store%{random_suffix}"
+  name    = "%{fhir_store_name}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
 
@@ -176,16 +187,16 @@ resource "google_healthcare_fhir_store" "default" {
 }
 
 resource "google_pubsub_topic" "topic" {
-  name     = "tf-test-fhir-notifications%{random_suffix}"
+  name     = "%{pubsub_topic}"
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf-test-example-dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 
 resource "google_bigquery_dataset" "bq_dataset" {
-  dataset_id    = "tf_test_bq_example_dataset%{random_suffix}"
+  dataset_id    = "%{bq_dataset_name}"
   friendly_name = "test"
   description   = "This is a test description"
   location      = "US"
@@ -197,8 +208,13 @@ resource "google_bigquery_dataset" "bq_dataset" {
 func TestAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_name":    "tf-test-example-dataset" + randomSuffix,
+		"fhir_store_name": "tf-test-example-fhir-store" + randomSuffix,
+		"pubsub_topic":    "tf-test-fhir-notifications" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -222,7 +238,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigExample(t *
 func testAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_fhir_store" "default" {
-  name    = "tf-test-example-fhir-store%{random_suffix}"
+  name    = "%{fhir_store_name}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
 
@@ -241,11 +257,11 @@ resource "google_healthcare_fhir_store" "default" {
 }
 
 resource "google_pubsub_topic" "topic" {
-  name = "tf-test-fhir-notifications%{random_suffix}"
+  name = "%{pubsub_topic}"
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf-test-example-dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 `, context)
@@ -254,8 +270,13 @@ resource "google_healthcare_dataset" "dataset" {
 func TestAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_name":    "tf-test-example-dataset" + randomSuffix,
+		"fhir_store_name": "tf-test-example-fhir-store" + randomSuffix,
+		"pubsub_topic":    "tf-test-fhir-notifications" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -279,7 +300,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigsExample(t 
 func testAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_fhir_store" "default" {
-  name     = "tf-test-example-fhir-store%{random_suffix}"
+  name     = "%{fhir_store_name}"
   dataset  = google_healthcare_dataset.dataset.id
   version  = "R4"
 
@@ -300,11 +321,11 @@ resource "google_healthcare_fhir_store" "default" {
 }
 
 resource "google_pubsub_topic" "topic" {
-  name     = "tf-test-fhir-notifications%{random_suffix}"
+  name     = "%{pubsub_topic}"
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf-test-example-dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 `, context)
@@ -313,8 +334,13 @@ resource "google_healthcare_dataset" "dataset" {
 func TestAccHealthcareFhirStore_healthcareFhirStoreValidationConfigExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_name":    "tf-test-example-dataset" + randomSuffix,
+		"fhir_store_name": "tf-test-example-fhir-store" + randomSuffix,
+		"pubsub_topic":    "tf-test-fhir-notifications" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -338,7 +364,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreValidationConfigExample(t *te
 func testAccHealthcareFhirStore_healthcareFhirStoreValidationConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_healthcare_fhir_store" "default" {
-  name    = "tf-test-example-fhir-store%{random_suffix}"
+  name    = "%{fhir_store_name}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
   complex_data_type_reference_parsing = "DISABLED"
@@ -367,11 +393,11 @@ resource "google_healthcare_fhir_store" "default" {
 }
 
 resource "google_pubsub_topic" "topic" {
-  name     = "tf-test-fhir-notifications%{random_suffix}"
+  name     = "%{pubsub_topic}"
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  name     = "tf-test-example-dataset%{random_suffix}"
+  name     = "%{dataset_name}"
   location = "us-central1"
 }
 `, context)

@@ -53,8 +53,13 @@ var (
 func TestAccNetworkSecurityTlsInspectionPolicy_networkSecurityTlsInspectionPolicyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"privateca_ca_pool_name":             "tf-test-my-basic-ca-pool" + randomSuffix,
+		"privateca_certificate_authority_id": "tf-test-my-basic-certificate-authority" + randomSuffix,
+		"resource_name":                      "tf-test-my-tls-inspection-policy" + randomSuffix,
+		"random_suffix":                      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +83,7 @@ func TestAccNetworkSecurityTlsInspectionPolicy_networkSecurityTlsInspectionPolic
 func testAccNetworkSecurityTlsInspectionPolicy_networkSecurityTlsInspectionPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
-  name      = "tf-test-my-basic-ca-pool%{random_suffix}"
+  name      = "%{privateca_ca_pool_name}"
   location  = "us-central1"
   tier     = "DEVOPS"
   publishing_options {
@@ -103,7 +108,7 @@ resource "google_privateca_ca_pool" "default" {
 
 resource "google_privateca_certificate_authority" "default" {
   pool                                   = google_privateca_ca_pool.default.name
-  certificate_authority_id               = "tf-test-my-basic-certificate-authority%{random_suffix}"
+  certificate_authority_id               = "%{privateca_certificate_authority_id}"
   location                               = "us-central1"
   lifetime                               = "86400s"
   type                                   = "SELF_SIGNED"
@@ -147,7 +152,7 @@ resource "google_privateca_ca_pool_iam_member" "tls_inspection_permission" {
 }
 
 resource "google_network_security_tls_inspection_policy" "default" {
-  name                  = "tf-test-my-tls-inspection-policy%{random_suffix}"
+  name                  = "%{resource_name}"
   location              = "us-central1"
   ca_pool               = google_privateca_ca_pool.default.id
   exclude_public_ca_set = false

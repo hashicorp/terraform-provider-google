@@ -53,8 +53,13 @@ var (
 func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-my-bucket" + randomSuffix,
+		"origin_name":   "tf-test-my-origin" + randomSuffix,
+		"service_name":  "tf-test-my-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +83,13 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasic
 func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "dest" {
-  name          = "tf-test-my-bucket%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "US"
   force_destroy = true
 }
 
 resource "google_network_services_edge_cache_origin" "instance" {
-  name                 = "tf-test-my-origin%{random_suffix}"
+  name                 = "%{origin_name}"
   origin_address       = google_storage_bucket.dest.url
   description          = "The default bucket for media edge test"
   max_attempts         = 2
@@ -94,7 +99,7 @@ resource "google_network_services_edge_cache_origin" "instance" {
 }
 
 resource "google_network_services_edge_cache_service" "instance" {
-  name                 = "tf-test-my-service%{random_suffix}"
+  name                 = "%{service_name}"
   description          = "some description"
   routing {
     host_rule {
@@ -133,8 +138,14 @@ resource "google_network_services_edge_cache_service" "instance" {
 func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvancedExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"bucket_name":   "tf-test-my-bucket" + randomSuffix,
+		"origin_google": "tf-test-origin-google" + randomSuffix,
+		"origin_name":   "tf-test-my-origin" + randomSuffix,
+		"service_name":  "tf-test-my-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -158,13 +169,13 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvan
 func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvancedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "dest" {
-  name          = "tf-test-my-bucket%{random_suffix}"
+  name          = "%{bucket_name}"
   location      = "US"
   force_destroy = true
 }
 
 resource "google_network_services_edge_cache_origin" "google" {
-  name                 = "tf-test-origin-google%{random_suffix}"
+  name                 = "%{origin_google}"
   origin_address       = "google.com"
   description          = "The default bucket for media edge test"
   max_attempts         = 2
@@ -174,7 +185,7 @@ resource "google_network_services_edge_cache_origin" "google" {
 }
 
 resource "google_network_services_edge_cache_origin" "instance" {
-  name                 = "tf-test-my-origin%{random_suffix}"
+  name                 = "%{origin_name}"
   origin_address       = google_storage_bucket.dest.url
   description          = "The default bucket for media edge test"
   max_attempts         = 2
@@ -184,7 +195,7 @@ resource "google_network_services_edge_cache_origin" "instance" {
 }
 
 resource "google_network_services_edge_cache_service" "instance" {
-  name                 = "tf-test-my-service%{random_suffix}"
+  name                 = "%{service_name}"
   description          = "some description"
   disable_quic         = true
   disable_http2        = true
@@ -347,8 +358,14 @@ resource "google_network_services_edge_cache_service" "instance" {
 func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceDualTokenExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"keyset_name":   "tf-test-keyset-name" + randomSuffix,
+		"origin_name":   "tf-test-my-origin" + randomSuffix,
+		"secret_name":   "tf-test-secret-name" + randomSuffix,
+		"service_name":  "tf-test-my-service" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -372,7 +389,7 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceDualT
 func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceDualTokenExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-name%{random_suffix}"
+  secret_id = "%{secret_name}"
 
   replication {
     auto {}
@@ -386,7 +403,7 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 }
 
 resource "google_network_services_edge_cache_keyset" "keyset" {
-  name        = "tf-test-keyset-name%{random_suffix}"
+  name        = "%{keyset_name}"
   description = "The default keyset"
   public_key {
     id      = "my-public-key"
@@ -398,13 +415,13 @@ resource "google_network_services_edge_cache_keyset" "keyset" {
 }
 
 resource "google_network_services_edge_cache_origin" "instance" {
-  name                 = "tf-test-my-origin%{random_suffix}"
+  name                 = "%{origin_name}"
   origin_address       = "gs://media-edge-default"
   description          = "The default bucket for media edge test"
 }
 
 resource "google_network_services_edge_cache_service" "instance" {
-  name                 = "tf-test-my-service%{random_suffix}"
+  name                 = "%{service_name}"
   description          = "some description"
   routing {
     host_rule {

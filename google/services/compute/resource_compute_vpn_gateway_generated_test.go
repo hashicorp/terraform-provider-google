@@ -53,8 +53,18 @@ var (
 func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":                 "tf-test-vpn-static-ip" + randomSuffix,
+		"esp_forwarding_rule_name":     "tf-test-fr-esp" + randomSuffix,
+		"network_name":                 "tf-test-network-1" + randomSuffix,
+		"route_name":                   "route1" + randomSuffix,
+		"target_vpn_gateway_name":      "tf-test-vpn-1" + randomSuffix,
+		"udp4500_forwarding_rule_name": "tf-test-fr-udp4500" + randomSuffix,
+		"udp500_forwarding_rule_name":  "tf-test-fr-udp500" + randomSuffix,
+		"vpn_tunnel_name":              "tunnel1" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,27 +88,27 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 func testAccComputeVpnGateway_targetVpnGatewayBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_vpn_gateway" "target_gateway" {
-  name    = "tf-test-vpn-1%{random_suffix}"
+  name    = "%{target_vpn_gateway_name}"
   network = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  name = "tf-test-network-1%{random_suffix}"
+  name = "%{network_name}"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
-  name = "tf-test-vpn-static-ip%{random_suffix}"
+  name = "%{address_name}"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
-  name        = "tf-test-fr-esp%{random_suffix}"
+  name        = "%{esp_forwarding_rule_name}"
   ip_protocol = "ESP"
   ip_address  = google_compute_address.vpn_static_ip.address
   target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
-  name        = "tf-test-fr-udp500%{random_suffix}"
+  name        = "%{udp500_forwarding_rule_name}"
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = google_compute_address.vpn_static_ip.address
@@ -106,7 +116,7 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
-  name        = "tf-test-fr-udp4500%{random_suffix}"
+  name        = "%{udp4500_forwarding_rule_name}"
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = google_compute_address.vpn_static_ip.address
@@ -114,7 +124,7 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  name          = "tunnel1%{random_suffix}"
+  name          = "%{vpn_tunnel_name}"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
@@ -128,7 +138,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_route" "route1" {
-  name       = "route1%{random_suffix}"
+  name       = "%{route_name}"
   network    = google_compute_network.network1.name
   dest_range = "15.0.0.0/24"
   priority   = 1000
@@ -141,11 +151,21 @@ resource "google_compute_route" "route1" {
 func TestAccComputeVpnGateway_targetVpnGatewayTagsExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"tag_key":       "tf-test-key-" + acctest.RandString(t, 10),
-		"tag_value":     "tf-test-value-" + acctest.RandString(t, 10),
-		"random_suffix": acctest.RandString(t, 10),
+		"address_name":                 "tf-test-vpn-static-ip" + randomSuffix,
+		"esp_forwarding_rule_name":     "tf-test-fr-esp" + randomSuffix,
+		"network_name":                 "tf-test-network-1" + randomSuffix,
+		"org_id":                       envvar.GetTestOrgFromEnv(t),
+		"route_name":                   "route1" + randomSuffix,
+		"tag_key":                      "tf-test-key-" + acctest.RandString(t, 10),
+		"tag_value":                    "tf-test-value-" + acctest.RandString(t, 10),
+		"target_vpn_gateway_name":      "tf-test-vpn-1" + randomSuffix,
+		"udp4500_forwarding_rule_name": "tf-test-fr-udp4500" + randomSuffix,
+		"udp500_forwarding_rule_name":  "tf-test-fr-udp500" + randomSuffix,
+		"vpn_tunnel_name":              "tunnel1" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -172,7 +192,7 @@ data "google_project" "project" {
 }
 
 resource "google_compute_vpn_gateway" "target_gateway_tags" {
-  name    = "tf-test-vpn-1%{random_suffix}"
+  name    = "%{target_vpn_gateway_name}"
   network = google_compute_network.network1.id
   params {
     resource_manager_tags = {
@@ -192,22 +212,22 @@ resource "google_tags_tag_value" "tag_value1" {
 }
 
 resource "google_compute_network" "network1" {
-  name = "tf-test-network-1%{random_suffix}"
+  name = "%{network_name}"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
-  name = "tf-test-vpn-static-ip%{random_suffix}"
+  name = "%{address_name}"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
-  name        = "tf-test-fr-esp%{random_suffix}"
+  name        = "%{esp_forwarding_rule_name}"
   ip_protocol = "ESP"
   ip_address  = google_compute_address.vpn_static_ip.address
   target      = google_compute_vpn_gateway.target_gateway_tags.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
-  name        = "tf-test-fr-udp500%{random_suffix}"
+  name        = "%{udp500_forwarding_rule_name}"
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = google_compute_address.vpn_static_ip.address
@@ -215,7 +235,7 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
-  name        = "tf-test-fr-udp4500%{random_suffix}"
+  name        = "%{udp4500_forwarding_rule_name}"
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = google_compute_address.vpn_static_ip.address
@@ -223,7 +243,7 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  name          = "tunnel1%{random_suffix}"
+  name          = "%{vpn_tunnel_name}"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
@@ -237,7 +257,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_route" "route1" {
-  name       = "route1%{random_suffix}"
+  name       = "%{route_name}"
   network    = google_compute_network.network1.name
   dest_range = "15.0.0.0/24"
   priority   = 1000

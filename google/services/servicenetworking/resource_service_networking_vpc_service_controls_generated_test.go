@@ -53,8 +53,12 @@ var (
 func TestAccServiceNetworkingVPCServiceControls_serviceNetworkingVpcServiceControlsBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":   "tf-test-example-network" + randomSuffix,
+		"psa_range_name": "tf-test-psa-range" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,12 +82,12 @@ func testAccServiceNetworkingVPCServiceControls_serviceNetworkingVpcServiceContr
 	return acctest.Nprintf(`
 # Create a VPC
 resource "google_compute_network" "default" {
-  name = "tf-test-example-network%{random_suffix}"
+  name = "%{network_name}"
 }
 
 # Create an IP address
 resource "google_compute_global_address" "default" {
-  name          = "tf-test-psa-range%{random_suffix}"
+  name          = "%{psa_range_name}"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16

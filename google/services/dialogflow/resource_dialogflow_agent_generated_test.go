@@ -53,9 +53,14 @@ var (
 func TestAccDialogflowAgent_dialogflowAgentFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"account_id":    "tf-test-my-account" + randomSuffix,
+		"agent_name":    "tf-test-dialogflow-agent" + randomSuffix,
+		"project_id":    "tf-test-my-project" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,8 +84,8 @@ func TestAccDialogflowAgent_dialogflowAgentFullExample(t *testing.T) {
 func testAccDialogflowAgent_dialogflowAgentFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "agent_project" {
-  project_id = "tf-test-my-project%{random_suffix}"
-  name = "tf-test-my-project%{random_suffix}"
+  project_id = "%{project_id}"
+  name = "%{project_id}"
   org_id = "%{org_id}"
   deletion_policy = "DELETE"
 }
@@ -92,7 +97,7 @@ resource "google_project_service" "agent_project" {
 }
 
 resource "google_service_account" "dialogflow_service_account" {
-  account_id = "tf-test-my-account%{random_suffix}"
+  account_id = "%{account_id}"
 }
 
 resource "google_project_iam_member" "agent_create" {
@@ -103,7 +108,7 @@ resource "google_project_iam_member" "agent_create" {
 
 resource "google_dialogflow_agent" "full_agent" {
   project = google_project.agent_project.project_id
-  display_name = "tf-test-dialogflow-agent%{random_suffix}"
+  display_name = "%{agent_name}"
   default_language_code = "en"
   supported_language_codes = ["fr","de","es"]
   time_zone = "America/New_York"

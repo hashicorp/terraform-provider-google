@@ -53,9 +53,13 @@ var (
 func TestAccComputeRegionHealthSource_computeRegionHealthSourceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"description":   "Example health source basic" + randomSuffix,
+		"name":          "tf-test-test-health-source" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,28 +83,28 @@ func TestAccComputeRegionHealthSource_computeRegionHealthSourceBasicExample(t *t
 func testAccComputeRegionHealthSource_computeRegionHealthSourceBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_health_aggregation_policy" "hap" {
-  name        = "tf-test-test-health-source%{random_suffix}-hap"
+  name        = "%{name}-hap"
   description = "health aggregation policy for health source"
   region      = "us-central1"
 }
 
 resource "google_compute_health_check" "default" {
-  name     = "tf-test-test-health-source%{random_suffix}-hc"
+  name     = "%{name}-hc"
   http_health_check {
     port = 80
   }
 }
 
 resource "google_compute_region_backend_service" "default" {
-  name                  = "tf-test-test-health-source%{random_suffix}-bs"
+  name                  = "%{name}-bs"
   region                = "us-central1"
   health_checks         = [google_compute_health_check.default.id]
   load_balancing_scheme = "INTERNAL"
 }
 
 resource "google_compute_region_health_source" "example_test_health_source" {
-  name                      = "tf-test-test-health-source%{random_suffix}"
-  description               = "Example health source basic%{random_suffix}"
+  name                      = "%{name}"
+  description               = "%{description}"
   region                    = "us-central1"
   source_type               = "BACKEND_SERVICE"
   sources                   = [google_compute_region_backend_service.default.id]

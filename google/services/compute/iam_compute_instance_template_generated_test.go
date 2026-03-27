@@ -42,9 +42,12 @@ var (
 func TestAccComputeInstanceTemplateIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/compute.instanceAdmin",
+		"instance_name":           "tf-test-my-instance-template" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -82,9 +85,12 @@ func TestAccComputeInstanceTemplateIamBindingGenerated(t *testing.T) {
 func TestAccComputeInstanceTemplateIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/compute.instanceAdmin",
+		"instance_name":           "tf-test-my-instance-template" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -113,9 +119,12 @@ func TestAccComputeInstanceTemplateIamMemberGenerated(t *testing.T) {
 func TestAccComputeInstanceTemplateIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/compute.instanceAdmin",
+		"instance_name":           "tf-test-my-instance-template" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -153,9 +162,12 @@ func TestAccComputeInstanceTemplateIamPolicyGenerated(t *testing.T) {
 func TestAccComputeInstanceTemplateIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/compute.instanceAdmin",
+		"instance_name":           "tf-test-my-instance-template" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -185,9 +197,12 @@ func TestAccComputeInstanceTemplateIamBindingGenerated_withAndWithoutCondition(t
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/compute.instanceAdmin",
+		"instance_name":           "tf-test-my-instance-template" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -227,9 +242,12 @@ func TestAccComputeInstanceTemplateIamBindingGenerated_withAndWithoutCondition(t
 func TestAccComputeInstanceTemplateIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/compute.instanceAdmin",
+		"instance_name":           "tf-test-my-instance-template" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -259,9 +277,12 @@ func TestAccComputeInstanceTemplateIamMemberGenerated_withAndWithoutCondition(t 
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/compute.instanceAdmin",
+		"instance_name":           "tf-test-my-instance-template" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -301,9 +322,12 @@ func TestAccComputeInstanceTemplateIamMemberGenerated_withAndWithoutCondition(t 
 func TestAccComputeInstanceTemplateIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix":           acctest.RandString(t, 10),
+		"random_suffix":           randomSuffix,
 		"role":                    "roles/compute.instanceAdmin",
+		"instance_name":           "tf-test-my-instance-template" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -341,7 +365,7 @@ func TestAccComputeInstanceTemplateIamPolicyGenerated_withCondition(t *testing.T
 func testAccComputeInstanceTemplateIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {
@@ -365,7 +389,7 @@ resource "google_compute_instance_template_iam_member" "foo" {
 func testAccComputeInstanceTemplateIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {
@@ -403,7 +427,7 @@ data "google_compute_instance_template_iam_policy" "foo" {
 func testAccComputeInstanceTemplateIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {
@@ -429,7 +453,7 @@ resource "google_compute_instance_template_iam_policy" "foo" {
 func testAccComputeInstanceTemplateIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {
@@ -453,7 +477,7 @@ resource "google_compute_instance_template_iam_binding" "foo" {
 func testAccComputeInstanceTemplateIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {
@@ -477,7 +501,7 @@ resource "google_compute_instance_template_iam_binding" "foo" {
 func testAccComputeInstanceTemplateIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {
@@ -506,7 +530,7 @@ resource "google_compute_instance_template_iam_binding" "foo" {
 func testAccComputeInstanceTemplateIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {
@@ -555,7 +579,7 @@ resource "google_compute_instance_template_iam_binding" "foo3" {
 func testAccComputeInstanceTemplateIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {
@@ -584,7 +608,7 @@ resource "google_compute_instance_template_iam_member" "foo" {
 func testAccComputeInstanceTemplateIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {
@@ -633,7 +657,7 @@ resource "google_compute_instance_template_iam_member" "foo3" {
 func testAccComputeInstanceTemplateIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_name}"
   machine_type = "e2-medium"
 
   disk {

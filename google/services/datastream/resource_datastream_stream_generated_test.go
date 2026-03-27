@@ -54,9 +54,18 @@ func TestAccDatastreamStream_datastreamStreamBasicExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"bucket_name":                       "tf-test-my-bucket" + randomSuffix,
+		"database_instance_name":            "tf-test-my-instance" + randomSuffix,
+		"deletion_protection":               false,
+		"destination_connection_profile_id": "tf-test-destination-profile" + randomSuffix,
+		"network_name":                      "tf-test-my-network" + randomSuffix,
+		"private_connection_id":             "tf-test-my-connection" + randomSuffix,
+		"source_connection_profile_id":      "tf-test-source-profile" + randomSuffix,
+		"stream_id":                         "tf-test-my-stream" + randomSuffix,
+		"random_suffix":                     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -87,7 +96,7 @@ data "google_project" "project" {
 }
 
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-instance%{random_suffix}"
+    name             = "%{database_instance_name}"
     database_version = "MYSQL_8_0"
     region           = "us-central1"
     settings {
@@ -145,7 +154,7 @@ resource "google_sql_user" "user" {
 resource "google_datastream_connection_profile" "source_connection_profile" {
     display_name          = "Source connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-source-profile%{random_suffix}"
+    connection_profile_id = "%{source_connection_profile_id}"
 
     mysql_profile {
         hostname = google_sql_database_instance.instance.public_ip_address
@@ -155,7 +164,7 @@ resource "google_datastream_connection_profile" "source_connection_profile" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-my-bucket%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "US"
   uniform_bucket_level_access = true
 }
@@ -181,7 +190,7 @@ resource "google_storage_bucket_iam_member" "reader" {
 resource "google_datastream_connection_profile" "destination_connection_profile" {
     display_name          = "Connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-destination-profile%{random_suffix}"
+    connection_profile_id = "%{destination_connection_profile_id}"
 
     gcs_profile {
         bucket    = google_storage_bucket.bucket.name
@@ -190,7 +199,7 @@ resource "google_datastream_connection_profile" "destination_connection_profile"
 }
 
 resource "google_datastream_stream" "default" {
-    stream_id = "tf-test-my-stream%{random_suffix}"
+    stream_id = "%{stream_id}"
     location = "us-central1"
     display_name = "my stream"
     source_config {
@@ -216,10 +225,19 @@ func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"stream_cmek":         acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"random_suffix":       acctest.RandString(t, 10),
+		"bucket_name":                       "tf-test-my-bucket" + randomSuffix,
+		"database_instance_name":            "tf-test-my-instance" + randomSuffix,
+		"deletion_protection":               false,
+		"destination_connection_profile_id": "tf-test-destination-profile" + randomSuffix,
+		"network_name":                      "tf-test-my-network" + randomSuffix,
+		"private_connection_id":             "tf-test-my-connection" + randomSuffix,
+		"source_connection_profile_id":      "tf-test-source-profile" + randomSuffix,
+		"stream_cmek":                       acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"stream_id":                         "tf-test-my-stream" + randomSuffix,
+		"random_suffix":                     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -250,7 +268,7 @@ data "google_project" "project" {
 }
 
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-instance%{random_suffix}"
+    name             = "%{database_instance_name}"
     database_version = "MYSQL_8_0"
     region           = "us-central1"
     settings {
@@ -308,7 +326,7 @@ resource "google_sql_user" "user" {
 resource "google_datastream_connection_profile" "source_connection_profile" {
     display_name          = "Source connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-source-profile%{random_suffix}"
+    connection_profile_id = "%{source_connection_profile_id}"
 
     mysql_profile {
         hostname = google_sql_database_instance.instance.public_ip_address
@@ -318,7 +336,7 @@ resource "google_datastream_connection_profile" "source_connection_profile" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name                        = "tf-test-my-bucket%{random_suffix}"
+  name                        = "%{bucket_name}"
   location                    = "US"
   uniform_bucket_level_access = true
 }
@@ -350,7 +368,7 @@ resource "google_kms_crypto_key_iam_member" "key_user" {
 resource "google_datastream_connection_profile" "destination_connection_profile" {
     display_name          = "Connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-destination-profile%{random_suffix}"
+    connection_profile_id = "%{destination_connection_profile_id}"
 
     gcs_profile {
         bucket    = google_storage_bucket.bucket.name
@@ -362,7 +380,7 @@ resource "google_datastream_stream" "default" {
     depends_on = [
         google_kms_crypto_key_iam_member.key_user
     ]
-    stream_id = "tf-test-my-stream%{random_suffix}"
+    stream_id = "%{stream_id}"
     desired_state = "NOT_STARTED"
     location = "us-central1"
     display_name = "my stream"
@@ -451,8 +469,16 @@ func TestAccDatastreamStream_datastreamStreamPostgresqlBigqueryDatasetIdExample(
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"dataset_id":                   "postgres" + randomSuffix,
+		"dest_connection_profile_id":   "tf-test-dest-profile" + randomSuffix,
+		"instance_name":                "tf-test-instance-name" + randomSuffix,
+		"source_connection_profile_id": "tf-test-source-profile" + randomSuffix,
+		"sql_user_name":                "tf-test-my-user" + randomSuffix,
+		"stream_id":                    "tf-test-postgres-bigquery" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -481,7 +507,7 @@ func testAccDatastreamStream_datastreamStreamPostgresqlBigqueryDatasetIdExample(
 	return acctest.Nprintf(`
 
 resource "google_bigquery_dataset" "postgres" {
-  dataset_id    = "postgres%{random_suffix}"
+  dataset_id    = "%{dataset_id}"
   friendly_name = "postgres"
   description   = "Database of postgres"
   location      = "us-central1"
@@ -490,7 +516,7 @@ resource "google_bigquery_dataset" "postgres" {
 resource "google_datastream_stream" "default" {
   display_name  = "postgres to bigQuery"
   location      = "us-central1"
-  stream_id     = "tf-test-postgres-bigquery%{random_suffix}"
+  stream_id     = "%{stream_id}"
 
    source_config {
     source_connection_profile = google_datastream_connection_profile.source_connection_profile.id
@@ -515,12 +541,12 @@ resource "google_datastream_stream" "default" {
 resource "google_datastream_connection_profile" "destination_connection_profile2" {
     display_name          = "Connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-dest-profile%{random_suffix}"
+    connection_profile_id = "%{dest_connection_profile_id}"
     bigquery_profile {}
 }
 
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-instance-name%{random_suffix}"
+    name             = "%{instance_name}"
     database_version = "MYSQL_8_0"
     region           = "us-central1"
     settings {
@@ -568,7 +594,7 @@ resource "random_password" "pwd" {
 }
 
 resource "google_sql_user" "user" {
-    name     = "tf-test-my-user%{random_suffix}"
+    name     = "%{sql_user_name}"
     instance = google_sql_database_instance.instance.name
     host     = "%"
     password = random_password.pwd.result
@@ -577,7 +603,7 @@ resource "google_sql_user" "user" {
 resource "google_datastream_connection_profile" "source_connection_profile" {
     display_name          = "Source connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-source-profile%{random_suffix}"
+    connection_profile_id = "%{source_connection_profile_id}"
 
     mysql_profile {
         hostname = google_sql_database_instance.instance.public_ip_address
@@ -592,10 +618,18 @@ func TestAccDatastreamStream_datastreamStreamBigqueryExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"bigquery_destination_table_kms_key_name": acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"database_instance_name":                  "tf-test-my-instance" + randomSuffix,
 		"deletion_protection":                     false,
-		"random_suffix":                           acctest.RandString(t, 10),
+		"destination_connection_profile_id":       "tf-test-destination-profile" + randomSuffix,
+		"network_name":                            "tf-test-my-network" + randomSuffix,
+		"private_connection_id":                   "tf-test-my-connection" + randomSuffix,
+		"source_connection_profile_id":            "tf-test-source-profile" + randomSuffix,
+		"stream_id":                               "tf-test-my-stream" + randomSuffix,
+		"random_suffix":                           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -626,7 +660,7 @@ data "google_project" "project" {
 }
 
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-instance%{random_suffix}"
+    name             = "%{database_instance_name}"
     database_version = "MYSQL_8_0"
     region           = "us-central1"
     settings {
@@ -684,7 +718,7 @@ resource "google_sql_user" "user" {
 resource "google_datastream_connection_profile" "source_connection_profile" {
     display_name          = "Source connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-source-profile%{random_suffix}"
+    connection_profile_id = "%{source_connection_profile_id}"
 
     mysql_profile {
         hostname = google_sql_database_instance.instance.public_ip_address
@@ -705,7 +739,7 @@ resource "google_kms_crypto_key_iam_member" "bigquery_key_user" {
 resource "google_datastream_connection_profile" "destination_connection_profile" {
     display_name          = "Connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-destination-profile%{random_suffix}"
+    connection_profile_id = "%{destination_connection_profile_id}"
 
     bigquery_profile {}
 }
@@ -714,7 +748,7 @@ resource "google_datastream_stream" "default" {
     depends_on = [
         google_kms_crypto_key_iam_member.bigquery_key_user
     ]
-    stream_id = "tf-test-my-stream%{random_suffix}"
+    stream_id = "%{stream_id}"
     location = "us-central1"
     display_name = "my stream"
     source_config {
@@ -743,11 +777,19 @@ func TestAccDatastreamStream_datastreamStreamBigqueryCrossProjectSourceHierachyE
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"billing_account":     envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":              envvar.GetTestOrgFromEnv(t),
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"billing_account":                   envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":                            envvar.GetTestOrgFromEnv(t),
+		"database_instance_name":            "tf-test-my-instance" + randomSuffix,
+		"deletion_protection":               false,
+		"destination_connection_profile_id": "tf-test-destination-profile" + randomSuffix,
+		"network_name":                      "tf-test-my-network" + randomSuffix,
+		"private_connection_id":             "tf-test-my-connection" + randomSuffix,
+		"source_connection_profile_id":      "tf-test-source-profile" + randomSuffix,
+		"stream_id":                         "tf-test-my-stream" + randomSuffix,
+		"random_suffix":                     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -805,7 +847,7 @@ resource "google_project_iam_member" "datastream_bigquery_admin" {
 }
 
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-instance%{random_suffix}"
+    name             = "%{database_instance_name}"
     database_version = "MYSQL_8_0"
     region           = "us-central1"
     settings {
@@ -863,7 +905,7 @@ resource "google_sql_user" "user" {
 resource "google_datastream_connection_profile" "source_connection_profile" {
     display_name          = "Source connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-source-profile%{random_suffix}"
+    connection_profile_id = "%{source_connection_profile_id}"
 
     mysql_profile {
         hostname = google_sql_database_instance.instance.public_ip_address
@@ -875,13 +917,13 @@ resource "google_datastream_connection_profile" "source_connection_profile" {
 resource "google_datastream_connection_profile" "destination_connection_profile" {
     display_name          = "Connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-destination-profile%{random_suffix}"
+    connection_profile_id = "%{destination_connection_profile_id}"
 
     bigquery_profile {}
 }
 
 resource "google_datastream_stream" "default" {
-    stream_id = "tf-test-my-stream%{random_suffix}"
+    stream_id = "%{stream_id}"
     location = "us-central1"
     display_name = "my stream"
     source_config {
@@ -910,9 +952,17 @@ func TestAccDatastreamStream_datastreamStreamBigqueryAppendOnlyExample(t *testin
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"random_suffix":       acctest.RandString(t, 10),
+		"database_instance_name":            "tf-test-my-instance" + randomSuffix,
+		"deletion_protection":               false,
+		"destination_connection_profile_id": "tf-test-destination-profile" + randomSuffix,
+		"network_name":                      "tf-test-my-network" + randomSuffix,
+		"private_connection_id":             "tf-test-my-connection" + randomSuffix,
+		"source_connection_profile_id":      "tf-test-source-profile" + randomSuffix,
+		"stream_id":                         "tf-test-my-stream" + randomSuffix,
+		"random_suffix":                     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -943,7 +993,7 @@ data "google_project" "project" {
 }
 
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-instance%{random_suffix}"
+    name             = "%{database_instance_name}"
     database_version = "MYSQL_8_0"
     region           = "us-central1"
     settings {
@@ -1001,7 +1051,7 @@ resource "google_sql_user" "user" {
 resource "google_datastream_connection_profile" "source_connection_profile" {
     display_name          = "Source connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-source-profile%{random_suffix}"
+    connection_profile_id = "%{source_connection_profile_id}"
 
     mysql_profile {
         hostname = google_sql_database_instance.instance.public_ip_address
@@ -1013,13 +1063,13 @@ resource "google_datastream_connection_profile" "source_connection_profile" {
 resource "google_datastream_connection_profile" "destination_connection_profile" {
     display_name          = "Connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-destination-profile%{random_suffix}"
+    connection_profile_id = "%{destination_connection_profile_id}"
 
     bigquery_profile {}
 }
 
 resource "google_datastream_stream" "default" {
-    stream_id = "tf-test-my-stream%{random_suffix}"
+    stream_id = "%{stream_id}"
     location = "us-central1"
     display_name = "my stream"
     source_config {

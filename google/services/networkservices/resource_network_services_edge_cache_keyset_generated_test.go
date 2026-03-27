@@ -53,8 +53,11 @@ var (
 func TestAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-keyset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +82,7 @@ func testAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetBasicEx
 	return acctest.Nprintf(`
 
 resource "google_network_services_edge_cache_keyset" "default" {
-  name                 = "tf-test-my-keyset%{random_suffix}"
+  name                 = "%{resource_name}"
   description          = "The default keyset"
   public_key {
     id = "my-public-key"
@@ -96,8 +99,12 @@ resource "google_network_services_edge_cache_keyset" "default" {
 func TestAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetDualTokenExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"resource_name": "tf-test-my-keyset" + randomSuffix,
+		"secret_name":   "tf-test-secret-name" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -121,7 +128,7 @@ func TestAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetDualTok
 func testAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetDualTokenExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-name%{random_suffix}"
+  secret_id = "%{secret_name}"
 
   replication {
     auto {}
@@ -135,7 +142,7 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 }
 
 resource "google_network_services_edge_cache_keyset" "default" {
-  name        = "tf-test-my-keyset%{random_suffix}"
+  name        = "%{resource_name}"
   description = "The default keyset"
   public_key {
     id      = "my-public-key"

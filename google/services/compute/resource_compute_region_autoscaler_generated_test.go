@@ -53,8 +53,14 @@ var (
 func TestAccComputeRegionAutoscaler_regionAutoscalerBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"instance_template_name": "tf-test-my-instance-template" + randomSuffix,
+		"region_autoscaler_name": "tf-test-my-region-autoscaler" + randomSuffix,
+		"rigm_name":              "tf-test-my-region-igm" + randomSuffix,
+		"target_pool_name":       "tf-test-my-target-pool" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,7 +84,7 @@ func TestAccComputeRegionAutoscaler_regionAutoscalerBasicExample(t *testing.T) {
 func testAccComputeRegionAutoscaler_regionAutoscalerBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_autoscaler" "foobar" {
-  name   = "tf-test-my-region-autoscaler%{random_suffix}"
+  name   = "%{region_autoscaler_name}"
   region = "us-central1"
   target = google_compute_region_instance_group_manager.foobar.id
 
@@ -94,7 +100,7 @@ resource "google_compute_region_autoscaler" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "tf-test-my-instance-template%{random_suffix}"
+  name         = "%{instance_template_name}"
   machine_type = "e2-standard-4"
 
   disk {
@@ -126,11 +132,11 @@ resource "google_compute_instance_template" "foobar" {
 }
 
 resource "google_compute_target_pool" "foobar" {
-  name = "tf-test-my-target-pool%{random_suffix}"
+  name = "%{target_pool_name}"
 }
 
 resource "google_compute_region_instance_group_manager" "foobar" {
-  name   = "tf-test-my-region-igm%{random_suffix}"
+  name   = "%{rigm_name}"
   region = "us-central1"
 
   version {

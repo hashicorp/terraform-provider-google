@@ -53,9 +53,13 @@ var (
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -79,7 +83,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBa
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -87,7 +91,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }
@@ -101,9 +105,13 @@ resource "google_iam_workforce_pool_provider" "example" {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -127,7 +135,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFu
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -135,7 +143,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id   = google_iam_workforce_pool.pool.workforce_pool_id
   location            = google_iam_workforce_pool.pool.location
-  provider_id         = "tf-test-example-prvdr%{random_suffix}"
+  provider_id         = "%{provider_id}"
   attribute_mapping   = {
     "google.subject"  = "assertion.sub"
   }
@@ -166,9 +174,13 @@ resource "google_iam_workforce_pool_provider" "example" {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -192,7 +204,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBa
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -200,7 +212,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }
@@ -224,9 +236,13 @@ resource "google_iam_workforce_pool_provider" "example" {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -250,7 +266,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFu
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -258,7 +274,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id   = google_iam_workforce_pool.pool.workforce_pool_id
   location            = google_iam_workforce_pool.pool.location
-  provider_id         = "tf-test-example-prvdr%{random_suffix}"
+  provider_id         = "%{provider_id}"
   attribute_mapping   = {
     "google.subject"  = "assertion.sub"
   }
@@ -300,9 +316,13 @@ resource "google_iam_workforce_pool_provider" "example" {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcUploadKeyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -326,7 +346,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcUp
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcUploadKeyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -334,7 +354,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }
@@ -359,9 +379,13 @@ resource "google_iam_workforce_pool_provider" "example" {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -385,7 +409,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -393,7 +417,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }
@@ -427,9 +451,13 @@ resource "google_iam_workforce_pool_provider" "example" {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -453,7 +481,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -461,7 +489,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }
@@ -499,9 +527,13 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 	acctest.SkipTestUntil(t, "2026-03-05")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -525,7 +557,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -533,7 +565,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }
@@ -568,9 +600,13 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 	acctest.SkipTestUntil(t, "2026-03-05")
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -594,7 +630,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraA
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesDisplayNameOauth2ConfigClientFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -602,7 +638,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }
@@ -639,9 +675,13 @@ resource "google_iam_workforce_pool_provider" "example" {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -665,7 +705,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtend
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -673,7 +713,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }
@@ -707,9 +747,13 @@ resource "google_iam_workforce_pool_provider" "example" {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientFullExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -733,7 +777,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtend
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtendedAttributesOauth2ConfigClientFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -741,7 +785,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }
@@ -778,9 +822,13 @@ resource "google_iam_workforce_pool_provider" "example" {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDetailedAuditLoggingExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
+		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -804,7 +852,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDe
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDetailedAuditLoggingExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
-  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  workforce_pool_id = "%{workforce_pool_id}"
   parent            = "organizations/%{org_id}"
   location          = "global"
 }
@@ -812,7 +860,7 @@ resource "google_iam_workforce_pool" "pool" {
 resource "google_iam_workforce_pool_provider" "example" {
   workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
   location           = google_iam_workforce_pool.pool.location
-  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  provider_id        = "%{provider_id}"
   attribute_mapping  = {
     "google.subject" = "assertion.sub"
   }

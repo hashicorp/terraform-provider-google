@@ -53,9 +53,12 @@ var (
 func TestAccBillingBudget_billingBudgetBasicExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestMasterBillingAccountFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "Example Billing Budget" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -84,7 +87,7 @@ data "google_billing_account" "account" {
 
 resource "google_billing_budget" "budget" {
   billing_account = data.google_billing_account.account.id
-  display_name = "Example Billing Budget%{random_suffix}"
+  display_name = "%{display_name}"
   amount {
     specified_amount {
       currency_code = "USD"
@@ -101,9 +104,12 @@ resource "google_billing_budget" "budget" {
 func TestAccBillingBudget_billingBudgetLastperiodExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestMasterBillingAccountFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "Example Billing Budget" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -135,7 +141,7 @@ data "google_project" "project" {
 
 resource "google_billing_budget" "budget" {
   billing_account = data.google_billing_account.account.id
-  display_name = "Example Billing Budget%{random_suffix}"
+  display_name = "%{display_name}"
   
   budget_filter {
     projects = ["projects/${data.google_project.project.number}"]
@@ -158,10 +164,13 @@ resource "google_billing_budget" "budget" {
 func TestAccBillingBudget_billingBudgetFilterExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestMasterBillingAccountFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "Example Billing Budget" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -193,7 +202,7 @@ data "google_project" "project" {
 
 resource "google_billing_budget" "budget" {
   billing_account = data.google_billing_account.account.id
-  display_name = "Example Billing Budget%{random_suffix}"
+  display_name = "%{display_name}"
 
   budget_filter {
     projects               = ["projects/${data.google_project.project.number}"]
@@ -224,9 +233,13 @@ resource "google_billing_budget" "budget" {
 func TestAccBillingBudget_billingBudgetNotifyExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestMasterBillingAccountFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"budget_name":   "Example Billing Budget" + randomSuffix,
+		"channel_name":  "Example Notification Channel" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -258,7 +271,7 @@ data "google_project" "project" {
 
 resource "google_billing_budget" "budget" {
   billing_account = data.google_billing_account.account.id
-  display_name    = "Example Billing Budget%{random_suffix}"
+  display_name    = "%{budget_name}"
 
   budget_filter {
     projects = ["projects/${data.google_project.project.number}"]
@@ -288,7 +301,7 @@ resource "google_billing_budget" "budget" {
 }
 
 resource "google_monitoring_notification_channel" "notification_channel" {
-  display_name = "Example Notification Channel%{random_suffix}"
+  display_name = "%{channel_name}"
   type         = "email"
   
   labels = {
@@ -301,9 +314,12 @@ resource "google_monitoring_notification_channel" "notification_channel" {
 func TestAccBillingBudget_billingBudgetNotifyProjectRecipientExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestMasterBillingAccountFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"budget_name":   "Example Billing Budget" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -335,7 +351,7 @@ data "google_project" "project" {
 
 resource "google_billing_budget" "budget" {
   billing_account = data.google_billing_account.account.id
-  display_name    = "Example Billing Budget%{random_suffix}"
+  display_name    = "%{budget_name}"
 
   budget_filter {
     projects = ["projects/${data.google_project.project.number}"]
@@ -359,9 +375,12 @@ resource "google_billing_budget" "budget" {
 func TestAccBillingBudget_billingBudgetCustomperiodExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestMasterBillingAccountFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "Example Billing Budget" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -393,7 +412,7 @@ data "google_project" "project" {
 
 resource "google_billing_budget" "budget" {
   billing_account = data.google_billing_account.account.id
-  display_name = "Example Billing Budget%{random_suffix}"
+  display_name = "%{display_name}"
 
   budget_filter {
     projects = ["projects/${data.google_project.project.number}"]
@@ -434,9 +453,13 @@ resource "google_billing_budget" "budget" {
 func TestAccBillingBudget_billingBudgetOptionalExample(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
+
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestMasterBillingAccountFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"display_name":  "Example Billing Budget" + randomSuffix,
+		"topic_name":    "tf-test-example-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -465,7 +488,7 @@ data "google_billing_account" "account" {
 
 resource "google_billing_budget" "budget" {
   billing_account = data.google_billing_account.account.id
-  display_name = "Example Billing Budget%{random_suffix}"
+  display_name = "%{display_name}"
 
   amount {
     specified_amount {
@@ -483,7 +506,7 @@ resource "google_billing_budget" "budget" {
 }
 
 resource "google_pubsub_topic" "budget" {
-  name = "tf-test-example-topic%{random_suffix}"
+  name = "%{topic_name}"
 }
 `, context)
 }
