@@ -22,13 +22,13 @@ import (
 	"strings"
 	"testing"
 
-	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
-	gkehub "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/gkehub"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/gkehub"
+	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -1265,7 +1265,7 @@ func testAccCheckGkeHubFeatureMembershipPresent(t *testing.T, project, location,
 			Project:    dcl.String(project),
 		}
 
-		_, err := transport_tpg.NewDCLGkeHubClient(config, "", "", 0).GetFeatureMembership(context.Background(), obj)
+		_, err := gkehub.NewDCLGkeHubClient(config, "", "", 0).GetFeatureMembership(context.Background(), obj)
 		if err != nil {
 			return err
 		}
@@ -1283,7 +1283,7 @@ func testAccCheckGkeHubFeatureMembershipNotPresent(t *testing.T, project, locati
 			Project:    dcl.String(project),
 		}
 
-		_, err := transport_tpg.NewDCLGkeHubClient(config, "", "", 0).GetFeatureMembership(context.Background(), obj)
+		_, err := gkehub.NewDCLGkeHubClient(config, "", "", 0).GetFeatureMembership(context.Background(), obj)
 		if err == nil {
 			return fmt.Errorf("Did not expect to find GKE Feature Membership for projects/%s/locations/%s/features/%s/membershipId/%s", project, location, feature, membership)
 		}
